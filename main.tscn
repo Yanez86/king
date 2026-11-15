@@ -13,3 +13,14 @@ zoom = Vector2(2, 2)
 [node name="Label" type="Label" parent="HUD"]
 offset_left = 8.0
 offset_top = 8.0
+
+[node name="Fullscreen" type="Button" parent="HUD"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -108.0
+offset_top = 8.0
+offset_right = -8.0
+grow_horizontal = 0
+focus_mode = 0
+text = "Fullscreen"

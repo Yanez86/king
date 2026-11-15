@@ -72,6 +72,13 @@ func _ready() -> void:
 		c.hair = HAIR_COLORS.pick_random()
 		colonists.append(c)
 	camera.position = center(MAP_SIZE / 2)
+	$HUD/Fullscreen.pressed.connect(toggle_fullscreen)
+
+
+func toggle_fullscreen() -> void:
+	var full := DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED if full else DisplayServer.WINDOW_MODE_FULLSCREEN)
+	$HUD/Fullscreen.text = "Fullscreen" if full else "Window"
 
 
 func generate_map() -> void:
