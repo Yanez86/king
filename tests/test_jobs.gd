@@ -3,26 +3,37 @@ extends SceneTree
 
 
 func _initialize() -> void:
+	seed(1)  # mappa sempre uguale
 	var main = load("res://main.tscn").instantiate()
 	root.add_child(main)
 	await process_frame  # aspetta che venga chiamato _ready
 
 	var trees_before: int = main.trees.size()
-	main.mark_trees(Rect2i(Vector2i.ZERO, main.MAP_SIZE))
-	check(main.chop_marks.size() == trees_before, "tutti gli alberi segnati")
+	main.mark_trees(Rect2i(main.MAP_SIZE / 2 - Vector2i(8, 8), Vector2i(16, 16)))
+	var marked: int = main.chop_marks.size()
+	check(marked > 0, "ci sono alberi segnati vicino alla partenza")
 
-	for i in 2000:  # 100 secondi simulati
+	for i in 10000:  # 500 secondi simulati
 		main.tick(0.05)
 
 	var chopped: int = trees_before - main.trees.size()
-	check(chopped > 0, "i coloni hanno tagliato alberi")
-	check(main.total_wood() == chopped * main.WOOD_PER_TREE, "legna = alberi tagliati x resa")
-	var busy := {}
+	var capacity: int = main.stockpile.size() * main.STACK_MAX
+	check(chopped == marked, "tagliati tutti gli alberi segnati")
+	check(main.total_wood() == chopped * main.WOOD_PER_TREE, "nessuna legna persa o creata")
+	check(main.stored_wood() == mini(main.total_wood(), capacity), "trasportata finché c'è posto")
+	for cell in main.stockpile:
+		check(main.wood.get(cell, 0) <= main.STACK_MAX, "nessuna pila oltre il limite")
 	for c in main.colonists:
-		if c.job != null:
-			check(not busy.has(c.job), "due coloni sullo stesso albero")
-			busy[c.job] = true
-	print("OK: %d alberi tagliati, %d legna" % [chopped, main.total_wood()])
+		check(c.job == main.Job.NONE, "coloni liberi a fine lavoro")
+	check(main.reserved.is_empty(), "nessuna prenotazione rimasta")
+
+	var c = main.colonists[0]
+	c.job = main.Job.HAUL  # finto lavoro: deve solo camminare
+	c.path.assign([main.cell_of(c.pos) + Vector2i.LEFT])
+	main.tick(0.05)
+	check(c.facing == main.Facing.LEFT and c.walked > 0, "guarda e cammina verso sinistra")
+	print("OK: %d alberi, %d legna, %d nel magazzino (capienza %d)" \
+		% [chopped, main.total_wood(), main.stored_wood(), capacity])
 	quit()
 
 
