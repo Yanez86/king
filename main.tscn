@@ -1,6 +1,30 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
+[ext_resource type="Texture2D" path="res://art/icon_wood.png" id="2"]
+[ext_resource type="Texture2D" path="res://art/icon_stone.png" id="3"]
+[ext_resource type="Texture2D" path="res://art/icon_build.png" id="4"]
+[ext_resource type="Texture2D" path="res://art/structures.png" id="5"]
+[ext_resource type="Texture2D" path="res://art/icon_cancel.png" id="6"]
+
+[sub_resource type="AtlasTexture" id="WallIcon"]
+atlas = ExtResource("5")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="FloorIcon"]
+atlas = ExtResource("5")
+region = Rect2(0, 16, 16, 16)
+
+[sub_resource type="ButtonGroup" id="Kinds"]
+
+[sub_resource type="ButtonGroup" id="Materials"]
+
+[sub_resource type="StyleBoxFlat" id="BarStyle"]
+content_margin_left = 8.0
+content_margin_top = 4.0
+content_margin_right = 8.0
+content_margin_bottom = 4.0
+bg_color = Color(0.12, 0.1, 0.14, 0.9)
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1")
@@ -10,17 +34,153 @@ zoom = Vector2(2, 2)
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
-[node name="Label" type="Label" parent="HUD"]
-offset_left = 8.0
-offset_top = 8.0
-
-[node name="Fullscreen" type="Button" parent="HUD"]
-anchors_preset = 1
-anchor_left = 1.0
+[node name="TopBar" type="PanelContainer" parent="HUD"]
+anchors_preset = 10
 anchor_right = 1.0
-offset_left = -108.0
-offset_top = 8.0
-offset_right = -8.0
-grow_horizontal = 0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("BarStyle")
+
+[node name="Row" type="HBoxContainer" parent="HUD/TopBar"]
+theme_override_constants/separation = 6
+
+[node name="WoodIcon" type="TextureRect" parent="HUD/TopBar/Row"]
+custom_minimum_size = Vector2(32, 32)
+texture = ExtResource("2")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Wood" type="Label" parent="HUD/TopBar/Row"]
+custom_minimum_size = Vector2(48, 0)
+text = "0"
+vertical_alignment = 1
+
+[node name="StoneIcon" type="TextureRect" parent="HUD/TopBar/Row"]
+custom_minimum_size = Vector2(32, 32)
+texture = ExtResource("3")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Stone" type="Label" parent="HUD/TopBar/Row"]
+custom_minimum_size = Vector2(48, 0)
+text = "0"
+vertical_alignment = 1
+
+[node name="Info" type="Label" parent="HUD/TopBar/Row"]
+size_flags_horizontal = 3
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Fullscreen" type="Button" parent="HUD/TopBar/Row"]
+custom_minimum_size = Vector2(100, 0)
 focus_mode = 0
 text = "Fullscreen"
+
+[node name="BuildBar" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = -62.0
+offset_bottom = -62.0
+grow_vertical = 0
+theme_override_styles/panel = SubResource("BarStyle")
+
+[node name="Row" type="HBoxContainer" parent="HUD/BuildBar"]
+theme_override_constants/separation = 6
+
+[node name="Wall" type="Button" parent="HUD/BuildBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+tooltip_text = "Wall"
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("WallIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Floor" type="Button" parent="HUD/BuildBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+tooltip_text = "Floor"
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("FloorIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Materials" type="HBoxContainer" parent="HUD/BuildBar/Row"]
+visible = false
+theme_override_constants/separation = 6
+
+[node name="Separator" type="VSeparator" parent="HUD/BuildBar/Row/Materials"]
+
+[node name="Wood" type="Button" parent="HUD/BuildBar/Row/Materials"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+tooltip_text = "Wood"
+toggle_mode = true
+button_group = SubResource("Materials")
+icon = ExtResource("2")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Stone" type="Button" parent="HUD/BuildBar/Row/Materials"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+tooltip_text = "Stone"
+toggle_mode = true
+button_group = SubResource("Materials")
+icon = ExtResource("3")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Actions" type="HBoxContainer" parent="HUD"]
+visible = false
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_top = -48.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 6
+
+[node name="Confirm" type="Button" parent="HUD/Actions"]
+custom_minimum_size = Vector2(120, 40)
+focus_mode = 0
+text = "Build"
+
+[node name="Erase" type="Button" parent="HUD/Actions"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+tooltip_text = "Erase blueprint"
+toggle_mode = true
+icon = ExtResource("6")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Tools" type="PanelContainer" parent="HUD"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = -46.0
+offset_right = 54.0
+offset_bottom = -8.0
+grow_vertical = 0
+theme_override_styles/panel = SubResource("BarStyle")
+
+[node name="Row" type="HBoxContainer" parent="HUD/Tools"]
+theme_override_constants/separation = 6
+
+[node name="Structures" type="TextureButton" parent="HUD/Tools/Row"]
+custom_minimum_size = Vector2(30, 30)
+focus_mode = 0
+tooltip_text = "Structures"
+toggle_mode = true
+texture_normal = ExtResource("4")
+ignore_texture_size = true
+stretch_mode = 0
