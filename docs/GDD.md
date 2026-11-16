@@ -40,7 +40,8 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 ### 4.2 Coloni
 - **Bisogni**: fame, riposo, comfort, felicità; calore in seguito.
 - **Stress** (0–100, con icona): sale lavorando, scende dormendo o a riposo; abbassa la felicità. Altri effetti in seguito.
-- **Abilità** (livelli 1–10, al 10 una stellina): raccogliere, estrarre, tagliare legna, costruire, cucinare, pescare, cacciare, armi da mischia, armi a distanza, ricerca (lista provvisoria). Velocità e qualità del lavoro; crescono con l'uso.
+- **Abilità** (livelli 0–10, al 10 una stellina; tutti i coloni partono da 0): raccogliere, estrarre, tagliare legna, costruire, cucinare, pescare, cacciare, armi da mischia, armi a distanza, ricerca (lista provvisoria). Velocità e qualità del lavoro; crescono con l'uso.
+  Nella raccolta (tagliare, estrarre, raccogliere) 1 punto esperienza a raccolta finita (albero abbattuto, masso scavato, cespuglio spogliato), non a colpo. Soglie di livello da definire.
 - **Talenti**: modificano alcune routine dei coloni, ognuno con un'icona 16×16 (es. "Robusto": +resistenza al freddo; "Pigro": −velocità lavoro; "Pirofobo": rifiuta di cucinare). Primi: goloso, sonnambulo, iracondo (ancora senza effetto).
 - **Scheda** (clic sul colono): nome, soprannome (facoltativo), cognome, punti ferita, abilità (ognuna con un'icona 8×8), talenti (solo icone, il nome col mouse sopra), equipaggiamento (3 slot: mani, corpo, testa). Poi bisogni, relazioni.
 
@@ -62,10 +63,16 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 - **Stanze**: zona chiusa da muri con una porta; il cartello sul muro accanto alla porta apre nome e tipo.
   Tipi: magazzino; camera (1 letto); dormitorio (2 letti); cucina (fuoco da campo, poi anche stufa); forgia (fornace e incudine).
   Un tipo si sceglie solo se ci sono i mobili (gli altri non compaiono); tolti, la stanza torna senza tipo.
-  Ogni stanza può avere uno o più proprietari tra i coloni: un colono entra (anche solo per passarci) solo nelle
-  stanze sue o senza proprietari. Una stanza **bandita** è vietata a tutti, anche ai proprietari.
+  Ogni tipo ha una categoria:
+  - **lavoro** (cucina, forgia): niente proprietari, ma le si assegnano dei lavoratori (per ora senza effetto; poi
+    solo loro ne faranno i lavori). L'ingresso resta libero.
+  - **residenza** (camera, dormitorio): può avere uno o più proprietari tra i coloni; un colono entra (anche solo per
+    passarci) solo nelle residenze sue o senza proprietari.
+  - **servizio** (magazzino): stanze comuni con uno scopo preciso, né proprietari né lavoratori.
+  Cambiando tipo (o tornando senza) proprietari e lavoratori che la nuova categoria non prevede si perdono.
+  Una stanza **bandita** è vietata a tutti, anche ai proprietari.
 - **Lenti**: evidenziano cose sulla mappa. Prima: la lente delle stanze, ogni stanza finita velata col colore del suo tipo,
-  sotto il tipo i proprietari (col mouse sopra, la loro scheda).
+  sotto il tipo i proprietari o i lavoratori (col mouse sopra, la loro scheda).
 - **Comfort della stanza** (0–10): mobili per pezzo e pavimento, secondo il materiale (pietra ×1,5). A 5 nessun effetto;
   a 0 (anche fuori dalle stanze) le attività durano il 20% in più, a 10 il 20% in meno. Per ora vale per il sonno
   (8 ore a comfort 5). Sotto le 6 caselle a testa il comfort cala in proporzione. Poi: rischio di rovinare il prodotto.
