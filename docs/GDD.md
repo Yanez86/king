@@ -38,10 +38,11 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 - Il colono sceglie il lavoro disponibile con priorità più alta, poi il più vicino.
 
 ### 4.2 Coloni
-- **Bisogni**: fame, riposo, calore (MVP). Umore in seguito.
-- **Abilità** (0–20): velocità e qualità del lavoro; crescono con l'uso.
-- **Talenti**: modificatori (es. "Robusto": +resistenza al freddo; "Pigro": −velocità lavoro; "Pirofobo": rifiuta di cucinare).
-- **Scheda** consultabile con abilità, talenti, bisogni, equipaggiamento, relazioni.
+- **Bisogni**: fame, riposo, comfort, felicità; calore in seguito.
+- **Stress** (0–100, con icona): sale lavorando, scende dormendo o a riposo; abbassa la felicità. Altri effetti in seguito.
+- **Abilità** (livelli 1–10, al 10 una stellina): raccogliere, estrarre, tagliare legna, costruire, cucinare, pescare, cacciare, armi da mischia, armi a distanza, ricerca (lista provvisoria). Velocità e qualità del lavoro; crescono con l'uso.
+- **Talenti**: modificano alcune routine dei coloni, ognuno con un'icona 16×16 (es. "Robusto": +resistenza al freddo; "Pigro": −velocità lavoro; "Pirofobo": rifiuta di cucinare). Primi: goloso, sonnambulo, iracondo (ancora senza effetto).
+- **Scheda** (clic sul colono): nome, soprannome (facoltativo), cognome, punti ferita, abilità (ognuna con un'icona 8×8), talenti (solo icone, il nome col mouse sopra), equipaggiamento (3 slot: mani, corpo, testa). Poi bisogni, relazioni.
 
 ### 4.3 Il re e la dinastia
 - Il re è un colono speciale: lavora poco, il suo stato dà bonus/malus al reame.
@@ -50,7 +51,7 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 - MVP: solo matrimonio, figli, successione. Intrighi/vassalli fuori scope.
 
 ### 4.4 Risorse ed edifici
-- Materie prime: legname, pietra, ferro, oro, cibo crudo.
+- Materie prime: legname, pietra, ferro, carbone, oro, cibo crudo. Ferro e carbone vengono dalle vene nella roccia (massi 1x1).
 - Catene MVP:
   - Legname → assi (banco da falegname)
   - Ferro grezzo → lingotti (fornace) → attrezzi (fucina)
@@ -58,6 +59,16 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 - Attrezzi equipaggiati = bonus all'abilità corrispondente.
 - Edifici MVP: muri, porte, tetto, letto, focolare, cucina, magazzino (zona), banco da lavoro, fornace, fucina.
 - Stanze chiuse con tetto proteggono da pioggia e freddo; il focolare scalda.
+- **Stanze**: zona chiusa da muri con una porta; il cartello sul muro accanto alla porta apre nome e tipo.
+  Tipi: magazzino; camera (1 letto); dormitorio (2 letti); cucina (fuoco da campo, poi anche stufa); forgia (fornace e incudine).
+  Un tipo si sceglie solo se ci sono i mobili (gli altri non compaiono); tolti, la stanza torna senza tipo.
+  Ogni stanza può avere uno o più proprietari tra i coloni: un colono entra (anche solo per passarci) solo nelle
+  stanze sue o senza proprietari. Una stanza **bandita** è vietata a tutti, anche ai proprietari.
+- **Lenti**: evidenziano cose sulla mappa. Prima: la lente delle stanze, ogni stanza finita velata col colore del suo tipo,
+  sotto il tipo i proprietari (col mouse sopra, la loro scheda).
+- **Comfort della stanza** (0–10): mobili per pezzo e pavimento, secondo il materiale (pietra ×1,5). A 5 nessun effetto;
+  a 0 (anche fuori dalle stanze) le attività durano il 20% in più, a 10 il 20% in meno. Per ora vale per il sonno
+  (8 ore a comfort 5). Sotto le 6 caselle a testa il comfort cala in proporzione. Poi: rischio di rovinare il prodotto.
 
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100.

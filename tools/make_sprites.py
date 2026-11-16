@@ -44,12 +44,20 @@ PALETTE = {
     "Y": "8a8270",                                               # lanterna spenta
     "1": "9a6b40", "2": "7a5434", "3": "53381f",                 # assi che di notte prendono luce
     "j": "d84a3a", "J": "9a2a24",                                # rosso dell'icona "cancella": luce, ombra
+    "I": "e8d6a0", "U": "c4ab70",                                # paralume dell'abat-jour spento: luce, ombra
+    "%": "1f1a24cc",                                             # fondo dei popup (80%)
+    "[": "d8d8d8", "]": "909090",                             # barre dei bisogni: base e ombra (sotto la luce h), tinte in gioco
+    "4": "c98a52", "5": "8a4a2e",                                # ferro nella roccia: ruggine, ombra
+    "6": "35313d", "7": "6e6a80",                                # carbone, riflesso
+    "8": "ffe6a0", "9": "f2a03a", "=": "d8562f",                 # fuoco: cuore, fiamma, brace
+    "<": "a87a2e",                                               # oro in ombra (cornice del tasto scelto)
 }
 
 NIGHT_TINT = (0.40, 0.44, 0.62)  # di notte ogni colore si scurisce e vira al blu...
 NIGHT_LIGHTS = {                 # ...tranne le luci
     "E": "f2b84a", "Q": "ffe6a0", "Y": "fff0b0",                 # finestre accese, lanterna
     "1": "c8904a", "2": "a06a36", "3": "7a4e28",                 # assi illuminate
+    "I": "ffe6a0", "U": "f2b84a",                                # abat-jour acceso
 }
 
 # file -> caratteri che finiscono in quel livello
@@ -159,24 +167,122 @@ odmmmmmmmddddddo .oqqNNNNNnnnnno. ..ovvvvxXvvvvo..
 """
 
 
-# Icone 16x16 per la barra risorse dell'HUD -> legno, pietra. Base allineata sulla riga 14.
+# Icone 16x16 per la barra risorse dell'HUD -> legno, pietra, vegetali (bacche). Base allineata sulla riga 14.
 ICONS = """
+................ ................ ................
+......oooo...... ................ ................
+.....owwwWo..... ................ ..........oo....
+....owccccWo.... ......ooooo..... .........oLLo...
+....owcCCcWo.... .....ouurrRoo... ........oLLmo...
+....owcCCcWo.... ....ouurrrRRRo.. ......oWLmoo....
+....owccccWo.... ...ourrrrRRRRo.. ......oWo.......
+..ooooWWWWoooo.. ...ourrrRRRRio.. .....o+jjo......
+.owwwWoooowwwWo. ...orrrRRRRiio.. .....ojjjo......
+owccccWoowccccWo ..ooooRRRRiiio.. .....ojjJo......
+owcCCcWoowcCCcWo .ouurRoRiiiooo.. ...oooooooo.....
+owcCCcWoowcCCcWo ourrrRRoooourRo. ..o+jjoo+jjo....
+owccccWoowccccWo orrrRRio.ourrRio ..ojjjoojjjo....
+.oWWWWo..oWWWWo. oRRRRiio.orRRiio ..ojjJoojjJo....
+..oooo....oooo.. .oooooo...ooooo. ...ooo..ooo.....
+................ ................ ................
+"""
+
+# Icone 16x16 dei minerali, come ICONS -> ferro (pezzo di roccia con le pepite), carbone (tre pezzi).
+ORE_ICONS = """
+................ ................
+................ ................
+................ ................
+................ ................
 ................ ................
 ......oooo...... ................
-.....owwwWo..... ................
-....owccccWo.... ......ooooo.....
-....owcCCcWo.... .....ouurrRoo...
-....owcCCcWo.... ....ouurrrRRRo..
-....owccccWo.... ...ourrrrRRRRo..
-..ooooWWWWoooo.. ...ourrrRRRRio..
-.owwwWoooowwwWo. ...orrrRRRRiio..
-owccccWoowccccWo ..ooooRRRRiiio..
-owcCCcWoowcCCcWo .ouurRoRiiiooo..
-owcCCcWoowcCCcWo ourrrRRoooourRo.
-owccccWoowccccWo orrrRRio.ourrRio
-.oWWWWo..oWWWWo. oRRRRiio.orRRiio
-..oooo....oooo.. .oooooo...ooooo.
+....oouu45oo.... ......oooo......
+...ouuur55rRo... .....o7766o.....
+..ourrrrrrR45o.. .....o7666o.....
+..orr45rrRR55o.. .ooooo6666ooooo.
+..oRr55RRRRRio.. .o77666oo77666o.
+..oRRRRR45Riio.. .o76666oo76666o.
+..oiRRRR55iiio.. .o66666oo66666o.
+...oiiiiiiiio... ..o666o..o666o..
+....oooooooo.... ...ooo....ooo...
 ................ ................
+"""
+
+# Piante 16x16 -> erbaccia, cespuglio, cespuglio con le bacche. Si attraversano, ma non ci si costruisce sopra.
+PLANTS = """
+................ ................ ................
+................ ................ ................
+................ ................ ................
+................ ......oooo...... ......oooo......
+..........o..... ....ooyyLLoo.... ....ooyyLLoo....
+.........o+o.... ...oyyLLLLmmo... ...oyyLL+jmmo...
+........o+++o... ..oyLLLyLLmmmo.. ..oyLLLyjJmmmo..
+.........o+o.... ..oyLLyyLLmmmo.. ..oyLLyyLLmmmo..
+..........v..... .oyLLLLLLmmmmdo. .oyL+jLLLmm+jdo.
+..o.......v..o.. .oLLLLLmmmLmmdo. .oLLjJLmmmLjJdo.
+.oAo...o..v.oAo. oLLLmmmmLLLmmddo oLLLmmmmLLLmmddo
+.oAAo.oAo.v.oAAo oLLmmmmmmLmmdddo oL+jmmm+jLmm+jdo
+..oAAooAAovoAAo. omLmmmmmmmmddddo omjJmmmjJmmdjJdo
+...oAAvAAvvAAvo. .oddmmmmmdddddo. .oddmmmmmdddddo.
+..ooAvvvvvvvvoo. ..oooddddddooo.. ..oooddddddooo..
+....zzoooooozz.. ..zzzoooooozzz.. ..zzzoooooozzz..
+"""
+
+# Icone 16x16 delle azioni accanto a "distruggi" -> scava (piccone), taglia (ascia), estirpa (pianta con le radici).
+MINE_ICON = """
+................
+...ooooooo......
+..ouuuuurrroo...
+.ouroooooowRRo..
+.oro....owwoRRo.
+..o....owWo.oRo.
+......owWo...oRo
+.....owWo....oRo
+....owWo......o.
+...owWo.........
+..owWo..........
+.owWo...........
+owWo............
+oWo.............
+.o..............
+................
+"""
+
+CHOP_ICON = """
+.......ooo......
+......ouuro...oo
+.....ouurrRoowWo
+....ouurrRRowWo.
+...ouurrRRowWo..
+....oroRRowWo...
+.....o.oowWo....
+.......owWo.....
+......owWo......
+.....owWo.......
+....owWo........
+...owWo.........
+..owWo..........
+.owWo...........
+owWo............
+.oo.............
+"""
+
+UPROOT_ICON = """
+................
+..oo........oo..
+.oAAo......oAAo.
+.oAAAo....oAAvo.
+..oAAvo..ovAvo..
+...oAvvoovvAo...
+....oovvvvoo....
+......ovvo......
+.....oowwoo.....
+....owwwwWWo....
+...owwwwwWWWo...
+...owwwwWWWWo...
+....ooWWWWoo....
+.....C..C..C....
+....C...C...C...
+................
 """
 
 # Icona "costruisci" 15x15, mostrata a 30x30: sega davanti, martello dietro.
@@ -199,6 +305,45 @@ CANCEL_ICON = """
 ................
 """
 
+# Icona "distruggi" 15x15, mostrata a 30x30: muro di mattoni che crolla.
+DESTROY_ICON = """
+..........oFFo.
+.........oofDo.
+........oFoooo.
+.ooooo.o.o..ofo
+oFFFFFoFo....o.
+offfffoffo.....
+.oooooooooo....
+oFFoFFooFoFooo.
+offoffoofoffffo
+.oooooo.oooooo.
+oFFFFFoooFFFoFo
+offfffofooffofo
+.oooooooo.oooo.
+oFFoFFFFFoFFFFo
+.oo.ooooo.oooo.
+"""
+
+# Cartello 16x16 appeso al muro accanto alla porta di una stanza finita: cliccandolo si cambiano nome e tipo.
+SIGN = """
+................
+................
+................
+................
+................
+..oooooooooooo..
+..oBBBBBBBBBBo..
+..oBgccccccgWo..
+..oBcWWcWWWcWo..
+..oBccccccccWo..
+..oBcWWWcWWcWo..
+..oBccccccccWo..
+..oWWWWWWWWWWo..
+..oooooooooooo..
+...zzzzzzzzzzz..
+................
+"""
+
 BUILD_ICON = """
 .........o.....
 ........ouo....
@@ -217,24 +362,58 @@ cooo.o.o.o.....
 wo.............
 """
 
-# Costruzioni 16x16 -> legno, pietra (colonne = Res in main.gd).
-WALLS = """
+# Muri -> legno, pietra. Si collegano ai vicini (vedi wall): la cima si ripete in ogni direzione,
+# la facciata (sotto la cima, righe 6-15) in orizzontale. Bordi e contorni li mette wall.
+WALL_TOPS = """
+cccccccccccccccc uuuuuuuruuuuuuur
+ccccCccccccccccc uuuuuuuruuuuuuur
+cccccccccccccccc uuuuuuuruuuuuuur
+CCCCCCCCCCCCCCCC rrrrrrrrrrrrrrrr
+cccccccccccccccc uuuruuuuuuuruuuu
+cccccccccccCcccc uuuruuuuuuuruuuu
+cccccccccccccccc uuuruuuuuuuruuuu
+CCCCCCCCCCCCCCCC rrrrrrrrrrrrrrrr
+cccccccccccccccc uuuuuuuruuuuuuur
+ccCccccccccccccc uuuuuuuruuuuuuur
+cccccccccccccccc uuuuuuuruuuuuuur
+CCCCCCCCCCCCCCCC rrrrrrrrrrrrrrrr
+cccccccccccccccc uuuruuuuuuuruuuu
+cccccccCcccccccc uuuruuuuuuuruuuu
+cccccccccccccccc uuuruuuuuuuruuuu
+CCCCCCCCCCCCCCCC rrrrrrrrrrrrrrrr
+"""
+
+WALL_FRONTS = """
+BwwWBwwWBwwWBwwW uuuuuuuRuuuuuuuR
+BwwWBwwWBwwWBwwW rrrrrrrRrrrrrrrR
+BlwWBwwWBlwWBwwW RRRRRRRRRRRRRRRR
+BwwWBwwWBwwWBwwW uuuRuuuuuuuRuuuu
+BwwWBwwWBwwWBwwW rrrRrrrrrrrRrrrr
+BwwWBlwWBwwWBlwW RRRRRRRRRRRRRRRR
+BwwWBwwWBwwWBwwW uuuuuuuRuuuuuuuR
+BwwWBwwWBwwWBwwW rrrrrrrRrrrrrrrR
+WWWWWWWWWWWWWWWW iiiiiiiiiiiiiiii
 oooooooooooooooo oooooooooooooooo
-occcccccccccccco ouuuuuuruuuuuuuo
-occcccccccccccco ouuuuuuruuuuuuuo
-oCCCCCCCCCCCCCCo orrrrrrrrrrrrrro
-occcccccccccccco oooooooooooooooo
-oooooooooooooooo ouuuuuuRuuuuuuuo
-oBwwWBwwWBwwWBwo orrrrrrRrrrrrrro
-oBwwWBwwWBwwWBwo orrrrrrRrrrrrrro
-oBwwWBlwWBwwWBlo oRRRRRRRRRRRRRRo
-oBwwWBwwWBwwWBwo ouuuRuuuuuuRuuuo
-oBwwWBwwWBwwWBwo orrrRrrrrrrRrrro
-oBwwWBwwWBwwWBwo orrrRrrrrrrRrrro
-oBlwWBwwWBwlWBwo oRRRRRRRRRRRRRRo
-oBwwWBwwWBwwWBwo ouuuuuuRuuuuuuuo
-oWWWWWWWWWWWWWWo oiiiiiiRiiiiiiio
-oooooooooooooooo oooooooooooooooo
+"""
+
+# Porta di legno -> di fronte (in un muro orizzontale), di lato (in un muro verticale, vista dall'alto).
+DOORS = """
+oooooooooooooooo occcccccccccccco
+ccccCccccccccccc oCCCCCCCCCCCCCCo
+cccccccccccccccc oooooooooooooooo
+CCCCCCCCCCCCCCCC oZZZZZoBwWoZZZZo
+cccccccccccccccc oZZZZZoBwWoZZZZo
+oooooooooooooooo oZZZZZoBwWoZZZZo
+WWoBwwBwwBwwBoWW oZZZZZoBwWoZZZZo
+WWoBwwBwwBwwBoWW oZZZZZoBwgoZZZZo
+WWoWWWWWWWWWWoWW oZZZZZoBwWoZZZZo
+WWoBwwBwwBwwBoWW oZZZZZoBwWoZZZZo
+WWoBwwBwwBwwgoWW oZZZZZoBwWoZZZZo
+WWoBwwBwwBwwBoWW oZZZZZoBwWoZZZZo
+WWoWWWWWWWWWWoWW oZZZZZoBwWoZZZZo
+WWoBwwBwwBwwBoWW oooooooooooooooo
+WWoBwwBwwBwwBoWW occcccccccccccco
+oooooooooooooooo oCCCCCCCCCCCCCCo
 """
 
 # Pavimenti: si ripetono senza giunte visibili tra caselle vicine.
@@ -271,6 +450,45 @@ ROCK_1X1 = """
 .oRRRRRRRRRRiio.
 .oiRRRRRRRRiiio.
 .oiiRRRRRiiiiio.
+..oiiiiiiiiiio..
+...oooooooooo...
+..zzzzzzzzzzzz..
+................
+"""
+
+# Massi 1x1 con dentro il ferro (pepite di ruggine) e il carbone (vene nere): si scavano come gli altri
+ROCK_IRON = """
+................
+................
+......oooo......
+....oouurroo....
+...ouu45rrrRo...
+..ouuu55rirrRo..
+.ourrrrrirr45Ro.
+.orr45rrrrR55io.
+.oRr55rrrRRRRio.
+.oRRRRRR45RRiio.
+.oiRRRRR55Riiio.
+.oiiR45RRiiiiio.
+..oii55iiiiiio..
+...oooooooooo...
+..zzzzzzzzzzzz..
+................
+"""
+
+ROCK_COAL = """
+................
+................
+......oooo......
+....oouurroo....
+...ouuu76rrRo...
+..ouuu666irrRo..
+.ourrrr66rr76Ro.
+.orr76rrrrR666o.
+.oRr666rrRRR66o.
+.oRRR66RR76Riio.
+.oiRRRRR666iiio.
+.oiiRRRRR66iiio.
 ..oiiiiiiiiiio..
 ...oooooooooo...
 ..zzzzzzzzzzzz..
@@ -366,6 +584,539 @@ oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 .ooooooooooooooooCcccCooooooooooooooooooooBwwwWooooooooooooooooz
 ..zzzzzzzzzzzzzzooooooozzzzzzzzzzzzzzzzzzzooooozzzzzzzzzzzzzzzzz
 ....zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz.
+"""
+
+# Mobili, disegnati dentro il loro ingombro come le rocce.
+# Letto 2x1: testiera a sinistra, cuscino e lenzuolo rimboccato (corteccia di betulla), coperta trapuntata rossa.
+BED = """
+................................
+.ooo............................
+occco...........................
+oBwWooooooooooooooooooooooooooo.
+oBwWoxXXXXXXxxXjjjjjjjjjjjjjjjo.
+oBwWoxXxxxxXxxXjjjjjJjjjjJjjjjo.
+oBwWoxXxxxxXxxXjjjjjJjjjjJjjjjo.
+oBwWoxXxxxxXxxXJJJJJJJJJJJJJJJo.
+oBwWoxXxxxxXxxXjjjjjJjjjjJjjjjo.
+oBwWoxXXXXXXxxXjjjjjJjjjjJjjjjo.
+oBwWoxxxxxxxxxXjjjjjJjjjjJjjjjo.
+oBwWoXXXXXXXXXXJJJJJJJJJJJJJJJo.
+oBwWoBBBBBBBBBBBBBBBBBBBBBBBBBo.
+oBwWowwwwwwwwwwwwwwwwwwwwwwwwWo.
+oooooooooooooooooooooooooooooooz
+..zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+"""
+
+# Tavolo 2x2: piano di assi chiare (venature e giunte sfalsate), bordo, gambe davanti con l'ombra sotto.
+TABLE = """
+................................
+................................
+.oooooooooooooooooooooooooooooo.
+.occccccccccCccccccccccccccccco.
+.occcCCCccccCcccccccCCCccccccco.
+.occccccccccCccccccccccccccccco.
+.oCCCCCCCCCCCCCCCCCCCCCCCCCCCCo.
+.occccccccccccccccccccCccccccco.
+.occcccccCCCccccccccccCcccCCcco.
+.occccccccccccccccccccCccccccco.
+.oCCCCCCCCCCCCCCCCCCCCCCCCCCCCo.
+.occccccCccccccccccccccccccccco.
+.occccccCcccccCCCcccccccCCCccco.
+.occccccCccccccccccccccccccccco.
+.oCCCCCCCCCCCCCCCCCCCCCCCCCCCCo.
+.occccccccccccccccCccccccccccco.
+.occCCCcccccccccccCccccCCCcccco.
+.occccccccccccccccCccccccccccco.
+.oCCCCCCCCCCCCCCCCCCCCCCCCCCCCo.
+.occccccccccccccccccccccccCccco.
+.occccccccCCCccccCCCccccccCccco.
+.occccccccccccccccccccccccCccco.
+.oBBBBBBBBBBBBBBBBBBBBBBBBBBBBo.
+.oWWWWWWWWWWWWWWWWWWWWWWWWWWWWo.
+.oooooooooooooooooooooooooooooo.
+..owWozzzzzzzzzzzzzzzzzzzzowWo..
+..owWozzzzzzzzzzzzzzzzzzzzowWo..
+..owWozzzzzzzzzzzzzzzzzzzzowWo..
+..owWozzzzzzzzzzzzzzzzzzzzowWo..
+..oooozzzzzzzzzzzzzzzzzzzzoooo..
+..zzzzzzzzzzzzzzzzzzzzzzzzzzzz..
+................................
+"""
+
+# Sedia 1x1: schienale dietro, chi si siede guarda in giù.
+CHAIR = """
+................
+...oooooooooo...
+...oBBBBBBBBo...
+...owwwwwwwWo...
+...oWWWWWWWWo...
+...oooooooooo...
+...occcccccCo...
+...ocCCccccCo...
+...occcccccCo...
+...oBBBBBBBBo...
+...oWWWWWWWWo...
+...oooooooooo...
+...owozzzzowo...
+...owozzzzowo...
+...ooozzzzooo...
+...zzzzzzzzzz...
+"""
+
+# Abat-jour 1x1: paralume, stelo d'ottone, base di legno. Di notte il paralume si accende (vedi NIGHT_LIGHTS).
+LAMP = """
+................
+................
+......oooo......
+.....oIIIUo.....
+.....oIIIUo.....
+....oIIIIIUo....
+....oIIIIIUo....
+...oIIIIIIIUo...
+...oUUUUUUUUo...
+...oooooooooo...
+......oggo......
+......oggo......
+.....ooggoo.....
+....owwwwwWo....
+....oooooooo....
+...zzzzzzzzzz...
+"""
+
+# Fuoco da campo 1x1: cerchio di pietre, legna incrociata, fiamma. Rotondo: al posto dei quarti di giro, 4 fotogrammi
+# della fiamma che guizza (vedi piece_rects in main.gd).
+CAMPFIRE = """
+................ ................ ................ ................
+.......9........ ........9....... ......9......... ........9.......
+.......99...9... ...9....99...... ......99..9..... ...9...99.......
+......989...9... ...9...989...... ..9...989.99.... ...99.989....9..
+....9.9889.99... ...99.9889..9... ..99.98899.9.... ....9.98899.99..
+....998889999... ....998888999... ...9988889999... ....99888899....
+....98888889.... ....98888889.... ....98888889.... ....98888889....
+...=98888889=... ...=98888889=... ...=98888889=... ...=98888889=...
+...=98888889=... ...=98888889=... ...=98888889=... ...=98888889=...
+..ouo988889ouo.. ..ouo988889ouo.. ..ouo988889ouo.. ..ouo988889ouo..
+.ourR=w99w=Rruo. .ourR=w99w=Rruo. .ourR=w99w=Rruo. .ourR=w99w=Rruo.
+.oRio=WwwW=oiRo. .oRio=WwwW=oiRo. .oRio=WwwW=oiRo. .oRio=WwwW=oiRo.
+.oiouuouuouuoio. .oiouuouuouuoio. .oiouuouuouuoio. .oiouuouuouuoio.
+..ooRRoRRoRRoo.. ..ooRRoRRoRRoo.. ..ooRRoRRoRRoo.. ..ooRRoRRoRRoo..
+...oooooooooo... ...oooooooooo... ...oooooooooo... ...oooooooooo...
+..zzzzzzzzzzzz.. ..zzzzzzzzzzzz.. ..zzzzzzzzzzzz.. ..zzzzzzzzzzzz..
+"""
+
+# Fornace 1x1: cupola di pietra con la bocca accesa.
+FURNACE = """
+................
+.....oooooo.....
+....ouuuurRo....
+...ourrrrrRRo...
+...orrrrrrrRo...
+..ourroooorRRo..
+..orro9889oRRo..
+..orro8888oRio..
+..orro=99=oRio..
+..orRooooooRio..
+..oRRRRRRRRiio..
+..oiRiRiRiRiio..
+..oiiiiiiiiiio..
+..oooooooooooo..
+.zzzzzzzzzzzzzz.
+................
+"""
+
+# Incudine 1x1 di ferro su un ceppo: il corno a sinistra (girata di un quarto, a destra).
+ANVIL = """
+................
+................
+................
+................
+...ooooooooooo..
+.oouuuuuuuuuuRo.
+orrrrrrrrrrrRRo.
+.oooorrrrrrRRoo.
+.....oRRRRio....
+.....oiRRiio....
+....oiiiiiiio...
+...owwwwwwwwWo..
+...owcwwwwcwWo..
+...oWWWWWWWWWo..
+...ooooooooooo..
+..zzzzzzzzzzzz..
+"""
+
+# Letto girato: testiera in alto (vista di fronte), coperta che scende verso i piedi.
+BED_UP = """
+.oooooooooooooo.
+.occcccccccccco.
+.oBBBBBBBBBBBBo.
+.owwwwwwwwwwwWo.
+.owwwwwwwwwwwWo.
+.oWWWWWWWWWWWWo.
+.oooooooooooooo.
+.oxxxxxxxxxxxxo.
+.oxXXXXXXXXXXxo.
+.oxXxxxxxxxxXxo.
+.oxXxxxxxxxxXxo.
+.oxXXXXXXXXXXxo.
+.oxxxxxxxxxxxxo.
+.oxxxxxxxxxxxxo.
+.oXXXXXXXXXXXXo.
+.ojjjjJjjjJjjjo.
+.ojjjjJjjjJjjjo.
+.ojjjjJjjjJjjjo.
+.oJJJJJJJJJJJJo.
+.ojjjjJjjjJjjjo.
+.ojjjjJjjjJjjjo.
+.ojjjjJjjjJjjjo.
+.oJJJJJJJJJJJJo.
+.ojjjjJjjjJjjjo.
+.ojjjjJjjjJjjjo.
+.ojjjjJjjjJjjjo.
+.oJJJJJJJJJJJJo.
+.oooooooooooooo.
+.oBBBBBBBBBBBBo.
+.owwwwwwwwwwwWo.
+.oooooooooooooo.
+..zzzzzzzzzzzzzz
+"""
+
+# Letto girato coi piedi in alto: la testiera sta davanti e copre il bordo del materasso.
+BED_DOWN = """
+................
+.oooooooooooooo.
+.ojjjjJjjjJjjjo.
+.ojjjjJjjjJjjjo.
+.ojjjjJjjjJjjjo.
+.oJJJJJJJJJJJJo.
+.ojjjjJjjjJjjjo.
+.ojjjjJjjjJjjjo.
+.ojjjjJjjjJjjjo.
+.oJJJJJJJJJJJJo.
+.ojjjjJjjjJjjjo.
+.ojjjjJjjjJjjjo.
+.ojjjjJjjjJjjjo.
+.oXXXXXXXXXXXXo.
+.oxxxxxxxxxxxxo.
+.oxxxxxxxxxxxxo.
+.oxXXXXXXXXXXxo.
+.oxXxxxxxxxxXxo.
+.oxXxxxxxxxxXxo.
+.oxXXXXXXXXXXxo.
+.oxxxxxxxxxxxxo.
+.oooooooooooooo.
+.occcccccccccco.
+.oBBBBBBBBBBBBo.
+.owwwwwwwwwwwWo.
+.owwwwwwwwwwwWo.
+.owwwwwwwwwwwWo.
+.oWWWWWWWWWWWWo.
+.oooooooooooooo.
+..zzzzzzzzzzzzzz
+................
+................
+"""
+
+# Sedia girata a sinistra: schienale a destra, visto di taglio.
+CHAIR_LEFT = """
+.........oooo...
+.........oBWo...
+.........oBWo...
+.........oBWo...
+.........oBWo...
+...oooooooBWo...
+...occcccoBWo...
+...ocCCccoBWo...
+...occcccoBWo...
+...oBBBBBBBBo...
+...oWWWWWWWWo...
+...oooooooooo...
+...owozzzzowo...
+...owozzzzowo...
+...ooozzzzooo...
+...zzzzzzzzzz...
+"""
+
+# Sedia girata in su: lo schienale sta davanti e copre il bordo del sedile.
+CHAIR_UP = """
+................
+................
+...oooooooooo...
+...occcccccCo...
+...ocCCccccCo...
+...occcccccCo...
+...oooooooooo...
+...oBBBBBBBBo...
+...owwwwwwwWo...
+...owwwwwwwWo...
+...oWWWWWWWWo...
+...oooooooooo...
+...owozzzzowo...
+...owozzzzowo...
+...ooozzzzooo...
+...zzzzzzzzzz...
+"""
+
+# Cornice dei popup (9 slice, margini 4px): luce in alto a sinistra, ombra in basso a destra,
+# filo scuro interno = pannello incassato. Il centro si allunga.
+WOOD_FRAME = """
+ooooooooo
+oCCCCCCwo
+oCwwwwwWo
+oCwoooWWo
+oCwo%oWWo
+oCwoooWWo
+oCwwwwwWo
+owWWWWWWo
+ooooooooo
+"""
+
+# Icona "attività in coda": tavoletta di legno con fermaglio d'oro e foglio con l'elenco.
+JOBS_ICON = """
+................
+......oooo......
+.ooooogggggoooo.
+.oBBBoggggoBBWo.
+.oBxxxooooxxxWo.
+.oBxRRxRRRRxxWo.
+.oBxxxxxxxxxxWo.
+.oBxRRxRRRxxxWo.
+.oBxxxxxxxxxxWo.
+.oBxRRxRRRRxxWo.
+.oBxxxxxxxxxxWo.
+.oBxRRxRRxxxxWo.
+.oBxxxxxxxxxxWo.
+.oBXXXXXXXXXXWo.
+.oWWWWWWWWWWWWo.
+..oooooooooooo..
+"""
+
+# Icona "seleziona" 16x16, prima in basso a sinistra: la freccia del mouse.
+SELECT_ICON = """
+................
+.oo.............
+.oxo............
+.oxxo...........
+.oxxXo..........
+.oxxxXo.........
+.oxxxxXo........
+.oxxxxxXo.......
+.oxxxxxxXo......
+.oxxxxxXXXo.....
+.oxxXoooooo.....
+.oxXoXXo........
+.oXo.oxXo.......
+.oo..oxXo.......
+.o....oXXo......
+.......ooo......
+"""
+
+# Cornice d'oro del tasto premuto (9 slice, margini 7px, raddoppiata): nodi ad anello negli angoli e un rametto
+# verso l'interno; luce in alto a sinistra, ombra in basso a destra. Il centro (riga e colonna 7) si allunga.
+SELECTED_FRAME = """
+.ooo.......ooo.
+og8gooooooog8go
+o8ogggggggggo<o
+ogg8ooooooo8<<o
+.ogo8o%%%o8o<o.
+.ogoog%%%goo<o.
+.ogo%%%%%%%o<o.
+.ogo%%%%%%%o<o.
+.ogo%%%%%%%o<o.
+.ogoog%%%<oo<o.
+.ogo8o%%%o<o<o.
+ogg8ooooooo<<<o
+o8o<<<<<<<<<o<o
+og<<ooooooo<<<o
+.ooo.......ooo.
+"""
+
+# Icona "risorse" 16x16, accanto a "Jobs": cassa con legna, pietra e bacche.
+RESOURCES_ICON = """
+................
+................
+.....oooo.......
+....owwwwo.oooo.
+...owcCcWoouurRo
+...owCcCWoourRRo
+.ooowcCcWojjoRRo
+ojjoowwWojjJooo.
+ojJoooooooJooo..
+oooooooooooooooo
+oBBBBBBBBBBBBBWo
+owwwwwwwwwwwwwWo
+oWWWWWWWWWWWWWWo
+oBBBBBBBBBBBBBWo
+owwwwwwwwwwwwwWo
+oooooooooooooooo
+"""
+
+# Icona "coloni" 16x16 nella barra in alto: una faccina.
+COLONISTS_ICON = """
+................
+.....oooooo.....
+...oowwwwwwoo...
+..owwwwwwwwwWo..
+.owwwwwwwwwwwWo.
+.owwssssssssWWo.
+.owsssssssssSWo.
+.owssessssesSWo.
+.owssessssesSWo.
+.oSsssssssssSSo.
+..oSsossssosSo..
+..oSssoooossSo..
+...oSssssssSo...
+....ooSSSSoo....
+......oooo......
+................
+"""
+
+# Icona "opzioni" 16x16 in alto a destra: ingranaggio di pietra, luce in alto a sinistra (il foro al contrario).
+OPTIONS_ICON = """
+......oooo......
+...ooouuuuooo...
+..ouuouuuuorro..
+.ouuuouuuuorrro.
+.ouuuuuuurrrrro.
+.ooouuRRrrrrooo.
+ouuuuRoooorrRRRo
+ouuuuRo..orRRRRo
+ouuuuro..ouRRRRo
+ouuurroooouRRRRo
+.ooorrrruuRRooo.
+.orrrrrRRRRRRRo.
+.orrroRRRRoRRRo.
+..orroRRRRoRRo..
+...oooRRRRooo...
+......oooo......
+"""
+
+# Talenti 16x16, nella scheda del colono -> goloso (cosciotto), sonnambulo (luna e Zz), iracondo (faccia rossa).
+TRAITS = """
+........ooooo... ...oooo......... .....oooooo.....
+......ooFFFFFoo. .ooIIo.......... ...oojjjjjjoo...
+.....oFFssFFFffo oIIIo....oooooo. ..ojjjjjjjjjjo..
+....oFFsFFFFFffo oIIo.....oxxxXo. .ojoojjjjjjoojo.
+....oFFFFFFFfffo oIIo.....oooxXo. .ojjjoojjoojjjo.
+....oFFFFFFffffo oIIIo.....oxXoo. ojjjjjoooojjjjJo
+....ofFFFFfffDDo oIIIIo...oxXooo. ojjjoxoooooxojJo
+....ofFFFfffDDDo .oIIIIooooxxxXo. ojjjoooojoooojJo
+....oofffffDDDo. .oUIIIIIooooooo. ojjjjjjjjjjjjjJo
+...oxxoofDDDoo.. ..oUUUUo..oooo.. ojjjoooooooojjJo
+..oxxXoooooo.... ...oooo...oxXo.. .ojjoxxxxxxojJo.
+.oooxXo......... ..........ooXo.. .ojjoooooooojJo.
+oxxoXo.......... .........oxXoo.. ..oJjjjjjjjJJo..
+oxXXXXo......... .........oxxXo.. ...ooJJJJJJoo...
+.ooXXXo......... .........ooooo.. .....oooooo.....
+...ooo.......... ................ ................
+"""
+
+# Stellina 9x9 accanto a un'abilità al livello massimo.
+STAR = """
+....o....
+...ogo...
+ooogggooo
+oggggggUo
+.ogggggo.
+..ogggo..
+.oggUggo.
+.ogo.oUo.
+.oo...oo.
+"""
+
+# Barre dei bisogni 6x6 -> riempimento (bianco: in gioco si tinge col colore del valore) e fondo incavato; angoli
+# smussati, luce sopra e ombra sotto. Raddoppiate come la cornice: si allungano nel mezzo (StyleBoxTexture).
+BAR_FILL = """
+.oooo.
+oohhoo
+o[[[[o
+o[[[[o
+oo]]oo
+.oooo.
+"""
+
+BAR_BACK = """
+.oooo.
+ooZZoo
+oVVVVo
+oVVVVo
+ooVVoo
+.oooo.
+"""
+
+# Freccina 4x7 a destra della barra (a sinistra è specchiata): si accende, tinta, se il bisogno sale (scende).
+ARROW = """
+x...
+xx..
+xxx.
+xxxx
+xxX.
+xX..
+X...
+"""
+
+# Abilità 8x8, nella scheda del colono (come Skill in main.gd) -> raccogliere, estrarre, tagliare legna, costruire,
+# cucinare, pescare, cacciare, armi da mischia, armi a distanza, ricerca.
+SKILLS = """
+....oLo. .ooooo.. .oo..oo. oooooo.. .x..x... ........ .ww..ww. .....ooo .oo..... .oooo...
+...oLo.. ouurrRo. ouuooRwo ouurrRo. ..x..x.. ..ooo..o .ww..ww. ....oxxo owwo..o. oQQEEo..
+.oo.oo.. .oooowRo ouurRwo. oRRRRRo. oooooooo .oQQQooQ ........ ...oxXXo o.owoox. oQEEEo..
+ojjoojjo ...owooR ourRwoo. oooowoo. oiiiiiio oQeQQQQo w..ww..w o.oxXXo. o..oxxxo oEEEEo..
+ojJoojJo ..owo.oo .oowRo.. ...owo.. orrrrrRo oQQQQooQ ..wwww.. ogoXXo.. o..owoX. .oooowo.
+.oojjoo. .owo.... ..owo... ...owo.. .orrrRo. .oEEEo.o .wwwwww. .ogXo... o.owo.o. ....owo.
+..ojJo.. owo..... .owo.... ...owo.. .oRRRRo. ..ooo... .wwwwww. owogo... owwo.... .....owo
+...oo... oo...... owo..... ...ooo.. ..oooo.. ........ ..w..w.. ooo.o... .oo..... ......oo
+"""
+
+# Stress 8x8, accanto alla sua barra nella scheda del colono: un fulmine.
+STRESS_ICON = """
+....ooo.
+...ojJo.
+..ojJo..
+.ojjjjo.
+.oojJoo.
+..ojJo..
+..ojo...
+..oo....
+"""
+
+# Slot vuoti dell'equipaggiamento 16x16, sotto i talenti -> mani, corpo, testa: incavo con la sagoma di cosa ci va.
+EQUIPMENT = """
+oooooooooooooooo oooooooooooooooo oooooooooooooooo
+oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR
+oiiiiRiRiRiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR
+oiiiiRiRiRiiiiiR oiiiRRRiiRRRiiiR oiiiiiRRRRiiiiiR
+oiiiiRiRiRiRiiiR oiiRRRRRRRRRRiiR oiiiiRRRRRRiiiiR
+oiiiiRiRiRiRiiiR oiRRRRRRRRRRRRiR oiiiRRRRRRRRiiiR
+oiiiiRRRRRiRiiiR oiRRRRRRRRRRRRiR oiiiRRRRRRRRiiiR
+oiiiiRRRRRRRiiiR oiiiRRRRRRRRiiiR oiiRRRRRRRRRRiiR
+oiiiiRRRRRRiiiiR oiiiRRRRRRRRiiiR oiiiRRiRRiRRiiiR
+oiiiiRRRRRRiiiiR oiiiRRRRRRRRiiiR oiiiRRiRRiRRiiiR
+oiiiiiRRRRiiiiiR oiiiRRRRRRRRiiiR oiiiRRiiiiRRiiiR
+oiiiiiRRRRiiiiiR oiiiRRRRRRRRiiiR oiiiiRiiiiRiiiiR
+oiiiiiRRRRiiiiiR oiiiRRRRRRRRiiiR oiiiiiiiiiiiiiiR
+oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR
+oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR
+oRRRRRRRRRRRRRRR oRRRRRRRRRRRRRRR oRRRRRRRRRRRRRRR
+"""
+
+# Icona "ruota" 16x16, in senso orario (quella antioraria è lo specchio).
+ROTATE_ICON = """
+................
+........o.......
+.......ouo......
+....oooouuo.....
+...ouuuuuuuo....
+..ouuuuuuuuo....
+..ouuuoouuo.....
+..ouuo.ouo......
+..ouuo..o..oo...
+..ouuo....ouuo..
+..ouuo....ouuo..
+..ouuuoooouuuo..
+..ouuuuuuuuuuo..
+...ouuuuuuuuo...
+....oooooooo....
+................
 """
 
 
@@ -530,12 +1281,12 @@ SHALLOW_EDGE = """
 """
 
 
-def frames(block, height=16, count=3):
-    """Blocco di testo -> lista di fotogrammi, ognuno `height` righe da 16 caratteri."""
+def frames(block, height=16, count=3, width=16):
+    """Blocco di testo -> lista di fotogrammi, ognuno `height` righe da `width` caratteri."""
     rows = [line.split() for line in block.strip().splitlines()]
     assert len(rows) == height, f"servono {height} righe, ce ne sono {len(rows)}"
     for i, r in enumerate(rows):
-        assert len(r) == count and all(len(f) == 16 for f in r), f"riga {i}: {r}"
+        assert len(r) == count and all(len(f) == width for f in r), f"riga {i}: {r}"
     return [[r[i] for r in rows] for i in range(count)]
 
 
@@ -551,11 +1302,18 @@ def side_by_side(fs):
     return ["".join(f[y] for f in fs) for y in range(len(fs[0]))]
 
 
+def breath(f):
+    """Fermo che espira: testa e spalle scendono di 1px (sparisce la prima riga del busto), mani e gambe restano."""
+    return ["." * 16] + f[:9] + f[10:]
+
+
 def sheet():
-    """Coloni, foglio 80x64. Righe: giù, sinistra, destra (specchio), su. Colonne: fermo, passo A, passo B, carica, colpo."""
+    """Coloni, foglio 96x64. Righe: giù, sinistra, destra (specchio), su.
+    Colonne: fermo, passo A, passo B, carica, colpo, respiro (ricavato dal fermo)."""
     left = frames(LEFT, count=5)
     right = [[line[::-1] for line in f] for f in left]
-    return [row for fs in (frames(DOWN, count=5), left, right, frames(UP, count=5)) for row in side_by_side(fs)]
+    return [row for fs in (frames(DOWN, count=5), left, right, frames(UP, count=5))
+            for row in side_by_side(fs + [breath(fs[0])])]
 
 
 def rotate(grid):
@@ -571,6 +1329,31 @@ def turns(grid):
     return out
 
 
+def wall(top, front, links):
+    """Muro per i lati collegati `links`: bit 1 su, 2 destra, 4 giù, 8 sinistra (come WALL_LINKS in main.gd).
+    Collegato in giù si vede solo la cima: la facciata è quella del muro più in basso."""
+    up, right, down, left = (links >> i & 1 for i in range(4))
+    rows = [list(line) for line in (top if down else top[:5] + ["o" * 16] + front)]
+    if not up:
+        rows[0] = list("o" * 16)
+    for y, row in enumerate(rows):
+        for x, linked in ((0, left), (15, right)):
+            # di fianco a una cima che scende c'è la facciata del vicino: serve il bordo anche se collegati
+            if not linked or (down and y >= 5):
+                row[x] = "o"
+    return ["".join(r) for r in rows]
+
+
+def structures_sheet():
+    """Costruzioni, foglio 256x64. Righe: muri di legno, muri di pietra (colonna = lati collegati, vedi wall),
+    pavimenti (legno, pietra), porte (di fronte, di lato)."""
+    tops, fronts = frames(WALL_TOPS, count=2), frames(WALL_FRONTS, height=10, count=2)
+    rows = [[wall(tops[m], fronts[m], links) for links in range(16)] for m in range(2)]
+    rows += [frames(FLOORS, count=2), frames(DOORS, count=2)]
+    empty = ["." * 16] * 16
+    return [line for fs in rows for line in side_by_side(fs + [empty] * (16 - len(fs)))]
+
+
 def ground_sheet():
     """Terreno, foglio 64x176. Righe: erba, erba sassosa, ghiaia, acqua bassa, acqua alta (4 varianti);
     poi i lati (vicino su, destra, giù, sinistra) e gli angoli (vicino in alto a sx, alto a dx, basso a dx,
@@ -579,6 +1362,31 @@ def ground_sheet():
     edges = [frames(b, count=2) for b in (GRASS_EDGE, SHORE, SHALLOW_EDGE)]  # [lato, angolo]
     rows += [turns(side) for side, _ in edges] + [turns(corner) for _, corner in edges]
     return [line for fs in rows for line in side_by_side(fs)]
+
+
+def mirror(grid):
+    return [line[::-1] for line in grid]
+
+
+def double(grid):
+    """Ogni pixel 2x2: per l'interfaccia, che non passa dallo zoom della camera."""
+    return ["".join(ch * 2 for ch in line) for line in grid for _ in range(2)]
+
+
+def furniture_sheet():
+    """Mobili, foglio 128x224. Righe: letto, tavolo, sedia, abat-jour, fuoco da campo, fornace, incudine (come Build in main.gd);
+    colonne: quarti di giro in senso orario (per il fuoco, fotogrammi), ognuno in alto a sinistra nel suo riquadro 32x32."""
+    bed, chair, chair_left = art(BED, 32, 16), art(CHAIR, 16, 16), art(CHAIR_LEFT, 16, 16)
+    table, lamp, anvil = art(TABLE, 32, 32), art(LAMP, 16, 16), art(ANVIL, 16, 16)
+    rows = [[bed, art(BED_UP, 16, 32), mirror(bed), art(BED_DOWN, 16, 32)],
+            [table] * 4,  # simmetrici: girarli non cambia il disegno
+            [chair, chair_left, art(CHAIR_UP, 16, 16), mirror(chair_left)],
+            [lamp] * 4,
+            frames(CAMPFIRE, count=4),
+            [art(FURNACE, 16, 16)] * 4,
+            [anvil, mirror(anvil)] * 2]
+    slot = lambda g: [line.ljust(32, ".") for line in g] + ["." * 32] * (32 - len(g))
+    return [line for row in rows for line in side_by_side([slot(g) for g in row])]
 
 
 def trees_sheet():
@@ -624,17 +1432,45 @@ def main():
     out.mkdir(exist_ok=True)
     images = {name: pixels(grid, chars) for name, chars in LAYERS.items()}
     images["trees"] = pixels(trees_sheet())
-    images["icon_wood"], images["icon_stone"] = (pixels(f) for f in frames(ICONS, count=2))
+    images["icon_wood"], images["icon_stone"], images["icon_veg"] = (pixels(f) for f in frames(ICONS))
+    images["plants"] = pixels(side_by_side(frames(PLANTS)))
     images["icon_build"] = pixels(art(BUILD_ICON, 15, 15))
     images["icon_cancel"] = pixels(art(CANCEL_ICON, 16, 16))
-    # foglio 32x32: righe muri, pavimenti (= Build in main.gd); colonne legno, pietra
-    images["structures"] = pixels([line for b in (WALLS, FLOORS) for line in side_by_side(frames(b, count=2))])
+    images["icon_destroy"] = pixels(art(DESTROY_ICON, 15, 15))
+    images["icon_mine"] = pixels(art(MINE_ICON, 16, 16))
+    images["icon_chop"] = pixels(art(CHOP_ICON, 16, 16))
+    images["icon_uproot"] = pixels(art(UPROOT_ICON, 16, 16))
+    images["sign"] = pixels(art(SIGN, 16, 16))
+    images["structures"] = pixels(structures_sheet())
     images["rock_1x1"] = pixels(art(ROCK_1X1, 16, 16))
     images["rock_2x1"] = pixels(art(ROCK_2X1, 32, 16))
     images["rock_2x2"] = pixels(art(ROCK_2X2, 32, 32))
+    images["rock_iron"] = pixels(art(ROCK_IRON, 16, 16))
+    images["rock_coal"] = pixels(art(ROCK_COAL, 16, 16))
+    images["icon_iron"], images["icon_coal"] = (pixels(f) for f in frames(ORE_ICONS, count=2))
     images["ground"] = pixels(ground_sheet())
     images["warehouse_day"] = pixels(art(WAREHOUSE, 64, 32))
     images["warehouse_night"] = pixels(art(WAREHOUSE, 64, 32), palette=night_palette())
+    images["furniture"] = pixels(furniture_sheet())
+    images["furniture_night"] = pixels(furniture_sheet(), palette=PALETTE | NIGHT_LIGHTS)  # solo l'abat-jour cambia
+    rotate_icon = art(ROTATE_ICON, 16, 16)
+    images["icon_rotate_right"] = pixels(rotate_icon)
+    images["icon_rotate_left"] = pixels(mirror(rotate_icon))
+    images["frame_wood"] = pixels(double(art(WOOD_FRAME, 9, 9)))
+    images["frame_selected"] = pixels(double(art(SELECTED_FRAME, 15, 15)))
+    images["icon_select"] = pixels(art(SELECT_ICON, 16, 16))
+    images["icon_jobs"] = pixels(art(JOBS_ICON, 16, 16))
+    images["icon_resources"] = pixels(art(RESOURCES_ICON, 16, 16))
+    images["icon_colonists"] = pixels(art(COLONISTS_ICON, 16, 16))
+    images["icon_options"] = pixels(art(OPTIONS_ICON, 16, 16))
+    images["traits"] = pixels(side_by_side(frames(TRAITS)))
+    images["icon_star"] = pixels(art(STAR, 9, 9))
+    images["bar_fill"] = pixels(double(art(BAR_FILL, 6, 6)))
+    images["bar_back"] = pixels(double(art(BAR_BACK, 6, 6)))
+    images["icon_arrow"] = pixels(art(ARROW, 4, 7))
+    images["icon_stress"] = pixels(art(STRESS_ICON, 8, 8))
+    images["skills"] = pixels(side_by_side(frames(SKILLS, 8, 10, 8)))
+    images["equipment"] = pixels(side_by_side(frames(EQUIPMENT)))
     for name, rows in images.items():
         write_png(out / f"{name}.png", rows)
         print("scritto", out / f"{name}.png")
