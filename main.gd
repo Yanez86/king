@@ -21,16 +21,37 @@ const HAIR_COLORS := [Color("3b2a1e"), Color("d9b35b"), Color("a8462f"), Color("
 const SIDES := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 const TREE_SIDES := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  # da sopra la chioma coprirebbe chi taglia
 
-enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT }
-enum Res { WOOD, STONE, VEG, IRON, COAL }  # VEG: vegetali, dalle bacche dei cespugli; IRON, COAL: dai massi con le vene
-const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.IRON: 50, Res.COAL: 50}  # quantità massima per mucchio (casella)
-enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH }  # cosa segna il trascinamento del mouse
+enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK }
+# VEG: vegetali, dalle bacche dei cespugli; IRON, COAL: dai massi con le vene; MEAL, FINE_MEAL: pasti, dalla cucina
+enum Res { WOOD, STONE, VEG, IRON, COAL, MEAL, FINE_MEAL }
+const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.IRON: 50, Res.COAL: 50, Res.MEAL: 20, Res.FINE_MEAL: 20}  # quantità massima per mucchio (casella)
+const MEALS := [Res.FINE_MEAL, Res.MEAL]  # cotti: niente scorta di debug; chi ha fame li prende in quest'ordine, poi il crudo
+# cibo: quanto sazia (vedi eat) e in quanti giorni marcisce a terra fuori (vedi spoil); in magazzino ci mette il doppio.
+# Il crudo sazia meno e può intossicare (vedi poison_chance), i pasti no e danno un bonus (vedi Cond)
+const FOOD := {Res.VEG: 35.0, Res.MEAL: 100.0, Res.FINE_MEAL: 100.0}
+const SHELF_LIFE := {Res.VEG: 3.0, Res.MEAL: 3.0, Res.FINE_MEAL: 3.0}
+const SPOIL_STORED := 0.5   # in magazzino il cibo marcisce a metà velocità
+const POISON_FRESH := 0.05  # probabilità di intossicarsi mangiando crudo appena raccolto...
+const POISON_STALE := 0.4   # ...e quasi marcio: in mezzo in proporzione
+const FRESH_WORDS := [[0.5, "Fresh"], [0.2, "Stale"], [0.0, "Almost rotten"]]  # sopra quale parte della durata, nel suggerimento
+# cucinare (vedi try_cook): 2 vegetali -> 1 pasto al fuoco da campo di una cucina, finché in giro ci sono meno di
+# MEALS_PER_COLONIST pasti a testa
+const COOK_VEG := 2
+const COOK_TIME := 8.0      # secondi a livello 5, come gather_time; anche secondo il comfort della cucina (vedi comfort_time)
+const MEALS_PER_COLONIST := 2
+const BURN_PER_LEVEL := 0.06   # bruciato: per livello sotto il 6 (30% a livello 1)...
+const BURN_PER_COMFORT := 0.03 # ...e per punto di comfort della cucina sotto 5 (sopra lo abbassa)
+const FINE_PER_LEVEL := 0.05   # squisito: per livello sopra il 5 (25% a livello 10)...
+const FINE_PER_COMFORT := 0.02 # ...e per punto di comfort della cucina sopra 5
+const SEAT_RANGE := 20      # caselle: chi ha preso da mangiare va a una sedia accanto a un tavolo, se ce n'è una entro qui
+enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST }  # cosa segna il trascinamento del mouse
 const ORDER_COLORS := [Color.TRANSPARENT, Color.ORANGE, Color("8fd3ff"), Color("9be36a"), Color("e6e2d0"),
-	Color("ff5a5a"), Color("c83030")]  # selezione e segni, per Order
+	Color("ff5a5a"), Color("c83030"), Color("d84a6a")]  # selezione e segni, per Order
 # tasti in HUD/Tools/Row dopo Structures e Furniture, uno alla volta (ButtonGroup "Orders"): vedi toggle_order
-const ORDER_TOOLS := {Order.DEMOLISH: "Destroy", Order.MINE: "Mine", Order.CHOP: "Chop", Order.UPROOT: "Uproot"}
+const ORDER_TOOLS := {Order.DEMOLISH: "Destroy", Order.MINE: "Mine", Order.CHOP: "Chop", Order.UPROOT: "Uproot",
+	Order.HARVEST: "Harvest"}
 const ORDER_ICONS := {Order.CHOP: preload("res://art/icon_chop.png"), Order.MINE: preload("res://art/icon_mine.png"),
-	Order.UPROOT: preload("res://art/icon_uproot.png")}  # le stesse dei tasti: piccole e velate sopra ciò che è segnato
+	Order.UPROOT: preload("res://art/icon_uproot.png"), Order.HARVEST: preload("res://art/icon_harvest.png")}  # le stesse dei tasti: piccole e velate sopra ciò che è segnato
 enum RoomKind { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE }  # tipo di stanza, scelto dal cartello
 enum Build { WALL, FLOOR, DOOR, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE, ANVIL }  # porta e mobili si attraversano
 # materiale per casella; per i mobili, per pezzo
@@ -122,6 +143,8 @@ const ICONS := {
 	Res.VEG: preload("res://art/icon_veg.png"),
 	Res.IRON: preload("res://art/icon_iron.png"),
 	Res.COAL: preload("res://art/icon_coal.png"),
+	Res.MEAL: preload("res://art/icon_meal.png"),
+	Res.FINE_MEAL: preload("res://art/icon_fine_meal.png"),
 }
 # 256x64, righe: muri di legno, muri di pietra (colonna = lati collegati, vedi WALL_LINKS), pavimenti (colonna = Res),
 # porte (di fronte, di lato); vedi structure_src
@@ -135,7 +158,7 @@ const SKILL_MAX := 10       # livelli 1-10: al massimo, nella scheda, compare la
 const GATHER := {
 	Job.CHOP: [Skill.WOODCUTTING, 10.0, 5, Res.WOOD],
 	Job.MINE: [Skill.MINING, 15.0, 5, Res.STONE],
-	Job.HARVEST: [Skill.GATHERING, 5.0, 1, Res.VEG],  # ponytail: nessuno la avvia (senza ordini si resta fermi), la useranno le routine
+	Job.HARVEST: [Skill.GATHERING, 5.0, 1, Res.VEG],  # solo i cespugli segnati con "Harvest" (vedi harvest_marks)
 }
 const STAR := preload("res://art/icon_star.png")
 const SKILLS_SHEET := preload("res://art/skills.png")  # icone 8x8, colonne nell'ordine di Skill
@@ -148,6 +171,19 @@ const TRAIT_INFO := {  # suggerimento col mouse sopra il talento
 	Trait.SLEEPWALKER: "Sometimes wanders off in their sleep.",
 	Trait.HOTHEAD: "Loses their temper easily.",
 }
+# condizioni: effetti a tempo, con un'icona 16x16 nella scheda (colonne di CONDITIONS_SHEET nell'ordine di Cond).
+# Dati: [giorni, tempo di lavoro x, stress da lavoro x, felicità +, descrizione]. Vedi add_cond, work_factor, update_needs
+enum Cond { POISONED, WELL_FED, FEASTED, AT_TABLE, ATE_RAW }
+const CONDITIONS_SHEET := preload("res://art/conditions.png")
+const COND_INFO := {
+	Cond.POISONED: [1.0, 1.5, 1.0, -20.0, "Ate raw food that was going bad. Works slowly."],
+	Cond.WELL_FED: [0.5, 0.9, 0.75, 5.0, "Had a cooked meal. Works faster, less stress."],
+	Cond.FEASTED: [0.5, 0.8, 0.5, 10.0, "Had a fine meal. Works much faster, much less stress."],
+	Cond.AT_TABLE: [0.5, 1.0, 1.0, 5.0, "Ate sitting at a table."],
+	Cond.ATE_RAW: [0.5, 1.0, 1.0, -10.0, "A glutton forced to eat raw food."],
+}
+const GLUTTON_MOOD := 2.0  # il goloso: tanta felicità in più (o in meno) da quello che mangia
+const FOOD_CONDS := [Cond.WELL_FED, Cond.FEASTED, Cond.AT_TABLE, Cond.ATE_RAW]
 # bisogni, barre 0-NEED_MAX nella scheda: 100 = sazio, riposato, comodo, felice; lo stress al contrario, 100 = al limite.
 # Ritmi "al giorno" di gioco
 enum Need { FOOD, REST, COMFORT, HAPPINESS, STRESS }
@@ -160,7 +196,7 @@ const SLEEP_TIME := 8.0 / 24  # giorni di sonno per riposarsi del tutto, a comfo
 const STRESS_WORK := 30.0   # al giorno, lavorando: sale
 const STRESS_RELIEF := 60.0 # al giorno, dormendo, mangiando o senza niente da fare: scende
 const STRESS_ICON := preload("res://art/icon_stress.png")  # 8x8, accanto al nome nella scheda
-const FOOD_PER_VEG := 50.0  # un vegetale mangiato
+const GLUTTON_HUNGER := 50.0  # il goloso va a mangiare già qui, invece che sotto NEED_LOW
 const MOOD_SPEED := 50.0    # al giorno: la felicità va verso la media di cibo, riposo, comfort e calma (stress al contrario)
 # barra: stremato, basso, a posto; tingono BAR_FILL, grigia (85%) nel mezzo e bianca sopra: lì risultano più chiari
 const NEED_COLORS := [Color("d34432"), Color("f6a332"), Color("7db644")]
@@ -185,6 +221,7 @@ class Colonist:
 	var needs := []               # 0-NEED_MAX per Need, vedi update_needs
 	var trend := []               # per Need: -1 scende, 0 fermo, 1 sale (le frecce della scheda)
 	var traits := []              # Trait
+	var conds := {}               # Cond -> `clock` a cui finisce
 	var pos: Vector2
 	var tunic: Color
 	var cape: Color
@@ -198,6 +235,7 @@ class Colonist:
 	var dest := Vector2i.ZERO     # HAUL: cella di magazzino dove si scarica; BUILD: dove stare a costruire
 	var carry_res := Res.WOOD
 	var carrying := 0
+	var carry_days := 0.0         # cibo in mano: giorni prima che marcisca (vedi fresh)
 	var work_left := 0.0
 	var work_total := 0.0
 
@@ -227,7 +265,9 @@ var weeds := {}             # cella -> true: erbacce (attraversabili)
 var chop_marks := {}        # cella -> true: alberi da tagliare
 var mine_marks := {}        # cella d'origine -> true: massi da scavare
 var uproot_marks := {}      # cella -> true: erbacce e cespugli da estirpare
-var items := {Res.WOOD: {}, Res.STONE: {}, Res.VEG: {}, Res.IRON: {}, Res.COAL: {}}  # risorsa -> (cella -> quantità a terra; nel magazzino = stoccata)
+var harvest_marks := {}     # cella -> true: cespugli da cui raccogliere le bacche, ogni volta che maturano
+var items := {Res.WOOD: {}, Res.STONE: {}, Res.VEG: {}, Res.IRON: {}, Res.COAL: {}, Res.MEAL: {}, Res.FINE_MEAL: {}}  # risorsa -> (cella -> quantità a terra; nel magazzino = stoccata)
+var fresh := {}             # cella -> giorni (a terra fuori) prima che il mucchio di cibo marcisca, vedi spoil
 var stockpile := {}         # cella -> true: dentro le stanze di tipo magazzino, vedi update_stockpile
 var rooms: Array[Room] = []  # stanze finite, vedi update_rooms
 var rooms_made := 0         # per i nomi di default
@@ -514,8 +554,9 @@ func toggle_erase(on: bool) -> void:
 		order = Order.BUILD if material_group.get_pressed_button() else Order.NONE
 
 
-# tasti "Destroy", "Mine", "Chop", "Uproot" dopo "Furniture": finché uno è premuto, trascinando o cliccando si
-# abbatte quello che è costruito, si segnano massi da scavare, alberi da tagliare, erbacce e cespugli da estirpare
+# tasti "Destroy", "Mine", "Chop", "Uproot", "Harvest" dopo "Furniture": finché uno è premuto, trascinando o cliccando
+# si abbatte quello che è costruito, si segnano massi da scavare, alberi da tagliare, erbacce e cespugli da estirpare,
+# cespugli da cui raccogliere le bacche (ogni volta che maturano, finché il segno resta)
 func toggle_order(on: bool, which: Order) -> void:
 	if on:
 		structures_button.button_pressed = false
@@ -630,7 +671,31 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 		icon.tooltip_text = "%s\n%s" % [Trait.keys()[t].capitalize(), TRAIT_INFO[t]]
 		traits_box.add_child(icon)
 	traits_box.get_parent().visible = not c.traits.is_empty()  # col titolo "Traits"
+	for child in box.get_node("Conditions/Icons").get_children():  # da rifare: magari era la scheda di un altro
+		child.free()
+	box.get_node("Conditions/Icons").set_meta("conds", [])
 	update_need_bars(needs_grid, c)
+	update_conds(box, c)
+
+
+# condizioni di `c` sotto i talenti, solo icone come loro: col mouse sopra nome, effetto e quanto manca. Le icone si
+# rifanno solo quando cambiano le condizioni (se no il suggerimento sparirebbe), il tempo che manca a ogni chiamata
+func update_conds(box: Control, c: Colonist) -> void:
+	var icons: Control = box.get_node("Conditions/Icons")
+	var now := c.conds.keys()
+	now.sort()
+	if icons.get_meta("conds", []) != now:
+		icons.set_meta("conds", now)
+		for child in icons.get_children():
+			child.free()
+		for k in now:
+			var icon := ui_icon(CONDITIONS_SHEET, Rect2(tile_rect(k, 0)), Vector2(32, 32))
+			icon.mouse_filter = Control.MOUSE_FILTER_PASS
+			icons.add_child(icon)
+	for i in now.size():
+		icons.get_child(i).tooltip_text = "%s\n%s\n%d h left" % [Cond.keys()[now[i]].capitalize(), COND_INFO[now[i]][4],
+			ceili((c.conds[now[i]] - clock) * 24)]
+	icons.get_parent().visible = not now.is_empty()  # col titolo "Conditions"
 
 
 # barre dei bisogni di `c` nella griglia `needs_grid` della scheda: rossa da stremato, arancio sotto NEED_LOW, verde
@@ -711,7 +776,7 @@ func describe(cell: Vector2i) -> Array:
 			return ["Boulder" if res == Res.STONE else "%s vein" % Res.keys()[res].capitalize(), "%s left: %d / %d%s" % [
 				Res.keys()[res].capitalize(), stock.get(origin, full_stock(origin)), full_stock(origin),
 				"\nMarked: mine" if mine_marks.has(origin) else ""]]
-	var uproot := "\nMarked: uproot" if uproot_marks.has(cell) else ""
+	var uproot := "\nMarked: uproot" if uproot_marks.has(cell) else ("\nMarked: harvest" if harvest_marks.has(cell) else "")
 	if bushes.has(cell):
 		var ripe: bool = bushes[cell] <= clock
 		return ["Bush", ("Berries: %d / %d" % [stock.get(cell, BERRIES_PER_BUSH), BERRIES_PER_BUSH] if ripe
@@ -720,7 +785,12 @@ func describe(cell: Vector2i) -> Array:
 		return ["Weed", uproot.strip_edges()]
 	for res in items:
 		if items[res].has(cell):
-			return ["%s pile" % Res.keys()[res].capitalize(), "%d / %d" % [items[res][cell], STACK_MAX[res]]]
+			var about := "%d / %d" % [items[res][cell], STACK_MAX[res]]
+			if fresh.has(cell):  # cibo: quanto è fresco e quando marcisce, dove si trova adesso
+				var part: float = fresh[cell] / SHELF_LIFE[res]
+				about += "\n%s, rots in %.1f days" % [FRESH_WORDS.filter(func(w): return part > w[0] or w[0] == 0.0)[0][1],
+					fresh[cell] / spoil_rate(cell)]
+			return ["%s pile" % Res.keys()[res].capitalize(), about]
 	for origin in pieces_at(furniture, cell):
 		return [Build.keys()[furniture[origin][0]].capitalize(), ""]
 	if built.has(cell):
@@ -750,6 +820,10 @@ func job_list() -> String:
 		lines.append("Mine boulders: %d" % mine_marks.size())
 	if not uproot_marks.is_empty():
 		lines.append("Uproot plants: %d" % uproot_marks.size())
+	if not harvest_ready().is_empty():
+		lines.append("Harvest bushes: %d" % harvest_ready().size())
+	if meals_wanted() > 0 and not kitchen_fires().is_empty():
+		lines.append("Cook meals: %d" % meals_wanted())
 	for plans in [blueprints, furniture_plans]:  # prima le strutture (per casella), poi i mobili (per pezzo)
 		var counts := {}  # "wall (wood)" -> quanti
 		for plan in plans.values():
@@ -850,7 +924,7 @@ func generate_map() -> void:
 	update_rooms()
 	if start_rooms:  # ponytail: scorta di debug, da togliere (o DEBUG_STASH a 0) quando si gioca sul serio
 		var first: Vector2i = MAP_SIZE / 2 + START_ROOMS[0] * 8
-		for res in Res.values():  # un mucchio per risorsa lungo la riga di mezzo, il resto si allarga accanto
+		for res in Res.values().filter(func(r): return r not in MEALS):  # un mucchio per risorsa lungo la riga di mezzo, il resto si allarga accanto
 			drop(res, first + Vector2i(res - 2, 0), DEBUG_STASH)
 		rooms.filter(func(r): return r.cells.has(first))[0].kind = RoomKind.WAREHOUSE
 		update_stockpile()
@@ -937,6 +1011,7 @@ func _process(delta: float) -> void:
 			room_popup.hide()
 	if sheet_panel.visible:
 		update_need_bars(sheet_needs, shown)
+		update_conds($HUD/ColonistSheet/Box, shown)
 	var t := fmod(clock, 1.0)
 	info_label.text = "Day %d  %02d:%02d    Order: %s    Speed: %dx  (Space = pause, 1-3)" \
 		% [int(clock) + 1, int(t * 24), int(t * 1440) % 60, Order.keys()[order].capitalize(), Engine.time_scale]
@@ -954,6 +1029,7 @@ func _process(delta: float) -> void:
 
 func tick(delta: float) -> void:
 	clock += delta / DAY_LENGTH
+	spoil(delta / DAY_LENGTH)
 	for c in colonists:
 		update_colonist(c, delta)
 
@@ -1019,22 +1095,22 @@ func update_colonist(c: Colonist, delta: float) -> void:
 				bushes.erase(c.target)
 				weeds.erase(c.target)
 				uproot_marks.erase(c.target)
+				harvest_marks.erase(c.target)
 				end_job(c)
 		Job.HAUL:
 			var ground: Dictionary = items[c.carry_res]
 			if c.target != c.dest:  # arrivato al mucchio: carica
 				var to_dest := path_to_nearest(c, [c.dest])
-				if to_dest.is_empty():
+				if to_dest.is_empty() or not ground.has(c.target):  # o il mucchio è marcito per strada
 					end_job(c)  # posto occupato o irraggiungibile: riprova più tardi, intanto fa altro
 					return
 				var space: int = STACK_MAX[c.carry_res] - ground.get(c.dest, 0)
-				c.carrying = mini(mini(ground[c.target], CARRY_MAX), space)
-				add_item(c.carry_res, c.target, -c.carrying)
+				pick_up(c, c.carry_res, c.target, mini(mini(ground[c.target], CARRY_MAX), space))
 				reserved.erase(c.target)
 				c.target = c.dest
 				c.path = to_dest
 			else:                   # arrivato nel magazzino: scarica
-				add_item(c.carry_res, c.dest, c.carrying)
+				add_item(c.carry_res, c.dest, c.carrying, c.carry_days)
 				c.carrying = 0
 				end_job(c)
 		Job.BUILD, Job.FURNISH:
@@ -1068,21 +1144,64 @@ func update_colonist(c: Colonist, delta: float) -> void:
 		Job.SLEEP:  # a letto o per terra (vedi update_needs), finché non è riposato del tutto
 			if c.needs[Need.REST] >= NEED_MAX:
 				end_job(c)
-		Job.EAT:  # arrivato al mucchio di vegetali: ne mangia uno
-			if items[Res.VEG].has(c.target):
-				add_item(Res.VEG, c.target, -1)
-				c.needs[Need.FOOD] = minf(c.needs[Need.FOOD] + FOOD_PER_VEG, NEED_MAX)
+		Job.EAT:  # al mucchio ne prende uno (carry_res) e lo mangia a una sedia accanto a un tavolo, se ce n'è una vicina; se no lì
+			if c.carrying == 0:
+				if not items[c.carry_res].has(c.target):  # mangiato da altri o marcito
+					end_job(c)
+					return
+				pick_up(c, c.carry_res, c.target, 1)
+				reserved.erase(c.target)
+				var near := seats().filter(func(s): return is_free(s) and center(s).distance_to(c.pos) <= SEAT_RANGE * TILE)
+				var to_seat := path_to_nearest(c, near)
+				if not to_seat.is_empty():
+					c.target = to_seat.back()
+					reserved[c.target] = c
+					c.path = to_seat
+					return
+			eat(c)
 			end_job(c)
+		Job.COOK:  # come BUILD: al mucchio prende i vegetali, poi al fuoco da campo (target) li cucina stando in dest
+			if furniture.get(c.target, [-1])[0] != Build.CAMPFIRE or not kitchen_fires().has(c.target):
+				quit_job(c)  # fuoco abbattuto, o la stanza non è più una cucina: rimette giù i vegetali
+				return
+			if c.carrying == 0:
+				var here := cell_of(c.pos)
+				if items[Res.VEG].get(here, 0) < COOK_VEG:
+					end_job(c)
+					return
+				pick_up(c, Res.VEG, here, COOK_VEG)
+				reserved.erase(here)
+				c.path = path_of(c, here, c.dest)
+				if c.path.is_empty():
+					quit_job(c)
+				return
+			face(c, center(c.target) - c.pos)
+			c.work_left = maxf(c.work_left - delta, 0.0)
+			if c.work_left == 0:
+				c.carrying = 0
+				c.xp[Skill.COOKING] += 1
+				var comfort := room_comfort(room_at(c.target))
+				var roll := randf()
+				var here := cell_of(c.pos)
+				end_job(c)
+				if roll >= burn_chance(c.skills[Skill.COOKING], comfort):  # bruciato: i vegetali sono persi, niente pasto
+					var meal: Res = Res.FINE_MEAL if roll >= 1.0 - fine_chance(c.skills[Skill.COOKING], comfort) else Res.MEAL
+					drop(meal, here, 1)
+					try_haul(c, meal, [here])  # lo porta subito in magazzino
 
 
 # Bisogni che calano col tempo. Chi dorme si riposa del tutto in SLEEP_TIME, più o meno secondo il comfort di dove
 # dorme (vedi comfort_of: per terra fuori è 0, il 20% in più), e il suo comfort va verso quello del posto.
 # Lo stress sale lavorando e scende a riposo. Sotto EXHAUSTED di riposo il colono molla tutto e crolla dove si trova;
 # sotto NEED_LOW ci pensa find_job.
-# ponytail: comfort e stress non cambiano ancora i lavori; la felicità segue solo la media degli altri
+# Le condizioni (vedi Cond) finite spariscono; quelle in corso cambiano lo stress da lavoro e la felicità.
+# ponytail: il comfort non cambia ancora i lavori; la felicità segue la media degli altri, più le condizioni
 func update_needs(c: Colonist, delta: float) -> void:
 	var day := delta / DAY_LENGTH * needs_rate
 	var before: Array = c.needs.duplicate()
+	for k in c.conds.keys():
+		if c.conds[k] <= clock:
+			c.conds.erase(k)
 	c.needs[Need.FOOD] -= FOOD_DROP * day
 	if c.job == Job.SLEEP and c.path.is_empty():
 		var comfort := comfort_of(c)
@@ -1091,8 +1210,9 @@ func update_needs(c: Colonist, delta: float) -> void:
 		c.needs[Need.COMFORT] = move_toward(c.needs[Need.COMFORT], NEED_MAX * comfort / COMFORT_MAX, gain)
 	else:
 		c.needs[Need.REST] -= REST_DROP * day
-	c.needs[Need.STRESS] += (STRESS_WORK if c.job not in [Job.NONE, Job.SLEEP, Job.EAT] else -STRESS_RELIEF) * day
+	c.needs[Need.STRESS] += (STRESS_WORK * cond_product(c, 2) if c.job not in [Job.NONE, Job.SLEEP, Job.EAT] else -STRESS_RELIEF) * day
 	var mood: float = (c.needs[Need.FOOD] + c.needs[Need.REST] + c.needs[Need.COMFORT] + NEED_MAX - c.needs[Need.STRESS]) / 4.0
+	mood = clampf(mood + mood_bonus(c), 0.0, NEED_MAX)
 	c.needs[Need.HAPPINESS] = move_toward(c.needs[Need.HAPPINESS], mood, MOOD_SPEED * day)
 	c.needs = c.needs.map(func(v): return clampf(v, 0.0, NEED_MAX))
 	if day > 0:  # in pausa le frecce restano com'erano; il pasto (vedi EAT) è uno scatto, non conta
@@ -1133,8 +1253,8 @@ func room_comfort(room: Room) -> int:
 
 
 # Quanto tempo richiede un'attività col comfort `comfort`, rispetto al normale: 1 a metà, 1 ± COMFORT_EFFECT agli estremi.
-# ponytail: per ora vale solo per il sonno; con cucina e forgia allungherà anche il lavoro, e sotto metà potrà
-# rovinare il prodotto
+# Vale per il sonno e per cucinare (dove sotto metà fa anche bruciare i pasti, vedi burn_chance).
+# ponytail: con la forgia allungherà anche quel lavoro
 func comfort_time(comfort: int) -> float:
 	var mid := COMFORT_MAX / 2.0
 	return 1.0 + COMFORT_EFFECT * (mid - comfort) / mid
@@ -1155,16 +1275,20 @@ func find_job(c: Colonist) -> void:
 		if not to_bed.is_empty():
 			start_job(c, Job.SLEEP, to_bed, to_bed.back(), 0.0)
 			return
-	if c.needs[Need.FOOD] < NEED_LOW:
-		var to_food := path_to_nearest(c, items[Res.VEG].keys().filter(func(cell): return is_free(cell)))
-		if not to_food.is_empty():
-			start_job(c, Job.EAT, to_food, to_food.back(), 0.0)
-			return
+	if c.needs[Need.FOOD] < (GLUTTON_HUNGER if Trait.GLUTTON in c.traits else NEED_LOW):
+		for res in MEALS + [Res.VEG]:  # prima i pasti, il crudo solo se non ce ne sono
+			var to_food := path_to_nearest(c, items[res].keys().filter(func(cell): return is_free(cell)))
+			if not to_food.is_empty():
+				start_job(c, Job.EAT, to_food, to_food.back(), 0.0)
+				c.carry_res = res
+				return
 
-	# ordine fisso finché non c'è la tabella delle priorità: tagliare, scavare, estirpare, costruire, trasportare, raccogliere
-	if try_work(c, Job.CHOP, chop_marks.keys(), TREE_SIDES, gather_time(c, Job.CHOP)) \
+	# ordine fisso finché non c'è la tabella delle priorità: cucinare, tagliare, scavare, estirpare, raccogliere,
+	# costruire, trasportare
+	if try_cook(c) or try_work(c, Job.CHOP, chop_marks.keys(), TREE_SIDES, gather_time(c, Job.CHOP)) \
 			or try_work(c, Job.MINE, mine_marks.keys(), SIDES, gather_time(c, Job.MINE)) \
-			or try_work(c, Job.UPROOT, uproot_marks.keys(), SIDES, UPROOT_TIME):
+			or try_work(c, Job.UPROOT, uproot_marks.keys(), SIDES, UPROOT_TIME * work_factor(c)) \
+			or try_work(c, Job.HARVEST, harvest_ready(), SIDES, gather_time(c, Job.HARVEST)):
 		return
 
 	for job in [Job.BUILD, Job.FURNISH]:  # prima le strutture, poi i mobili
@@ -1176,7 +1300,7 @@ func find_job(c: Colonist) -> void:
 		var path := path_to_nearest(c, stands.keys())
 		var to_source := [] if path.is_empty() else path_to_nearest(c, sources(plans[stands[path.back()]]))
 		if not to_source.is_empty():  # prima al mucchio a prendere il materiale, poi al cantiere
-			start_job(c, job, to_source, stands[path.back()], BUILD_TIME)
+			start_job(c, job, to_source, stands[path.back()], BUILD_TIME * work_factor(c))
 			c.dest = path.back()
 			c.carry_res = plans[c.target][1]
 			reserved[to_source.back()] = c  # intanto nessun altro prende da quel mucchio
@@ -1217,9 +1341,134 @@ func work_cells(job: Job, target: Vector2i) -> Array:
 
 
 # secondi per colpo di `c` nel lavoro di raccolta `job`: quelli di GATHER a livello 5, 1.4 volte tanto a livello 1,
-# la metà a livello 10
+# la metà a livello 10; più o meno secondo le condizioni (vedi work_factor)
 func gather_time(c: Colonist, job: Job) -> float:
-	return GATHER[job][1] * (1.5 - c.skills[GATHER[job][0]] / 10.0)
+	return GATHER[job][1] * skill_time(c.skills[GATHER[job][0]]) * work_factor(c)
+
+
+# tempo di un lavoro a livello `level` rispetto al livello 5: 1.4 a livello 1, la metà a livello 10
+func skill_time(level: int) -> float:
+	return 1.5 - level / 10.0
+
+
+# quanto tempo richiedono i lavori a `c` per le sue condizioni: 1 senza, meno se ben nutrito, di più se intossicato
+func work_factor(c: Colonist) -> float:
+	return cond_product(c, 1)
+
+
+# prodotto della colonna `col` di COND_INFO per le condizioni di `c` (1 tempo di lavoro, 2 stress da lavoro)
+func cond_product(c: Colonist, col: int) -> float:
+	var f := 1.0
+	for k in c.conds:
+		f *= COND_INFO[k][col]
+	return f
+
+
+# felicità in più (o in meno) per le condizioni di `c`: quelle del cibo contano il doppio per il goloso
+func mood_bonus(c: Colonist) -> float:
+	var sum := 0.0
+	for k in c.conds:
+		sum += COND_INFO[k][3] * (GLUTTON_MOOD if k in FOOD_CONDS and Trait.GLUTTON in c.traits else 1.0)
+	return sum
+
+
+func add_cond(c: Colonist, k: Cond) -> void:
+	c.conds[k] = clock + COND_INFO[k][0]
+
+
+# `c` mangia quello che ha in mano (carry_res): sazia secondo FOOD. Il crudo può intossicare (e il goloso lo mangia
+# malvolentieri); un pasto dà il suo bonus, che prende il posto di quello del pasto prima. Seduto al tavolo, un bonus in più
+func eat(c: Colonist) -> void:
+	var res := c.carry_res
+	c.needs[Need.FOOD] = minf(c.needs[Need.FOOD] + FOOD[res], NEED_MAX)
+	c.carrying = 0
+	if res == Res.VEG:
+		if randf() < poison_chance(c.carry_days):
+			add_cond(c, Cond.POISONED)
+		if Trait.GLUTTON in c.traits:
+			add_cond(c, Cond.ATE_RAW)
+	else:
+		c.conds.erase(Cond.WELL_FED)
+		c.conds.erase(Cond.FEASTED)
+		add_cond(c, Cond.FEASTED if res == Res.FINE_MEAL else Cond.WELL_FED)
+	if seats().has(cell_of(c.pos)):
+		add_cond(c, Cond.AT_TABLE)
+
+
+# probabilità di intossicarsi mangiando un vegetale a cui restano `days` giorni prima di marcire
+func poison_chance(days: float) -> float:
+	return lerpf(POISON_STALE, POISON_FRESH, clampf(days / SHELF_LIFE[Res.VEG], 0.0, 1.0))
+
+
+# sedie accanto a un tavolo (di lato, non in diagonale): lì si mangia meglio
+func seats() -> Array:
+	var tables := furniture.keys().filter(func(o): return furniture[o][0] == Build.TABLE) \
+		.map(func(o): return cells_in(piece_rect(o, furniture[o])))
+	return furniture.keys().filter(func(o): return furniture[o][0] == Build.CHAIR \
+		and tables.any(func(t): return SIDES.any(func(s): return t.has(o + s))))
+
+
+# fuochi da campo dentro le stanze di tipo cucina
+func kitchen_fires() -> Array:
+	var kitchens := rooms.filter(func(r): return r.kind == RoomKind.KITCHEN)
+	return furniture.keys().filter(func(o): return furniture[o][0] == Build.CAMPFIRE \
+		and kitchens.any(func(r): return r.cells.has(o)))
+
+
+func room_at(cell: Vector2i) -> Room:
+	for room in rooms:
+		if room.cells.has(cell):
+			return room
+	return null
+
+
+# pasti che mancano perché ce ne siano MEALS_PER_COLONIST a testa: contano quelli a terra, in mano e sul fuoco
+func meals_wanted() -> int:
+	var have: int = MEALS.reduce(func(sum, r): return sum + total(r), 0)
+	have += colonists.filter(func(o): return o.job == Job.COOK).size()
+	return maxi(MEALS_PER_COLONIST * colonists.size() - have, 0)
+
+
+# Cucinare, se mancano pasti: dal mucchio di vegetali più vicino con almeno COOK_VEG (a terra o in magazzino)
+# a una casella libera accanto a un fuoco da campo libero, dentro la cucina. false se non si può.
+# ponytail: la scorta è automatica; quando ci sarà la tabella delle priorità, il cartello della cucina potrà dire quanti
+func try_cook(c: Colonist) -> bool:
+	if meals_wanted() == 0:
+		return false
+	var stands := {}  # casella accanto a un fuoco, dentro la sua cucina -> fuoco
+	for fire in kitchen_fires().filter(func(f): return is_free(f)):
+		var room := room_at(fire)
+		var around := {}
+		add_stands(around, [fire], fire, SIDES)
+		for s in around:
+			if room.cells.has(s):
+				stands[s] = fire
+	var path := path_to_nearest(c, stands.keys())
+	if path.is_empty():
+		return false
+	var veg: Dictionary = items[Res.VEG]
+	var to_source := path_to_nearest(c, veg.keys().filter(func(cell): return veg[cell] >= COOK_VEG and is_free(cell)))
+	if to_source.is_empty():
+		return false
+	var fire: Vector2i = stands[path.back()]
+	start_job(c, Job.COOK, to_source, fire, cook_time(c, room_comfort(room_at(fire))))
+	c.dest = path.back()
+	c.carry_res = Res.VEG
+	reserved[to_source.back()] = c  # intanto nessun altro prende da quel mucchio
+	return true
+
+
+# secondi per un pasto: COOK_TIME a livello 5, secondo il comfort della cucina e le condizioni del cuoco
+func cook_time(c: Colonist, comfort: int) -> float:
+	return COOK_TIME * skill_time(c.skills[Skill.COOKING]) * comfort_time(comfort) * work_factor(c)
+
+
+func burn_chance(level: int, comfort: int) -> float:
+	return clampf(BURN_PER_LEVEL * (6 - level) + BURN_PER_COMFORT * (5 - comfort), 0.0, 1.0)
+
+
+func fine_chance(level: int, comfort: int) -> float:
+	return clampf(FINE_PER_LEVEL * (level - 5) + FINE_PER_COMFORT * (comfort - 5), 0.0, 1.0)
 
 
 # quanto c'è da raccogliere in `target` intatto: tronchi dell'albero, pietra (o minerale) del masso, bacche del cespuglio
@@ -1234,6 +1483,11 @@ func full_stock(target: Vector2i) -> int:
 # cespugli con le bacche mature, non segnati da estirpare
 func ripe_bushes() -> Array:
 	return bushes.keys().filter(func(b): return bushes[b] <= clock and not uproot_marks.has(b))
+
+
+# cespugli segnati da raccogliere che hanno le bacche
+func harvest_ready() -> Array:
+	return ripe_bushes().filter(func(b): return harvest_marks.has(b))
 
 
 # progetti su cui lavora `job`: strutture (una casella) o mobili
@@ -1369,7 +1623,7 @@ func claimed(except: Colonist) -> Dictionary:
 	for o in colonists:
 		if o != except:
 			cells[cell_of(o.pos) if o.path.is_empty() else o.path.back()] = true
-			if o.job in [Job.BUILD, Job.FURNISH]:
+			if o.job in [Job.BUILD, Job.FURNISH, Job.COOK]:
 				cells[o.dest] = true
 	return cells
 
@@ -1391,16 +1645,47 @@ func dest_cells(res: Res) -> Array:
 		return is_free(cell) and items[res].get(cell, 0) < STACK_MAX[res])
 
 
-func add_item(res: Res, cell: Vector2i, amount: int) -> void:
+# Aggiunge (o toglie, se negativo) `amount` di `res` al mucchio in `cell`. Il cibo che arriva (fresco, se `days` è
+# negativo) si mescola a quello che c'è: il mucchio prende la media dei giorni che restano, pesata sulle quantità
+func add_item(res: Res, cell: Vector2i, amount: int, days := -1.0) -> void:
 	var ground: Dictionary = items[res]
-	ground[cell] = ground.get(cell, 0) + amount
+	var had: int = ground.get(cell, 0)
+	ground[cell] = had + amount
+	if SHELF_LIFE.has(res) and amount > 0:
+		var incoming: float = SHELF_LIFE[res] if days < 0 else days
+		fresh[cell] = (fresh.get(cell, 0.0) * had + incoming * amount) / ground[cell]
 	if ground[cell] <= 0:
 		ground.erase(cell)
+		fresh.erase(cell)
+
+
+# `c` prende in mano `amount` di `res` dal mucchio in `cell`, col suo stato di freschezza
+func pick_up(c: Colonist, res: Res, cell: Vector2i, amount: int) -> void:
+	c.carry_days = fresh.get(cell, 0.0)
+	add_item(res, cell, -amount)
+	c.carry_res = res
+	c.carrying = amount
+
+
+# Il cibo a terra invecchia di `days` giorni, a metà velocità in magazzino (vedi spoil_rate); finiti, il mucchio marcisce
+# e sparisce. Chi ci stava andando lo trova vuoto e lascia perdere.
+# ponytail: quello in mano non invecchia (lo si tiene poco); il marcio non lascia niente: se serve un mucchio da buttare
+func spoil(days: float) -> void:
+	for cell in fresh.keys():
+		fresh[cell] -= days * spoil_rate(cell)
+		if fresh[cell] <= 0:
+			for res in SHELF_LIFE:
+				items[res].erase(cell)
+			fresh.erase(cell)
+
+
+func spoil_rate(cell: Vector2i) -> float:
+	return SPOIL_STORED if stockpile.has(cell) else 1.0
 
 
 # Posa a terra `amount` di `res` su `cell`; oltre STACK_MAX il resto va sulle caselle più vicine dove ci sta
 # (niente alberi, acqua, altre risorse), come si allarga una macchia.
-func drop(res: Res, cell: Vector2i, amount: int) -> void:
+func drop(res: Res, cell: Vector2i, amount: int, days := -1.0) -> void:
 	var todo := [cell]
 	var seen := {cell: true}
 	while amount > 0 and not todo.is_empty():
@@ -1408,7 +1693,7 @@ func drop(res: Res, cell: Vector2i, amount: int) -> void:
 		if not trees.has(k) and not water.has(k) and items.keys().all(func(r): return r == res or not items[r].has(k)):
 			var put := mini(amount, STACK_MAX[res] - items[res].get(k, 0))
 			if put > 0:
-				add_item(res, k, put)
+				add_item(res, k, put, days)
 				amount -= put
 		for side in SIDES:
 			var next: Vector2i = k + side
@@ -1451,10 +1736,16 @@ func mark(rect: Rect2i) -> void:
 			for origin in boulders:
 				if rect.intersects(Rect2i(origin, boulders[origin])):
 					mine_marks[origin] = true
-		Order.UPROOT:
+		Order.UPROOT:  # un cespuglio da estirpare non si raccoglie più
 			for cell in bushes.keys() + weeds.keys():
 				if rect.has_point(cell):
 					uproot_marks[cell] = true
+					harvest_marks.erase(cell)
+		Order.HARVEST:  # e viceversa: si cambia idea
+			for cell in bushes:
+				if rect.has_point(cell):
+					harvest_marks[cell] = true
+					uproot_marks.erase(cell)
 		Order.BUILD:  # nel progetto; i muri solo sul bordo del rettangolo: trascinando si disegna una stanza
 			if FURNITURE.has(build_kind):  # un mobile per volta, girato di build_turn, dall'angolo del rettangolo
 				var plan := [build_kind, build_res, build_turn]
@@ -1501,7 +1792,7 @@ func drop_job(target: Vector2i, job: Job) -> void:
 
 # lascia il lavoro a metà: quello che ha in mano finisce a terra, i trasportatori lo riportano in magazzino
 func quit_job(c: Colonist) -> void:
-	drop(c.carry_res, cell_of(c.pos), c.carrying)
+	drop(c.carry_res, cell_of(c.pos), c.carrying, c.carry_days)
 	c.carrying = 0
 	c.path.clear()
 	end_job(c)
@@ -1835,6 +2126,8 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 		draw_mark(Rect2(Vector2(origin) * TILE, Vector2(boulders[origin]) * TILE), Order.MINE)
 	for cell in uproot_marks:
 		draw_mark(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE), Order.UPROOT)
+	for cell in harvest_marks:
+		draw_mark(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE), Order.HARVEST)
 	for c in colonists:
 		if is_working(c):  # barra di avanzamento del lavoro
 			draw_rect(Rect2(c.pos + Vector2(-6, -11), Vector2(12 * (1 - c.work_left / c.work_total), 2)), Color.YELLOW)

@@ -41,7 +41,20 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 - **Bisogni**: fame, riposo, comfort, felicità; calore in seguito.
 - **Stress** (0–100, con icona): sale lavorando, scende dormendo o a riposo; abbassa la felicità. Altri effetti in seguito.
 - **Abilità** (livelli 1–10, al 10 una stellina): raccogliere, estrarre, tagliare legna, costruire, cucinare, pescare, cacciare, armi da mischia, armi a distanza, ricerca (lista provvisoria). Velocità e qualità del lavoro; crescono con l'uso.
-- **Talenti**: modificano alcune routine dei coloni, ognuno con un'icona 16×16 (es. "Robusto": +resistenza al freddo; "Pigro": −velocità lavoro; "Pirofobo": rifiuta di cucinare). Primi: goloso, sonnambulo, iracondo (ancora senza effetto).
+- **Talenti**: modificano alcune routine dei coloni, ognuno con un'icona 16×16 (es. "Robusto": +resistenza al freddo; "Pigro": −velocità lavoro; "Pirofobo": rifiuta di cucinare). Primi: goloso, sonnambulo, iracondo.
+  Il **goloso** va a mangiare già a fame 50 (gli altri a 30), si gode il doppio i bonus dei pasti e si lamenta se mangia crudo; sonnambulo e iracondo ancora senza effetto.
+- **Condizioni**: effetti a tempo, con un'icona 16×16 nella scheda sotto i talenti (col mouse sopra: nome, effetto, ore che mancano).
+  Cambiano tempo di lavoro, stress da lavoro e felicità:
+
+  | Condizione | Durata | Lavoro | Stress da lavoro | Felicità |
+  |---|---|---|---|---|
+  | Intossicato (crudo andato a male) | 1 giorno | +50% tempo | — | −20 |
+  | Ben nutrito (pasto) | ½ giorno | −10% tempo | −25% | +5 |
+  | Pasto squisito | ½ giorno | −20% tempo | −50% | +10 |
+  | Mangiato al tavolo | ½ giorno | — | — | +5 |
+  | Mangiato crudo (solo il goloso) | ½ giorno | — | — | −10 |
+
+  Ben nutrito e pasto squisito si escludono: vale l'ultimo pasto. Poi: malattie dal narratore, perdita di punti ferita.
 - **Scheda** (clic sul colono): nome, soprannome (facoltativo), cognome, punti ferita, abilità (ognuna con un'icona 8×8), talenti (solo icone, il nome col mouse sopra), equipaggiamento (3 slot: mani, corpo, testa). Poi bisogni, relazioni.
 
 ### 4.3 Il re e la dinastia
@@ -55,7 +68,7 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 - Catene MVP:
   - Legname → assi (banco da falegname)
   - Ferro grezzo → lingotti (fornace) → attrezzi (fucina)
-  - Cibo crudo → pasto (cucina)
+  - Cibo crudo → pasto (cucina, vedi 4.4.1)
 - Attrezzi equipaggiati = bonus all'abilità corrispondente.
 - Edifici MVP: muri, porte, tetto, letto, focolare, cucina, magazzino (zona), banco da lavoro, fornace, fucina.
 - Stanze chiuse con tetto proteggono da pioggia e freddo; il focolare scalda.
@@ -68,7 +81,29 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   sotto il tipo i proprietari (col mouse sopra, la loro scheda).
 - **Comfort della stanza** (0–10): mobili per pezzo e pavimento, secondo il materiale (pietra ×1,5). A 5 nessun effetto;
   a 0 (anche fuori dalle stanze) le attività durano il 20% in più, a 10 il 20% in meno. Per ora vale per il sonno
-  (8 ore a comfort 5). Sotto le 6 caselle a testa il comfort cala in proporzione. Poi: rischio di rovinare il prodotto.
+  (8 ore a comfort 5) e per cucinare, dove cambia anche la probabilità di bruciare il pasto o farlo squisito.
+  Sotto le 6 caselle a testa il comfort cala in proporzione.
+
+### 4.4.1 Cibo e cucina
+- **Freschezza**: ogni mucchio di cibo ha i giorni che gli restano (mescolando due mucchi, la media pesata).
+  A terra fuori il cibo dura 3 giorni, in magazzino il doppio; poi marcisce e sparisce. Il suggerimento sul mucchio
+  dice "Fresh / Stale / Almost rotten" e fra quanti giorni marcisce. Poi: dispensa fredda e inverno (più lento), marcio da buttare.
+- **Crudo** (vegetali): sazia 35. Può intossicare: 5% appena raccolto, fino al 40% quasi marcio.
+- **Pasti**: 2 vegetali → 1 pasto, che sazia 100 e dà *ben nutrito*. Non intossica.
+  Chi ha fame prende prima un pasto squisito, poi un pasto, il crudo solo se non ce ne sono.
+  Se entro 20 caselle c'è una sedia libera accanto a un tavolo, lo porta lì e lo mangia seduto (*mangiato al tavolo*).
+- **Cucinare** (abilità cucinare): in una stanza di tipo cucina, accanto al fuoco da campo. Il cuoco prende 2 vegetali dal
+  mucchio più vicino, cucina, il pasto cade ai suoi piedi e lo porta in magazzino. Si cucina finché in giro
+  (a terra, in magazzino, in mano) ci sono meno di 2 pasti a colono; nella finestra Jobs: "Cook meals: N".
+  Poi: ricette e quantità impostabili dal cartello della cucina.
+  - Tempo: 8 s a livello 5 (×1,4 a livello 1, ×0,5 a livello 10), secondo il comfort della cucina (±20%) e le condizioni del cuoco.
+  - +1 punto esperienza per pasto.
+  - **Bruciato** (vegetali persi): 6% per livello sotto il 6 (30% a livello 1), +3% per punto di comfort della cucina sotto 5 (sopra lo abbassa).
+  - **Squisito**: 5% per livello sopra il 5 (25% a livello 10), +2% per punto di comfort sopra 5. Dà *pasto squisito*.
+- Poi: carne e pesce (caccia, pesca), stufato, conserve per l'inverno.
+- **Raccogliere** (tasto "Harvest", cestino, dopo "Uproot"): si segnano i cespugli; i coloni ne raccolgono le bacche ogni
+  volta che maturano (5 ogni 2 giorni), finché il segno resta, e le portano in magazzino. Segnare "Uproot" toglie il segno e viceversa.
+  Un colono mangia circa 2 vegetali al giorno se cucinati, 2,6 crudi; un cespuglio ne dà 2,5: 1–2 cespugli a testa.
 
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100.

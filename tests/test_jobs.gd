@@ -613,7 +613,7 @@ func _initialize() -> void:
 	check(game.rooms.all(func(r): return game.built[r.sign][0] == game.Build.WALL and (r.sign - r.door).length() == 1),
 		"cartelli sul muro accanto alla porta")
 	for res in game.Res.values():
-		check(game.stored(res) == game.DEBUG_STASH, "scorta di debug nel magazzino della prima stanza")
+		check(game.stored(res) == (0 if res in game.MEALS else game.DEBUG_STASH), "scorta di debug nel magazzino della prima stanza, solo crudo")
 	# il tipo resta finché ci sono i suoi mobili: in una stanza vuota, un letto e poi niente
 	var hall = game.rooms.filter(func(r): return r.kind == game.RoomKind.NONE)[0]
 	var bed_spot: Vector2i = hall.cells.keys().min()
