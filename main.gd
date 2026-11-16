@@ -21,7 +21,8 @@ const HAIR_COLORS := [Color("3b2a1e"), Color("d9b35b"), Color("a8462f"), Color("
 const SIDES := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 const TREE_SIDES := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  # da sopra la chioma coprirebbe chi taglia
 
-enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT }
+enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, RELAX, TANTRUM }
+const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FURNISH, Job.HARVEST]  # contano come ore di lavoro
 enum Res { WOOD, STONE, VEG, IRON, COAL }  # VEG: vegetali, dalle bacche dei cespugli; IRON, COAL: dai massi con le vene
 const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.IRON: 50, Res.COAL: 50}  # quantità massima per mucchio (casella)
 enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH }  # cosa segna il trascinamento del mouse
@@ -140,17 +141,75 @@ const GATHER := {
 const STAR := preload("res://art/icon_star.png")
 const SKILLS_SHEET := preload("res://art/skills.png")  # icone 8x8, colonne nell'ordine di Skill
 const MAX_HP := 100
-# talenti: per ora senza effetto, poi cambieranno alcune routine dei coloni; colonne di TRAITS_SHEET, 16x16 ciascuno
-enum Trait { GLUTTON, SLEEPWALKER, HOTHEAD }
+# Routine: ogni ora del giorno, da mezzanotte, è sonno (S), lavoro (W) o tempo libero (F), vedi routine_of.
+# Base: dorme 22-6, colazione alle 6, lavora 7-12 e 13-18 con il pranzo in mezzo, la sera è libera.
+# Nelle ore di lavoro si lavora al più WORK_HOURS ore (per giornata, da quando ci si alza): poi è tempo libero
+enum Act { SLEEP, WORK, FREE }
+const ROUTINE := "SSSSSSFWWWWWFWWWWWFFFFSS"
+const ROUTINE_LETTERS := "SWF"  # nell'ordine di Act
+const ROUTINE_COLORS := [Color("3b5ea3"), Color("e0703a"), Color("7db644")]  # caselle delle ore nella scheda, per Act
+const ROUTINE_NAMES := ["Sleep", "Work", "Free time"]
+const WORK_HOURS := 8.0
+const RELAX_HOURS := 1.0     # una pausa (al fuoco da campo o a passeggio), poi si rivaluta: vedi relax
+const RELAX_REACH := 6       # caselle: quanto lontano va a passeggiare
+const SNACK := 60.0          # nel tempo libero mangia già sotto questa soglia di cibo: ai pasti
+const RISE := 80.0           # finite le ore di sonno si alza con almeno questo riposo (la pennichella non dura ore)
+# talenti: cambiano la routine e i ritmi dei bisogni (vedi TRAIT_FX); colonne di TRAITS_SHEET, 16x16 ciascuno
+enum Trait { GLUTTON, SLEEPWALKER, HOTHEAD, LAZY, WORKAHOLIC, EARLY_BIRD, NIGHT_OWL, SLEEPYHEAD, TIRELESS, FUN_LOVING,
+	ASCETIC, SMALL_APPETITE, EASYGOING, NAPPER, RESTLESS }
 const TRAITS_SHEET := preload("res://art/traits.png")
-const TRAIT_INFO := {  # suggerimento col mouse sopra il talento
-	Trait.GLUTTON: "Always thinking about the next meal.",
-	Trait.SLEEPWALKER: "Sometimes wanders off in their sleep.",
-	Trait.HOTHEAD: "Loses their temper easily.",
+const TRAIT_INFO := {  # suggerimento col mouse sopra il talento: com'è, poi cosa cambia
+	Trait.GLUTTON: "Always thinking about the next meal.\nGets hungry 50% faster and snacks in free time.",
+	Trait.SLEEPWALKER: "Sometimes wanders off in their sleep.\nMay get up at night and sleep wherever they end up.",
+	Trait.HOTHEAD: "Loses their temper easily.\nStress from work +50%. At 90 storms off for two hours.",
+	Trait.LAZY: "Would rather be anywhere else.\nWorks at most 6 hours a day.",
+	Trait.WORKAHOLIC: "Lives for the job.\nWorks up to 12 hours a day, free time too. Gets bored half as fast.",
+	Trait.EARLY_BIRD: "Up before the rooster.\nWhole day two hours earlier: sleeps 20-4.",
+	Trait.NIGHT_OWL: "Comes alive after dark.\nSleeps by day (10-18), works by night.",
+	Trait.SLEEPYHEAD: "Hard to get out of bed.\nNeeds 10 hours of sleep: sleeps until 8.",
+	Trait.TIRELESS: "Six hours of sleep are plenty.\nSleeps 0-6, gets tired 25% slower.",
+	Trait.FUN_LOVING: "Work can wait, fun can't.\nGets bored twice as fast. Stops work at 17.",
+	Trait.ASCETIC: "Wants nothing but the essentials.\nNever needs fun.",
+	Trait.SMALL_APPETITE: "Eats like a sparrow.\nGets hungry 40% slower, never snacks.",
+	Trait.EASYGOING: "Nothing ruffles them.\nHalf the stress from work.",
+	Trait.NAPPER: "A nap after lunch, every day.\nSleeps 13-14, goes to bed at 23.",
+	Trait.RESTLESS: "Can't keep at one thing for long.\nAfter 2 hours of work in a row, takes an hour off.",
 }
-# bisogni, barre 0-NEED_MAX nella scheda: 100 = sazio, riposato, comodo, felice; lo stress al contrario, 100 = al limite.
-# Ritmi "al giorno" di gioco
-enum Need { FOOD, REST, COMFORT, HAPPINESS, STRESS }
+# Effetti dei talenti, vedi fx. "hours": ore della routine base cambiate (prima di spostarla); "shift": ore di cui si
+# sposta tutta la giornata; "overtime": lavora anche nel tempo libero; "work": ore di lavoro al giorno.
+# Ritmi, si moltiplicano tra talenti: "food" fame, "rest" stanchezza, "fun" noia, "stress" stress dal lavoro,
+# "sleep" ore di sonno per riposarsi del tutto. "snack": soglia di cibo per mangiare nel tempo libero (0: mai);
+# "tantrum": stress a cui si arrabbia e se ne va (vedi tantrum); "sleepwalk": probabilità all'ora di alzarsi nel sonno;
+# "streak": ore di lavoro di fila prima di una pausa
+const TRAIT_FX := {
+	Trait.GLUTTON: {"food": 1.5, "snack": 85.0},
+	Trait.SLEEPWALKER: {"sleepwalk": 0.1},
+	Trait.HOTHEAD: {"stress": 1.5, "tantrum": 90.0},
+	Trait.LAZY: {"work": 6.0},
+	Trait.WORKAHOLIC: {"work": 12.0, "overtime": true, "fun": 0.5},
+	Trait.EARLY_BIRD: {"shift": -2},
+	Trait.NIGHT_OWL: {"shift": 12},
+	Trait.SLEEPYHEAD: {"hours": {6: "S", 7: "S"}, "sleep": 10.0 / 8},
+	Trait.TIRELESS: {"hours": {22: "F", 23: "F"}, "sleep": 6.0 / 8, "rest": 0.75},
+	Trait.FUN_LOVING: {"hours": {17: "F"}, "fun": 2.0},
+	Trait.ASCETIC: {"fun": 0.0},
+	Trait.SMALL_APPETITE: {"food": 0.6, "snack": 0.0},
+	Trait.EASYGOING: {"stress": 0.5},
+	Trait.NAPPER: {"hours": {13: "S", 22: "F"}},
+	Trait.RESTLESS: {"streak": 2.0},
+}
+const FX_RATES := ["food", "rest", "fun", "stress", "sleep"]  # questi si moltiplicano; gli altri vale l'ultimo talento
+const TRAIT_CLASH := [  # mai insieme nello stesso colono
+	[Trait.GLUTTON, Trait.SMALL_APPETITE], [Trait.LAZY, Trait.WORKAHOLIC], [Trait.EARLY_BIRD, Trait.NIGHT_OWL],
+	[Trait.SLEEPYHEAD, Trait.TIRELESS], [Trait.FUN_LOVING, Trait.ASCETIC], [Trait.HOTHEAD, Trait.EASYGOING],
+]
+const TANTRUM_HOURS := 2.0   # quanto dura la sfuriata dell'iracondo; intanto lo stress scende TANTRUM_VENT volte più in fretta
+const TANTRUM_VENT := 4.0
+const TANTRUM_REACH := 8     # caselle: quanto lontano va a sbollire
+const SLEEPWALK_REACH := 5   # caselle: quanto lontano va il sonnambulo
+# bisogni, barre 0-NEED_MAX nella scheda: 100 = sazio, riposato, divertito, comodo, felice; lo stress al contrario,
+# 100 = al limite. Ritmi "al giorno" di gioco
+enum Need { FOOD, REST, FUN, COMFORT, HAPPINESS, STRESS }
 const NEED_MAX := 100.0
 const NEED_LOW := 30.0      # affamato: va a mangiare dei vegetali; stanco: cerca un letto libero
 const EXHAUSTED := 10.0     # stremato: lascia il lavoro e dorme dove si trova
@@ -160,8 +219,10 @@ const SLEEP_TIME := 8.0 / 24  # giorni di sonno per riposarsi del tutto, a comfo
 const STRESS_WORK := 30.0   # al giorno, lavorando: sale
 const STRESS_RELIEF := 60.0 # al giorno, dormendo, mangiando o senza niente da fare: scende
 const STRESS_ICON := preload("res://art/icon_stress.png")  # 8x8, accanto al nome nella scheda
+const FUN_DROP := 120.0     # al giorno, da sveglio e senza svago: scende
+const FUN_GAIN := 300.0     # al giorno, svagandosi (vedi relax): sale
 const FOOD_PER_VEG := 50.0  # un vegetale mangiato
-const MOOD_SPEED := 50.0    # al giorno: la felicità va verso la media di cibo, riposo, comfort e calma (stress al contrario)
+const MOOD_SPEED := 50.0    # al giorno: la felicità va verso la media di cibo, riposo, divertimento, comfort e calma
 # barra: stremato, basso, a posto; tingono BAR_FILL, grigia (85%) nel mezzo e bianca sopra: lì risultano più chiari
 const NEED_COLORS := [Color("d34432"), Color("f6a332"), Color("7db644")]
 const BAR_FILL := preload("res://art/bar_fill.png")  # bianca: la tinge NEED_COLORS; vedi bar_style
@@ -198,8 +259,13 @@ class Colonist:
 	var dest := Vector2i.ZERO     # HAUL: cella di magazzino dove si scarica; BUILD: dove stare a costruire
 	var carry_res := Res.WOOD
 	var carrying := 0
-	var work_left := 0.0
-	var work_total := 0.0
+	var work_left := 0.0          # secondi: del colpo, della costruzione o, a svago e in sfuriata, del tempo che resta
+	var work_total := 0.0         # 0 se non è un lavoro a tempo (niente barra né colpi)
+	var worked := 0.0             # ore lavorate nella sua giornata, che comincia quando si alza (vedi update_routine)
+	var workday := 0              # la giornata a cui si riferisce `worked`
+	var streak := 0.0             # ore di lavoro di fila, senza pause né pasti
+	var pause_until := 0.0        # `clock` fino a cui non lavora: è in pausa (vedi "streak" in TRAIT_FX)
+	var hour := -1                # ultima ora vista, per accorgersi di quando scocca la successiva
 
 
 # Zona chiusa da muri (o roccia, acqua alta) con almeno una porta: una struttura finita.
@@ -235,6 +301,7 @@ var editing: Room           # la stanza aperta nel popup del cartello
 var shown: Colonist         # il colono nella scheda: le barre dei bisogni lo seguono
 var lens_owners := []       # [centro, proprietari] per stanza delle figurine sulla lente, vedi place_owners
 var needs_rate := 1.0       # 0 nei test: i bisogni restano fermi e non cambiano i lavori
+var routines := true        # false nei test: niente orari né ore massime, chi è libero prende il primo lavoro
 var start_rooms := true     # false nei test: mappa di sempre, senza stanze né scorte di partenza (va messo prima di _ready)
 var reserved := {}          # cella -> Colonist che la sta usando
 var unreachable := {}       # cella -> `clock` da cui riprovare ad arrivarci, vedi path_to_nearest
@@ -324,9 +391,12 @@ func _ready() -> void:
 		# sfalsati: non dormono tutti insieme; lo stress parte basso
 		c.needs = Need.values().map(func(n): return randf_range(0, 40) if n == Need.STRESS else randf_range(60, NEED_MAX))
 		c.trend = c.needs.map(func(_v): return 0.0)
-		c.traits = Trait.values()
-		c.traits.shuffle()
-		c.traits = c.traits.slice(0, randi_range(0, 2))
+		var pool := Trait.values()
+		pool.shuffle()
+		var count := randi_range(0, 2)
+		for t in pool:  # a caso, ma niente talenti in contrasto (vedi TRAIT_CLASH)
+			if c.traits.size() < count and not c.traits.any(func(o): return clash(o, t)):
+				c.traits.append(t)
 		colonists.append(c)
 	camera.position = center(MAP_SIZE / 2)
 	fullscreen.pressed.connect(toggle_fullscreen)
@@ -630,7 +700,29 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 		icon.tooltip_text = "%s\n%s" % [Trait.keys()[t].capitalize(), TRAIT_INFO[t]]
 		traits_box.add_child(icon)
 	traits_box.get_parent().visible = not c.traits.is_empty()  # col titolo "Traits"
+	var hours: Control = box.get_node("Routine/Hours")  # una casella per ora, colorata secondo la routine
+	for child in hours.get_children():
+		child.free()
+	for h in 24:
+		var cell := ColorRect.new()
+		cell.custom_minimum_size = Vector2(8, 12)
+		cell.mouse_filter = Control.MOUSE_FILTER_PASS  # se no il suggerimento non compare
+		hours.add_child(cell)
 	update_need_bars(needs_grid, c)
+	update_routine_row(box.get_node("Routine"), c)
+
+
+# riga della routine nella scheda: le ore colorate (vedi ROUTINE_COLORS), l'ora attuale piena e le altre velate,
+# sotto le ore lavorate oggi. Si aggiorna mentre la scheda è aperta: i talenti possono cambiare, e l'ora scorre
+func update_routine_row(row: Control, c: Colonist) -> void:
+	var day := routine_of(c)
+	var now := hour_now()
+	for h in 24:
+		var cell: ColorRect = row.get_node("Hours").get_child(h)
+		cell.color = ROUTINE_COLORS[day[h]]
+		cell.modulate.a = 1.0 if h == now else 0.45
+		cell.tooltip_text = "%02d:00  %s" % [h, ROUTINE_NAMES[day[h]]]
+	row.get_node("Worked").text = "Worked today: %.1f / %s h" % [c.worked, str(fx(c, "work", WORK_HOURS)).trim_suffix(".0")]
 
 
 # barre dei bisogni di `c` nella griglia `needs_grid` della scheda: rossa da stremato, arancio sotto NEED_LOW, verde
@@ -741,7 +833,7 @@ func confirm_build() -> void:
 			furniture_plans[origin] = pieces[origin]
 
 
-# finestra "Jobs": lavori in attesa per tipo, nell'ordine in cui i coloni li scelgono (vedi find_job)
+# finestra "Jobs": lavori in attesa per tipo, nell'ordine in cui i coloni li scelgono (vedi find_work)
 func job_list() -> String:
 	var lines := PackedStringArray()
 	if not chop_marks.is_empty():
@@ -937,6 +1029,7 @@ func _process(delta: float) -> void:
 			room_popup.hide()
 	if sheet_panel.visible:
 		update_need_bars(sheet_needs, shown)
+		update_routine_row($HUD/ColonistSheet/Box/Routine, shown)
 	var t := fmod(clock, 1.0)
 	info_label.text = "Day %d  %02d:%02d    Order: %s    Speed: %dx  (Space = pause, 1-3)" \
 		% [int(clock) + 1, int(t * 24), int(t * 1440) % 60, Order.keys()[order].capitalize(), Engine.time_scale]
@@ -960,7 +1053,9 @@ func tick(delta: float) -> void:
 
 func update_colonist(c: Colonist, delta: float) -> void:
 	update_needs(c, delta)
-	c.idle = c.idle + delta if c.job == Job.NONE and c.path.is_empty() else 0.0
+	if routines:
+		update_routine(c, delta)
+	c.idle = c.idle + delta if c.job in [Job.NONE, Job.RELAX, Job.TANTRUM] and c.path.is_empty() else 0.0
 	if c.idle > LOOK_TIME and randf() < delta / LOOK_TIME:  # si guarda attorno, a caso: niente coloni sincronizzati
 		c.facing = Facing.values().pick_random()
 	if not c.path.is_empty():  # anche senza lavoro: chi è libero può dover uscire da una stanza che si chiude
@@ -1065,34 +1160,150 @@ func update_colonist(c: Colonist, delta: float) -> void:
 					plans.erase(c.target)
 				c.carrying = 0
 				end_job(c)
-		Job.SLEEP:  # a letto o per terra (vedi update_needs), finché non è riposato del tutto
-			if c.needs[Need.REST] >= NEED_MAX:
+		Job.SLEEP:  # a letto o per terra (vedi update_needs): nelle ore di sonno resta giù anche riposato, poi si alza
+			# appena ha riposato abbastanza (senza routine solo del tutto). Chi ha dormito poco recupera nelle ore dopo
+			if c.needs[Need.REST] >= (RISE if routines else NEED_MAX) and not (routines and activity(c) == Act.SLEEP):
 				end_job(c)
 		Job.EAT:  # arrivato al mucchio di vegetali: ne mangia uno
 			if items[Res.VEG].has(c.target):
 				add_item(Res.VEG, c.target, -1)
 				c.needs[Need.FOOD] = minf(c.needs[Need.FOOD] + FOOD_PER_VEG, NEED_MAX)
 			end_job(c)
+		Job.RELAX, Job.TANTRUM:  # arrivato al fuoco, in fondo alla passeggiata o a sbollire: resta lì finché non è ora
+			c.work_left -= delta
+			if c.work_left <= 0:
+				end_job(c)
 
 
-# Bisogni che calano col tempo. Chi dorme si riposa del tutto in SLEEP_TIME, più o meno secondo il comfort di dove
-# dorme (vedi comfort_of: per terra fuori è 0, il 20% in più), e il suo comfort va verso quello del posto.
+# La giornata di `c` secondo la sua routine: conta le ore lavorate (la giornata comincia quando si alza, vedi
+# wake_hour) e quelle di fila. Chi lavora quando non dovrebbe (fuori orario, ore finite, in pausa) molla il lavoro
+# appena ha le mani libere; allo scoccare di ogni ora anche per un bisogno urgente che si può soddisfare.
+func update_routine(c: Colonist, delta: float) -> void:
+	var workday := floori(clock - wake_hour(routine_of(c)) / 24.0)
+	if workday != c.workday:
+		c.workday = workday
+		c.worked = 0.0
+	var hours := delta / DAY_LENGTH * 24
+	if c.job in WORK_JOBS:
+		c.worked += hours
+		c.streak += hours
+	elif c.job != Job.NONE:  # a letto, a tavola o a svagarsi; NONE dura un attimo tra un lavoro e l'altro
+		c.streak = 0.0
+	if c.streak >= fx(c, "streak", INF):  # l'irrequieto si prende una pausa
+		c.streak = 0.0
+		c.pause_until = clock + RELAX_HOURS / 24
+	var now := hour_now()
+	var new_hour := now != c.hour
+	c.hour = now
+	if c.job in WORK_JOBS and c.carrying == 0 and (not may_work(c) or (new_hour and urgent(c))):
+		quit_job(c)
+
+
+# può prendere un lavoro? Nelle ore di lavoro della sua routine, se non ha già fatto le sue ore e non è in pausa
+func may_work(c: Colonist) -> bool:
+	return not routines or (activity(c) == Act.WORK and c.worked < fx(c, "work", WORK_HOURS) and clock >= c.pause_until)
+
+
+# Bisogno urgente da soddisfare anche nelle ore di lavoro: fame se c'è da mangiare, sonno se c'è un letto libero, noia.
+# Solo controlli veloci, niente percorsi: se poi non ci arriva, find_job gli ridà un lavoro e riprova all'ora dopo
+func urgent(c: Colonist) -> bool:
+	return (c.needs[Need.FOOD] < NEED_LOW and not items[Res.VEG].is_empty()) \
+		or (c.needs[Need.REST] < NEED_LOW and not free_beds().is_empty()) or c.needs[Need.FUN] < NEED_LOW
+
+
+func free_beds() -> Array:
+	return furniture.keys().filter(func(o): return furniture[o][0] == Build.BED and is_free(o))
+
+
+func hour_now() -> int:
+	return int(fmod(clock, 1.0) * 24)
+
+
+# cosa dice la routine di `c` per quest'ora: Act
+func activity(c: Colonist) -> int:
+	return routine_of(c)[hour_now()]
+
+
+# Routine di `c`, un Act per ora da mezzanotte: ROUTINE con le ore cambiate dai talenti, poi spostata come dicono
+# i talenti; chi fa gli straordinari lavora anche nel tempo libero.
+# ponytail: si rifà a ogni domanda (più volte per tick): tenerla nel colono se i coloni diventano tanti
+func routine_of(c: Colonist) -> Array:
+	var letters := []
+	for h in 24:
+		letters.append(ROUTINE[h])
+	for t in c.traits:
+		var changed: Dictionary = TRAIT_FX[t].get("hours", {})
+		for h in changed:
+			letters[h] = changed[h]
+	var shift: int = fx(c, "shift", 0)
+	var overtime: bool = fx(c, "overtime", false)
+	var day := []
+	for h in 24:
+		var act := ROUTINE_LETTERS.find(letters[posmod(h - shift, 24)])
+		day.append(Act.WORK if overtime and act == Act.FREE else act)
+	return day
+
+
+# Ora in cui si finisce il sonno più lungo della routine `day` (non la pennichella): lì comincia la giornata
+func wake_hour(day: Array) -> int:
+	var wake := 0
+	var longest := 0
+	for h in 24:
+		if day[h] == Act.SLEEP or day[h - 1] != Act.SLEEP:  # day[-1]: le 23
+			continue
+		var length := 1
+		while length < 24 and day[h - 1 - length] == Act.SLEEP:
+			length += 1
+		if length > longest:
+			wake = h
+			longest = length
+	return wake
+
+
+# Effetto `key` dei talenti di `c` (vedi TRAIT_FX), `base` se nessuno dei suoi ce l'ha: i ritmi (FX_RATES) si
+# moltiplicano, per il resto vale l'ultimo talento che lo cambia
+func fx(c: Colonist, key: String, base: Variant) -> Variant:
+	var value = base
+	for t in c.traits:
+		if TRAIT_FX[t].has(key):
+			value = value * TRAIT_FX[t][key] if key in FX_RATES else TRAIT_FX[t][key]
+	return value
+
+
+func clash(a: Trait, b: Trait) -> bool:
+	return TRAIT_CLASH.any(func(pair): return a in pair and b in pair)
+
+
+# Bisogni che calano col tempo, ognuno al ritmo cambiato dai talenti (vedi fx). Chi dorme si riposa del tutto in
+# SLEEP_TIME, più o meno secondo il comfort di dove dorme (vedi comfort_of: per terra fuori è 0, il 20% in più), e
+# il suo comfort va verso quello del posto. Il divertimento sale svagandosi (vedi relax) e scende da svegli.
 # Lo stress sale lavorando e scende a riposo. Sotto EXHAUSTED di riposo il colono molla tutto e crolla dove si trova;
-# sotto NEED_LOW ci pensa find_job.
-# ponytail: comfort e stress non cambiano ancora i lavori; la felicità segue solo la media degli altri
+# sotto NEED_LOW ci pensa find_job. L'iracondo troppo stressato se ne va a sbollire; il sonnambulo a volte si alza.
+# ponytail: il comfort non cambia ancora i lavori; la felicità segue solo la media degli altri
 func update_needs(c: Colonist, delta: float) -> void:
 	var day := delta / DAY_LENGTH * needs_rate
 	var before: Array = c.needs.duplicate()
-	c.needs[Need.FOOD] -= FOOD_DROP * day
-	if c.job == Job.SLEEP and c.path.is_empty():
+	var asleep := c.job == Job.SLEEP and c.path.is_empty()
+	c.needs[Need.FOOD] -= FOOD_DROP * fx(c, "food", 1.0) * day
+	if asleep:
 		var comfort := comfort_of(c)
-		var gain := NEED_MAX / SLEEP_TIME * day / comfort_time(comfort)
+		var gain: float = NEED_MAX / (SLEEP_TIME * fx(c, "sleep", 1.0)) * day / comfort_time(comfort)
 		c.needs[Need.REST] += gain
 		c.needs[Need.COMFORT] = move_toward(c.needs[Need.COMFORT], NEED_MAX * comfort / COMFORT_MAX, gain)
 	else:
-		c.needs[Need.REST] -= REST_DROP * day
-	c.needs[Need.STRESS] += (STRESS_WORK if c.job not in [Job.NONE, Job.SLEEP, Job.EAT] else -STRESS_RELIEF) * day
-	var mood: float = (c.needs[Need.FOOD] + c.needs[Need.REST] + c.needs[Need.COMFORT] + NEED_MAX - c.needs[Need.STRESS]) / 4.0
+		c.needs[Need.REST] -= REST_DROP * fx(c, "rest", 1.0) * day
+	if c.job == Job.RELAX:
+		c.needs[Need.FUN] += FUN_GAIN * day
+	elif not asleep:
+		c.needs[Need.FUN] -= FUN_DROP * fx(c, "fun", 1.0) * day
+	if fx(c, "fun", 1.0) == 0:  # non gli serve: sempre a posto
+		c.needs[Need.FUN] = NEED_MAX
+	if c.job in WORK_JOBS:
+		c.needs[Need.STRESS] += STRESS_WORK * fx(c, "stress", 1.0) * day
+	else:
+		c.needs[Need.STRESS] -= STRESS_RELIEF * (TANTRUM_VENT if c.job == Job.TANTRUM else 1.0) * day
+	var mood: float = (c.needs[Need.FOOD] + c.needs[Need.REST] + c.needs[Need.FUN] + c.needs[Need.COMFORT]
+		+ NEED_MAX - c.needs[Need.STRESS]) / 5.0
 	c.needs[Need.HAPPINESS] = move_toward(c.needs[Need.HAPPINESS], mood, MOOD_SPEED * day)
 	c.needs = c.needs.map(func(v): return clampf(v, 0.0, NEED_MAX))
 	if day > 0:  # in pausa le frecce restano com'erano; il pasto (vedi EAT) è uno scatto, non conta
@@ -1101,6 +1312,31 @@ func update_needs(c: Colonist, delta: float) -> void:
 		quit_job(c)
 		var here: Array[Vector2i] = []
 		start_job(c, Job.SLEEP, here, cell_of(c.pos), 0.0)
+	elif c.needs[Need.STRESS] >= fx(c, "tantrum", INF) and c.job not in [Job.SLEEP, Job.TANTRUM]:
+		tantrum(c)
+	elif asleep and randf() < fx(c, "sleepwalk", 0.0) * day * 24:  # probabilità all'ora
+		sleepwalk(c)
+
+
+# L'iracondo molla tutto e se ne va a passi pesanti poco lontano, a sbollire per TANTRUM_HOURS: niente lavoro
+func tantrum(c: Colonist) -> void:
+	quit_job(c)
+	var path := stroll(c, TANTRUM_REACH)
+	start_job(c, Job.TANTRUM, path, path.back() if not path.is_empty() else cell_of(c.pos), 0.0)
+	c.work_left = TANTRUM_HOURS * DAY_LENGTH / 24
+
+
+# Il sonnambulo si alza dormendo, cammina fino a una casella lì vicino e ci continua a dormire (per terra):
+# lascia libero il letto
+func sleepwalk(c: Colonist) -> void:
+	var path := stroll(c, SLEEPWALK_REACH)
+	if path.is_empty():
+		return
+	if reserved.get(c.target) == c:
+		reserved.erase(c.target)
+	c.target = path.back()
+	reserved[c.target] = c
+	c.path = path
 
 
 func in_bed(c: Colonist) -> bool:
@@ -1147,25 +1383,102 @@ func room_meets(room: Room, kind: RoomKind) -> bool:
 	return needs.keys().all(func(b): return inside.count(b) >= needs[b])
 
 
+# Il prossimo lavoro di `c`, secondo i bisogni e la sua routine (vedi routine_of):
+# stanco cerca un letto libero (se non c'è lavora finché crolla); affamato va a mangiare, nel tempo libero anche solo
+# per uno spuntino (vedi SNACK); nelle ore di sonno va a letto, e se non ce n'è uno libero dorme per terra dove si
+# trova; annoiato si svaga anche nelle ore di lavoro. Poi lavora, se può (vedi may_work); se no si svaga, e se non
+# c'è niente da fare resta fermo
 func find_job(c: Colonist) -> void:
-	# prima i bisogni: stanco cerca un letto libero (se non c'è lavora finché crolla), affamato va a mangiare
-	if c.needs[Need.REST] < NEED_LOW:
-		var beds := furniture.keys().filter(func(o): return furniture[o][0] == Build.BED and is_free(o))
-		var to_bed := path_to_nearest(c, beds)
-		if not to_bed.is_empty():
-			start_job(c, Job.SLEEP, to_bed, to_bed.back(), 0.0)
-			return
-	if c.needs[Need.FOOD] < NEED_LOW:
+	var act: int = activity(c) if routines else Act.WORK
+	if c.needs[Need.REST] < NEED_LOW and go_to_bed(c):
+		return
+	var peckish: bool = act == Act.FREE and c.needs[Need.FOOD] < fx(c, "snack", SNACK)
+	if c.needs[Need.FOOD] < NEED_LOW or peckish:
 		var to_food := path_to_nearest(c, items[Res.VEG].keys().filter(func(cell): return is_free(cell)))
 		if not to_food.is_empty():
 			start_job(c, Job.EAT, to_food, to_food.back(), 0.0)
 			return
+	if act == Act.SLEEP:
+		if not go_to_bed(c):
+			var stay: Array[Vector2i] = []
+			start_job(c, Job.SLEEP, stay, cell_of(c.pos), 0.0)
+		return
+	if routines and c.needs[Need.FUN] < NEED_LOW:
+		relax(c)
+		return
+	if may_work(c):
+		if find_work(c):
+			return
+	elif routines:  # tempo libero, ore di lavoro già fatte o in pausa
+		relax(c)
+		return
 
-	# ordine fisso finché non c'è la tabella delle priorità: tagliare, scavare, estirpare, costruire, trasportare, raccogliere
+	var here := cell_of(c.pos)
+	if stockpile.has(here):  # senza lavoro dentro il magazzino: si fa da parte, se no blocca chi scarica
+		var aside := []
+		for dy in range(-4, 5):
+			for dx in range(-4, 5):
+				var s: Vector2i = here + Vector2i(dx, dy)
+				if astar.is_in_boundsv(s) and not astar.is_point_solid(s) and not trees.has(s) and not stockpile.has(s):
+					aside.append(s)
+		c.path = path_to_nearest(c, aside)
+
+
+# va a dormire nel letto libero più vicino dove può arrivare; false se non ce n'è
+func go_to_bed(c: Colonist) -> bool:
+	var to_bed := path_to_nearest(c, free_beds())
+	if to_bed.is_empty():
+		return false
+	start_job(c, Job.SLEEP, to_bed, to_bed.back(), 0.0)
+	return true
+
+
+# Svago per `hours` ore: attorno a un fuoco da campo, se ce n'è uno dove può arrivare, se no a passeggio lì vicino.
+# Il divertimento sale (vedi update_needs); finito, find_job decide di nuovo
+func relax(c: Colonist, hours := RELAX_HOURS) -> void:
+	var around_fire := []
+	for origin in furniture:
+		if furniture[origin][0] == Build.CAMPFIRE:
+			for d in EDGE_SIDES + EDGE_CORNERS:
+				var k: Vector2i = origin + d
+				if astar.is_in_boundsv(k) and not astar.is_point_solid(k) and not stockpile.has(k):
+					around_fire.append(k)
+	var path := path_to_nearest(c, around_fire)
+	if path.is_empty():
+		path = stroll(c, RELAX_REACH)
+	start_job(c, Job.RELAX, path, path.back() if not path.is_empty() else cell_of(c.pos), 0.0)
+	c.work_left = hours * DAY_LENGTH / 24
+
+
+# Percorso di `c` verso una casella a caso entro `reach` caselle, sul prato (niente alberi, acqua, magazzino), dove
+# nessun altro si ferma e dove lui entra; [] se non ne trova una a portata di passi
+func stroll(c: Colonist, reach: int) -> Array[Vector2i]:
+	var here := cell_of(c.pos)
+	var taken := claimed(c)
+	taken.merge(closed_cells(c))
+	var spots := []
+	for dy in range(-reach, reach + 1):
+		for dx in range(-reach, reach + 1):
+			var s: Vector2i = here + Vector2i(dx, dy)
+			if s != here and astar.is_in_boundsv(s) and not astar.is_point_solid(s) and not water.has(s) \
+					and not trees.has(s) and not stockpile.has(s) and not taken.has(s):
+				spots.append(s)
+	spots.shuffle()
+	for spot in spots.slice(0, 3):  # poche prove: ogni percorso costa
+		var path := path_of(c, here, spot)
+		if not path.is_empty() and path.size() <= reach * 2:  # non un giro lunghissimo attorno a un muro
+			return path
+	var none: Array[Vector2i] = []
+	return none
+
+
+# Avvia il lavoro libero più vicino, in ordine fisso finché non c'è la tabella delle priorità: tagliare, scavare,
+# estirpare, costruire, trasportare. false se non ce n'è
+func find_work(c: Colonist) -> bool:
 	if try_work(c, Job.CHOP, chop_marks.keys(), TREE_SIDES, gather_time(c, Job.CHOP)) \
 			or try_work(c, Job.MINE, mine_marks.keys(), SIDES, gather_time(c, Job.MINE)) \
 			or try_work(c, Job.UPROOT, uproot_marks.keys(), SIDES, UPROOT_TIME):
-		return
+		return true
 
 	for job in [Job.BUILD, Job.FURNISH]:  # prima le strutture, poi i mobili
 		var plans := plans_of(job)
@@ -1180,21 +1493,12 @@ func find_job(c: Colonist) -> void:
 			c.dest = path.back()
 			c.carry_res = plans[c.target][1]
 			reserved[to_source.back()] = c  # intanto nessun altro prende da quel mucchio
-			return
+			return true
 
 	for res in Res.values():
 		if try_haul(c, res, items[res].keys().filter(func(cell): return not stockpile.has(cell) and is_free(cell))):
-			return
-
-	var here := cell_of(c.pos)
-	if stockpile.has(here):  # senza lavoro dentro il magazzino: si fa da parte, se no blocca chi scarica
-		var aside := []
-		for dy in range(-4, 5):
-			for dx in range(-4, 5):
-				var s: Vector2i = here + Vector2i(dx, dy)
-				if astar.is_in_boundsv(s) and not astar.is_point_solid(s) and not trees.has(s) and not stockpile.has(s):
-					aside.append(s)
-		c.path = path_to_nearest(c, aside)
+			return true
+	return false
 
 
 # Lavoro a tempo `job` (tagliare, scavare, estirpare, raccogliere) sul bersaglio libero più vicino tra `targets`,
@@ -1923,6 +2227,9 @@ func draw_colonist(c: Colonist) -> void:
 	if c.job == Job.SLEEP and c.path.is_empty():  # ponytail: niente sprite sdraiato, solo una "z" che sale
 		draw_string(ThemeDB.fallback_font, at + Vector2(11, 2 - fmod(clock * DAY_LENGTH, 2.0) * 2), "z",
 			HORIZONTAL_ALIGNMENT_LEFT, -1, 8)
+	elif c.job == Job.TANTRUM:  # sfuriata: un punto esclamativo rosso che sobbalza
+		draw_string(ThemeDB.fallback_font, at + Vector2(11, 3 - absf(sin(clock * DAY_LENGTH * 6)) * 2), "!",
+			HORIZONTAL_ALIGNMENT_LEFT, -1, 8, Color("ff5a5a"))
 
 
 # il colono `c` (il fotogramma `src` dei fogli) in `dst` di `canvas`: corpo, poi capelli, maglia e mantello tinti

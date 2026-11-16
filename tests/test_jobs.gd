@@ -9,6 +9,7 @@ func _initialize() -> void:
 	root.add_child(main)
 	await process_frame  # aspetta che venga chiamato _ready
 	main.needs_rate = 0.0  # bisogni fermi: se no a metà prova i coloni vanno a dormire o a mangiare (vedi fondo)
+	main.routines = false  # niente orari: lavorano sempre, anche di notte (la routine è provata in fondo)
 
 	var rows: Array = main.trees.keys().map(func(cell): return cell.y)
 	var sorted_rows := rows.duplicate()
@@ -494,7 +495,8 @@ func _initialize() -> void:
 	main.needs_rate = 1.0
 	for col in main.colonists:
 		main.quit_job(col)
-		col.needs = [100.0, 100.0, 50.0, 100.0, 50.0]
+		col.needs = [100.0, 100.0, 100.0, 50.0, 100.0, 50.0]
+		col.traits = []  # i talenti cambiano i ritmi: qui quelli di base
 	var sleepy = main.colonists[0]
 	sleepy.needs[main.Need.REST] = main.NEED_LOW - 1
 	for i in 2000:
@@ -516,7 +518,7 @@ func _initialize() -> void:
 	check(sleepy.needs[main.Need.COMFORT] < 50, "a letto ma fuori da una stanza il comfort scende")
 	check(sleepy.needs[main.Need.STRESS] < 50, "dormendo lo stress scende")
 	var busy = main.Colonist.new()
-	busy.needs = [100.0, 100.0, 50.0, 100.0, 10.0]
+	busy.needs = [100.0, 100.0, 100.0, 50.0, 100.0, 10.0]
 	busy.job = main.Job.HAUL
 	main.update_needs(busy, 10.0)
 	check(busy.needs[main.Need.STRESS] > 10, "lavorando lo stress sale")
@@ -604,9 +606,145 @@ func _initialize() -> void:
 	main.rooms.erase(den)
 	for k in den.cells:
 		main.built.erase(k)
+
+	# routine: ogni ora è sonno, lavoro o tempo libero; i talenti la cambiano, e cambiano i ritmi dei bisogni
+	var SLEEP: int = main.Act.SLEEP
+	var WORK: int = main.Act.WORK
+	var FREE: int = main.Act.FREE
+	var plain = main.Colonist.new()
+	var day: Array = main.routine_of(plain)
+	check(day.size() == 24 and day.count(SLEEP) == 8 and day.count(WORK) == 10, "routine base: 8 ore di sonno, 10 di lavoro")
+	check(day[23] == SLEEP and day[6] == FREE and day[7] == WORK and day[12] == FREE and day[19] == FREE, "dorme 22-6, pranzo alle 12, sera libera")
+	check(main.wake_hour(day) == 6 and main.fx(plain, "work", main.WORK_HOURS) == 8.0, "si alza alle 6, lavora al più 8 ore")
+	var owl = main.Colonist.new()
+	owl.traits = [main.Trait.NIGHT_OWL]
+	check(main.routine_of(owl)[12] == SLEEP and main.routine_of(owl)[2] == WORK and main.wake_hour(main.routine_of(owl)) == 18,
+		"nottambulo: dorme di giorno, lavora di notte")
+	var lark = main.Colonist.new()
+	lark.traits = [main.Trait.EARLY_BIRD]
+	check(main.routine_of(lark)[20] == SLEEP and main.routine_of(lark)[5] == WORK and main.wake_hour(main.routine_of(lark)) == 4,
+		"mattiniero: tutto due ore prima")
+	var napper = main.Colonist.new()
+	napper.traits = [main.Trait.NAPPER]
+	check(main.routine_of(napper)[13] == SLEEP and main.routine_of(napper)[22] == FREE and main.wake_hour(main.routine_of(napper)) == 6,
+		"pennichella alle 13; la giornata comincia col sonno lungo")
+	var drudge = main.Colonist.new()
+	drudge.traits = [main.Trait.WORKAHOLIC]
+	check(not main.routine_of(drudge).has(FREE) and main.fx(drudge, "work", main.WORK_HOURS) == 12.0, "stacanovista: niente tempo libero, 12 ore")
+	var sleepyhead = main.Colonist.new()
+	sleepyhead.traits = [main.Trait.SLEEPYHEAD, main.Trait.TIRELESS]  # in contrasto: solo per provare fx
+	check(is_equal_approx(main.fx(sleepyhead, "sleep", 1.0), 10.0 / 8 * 6.0 / 8), "i ritmi dei talenti si moltiplicano")
+	check(main.clash(main.Trait.SLEEPYHEAD, main.Trait.TIRELESS) and not main.clash(main.Trait.GLUTTON, main.Trait.LAZY), "talenti in contrasto")
+	check(main.TRAITS_SHEET.get_width() == main.Trait.size() * main.TILE, "un'icona 16x16 per talento")
+	var eater = main.Colonist.new()
+	eater.traits = [main.Trait.GLUTTON]
+	var monk = main.Colonist.new()
+	monk.traits = [main.Trait.ASCETIC]
+	for who in [plain, eater, monk]:
+		who.needs = [100.0, 100.0, 50.0, 50.0, 100.0, 0.0]
+		main.update_needs(who, 10.0)
+	check(is_equal_approx(100 - eater.needs[main.Need.FOOD], 1.5 * (100 - plain.needs[main.Need.FOOD])), "goloso: fame più in fretta")
+	check(plain.needs[main.Need.FUN] < 50 and monk.needs[main.Need.FUN] == main.NEED_MAX, "da svegli ci si annoia; l'asceta mai")
+
+	# in gioco: la notte si dorme (per terra, senza letti) e si resta giù fino all'ora di alzarsi, poi colazione e svago
+	main.routines = true
+	main.furniture = {}
+	for marks in [main.chop_marks, main.mine_marks, main.uproot_marks, main.blueprints, main.furniture_plans]:
+		marks.clear()
+	check(not main.items[V].is_empty(), "ci sono vegetali per la colazione")
+	var pile: Vector2i = main.items[V].keys()[0]
+	var near: Array = main.flood(pile, false).keys().filter(func(k): return k != pile and not main.trees.has(k))
+	for k in main.colonists.size():
+		var col = main.colonists[k]
+		main.quit_job(col)
+		col.traits = []
+		col.needs = [100.0, 100.0, 50.0, 50.0, 100.0, 0.0]
+		col.pos = main.center(near[k])
+	var worker = main.colonists[0]
+	main.clock = floorf(main.clock) + 1 + 22.5 / 24
+	main.tick(0.05)
+	check(main.colonists.all(func(who): return who.job == main.Job.SLEEP), "alle 22 vanno tutti a dormire, per terra se non c'è un letto")
+	for i in 20:
+		main.tick(0.05)
+	check(main.colonists.all(func(who): return who.job == main.Job.SLEEP), "riposati, restano giù finché è ora di dormire")
+	main.clock = floorf(main.clock) + 1 + 6.5 / 24
+	worker.needs[main.Need.FOOD] = main.SNACK - 5
+	main.tick(0.05)
+	check(main.colonists.all(func(who): return who.job != main.Job.SLEEP), "alle 6 si alzano")
+	main.tick(0.05)
+	check(worker.job == main.Job.EAT, "a colazione mangia anche senza fame")
+	check(main.colonists[1].job == main.Job.RELAX and main.colonists[2].job == main.Job.RELAX, "nel tempo libero si svagano")
+	var fun0: float = main.colonists[1].needs[main.Need.FUN]
+	for i in 20:
+		main.tick(0.05)
+	check(main.colonists[1].needs[main.Need.FUN] > fun0, "svagandosi il divertimento sale")
+
+	# ore di lavoro: si lavora solo nelle sue ore e fino al massimo; a fine turno si molla, ma prima si posa il carico
+	main.clock = floorf(main.clock) + 9.0 / 24
+	check(main.may_work(worker), "alle 9 si lavora")
+	worker.worked = main.WORK_HOURS
+	check(not main.may_work(worker), "fatte le 8 ore, basta")
+	worker.worked = 0.0
+	var idler = main.Colonist.new()
+	idler.traits = [main.Trait.LAZY]
+	idler.job = main.Job.HAUL
+	idler.carrying = 1
+	main.update_routine(idler, main.DAY_LENGTH / 24 * 3)
+	check(is_equal_approx(idler.worked, 3.0) and main.may_work(idler), "conta le ore di lavoro")
+	main.update_routine(idler, main.DAY_LENGTH / 24 * 3)
+	check(not main.may_work(idler) and idler.job == main.Job.HAUL, "pigro: 6 ore e basta, ma finisce di portare quello che ha in mano")
+	idler.carrying = 0
+	main.update_routine(idler, 0.0)
+	check(idler.job == main.Job.NONE, "a mani vuote molla il lavoro")
+	main.clock += 1.0
+	main.update_routine(idler, 0.0)
+	check(idler.worked == 0.0 and main.may_work(idler), "ogni giornata si riparte da zero")
+	var fidget = main.Colonist.new()
+	fidget.traits = [main.Trait.RESTLESS]
+	fidget.job = main.Job.HAUL
+	fidget.carrying = 1
+	main.update_routine(fidget, main.DAY_LENGTH / 24 * 2)
+	check(fidget.pause_until > main.clock and not main.may_work(fidget), "irrequieto: dopo 2 ore di fila si prende una pausa")
+	main.clock = floorf(main.clock) + 18.5 / 24
+	worker.job = main.Job.CHOP  # finto taglio: a fine turno lo molla prima del colpo
+	worker.target = main.cell_of(worker.pos)
+	worker.path.clear()
+	worker.work_left = 5.0
+	worker.work_total = 5.0
+	main.tick(0.05)
+	check(worker.job != main.Job.CHOP, "alle 18 molla il lavoro")
+
+	# talenti che cambiano la routine di colpo: l'iracondo se ne va a sbollire, il sonnambulo cammina dormendo
+	var angry = main.colonists[1]
+	angry.traits = [main.Trait.HOTHEAD]
+	angry.needs[main.Need.STRESS] = 95.0
+	main.tick(0.05)
+	check(angry.job == main.Job.TANTRUM, "iracondo troppo stressato: sfuriata")
+	for i in 200:  # un'ora: la sfuriata ne dura due
+		main.tick(0.05)
+	check(angry.job == main.Job.TANTRUM and angry.needs[main.Need.STRESS] < 90, "intanto sbollisce")
+	var dreamer = main.colonists[2]
+	main.quit_job(dreamer)
+	dreamer.pos = main.center(main.cells_in(area).filter(func(k): return main.can_build(k) and main.flood(k, false).size() >= main.ROOM_MAX)[0])
+	var stay: Array[Vector2i] = []
+	main.start_job(dreamer, main.Job.SLEEP, stay, main.cell_of(dreamer.pos), 0.0)
+	main.sleepwalk(dreamer)
+	check(dreamer.job == main.Job.SLEEP and not dreamer.path.is_empty() and main.reserved.get(dreamer.path.back()) == dreamer,
+		"il sonnambulo si alza dormendo e va a dormire altrove")
+	worker.traits = [main.Trait.NIGHT_OWL]
+	main.open_sheet(worker)
+	var hours_row: Array = main.get_node("HUD/ColonistSheet/Box/Routine/Hours").get_children()
+	check(hours_row.size() == 24 and hours_row[12].color == main.ROUTINE_COLORS[SLEEP] and hours_row[2].color == main.ROUTINE_COLORS[WORK],
+		"nella scheda la routine ora per ora")
+	main.sheet_panel.hide()
+	main.routines = false
+
 	# mappa di gioco: 3 stanze 5x5 con la porta verso fuori, nella prima la scorta di debug
 	var game = load("res://main.tscn").instantiate()
 	root.add_child(game)
+	for col in game.colonists:  # talenti a caso, ma mai due uguali o in contrasto
+		for a in col.traits:
+			check(col.traits.count(a) == 1 and col.traits.all(func(b): return a == b or not game.clash(a, b)), "talenti compatibili")
 	check(game.rooms.size() == 3 and game.rooms.all(func(r): return r.cells.size() == 25), "3 stanze 5x5 di partenza")
 	for d in game.START_ROOMS:
 		check(game.rooms.any(func(r): return r.door == game.MAP_SIZE / 2 + d * 11), "porta verso fuori")

@@ -38,10 +38,34 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 - Il colono sceglie il lavoro disponibile con priorità più alta, poi il più vicino.
 
 ### 4.2 Coloni
-- **Bisogni**: fame, riposo, comfort, felicità; calore in seguito.
+- **Bisogni**: fame, riposo, divertimento, comfort, felicità; calore in seguito. Il divertimento scende da svegli e sale svagandosi.
 - **Stress** (0–100, con icona): sale lavorando, scende dormendo o a riposo; abbassa la felicità. Altri effetti in seguito.
+- **Routine**: ogni ora del giorno è sonno, lavoro o tempo libero (nella scheda, 24 caselle colorate).
+  Base: dorme 22–6, colazione alle 6, lavora 7–12 e 13–18, sera libera; lavora al più 8 ore al giorno, poi è libero.
+  - Sonno: nelle sue ore va a letto (o per terra, se non ci sono letti liberi) e resta giù anche riposato; dopo si alza con almeno 80 di riposo.
+  - Lavoro: a fine turno, o finite le ore, molla il lavoro appena ha le mani libere.
+  - Tempo libero: mangia anche senza fame (sotto 60), poi si svaga: attorno al fuoco da campo, se no a passeggio.
+  - Sempre: stanco va a letto, affamato mangia, annoiato si prende una pausa (controllato a ogni ora).
 - **Abilità** (livelli 1–10, al 10 una stellina): raccogliere, estrarre, tagliare legna, costruire, cucinare, pescare, cacciare, armi da mischia, armi a distanza, ricerca (lista provvisoria). Velocità e qualità del lavoro; crescono con l'uso.
-- **Talenti**: modificano alcune routine dei coloni, ognuno con un'icona 16×16 (es. "Robusto": +resistenza al freddo; "Pigro": −velocità lavoro; "Pirofobo": rifiuta di cucinare). Primi: goloso, sonnambulo, iracondo (ancora senza effetto).
+- **Talenti**: modificano la routine e i ritmi dei bisogni, ognuno con un'icona 16×16 (un quadratino in rilievo col simbolo al centro).
+  Ogni colono ne ha 0–2, mai due in contrasto (goloso/di poco appetito, pigro/stacanovista, mattiniero/nottambulo,
+  dormiglione/instancabile, festaiolo/asceta, iracondo/tranquillo).
+  - Goloso: fame +50%, mangia nel tempo libero già sotto 85.
+  - Sonnambulo: a volte di notte si alza dormendo e si riaddormenta dove capita, per terra.
+  - Iracondo: stress dal lavoro +50%; a 90 molla tutto e se ne va a sbollire per due ore.
+  - Pigro: lavora al più 6 ore al giorno.
+  - Stacanovista: lavora fino a 12 ore, anche nel tempo libero; si annoia la metà.
+  - Mattiniero: tutta la giornata due ore prima (dorme 20–4).
+  - Nottambulo: dorme di giorno (10–18), lavora di notte.
+  - Dormiglione: gli servono 10 ore di sonno, dorme fino alle 8.
+  - Instancabile: gli bastano 6 ore (dorme 0–6), si stanca il 25% più piano.
+  - Festaiolo: si annoia il doppio, smette di lavorare alle 17.
+  - Asceta: non ha bisogno di svago.
+  - Di poco appetito: fame −40%, niente spuntini.
+  - Tranquillo: metà dello stress dal lavoro.
+  - Pennichella: dorme 13–14 e va a letto alle 23.
+  - Irrequieto: dopo 2 ore di lavoro di fila si prende un'ora di pausa.
+  - In seguito, altri: "Robusto" (+resistenza al freddo), "Pirofobo" (rifiuta di cucinare).
 - **Scheda** (clic sul colono): nome, soprannome (facoltativo), cognome, punti ferita, abilità (ognuna con un'icona 8×8), talenti (solo icone, il nome col mouse sopra), equipaggiamento (3 slot: mani, corpo, testa). Poi bisogni, relazioni.
 
 ### 4.3 Il re e la dinastia
