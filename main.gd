@@ -169,16 +169,23 @@ const ROOM_CLASS := {
 }
 # titolo della lista di coloni da spuntare nel popup del cartello, per RoomClass (le altre non ce l'hanno)
 const ROOM_PEOPLE := {RoomClass.WORK: "Workers", RoomClass.RESIDENCE: "Owners"}
-enum Build { WALL, FLOOR, DOOR, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE, ANVIL, WORKBENCH }  # porta e mobili si attraversano
+enum Build { WALL, FLOOR, DOOR, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE, ANVIL, WORKBENCH,  # porta e mobili si attraversano
+	FLOWER_BED, PLANTER, BENCH, BANNER, LANTERN, FOUNTAIN, STATUE }  # decorazioni: vedi SPLENDOR
 # materiale per casella; per i mobili, per pezzo
 const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3, Build.LAMP: 3,
-	Build.CAMPFIRE: 5, Build.FURNACE: 20, Build.ANVIL: 10, Build.WORKBENCH: 15}
+	Build.CAMPFIRE: 5, Build.FURNACE: 20, Build.ANVIL: 10, Build.WORKBENCH: 15, Build.FLOWER_BED: 3, Build.PLANTER: 5,
+	Build.BENCH: 6, Build.BANNER: 4, Build.LANTERN: 4, Build.FOUNTAIN: 30, Build.STATUE: 40}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
 const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
-	Build.CAMPFIRE: Vector2i.ONE, Build.FURNACE: Vector2i.ONE, Build.ANVIL: Vector2i.ONE, Build.WORKBENCH: Vector2i.ONE}
-const FLAME_TIME := 0.15    # secondi per fotogramma della fiamma: il fuoco da campo usa le colonne dei quarti di giro
+	Build.CAMPFIRE: Vector2i.ONE, Build.FURNACE: Vector2i.ONE, Build.ANVIL: Vector2i.ONE, Build.WORKBENCH: Vector2i.ONE,
+	Build.FLOWER_BED: Vector2i.ONE, Build.PLANTER: Vector2i.ONE, Build.BENCH: Vector2i(2, 1), Build.BANNER: Vector2i.ONE,
+	Build.LANTERN: Vector2i.ONE, Build.FOUNTAIN: Vector2i(2, 2), Build.STATUE: Vector2i(2, 2)}
+# mobili animati: secondi per fotogramma; i fotogrammi stanno nelle colonne dei quarti di giro (sono simmetrici)
+const ANIMATED := {Build.CAMPFIRE: 0.15, Build.BANNER: 0.3, Build.FOUNTAIN: 0.2}
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
-const BUILD_RES := {Build.FURNACE: Res.STONE, Build.ANVIL: Res.IRON}  # materiale fisso; il resto solo di legno
+# materiale fisso; il resto solo di legno
+const BUILD_RES := {Build.FURNACE: Res.STONE, Build.ANVIL: Res.IRON, Build.PLANTER: Res.STONE, Build.FOUNTAIN: Res.STONE,
+	Build.STATUE: Res.STONE}
 # mobili che servono perché il cartello lasci scegliere il tipo di stanza: tipo -> {mobile: almeno quanti}
 # ponytail: la cucina accetterà anche la stufa, quando ci sarà: allora "uno tra" invece di "tutti"
 const ROOM_NEEDS := {
@@ -194,9 +201,15 @@ const ROOM_COLORS := [Color("e6e2d0"), Color("c9a23b"), Color("3b8fd3"), Color("
 # comfort di una stanza, 0-COMFORT_MAX: lo danno i mobili (per pezzo) e il pavimento (tutto se copre la stanza intera),
 # per il materiale. A metà né bonus né malus; fuori dalle stanze è 0. Vedi room_comfort e comfort_of
 const COMFORT_MAX := 10
-const COMFORT := {Build.FLOOR: 1.0, Build.BED: 1.0, Build.TABLE: 1.0, Build.CHAIR: 0.5, Build.LAMP: 0.5, Build.CAMPFIRE: 0.5}
+const COMFORT := {Build.FLOOR: 1.0, Build.BED: 1.0, Build.TABLE: 1.0, Build.CHAIR: 0.5, Build.LAMP: 0.5, Build.CAMPFIRE: 0.5,
+	Build.BENCH: 0.5}
 const COMFORT_MATERIAL := {Res.STONE: 1.5}  # il resto vale 1
 const COMFORT_EFFECT := 0.2  # a comfort 0 un'attività richiede il 20% di tempo in più, al massimo il 20% in meno
+# splendore della colonia: lo danno le decorazioni finite, dentro e fuori dalle stanze (vedi colony_splendor).
+# ponytail: per ora solo il totale in alto; poi terrà felici i coloni e sbloccherà cose (strade, feste: vedi GDD)
+const SPLENDOR := {Build.FLOWER_BED: 1, Build.PLANTER: 1, Build.BENCH: 1, Build.BANNER: 2, Build.LANTERN: 1,
+	Build.FOUNTAIN: 6, Build.STATUE: 8}
+const SPLENDOR_COLOR := Color("e8c34a")
 const ROOM_SPACE := 6        # caselle a testa: chi ne ha meno (stanza piena di gente) ha il comfort in proporzione
 # suggerimento dei pulsanti di costruzione (vedi build_tip): sotto nome e costo il comfort, poi la descrizione colorata
 const TIP := preload("res://tip_button.gd")  # suggerimento fatto di Control: pulsanti di costruzione, figurine
@@ -213,6 +226,13 @@ const BUILD_INFO := {
 	Build.FURNACE: "A stone furnace. A forge needs one, and an anvil. Smelts iron and coal into ingots.",
 	Build.ANVIL: "An iron anvil on a stump. A forge needs one, and a furnace. Tools and metal armor are made here.",
 	Build.WORKBENCH: "A sturdy bench. A workshop needs one. Leather armor and bows are made here.",
+	Build.FLOWER_BED: "A wooden box of soil and flowers.",
+	Build.PLANTER: "A stone urn overflowing with flowers.",
+	Build.BENCH: "A wooden bench to rest along the roads.",
+	Build.BANNER: "The royal banner, red and gold, waving in the wind.",
+	Build.LANTERN: "A lantern on a post. Lights up the roads at night.",
+	Build.FOUNTAIN: "A stone basin with a jet of water. The pride of the square.",
+	Build.STATUE: "The king in stone, hands on his sword, on a gilded plinth.",
 }
 enum Facing { DOWN, LEFT, RIGHT, UP }  # righe del foglio
 enum TreeKind { OAK, PINE, BIRCH }     # colonne del foglio alberi
@@ -237,9 +257,10 @@ const BOULDERS := {  # massi: dimensione in caselle -> sprite, dal più grande (
 	Vector2i(1, 1): preload("res://art/rock_1x1.png"),
 }
 const ORE_ROCKS := {Res.IRON: preload("res://art/rock_iron.png"), Res.COAL: preload("res://art/rock_coal.png")}  # massi 1x1
-# 128x160, righe: mobili nell'ordine di Build; colonne: quarti di giro in senso orario, ognuno in un riquadro 32x32
+# 128x448, righe: mobili nell'ordine di Build; colonne: quarti di giro in senso orario, ognuno in un riquadro 32x32
 const FURNITURE_SHEET := preload("res://art/furniture.png")
-const FURNITURE_NIGHT := preload("res://art/furniture_night.png")  # abat-jour acceso
+const FURNITURE_NIGHT := preload("res://art/furniture_night.png")  # abat-jour e lampioni accesi
+const FURNITURE_GLOW := preload("res://art/furniture_glow.png")    # solo le luci accese, per `lights`
 const SIGN := preload("res://art/sign.png")  # sul muro accanto alla porta d'ingresso di una stanza finita
 const DAY_LENGTH := 240.0   # secondi per giorno a velocità 1x
 const NIGHT := Color(0.25, 0.28, 0.5)
@@ -471,11 +492,15 @@ var feet := {}                    # [texture, rettangolo] -> base della sagoma, 
 # lenti: sopra il mondo e sotto l'interfaccia (HUD è al livello 2), in un livello a parte così la notte non le scurisce
 var lens := CanvasLayer.new()
 var lens_canvas := Node2D.new()   # ci disegna draw_lens
+# luci accese di notte: come le lenti, in un livello che la notte non scurisce; ci disegna draw_lights
+var lights := CanvasLayer.new()
+var lights_canvas := Node2D.new()
 
 @onready var camera: Camera2D = $Camera2D
 @onready var stored_label: Label = $HUD/TopBar/Row/Stored  # risorse in tutti i magazzini, sommate: il dettaglio è in Resources
 @onready var colonists_label: Label = $HUD/TopBar/Row/Colonists
 @onready var beds_label: Label = $HUD/TopBar/Row/Beds
+@onready var splendor_label: Label = $HUD/TopBar/Row/Splendor
 @onready var info_label: Label = $HUD/TopBar/Row/Info
 @onready var fullscreen: Button = $HUD/TopBar/Row/Fullscreen
 @onready var build_bar: Control = $HUD/BuildBar
@@ -559,6 +584,11 @@ func _ready() -> void:
 	lens.follow_viewport_enabled = true  # segue la telecamera come il mondo
 	lens.layer = 1
 	lens.visible = false
+	lights.follow_viewport_enabled = true
+	lights.layer = 1
+	lights.add_child(lights_canvas)
+	add_child(lights)
+	lights_canvas.draw.connect(draw_lights)
 	lens.add_child(lens_canvas)
 	add_child(lens)
 	lens_canvas.draw.connect(draw_lens)
@@ -684,7 +714,7 @@ func build_tip(kind: Build) -> Control:
 		var row := HBoxContainer.new()
 		row.alignment = BoxContainer.ALIGNMENT_END
 		var amount := Label.new()
-		amount.text = "%s%d%s" % ["or " if res == Res.STONE else "", BUILD_COST[kind], "" if FURNITURE.has(kind) else "/tile"]
+		amount.text = "%s%d%s" % ["or " if res == Res.STONE and kind in ANY_MATERIAL else "", BUILD_COST[kind], "" if FURNITURE.has(kind) else "/tile"]
 		row.add_child(amount)
 		row.add_child(ui_icon(ICONS[res], Rect2(), Vector2(16, 16)))
 		costs.add_child(row)
@@ -698,6 +728,11 @@ func build_tip(kind: Build) -> Control:
 			bonus.text += " paving it all, x%s in stone" % COMFORT_MATERIAL[Res.STONE]
 		bonus.add_theme_color_override("font_color", TREND_UP)
 		box.add_child(bonus)
+	if SPLENDOR.has(kind):
+		var splendor := Label.new()
+		splendor.text = "+%d colony splendor" % SPLENDOR[kind]
+		splendor.add_theme_color_override("font_color", SPLENDOR_COLOR)
+		box.add_child(splendor)
 	box.add_child(HSeparator.new())
 	var info := Label.new()
 	info.text = BUILD_INFO[kind]
@@ -1254,6 +1289,7 @@ func _process(delta: float) -> void:
 	stored_label.text = str(Res.values().map(stored).reduce(func(a, b): return a + b, 0))
 	colonists_label.text = str(colonists.size())
 	beds_label.text = str(furniture.values().filter(func(plan): return plan[0] == Build.BED).size())  # solo quelli finiti
+	splendor_label.text = str(colony_splendor())
 	confirm.disabled = draft.is_empty() and furniture_draft.is_empty()
 	if jobs_panel.visible:
 		jobs_list.text = job_list()
@@ -1284,6 +1320,7 @@ func _process(delta: float) -> void:
 	queue_redraw()
 	flat.queue_redraw()
 	casters.queue_redraw()
+	lights_canvas.queue_redraw()
 	if lens.visible:
 		lens_canvas.queue_redraw()
 		place_owners()
@@ -1567,6 +1604,11 @@ func update_needs(c: Colonist, delta: float) -> void:
 
 func in_bed(c: Colonist) -> bool:
 	return c.job == Job.SLEEP and not pieces_at(furniture, cell_of(c.pos)).filter(func(o): return furniture[o][0] == Build.BED).is_empty()
+
+
+# Splendore della colonia: la somma delle decorazioni finite (SPLENDOR), ovunque stiano.
+func colony_splendor() -> int:
+	return furniture.values().map(func(plan): return SPLENDOR.get(plan[0], 0)).reduce(func(a, b): return a + b, 0)
 
 
 # Comfort dove sta il colono: quello della stanza, in proporzione se ha meno di ROOM_SPACE caselle a testa; fuori 0.
@@ -3027,6 +3069,13 @@ func draw_mark(rect: Rect2, kind: Order) -> void:
 
 
 # Lente delle stanze: ogni stanza finita velata col colore del suo tipo, il tipo scritto in mezzo (senza tipo, niente)
+# di notte, sopra il mondo scurito, i pixel accesi di abat-jour e lampioni (il resto di FURNITURE_GLOW è vuoto)
+# ponytail: un colono che passa davanti a un lampione ci finisce sotto, la luce resta sopra
+func draw_lights() -> void:
+	if sun_height() < 0:
+		draw_pieces(lights_canvas, FURNITURE_GLOW, furniture)
+
+
 func draw_lens() -> void:
 	var font := info_label.get_theme_font("font")
 	for room in rooms:
@@ -3071,7 +3120,7 @@ func room_mid(room: Room) -> Vector2:
 # Mobile `plan` in `origin`: [rettangolo nel mondo, rettangolo in FURNITURE_SHEET].
 func piece_rects(origin: Vector2i, plan: Array) -> Array[Rect2]:
 	var size := Vector2(piece_rect(origin, plan).size * TILE)
-	var col: int = int(clock * DAY_LENGTH / FLAME_TIME) % 4 if plan[0] == Build.CAMPFIRE else plan[2]  # la fiamma guizza
+	var col: int = int(clock * DAY_LENGTH / ANIMATED[plan[0]]) % 4 if ANIMATED.has(plan[0]) else plan[2]  # fiamma, stoffa, acqua
 	return [Rect2(Vector2(origin * TILE), size), Rect2(Vector2(col, plan[0] - Build.BED) * 32, size)]
 
 

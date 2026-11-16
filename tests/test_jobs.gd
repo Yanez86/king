@@ -308,8 +308,21 @@ func _initialize() -> void:
 	check(tip_texts(main, "FurnitureBar/Row/Campfire").slice(0, 2) == ["Campfire", "5"], "tasto del fuoco da campo")
 	var fire := [main.Build.CAMPFIRE, W, 0]
 	var flame: Rect2 = main.piece_rects(at, fire)[1]
-	main.clock += 1.5 * main.FLAME_TIME / main.DAY_LENGTH
+	main.clock += 1.5 * main.ANIMATED[main.Build.CAMPFIRE] / main.DAY_LENGTH
 	check(flame.position.y == 4 * 32 and main.piece_rects(at, fire)[1].position.x != flame.position.x, "la fiamma guizza")
+	# decorazioni: ognuna col suo tasto e il suo splendore; la panca girata sta in piedi, fontana e stendardo si muovono
+	for kind in main.SPLENDOR:
+		check(main.FURNITURE.has(kind) and main.BUILD_INFO.has(kind), "decorazione %s" % main.Build.keys()[kind])
+	check(tip_texts(main, "FurnitureBar/Row/Statue").slice(0, 2) == ["Statue", "40"], "tasto della statua")
+	check(main.piece_rect(at, [main.Build.BENCH, W, 1]).size == Vector2i(1, 2), "panca girata in verticale")
+	var water: Rect2 = main.piece_rects(at, [main.Build.FOUNTAIN, main.Res.STONE, 0])[1]
+	main.clock += 1.5 * main.ANIMATED[main.Build.FOUNTAIN] / main.DAY_LENGTH
+	check(main.piece_rects(at, [main.Build.FOUNTAIN, main.Res.STONE, 0])[1].position.x != water.position.x, "la fontana zampilla")
+	check(main.colony_splendor() == 0, "niente splendore senza decorazioni")
+	main.furniture[at] = [main.Build.STATUE, main.Res.STONE, 0]
+	main.furniture[at + Vector2i(3, 0)] = [main.Build.FLOWER_BED, W, 0]
+	check(main.colony_splendor() == main.SPLENDOR[main.Build.STATUE] + main.SPLENDOR[main.Build.FLOWER_BED], "splendore sommato")
+	main.furniture.clear()
 
 	var c = main.colonists[0]
 	c.pos = main.center(main.cells_in(area).filter(func(k): return main.can_build(k) and main.can_build(k + Vector2i.LEFT))[0])

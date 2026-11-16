@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3]
+[gd_scene load_steps=36 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Texture2D" path="res://art/icon_wood.png" id="2"]
@@ -81,6 +81,34 @@ region = Rect2(0, 192, 16, 16)
 atlas = ExtResource("8")
 region = Rect2(0, 224, 16, 16)
 
+[sub_resource type="AtlasTexture" id="FlowerBedIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 256, 16, 16)
+
+[sub_resource type="AtlasTexture" id="PlanterIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 288, 16, 16)
+
+[sub_resource type="AtlasTexture" id="BenchIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 320, 32, 16)
+
+[sub_resource type="AtlasTexture" id="BannerIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 352, 16, 16)
+
+[sub_resource type="AtlasTexture" id="LanternIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 384, 16, 16)
+
+[sub_resource type="AtlasTexture" id="FountainIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 416, 32, 32)
+
+[sub_resource type="AtlasTexture" id="StatueIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 448, 32, 32)
+
 [sub_resource type="ButtonGroup" id="Kinds"]
 
 [sub_resource type="ButtonGroup" id="Materials"]
@@ -138,6 +166,18 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="Beds" type="Label" parent="HUD/TopBar/Row"]
+custom_minimum_size = Vector2(48, 0)
+text = "0"
+vertical_alignment = 1
+
+[node name="SplendorIcon" type="TextureRect" parent="HUD/TopBar/Row"]
+custom_minimum_size = Vector2(32, 32)
+tooltip_text = "Colony splendor"
+texture = SubResource("StatueIcon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Splendor" type="Label" parent="HUD/TopBar/Row"]
 custom_minimum_size = Vector2(48, 0)
 text = "0"
 vertical_alignment = 1
@@ -310,6 +350,71 @@ focus_mode = 0
 toggle_mode = true
 button_group = SubResource("Kinds")
 icon = SubResource("WorkbenchIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="DecorSeparator" type="VSeparator" parent="HUD/FurnitureBar/Row"]
+
+[node name="Flower Bed" type="Button" parent="HUD/FurnitureBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("FlowerBedIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Planter" type="Button" parent="HUD/FurnitureBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("PlanterIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Bench" type="Button" parent="HUD/FurnitureBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("BenchIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Banner" type="Button" parent="HUD/FurnitureBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("BannerIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Lantern" type="Button" parent="HUD/FurnitureBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("LanternIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Fountain" type="Button" parent="HUD/FurnitureBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("FountainIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Statue" type="Button" parent="HUD/FurnitureBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("StatueIcon")
 icon_alignment = 1
 expand_icon = true
 

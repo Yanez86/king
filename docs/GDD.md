@@ -193,6 +193,12 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 - Un lupo segnato da cacciare, colpito o mancato, attacca il cacciatore invece di scappare.
 - Poi: predoni (umani), morte e funerali, medico e cure, animali che fuggono o si difendono, ordini di combattimento dati dal re.
 
+- **Splendore** della colonia (termine provvisorio; alternative: decoro, prestigio, lustro): tiene felici i coloni e
+  sblocca cose. Lo danno le decorazioni finite, ovunque stiano (per ora solo il totale in alto, senza effetti).
+  Decorazioni (+splendore): aiuola 1, fioriera di pietra 1, panca 1 (anche +0,5 comfort), lampione 1 (si accende di
+  notte), stendardo 2 (sventola), fontana 6 (2x2, zampilla), statua del re 8 (2x2).
+  Poi: strade che collegano le case, alberi piantati, feste.
+
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100.
 - Ciclo giorno/notte, quattro stagioni; inverno = freddo e niente raccolti.
