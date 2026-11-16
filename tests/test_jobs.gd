@@ -9,7 +9,8 @@ func _initialize() -> void:
 	root.add_child(main)
 	await process_frame  # aspetta che venga chiamato _ready
 	main.needs_rate = 0.0  # bisogni fermi: se no a metà prova i coloni vanno a dormire o a mangiare (vedi fondo)
-	check(main.animals.size() == main.BEASTS.values().reduce(func(n, b): return n + b[3], 0), "animali all'inizio")
+	main.threats = false  # niente branchi di lupi: le prove del combattimento sono in test_combat
+	check(main.animals.size() == main.BEASTS.values().reduce(func(n, b): return n + b["start"], 0), "animali all'inizio")
 	main.animals.clear()  # girano per la mappa: le prove della caccia sono in test_food
 
 	var rows: Array = main.trees.keys().map(func(cell): return cell.y)
@@ -238,6 +239,7 @@ func _initialize() -> void:
 	main.confirm_build()
 	for i in 4000:
 		main.tick(0.05)
+		check_work(main)
 	check(main.blueprints.is_empty(), "stanza finita, pavimento compreso")
 	check(main.rooms.size() == 1, "senza porta non è una struttura")
 	for c in main.colonists:
@@ -306,7 +308,8 @@ func _initialize() -> void:
 	check(flame.position.y == 4 * 32 and main.piece_rects(at, fire)[1].position.x != flame.position.x, "la fiamma guizza")
 
 	var c = main.colonists[0]
-	c.job = main.Job.HAUL  # finto lavoro: deve solo camminare
+	c.pos = main.center(main.cells_in(area).filter(func(k): return main.can_build(k) and main.can_build(k + Vector2i.LEFT))[0])
+	c.job = main.Job.HAUL  # finto lavoro: deve solo camminare, verso una casella libera
 	c.path.assign([main.cell_of(c.pos) + Vector2i.LEFT])
 	main.tick(0.05)
 	check(c.facing == main.Facing.LEFT and c.walked > 0, "guarda e cammina verso sinistra")
@@ -498,6 +501,10 @@ func _initialize() -> void:
 		main.quit_job(col)
 		col.needs = [100.0, 100.0, 50.0, 100.0, 50.0]
 	var sleepy = main.colonists[0]
+	var aside: Array = main.cells_in(area).filter(func(k): return main.can_build(k) and (k - bed_cell).length() > 3)
+	for col in main.colonists:  # chi è fermo sul letto lo tiene occupato: gli altri da un'altra parte
+		if col != sleepy:
+			col.pos = main.center(aside[main.colonists.find(col)])
 	sleepy.needs[main.Need.REST] = main.NEED_LOW - 1
 	for i in 2000:
 		main.tick(0.05)
@@ -651,6 +658,9 @@ func _initialize() -> void:
 	quit()
 
 
+var last_pos := {}  # colono -> posizione al controllo prima, vedi check_work
+
+
 # chi lavora usa i fotogrammi d'azione, dalla casella vicina, guardando l'albero o il masso
 func check_work(main) -> void:
 	var ahead := {main.Facing.DOWN: Vector2i.DOWN, main.Facing.LEFT: Vector2i.LEFT,
@@ -658,10 +668,13 @@ func check_work(main) -> void:
 	var stopped := {}
 	for c in main.colonists:
 		check(c.carrying <= main.CARRY_MAX, "al massimo 10 oggetti in mano")
+		check(not main.astar.is_point_solid(main.cell_of(c.pos)) or not c.path.is_empty(), "nessuno resta chiuso dentro un muro")
 		if c.path.is_empty():  # chi è fermo non condivide la casella con un altro fermo
 			check(not stopped.has(main.cell_of(c.pos)), "due coloni fermi sulla stessa casella")
 			stopped[main.cell_of(c.pos)] = true
-		if not main.is_working(c):
+		var moved: bool = last_pos.get(c, c.pos) != c.pos  # appena arrivato: si gira verso il lavoro al prossimo tick
+		last_pos[c] = c.pos
+		if not main.is_working(c) or moved:
 			continue
 		check(not main.trees.has(main.cell_of(c.pos)), "lavora stando su un albero")
 		check(main.WORK_CYCLE.has(main.frame_of(c)), "fotogrammi d'azione mentre lavora")

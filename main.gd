@@ -10,6 +10,7 @@ const BERRIES_PER_BUSH := 5 # bacche (vegetali) su un cespuglio maturo
 const BERRY_REGROW := 2.0   # giorni prima che il cespuglio rifaccia le bacche
 const CARRY_MAX := 10       # quantità massima trasportata per viaggio, di una risorsa sola
 const BUILD_TIME := 2.0     # secondi per costruire una casella
+const LOOK_AGAIN := 0.5     # secondi tra una ricerca di lavoro e l'altra, per chi non ne trova
 const RETRY_AFTER := 10.0   # secondi di gioco prima di riprovare a raggiungere una casella irraggiungibile
 const COLONIST_COUNT := 3
 const ROOM_MAX := 400       # caselle: una zona chiusa più grande non è una stanza, è il mondo fuori
@@ -21,15 +22,15 @@ const HAIR_COLORS := [Color("3b2a1e"), Color("d9b35b"), Color("a8462f"), Color("
 const SIDES := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 const TREE_SIDES := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  # da sopra la chioma coprirebbe chi taglia
 
-enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT }
+enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE }
 # VEG: vegetali, dalle bacche dei cespugli; IRON, COAL: dai massi con le vene; MEAL, FINE_MEAL: pasti, dalla cucina;
 # MEAT, HIDE: carne e pelle, dagli animali cacciati; FISH: pesce, dai punti di pesca; INGOT: lingotti, dalla fornace;
 # da PICKAXE in poi: equipaggiamento (vedi GEAR), dalla forgia e dal banco da lavoro (vedi RECIPES)
 enum Res { WOOD, STONE, VEG, IRON, COAL, MEAL, FINE_MEAL, MEAT, FISH, HIDE, INGOT,
-	PICKAXE, AXE, SICKLE, BOW, LEATHER_ARMOR, LEATHER_HOOD, HELMET, CHAINMAIL }
+	PICKAXE, AXE, SICKLE, BOW, LEATHER_ARMOR, LEATHER_HOOD, HELMET, CHAINMAIL, SWORD }
 const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.IRON: 50, Res.COAL: 50, Res.MEAL: 20, Res.FINE_MEAL: 20,
 	Res.MEAT: 50, Res.FISH: 50, Res.HIDE: 50, Res.INGOT: 50, Res.PICKAXE: 10, Res.AXE: 10, Res.SICKLE: 10, Res.BOW: 10,
-	Res.LEATHER_ARMOR: 10, Res.LEATHER_HOOD: 10, Res.HELMET: 10, Res.CHAINMAIL: 10}  # quantità massima per mucchio (casella)
+	Res.LEATHER_ARMOR: 10, Res.LEATHER_HOOD: 10, Res.HELMET: 10, Res.CHAINMAIL: 10, Res.SWORD: 10}  # quantità massima per mucchio (casella)
 const MEALS := [Res.FINE_MEAL, Res.MEAL]  # cotti: chi ha fame li prende in quest'ordine, poi il crudo
 const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT]  # crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti
 const STASH := [Res.WOOD, Res.STONE, Res.VEG, Res.IRON, Res.COAL]  # scorta di debug: il resto si produce
@@ -59,10 +60,13 @@ const CATCH_BASE := 0.3     # + CATCH_PER_LEVEL per livello: 36% a livello 1, 90
 const CATCH_PER_LEVEL := 0.06
 # caccia (vedi try_hunt): animali che girano per la mappa; quelli segnati con "Hunt" li insegue un cacciatore, che tira
 # da al più HUNT_RANGE caselle. Ogni tiro: AIM_TIME a livello 5, colpisce con probabilità hit_chance; l'animale scappa
-enum Beast { RABBIT, DEER }  # righe di ANIMALS
-const BEASTS := {  # [colpi per abbatterlo, carne, caselle al secondo, quanti all'inizio, pelli]
-	Beast.RABBIT: [1, 3, 2.0, 6, 1],
-	Beast.DEER: [2, 10, 1.5, 3, 3],
+enum Beast { RABBIT, DEER, WOLF }  # righe di ANIMALS
+# "hp": danni per abbatterlo; "speed": caselle al secondo; "start": quanti all'inizio; i lupi ("hostile") arrivano in
+# branco (vedi spawn_pack) e mordono ("bite": danno)
+const BEASTS := {
+	Beast.RABBIT: {"hp": 10, "meat": 3, "hide": 1, "speed": 2.0, "start": 6},
+	Beast.DEER: {"hp": 20, "meat": 10, "hide": 3, "speed": 1.5, "start": 3},
+	Beast.WOLF: {"hp": 30, "meat": 5, "hide": 2, "speed": 3.0, "start": 0, "hostile": true, "bite": 8.0},
 }
 const ANIMALS := preload("res://art/animals.png")  # 16x16, colonne: fermo, passo; guardano a destra
 const ANIMALS_MAX := 12     # sotto questo numero ogni ANIMAL_RESPAWN giorni ne arriva uno nuovo, lontano dalla radura
@@ -77,6 +81,32 @@ const AIM_TIME := 4.0       # secondi per tiro a livello 5 (vedi skill_time)
 const HIT_BASE := 0.3       # + HIT_PER_LEVEL per livello, - HIT_PER_TILE per casella di distanza
 const HIT_PER_LEVEL := 0.05
 const HIT_PER_TILE := 0.05
+const SHOT_DAMAGE := 10.0   # tiro senza arco (sassi, lance improvvisate); con l'arco "shot" di GEAR
+# combattimento (vedi react, Job.FIGHT, update_wolf): i lupi arrivano in branco dal bordo della mappa e inseguono i coloni
+# fuori dalle stanze; chi sta bene combatte, chi è ferito scappa al chiuso. Nessuno muore: a 0 punti ferita si resta a terra
+const WOLF_FIRST := 2.0     # giorno del primo branco (vedi threats)
+const WOLF_EVERY := 3.0     # giorni tra un branco e l'altro
+const PACK := [2, 3]        # lupi per branco, da-a
+const WOLF_STAY := 1.0      # giorni: poi, se non inseguono nessuno, se ne vanno
+const WOLF_SIGHT := 70      # caselle: fiutano la colonia da tutta la mappa; chi è più lontano non lo trovano
+const BITE_RANGE := 1.2     # caselle
+const BITE_TIME := 1.5      # secondi tra un morso e l'altro
+const BITE_HIT := 0.7       # - DODGE_PER_LEVEL per livello di mischia di chi è morso
+const DODGE_PER_LEVEL := 0.03
+const ALERT := 12           # caselle: un colono con un lupo così vicino lascia tutto e combatte (o scappa)
+const FLEE_HP := 40.0       # sotto, scappa in una stanza invece di combattere
+const MELEE_RANGE := 1.2    # caselle
+const MELEE_TIME := 1.5     # secondi per colpo a livello 5
+const SHOOT_TIME := 2.0     # secondi per tiro con l'arco a livello 5
+const MELEE_BASE := 0.5     # a segno + MELEE_PER_LEVEL per livello sopra il 5
+const MELEE_PER_LEVEL := 0.05
+const FIST_DAMAGE := 5.0    # senza niente in mano; se no "damage" di GEAR
+const ARMOR_BLOCK := 0.06   # danno -6% per punto di protezione, al massimo ARMOR_MAX
+const ARMOR_MAX := 0.8
+const HIT_STRESS := 5.0     # stress per ogni morso preso
+const HP_REGEN := 30.0      # punti ferita al giorno; il doppio dormendo
+const DOWNED_REGEN := 40.0  # a terra si rialza a GET_UP
+const GET_UP := 30.0
 # Equipaggiamento: un pezzo per slot (vedi Colonist.gear), messo da sé col primo che trova in magazzino (vedi try_equip).
 # Nelle mani l'attrezzo della sua abilità migliore tra quelle degli attrezzi ("skill"). Armature: "armor" è la protezione,
 # per il combattimento e il freddo che verranno; i bonus li dà solo il pezzo che li ha. Chiavi:
@@ -84,12 +114,15 @@ const HIT_PER_TILE := 0.05
 # "outdoor_stress": stress x lavorando fuori dalle stanze
 enum Slot { HANDS, BODY, HEAD }  # come HUD/ColonistSheet/Box/Equipment/Slots
 const GEAR := {
-	Res.PICKAXE: {"slot": Slot.HANDS, "skill": Skill.MINING, "time": {Job.MINE: 0.75}, "info": "Mining 25% faster."},
-	Res.AXE: {"slot": Slot.HANDS, "skill": Skill.WOODCUTTING, "time": {Job.CHOP: 0.75}, "info": "Woodcutting 25% faster."},
-	Res.SICKLE: {"slot": Slot.HANDS, "skill": Skill.GATHERING, "time": {Job.HARVEST: 0.75, Job.UPROOT: 0.75},
-		"info": "Harvesting and uprooting 25% faster."},
-	Res.BOW: {"slot": Slot.HANDS, "skill": Skill.HUNTING, "hit": 0.1, "range": 2.0,
-		"info": "Hunting: +10% to hit, 2 more tiles of range, aims with the better of Hunting and Ranged."},
+	Res.PICKAXE: {"slot": Slot.HANDS, "skill": Skill.MINING, "time": {Job.MINE: 0.75}, "damage": 10.0,
+		"info": "Mining 25% faster. Melee damage 10."},
+	Res.AXE: {"slot": Slot.HANDS, "skill": Skill.WOODCUTTING, "time": {Job.CHOP: 0.75}, "damage": 12.0,
+		"info": "Woodcutting 25% faster. Melee damage 12."},
+	Res.SICKLE: {"slot": Slot.HANDS, "skill": Skill.GATHERING, "time": {Job.HARVEST: 0.75, Job.UPROOT: 0.75}, "damage": 8.0,
+		"info": "Harvesting and uprooting 25% faster. Melee damage 8."},
+	Res.BOW: {"slot": Slot.HANDS, "skill": Skill.HUNTING, "hit": 0.1, "range": 2.0, "shot": 14.0,
+		"info": "Hunting: +10% to hit, 2 more tiles of range, aims with the better of Hunting and Ranged. Shoots in a fight (damage 14)."},
+	Res.SWORD: {"slot": Slot.HANDS, "skill": Skill.MELEE, "damage": 15.0, "info": "A weapon. Melee damage 15."},
 	Res.LEATHER_ARMOR: {"slot": Slot.BODY, "armor": 2, "outdoor_stress": 0.75, "info": "Light. 25% less stress working outdoors."},
 	Res.LEATHER_HOOD: {"slot": Slot.HEAD, "armor": 1, "hit": 0.05, "info": "Blends in: +5% to hit when hunting."},
 	Res.HELMET: {"slot": Slot.HEAD, "armor": 3, "time": {Job.MINE: 0.9}, "info": "Safe from falling rocks: mining 10% faster."},
@@ -109,6 +142,7 @@ const RECIPES := [
 	[Res.SICKLE, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 1, Res.WOOD: 1}, 10.0],
 	[Res.HELMET, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 3}, 20.0],
 	[Res.CHAINMAIL, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 6}, 30.0],
+	[Res.SWORD, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 3, Res.WOOD: 1}, 20.0],
 ]
 const STATION_ROOM := {Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP}
 const INGOT_STOCK := 10
@@ -229,6 +263,7 @@ const ICONS := {
 	Res.LEATHER_HOOD: preload("res://art/icon_leather_hood.png"),
 	Res.HELMET: preload("res://art/icon_helmet.png"),
 	Res.CHAINMAIL: preload("res://art/icon_chainmail.png"),
+	Res.SWORD: preload("res://art/icon_sword.png"),
 }
 # 256x64, righe: muri di legno, muri di pietra (colonna = lati collegati, vedi WALL_LINKS), pavimenti (colonna = Res),
 # porte (di fronte, di lato); vedi structure_src
@@ -300,7 +335,8 @@ class Colonist:
 	var first_name := ""
 	var nickname := ""            # facoltativo: non tutti ce l'hanno
 	var last_name := ""
-	var hp := MAX_HP
+	var hp := float(MAX_HP)
+	var downed := false           # a 0 punti ferita: resta a terra finché non torna a GET_UP
 	var skills := []              # livello 1-SKILL_MAX per Skill
 	var xp := []                  # punti esperienza per Skill: 1 per colpo d'ascia
 	var needs := []               # 0-NEED_MAX per Need, vedi update_needs
@@ -314,6 +350,7 @@ class Colonist:
 	var facing := Facing.DOWN
 	var walked := 0.0             # pixel percorsi, scandisce i passi dell'animazione
 	var idle := 0.0               # secondi fermo senza lavoro, scandisce il respiro
+	var look_again := 0.0         # secondi prima di cercare di nuovo un lavoro, se l'ultima volta non ne ha trovati
 	var path: Array[Vector2i] = []
 	var job := Job.NONE
 	var target := Vector2i.ZERO   # albero, masso (cella d'origine), mucchio, cella di magazzino o progetto
@@ -334,7 +371,11 @@ class Animal:
 	var kind := Beast.RABBIT
 	var pos: Vector2
 	var path: Array[Vector2i] = []
-	var hits := 0                 # colpi presi: con BEASTS[kind][0] è abbattuto
+	var damage := 0.0             # danni presi: con BEASTS[kind]["hp"] è abbattuto
+	var target = null             # lupo: il Colonist che insegue
+	var bite_left := 0.0          # lupo: secondi al prossimo morso
+	var repath := 0.0             # lupo: secondi prima di poter rifare il percorso
+	var leave_at := INF           # lupo: `clock` da cui se ne va, se non insegue nessuno
 	var rest := 0.0               # secondi prima del prossimo giro
 	var fleeing := false
 	var left := false             # guarda a sinistra (lo sprite si specchia)
@@ -375,6 +416,8 @@ var fish_spots := {}        # cella d'acqua -> `clock` da cui ci sono di nuovo p
 var animals: Array[Animal] = []
 var wild := RandomNumberGenerator.new()  # tutto il caso degli animali: non sposta quello del resto della partita
 var next_animal := ANIMAL_RESPAWN  # `clock` del prossimo arrivo
+var threats := true         # false nei test: niente branchi di lupi
+var next_pack := WOLF_FIRST # `clock` del prossimo branco
 var items := {}  # risorsa -> (cella -> quantità a terra; nel magazzino = stoccata): un dizionario per Res, vedi _init  # risorsa -> (cella -> quantità a terra; nel magazzino = stoccata)
 var fresh := {}             # cella -> giorni (a terra fuori) prima che il mucchio di cibo marcisca, vedi spoil
 var stockpile := {}         # cella -> true: dentro le stanze di tipo magazzino, vedi update_stockpile
@@ -743,7 +786,7 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 	var skills_grid: Control = box.get_node("Skills")  # 4 colonne: icona, nome, livello, stellina
 	var traits_box: Control = box.get_node("Traits/Icons")  # solo icone: il nome è nel suggerimento
 	box.get_node("Head/Name").text = full_name(c)
-	box.get_node("Health").text = "Health: %d / %d" % [c.hp, MAX_HP]
+	box.get_node("Health").text = health_text(c)
 	for child in needs_grid.get_children() + skills_grid.get_children() + traits_box.get_children():
 		child.free()
 	var back := bar_style(BAR_BACK)
@@ -791,6 +834,10 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 	update_need_bars(needs_grid, c)
 	update_conds(box, c)
 	update_gear(box, c)
+
+
+func health_text(c: Colonist) -> String:
+	return "Health: %d / %d%s" % [ceili(c.hp), MAX_HP, "  (downed)" if c.downed else ""]
 
 
 # slot dell'equipaggiamento: l'icona del pezzo, col mouse sopra nome, protezione ed effetto; vuoto, la sagoma dello slot.
@@ -898,7 +945,14 @@ func show_tip(cell: Vector2i) -> void:
 func describe(cell: Vector2i) -> Array:
 	for a in animals:
 		if cell_of(a.pos) == cell:
-			return [Beast.keys()[a.kind].capitalize(), "Marked: hunt" if a.marked else ""]
+			var lines := PackedStringArray()
+			if hostile(a):
+				lines.append("Hostile")
+			if a.damage > 0:
+				lines.append("Health: %d / %d" % [BEASTS[a.kind]["hp"] - a.damage, BEASTS[a.kind]["hp"]])
+			if a.marked:
+				lines.append("Marked: hunt")
+			return [Beast.keys()[a.kind].capitalize(), "\n".join(lines)]
 	if fish_marks.has(cell):
 		return ["Fishing spot", "Fish: %d / %d" % [stock.get(cell, FISH_PER_SPOT), FISH_PER_SPOT] if fish_spots.get(cell, 0.0) <= clock
 			else "Fish back in %.1f days" % (fish_spots[cell] - clock)]
@@ -1068,7 +1122,7 @@ func generate_map() -> void:
 	update_rooms()
 	wild.seed = noise.seed + 3
 	for kind in BEASTS:
-		for i in BEASTS[kind][3]:
+		for i in BEASTS[kind]["start"]:
 			spawn_animal(kind)
 	if start_rooms:  # ponytail: scorta di debug, da togliere (o DEBUG_STASH a 0) quando si gioca sul serio
 		var first: Vector2i = MAP_SIZE / 2 + START_ROOMS[0] * 8
@@ -1161,8 +1215,10 @@ func _process(delta: float) -> void:
 		update_need_bars(sheet_needs, shown)
 		update_conds($HUD/ColonistSheet/Box, shown)
 		update_gear($HUD/ColonistSheet/Box, shown)
+		$HUD/ColonistSheet/Box/Health.text = health_text(shown)
 	var t := fmod(clock, 1.0)
-	info_label.text = "Day %d  %02d:%02d    Order: %s    Speed: %dx  (Space = pause, 1-3)" \
+	var wolves := animals.filter(hostile).size()
+	info_label.text = ("WOLVES: %d    " % wolves if wolves > 0 else "") + "Day %d  %02d:%02d    Order: %s    Speed: %dx  (Space = pause, 1-3)" \
 		% [int(clock) + 1, int(t * 24), int(t * 1440) % 60, Order.keys()[order].capitalize(), Engine.time_scale]
 	sky.color = sky_colors.sample(t)
 	var shade := SHADOW_ALPHA * clampf(sun_height() * 4, 0, 1)  # sfuma all'alba e al tramonto, zero di notte
@@ -1186,15 +1242,24 @@ func tick(delta: float) -> void:
 	if clock >= next_animal:
 		next_animal = clock + ANIMAL_RESPAWN
 		if animals.size() < ANIMALS_MAX:
-			spawn_animal(Beast.values()[wild.randi() % Beast.size()])
+			var prey := BEASTS.keys().filter(func(k): return not BEASTS[k].get("hostile", false))
+			spawn_animal(prey[wild.randi() % prey.size()])
+	if threats and clock >= next_pack:
+		next_pack = clock + WOLF_EVERY
+		spawn_pack()
 
 
 func update_colonist(c: Colonist, delta: float) -> void:
 	update_needs(c, delta)
+	if c.downed:  # a terra: si cura piano (vedi update_needs), poi si rialza
+		c.downed = c.hp < GET_UP
+		return
+	if react(c):
+		return
 	c.idle = c.idle + delta if c.job == Job.NONE and c.path.is_empty() else 0.0
 	if c.idle > LOOK_TIME and randf() < delta / LOOK_TIME:  # si guarda attorno, a caso: niente coloni sincronizzati
 		c.facing = Facing.values().pick_random()
-	if c.job == Job.HUNT:
+	if c.job in [Job.HUNT, Job.FIGHT]:
 		track_prey(c)
 	if not c.path.is_empty():  # anche senza lavoro: chi è libero può dover uscire da una stanza che si chiude
 		var goal := center(c.path[0])
@@ -1205,8 +1270,12 @@ func update_colonist(c: Colonist, delta: float) -> void:
 		if c.pos == goal:
 			c.path.pop_front()
 		return
-	if c.job == Job.NONE:
-		find_job(c)
+	if c.job == Job.NONE:  # chi non ha trovato niente riprova ogni LOOK_AGAIN secondi, non a ogni tick
+		c.look_again -= delta
+		if c.look_again <= 0:
+			find_job(c)
+			if c.job == Job.NONE and c.path.is_empty():
+				c.look_again = LOOK_AGAIN
 		return
 	match c.job:
 		Job.CHOP, Job.MINE, Job.HARVEST, Job.FISH:  # raccolta, vedi GATHER: un colpo ogni gather_time, il raccolto cade ai piedi
@@ -1341,20 +1410,35 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			if c.work_left > 0:
 				return
 			c.xp[Skill.HUNTING] += 1
-			if c.gear.get(Slot.HANDS) == Res.BOW:
+			if has_bow(c):
 				c.xp[Skill.RANGED] += 1
 			c.work_left = c.work_total
 			if randf() < hit_chance(hunt_level(c), dist) + gear_sum(c, "hit"):
-				a.hits += 1
-			if a.hits < BEASTS[a.kind][0]:
-				flee(a, c.pos)
+				wound(a, GEAR[Res.BOW]["shot"] if has_bow(c) else SHOT_DAMAGE, c)
+			else:
+				startle(a, c)
+		Job.FIGHT:  # a portata (vedi track_prey): con l'arco tira, se no colpisce con quello che ha in mano
+			var foe: Animal = c.prey
+			var dist := c.pos.distance_to(foe.pos) / TILE
+			if dist > reach(c):  # si è allontanato: lo insegue
+				chase(c)
+				c.work_left = c.work_total
 				return
-			var spot := cell_of(a.pos)
-			animals.erase(a)
+			face(c, foe.pos - c.pos)
+			c.work_left -= delta
+			if c.work_left > 0:
+				return
+			c.work_left = c.work_total
+			if has_bow(c):
+				c.xp[Skill.RANGED] += 1
+				if randf() < hit_chance(c.skills[Skill.RANGED], dist) + gear_sum(c, "hit"):
+					wound(foe, GEAR[Res.BOW]["shot"], c)
+			else:
+				c.xp[Skill.MELEE] += 1
+				if randf() < melee_chance(c.skills[Skill.MELEE]):
+					wound(foe, melee_damage(c), c)
+		Job.FLEE:  # arrivato al riparo (vedi react)
 			end_job(c)
-			drop(Res.MEAT, spot, BEASTS[a.kind][1])
-			drop(Res.HIDE, spot, BEASTS[a.kind][4])  # accanto: un mucchio per risorsa
-			try_haul(c, Res.MEAT, [spot])  # la carne subito in magazzino, la pelle dopo
 		Job.COOK:  # come BUILD: al mucchio prende il crudo (carry_res), poi al fuoco da campo (target) lo cucina stando in dest
 			if furniture.get(c.target, [-1])[0] != Build.CAMPFIRE or not kitchen_fires().has(c.target):
 				quit_job(c)  # fuoco abbattuto, o la stanza non è più una cucina: rimette giù il crudo
@@ -1397,6 +1481,8 @@ func update_needs(c: Colonist, delta: float) -> void:
 	for k in c.conds.keys():
 		if c.conds[k] <= clock:
 			c.conds.erase(k)
+	var heal := DOWNED_REGEN if c.downed else HP_REGEN * (2.0 if c.job == Job.SLEEP else 1.0)
+	c.hp = minf(c.hp + heal * day, MAX_HP)
 	c.needs[Need.FOOD] -= FOOD_DROP * day
 	if c.job == Job.SLEEP and c.path.is_empty():
 		var comfort := comfort_of(c)
@@ -1751,10 +1837,11 @@ func stations(kind: Build) -> Array:
 func try_craft(c: Colonist) -> bool:
 	for i in RECIPES.size():
 		var r: Array = RECIPES[i]
-		if gear_wanted(r[0]) <= 0 or not r[3].keys().all(func(res): return available(res) >= r[3][res]):
+		var free_stations := stations(r[1]).filter(func(st): return is_free(st))  # prima il controllo che costa meno
+		if free_stations.is_empty() or gear_wanted(r[0]) <= 0 or not r[3].keys().all(func(res): return available(res) >= r[3][res]):
 			continue
 		var stands := {}  # casella accanto a una postazione libera, nella sua stanza -> postazione
-		for station in stations(r[1]).filter(func(st): return is_free(st)):
+		for station in free_stations:
 			var around := {}
 			add_stands(around, [station], station, SIDES)
 			for s in around:
@@ -1827,6 +1914,199 @@ func craft(c: Colonist, delta: float) -> void:
 		try_haul(c, r[0], [here])
 
 
+# --- Combattimento ---
+
+func hostile(a: Animal) -> bool:
+	return BEASTS[a.kind].get("hostile", false)
+
+
+func has_bow(c: Colonist) -> bool:
+	return c.gear.get(Slot.HANDS) == Res.BOW
+
+
+# caselle da cui colpisce: a caccia o con l'arco quelle di tiro, se no corpo a corpo
+func reach(c: Colonist) -> float:
+	return hunt_range(c) if c.job == Job.HUNT or has_bow(c) else MELEE_RANGE
+
+
+func melee_chance(level: int) -> float:
+	return clampf(MELEE_BASE + MELEE_PER_LEVEL * (level - 5), 0.05, 0.95)
+
+
+# danno corpo a corpo: quello dell'attrezzo o dell'arma in mano, se no a mani nude
+func melee_damage(c: Colonist) -> float:
+	var g = c.gear.get(Slot.HANDS)
+	return GEAR[g].get("damage", FIST_DAMAGE) if g != null else FIST_DAMAGE
+
+
+# quanto danno passa la protezione di `c`: -ARMOR_BLOCK per punto, al massimo -ARMOR_MAX
+func armor_factor(c: Colonist) -> float:
+	return 1.0 - minf(ARMOR_BLOCK * gear_sum(c, "armor"), ARMOR_MAX)
+
+
+# secondi tra un colpo e l'altro in combattimento
+func attack_time(c: Colonist) -> float:
+	if has_bow(c):
+		return SHOOT_TIME * skill_time(c.skills[Skill.RANGED]) * work_factor(c, Job.FIGHT)
+	return MELEE_TIME * skill_time(c.skills[Skill.MELEE]) * work_factor(c, Job.FIGHT)
+
+
+# il lupo più vicino a `c` entro ALERT caselle (tranne quelli che per un po' non si raggiungono, vedi chase)
+func nearest_foe(c: Colonist) -> Animal:
+	var best: Animal = null
+	for a in animals:
+		if hostile(a) and a.blocked <= clock and a.pos.distance_to(c.pos) <= ALERT * TILE \
+				and (best == null or a.pos.distance_squared_to(c.pos) < best.pos.distance_squared_to(c.pos)):
+			best = a
+	return best
+
+
+# Un lupo vicino: chi sta bene lascia quello che fa e combatte (Job.FIGHT, contro il più vicino); chi è ferito (sotto
+# FLEE_HP) corre nella stanza più vicina dove può entrare (Job.FLEE) e lì aspetta, senza altri lavori, che il pericolo
+# passi; se nessuna stanza è raggiungibile combatte. true se oggi non deve fare altro (al riparo, ad aspettare)
+func react(c: Colonist) -> bool:
+	var foe := nearest_foe(c)
+	if foe == null:
+		return false
+	if c.hp < FLEE_HP:
+		if room_at(cell_of(c.pos)) != null:
+			if c.job == Job.SLEEP:
+				return false  # dorme al sicuro
+			if c.job != Job.NONE:
+				quit_job(c)
+			c.path.clear()
+			return true
+		if c.job == Job.FLEE:
+			return false
+		var shut := closed_cells(c)
+		var safe := []
+		for room in rooms:
+			safe.append_array(room.cells.keys().filter(func(k): return not shut.has(k)))
+		var path := path_to_nearest(c, safe)
+		if not path.is_empty():
+			quit_job(c)
+			c.job = Job.FLEE
+			c.path = path
+			return false
+	if c.job == Job.FIGHT:
+		return false
+	quit_job(c)
+	c.job = Job.FIGHT
+	c.prey = foe
+	c.work_total = attack_time(c)
+	c.work_left = c.work_total
+	chase(c)
+	return false
+
+
+# Colpito: danno all'animale. Abbattuto lascia carne e pelle; se no il lupo se la prende con chi l'ha colpito, gli
+# altri scappano
+func wound(a: Animal, damage: float, by: Colonist) -> void:
+	a.damage += damage
+	if a.damage >= BEASTS[a.kind]["hp"]:
+		kill(a, by)
+	else:
+		startle(a, by)
+
+
+# preso di mira (colpito o mancato): il lupo attacca chi ha tirato, gli altri animali scappano
+func startle(a: Animal, by: Colonist) -> void:
+	if hostile(a):
+		a.target = by
+	else:
+		flee(a, by.pos)
+
+
+# abbattuto: carne e pelle a terra; chi lo cacciava o lo combatteva è libero, chi l'ha abbattuto porta la carne in magazzino
+func kill(a: Animal, by: Colonist) -> void:
+	var spot := cell_of(a.pos)
+	animals.erase(a)
+	for o in colonists:
+		if o.prey == a:
+			end_job(o)
+	drop(Res.MEAT, spot, BEASTS[a.kind]["meat"])
+	drop(Res.HIDE, spot, BEASTS[a.kind]["hide"])  # accanto: un mucchio per risorsa
+	try_haul(by, Res.MEAT, [spot])
+
+
+# Lupo: insegue il colono più vicino che vede, fuori dalle stanze e in piedi; a portata lo morde. Senza nessuno da
+# inseguire gira come gli altri animali, e dopo WOLF_STAY se ne va. true se il giro di update_animal è finito qui
+func update_wolf(a: Animal, delta: float) -> bool:
+	a.bite_left = maxf(a.bite_left - delta, 0.0)
+	a.repath -= delta
+	if not fair_game(a, a.target):
+		a.target = null
+		for c in colonists:
+			if fair_game(a, c) and (a.target == null or c.pos.distance_to(a.pos) < a.target.pos.distance_to(a.pos)):
+				a.target = c
+		a.path.clear()
+	var t: Colonist = a.target
+	if t == null:
+		if clock >= a.leave_at:
+			animals.erase(a)
+			return true
+		return false
+	if t.pos.distance_to(a.pos) <= BITE_RANGE * TILE:
+		a.path.clear()
+		a.left = t.pos.x < a.pos.x
+		if a.bite_left == 0.0:
+			a.bite_left = BITE_TIME
+			bite(a, t)
+		return true
+	if a.repath <= 0 and (a.path.is_empty() or center(a.path.back()).distance_to(t.pos) > 1.5 * TILE):
+		a.repath = 0.5
+		a.path = beast_path(cell_of(a.pos), cell_of(t.pos))
+	move_animal(a, delta)
+	return true
+
+
+# il lupo `a` può inseguire `c`: in piedi, fuori dalle stanze, entro WOLF_SIGHT
+func fair_game(a: Animal, c) -> bool:
+	return c != null and c in colonists and not c.downed and room_at(cell_of(c.pos)) == null \
+		and c.pos.distance_to(a.pos) <= WOLF_SIGHT * TILE
+
+
+# Morso: a segno secondo la mischia di chi è morso; il danno lo riduce la protezione. Fa salire lo stress; a 0 punti
+# ferita il colono resta a terra e lascia il lavoro
+func bite(a: Animal, c: Colonist) -> void:
+	if randf() >= BITE_HIT - DODGE_PER_LEVEL * c.skills[Skill.MELEE]:
+		return
+	c.hp -= BEASTS[a.kind]["bite"] * armor_factor(c)
+	c.needs[Need.STRESS] = minf(c.needs[Need.STRESS] + HIT_STRESS, NEED_MAX)
+	if c.hp <= 0:
+		c.hp = 0.0
+		c.downed = true
+		quit_job(c)
+		a.target = null
+
+
+# percorso di un animale che non passa dalle stanze: per la ricerca le si riempie come fossero muro
+func beast_path(from: Vector2i, to: Vector2i) -> Array[Vector2i]:
+	var shut := []
+	for room in rooms:
+		shut.append_array(room.cells.keys().filter(func(k): return not astar.is_point_solid(k)))
+	for k in shut:
+		astar.set_point_solid(k)
+	var path := astar.get_id_path(from, to) if not astar.is_point_solid(from) and not astar.is_point_solid(to) else ([] as Array[Vector2i])
+	for k in shut:
+		astar.set_point_solid(k, false)
+	return path
+
+
+# Un branco di lupi entra da un bordo della mappa, a caso; se ne va dopo WOLF_STAY se non trova nessuno
+func spawn_pack() -> void:
+	for attempt in 50:
+		var t := wild.randi() % MAP_SIZE.x
+		var cell: Vector2i = [Vector2i(t, 0), Vector2i(t, MAP_SIZE.y - 1), Vector2i(0, t), Vector2i(MAP_SIZE.x - 1, t)][wild.randi() % 4]
+		if not roams(cell):
+			continue
+		for i in wild.randi_range(PACK[0], PACK[1]):
+			var near := cell + Vector2i(wild.randi_range(-2, 2), wild.randi_range(-2, 2))
+			var a := add_animal(Beast.WOLF, near if roams(near) else cell)
+			a.leave_at = clock + WOLF_STAY
+		return
+
+
 # --- Pesca e caccia ---
 
 # punti di pesca segnati dove ci sono pesci
@@ -1840,7 +2120,7 @@ func catch_chance(level: int) -> float:
 
 # livello con cui mira: con l'arco il migliore tra caccia e armi a distanza
 func hunt_level(c: Colonist) -> int:
-	if c.gear.get(Slot.HANDS) == Res.BOW:
+	if has_bow(c):
 		return maxi(c.skills[Skill.HUNTING], c.skills[Skill.RANGED])
 	return c.skills[Skill.HUNTING]
 
@@ -1879,16 +2159,17 @@ func chase(c: Colonist) -> void:
 		quit_job(c)
 
 
-# Mentre cammina il cacciatore segue la preda: appena è a tiro (con un po' di margine) finisce il passo e si ferma a
-# mirare; se la preda si è allontanata dalla fine del percorso, lo rifà. Preda sparita o non più segnata: lascia perdere
+# Mentre cammina chi caccia o combatte segue l'animale: appena è a portata (con un po' di margine) finisce il passo e si
+# ferma a mirare; se l'animale si è allontanato dalla fine del percorso, lo rifà. Sparito (o, a caccia, non più
+# segnato): lascia perdere
 func track_prey(c: Colonist) -> void:
 	var a: Animal = c.prey
-	if a == null or a not in animals or not a.marked:
+	if a == null or a not in animals or (c.job == Job.HUNT and not a.marked):
 		quit_job(c)
 		return
 	if c.path.is_empty():
 		return
-	if c.pos.distance_to(a.pos) <= hunt_range(c) * TILE * 0.8:
+	if c.pos.distance_to(a.pos) <= reach(c) * TILE * 0.8:
 		c.path = [c.path[0]]
 	elif center(c.path.back()).distance_to(a.pos) > 2 * TILE:
 		chase(c)
@@ -1898,12 +2179,17 @@ func spawn_animal(kind: Beast) -> void:
 	for attempt in 50:
 		var cell := Vector2i(wild.randi() % MAP_SIZE.x, wild.randi() % MAP_SIZE.y)
 		if (cell - MAP_SIZE / 2).length() > WILD_RADIUS and roams(cell):
-			var a := Animal.new()
-			a.kind = kind
-			a.pos = center(cell)
-			a.rest = wild.randf_range(WANDER_REST[0], WANDER_REST[1])
-			animals.append(a)
+			add_animal(kind, cell)
 			return
+
+
+func add_animal(kind: Beast, cell: Vector2i) -> Animal:
+	var a := Animal.new()
+	a.kind = kind
+	a.pos = center(cell)
+	a.rest = wild.randf_range(WANDER_REST[0], WANDER_REST[1])
+	animals.append(a)
+	return a
 
 
 # un animale ci può andare: prato o bosco, niente acqua, roccia, muri o stanze
@@ -1912,18 +2198,12 @@ func roams(cell: Vector2i) -> bool:
 		and not built.has(cell) and not rooms.any(func(r): return r.cells.has(cell))
 
 
-# Animale: cammina lungo il suo percorso (più veloce se scappa), poi sta fermo un po' e riparte per un giro qui vicino
+# Animale: cammina lungo il suo percorso (più veloce se scappa), poi sta fermo un po' e riparte per un giro qui vicino.
+# I lupi invece inseguono i coloni (vedi update_wolf)
 func update_animal(a: Animal, delta: float) -> void:
-	if not a.path.is_empty():
-		var goal := center(a.path[0])
-		var d := goal - a.pos
-		if d.x != 0:
-			a.left = d.x < 0
-		var step: float = BEASTS[a.kind][2] * (FLEE_SPEED if a.fleeing else 1.0) * TILE * delta
-		a.walked += minf(d.length(), step)
-		a.pos = a.pos.move_toward(goal, step)
-		if a.pos == goal:
-			a.path.pop_front()
+	if hostile(a) and update_wolf(a, delta):
+		return
+	if move_animal(a, delta):
 		return
 	a.fleeing = false
 	a.rest -= delta
@@ -1931,6 +2211,22 @@ func update_animal(a: Animal, delta: float) -> void:
 		return
 	a.rest = wild.randf_range(WANDER_REST[0], WANDER_REST[1])
 	a.path = roam_path(a, WANDER, Vector2.INF)
+
+
+# un passo lungo il percorso; false se non ne ha
+func move_animal(a: Animal, delta: float) -> bool:
+	if a.path.is_empty():
+		return false
+	var goal := center(a.path[0])
+	var d := goal - a.pos
+	if d.x != 0:
+		a.left = d.x < 0
+	var step: float = BEASTS[a.kind]["speed"] * (FLEE_SPEED if a.fleeing else 1.0) * TILE * delta
+	a.walked += minf(d.length(), step)
+	a.pos = a.pos.move_toward(goal, step)
+	if a.pos == goal:
+		a.path.pop_front()
+	return true
 
 
 # scappa da `from` (pixel), lontano FLEE caselle
@@ -1994,12 +2290,15 @@ func sources(plan: Array) -> Array:
 
 # avvia il trasporto del mucchio di `res` più vicino tra `piles`; false se non c'è posto o strada
 func try_haul(c: Colonist, res: Res, piles: Array) -> bool:
+	# drop può aver fatto traboccare tutto sulle caselle accanto (es. bacche su un mucchio di legna): lì non c'è niente
+	piles = piles.filter(func(cell): return items[res].has(cell))
+	if piles.is_empty():
+		return false  # prima questo: guardare il magazzino costa di più
 	var shut := closed_cells(c)
 	var dests := dest_cells(res).filter(func(cell): return not shut.has(cell))
 	if dests.is_empty():
 		return false  # magazzino pieno per questa risorsa, o dove lui non entra
-	# drop può aver fatto traboccare tutto sulle caselle accanto (es. bacche su un mucchio di legna): lì non c'è niente
-	var path := path_to_nearest(c, piles.filter(func(cell): return items[res].has(cell)))
+	var path := path_to_nearest(c, piles)
 	if path.is_empty():
 		return false
 	start_job(c, Job.HAUL, path, path.back(), 0.0)
@@ -2049,9 +2348,9 @@ func end_job(c: Colonist) -> void:
 	for cell in reserved.keys():
 		if reserved[cell] == c:
 			reserved.erase(cell)
-	if c.prey:
+	if c.prey and c.prey.hunter == c:
 		c.prey.hunter = null
-		c.prey = null
+	c.prey = null
 	c.job = Job.NONE
 
 
@@ -2321,8 +2620,15 @@ func build(cell: Vector2i) -> void:
 	if built[cell][0] == Build.WALL:
 		astar.set_point_solid(cell)
 		# ponytail: se non resta strada il colono lavora da dov'è; annullarne il lavoro se capita spesso
-		for o in colonists:  # chi doveva passare di qui cerca un'altra strada
-			if o.path.has(cell):
+		for o in colonists:
+			if cell_of(o.pos) == cell:  # ci stava passando sopra: esce dal lato libero più vicino, poi riprende la strada
+				var out: Array = SIDES.map(func(d): return cell + d).filter(func(k): return astar.is_in_boundsv(k) and not astar.is_point_solid(k))
+				if out.is_empty():
+					continue
+				sort_by_distance(out, o.pos)
+				var after: Array[Vector2i] = [] if o.path.is_empty() else path_of(o, out[0], o.path.back())
+				o.path.assign([out[0]] + after.slice(1))
+			elif o.path.has(cell):  # chi doveva passare di qui cerca un'altra strada
 				o.path = path_of(o, cell_of(o.pos), o.path.back())
 	if built[cell][0] != Build.FLOOR:
 		update_rooms()
@@ -2736,6 +3042,14 @@ func draw_animal(a: Animal) -> void:
 		draw_set_transform_matrix(Transform2D.IDENTITY)
 	else:
 		draw_texture_rect_region(ANIMALS, Rect2(at, Vector2.ONE * TILE), animal_src(a))
+	if a.damage > 0:
+		draw_health(a.pos, 1.0 - a.damage / BEASTS[a.kind]["hp"])
+
+
+# barretta della salute sopra la testa (sopra quella del lavoro): rossa sotto, verde quanto resta
+func draw_health(pos: Vector2, part: float) -> void:
+	draw_rect(Rect2(pos + Vector2(-6, -14), Vector2(12, 2)), Color("6e1f1f"))
+	draw_rect(Rect2(pos + Vector2(-6, -14), Vector2(12 * clampf(part, 0.0, 1.0), 2)), Color("7db644"))
 
 
 # fotogramma: fermo, o il passo alternato mentre cammina
@@ -2747,7 +3061,14 @@ func animal_src(a: Animal) -> Rect2:
 func draw_colonist(c: Colonist) -> void:
 	var at := (c.pos - Vector2.ONE * TILE / 2.0).round()  # allineato ai pixel
 	var src := Rect2(Vector2(frame_of(c), c.facing) * TILE, Vector2.ONE * TILE)
-	draw_figure(self, Rect2(at, Vector2.ONE * TILE), src, c)
+	if c.downed:  # sdraiato, girato di un quarto
+		draw_set_transform(c.pos.round(), PI / 2)
+		draw_figure(self, Rect2(-Vector2.ONE * TILE / 2.0, Vector2.ONE * TILE), Rect2(0, 0, TILE, TILE), c)
+		draw_set_transform_matrix(Transform2D.IDENTITY)
+	else:
+		draw_figure(self, Rect2(at, Vector2.ONE * TILE), src, c)
+	if c.hp < MAX_HP:
+		draw_health(c.pos, c.hp / MAX_HP)
 	if c.carrying > 0:
 		draw_texture_rect(ICONS[c.carry_res], Rect2(at + Vector2(8, 6), Vector2(8, 8)), false)
 	if c.job == Job.SLEEP and c.path.is_empty():  # ponytail: niente sprite sdraiato, solo una "z" che sale

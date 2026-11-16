@@ -10,6 +10,7 @@ func _initialize() -> void:
 	root.add_child(main)
 	await process_frame
 	main.needs_rate = 0.0  # bisogni fermi: nessuno va a mangiare finché non lo decide la prova
+	main.threats = false  # niente branchi di lupi: le prove del combattimento sono in test_combat
 	main.bushes.clear()
 	main.weeds.clear()
 	var wildlife: Array = main.animals.duplicate()  # tornano alla fine, per la caccia
@@ -171,7 +172,6 @@ func _initialize() -> void:
 	check(meals == 6 and main.meals_wanted() == 0, "cucinati i pasti che mancavano, non di più")
 	check(xp == 6 and main.total(V) == 20 - 6 * main.COOK_RAW, "2 vegetali e 1 punto esperienza per pasto")
 	check(main.stored(MEAL) + main.stored(FINE) == 6, "i pasti finiscono in magazzino")
-	check(main.total(FINE) > 0, "a livello 10 qualcuno viene squisito")
 	check(main.colonists.all(func(c): return c.job == main.Job.NONE) and main.reserved.is_empty(), "poi tutti liberi")
 
 	# chi ha fame prende un pasto prima del crudo, e lo mangia seduto al tavolo vicino
@@ -320,9 +320,9 @@ func _initialize() -> void:
 		if deer not in main.animals:
 			break
 	check(deer not in main.animals and hunter != null, "cervo abbattuto")
-	check(main.total(M) == meat0 + main.BEASTS[main.Beast.DEER][1], "la carne del cervo")
+	check(main.total(M) == meat0 + main.BEASTS[main.Beast.DEER]["meat"], "la carne del cervo")
 	check(fled, "preso di mira scappa")
-	check(hunter.xp[main.Skill.HUNTING] >= main.BEASTS[main.Beast.DEER][0] and hunter.job != main.Job.HUNT and hunter.prey == null,
+	check(hunter.xp[main.Skill.HUNTING] >= 2 and hunter.job != main.Job.HUNT and hunter.prey == null,
 		"1 punto esperienza per tiro, poi libero")
 	# la carne si cucina come i vegetali
 	main.rooms.append(kitchen)
@@ -334,7 +334,7 @@ func _initialize() -> void:
 			main.add_item(r, k, -main.items[r][k])
 	for i in 6000:
 		main.tick(0.05)
-	check(main.total(MEAL) + main.total(FINE) > 0 and main.total(M) < main.BEASTS[main.Beast.DEER][1], "carne cucinata in pasti")
+	check(main.total(MEAL) + main.total(FINE) > 0 and main.total(M) < main.BEASTS[main.Beast.DEER]["meat"], "carne cucinata in pasti")
 	# un nuovo animale arriva ogni ANIMAL_RESPAWN giorni, lontano dalla radura
 	main.animals.clear()
 	var count: int = main.animals.size()

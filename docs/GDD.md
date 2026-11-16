@@ -41,7 +41,9 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 - **Bisogni**: fame, riposo, comfort, felicità; calore in seguito.
 - **Stress** (0–100, con icona): sale lavorando, scende dormendo o a riposo; abbassa la felicità. Altri effetti in seguito.
 - **Abilità** (livelli 1–10, al 10 una stellina): raccogliere, estrarre, tagliare legna, costruire, forgiare, cucire, cucinare, pescare, cacciare, armi da mischia, armi a distanza, ricerca (lista provvisoria). Velocità e qualità del lavoro; crescono con l'uso (+1 punto esperienza per colpo, pezzo costruito, lancio, tiro o oggetto fatto).
-  Tempo di un lavoro: ×1,4 a livello 1, ×1 a livello 5, ×0,5 a livello 10. Armi da mischia e ricerca ancora senza effetto.
+  Tempo di un lavoro: ×1,4 a livello 1, ×1 a livello 5, ×0,5 a livello 10. Ricerca ancora senza effetto.
+- **Punti ferita** (0–100): si curano da soli, 30 al giorno (60 dormendo). A 0 il colono resta **a terra** (sdraiato,
+  non fa niente) e si cura di 40 al giorno; a 30 si rialza. Per ora nessuno muore. Sopra la testa, una barretta se è ferito.
 - **Talenti**: modificano alcune routine dei coloni, ognuno con un'icona 16×16 (es. "Robusto": +resistenza al freddo; "Pigro": −velocità lavoro; "Pirofobo": rifiuta di cucinare). Primi: goloso, sonnambulo, iracondo.
   Il **goloso** va a mangiare già a fame 50 (gli altri a 30), si gode il doppio i bonus dei pasti e si lamenta se mangia crudo; sonnambulo e iracondo ancora senza effetto.
 - **Condizioni**: effetti a tempo, con un'icona 16×16 nella scheda sotto i talenti (col mouse sopra: nome, effetto, ore che mancano).
@@ -141,6 +143,7 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   | Cappuccio di cuoio | banco | cucire | 2 pelli | 12 |
   | Arco | banco | armi a distanza | 3 legna + 1 pelle | 15 |
   | Piccone, ascia | incudine | forgiare | 2 lingotti + 2 legna | 15 |
+  | Spada | incudine | forgiare | 3 lingotti + 1 legna | 20 |
   | Falcetto | incudine | forgiare | 1 lingotto + 1 legna | 10 |
   | Elmo | incudine | forgiare | 3 lingotti | 20 |
   | Cotta di maglia | incudine | forgiare | 6 lingotti | 30 |
@@ -158,13 +161,30 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   | Piccone | mani | — | scavare −25% tempo |
   | Ascia | mani | — | tagliare −25% tempo |
   | Falcetto | mani | — | raccogliere ed estirpare −25% tempo |
-  | Arco | mani | — | caccia: +10% a segno, +2 caselle di tiro, mira col migliore tra cacciare e armi a distanza (+1 esperienza in entrambe) |
+  | Arco | mani | — | caccia: +10% a segno, +2 caselle di tiro, mira col migliore tra cacciare e armi a distanza (+1 esperienza in entrambe); in combattimento tira (danno 14) |
+  | Spada | mani | — | arma: danno 15 corpo a corpo (la prende chi è più bravo in mischia) |
   | Armatura di cuoio | corpo | 2 | −25% stress lavorando fuori dalle stanze |
   | Cotta di maglia | corpo | 5 | pesante: ogni lavoro +10% tempo |
   | Cappuccio di cuoio | testa | 1 | caccia: +5% a segno |
   | Elmo | testa | 3 | scavare −10% tempo |
 
   Nella scheda gli slot mostrano i pezzi (col mouse sopra nome, protezione, effetto), il titolo la protezione totale.
+
+### 4.4.3 Combattimento
+- **Lupi**: dal giorno 3 (poi ogni 3 giorni) un branco di 2–3 lupi entra da un bordo della mappa e punta alla colonia.
+  Inseguono il colono in piedi più vicino che sta **fuori dalle stanze** (nelle stanze non entrano: i muri proteggono) e lo
+  mordono (danno 8, ogni 1,5 s; a segno 70% − 3% per livello di mischia di chi è morso; ogni morso +5 stress).
+  Senza nessuno da inseguire, dopo un giorno se ne vanno. Abbattuti lasciano 5 carne e 2 pelli. Nella barra in alto "WOLVES: n".
+- **Coloni**: con un lupo entro 12 caselle lasciano tutto e combattono contro il più vicino. Chi è sotto 40 punti ferita
+  invece scappa nella stanza più vicina dove può entrare e lì aspetta (niente lavori) finché il pericolo non passa; se non
+  ce n'è, combatte.
+  - Corpo a corpo: un colpo ogni 1,5 s a livello 5 (abilità armi da mischia), a segno 50% + 5% per livello sopra il 5;
+    danno dell'arma o dell'attrezzo in mano (spada 15, ascia 12, piccone 10, falcetto 8, mani nude 5). +1 esperienza a colpo.
+  - Con l'arco: tira da lontano (fino a 8 caselle), un tiro ogni 2 s a livello 5 (armi a distanza), a segno come a caccia;
+    danno 14. +1 esperienza a tiro.
+  - **Protezione**: −6% di danno per punto (cotta ed elmo, 8 punti: −48%), al massimo −80%.
+- Un lupo segnato da cacciare, colpito o mancato, attacca il cacciatore invece di scappare.
+- Poi: predoni (umani), morte e funerali, medico e cure, animali che fuggono o si difendono, ordini di combattimento dati dal re.
 
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100.
@@ -190,7 +210,7 @@ una stagione invernale, salvataggio locale, inglese + italiano.
 5. Umore, relazioni, più talenti
 
 ### Fuori scope (per ora)
-Combattimento tattico, livelli verticali, commercio/diplomazia, mod.
+Combattimento tattico (oggi i coloni si difendono da soli, vedi 4.4.3), livelli verticali, commercio/diplomazia, mod.
 
 ## 6. Domande aperte
 - Dimensione dei tile: 16×16 o 32×32?

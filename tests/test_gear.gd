@@ -10,6 +10,7 @@ func _initialize() -> void:
 	root.add_child(main)
 	await process_frame
 	main.needs_rate = 0.0
+	main.threats = false  # niente branchi di lupi: le prove del combattimento sono in test_combat
 	main.animals.clear()
 	main.bushes.clear()
 	main.weeds.clear()
@@ -71,7 +72,7 @@ func _initialize() -> void:
 
 	# l'attrezzo che ognuno vuole: quello della sua abilità migliore
 	for c in main.colonists:
-		for s in [main.Skill.MINING, main.Skill.WOODCUTTING, main.Skill.GATHERING, main.Skill.HUNTING]:
+		for s in [main.Skill.MINING, main.Skill.WOODCUTTING, main.Skill.GATHERING, main.Skill.HUNTING, main.Skill.MELEE]:
 			c.skills[s] = 1
 	smith.skills[main.Skill.MINING] = 9
 	tailor.skills[main.Skill.WOODCUTTING] = 9
@@ -89,7 +90,7 @@ func _initialize() -> void:
 		main.tick(0.05)
 		if rabbit not in main.animals:
 			break
-	check(rabbit not in main.animals and main.total(main.Res.HIDE) == main.BEASTS[main.Beast.RABBIT][4], "il coniglio lascia una pelle")
+	check(rabbit not in main.animals and main.total(main.Res.HIDE) == main.BEASTS[main.Beast.RABBIT]["hide"], "il coniglio lascia una pelle")
 	for r in [main.Res.HIDE, main.Res.MEAT]:
 		for k in main.items[r].keys():
 			main.add_item(r, k, -main.items[r][k])
