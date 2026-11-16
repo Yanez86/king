@@ -70,6 +70,12 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   a 0 (anche fuori dalle stanze) le attività durano il 20% in più, a 10 il 20% in meno. Per ora vale per il sonno
   (8 ore a comfort 5). Sotto le 6 caselle a testa il comfort cala in proporzione. Poi: rischio di rovinare il prodotto.
 
+- **Splendore** della colonia (termine provvisorio; alternative: decoro, prestigio, lustro): tiene felici i coloni e
+  sblocca cose. Lo danno le decorazioni finite, ovunque stiano (per ora solo il totale in alto, senza effetti).
+  Decorazioni (+splendore): aiuola 1, fioriera di pietra 1, panca 1 (anche +0,5 comfort), lampione 1 (si accende di
+  notte), stendardo 2 (sventola), fontana 6 (2x2, zampilla), statua del re 8 (2x2).
+  Poi: strade che collegano le case, alberi piantati, feste.
+
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100.
 - Ciclo giorno/notte, quattro stagioni; inverno = freddo e niente raccolti.
