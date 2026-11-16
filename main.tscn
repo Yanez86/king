@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=3]
+[gd_scene load_steps=37 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Texture2D" path="res://art/icon_wood.png" id="2"]
@@ -44,6 +44,10 @@ region = Rect2(0, 16, 16, 16)
 [sub_resource type="AtlasTexture" id="FloorIcon"]
 atlas = ExtResource("5")
 region = Rect2(0, 32, 16, 16)
+
+[sub_resource type="AtlasTexture" id="PathIcon"]
+atlas = ExtResource("5")
+region = Rect2(32, 32, 16, 16)
 
 [sub_resource type="AtlasTexture" id="DoorIcon"]
 atlas = ExtResource("5")
@@ -229,6 +233,15 @@ focus_mode = 0
 toggle_mode = true
 button_group = SubResource("Kinds")
 icon = SubResource("FloorIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Path" type="Button" parent="HUD/BuildBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("PathIcon")
 icon_alignment = 1
 expand_icon = true
 

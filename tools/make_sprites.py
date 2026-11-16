@@ -51,6 +51,7 @@ PALETTE = {
     "6": "35313d", "7": "6e6a80",                                # carbone, riflesso
     "8": "ffe6a0", "9": "f2a03a", "=": "d8562f",                 # fuoco: cuore, fiamma, brace
     "<": "a87a2e",                                               # oro in ombra (cornice del tasto scelto)
+    "(": "8f7550", ")": "6e5a3e", "_": "a8916a",                 # terra battuta del sentiero: base, ombra, luce
     "?": "e87aa0", "/": "7a8ae0",                                # fiori rosa e azzurri (aiuole, fioriere)
 }
 
@@ -653,22 +654,22 @@ oooooooooooooooo oCCCCCCCCCCCCCCo
 
 # Pavimenti: si ripetono senza giunte visibili tra caselle vicine.
 FLOORS = """
-BBBBBBBBBBBWBBBB urrrrrrRurrrrrrR
-BBBwBBBBBBBWBBBB rrrrrrrRrrrrrrrR
-BBBBBBBBBBBWBBwB rrrrrrrRrrrrRrrR
-WWWWWWWWWWWWWWWW rrRrrrrRrrrrrrrR
-BBBBWBBBBBBBBBBB rrrrrrrRrrrrrrrR
-BBBBWBBBBBwBBBBB rrrrrrrRrrrrrrrR
-BwBBWBBBBBBBBBBB rrrrrrrRrrrrrrrR
-WWWWWWWWWWWWWWWW RRRRRRRRRRRRRRRR
-BBBBBBBBWBBBBBBB rrrRurrrrrrRurrr
-BBBBBBBBWBBBBwBB rrrRrrrrrrrRrrrr
-BBBwBBBBWBBBBBBB rrrRrrrrrRrRrrrr
-WWWWWWWWWWWWWWWW rrrRrrrrrrrRrrrr
-BBBBBBBBBBBBBBWB rRrRrrrrrrrRrrrr
-BBBBBwBBBBBBBBWB rrrRrrrrrrrRrrrr
-BBBBBBBBBBBBBBWB rrrRrrrrrrrRrrrr
-WWWWWWWWWWWWWWWW RRRRRRRRRRRRRRRR
+BBBBBBBBBBBWBBBB urrrrrrRurrrrrrR ((((((((((())(((
+BBBwBBBBBBBWBBBB rrrrrrrRrrrrrrrR ((__((_r((((((((
+BBBBBBBBBBBWBBwB rrrrrrrRrrrrRrrR ((((((()(((ur(((
+WWWWWWWWWWWWWWWW rrRrrrrRrrrrrrrR (_ur(((((((R)(((
+BBBBWBBBBBBBBBBB rrrrrrrRrrrrrrrR ()R)(((((())((((
+BBBBWBBBBBwBBBBB rrrrrrrRrrrrrrrR (((((r((((((((((
+BwBBWBBBBBBBBBBB rrrrrrrRrrrrrrrR ((((()(((ur(((((
+WWWWWWWWWWWWWWWW RRRRRRRRRRRRRRRR ((_((_(((R)(((r(
+BBBBBBBBWBBBBBBB rrrRurrrrrrRurrr (r(((((((((((()(
+BBBBBBBBWBBBBwBB rrrRrrrrrrrRrrrr ()(__(ur((((((((
+BBBwBBBBWBBBBBBB rrrRrrrrrRrRrrrr )()(((R)((((()()
+WWWWWWWWWWWWWWWW rrrRrrrrrrrRrrrr ((((((_((((((())
+BBBBBBBBBBBBBBWB rRrRrrrrrrrRrrrr (_(((((((((((ur(
+BBBBBwBBBBBBBBWB rrrRrrrrrrrRrrrr (((ur((((((((R)(
+BBBBBBBBBBBBBBWB rrrRrrrrrrrRrrrr (((R)(((()r((((_
+WWWWWWWWWWWWWWWW RRRRRRRRRRRRRRRR (((__(((__)(((((
 """
 
 # Rocce: massi da 1x1, 2x1 e 2x2 caselle, disegnati dentro il loro ingombro.
@@ -1629,6 +1630,28 @@ VZVVVVVVVVVVVZVV VVVVVVVVVVVVVVVV VVVVVVVVVVVVVVVV VVVVVVVVVVZVVVVV
 
 # Bordi: lato col vicino sopra, angolo col vicino in alto a sinistra (solo in diagonale); gli altri si ruotano.
 # Erba che sborda sulla ghiaia.
+# Erba che sborda sui pavimenti (anche sul sentiero) dove la casella vicina è prato senza costruzioni, frastagliata e
+# con qualche ciuffo staccato: lato col prato sopra, angolo col prato in alto a sinistra, poi una seconda variante
+# di entrambi (le caselle le alternano). Girati dagli altri lati come i bordi del terreno.
+FLOOR_EDGE = """
+,,,,,,,,,,,,,,,, ,,,,,........... ,,,,,,,,,,,,,,,, ,,,,,...........
+,,;-,,;,,,-,;,-, ,,,,;........... ,-,;,,-,,;,,-,;, ,,,,;...........
+;;.,,,.;;,,;.;,; ,,,;.!.......... ;,,.;,,;;.;,,;.; ,,;;............
+...;,;...,;...;. ,;;..^.......... .;;..,;....,;... ;,..!...........
+....;..!.;...... ;....;.......... ...!.;.....;...! .;..^...........
+.!.....^.....!.. ..!............. ...^.....!.....^ ....;...........
+.^.....;.....^.. ..^............. ...;.....^.....; .!..............
+.;...........;.. ..;............. .........;...... .^..............
+................ ................ ................ .;..............
+................ ................ ................ ................
+................ ................ ................ ................
+................ ................ ................ ................
+................ ................ ................ ................
+................ ................ ................ ................
+................ ................ ................ ................
+................ ................ ................ ................
+"""
+
 GRASS_EDGE = """
 ,,,,,,,,,,,,,,,, ,,;.............
 ;;,,,,,;;,,,,;;; ,;..............
@@ -1791,11 +1814,13 @@ def wall(top, front, links):
 
 
 def structures_sheet():
-    """Costruzioni, foglio 256x64. Righe: muri di legno, muri di pietra (colonna = lati collegati, vedi wall),
-    pavimenti (legno, pietra), porte (di fronte, di lato)."""
+    """Costruzioni, foglio 256x128. Righe: muri di legno, muri di pietra (colonna = lati collegati, vedi wall),
+    pavimenti (legno, pietra, sentiero), porte (di fronte, di lato), erba che sborda sui pavimenti: lati (prato
+    sopra, a destra, sotto, a sinistra) e angoli (prato in alto a sx, alto a dx, basso a dx, basso a sx), due varianti."""
     tops, fronts = frames(WALL_TOPS, count=2), frames(WALL_FRONTS, height=10, count=2)
     rows = [[wall(tops[m], fronts[m], links) for links in range(16)] for m in range(2)]
-    rows += [frames(FLOORS, count=2), frames(DOORS, count=2)]
+    edges = frames(FLOOR_EDGE, count=4)  # lato, angolo, lato, angolo
+    rows += [frames(FLOORS, count=3), frames(DOORS, count=2)] + [turns(e) for e in edges]
     empty = ["." * 16] * 16
     return [line for fs in rows for line in side_by_side(fs + [empty] * (16 - len(fs)))]
 
