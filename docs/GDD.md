@@ -40,7 +40,8 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 ### 4.2 Coloni
 - **Bisogni**: fame, riposo, comfort, felicità; calore in seguito.
 - **Stress** (0–100, con icona): sale lavorando, scende dormendo o a riposo; abbassa la felicità. Altri effetti in seguito.
-- **Abilità** (livelli 1–10, al 10 una stellina): raccogliere, estrarre, tagliare legna, costruire, cucinare, pescare, cacciare, armi da mischia, armi a distanza, ricerca (lista provvisoria). Velocità e qualità del lavoro; crescono con l'uso.
+- **Abilità** (livelli 1–10, al 10 una stellina): raccogliere, estrarre, tagliare legna, costruire, forgiare, cucire, cucinare, pescare, cacciare, armi da mischia, armi a distanza, ricerca (lista provvisoria). Velocità e qualità del lavoro; crescono con l'uso (+1 punto esperienza per colpo, pezzo costruito, lancio, tiro o oggetto fatto).
+  Tempo di un lavoro: ×1,4 a livello 1, ×1 a livello 5, ×0,5 a livello 10. Armi da mischia e ricerca ancora senza effetto.
 - **Talenti**: modificano alcune routine dei coloni, ognuno con un'icona 16×16 (es. "Robusto": +resistenza al freddo; "Pigro": −velocità lavoro; "Pirofobo": rifiuta di cucinare). Primi: goloso, sonnambulo, iracondo.
   Il **goloso** va a mangiare già a fame 50 (gli altri a 30), si gode il doppio i bonus dei pasti e si lamenta se mangia crudo; sonnambulo e iracondo ancora senza effetto.
 - **Condizioni**: effetti a tempo, con un'icona 16×16 nella scheda sotto i talenti (col mouse sopra: nome, effetto, ore che mancano).
@@ -121,13 +122,49 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   | Cervo | 2 | 10 | 1,5 caselle/s | 3 |
 
   Nascono a più di 15 caselle dalla radura; ogni mezza giornata ne arriva uno nuovo, fino a 12.
-- Ordine dei lavori finché non c'è la tabella delle priorità: cucinare, tagliare, scavare, estirpare, raccogliere, pescare,
-  cacciare, costruire, trasportare.
-- Poi: arco come equipaggiamento (abilità armi a distanza), animali che si difendono, pelli; stufato (vegetali + carne o
-  pesce), conserve per l'inverno.
+- Ordine dei lavori finché non c'è la tabella delle priorità: prendere l'equipaggiamento, cucinare, forgiare e cucire,
+  tagliare, scavare, estirpare, raccogliere, pescare, cacciare, costruire, trasportare.
+- Poi: animali che si difendono; stufato (vegetali + carne o pesce), conserve per l'inverno.
 - **Raccogliere** (tasto "Harvest", cestino, dopo "Uproot"): si segnano i cespugli; i coloni ne raccolgono le bacche ogni
   volta che maturano (5 ogni 2 giorni), finché il segno resta, e le portano in magazzino. Segnare "Uproot" toglie il segno e viceversa.
   Un colono mangia circa 2 vegetali al giorno se cucinati, 2,6 crudi; un cespuglio ne dà 2,5: 1–2 cespugli a testa.
+
+### 4.4.2 Forgia, sartoria ed equipaggiamento
+- **Stanze**: forgia (fornace e incudine), laboratorio (banco da lavoro, 15 legna).
+- **Ricette** (si fanno da sé, come in cucina; il produttore va a prendere gli ingredienti uno alla volta e li porta alla
+  postazione; tempo secondo livello, comfort della stanza e condizioni; rovinato come il cibo bruciato, ingredienti persi):
+
+  | Oggetto | Dove | Abilità | Ingredienti | Secondi (liv. 5) |
+  |---|---|---|---|---|
+  | Lingotto | fornace | forgiare | 1 ferro + 1 carbone | 6 |
+  | Armatura di cuoio | banco | cucire | 4 pelli | 20 |
+  | Cappuccio di cuoio | banco | cucire | 2 pelli | 12 |
+  | Arco | banco | armi a distanza | 3 legna + 1 pelle | 15 |
+  | Piccone, ascia | incudine | forgiare | 2 lingotti + 2 legna | 15 |
+  | Falcetto | incudine | forgiare | 1 lingotto + 1 legna | 10 |
+  | Elmo | incudine | forgiare | 3 lingotti | 20 |
+  | Cotta di maglia | incudine | forgiare | 6 lingotti | 30 |
+
+  Lingotti: finché ce ne sono meno di 10. Equipaggiamento: quanto manca perché ogni colono abbia pieni i suoi slot; per
+  corpo e testa il primo in elenco di cui ci sono gli ingredienti (prima il cuoio, poi il metallo).
+  Poi: ordinazioni dal cartello, qualità degli oggetti, cambiare un pezzo con uno migliore.
+- **Pelli**: dagli animali cacciati, 1 dal coniglio, 3 dal cervo. Non marciscono.
+- **Equipaggiamento** (3 slot: mani, corpo, testa): ogni colono con uno slot vuoto va a prendere in magazzino il pezzo
+  giusto. Nelle mani l'attrezzo della sua abilità migliore tra estrarre, tagliare legna, raccogliere e cacciare.
+  Ogni armatura ha una **protezione** (per combattimento e freddo, che verranno); i **bonus** li dà solo il pezzo che li ha:
+
+  | Pezzo | Slot | Protezione | Effetto |
+  |---|---|---|---|
+  | Piccone | mani | — | scavare −25% tempo |
+  | Ascia | mani | — | tagliare −25% tempo |
+  | Falcetto | mani | — | raccogliere ed estirpare −25% tempo |
+  | Arco | mani | — | caccia: +10% a segno, +2 caselle di tiro, mira col migliore tra cacciare e armi a distanza (+1 esperienza in entrambe) |
+  | Armatura di cuoio | corpo | 2 | −25% stress lavorando fuori dalle stanze |
+  | Cotta di maglia | corpo | 5 | pesante: ogni lavoro +10% tempo |
+  | Cappuccio di cuoio | testa | 1 | caccia: +5% a segno |
+  | Elmo | testa | 3 | scavare −10% tempo |
+
+  Nella scheda gli slot mostrano i pezzi (col mouse sopra nome, protezione, effetto), il titolo la protezione totale.
 
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100.

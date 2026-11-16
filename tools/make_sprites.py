@@ -384,6 +384,47 @@ oxwwwwwwwwwwwWo. oxwwwwwwwwwwwWo.
 ..oo.......oo... oo.......oo.....
 """
 
+# Oggetti 16x16 di forgia e sartoria -> pelle, lingotto, falcetto, armatura di cuoio, cappuccio di cuoio, elmo, cotta
+# di maglia. Piccone, ascia e arco usano le icone delle azioni "scava", "taglia" e "caccia".
+ITEMS = """
+................ ................ ................ ................ ................ ................ ................
+.oo..........oo. ................ ......oooo...... ...ooo....ooo... ................ ................ ...ooo....ooo...
+.occoooooooocco. ................ ....ooxxxXoo.... ..oCCCoooocCCo.. .....oooooo..... .......oo....... ..ourRoooourRo..
+..occcccccccCo.. ................ ...oxXooooxXo... .oCccCCCCCCccCo. ....oCcccccoo... .....oouuoo..... .ourururururRro.
+..occcCcccccco.. ................ ..oxXo....oXo... .oCcccccccccccCo ...oCccccccCCo.. ....ouuuurRo.... .orururururuRRo.
+.occcccccCccccco ....oooooooo.... ..oxo......oo... .oCcccoccoccccCo ..oCcccccccccCo. ...ouuurrrRRo... .oruooruruooRRo.
+.occCcccccccccCo ...ouuuuuuuRo... .oxXo........... .ooCccccgcccccoo ..oCccooooocCCo. ...ourrrrrRRo... .oo.oururuo.ooo.
+..occccccCccco.. ..ouuuuuuuRRRo.. .oxXo........... ..oCccccccccCo.. ..oCco.....oCCo. ..ourrrrrrrRRo.. ...ourururuRo...
+..occccccccccCo. .orrrrrrrrRRRio. .oxXo......o.... ..oCccccgcccCo.. ..oCco.....oCCo. ..orrrrrrrRRRo.. ...orururuRRo...
+.occcCcccccccco. .orrrrrrrrRRiio. ..oxXo....owo... ..oCccccccccCo.. ..oCco.....oCCo. ..oRRoooooRRio.. ...ourururuRo...
+.occcccccCccccco .oRRRRRRRRRiio.. ...oxXooooWwo... ..oCccccgcccCo.. ..oCcco...occCo. ..oRo.oRo.oRio.. ...orururuRRo...
+..occccccccccCo. ..oooooooooooo.. ....ooXXXowo.... ..ollllllgllllo. ..oCcccoooccCCo. ..oRo.oRo.oRio.. ...ourururuRo...
+.occooooooooocco ................ ......oooowo.... ..oCccccccccCo.. ...oCcccccccCo.. ..oio.oio.oiio.. ...orururuRRo...
+.oo...........oo ................ .........owWo... ..oCCCCCCCCCCo.. ....ooooooooo... ..ooo.ooo.oooo.. ...oRRRRRRRRo...
+................ ................ .........oWWo... ..oooooooooooo.. ................ ................ ...oooooooooo...
+................ ................ ..........oo.... ................ ................ ................ ................
+"""
+
+# Banco da lavoro 16x16 (sartoria e archi): un pezzo di pelle e l'ago sul piano.
+WORKBENCH = """
+................
+................
+................
+................
+...ooooooo..o...
+..ocCcCcCco.ox..
+..oCcCcCcCooxo..
+.oooooooooooooo.
+.owwwwwwwwwwwWo.
+.oWWWWWWWWWWWWo.
+.oooooooooooooo.
+..owo......owo..
+..owo......owo..
+..oWo......oWo..
+..ooozzzzzzooo..
+................
+"""
+
 # Icone 16x16 delle azioni accanto a "distruggi" -> scava (piccone), taglia (ascia), estirpa (pianta con le radici).
 MINE_ICON = """
 ................
@@ -1212,16 +1253,16 @@ X...
 """
 
 # Abilità 8x8, nella scheda del colono (come Skill in main.gd) -> raccogliere, estrarre, tagliare legna, costruire,
-# cucinare, pescare, cacciare, armi da mischia, armi a distanza, ricerca.
+# forgiare, cucire, cucinare, pescare, cacciare, armi da mischia, armi a distanza, ricerca.
 SKILLS = """
-....oLo. .ooooo.. .oo..oo. oooooo.. .x..x... ........ .ww..ww. .....ooo .oo..... .oooo...
-...oLo.. ouurrRo. ouuooRwo ouurrRo. ..x..x.. ..ooo..o .ww..ww. ....oxxo owwo..o. oQQEEo..
-.oo.oo.. .oooowRo ouurRwo. oRRRRRo. oooooooo .oQQQooQ ........ ...oxXXo o.owoox. oQEEEo..
-ojjoojjo ...owooR ourRwoo. oooowoo. oiiiiiio oQeQQQQo w..ww..w o.oxXXo. o..oxxxo oEEEEo..
-ojJoojJo ..owo.oo .oowRo.. ...owo.. orrrrrRo oQQQQooQ ..wwww.. ogoXXo.. o..owoX. .oooowo.
-.oojjoo. .owo.... ..owo... ...owo.. .orrrRo. .oEEEo.o .wwwwww. .ogXo... o.owo.o. ....owo.
-..ojJo.. owo..... .owo.... ...owo.. .oRRRRo. ..ooo... .wwwwww. owogo... owwo.... .....owo
-...oo... oo...... owo..... ...ooo.. ..oooo.. ........ ..w..w.. ooo.o... .oo..... ......oo
+....oLo. .ooooo.. .oo..oo. oooooo.. ........ ......oo .x..x... ........ .ww..ww. .....ooo .oo..... .oooo...
+...oLo.. ouurrRo. ouuooRwo ouurrRo. .ooooooo .....ouo ..x..x.. ..ooo..o .ww..ww. ....oxxo owwo..o. oQQEEo..
+.oo.oo.. .oooowRo ouurRwo. oRRRRRo. orrrrrRo ..j.ouo. oooooooo .oQQQooQ ........ ...oxXXo o.owoox. oQEEEo..
+ojjoojjo ...owooR ourRwoo. oooowoo. .ooorRo. .j.ouo.. oiiiiiio oQeQQQQo w..ww..w o.oxXXo. o..oxxxo oEEEEo..
+ojJoojJo ..owo.oo .oowRo.. ...owo.. ...oRo.. j.ouo... orrrrrRo oQQQQooQ ..wwww.. ogoXXo.. o..owoX. .oooowo.
+.oojjoo. .owo.... ..owo... ...owo.. ..oiiio. .ouo.j.. .orrrRo. .oEEEo.o .wwwwww. .ogXo... o.owo.o. ....owo.
+..ojJo.. owo..... .owo.... ...owo.. .oiiiiio ouo.j... .oRRRRo. ..ooo... .wwwwww. owogo... owwo.... .....owo
+...oo... oo...... owo..... ...ooo.. .ooooooo oo.j.... ..oooo.. ........ ..w..w.. ooo.o... .oo..... ......oo
 """
 
 # Stress 8x8, accanto alla sua barra nella scheda del colono: un fulmine.
@@ -1531,17 +1572,20 @@ def double(grid):
 
 
 def furniture_sheet():
-    """Mobili, foglio 128x224. Righe: letto, tavolo, sedia, abat-jour, fuoco da campo, fornace, incudine (come Build in main.gd);
+    """Mobili, foglio 128x256. Righe: letto, tavolo, sedia, abat-jour, fuoco da campo, fornace, incudine, banco da lavoro
+    (come Build in main.gd);
     colonne: quarti di giro in senso orario (per il fuoco, fotogrammi), ognuno in alto a sinistra nel suo riquadro 32x32."""
     bed, chair, chair_left = art(BED, 32, 16), art(CHAIR, 16, 16), art(CHAIR_LEFT, 16, 16)
     table, lamp, anvil = art(TABLE, 32, 32), art(LAMP, 16, 16), art(ANVIL, 16, 16)
+    workbench = art(WORKBENCH, 16, 16)
     rows = [[bed, art(BED_UP, 16, 32), mirror(bed), art(BED_DOWN, 16, 32)],
             [table] * 4,  # simmetrici: girarli non cambia il disegno
             [chair, chair_left, art(CHAIR_UP, 16, 16), mirror(chair_left)],
             [lamp] * 4,
             frames(CAMPFIRE, count=4),
             [art(FURNACE, 16, 16)] * 4,
-            [anvil, mirror(anvil)] * 2]
+            [anvil, mirror(anvil)] * 2,
+            [workbench, mirror(workbench)] * 2]
     slot = lambda g: [line.ljust(32, ".") for line in g] + ["." * 32] * (32 - len(g))
     return [line for row in rows for line in side_by_side([slot(g) for g in row])]
 
@@ -1601,6 +1645,8 @@ def main():
     images["icon_fishing"] = pixels(art(FISHING_ICON, 16, 16))
     images["icon_hunting"] = pixels(art(HUNTING_ICON, 16, 16))
     images["icon_meat"], images["icon_fish"] = (pixels(f) for f in frames(RAW_ICONS, count=2))
+    for name, f in zip(["hide", "ingot", "sickle", "leather_armor", "leather_hood", "helmet", "chainmail"], frames(ITEMS, count=7)):
+        images["icon_" + name] = pixels(f)
     images["animals"] = pixels(art(ANIMALS.replace(" ", ""), 32, 32))
     images["sign"] = pixels(art(SIGN, 16, 16))
     images["structures"] = pixels(structures_sheet())
@@ -1633,7 +1679,7 @@ def main():
     images["bar_back"] = pixels(double(art(BAR_BACK, 6, 6)))
     images["icon_arrow"] = pixels(art(ARROW, 4, 7))
     images["icon_stress"] = pixels(art(STRESS_ICON, 8, 8))
-    images["skills"] = pixels(side_by_side(frames(SKILLS, 8, 10, 8)))
+    images["skills"] = pixels(side_by_side(frames(SKILLS, 8, 12, 8)))
     images["equipment"] = pixels(side_by_side(frames(EQUIPMENT)))
     for name, rows in images.items():
         write_png(out / f"{name}.png", rows)

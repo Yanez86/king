@@ -21,15 +21,18 @@ const HAIR_COLORS := [Color("3b2a1e"), Color("d9b35b"), Color("a8462f"), Color("
 const SIDES := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 const TREE_SIDES := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  # da sopra la chioma coprirebbe chi taglia
 
-enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT }
+enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT }
 # VEG: vegetali, dalle bacche dei cespugli; IRON, COAL: dai massi con le vene; MEAL, FINE_MEAL: pasti, dalla cucina;
-# MEAT: carne, dagli animali cacciati; FISH: pesce, dai punti di pesca
-enum Res { WOOD, STONE, VEG, IRON, COAL, MEAL, FINE_MEAL, MEAT, FISH }
+# MEAT, HIDE: carne e pelle, dagli animali cacciati; FISH: pesce, dai punti di pesca; INGOT: lingotti, dalla fornace;
+# da PICKAXE in poi: equipaggiamento (vedi GEAR), dalla forgia e dal banco da lavoro (vedi RECIPES)
+enum Res { WOOD, STONE, VEG, IRON, COAL, MEAL, FINE_MEAL, MEAT, FISH, HIDE, INGOT,
+	PICKAXE, AXE, SICKLE, BOW, LEATHER_ARMOR, LEATHER_HOOD, HELMET, CHAINMAIL }
 const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.IRON: 50, Res.COAL: 50, Res.MEAL: 20, Res.FINE_MEAL: 20,
-	Res.MEAT: 50, Res.FISH: 50}  # quantità massima per mucchio (casella)
+	Res.MEAT: 50, Res.FISH: 50, Res.HIDE: 50, Res.INGOT: 50, Res.PICKAXE: 10, Res.AXE: 10, Res.SICKLE: 10, Res.BOW: 10,
+	Res.LEATHER_ARMOR: 10, Res.LEATHER_HOOD: 10, Res.HELMET: 10, Res.CHAINMAIL: 10}  # quantità massima per mucchio (casella)
 const MEALS := [Res.FINE_MEAL, Res.MEAL]  # cotti: chi ha fame li prende in quest'ordine, poi il crudo
 const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT]  # crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti
-const NO_STASH := [Res.FINE_MEAL, Res.MEAL, Res.MEAT, Res.FISH]  # niente scorta di debug: si cucinano, si cacciano, si pescano
+const STASH := [Res.WOOD, Res.STONE, Res.VEG, Res.IRON, Res.COAL]  # scorta di debug: il resto si produce
 # cibo: quanto sazia (vedi eat) e in quanti giorni marcisce a terra fuori (vedi spoil); in magazzino ci mette il doppio.
 # Il crudo sazia meno e può intossicare (vedi poison_chance), i pasti no e danno un bonus (vedi Cond)
 const FOOD := {Res.VEG: 35.0, Res.FISH: 30.0, Res.MEAT: 40.0, Res.MEAL: 100.0, Res.FINE_MEAL: 100.0}
@@ -57,9 +60,9 @@ const CATCH_PER_LEVEL := 0.06
 # caccia (vedi try_hunt): animali che girano per la mappa; quelli segnati con "Hunt" li insegue un cacciatore, che tira
 # da al più HUNT_RANGE caselle. Ogni tiro: AIM_TIME a livello 5, colpisce con probabilità hit_chance; l'animale scappa
 enum Beast { RABBIT, DEER }  # righe di ANIMALS
-const BEASTS := {  # [colpi per abbatterlo, carne, caselle al secondo, quanti all'inizio]
-	Beast.RABBIT: [1, 3, 2.0, 6],
-	Beast.DEER: [2, 10, 1.5, 3],
+const BEASTS := {  # [colpi per abbatterlo, carne, caselle al secondo, quanti all'inizio, pelli]
+	Beast.RABBIT: [1, 3, 2.0, 6, 1],
+	Beast.DEER: [2, 10, 1.5, 3, 3],
 }
 const ANIMALS := preload("res://art/animals.png")  # 16x16, colonne: fermo, passo; guardano a destra
 const ANIMALS_MAX := 12     # sotto questo numero ogni ANIMAL_RESPAWN giorni ne arriva uno nuovo, lontano dalla radura
@@ -74,6 +77,41 @@ const AIM_TIME := 4.0       # secondi per tiro a livello 5 (vedi skill_time)
 const HIT_BASE := 0.3       # + HIT_PER_LEVEL per livello, - HIT_PER_TILE per casella di distanza
 const HIT_PER_LEVEL := 0.05
 const HIT_PER_TILE := 0.05
+# Equipaggiamento: un pezzo per slot (vedi Colonist.gear), messo da sé col primo che trova in magazzino (vedi try_equip).
+# Nelle mani l'attrezzo della sua abilità migliore tra quelle degli attrezzi ("skill"). Armature: "armor" è la protezione,
+# per il combattimento e il freddo che verranno; i bonus li dà solo il pezzo che li ha. Chiavi:
+# "time": {Job: tempo x}, "slow": tempo x per ogni lavoro, "hit": a segno + cacciando, "range": caselle di tiro in più,
+# "outdoor_stress": stress x lavorando fuori dalle stanze
+enum Slot { HANDS, BODY, HEAD }  # come HUD/ColonistSheet/Box/Equipment/Slots
+const GEAR := {
+	Res.PICKAXE: {"slot": Slot.HANDS, "skill": Skill.MINING, "time": {Job.MINE: 0.75}, "info": "Mining 25% faster."},
+	Res.AXE: {"slot": Slot.HANDS, "skill": Skill.WOODCUTTING, "time": {Job.CHOP: 0.75}, "info": "Woodcutting 25% faster."},
+	Res.SICKLE: {"slot": Slot.HANDS, "skill": Skill.GATHERING, "time": {Job.HARVEST: 0.75, Job.UPROOT: 0.75},
+		"info": "Harvesting and uprooting 25% faster."},
+	Res.BOW: {"slot": Slot.HANDS, "skill": Skill.HUNTING, "hit": 0.1, "range": 2.0,
+		"info": "Hunting: +10% to hit, 2 more tiles of range, aims with the better of Hunting and Ranged."},
+	Res.LEATHER_ARMOR: {"slot": Slot.BODY, "armor": 2, "outdoor_stress": 0.75, "info": "Light. 25% less stress working outdoors."},
+	Res.LEATHER_HOOD: {"slot": Slot.HEAD, "armor": 1, "hit": 0.05, "info": "Blends in: +5% to hit when hunting."},
+	Res.HELMET: {"slot": Slot.HEAD, "armor": 3, "time": {Job.MINE: 0.9}, "info": "Safe from falling rocks: mining 10% faster."},
+	Res.CHAINMAIL: {"slot": Slot.BODY, "armor": 5, "slow": 1.1, "info": "Heavy: all work 10% slower."},
+}
+# Produzione (vedi try_craft): [prodotto, mobile, abilità, ingredienti, secondi a livello 5]. Il mobile dentro una stanza
+# del tipo STATION_ROOM. Si fanno lingotti finché ce ne sono meno di INGOT_STOCK, e i pezzi che mancano perché ogni
+# colono abbia pieni i suoi slot (vedi gear_wanted); per uno slot, il primo in elenco di cui ci sono gli ingredienti.
+# Come in cucina: tempo e rischio di rovinarlo (ingredienti persi, vedi burn_chance) secondo livello e comfort
+const RECIPES := [
+	[Res.INGOT, Build.FURNACE, Skill.SMITHING, {Res.IRON: 1, Res.COAL: 1}, 6.0],
+	[Res.LEATHER_ARMOR, Build.WORKBENCH, Skill.TAILORING, {Res.HIDE: 4}, 20.0],
+	[Res.LEATHER_HOOD, Build.WORKBENCH, Skill.TAILORING, {Res.HIDE: 2}, 12.0],
+	[Res.BOW, Build.WORKBENCH, Skill.RANGED, {Res.WOOD: 3, Res.HIDE: 1}, 15.0],  # l'arco lo fa chi lo sa usare
+	[Res.PICKAXE, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 2, Res.WOOD: 2}, 15.0],
+	[Res.AXE, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 2, Res.WOOD: 2}, 15.0],
+	[Res.SICKLE, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 1, Res.WOOD: 1}, 10.0],
+	[Res.HELMET, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 3}, 20.0],
+	[Res.CHAINMAIL, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 6}, 30.0],
+]
+const STATION_ROOM := {Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP}
+const INGOT_STOCK := 10
 enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT }  # cosa segna il trascinamento del mouse
 const ORDER_COLORS := [Color.TRANSPARENT, Color.ORANGE, Color("8fd3ff"), Color("9be36a"), Color("e6e2d0"),
 	Color("ff5a5a"), Color("c83030"), Color("d84a6a"), Color("6ab0e0"), Color("c87a3a")]  # selezione e segni, per Order
@@ -83,14 +121,14 @@ const ORDER_TOOLS := {Order.DEMOLISH: "Destroy", Order.MINE: "Mine", Order.CHOP:
 const ORDER_ICONS := {Order.CHOP: preload("res://art/icon_chop.png"), Order.MINE: preload("res://art/icon_mine.png"),
 	Order.UPROOT: preload("res://art/icon_uproot.png"), Order.HARVEST: preload("res://art/icon_harvest.png"),
 	Order.FISH: preload("res://art/icon_fishing.png"), Order.HUNT: preload("res://art/icon_hunting.png")}  # le stesse dei tasti: piccole e velate sopra ciò che è segnato
-enum RoomKind { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE }  # tipo di stanza, scelto dal cartello
-enum Build { WALL, FLOOR, DOOR, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE, ANVIL }  # porta e mobili si attraversano
+enum RoomKind { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE, WORKSHOP }  # tipo di stanza, scelto dal cartello
+enum Build { WALL, FLOOR, DOOR, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE, ANVIL, WORKBENCH }  # porta e mobili si attraversano
 # materiale per casella; per i mobili, per pezzo
 const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3, Build.LAMP: 3,
-	Build.CAMPFIRE: 5, Build.FURNACE: 20, Build.ANVIL: 10}
+	Build.CAMPFIRE: 5, Build.FURNACE: 20, Build.ANVIL: 10, Build.WORKBENCH: 15}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
 const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
-	Build.CAMPFIRE: Vector2i.ONE, Build.FURNACE: Vector2i.ONE, Build.ANVIL: Vector2i.ONE}
+	Build.CAMPFIRE: Vector2i.ONE, Build.FURNACE: Vector2i.ONE, Build.ANVIL: Vector2i.ONE, Build.WORKBENCH: Vector2i.ONE}
 const FLAME_TIME := 0.15    # secondi per fotogramma della fiamma: il fuoco da campo usa le colonne dei quarti di giro
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
 const BUILD_RES := {Build.FURNACE: Res.STONE, Build.ANVIL: Res.IRON}  # materiale fisso; il resto solo di legno
@@ -101,9 +139,11 @@ const ROOM_NEEDS := {
 	RoomKind.DORMITORY: {Build.BED: 2},
 	RoomKind.KITCHEN: {Build.CAMPFIRE: 1},
 	RoomKind.FORGE: {Build.FURNACE: 1, Build.ANVIL: 1},
+	RoomKind.WORKSHOP: {Build.WORKBENCH: 1},
 }
 # lente delle stanze (tasto col cartello in basso): le stanze finite velate col colore del loro tipo, per RoomKind
-const ROOM_COLORS := [Color("e6e2d0"), Color("c9a23b"), Color("3b8fd3"), Color("8a5ad3"), Color("e0703a"), Color("d33b3b")]
+const ROOM_COLORS := [Color("e6e2d0"), Color("c9a23b"), Color("3b8fd3"), Color("8a5ad3"), Color("e0703a"), Color("d33b3b"),
+	Color("3bb08a")]
 # comfort di una stanza, 0-COMFORT_MAX: lo danno i mobili (per pezzo) e il pavimento (tutto se copre la stanza intera),
 # per il materiale. A metà né bonus né malus; fuori dalle stanze è 0. Vedi room_comfort e comfort_of
 const COMFORT_MAX := 10
@@ -123,8 +163,9 @@ const BUILD_INFO := {
 	Build.CHAIR: "Put it at a table, turned to face it.",
 	Build.LAMP: "Lights up at night.",
 	Build.CAMPFIRE: "A wood fire inside a ring of stones. Burns day and night. A kitchen needs one.",
-	Build.FURNACE: "A stone furnace. A forge needs one, and an anvil.",
-	Build.ANVIL: "An iron anvil on a stump. A forge needs one, and a furnace.",
+	Build.FURNACE: "A stone furnace. A forge needs one, and an anvil. Smelts iron and coal into ingots.",
+	Build.ANVIL: "An iron anvil on a stump. A forge needs one, and a furnace. Tools and metal armor are made here.",
+	Build.WORKBENCH: "A sturdy bench. A workshop needs one. Leather armor and bows are made here.",
 }
 enum Facing { DOWN, LEFT, RIGHT, UP }  # righe del foglio
 enum TreeKind { OAK, PINE, BIRCH }     # colonne del foglio alberi
@@ -178,13 +219,23 @@ const ICONS := {
 	Res.FINE_MEAL: preload("res://art/icon_fine_meal.png"),
 	Res.MEAT: preload("res://art/icon_meat.png"),
 	Res.FISH: preload("res://art/icon_fish.png"),
+	Res.HIDE: preload("res://art/icon_hide.png"),
+	Res.INGOT: preload("res://art/icon_ingot.png"),
+	Res.PICKAXE: preload("res://art/icon_mine.png"),
+	Res.AXE: preload("res://art/icon_chop.png"),
+	Res.SICKLE: preload("res://art/icon_sickle.png"),
+	Res.BOW: preload("res://art/icon_hunting.png"),
+	Res.LEATHER_ARMOR: preload("res://art/icon_leather_armor.png"),
+	Res.LEATHER_HOOD: preload("res://art/icon_leather_hood.png"),
+	Res.HELMET: preload("res://art/icon_helmet.png"),
+	Res.CHAINMAIL: preload("res://art/icon_chainmail.png"),
 }
 # 256x64, righe: muri di legno, muri di pietra (colonna = lati collegati, vedi WALL_LINKS), pavimenti (colonna = Res),
 # porte (di fronte, di lato); vedi structure_src
 const STRUCTURES := preload("res://art/structures.png")
 const WALL_LINKS := [Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]  # bit 1, 2, 4, 8 della colonna dei muri
 # scheda del colono, vedi open_sheet
-enum Skill { GATHERING, MINING, WOODCUTTING, CONSTRUCTION, COOKING, FISHING, HUNTING, MELEE, RANGED, RESEARCH }
+enum Skill { GATHERING, MINING, WOODCUTTING, CONSTRUCTION, SMITHING, TAILORING, COOKING, FISHING, HUNTING, MELEE, RANGED, RESEARCH }
 const SKILL_MAX := 10       # livelli 1-10: al massimo, nella scheda, compare la stellina
 # raccolta: [abilità, secondi per colpo a livello 5 (vedi gather_time), quantità per colpo, risorsa]; i massi con la
 # vena danno il minerale (vedi ores). Ogni colpo dà 1 punto esperienza nell'abilità
@@ -271,6 +322,9 @@ class Colonist:
 	var carrying := 0
 	var carry_days := 0.0         # cibo in mano: giorni prima che marcisca (vedi fresh)
 	var prey = null               # HUNT: l'Animal che insegue
+	var gear := {}                # Slot -> Res: quello che indossa o ha in mano (vedi GEAR)
+	var recipe := 0               # CRAFT: indice in RECIPES
+	var fetched := {}             # CRAFT: Res -> quantità già portata alla postazione
 	var work_left := 0.0
 	var work_total := 0.0
 
@@ -321,8 +375,7 @@ var fish_spots := {}        # cella d'acqua -> `clock` da cui ci sono di nuovo p
 var animals: Array[Animal] = []
 var wild := RandomNumberGenerator.new()  # tutto il caso degli animali: non sposta quello del resto della partita
 var next_animal := ANIMAL_RESPAWN  # `clock` del prossimo arrivo
-var items := {Res.WOOD: {}, Res.STONE: {}, Res.VEG: {}, Res.IRON: {}, Res.COAL: {}, Res.MEAL: {}, Res.FINE_MEAL: {},
-	Res.MEAT: {}, Res.FISH: {}}  # risorsa -> (cella -> quantità a terra; nel magazzino = stoccata)
+var items := {}  # risorsa -> (cella -> quantità a terra; nel magazzino = stoccata): un dizionario per Res, vedi _init  # risorsa -> (cella -> quantità a terra; nel magazzino = stoccata)
 var fresh := {}             # cella -> giorni (a terra fuori) prima che il mucchio di cibo marcisca, vedi spoil
 var stockpile := {}         # cella -> true: dentro le stanze di tipo magazzino, vedi update_stockpile
 var rooms: Array[Room] = []  # stanze finite, vedi update_rooms
@@ -389,6 +442,11 @@ var lens_canvas := Node2D.new()   # ci disegna draw_lens
 @onready var sheet_panel: Control = $HUD/ColonistSheet  # a sinistra, si apre cliccando un colono: vedi open_sheet
 @onready var object_sheet: Control = $HUD/ObjectSheet  # in basso a destra: la casella sotto il mouse, vedi show_tip
 @onready var sheet_needs: GridContainer = $HUD/ColonistSheet/Box/Needs  # 4 colonne: nome, freccia giù, barra, freccia su
+
+
+func _init() -> void:
+	for res in Res.values():
+		items[res] = {}
 
 
 func _ready() -> void:
@@ -732,6 +790,22 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 	box.get_node("Conditions/Icons").set_meta("conds", [])
 	update_need_bars(needs_grid, c)
 	update_conds(box, c)
+	update_gear(box, c)
+
+
+# slot dell'equipaggiamento: l'icona del pezzo, col mouse sopra nome, protezione ed effetto; vuoto, la sagoma dello slot.
+# Sopra gli slot la protezione totale
+func update_gear(box: Control, c: Colonist) -> void:
+	var slots: Control = box.get_node("Equipment/Slots")
+	for slot in Slot.values():
+		var icon: TextureRect = slots.get_child(slot)
+		if not icon.has_meta("empty"):
+			icon.set_meta("empty", icon.texture)
+		var g = c.gear.get(slot)
+		icon.texture = ICONS[g] if g != null else icon.get_meta("empty")
+		icon.tooltip_text = Slot.keys()[slot].capitalize() if g == null else "%s\n%s%s" % [Res.keys()[g].capitalize(),
+			"Armor %d. " % GEAR[g]["armor"] if GEAR[g].has("armor") else "", GEAR[g]["info"]]
+	box.get_node("Equipment/Title").text = "Equipment" + ("  (armor %d)" % gear_sum(c, "armor") if gear_sum(c, "armor") > 0 else "")
 
 
 # condizioni di `c` sotto i talenti, solo icone come loro: col mouse sopra nome, effetto e quanto manca. Le icone si
@@ -891,6 +965,9 @@ func job_list() -> String:
 		lines.append("Hunt animals: %d" % hunted.size())
 	if meals_wanted() > 0 and not kitchen_fires().is_empty():
 		lines.append("Cook meals: %d" % meals_wanted())
+	for r in RECIPES:  # solo quello che manca e che ha una postazione
+		if gear_wanted(r[0]) > 0 and not stations(r[1]).is_empty():
+			lines.append("Make %s: %d" % [Res.keys()[r[0]].capitalize().to_lower(), gear_wanted(r[0])])
 	for plans in [blueprints, furniture_plans]:  # prima le strutture (per casella), poi i mobili (per pezzo)
 		var counts := {}  # "wall (wood)" -> quanti
 		for plan in plans.values():
@@ -995,7 +1072,7 @@ func generate_map() -> void:
 			spawn_animal(kind)
 	if start_rooms:  # ponytail: scorta di debug, da togliere (o DEBUG_STASH a 0) quando si gioca sul serio
 		var first: Vector2i = MAP_SIZE / 2 + START_ROOMS[0] * 8
-		for res in Res.values().filter(func(r): return r not in NO_STASH):  # un mucchio per risorsa lungo la riga di mezzo, il resto si allarga accanto
+		for res in STASH:  # un mucchio per risorsa lungo la riga di mezzo, il resto si allarga accanto
 			drop(res, first + Vector2i(res - 2, 0), DEBUG_STASH)
 		rooms.filter(func(r): return r.cells.has(first))[0].kind = RoomKind.WAREHOUSE
 		update_stockpile()
@@ -1083,6 +1160,7 @@ func _process(delta: float) -> void:
 	if sheet_panel.visible:
 		update_need_bars(sheet_needs, shown)
 		update_conds($HUD/ColonistSheet/Box, shown)
+		update_gear($HUD/ColonistSheet/Box, shown)
 	var t := fmod(clock, 1.0)
 	info_label.text = "Day %d  %02d:%02d    Order: %s    Speed: %dx  (Space = pause, 1-3)" \
 		% [int(clock) + 1, int(t * 24), int(t * 1440) % 60, Order.keys()[order].capitalize(), Engine.time_scale]
@@ -1223,6 +1301,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 					furniture[c.target] = plan
 					plans.erase(c.target)
 				c.carrying = 0
+				c.xp[Skill.CONSTRUCTION] += 1
 				end_job(c)
 		Job.SLEEP:  # a letto o per terra (vedi update_needs), finché non è riposato del tutto
 			if c.needs[Need.REST] >= NEED_MAX:
@@ -1243,10 +1322,17 @@ func update_colonist(c: Colonist, delta: float) -> void:
 					return
 			eat(c)
 			end_job(c)
+		Job.EQUIP:  # al mucchio: prende il pezzo (carry_res) e lo indossa
+			if items[c.carry_res].has(c.target):
+				add_item(c.carry_res, c.target, -1)
+				c.gear[GEAR[c.carry_res]["slot"]] = c.carry_res
+			end_job(c)
+		Job.CRAFT:
+			craft(c, delta)
 		Job.HUNT:  # a tiro (vedi track_prey): mira e tira; colpito o mancato l'animale scappa, abbattuto lascia la carne
 			var a: Animal = c.prey
 			var dist := c.pos.distance_to(a.pos) / TILE
-			if dist > HUNT_RANGE:  # scappato: lo insegue di nuovo
+			if dist > hunt_range(c):  # scappato: lo insegue di nuovo
 				chase(c)
 				c.work_left = c.work_total
 				return
@@ -1255,8 +1341,10 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			if c.work_left > 0:
 				return
 			c.xp[Skill.HUNTING] += 1
+			if c.gear.get(Slot.HANDS) == Res.BOW:
+				c.xp[Skill.RANGED] += 1
 			c.work_left = c.work_total
-			if randf() < hit_chance(c.skills[Skill.HUNTING], dist):
+			if randf() < hit_chance(hunt_level(c), dist) + gear_sum(c, "hit"):
 				a.hits += 1
 			if a.hits < BEASTS[a.kind][0]:
 				flee(a, c.pos)
@@ -1265,7 +1353,8 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			animals.erase(a)
 			end_job(c)
 			drop(Res.MEAT, spot, BEASTS[a.kind][1])
-			try_haul(c, Res.MEAT, [spot])  # la porta subito in magazzino
+			drop(Res.HIDE, spot, BEASTS[a.kind][4])  # accanto: un mucchio per risorsa
+			try_haul(c, Res.MEAT, [spot])  # la carne subito in magazzino, la pelle dopo
 		Job.COOK:  # come BUILD: al mucchio prende il crudo (carry_res), poi al fuoco da campo (target) lo cucina stando in dest
 			if furniture.get(c.target, [-1])[0] != Build.CAMPFIRE or not kitchen_fires().has(c.target):
 				quit_job(c)  # fuoco abbattuto, o la stanza non è più una cucina: rimette giù il crudo
@@ -1316,7 +1405,8 @@ func update_needs(c: Colonist, delta: float) -> void:
 		c.needs[Need.COMFORT] = move_toward(c.needs[Need.COMFORT], NEED_MAX * comfort / COMFORT_MAX, gain)
 	else:
 		c.needs[Need.REST] -= REST_DROP * day
-	c.needs[Need.STRESS] += (STRESS_WORK * cond_product(c, 2) if c.job not in [Job.NONE, Job.SLEEP, Job.EAT] else -STRESS_RELIEF) * day
+	c.needs[Need.STRESS] += (STRESS_WORK * cond_product(c, 2) * outdoor_stress(c) if c.job not in [Job.NONE, Job.SLEEP, Job.EAT]
+		else -STRESS_RELIEF) * day
 	var mood: float = (c.needs[Need.FOOD] + c.needs[Need.REST] + c.needs[Need.COMFORT] + NEED_MAX - c.needs[Need.STRESS]) / 4.0
 	mood = clampf(mood + mood_bonus(c), 0.0, NEED_MAX)
 	c.needs[Need.HAPPINESS] = move_toward(c.needs[Need.HAPPINESS], mood, MOOD_SPEED * day)
@@ -1389,11 +1479,11 @@ func find_job(c: Colonist) -> void:
 				c.carry_res = res
 				return
 
-	# ordine fisso finché non c'è la tabella delle priorità: cucinare, tagliare, scavare, estirpare, raccogliere,
-	# pescare, cacciare, costruire, trasportare
-	if try_cook(c) or try_work(c, Job.CHOP, chop_marks.keys(), TREE_SIDES, gather_time(c, Job.CHOP)) \
+	# ordine fisso finché non c'è la tabella delle priorità: prendere l'equipaggiamento, cucinare, forgiare e cucire,
+	# tagliare, scavare, estirpare, raccogliere, pescare, cacciare, costruire, trasportare
+	if try_equip(c) or try_cook(c) or try_craft(c) or try_work(c, Job.CHOP, chop_marks.keys(), TREE_SIDES, gather_time(c, Job.CHOP)) \
 			or try_work(c, Job.MINE, mine_marks.keys(), SIDES, gather_time(c, Job.MINE)) \
-			or try_work(c, Job.UPROOT, uproot_marks.keys(), SIDES, UPROOT_TIME * work_factor(c)) \
+			or try_work(c, Job.UPROOT, uproot_marks.keys(), SIDES, UPROOT_TIME * work_factor(c, Job.UPROOT)) \
 			or try_work(c, Job.HARVEST, harvest_ready(), SIDES, gather_time(c, Job.HARVEST)) \
 			or try_work(c, Job.FISH, fishable(), SIDES, gather_time(c, Job.FISH)) or try_hunt(c):
 		return
@@ -1407,7 +1497,7 @@ func find_job(c: Colonist) -> void:
 		var path := path_to_nearest(c, stands.keys())
 		var to_source := [] if path.is_empty() else path_to_nearest(c, sources(plans[stands[path.back()]]))
 		if not to_source.is_empty():  # prima al mucchio a prendere il materiale, poi al cantiere
-			start_job(c, job, to_source, stands[path.back()], BUILD_TIME * work_factor(c))
+			start_job(c, job, to_source, stands[path.back()], BUILD_TIME * skill_time(c.skills[Skill.CONSTRUCTION]) * work_factor(c, job))
 			c.dest = path.back()
 			c.carry_res = plans[c.target][1]
 			reserved[to_source.back()] = c  # intanto nessun altro prende da quel mucchio
@@ -1450,7 +1540,7 @@ func work_cells(job: Job, target: Vector2i) -> Array:
 # secondi per colpo di `c` nel lavoro di raccolta `job`: quelli di GATHER a livello 5, 1.4 volte tanto a livello 1,
 # la metà a livello 10; più o meno secondo le condizioni (vedi work_factor)
 func gather_time(c: Colonist, job: Job) -> float:
-	return GATHER[job][1] * skill_time(c.skills[GATHER[job][0]]) * work_factor(c)
+	return GATHER[job][1] * skill_time(c.skills[GATHER[job][0]]) * work_factor(c, job)
 
 
 # tempo di un lavoro a livello `level` rispetto al livello 5: 1.4 a livello 1, la metà a livello 10
@@ -1458,9 +1548,30 @@ func skill_time(level: int) -> float:
 	return 1.5 - level / 10.0
 
 
-# quanto tempo richiedono i lavori a `c` per le sue condizioni: 1 senza, meno se ben nutrito, di più se intossicato
-func work_factor(c: Colonist) -> float:
-	return cond_product(c, 1)
+# quanto tempo richiede il lavoro `job` a `c` per le sue condizioni (meno se ben nutrito, di più se intossicato) e per
+# quello che ha addosso (vedi GEAR: "time" per quel lavoro, "slow" per tutti)
+func work_factor(c: Colonist, job := Job.NONE) -> float:
+	var f := cond_product(c, 1)
+	for g in c.gear.values():
+		f *= GEAR[g].get("time", {}).get(job, 1.0) * GEAR[g].get("slow", 1.0)
+	return f
+
+
+# stress da lavoro x fuori dalle stanze, per quello che `c` ha addosso (vedi GEAR "outdoor_stress"); dentro 1
+func outdoor_stress(c: Colonist) -> float:
+	var f := 1.0
+	if room_at(cell_of(c.pos)) == null:
+		for g in c.gear.values():
+			f *= GEAR[g].get("outdoor_stress", 1.0)
+	return f
+
+
+# somma di `key` per quello che `c` ha addosso (es. "armor", "hit", "range")
+func gear_sum(c: Colonist, key: String) -> float:
+	var sum := 0.0
+	for g in c.gear.values():
+		sum += GEAR[g].get(key, 0.0)
+	return sum
 
 
 # prodotto della colonna `col` di COND_INFO per le condizioni di `c` (1 tempo di lavoro, 2 stress da lavoro)
@@ -1571,7 +1682,7 @@ func try_cook(c: Colonist) -> bool:
 
 # secondi per un pasto: COOK_TIME a livello 5, secondo il comfort della cucina e le condizioni del cuoco
 func cook_time(c: Colonist, comfort: int) -> float:
-	return COOK_TIME * skill_time(c.skills[Skill.COOKING]) * comfort_time(comfort) * work_factor(c)
+	return COOK_TIME * skill_time(c.skills[Skill.COOKING]) * comfort_time(comfort) * work_factor(c, Job.COOK)
 
 
 func burn_chance(level: int, comfort: int) -> float:
@@ -1580,6 +1691,140 @@ func burn_chance(level: int, comfort: int) -> float:
 
 func fine_chance(level: int, comfort: int) -> float:
 	return clampf(FINE_PER_LEVEL * (level - 5) + FINE_PER_COMFORT * (comfort - 5), 0.0, 1.0)
+
+
+# --- Equipaggiamento e produzione ---
+
+# l'attrezzo da mani che `c` vuole: quello della sua abilità migliore tra quelle degli attrezzi
+func wanted_tool(c: Colonist) -> Res:
+	var tools := GEAR.keys().filter(func(g): return GEAR[g]["slot"] == Slot.HANDS)
+	var best: Res = tools[0]
+	for g in tools:
+		if c.skills[GEAR[g]["skill"]] > c.skills[GEAR[best]["skill"]]:
+			best = g
+	return best
+
+
+# pezzi che `c` metterebbe nello slot `slot` se lo ha vuoto: nelle mani solo il suo attrezzo, se no tutti quelli dello slot
+func fits(c: Colonist, slot: Slot) -> Array:
+	if c.gear.has(slot):
+		return []
+	if slot == Slot.HANDS:
+		return [wanted_tool(c)]
+	return GEAR.keys().filter(func(g): return GEAR[g]["slot"] == slot)
+
+
+# Slot vuoto e il pezzo giusto in un mucchio libero: va a prenderlo (Job.EQUIP). false se non c'è niente da mettere
+func try_equip(c: Colonist) -> bool:
+	for slot in Slot.values():
+		for g in fits(c, slot):
+			var path := path_to_nearest(c, items[g].keys().filter(func(cell): return is_free(cell)))
+			if not path.is_empty():
+				start_job(c, Job.EQUIP, path, path.back(), 0.0)
+				c.carry_res = g
+				return true
+	return false
+
+
+# Quanti `res` mancano. Lingotti: fino a INGOT_STOCK. Equipaggiamento: i coloni con lo slot vuoto che lo prenderebbero
+# (per le mani: chi vuole proprio quell'attrezzo; se no tutti), meno quelli già fatti e in lavorazione per lo stesso slot
+func gear_wanted(res: Res) -> int:
+	var making := func(r): return colonists.filter(func(o): return o.job == Job.CRAFT and RECIPES[o.recipe][0] == r).size()
+	if res == Res.INGOT:
+		return INGOT_STOCK - total(Res.INGOT) - making.call(Res.INGOT)
+	var slot: Slot = GEAR[res]["slot"]
+	var same: Array = [res] if slot == Slot.HANDS else GEAR.keys().filter(func(g): return GEAR[g]["slot"] == slot)
+	var want := colonists.filter(func(o): return res in fits(o, slot)).size()
+	for g in same:
+		want -= total(g) + making.call(g)
+	return want
+
+
+# mobili `kind` (fornace, incudine, banco) dentro una stanza del tipo giusto (STATION_ROOM)
+func stations(kind: Build) -> Array:
+	return furniture.keys().filter(func(o): return furniture[o][0] == kind \
+		and room_at(o) != null and room_at(o).kind == STATION_ROOM[kind])
+
+
+# Produzione: la prima ricetta che serve (vedi gear_wanted), con la postazione libera e tutti gli ingredienti nei mucchi
+# liberi. Il colono va a prendere un ingrediente alla volta e lo porta alla postazione (vedi craft). false se niente
+func try_craft(c: Colonist) -> bool:
+	for i in RECIPES.size():
+		var r: Array = RECIPES[i]
+		if gear_wanted(r[0]) <= 0 or not r[3].keys().all(func(res): return available(res) >= r[3][res]):
+			continue
+		var stands := {}  # casella accanto a una postazione libera, nella sua stanza -> postazione
+		for station in stations(r[1]).filter(func(st): return is_free(st)):
+			var around := {}
+			add_stands(around, [station], station, SIDES)
+			for s in around:
+				if room_at(station).cells.has(s):
+					stands[s] = station
+		var path := path_to_nearest(c, stands.keys())
+		if path.is_empty():
+			continue
+		var station: Vector2i = stands[path.back()]
+		start_job(c, Job.CRAFT, [], station, r[4] * skill_time(c.skills[r[2]]) * comfort_time(room_comfort(room_at(station)))
+			* work_factor(c, Job.CRAFT))
+		c.recipe = i
+		c.dest = path.back()
+		c.path = path  # prima alla postazione, poi da lì a prendere gli ingredienti (vedi craft)
+		return true
+	return false
+
+
+# quanto `res` c'è nei mucchi liberi
+func available(res: Res) -> int:
+	var sum := 0
+	for cell in items[res]:
+		if is_free(cell):
+			sum += items[res][cell]
+	return sum
+
+
+# Un passo di Job.CRAFT, a percorso finito. Arrivato a un mucchio: prende quello che manca di quell'ingrediente e torna.
+# Alla postazione (dest): posa quello che ha in mano; se manca ancora qualcosa va a prenderlo, se no lavora. Finito,
+# l'oggetto cade ai suoi piedi (o è rovinato: ingredienti persi), +1 punto esperienza
+func craft(c: Colonist, delta: float) -> void:
+	var r: Array = RECIPES[c.recipe]
+	if not stations(r[1]).has(c.target):
+		quit_job(c)  # postazione abbattuta, o la stanza ha cambiato tipo: lascia giù quello che aveva
+		return
+	var here := cell_of(c.pos)
+	if here != c.dest:  # a un mucchio
+		reserved.erase(here)
+		var take := mini(mini(items[c.carry_res].get(here, 0), r[3][c.carry_res] - c.fetched.get(c.carry_res, 0)), CARRY_MAX)
+		if take <= 0:
+			quit_job(c)
+			return
+		pick_up(c, c.carry_res, here, take)
+		c.path = path_of(c, here, c.dest)
+		if c.path.is_empty():
+			quit_job(c)
+		return
+	if c.carrying > 0:
+		c.fetched[c.carry_res] = c.fetched.get(c.carry_res, 0) + c.carrying
+		c.carrying = 0
+	for res in r[3]:
+		if c.fetched.get(res, 0) < r[3][res]:
+			var to := path_to_nearest(c, items[res].keys().filter(func(cell): return cell != c.dest and is_free(cell)))
+			if to.is_empty():
+				quit_job(c)
+				return
+			c.carry_res = res
+			c.path = to
+			reserved[to.back()] = c
+			return
+	face(c, center(c.target) - c.pos)
+	c.work_left = maxf(c.work_left - delta, 0.0)
+	if c.work_left > 0:
+		return
+	c.fetched.clear()
+	c.xp[r[2]] += 1
+	end_job(c)
+	if randf() >= burn_chance(c.skills[r[2]], room_comfort(room_at(c.target))):
+		drop(r[0], here, 1)
+		try_haul(c, r[0], [here])
 
 
 # --- Pesca e caccia ---
@@ -1591,6 +1836,17 @@ func fishable() -> Array:
 
 func catch_chance(level: int) -> float:
 	return CATCH_BASE + CATCH_PER_LEVEL * level
+
+
+# livello con cui mira: con l'arco il migliore tra caccia e armi a distanza
+func hunt_level(c: Colonist) -> int:
+	if c.gear.get(Slot.HANDS) == Res.BOW:
+		return maxi(c.skills[Skill.HUNTING], c.skills[Skill.RANGED])
+	return c.skills[Skill.HUNTING]
+
+
+func hunt_range(c: Colonist) -> float:
+	return HUNT_RANGE + gear_sum(c, "range")
 
 
 func hit_chance(level: int, tiles: float) -> float:
@@ -1607,7 +1863,7 @@ func try_hunt(c: Colonist) -> bool:
 	c.job = Job.HUNT
 	c.prey = prey[0]
 	prey[0].hunter = c
-	c.work_total = AIM_TIME * skill_time(c.skills[Skill.HUNTING]) * work_factor(c)
+	c.work_total = AIM_TIME * skill_time(hunt_level(c)) * work_factor(c, Job.HUNT)
 	c.work_left = c.work_total
 	chase(c)
 	return c.job == Job.HUNT
@@ -1632,7 +1888,7 @@ func track_prey(c: Colonist) -> void:
 		return
 	if c.path.is_empty():
 		return
-	if c.pos.distance_to(a.pos) <= HUNT_RANGE * TILE * 0.8:
+	if c.pos.distance_to(a.pos) <= hunt_range(c) * TILE * 0.8:
 		c.path = [c.path[0]]
 	elif center(c.path.back()).distance_to(a.pos) > 2 * TILE:
 		chase(c)
@@ -1861,7 +2117,7 @@ func claimed(except: Colonist) -> Dictionary:
 	for o in colonists:
 		if o != except:
 			cells[cell_of(o.pos) if o.path.is_empty() else o.path.back()] = true
-			if o.job in [Job.BUILD, Job.FURNISH, Job.COOK]:
+			if o.job in [Job.BUILD, Job.FURNISH, Job.COOK, Job.CRAFT]:
 				cells[o.dest] = true
 	return cells
 
@@ -2040,6 +2296,9 @@ func drop_job(target: Vector2i, job: Job) -> void:
 func quit_job(c: Colonist) -> void:
 	drop(c.carry_res, cell_of(c.pos), c.carrying, c.carry_days)
 	c.carrying = 0
+	for res in c.fetched:  # anche gli ingredienti già portati alla postazione
+		drop(res, cell_of(c.pos), c.fetched[res])
+	c.fetched.clear()
 	c.path.clear()
 	end_job(c)
 
@@ -2179,6 +2438,7 @@ func total(res: Res) -> int:
 	for c in colonists:
 		if c.carry_res == res:
 			sum += c.carrying
+		sum += c.fetched.get(res, 0)
 	return sum
 
 

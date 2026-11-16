@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3]
+[gd_scene load_steps=29 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Texture2D" path="res://art/icon_wood.png" id="2"]
@@ -76,6 +76,10 @@ region = Rect2(0, 160, 16, 16)
 [sub_resource type="AtlasTexture" id="AnvilIcon"]
 atlas = ExtResource("8")
 region = Rect2(0, 192, 16, 16)
+
+[sub_resource type="AtlasTexture" id="WorkbenchIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 224, 16, 16)
 
 [sub_resource type="ButtonGroup" id="Kinds"]
 
@@ -297,6 +301,15 @@ focus_mode = 0
 toggle_mode = true
 button_group = SubResource("Kinds")
 icon = SubResource("AnvilIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Workbench" type="Button" parent="HUD/FurnitureBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("WorkbenchIcon")
 icon_alignment = 1
 expand_icon = true
 
