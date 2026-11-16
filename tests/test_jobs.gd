@@ -302,6 +302,15 @@ func _initialize() -> void:
 	var flame: Rect2 = main.piece_rects(at, fire)[1]
 	main.clock += 1.5 * main.ANIMATED[main.Build.CAMPFIRE] / main.DAY_LENGTH
 	check(flame.position.y == 4 * 32 and main.piece_rects(at, fire)[1].position.x != flame.position.x, "la fiamma guizza")
+	# sentiero: un pavimento di pietra a 1 per casella; ci stanno i mobili, l'erba ci sborda sopra ma non dai muri
+	check(tip_texts(main, "BuildBar/Row/Path").slice(0, 2) == ["Path", "1/tile"], "tasto del sentiero")
+	main.built[at] = [main.Build.PATH, main.Res.STONE]
+	check(main.can_build(at, main.Build.LAMP) and not main.can_build(at, main.Build.FLOOR), "mobili sul sentiero")
+	check(main.structure_src(at, main.built[at], [main.built]) == main.tile_rect(2, 2), "sentiero nel foglio")
+	main.built[at + Vector2i.RIGHT] = [main.Build.WALL, W]
+	check(main.is_lawn(at + Vector2i.UP) and not main.is_lawn(at + Vector2i.RIGHT), "erba dal prato, non dal muro")
+	main.built.erase(at)
+	main.built.erase(at + Vector2i.RIGHT)
 	# decorazioni: ognuna col suo tasto e il suo splendore; la panca girata sta in piedi, fontana e stendardo si muovono
 	for kind in main.SPLENDOR:
 		check(main.FURNITURE.has(kind) and main.BUILD_INFO.has(kind), "decorazione %s" % main.Build.keys()[kind])

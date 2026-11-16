@@ -32,10 +32,10 @@ const ORDER_TOOLS := {Order.DEMOLISH: "Destroy", Order.MINE: "Mine", Order.CHOP:
 const ORDER_ICONS := {Order.CHOP: preload("res://art/icon_chop.png"), Order.MINE: preload("res://art/icon_mine.png"),
 	Order.UPROOT: preload("res://art/icon_uproot.png")}  # le stesse dei tasti: piccole e velate sopra ciò che è segnato
 enum RoomKind { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE }  # tipo di stanza, scelto dal cartello
-enum Build { WALL, FLOOR, DOOR, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE, ANVIL,  # porta e mobili si attraversano
+enum Build { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE, ANVIL,  # porta e mobili si attraversano
 	FLOWER_BED, PLANTER, BENCH, BANNER, LANTERN, FOUNTAIN, STATUE }  # decorazioni: vedi SPLENDOR
 # materiale per casella; per i mobili, per pezzo
-const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3, Build.LAMP: 3,
+const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3, Build.LAMP: 3,
 	Build.CAMPFIRE: 5, Build.FURNACE: 20, Build.ANVIL: 10, Build.FLOWER_BED: 3, Build.PLANTER: 5, Build.BENCH: 6,
 	Build.BANNER: 4, Build.LANTERN: 4, Build.FOUNTAIN: 30, Build.STATUE: 40}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
@@ -46,8 +46,9 @@ const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Buil
 # mobili animati: secondi per fotogramma; i fotogrammi stanno nelle colonne dei quarti di giro (sono simmetrici)
 const ANIMATED := {Build.CAMPFIRE: 0.15, Build.BANNER: 0.3, Build.FOUNTAIN: 0.2}
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
+const PAVING := [Build.FLOOR, Build.PATH]  # a terra: si calpestano, ci stanno sopra i mobili, l'erba ci sborda sopra
 # materiale fisso; il resto solo di legno
-const BUILD_RES := {Build.FURNACE: Res.STONE, Build.ANVIL: Res.IRON, Build.PLANTER: Res.STONE, Build.FOUNTAIN: Res.STONE,
+const BUILD_RES := {Build.PATH: Res.STONE, Build.FURNACE: Res.STONE, Build.ANVIL: Res.IRON, Build.PLANTER: Res.STONE, Build.FOUNTAIN: Res.STONE,
 	Build.STATUE: Res.STONE}
 # mobili che servono perché il cartello lasci scegliere il tipo di stanza: tipo -> {mobile: almeno quanti}
 # ponytail: la cucina accetterà anche la stufa, quando ci sarà: allora "uno tra" invece di "tutti"
@@ -79,6 +80,7 @@ const BUILD_INFO := {
 	Build.WALL: "Blocks the way. Walls with a door around an area make a room.",
 	Build.FLOOR: "Paves the ground. Furniture can stand on it.",
 	Build.DOOR: "Colonists walk through it. A room needs one to be entered.",
+	Build.PATH: "A trodden earth path with pebbles. Grass grows over its edges.",
 	Build.BED: "A place to sleep. A bedroom needs one, a dormitory two.",
 	Build.TABLE: "Where colonists eat and work.",
 	Build.CHAIR: "Put it at a table, turned to face it.",
@@ -144,8 +146,8 @@ const ICONS := {
 	Res.IRON: preload("res://art/icon_iron.png"),
 	Res.COAL: preload("res://art/icon_coal.png"),
 }
-# 256x64, righe: muri di legno, muri di pietra (colonna = lati collegati, vedi WALL_LINKS), pavimenti (colonna = Res),
-# porte (di fronte, di lato); vedi structure_src
+# 256x128, righe: muri di legno, muri di pietra (colonna = lati collegati, vedi WALL_LINKS), pavimenti (colonna = Res,
+# poi il sentiero), porte (di fronte, di lato), erba sui pavimenti (lati, angoli, due varianti); vedi structure_src e draw_grass_over
 const STRUCTURES := preload("res://art/structures.png")
 const WALL_LINKS := [Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]  # bit 1, 2, 4, 8 della colonna dei muri
 # scheda del colono, vedi open_sheet
@@ -1557,8 +1559,8 @@ func can_build(cell: Vector2i, kind := Build.FLOOR) -> bool:
 		return false
 	var furnished := [furniture, furniture_plans, furniture_draft].any(func(l): return not pieces_at(l, cell).is_empty())
 	if FURNITURE.has(kind):
-		return not furnished and [built, blueprints, draft].all(func(l): return l.get(cell, [Build.FLOOR])[0] == Build.FLOOR)
-	return not built.has(cell) and not blueprints.has(cell) and (kind == Build.FLOOR or not furnished)
+		return not furnished and [built, blueprints, draft].all(func(l): return l.get(cell, [Build.FLOOR])[0] in PAVING)
+	return not built.has(cell) and not blueprints.has(cell) and (kind in PAVING or not furnished)
 
 
 func build(cell: Vector2i) -> void:
@@ -1570,7 +1572,7 @@ func build(cell: Vector2i) -> void:
 		for o in colonists:  # chi doveva passare di qui cerca un'altra strada
 			if o.path.has(cell):
 				o.path = path_of(o, cell_of(o.pos), o.path.back())
-	if built[cell][0] != Build.FLOOR:
+	if built[cell][0] not in PAVING:
 		update_rooms()
 
 
@@ -1773,11 +1775,12 @@ func structure_src(cell: Vector2i, plan: Array, layers: Array) -> Rect2i:
 	var links := 0
 	for i in 4:
 		var next: Vector2i = cell + WALL_LINKS[i]
-		if layers.any(func(l): return l.has(next) and l[next][0] != Build.FLOOR):
+		if layers.any(func(l): return l.has(next) and l[next][0] not in PAVING):
 			links |= 1 << i
 	match plan[0]:
 		Build.WALL: return tile_rect(links, plan[1])
 		Build.FLOOR: return tile_rect(plan[1], 2)
+		Build.PATH: return tile_rect(2, 2)
 		_: return tile_rect(1 if links & 5 and not links & 10 else 0, 3)  # porta: di lato se ha muri solo sopra e sotto
 
 
@@ -1785,8 +1788,9 @@ func draw_flat() -> void:  # sotto le ombre: il terreno lo disegna lo Sprite2D d
 	for cell in weeds:  # basse: niente ombra
 		flat.draw_texture_rect_region(PLANTS, tile_rect(cell.x, cell.y), tile_rect(0, 0))
 	for cell in built:
-		if built[cell][0] == Build.FLOOR:
+		if built[cell][0] in PAVING:
 			flat.draw_texture_rect_region(STRUCTURES, tile_rect(cell.x, cell.y), structure_src(cell, built[cell], [built]))
+			draw_grass_over(cell)
 	var plans := [built, blueprints, draft]  # i progetti si collegano anche ai muri già fatti
 	for cell in blueprints:  # in trasparenza
 		flat.draw_texture_rect_region(STRUCTURES, tile_rect(cell.x, cell.y), structure_src(cell, blueprints[cell], plans),
@@ -1805,10 +1809,26 @@ func draw_flat() -> void:  # sotto le ombre: il terreno lo disegna lo Sprite2D d
 			flat.draw_texture_rect(ICONS[res], Rect2(center(cell) - Vector2.ONE * side / 2, Vector2.ONE * side), false)
 
 
+# L'erba dei prati vicini sborda sul pavimento in `cell`, così non finisce di netto: lati, e angoli se nessun lato
+# li copre già (come i bordi del terreno). Non contro muri, porte o altri pavimenti, né verso ghiaia e acqua.
+func draw_grass_over(cell: Vector2i) -> void:
+	var row := 4 + 2 * ((cell.x + cell.y) % 2)  # due varianti a scacchiera: lungo un bordo non si ripete lo stesso disegno
+	for i in 4:
+		if is_lawn(cell + EDGE_SIDES[i]):
+			flat.draw_texture_rect_region(STRUCTURES, tile_rect(cell.x, cell.y), tile_rect(i, row))
+		var d: Vector2i = EDGE_CORNERS[i]
+		if is_lawn(cell + d) and not is_lawn(cell + Vector2i(d.x, 0)) and not is_lawn(cell + Vector2i(0, d.y)):
+			flat.draw_texture_rect_region(STRUCTURES, tile_rect(cell.x, cell.y), tile_rect(i, row + 1))
+
+
+func is_lawn(cell: Vector2i) -> bool:
+	return astar.is_in_boundsv(cell) and ground_of(cell) == Ground.GRASS and not built.has(cell)
+
+
 # Le sagome di ciò che sta in piedi, coricate a terra dalla parte opposta al sole; il colore lo dà `shadows`.
 func draw_shadows() -> void:
 	for cell in built:
-		if built[cell][0] != Build.FLOOR:
+		if built[cell][0] not in PAVING:
 			cast(STRUCTURES, Rect2(tile_rect(cell.x, cell.y)), Rect2(structure_src(cell, built[cell], [built])))
 	for cell in boulders:
 		var rock := boulder_tex(cell)
@@ -1849,7 +1869,7 @@ func foot_of(tex: Texture2D, src: Rect2) -> int:
 
 func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi bake_ground e draw_flat
 	for cell in built:  # muri e porte, dentro le loro caselle come i massi
-		if built[cell][0] != Build.FLOOR:
+		if built[cell][0] not in PAVING:
 			draw_texture_rect_region(STRUCTURES, tile_rect(cell.x, cell.y), structure_src(cell, built[cell], [built]))
 	for cell in boulders:  # stanno dentro le loro caselle: niente ordine per righe
 		draw_texture(boulder_tex(cell), Vector2(cell) * TILE)

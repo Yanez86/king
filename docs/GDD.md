@@ -75,6 +75,9 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   Decorazioni (+splendore): aiuola 1, fioriera di pietra 1, panca 1 (anche +0,5 comfort), lampione 1 (si accende di
   notte), stendardo 2 (sventola), fontana 6 (2x2, zampilla), statua del re 8 (2x2).
   Poi: strade che collegano le case, alberi piantati, feste.
+- **Sentiero**: pavimento di terra battuta e sassolini (1 pietra a casella); i mobili ci stanno sopra.
+  Su tutti i pavimenti l'erba dei prati vicini sborda, frastagliata, così non finiscono di netto; contro muri, porte
+  e altri pavimenti il bordo resta netto. Poi: i sentieri che collegano le case danno splendore.
 
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100.
