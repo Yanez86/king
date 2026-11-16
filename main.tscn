@@ -777,6 +777,16 @@ expand_icon = true
 theme_override_constants/h_separation = 8
 columns = 4
 
+[node name="Routine" type="VBoxContainer" parent="HUD/ColonistSheet/Box"]
+
+[node name="Title" type="Label" parent="HUD/ColonistSheet/Box/Routine"]
+text = "Routine"
+
+[node name="Hours" type="HBoxContainer" parent="HUD/ColonistSheet/Box/Routine"]
+theme_override_constants/separation = 1
+
+[node name="Worked" type="Label" parent="HUD/ColonistSheet/Box/Routine"]
+
 [node name="Separator" type="HSeparator" parent="HUD/ColonistSheet/Box"]
 
 [node name="Skills" type="GridContainer" parent="HUD/ColonistSheet/Box"]

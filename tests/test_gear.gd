@@ -10,6 +10,7 @@ func _initialize() -> void:
 	root.add_child(main)
 	await process_frame
 	main.needs_rate = 0.0
+	main.routines = false  # niente orari: la routine è provata in test_jobs
 	main.threats = false  # niente branchi di lupi: le prove del combattimento sono in test_combat
 	main.animals.clear()
 	main.bushes.clear()
@@ -46,7 +47,7 @@ func _initialize() -> void:
 	# effetti dell'equipaggiamento: solo il pezzo che li ha
 	var guy = main.Colonist.new()
 	guy.skills = main.Skill.values().map(func(_s): return 5)
-	guy.needs = [100.0, 100.0, 100.0, 100.0, 0.0]
+	guy.needs = [100.0, 100.0, 100.0, 100.0, 100.0, 0.0]
 	check(main.work_factor(guy, main.Job.MINE) == 1.0 and main.gear_sum(guy, "armor") == 0.0, "senza niente: nessun effetto")
 	guy.gear = {main.Slot.HANDS: main.Res.PICKAXE, main.Slot.HEAD: main.Res.HELMET}
 	check(is_equal_approx(main.work_factor(guy, main.Job.MINE), 0.75 * 0.9) and main.work_factor(guy, main.Job.CHOP) == 1.0,

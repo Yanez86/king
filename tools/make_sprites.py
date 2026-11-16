@@ -53,6 +53,7 @@ PALETTE = {
     "<": "a87a2e",                                               # oro in ombra (cornice del tasto scelto)
     "(": "8f7550", ")": "6e5a3e", "_": "a8916a",                 # terra battuta del sentiero: base, ombra, luce
     "?": "e87aa0", "/": "7a8ae0",                                # fiori rosa e azzurri (aiuole, fioriere)
+    "{": "4d4862", "}": "6f6a88", "|": "322e42",                 # quadratino dei talenti: fondo, luce, ombra
 }
 
 NIGHT_TINT = (0.40, 0.44, 0.62)  # di notte ogni colore si scurisce e vira al blu...
@@ -1437,24 +1438,56 @@ ouuurroooouRRRRo
 ......oooo......
 """
 
-# Talenti 16x16, nella scheda del colono -> goloso (cosciotto), sonnambulo (luna e Zz), iracondo (faccia rossa).
-TRAITS = """
-........ooooo... ...oooo......... .....oooooo.....
-......ooFFFFFoo. .ooIIo.......... ...oojjjjjjoo...
-.....oFFssFFFffo oIIIo....oooooo. ..ojjjjjjjjjjo..
-....oFFsFFFFFffo oIIo.....oxxxXo. .ojoojjjjjjoojo.
-....oFFFFFFFfffo oIIo.....oooxXo. .ojjjoojjoojjjo.
-....oFFFFFFffffo oIIIo.....oxXoo. ojjjjjoooojjjjJo
-....ofFFFFfffDDo oIIIIo...oxXooo. ojjjoxoooooxojJo
-....ofFFFfffDDDo .oIIIIooooxxxXo. ojjjoooojoooojJo
-....oofffffDDDo. .oUIIIIIooooooo. ojjjjjjjjjjjjjJo
-...oxxoofDDDoo.. ..oUUUUo..oooo.. ojjjoooooooojjJo
-..oxxXoooooo.... ...oooo...oxXo.. .ojjoxxxxxxojJo.
-.oooxXo......... ..........ooXo.. .ojjoooooooojJo.
-oxxoXo.......... .........oxXoo.. ..oJjjjjjjjJJo..
-oxXXXXo......... .........oxxXo.. ...ooJJJJJJoo...
-.ooXXXo......... .........ooooo.. .....oooooo.....
-...ooo.......... ................ ................
+# Talenti, nella scheda del colono (come Trait in main.gd): simboli 12x12, 5 per blocco, che badge() mette al
+# centro di un quadratino 16x16 in rilievo. Il punto lascia vedere il fondo del quadratino.
+# -> goloso (cosciotto), sonnambulo (luna e Zz), iracondo (faccia rossa), pigro (lumaca), stacanovista (martello e sudore)
+TRAITS_1 = """
+......oooo.. ...oooo..... ..oooooooo.. .........x.x ......oooo..
+....ooFFFFo. .ooIIIo..... .ojjjjjjjjo. .........o.o .....ouuuro.
+...oFsFFFFfo .oIIIo.xxxx. ojoojjjjoojo ........oXXo ....ouuurrRo
+..oFsFFFFffo oIIIo....x.. ojjjoojoojjo ..oooo..oeXo .Q..orrrRRRo
+..oFFFFFfffo oIIo....x... ojjjjjjjjjJo .oCcccoooXXo .QQ.oorRRoo.
+..oFFFFffDDo oIIo...xxxx. ojjxojjoxjJo oCcoooCcoXXo oQEo.owoo...
+..ofFFffDDo. oIIIo....... ojjjjjjjjjJo oCcoCcoCoXXo .oo.owo.....
+...offDDDo.. oIIIIo..xxx. ojjoooooojJo oCcoCooCoXXo ...owo......
+...oxooo.... .oUIIIo..x.. ojoxxxxxxoJo oCCcooCCoXXo ..owo.......
+..oxXo...... .oUUIIIoxxx. .ojoooooojo. .oCCCCCooXXo .owo........
+.ooxXo...... ..ooUUUUo... ..oJJJJJJo.. oxxxxxxxxxXo owo.........
+oxxXXo...... ....oooo.... ...oooooo... .oooooooooo. oo..........
+"""
+
+# -> mattiniero (sole che sorge), nottambulo (gufo), dormiglione (berretto da notte), instancabile (candela),
+# festaiolo (boccale)
+TRAITS_2 = """
+.....99..... .oo......oo. ........oxo. .....o...... ..oooooo....
+.9...99...9. .oWo....oWo. .....ooooxo. ....o9o..... .oxxhxxxo...
+..9......9.. .oWWooooWWo. ...ooQQQEo.. ....o89o.... oxxxxxxxXo..
+............ owwwwwwwwwwo ..oQQQQQEo.. ...o988o.... oXxXxxXXXooo
+....oooo.... owooowwooowo .oQQQQQEEo.. ....o8o..... .ocCcCcCCo.o
+..oo8888oo.. oog8goog8goo .oxxxxxxxxo. ....ooo..... .oRRRRRRRo.o
+.o88ggggg9o. oogeg..geg.o .osssssssSo. ...oxxxXo... .ocCcCcCCo.o
+.o8gggggg9o. owoooCCooowo .osoossoosSo ...oxxxXo... .ocCcCcCCo.o
+o8gggggggg9o .owwwoowwwo. .ossssssssSo ...oxxXXo... .ocCcCcCCooo
+o8ggggggg99o .owcwcwcwwo. .osssooossSo ..ooxxXXoo.. .oRRRRRRRo..
+oooooooooooo ..owwcwcwo.. ..oSsssssSo. .oCccccccCo. .ocCcCcCCo..
+............ ...oooooo... ...oooooo... ..oooooooo.. ..ooooooo...
+"""
+
+# -> asceta (cappuccio), di poco appetito (ciotola con una bacca), tranquillo (sassi in equilibrio), amante della
+# pennichella (sole e Zz), irrequieto (clessidra)
+TRAITS_3 = """
+....oooo.... ............ ....ooo..... ........xxxx .oooooooooo.
+...owwwwo... ............ ...ouuro.... ..........x. .owwwwwwwWo.
+..owwwwwwo.. ............ ...orRRo.... .........x.. .oooooooooo.
+.owwooooWwo. .....oo..... ..oooooo.... ...9.9..xxxx ..oQccccQo..
+.owoSSSSoWo. ....ojJo.... .ouuurrRo... .9.oooo.9... ...oQccQo...
+owwoSoSoSoWo ....oJJo.... .orrrRRRo... ..o8888o.... ....oQco....
+owoSSSSSSoWo oooooooooooo ..oooooooo.. 9o8gggg8o9.. ....ocQo....
+owoSSoooSoWo occcccccccCo .ouuuurrrRo. .o8gggg9o... ...oQ.cQo...
+owwoSSSSoWWo .oCcccccCCo. ourrrrRRRRo. 9o8ggg99o9.. ..oQ.ccQQo..
+owwwooooWWWo .oCCccCCCWo. oRRRRRRRRRo. ..o9999o.... .oooooooooo.
+.owwwwwWWWo. ..oWCCCWWo.. .oooooooooo. .9.oooo.9... .owwwwwwwWo.
+..oooooooo.. ...oooooo... ............ ...9..9..... .oooooooooo.
 """
 
 # Stellina 9x9 accanto a un'abilità al livello massimo.
@@ -1767,6 +1800,16 @@ def art(block, width, height):
     return rows
 
 
+def badge(symbol):
+    """Talento 16x16: quadratino col contorno, luce in alto a sinistra e ombra in basso a destra (in rilievo,
+    al contrario degli slot dell'equipaggiamento), e il simbolo 12x12 al centro."""
+    inner = ["}" * 13 + "|"] + ["}" + "{" * 12 + "|"] * 12 + ["}" + "|" * 13]
+    rows = ["o" * 16] + ["o" + line + "o" for line in inner] + ["o" * 16]
+    for y, line in enumerate(symbol):
+        rows[y + 2] = rows[y + 2][:2] + "".join(ch if ch != "." else rows[y + 2][x + 2] for x, ch in enumerate(line)) + rows[y + 2][14:]
+    return rows
+
+
 def side_by_side(fs):
     return ["".join(f[y] for f in fs) for y in range(len(fs[0]))]
 
@@ -1956,7 +1999,8 @@ def main():
     images["icon_resources"] = pixels(art(RESOURCES_ICON, 16, 16))
     images["icon_colonists"] = pixels(art(COLONISTS_ICON, 16, 16))
     images["icon_options"] = pixels(art(OPTIONS_ICON, 16, 16))
-    images["traits"] = pixels(side_by_side(frames(TRAITS)))
+    symbols = [f for block in (TRAITS_1, TRAITS_2, TRAITS_3) for f in frames(block, 12, 5, 12)]
+    images["traits"] = pixels(side_by_side([badge(f) for f in symbols]))
     images["icon_star"] = pixels(art(STAR, 9, 9))
     images["bar_fill"] = pixels(double(art(BAR_FILL, 6, 6)))
     images["bar_back"] = pixels(double(art(BAR_BACK, 6, 6)))

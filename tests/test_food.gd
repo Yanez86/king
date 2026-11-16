@@ -10,6 +10,7 @@ func _initialize() -> void:
 	root.add_child(main)
 	await process_frame
 	main.needs_rate = 0.0  # bisogni fermi: nessuno va a mangiare finché non lo decide la prova
+	main.routines = false  # niente orari: la routine è provata in test_jobs
 	main.threats = false  # niente branchi di lupi: le prove del combattimento sono in test_combat
 	main.bushes.clear()
 	main.weeds.clear()
@@ -78,7 +79,7 @@ func _initialize() -> void:
 	check(main.poison_chance(main.Res.MEAT, main.SHELF_LIFE[main.Res.MEAT]) > main.poison_chance(main.Res.FISH, main.SHELF_LIFE[main.Res.FISH]) \
 		and main.poison_chance(main.Res.FISH, 0.0) > 0.4, "carne e pesce crudi sono più rischiosi")
 	var eater = main.Colonist.new()
-	eater.needs = [0.0, 100.0, 50.0, 50.0, 50.0]
+	eater.needs = [0.0, 100.0, 100.0, 50.0, 50.0, 50.0]
 	eater.skills = main.Skill.values().map(func(_s): return 5)
 	var poisoned := 0
 	for i in 1000:
@@ -113,7 +114,7 @@ func _initialize() -> void:
 	check(eater.conds.has(main.Cond.ATE_RAW), "il goloso col crudo si lamenta")
 	# lo stress da lavoro e la felicità seguono le condizioni; finite, spariscono
 	var worker = main.Colonist.new()
-	worker.needs = [100.0, 100.0, 100.0, 100.0, 0.0]
+	worker.needs = [100.0, 100.0, 100.0, 100.0, 100.0, 0.0]
 	worker.job = main.Job.HAUL
 	main.needs_rate = 1.0
 	main.update_needs(worker, 10.0)

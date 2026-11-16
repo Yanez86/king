@@ -10,6 +10,7 @@ func _initialize() -> void:
 	root.add_child(main)
 	await process_frame
 	main.needs_rate = 0.0
+	main.routines = false  # niente orari: la routine è provata in test_jobs
 	main.animals.clear()
 	var mid: Vector2i = main.MAP_SIZE / 2
 	var area := Rect2i(mid - Vector2i(10, 10), Vector2i(20, 20))
@@ -86,7 +87,7 @@ func _initialize() -> void:
 	# morsi: la protezione riduce il danno, lo stress sale; a 0 punti ferita si resta a terra
 	var bitten = main.Colonist.new()
 	bitten.skills = main.Skill.values().map(func(_s): return 1)
-	bitten.needs = [100.0, 100.0, 100.0, 100.0, 0.0]
+	bitten.needs = [100.0, 100.0, 100.0, 100.0, 100.0, 0.0]
 	bitten.xp = main.Skill.values().map(func(_s): return 0)
 	bitten.trend = bitten.needs.map(func(_v): return 0.0)
 	bitten.gear = {main.Slot.BODY: main.Res.CHAINMAIL}
