@@ -156,6 +156,19 @@ const ORDER_ICONS := {Order.CHOP: preload("res://art/icon_chop.png"), Order.MINE
 	Order.UPROOT: preload("res://art/icon_uproot.png"), Order.HARVEST: preload("res://art/icon_harvest.png"),
 	Order.FISH: preload("res://art/icon_fishing.png"), Order.HUNT: preload("res://art/icon_hunting.png")}  # le stesse dei tasti: piccole e velate sopra ciò che è segnato
 enum RoomKind { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE, WORKSHOP }  # tipo di stanza, scelto dal cartello
+# categoria del tipo: lavoro (niente proprietari, gli si assegnano dei lavoratori), residenza (può avere dei proprietari),
+# servizio (comune a tutti, con uno scopo preciso: il magazzino). Senza tipo: nessuna, né proprietari né lavoratori
+enum RoomClass { NONE, WORK, RESIDENCE, SERVICE }
+const ROOM_CLASS := {
+	RoomKind.WAREHOUSE: RoomClass.SERVICE,
+	RoomKind.BEDROOM: RoomClass.RESIDENCE,
+	RoomKind.DORMITORY: RoomClass.RESIDENCE,
+	RoomKind.KITCHEN: RoomClass.WORK,
+	RoomKind.FORGE: RoomClass.WORK,
+	RoomKind.WORKSHOP: RoomClass.WORK,
+}
+# titolo della lista di coloni da spuntare nel popup del cartello, per RoomClass (le altre non ce l'hanno)
+const ROOM_PEOPLE := {RoomClass.WORK: "Workers", RoomClass.RESIDENCE: "Owners"}
 enum Build { WALL, FLOOR, DOOR, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE, ANVIL, WORKBENCH }  # porta e mobili si attraversano
 # materiale per casella; per i mobili, per pezzo
 const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3, Build.LAMP: 3,
@@ -271,9 +284,10 @@ const STRUCTURES := preload("res://art/structures.png")
 const WALL_LINKS := [Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]  # bit 1, 2, 4, 8 della colonna dei muri
 # scheda del colono, vedi open_sheet
 enum Skill { GATHERING, MINING, WOODCUTTING, CONSTRUCTION, SMITHING, TAILORING, COOKING, FISHING, HUNTING, MELEE, RANGED, RESEARCH }
-const SKILL_MAX := 10       # livelli 1-10: al massimo, nella scheda, compare la stellina
+const SKILL_MAX := 10       # livelli 0-10 (si parte da 0): al massimo, nella scheda, compare la stellina
 # raccolta: [abilità, secondi per colpo a livello 5 (vedi gather_time), quantità per colpo, risorsa]; i massi con la
-# vena danno il minerale (vedi ores). Ogni colpo dà 1 punto esperienza nell'abilità
+# vena danno il minerale (vedi ores). 1 punto esperienza nell'abilità a raccolta finita (albero abbattuto, masso
+# scavato, cespuglio spogliato), non a colpo
 const GATHER := {
 	Job.CHOP: [Skill.WOODCUTTING, 10.0, 5, Res.WOOD],
 	Job.MINE: [Skill.MINING, 15.0, 5, Res.STONE],
@@ -337,8 +351,8 @@ class Colonist:
 	var last_name := ""
 	var hp := float(MAX_HP)
 	var downed := false           # a 0 punti ferita: resta a terra finché non torna a GET_UP
-	var skills := []              # livello 1-SKILL_MAX per Skill
-	var xp := []                  # punti esperienza per Skill: 1 per colpo d'ascia
+	var skills := []              # livello 0-SKILL_MAX per Skill: tutti partono da 0
+	var xp := []                  # punti esperienza per Skill: 1 per raccolta finita (vedi GATHER)
 	var needs := []               # 0-NEED_MAX per Need, vedi update_needs
 	var trend := []               # per Need: -1 scende, 0 fermo, 1 sale (le frecce della scheda)
 	var traits := []              # Trait
@@ -392,7 +406,9 @@ class Room:
 	var sign := Vector2i.ZERO     # muro accanto alla porta col cartello (fuori davanti alla porta, se non ha muri)
 	var name := ""
 	var kind := RoomKind.NONE
-	var owners: Array[Colonist] = []  # scelti nel popup del cartello, anche più d'uno: solo loro ci entrano
+	var owners: Array[Colonist] = []  # residenze: scelti nel popup del cartello, anche più d'uno; solo loro ci entrano
+	var workers: Array[Colonist] = [] # stanze di lavoro: chi ci lavora, scelti allo stesso modo; l'ingresso resta libero
+	# ponytail: i lavoratori non cambiano ancora niente; con cucina e forgia solo loro ne faranno i lavori
 	var banned := false               # nessuno ci entra, nemmeno i proprietari
 
 
@@ -425,7 +441,7 @@ var rooms: Array[Room] = []  # stanze finite, vedi update_rooms
 var rooms_made := 0         # per i nomi di default
 var editing: Room           # la stanza aperta nel popup del cartello
 var shown: Colonist         # il colono nella scheda: le barre dei bisogni lo seguono
-var lens_owners := []       # [centro, proprietari] per stanza delle figurine sulla lente, vedi place_owners
+var lens_owners := []       # [centro, proprietari o lavoratori] per stanza delle figurine sulla lente, vedi place_owners
 var needs_rate := 1.0       # 0 nei test: i bisogni restano fermi e non cambiano i lavori
 var start_rooms := true     # false nei test: mappa di sempre, senza stanze né scorte di partenza (va messo prima di _ready)
 var reserved := {}          # cella -> Colonist che la sta usando
@@ -477,7 +493,7 @@ var lens_canvas := Node2D.new()   # ci disegna draw_lens
 @onready var room_popup: Control = $HUD/RoomPopup  # pannello al centro
 @onready var room_name: LineEdit = $HUD/RoomPopup/Box/Name
 @onready var room_kind: OptionButton = $HUD/RoomPopup/Box/Kind  # solo i tipi possibili, vedi refresh_room
-@onready var room_owners: Control = $HUD/RoomPopup/Box/Owners/List  # una casella da spuntare per colono
+@onready var room_owners: Control = $HUD/RoomPopup/Box/Owners/List  # una casella da spuntare per colono: proprietari o lavoratori
 @onready var jobs_panel: Control = $HUD/JobsPanel  # a destra, si apre col tasto Jobs in basso: vedi job_list
 @onready var jobs_list: Label = $HUD/JobsPanel/Box/List
 @onready var resources_panel: Control = $HUD/ResourcesPanel  # stesso posto: vedi update_resources
@@ -516,7 +532,7 @@ func _ready() -> void:
 		c.first_name = FIRST_NAMES.pick_random()
 		c.nickname = NICKNAMES.pick_random() if randf() < 0.5 else ""
 		c.last_name = LAST_NAMES.pick_random()
-		c.skills = Skill.values().map(func(_s): return randi_range(1, SKILL_MAX))
+		c.skills = Skill.values().map(func(_s): return 0)
 		c.xp = Skill.values().map(func(_s): return 0)
 		# sfalsati: non dormono tutti insieme; lo stress parte basso
 		c.needs = Need.values().map(func(n): return randf_range(0, 40) if n == Need.STRESS else randf_range(60, NEED_MAX))
@@ -723,23 +739,35 @@ func toggle_order(on: bool, which: Order) -> void:
 		order = Order.NONE
 
 
-# cartello di una stanza: popup con nome, comfort, tipo, divieto e proprietari
+# cartello di una stanza: popup con nome, comfort, tipo, divieto e, secondo la categoria del tipo, proprietari
+# (residenze) o lavoratori (stanze di lavoro)
 func open_room(room: Room) -> void:
 	editing = room
 	room_name.text = room.name
+	$HUD/RoomPopup/Box/Banned.set_pressed_no_signal(room.banned)
+	fill_people()
+	refresh_room()
+	room_popup.show()
+	room_popup.reset_size()  # si stringe se prima c'erano più righe
+
+
+# lista di coloni da spuntare nel popup: proprietari o lavoratori della stanza aperta; nascosta per le altre categorie
+func fill_people() -> void:
+	var title: String = ROOM_PEOPLE.get(room_class(editing), "")
+	var section: Control = $HUD/RoomPopup/Box/Owners
+	section.visible = title != ""
+	section.get_node("Title").text = title
 	for child in room_owners.get_children():
 		child.free()
+	if title == "":
+		return
 	for c in colonists:
 		var box := CheckBox.new()
 		box.text = full_name(c)
 		box.focus_mode = Control.FOCUS_NONE
-		box.button_pressed = c in room.owners
+		box.button_pressed = c in people_of(editing)
 		box.toggled.connect(toggle_owner.bind(c))
 		room_owners.add_child(box)
-	$HUD/RoomPopup/Box/Banned.set_pressed_no_signal(room.banned)
-	refresh_room()
-	room_popup.show()
-	room_popup.reset_size()  # si stringe se prima c'erano più righe
 
 
 # comfort della stanza nel popup, e nella tendina solo i tipi di cui ci sono i mobili (vedi ROOM_NEEDS): l'id della
@@ -754,12 +782,27 @@ func refresh_room() -> void:
 	room_kind.select(room_kind.get_item_index(editing.kind))
 
 
+# spunta nel popup: proprietario di una residenza o lavoratore di una stanza di lavoro
 func toggle_owner(on: bool, c: Colonist) -> void:
+	var list := people_of(editing)
 	if on:
-		editing.owners.append(c)
+		list.append(c)
 	else:
-		editing.owners.erase(c)
+		list.erase(c)
 	recheck_access()
+
+
+func room_class(room: Room) -> RoomClass:
+	return ROOM_CLASS.get(room.kind, RoomClass.NONE)
+
+
+# chi si spunta nel popup e compare sulla lente: proprietari (residenze), lavoratori (lavoro), nessuno per le altre
+func people_of(room: Room) -> Array[Colonist]:
+	match room_class(room):
+		RoomClass.RESIDENCE: return room.owners
+		RoomClass.WORK: return room.workers
+	var nobody: Array[Colonist] = []
+	return nobody
 
 
 # scheda del colono, a sinistra: si aggiorna mentre è aperta (vedi _process)
@@ -925,8 +968,22 @@ func colonist_at(point: Vector2) -> Colonist:
 
 
 func set_room_kind(kind: int) -> void:
-	editing.kind = kind
+	var before := room_class(editing)
+	retype(editing, kind as RoomKind)
+	if room_class(editing) != before:  # proprietari al posto dei lavoratori, o nessuno
+		fill_people()
+		room_popup.reset_size()
 	update_stockpile()
+	recheck_access()
+
+
+# cambia il tipo di `room`: proprietari e lavoratori restano solo se la nuova categoria li prevede
+func retype(room: Room, kind: RoomKind) -> void:
+	room.kind = kind
+	if room_class(room) != RoomClass.RESIDENCE:
+		room.owners.clear()
+	if room_class(room) != RoomClass.WORK:
+		room.workers.clear()
 
 
 # suggerimento in basso a destra: cosa c'è in `cell`, nascosto se non c'è niente. _process lo chiama ogni fotogramma
@@ -1289,17 +1346,20 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			var res: Res = ores.get(c.target, gather[3])
 			var left: int = stock.get(c.target, full_stock(c.target))
 			var got := mini(left, gather[2])
-			if c.job == Job.FISH and randf() >= catch_chance(c.skills[Skill.FISHING]):
-				got = 0  # niente all'amo: si rilancia
+			if c.job == Job.FISH:
+				c.xp[Skill.FISHING] += 1  # la pesca a lancio, anche a vuoto; il resto della raccolta a raccolta finita
+				if randf() >= catch_chance(c.skills[Skill.FISHING]):
+					got = 0  # niente all'amo: si rilancia
 			stock[c.target] = left - got
 			var here := cell_of(c.pos)
 			drop(res, here, got)
-			c.xp[gather[0]] += 1
 			if left > got:
 				c.work_left = gather_time(c, c.job)  # colpo successivo
 				c.work_total = c.work_left
 				return
 			stock.erase(c.target)
+			if c.job != Job.FISH:
+				c.xp[gather[0]] += 1  # raccolta finita
 			match c.job:  # finito: albero e masso spariscono, il cespuglio rifà le bacche
 				Job.CHOP:
 					trees.erase(c.target)
@@ -1623,7 +1683,7 @@ func work_cells(job: Job, target: Vector2i) -> Array:
 	return boulder_cells(target) if job == Job.MINE else [target]
 
 
-# secondi per colpo di `c` nel lavoro di raccolta `job`: quelli di GATHER a livello 5, 1.4 volte tanto a livello 1,
+# secondi per colpo di `c` nel lavoro di raccolta `job`: quelli di GATHER a livello 5, 1.5 volte tanto a livello 0,
 # la metà a livello 10; più o meno secondo le condizioni (vedi work_factor)
 func gather_time(c: Colonist, job: Job) -> float:
 	return GATHER[job][1] * skill_time(c.skills[GATHER[job][0]]) * work_factor(c, job)
@@ -2724,8 +2784,8 @@ func update_rooms() -> void:
 			var across := Vector2i(absi(side.y), absi(side.x))
 			var walls := [door + across, door - across].filter(func(k): return built.get(k, [-1])[0] == Build.WALL)
 			room.sign = walls[0] if not walls.is_empty() else front
-			if not room_meets(room, room.kind):  # abbattuto un mobile che serviva: torna senza tipo
-				room.kind = RoomKind.NONE
+			if not room_meets(room, room.kind):  # abbattuto un mobile che serviva: torna senza tipo, e senza proprietari
+				retype(room, RoomKind.NONE)
 			rooms.append(room)
 	update_stockpile()
 
@@ -2978,10 +3038,10 @@ func draw_lens() -> void:
 				HORIZONTAL_ALIGNMENT_CENTER, TILE * 8, 12)
 
 
-# Sotto il tipo, sulla lente, le figurine dei proprietari: col mouse sopra, la loro scheda (vedi colonist_tip).
+# Sotto il tipo, sulla lente, le figurine dei proprietari (o dei lavoratori): col mouse sopra, la loro scheda (vedi colonist_tip).
 # Sono Control, se no niente suggerimento; si rifanno solo quando cambiano, se no il suggerimento sparirebbe
 func place_owners() -> void:
-	var now := rooms.map(func(r): return [room_mid(r), r.owners.duplicate()])
+	var now := rooms.map(func(r): return [room_mid(r), people_of(r).duplicate()])
 	if now == lens_owners:
 		return
 	lens_owners = now

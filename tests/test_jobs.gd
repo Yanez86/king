@@ -10,6 +10,8 @@ func _initialize() -> void:
 	await process_frame  # aspetta che venga chiamato _ready
 	main.needs_rate = 0.0  # bisogni fermi: se no a metà prova i coloni vanno a dormire o a mangiare (vedi fondo)
 	main.threats = false  # niente branchi di lupi: le prove del combattimento sono in test_combat
+	for c in main.colonists:
+		check(c.skills.all(func(l): return l == 0) and c.xp.all(func(x): return x == 0), "tutti i coloni partono da 0 in ogni abilità")
 	check(main.animals.size() == main.BEASTS.values().reduce(func(n, b): return n + b["start"], 0), "animali all'inizio")
 	main.animals.clear()  # girano per la mappa: le prove della caccia sono in test_food
 
@@ -65,16 +67,14 @@ func _initialize() -> void:
 	check(marked > 0, "ci sono alberi segnati vicino alla partenza")
 	for c in main.colonists:  # un colpo ogni 5 secondi, se no il taglio dura troppo
 		c.skills[main.Skill.WOODCUTTING] = main.SKILL_MAX
-	var per_cut: int = main.GATHER[main.Job.CHOP][2]
 	var wood: int = main.chop_marks.keys().reduce(func(sum, k): return sum + main.full_stock(k), 0)
-	var cuts: int = main.chop_marks.keys().reduce(func(sum, k): return sum + ceili(main.full_stock(k) / float(per_cut)), 0)
 	for i in 20000:  # 1000 secondi simulati
 		main.tick(0.05)
 		check_work(main)
 	var chopped: int = trees_before - main.trees.size()
 	check(chopped == marked, "tagliati tutti gli alberi segnati")
 	check(main.total(W) == wood, "nessuna legna persa o creata")
-	check(main.colonists.reduce(func(sum, c): return sum + c.xp[main.Skill.WOODCUTTING], 0) == cuts, "1 punto esperienza per colpo d'ascia")
+	check(main.colonists.reduce(func(sum, c): return sum + c.xp[main.Skill.WOODCUTTING], 0) == marked, "1 punto esperienza per albero abbattuto, non per colpo")
 	check(main.stored(W) == 0, "senza magazzino non si trasporta niente")
 	for c in main.colonists:
 		check(c.job == main.Job.NONE, "coloni liberi a fine lavoro")
@@ -125,6 +125,8 @@ func _initialize() -> void:
 	main.room_name.text_changed.emit("Deposito")
 	main.room_kind.item_selected.emit(main.room_kind.get_item_index(main.RoomKind.WAREHOUSE))
 	check(r.name == "Deposito" and r.kind == main.RoomKind.WAREHOUSE, "il popup cambia nome e tipo")
+	check(main.room_class(r) == main.RoomClass.SERVICE and not main.get_node("HUD/RoomPopup/Box/Owners").visible,
+		"il magazzino è una stanza di servizio: niente proprietari né lavoratori")
 	check(main.stockpile.size() == 6, "le caselle della stanza diventano magazzino")
 	for i in 10000:
 		main.tick(0.05)
@@ -135,14 +137,16 @@ func _initialize() -> void:
 	# fase 4: scavo
 	main.order = main.Order.MINE
 	main.mark(area)
-	check(main.mine_marks.size() > 0, "ci sono massi segnati vicino alla partenza")
+	var boulders_marked: int = main.mine_marks.size()
+	check(boulders_marked > 0, "ci sono massi segnati vicino alla partenza")
+	for c in main.colonists:  # da livello 0 un colpo ogni 22,5 secondi: troppo lento per la prova
+		c.skills[main.Skill.MINING] = main.SKILL_MAX
 	for i in 10000:
 		main.tick(0.05)
 		check_work(main)
 	var mined: int = rocks_before - main.rocks.size()
 	check(mined > 0 and main.mine_marks.is_empty(), "scavati tutti i massi segnati")
-	# 5 pietre (o minerale) a colpo, 5 per casella: un colpo e un punto esperienza per casella
-	check(main.colonists.reduce(func(sum, c): return sum + c.xp[main.Skill.MINING], 0) == mined, "1 punto esperienza per colpo di piccone")
+	check(main.colonists.reduce(func(sum, c): return sum + c.xp[main.Skill.MINING], 0) == boulders_marked, "1 punto esperienza per masso scavato")
 	for cell in main.boulders:
 		for k in main.boulder_cells(cell):
 			check(main.astar.is_point_solid(k), "roccia rimasta ancora solida")
@@ -397,7 +401,7 @@ func _initialize() -> void:
 	check(main.describe(tree + Vector2i.UP) == main.describe(tree), "vale anche la chioma")
 	main.show_tip(tree)
 	check(main.object_sheet.visible, "il suggerimento compare")
-	# un colpo d'ascia ogni gather_time (10 s a livello 5, 12 a livello 3): 5 tronchi ai piedi di chi taglia, 1 punto esperienza
+	# un colpo d'ascia ogni gather_time (10 s a livello 5, 12 a livello 3): 5 tronchi ai piedi di chi taglia, ancora niente esperienza
 	var axe = main.colonists[1]
 	main.end_job(axe)
 	axe.path.clear()
@@ -413,15 +417,15 @@ func _initialize() -> void:
 	for i in int(swing / 0.05) + 1:
 		main.tick(0.05)
 	check(main.stock[tree] == full - 5 and main.items[W].get(stand, 0) == 5, "un colpo stacca 5 tronchi")
-	check(axe.xp[main.Skill.WOODCUTTING] == xp + 1, "1 punto esperienza per colpo")
+	check(axe.xp[main.Skill.WOODCUTTING] == xp, "un colpo solo non dà esperienza: solo l'albero abbattuto")
 	main.show_tip(tree)
 	check(main.get_node("HUD/ObjectSheet/Box/Info").text == "Logs left: %d / %d" % [full - 5, full], "il suggerimento segue i tronchi che calano")
 	main.show_tip(Vector2i(-1, -1))
 	check(not main.object_sheet.visible, "fuori mappa niente suggerimento")
 	main.end_job(axe)
 	# scavo: 15 s a colpo a livello 5, di più per chi è scarso, di meno per chi è bravo
-	axe.skills[main.Skill.MINING] = 1
-	check(is_equal_approx(main.gather_time(axe, main.Job.MINE), 21.0), "piccone a livello 1: 21 secondi")
+	axe.skills[main.Skill.MINING] = 0
+	check(is_equal_approx(main.gather_time(axe, main.Job.MINE), 22.5), "piccone a livello 0: 22,5 secondi")
 	axe.skills[main.Skill.MINING] = main.SKILL_MAX
 	check(is_equal_approx(main.gather_time(axe, main.Job.MINE), 7.5), "piccone a livello 10: 7,5 secondi")
 	# un mucchio di tronchi ne tiene al massimo 100: il resto va accanto
@@ -467,10 +471,10 @@ func _initialize() -> void:
 	check(main.stored_label.text == str(main.Res.values().map(main.stored).reduce(func(a, b): return a + b, 0)) and main.colonists_label.text == "3" \
 		and main.beds_label.text == "1", "barra in alto: totale risorse, coloni, letti finiti")
 
-	# scheda del colono: nome, abilità 1-10 con la stellina al massimo, talenti sotto
+	# scheda del colono: nome, abilità 0-10 con la stellina al massimo, talenti sotto
 	for col in main.colonists:
 		check(col.first_name != "" and col.last_name != "" and col.skills.size() == main.Skill.size(), "colono con nome e abilità")
-		check(col.skills.all(func(l): return l >= 1 and l <= main.SKILL_MAX) and col.traits.size() <= 2, "abilità 1-10, al più 2 talenti")
+		check(col.skills.all(func(l): return l >= 0 and l <= main.SKILL_MAX) and col.traits.size() <= 2, "abilità 0-10, al più 2 talenti")
 	var guy = main.colonists[0]
 	guy.skills[main.Skill.MINING] = main.SKILL_MAX
 	guy.skills[main.Skill.COOKING] = 3
@@ -577,6 +581,10 @@ func _initialize() -> void:
 		main.built[k] = [main.Build.FLOOR, S]
 	check(main.room_comfort(den) == 3, "tutta pavimentata di pietra: +1.5")
 	main.open_room(den)
+	check(not main.get_node("HUD/RoomPopup/Box/Owners").visible, "senza tipo niente proprietari né lavoratori")
+	main.room_kind.item_selected.emit(main.room_kind.get_item_index(main.RoomKind.BEDROOM))
+	check(main.room_class(den) == main.RoomClass.RESIDENCE and main.get_node("HUD/RoomPopup/Box/Owners").visible
+		and main.get_node("HUD/RoomPopup/Box/Owners/Title").text == "Owners", "la camera è una residenza: ha i proprietari")
 	check(main.get_node("HUD/RoomPopup/Box/Comfort").text == "Comfort: 3 / 10", "il cartello mostra il comfort")
 	var shown_kinds: Array = range(main.room_kind.item_count).map(main.room_kind.get_item_id)
 	check(shown_kinds == [main.RoomKind.NONE, main.RoomKind.WAREHOUSE, main.RoomKind.BEDROOM], "un letto: in tendina la camera sì, dormitorio, cucina e forgia no")
@@ -601,6 +609,25 @@ func _initialize() -> void:
 	main._process(0.0)
 	check(main.lens_canvas.get_child(0) == figures[0], "le figurine non si rifanno a ogni fotogramma (il suggerimento resterebbe a metà)")
 	main.lens.visible = false
+	# stanza di lavoro: niente proprietari, ma lavoratori; ci si entra comunque
+	main.furniture[o + Vector2i(2, 1)] = [main.Build.CAMPFIRE, W, 0]
+	main.refresh_room()  # in tendina compare la cucina
+	main.room_kind.item_selected.emit(main.room_kind.get_item_index(main.RoomKind.KITCHEN))
+	check(main.room_class(den) == main.RoomClass.WORK and den.owners.is_empty()
+		and main.get_node("HUD/RoomPopup/Box/Owners/Title").text == "Workers", "la cucina è di lavoro: i proprietari se ne vanno")
+	main.room_owners.get_child(0).button_pressed = true
+	check(den.workers == [main.colonists[0]] and den.owners.is_empty(), "spunte: un lavoratore")
+	check(not main.closed_cells(main.colonists[1]).has(o), "nella stanza di lavoro entrano anche gli altri")
+	main.lens.visible = true
+	main._process(0.0)
+	check(main.lens_canvas.get_child_count() == 1, "lente: il lavoratore sotto il tipo")
+	main.lens.visible = false
+	main.room_kind.item_selected.emit(main.room_kind.get_item_index(main.RoomKind.WAREHOUSE))
+	check(den.workers.is_empty() and den.owners.is_empty(), "magazzino: né lavoratori né proprietari")
+	main.room_popup.hide()
+	main.furniture.erase(o + Vector2i(2, 1))
+	den.kind = main.RoomKind.NONE  # se no le sue caselle restano magazzino
+	main.update_stockpile()
 	var guest = main.colonists[0]
 	guest.pos = main.center(o)
 	main.colonists[1].pos = main.center(Vector2i.ZERO)
@@ -633,6 +660,9 @@ func _initialize() -> void:
 	game.order = game.Order.DEMOLISH
 	game.mark(Rect2i(bed_spot, Vector2i.ONE))
 	check(hall in game.rooms and hall.kind == game.RoomKind.NONE, "abbattuto il letto, la camera torna senza tipo")
+	game.furniture[bed_spot] = [game.Build.BED, W, 0]  # di nuovo camera: solo le residenze hanno i proprietari
+	game.open_room(hall)
+	game.room_kind.item_selected.emit(game.room_kind.get_item_index(game.RoomKind.BEDROOM))
 	# accesso: si entra solo nelle stanze proprie o senza proprietari; in quelle bandite nessuno
 	var visitor = game.colonists[0]
 	var host = game.colonists[1]
@@ -652,6 +682,10 @@ func _initialize() -> void:
 	game.open_room(hall)
 	check(banned.button_pressed, "riaprendo il cartello resta bandita")
 	check(hall.cells.keys().all(func(k): return not game.astar.is_point_solid(k)), "dopo le ricerche la stanza torna percorribile")
+	banned.button_pressed = false
+	game.order = game.Order.DEMOLISH
+	game.mark(Rect2i(bed_spot, Vector2i.ONE))
+	check(hall.kind == game.RoomKind.NONE and hall.owners.is_empty(), "senza letto non è più una residenza: niente proprietari")
 	game.queue_free()
 
 	print("OK: %d alberi, %d caselle di roccia; legna %d, pietra %d" % [chopped, mined, main.total(W), main.total(S)])

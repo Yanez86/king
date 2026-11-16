@@ -40,8 +40,9 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 ### 4.2 Coloni
 - **Bisogni**: fame, riposo, comfort, felicità; calore in seguito.
 - **Stress** (0–100, con icona): sale lavorando, scende dormendo o a riposo; abbassa la felicità. Altri effetti in seguito.
-- **Abilità** (livelli 1–10, al 10 una stellina): raccogliere, estrarre, tagliare legna, costruire, forgiare, cucire, cucinare, pescare, cacciare, armi da mischia, armi a distanza, ricerca (lista provvisoria). Velocità e qualità del lavoro; crescono con l'uso (+1 punto esperienza per colpo, pezzo costruito, lancio, tiro o oggetto fatto).
-  Tempo di un lavoro: ×1,4 a livello 1, ×1 a livello 5, ×0,5 a livello 10. Ricerca ancora senza effetto.
+- **Abilità** (livelli 0–10, al 10 una stellina; tutti i coloni partono da 0): raccogliere, estrarre, tagliare legna, costruire, forgiare, cucire, cucinare, pescare, cacciare, armi da mischia, armi a distanza, ricerca (lista provvisoria). Velocità e qualità del lavoro; crescono con l'uso.
+  Nella raccolta (tagliare, estrarre, raccogliere) 1 punto esperienza a raccolta finita (albero abbattuto, masso scavato, cespuglio spogliato), non a colpo; negli altri lavori +1 per pezzo costruito, lancio, tiro o oggetto fatto. Soglie di livello da definire.
+  Tempo di un lavoro: ×1,5 a livello 0, ×1 a livello 5, ×0,5 a livello 10. Ricerca ancora senza effetto.
 - **Punti ferita** (0–100): si curano da soli, 30 al giorno (60 dormendo). A 0 il colono resta **a terra** (sdraiato,
   non fa niente) e si cura di 40 al giorno; a 30 si rialza. Per ora nessuno muore. Sopra la testa, una barretta se è ferito.
 - **Talenti**: modificano alcune routine dei coloni, ognuno con un'icona 16×16 (es. "Robusto": +resistenza al freddo; "Pigro": −velocità lavoro; "Pirofobo": rifiuta di cucinare). Primi: goloso, sonnambulo, iracondo.
@@ -78,10 +79,16 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 - **Stanze**: zona chiusa da muri con una porta; il cartello sul muro accanto alla porta apre nome e tipo.
   Tipi: magazzino; camera (1 letto); dormitorio (2 letti); cucina (fuoco da campo, poi anche stufa); forgia (fornace e incudine).
   Un tipo si sceglie solo se ci sono i mobili (gli altri non compaiono); tolti, la stanza torna senza tipo.
-  Ogni stanza può avere uno o più proprietari tra i coloni: un colono entra (anche solo per passarci) solo nelle
-  stanze sue o senza proprietari. Una stanza **bandita** è vietata a tutti, anche ai proprietari.
+  Ogni tipo ha una categoria:
+  - **lavoro** (cucina, forgia): niente proprietari, ma le si assegnano dei lavoratori (per ora senza effetto; poi
+    solo loro ne faranno i lavori). L'ingresso resta libero.
+  - **residenza** (camera, dormitorio): può avere uno o più proprietari tra i coloni; un colono entra (anche solo per
+    passarci) solo nelle residenze sue o senza proprietari.
+  - **servizio** (magazzino): stanze comuni con uno scopo preciso, né proprietari né lavoratori.
+  Cambiando tipo (o tornando senza) proprietari e lavoratori che la nuova categoria non prevede si perdono.
+  Una stanza **bandita** è vietata a tutti, anche ai proprietari.
 - **Lenti**: evidenziano cose sulla mappa. Prima: la lente delle stanze, ogni stanza finita velata col colore del suo tipo,
-  sotto il tipo i proprietari (col mouse sopra, la loro scheda).
+  sotto il tipo i proprietari o i lavoratori (col mouse sopra, la loro scheda).
 - **Comfort della stanza** (0–10): mobili per pezzo e pavimento, secondo il materiale (pietra ×1,5). A 5 nessun effetto;
   a 0 (anche fuori dalle stanze) le attività durano il 20% in più, a 10 il 20% in meno. Per ora vale per il sonno
   (8 ore a comfort 5) e per cucinare, dove cambia anche la probabilità di bruciare il pasto o farlo squisito.
@@ -106,12 +113,12 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   mucchio più vicino, cucina, il pasto cade ai suoi piedi e lo porta in magazzino. Si cucina finché in giro
   (a terra, in magazzino, in mano) ci sono meno di 2 pasti a colono; nella finestra Jobs: "Cook meals: N".
   Poi: ricette e quantità impostabili dal cartello della cucina.
-  - Tempo: 8 s a livello 5 (×1,4 a livello 1, ×0,5 a livello 10), secondo il comfort della cucina (±20%) e le condizioni del cuoco.
+  - Tempo: 8 s a livello 5 (×1,5 a livello 0, ×0,5 a livello 10), secondo il comfort della cucina (±20%) e le condizioni del cuoco.
   - +1 punto esperienza per pasto.
-  - **Bruciato** (vegetali persi): 6% per livello sotto il 6 (30% a livello 1), +3% per punto di comfort della cucina sotto 5 (sopra lo abbassa).
+  - **Bruciato** (vegetali persi): 6% per livello sotto il 6 (36% a livello 0), +3% per punto di comfort della cucina sotto 5 (sopra lo abbassa).
   - **Squisito**: 5% per livello sopra il 5 (25% a livello 10), +2% per punto di comfort sopra 5. Dà *pasto squisito*.
 - **Pescare** (abilità pescare, tasto "Fish", canna): si segnano caselle d'acqua. Il pescatore sta accanto (anche nell'acqua
-  bassa) e lancia: 10 s a lancio a livello 5, un pesce con probabilità 30% + 6% per livello (36% a livello 1, 90% a 10).
+  bassa) e lancia: 10 s a lancio a livello 5, un pesce con probabilità 30% + 6% per livello (30% a livello 0, 90% a 10).
   +1 punto esperienza per lancio, anche a vuoto. Ogni punto ha 4 pesci, poi si svuota per 1 giorno; il segno resta.
 - **Cacciare** (abilità cacciare, tasto "Hunt", arco): sulla mappa girano animali selvatici, mai nelle stanze né in acqua.
   Si segnano trascinando sopra di loro. Il cacciatore li insegue e tira da al più 6 caselle: un tiro ogni 4 s a livello 5;
