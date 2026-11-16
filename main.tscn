@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3]
+[gd_scene load_steps=28 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Texture2D" path="res://art/icon_wood.png" id="2"]
@@ -15,6 +15,8 @@
 [ext_resource type="Texture2D" path="res://art/icon_chop.png" id="chop_icon"]
 [ext_resource type="Texture2D" path="res://art/icon_uproot.png" id="uproot_icon"]
 [ext_resource type="Texture2D" path="res://art/icon_harvest.png" id="harvest_icon"]
+[ext_resource type="Texture2D" path="res://art/icon_fishing.png" id="fishing_icon"]
+[ext_resource type="Texture2D" path="res://art/icon_hunting.png" id="hunting_icon"]
 [ext_resource type="Texture2D" path="res://art/frame_wood.png" id="11"]
 [ext_resource type="Texture2D" path="res://art/icon_jobs.png" id="jobs_icon"]
 [ext_resource type="Texture2D" path="res://art/icon_options.png" id="options_icon"]
@@ -435,6 +437,26 @@ tooltip_text = "Harvest"
 toggle_mode = true
 button_group = SubResource("Orders")
 icon = ExtResource("harvest_icon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Fish" type="Button" parent="HUD/Tools/Row"]
+custom_minimum_size = Vector2(38, 38)
+focus_mode = 0
+tooltip_text = "Fish"
+toggle_mode = true
+button_group = SubResource("Orders")
+icon = ExtResource("fishing_icon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Hunt" type="Button" parent="HUD/Tools/Row"]
+custom_minimum_size = Vector2(38, 38)
+focus_mode = 0
+tooltip_text = "Hunt"
+toggle_mode = true
+button_group = SubResource("Orders")
+icon = ExtResource("hunting_icon")
 icon_alignment = 1
 expand_icon = true
 

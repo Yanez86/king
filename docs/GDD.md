@@ -88,11 +88,18 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 - **Freschezza**: ogni mucchio di cibo ha i giorni che gli restano (mescolando due mucchi, la media pesata).
   A terra fuori il cibo dura 3 giorni, in magazzino il doppio; poi marcisce e sparisce. Il suggerimento sul mucchio
   dice "Fresh / Stale / Almost rotten" e fra quanti giorni marcisce. Poi: dispensa fredda e inverno (più lento), marcio da buttare.
-- **Crudo** (vegetali): sazia 35. Può intossicare: 5% appena raccolto, fino al 40% quasi marcio.
-- **Pasti**: 2 vegetali → 1 pasto, che sazia 100 e dà *ben nutrito*. Non intossica.
-  Chi ha fame prende prima un pasto squisito, poi un pasto, il crudo solo se non ce ne sono.
+- **Crudo**: si può mangiare, ma sazia poco e può intossicare (dal crudo appena preso a quello quasi marcio):
+
+  | Crudo | Sazia | Dura (fuori / magazzino) | Intossica |
+  |---|---|---|---|
+  | Vegetali (raccolta) | 35 | 3 / 6 giorni | 5% → 40% |
+  | Pesce (pesca) | 30 | 1,5 / 3 giorni | 10% → 50% |
+  | Carne (caccia) | 40 | 2 / 4 giorni | 15% → 60% |
+
+- **Pasti**: 2 crudi dello stesso mucchio (vegetali, pesce o carne) → 1 pasto, che sazia 100 e dà *ben nutrito*. Non intossica.
+  Chi ha fame prende prima un pasto squisito, poi un pasto, il crudo solo se non ce ne sono (vegetali, pesce, carne).
   Se entro 20 caselle c'è una sedia libera accanto a un tavolo, lo porta lì e lo mangia seduto (*mangiato al tavolo*).
-- **Cucinare** (abilità cucinare): in una stanza di tipo cucina, accanto al fuoco da campo. Il cuoco prende 2 vegetali dal
+- **Cucinare** (abilità cucinare): in una stanza di tipo cucina, accanto al fuoco da campo. Il cuoco prende 2 crudi dal
   mucchio più vicino, cucina, il pasto cade ai suoi piedi e lo porta in magazzino. Si cucina finché in giro
   (a terra, in magazzino, in mano) ci sono meno di 2 pasti a colono; nella finestra Jobs: "Cook meals: N".
   Poi: ricette e quantità impostabili dal cartello della cucina.
@@ -100,7 +107,24 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   - +1 punto esperienza per pasto.
   - **Bruciato** (vegetali persi): 6% per livello sotto il 6 (30% a livello 1), +3% per punto di comfort della cucina sotto 5 (sopra lo abbassa).
   - **Squisito**: 5% per livello sopra il 5 (25% a livello 10), +2% per punto di comfort sopra 5. Dà *pasto squisito*.
-- Poi: carne e pesce (caccia, pesca), stufato, conserve per l'inverno.
+- **Pescare** (abilità pescare, tasto "Fish", canna): si segnano caselle d'acqua. Il pescatore sta accanto (anche nell'acqua
+  bassa) e lancia: 10 s a lancio a livello 5, un pesce con probabilità 30% + 6% per livello (36% a livello 1, 90% a 10).
+  +1 punto esperienza per lancio, anche a vuoto. Ogni punto ha 4 pesci, poi si svuota per 1 giorno; il segno resta.
+- **Cacciare** (abilità cacciare, tasto "Hunt", arco): sulla mappa girano animali selvatici, mai nelle stanze né in acqua.
+  Si segnano trascinando sopra di loro. Il cacciatore li insegue e tira da al più 6 caselle: un tiro ogni 4 s a livello 5;
+  colpisce con probabilità 30% + 5% per livello − 5% per casella di distanza (5–95%). Colpito o mancato, l'animale scappa
+  di 8 caselle e il cacciatore lo rincorre. +1 punto esperienza per tiro. Abbattuto, lascia la carne.
+
+  | Animale | Colpi | Carne | Velocità | All'inizio |
+  |---|---|---|---|---|
+  | Coniglio | 1 | 3 | 2 caselle/s | 6 |
+  | Cervo | 2 | 10 | 1,5 caselle/s | 3 |
+
+  Nascono a più di 15 caselle dalla radura; ogni mezza giornata ne arriva uno nuovo, fino a 12.
+- Ordine dei lavori finché non c'è la tabella delle priorità: cucinare, tagliare, scavare, estirpare, raccogliere, pescare,
+  cacciare, costruire, trasportare.
+- Poi: arco come equipaggiamento (abilità armi a distanza), animali che si difendono, pelli; stufato (vegetali + carne o
+  pesce), conserve per l'inverno.
 - **Raccogliere** (tasto "Harvest", cestino, dopo "Uproot"): si segnano i cespugli; i coloni ne raccolgono le bacche ogni
   volta che maturano (5 ogni 2 giorni), finché il segno resta, e le portano in magazzino. Segnare "Uproot" toglie il segno e viceversa.
   Un colono mangia circa 2 vegetali al giorno se cucinati, 2,6 crudi; un cespuglio ne dà 2,5: 1–2 cespugli a testa.

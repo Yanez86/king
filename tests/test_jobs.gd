@@ -9,6 +9,8 @@ func _initialize() -> void:
 	root.add_child(main)
 	await process_frame  # aspetta che venga chiamato _ready
 	main.needs_rate = 0.0  # bisogni fermi: se no a metà prova i coloni vanno a dormire o a mangiare (vedi fondo)
+	check(main.animals.size() == main.BEASTS.values().reduce(func(n, b): return n + b[3], 0), "animali all'inizio")
+	main.animals.clear()  # girano per la mappa: le prove della caccia sono in test_food
 
 	var rows: Array = main.trees.keys().map(func(cell): return cell.y)
 	var sorted_rows := rows.duplicate()
@@ -613,7 +615,7 @@ func _initialize() -> void:
 	check(game.rooms.all(func(r): return game.built[r.sign][0] == game.Build.WALL and (r.sign - r.door).length() == 1),
 		"cartelli sul muro accanto alla porta")
 	for res in game.Res.values():
-		check(game.stored(res) == (0 if res in game.MEALS else game.DEBUG_STASH), "scorta di debug nel magazzino della prima stanza, solo crudo")
+		check(game.stored(res) == (0 if res in game.NO_STASH else game.DEBUG_STASH), "scorta di debug nel magazzino della prima stanza, solo materiali e vegetali")
 	# il tipo resta finché ci sono i suoi mobili: in una stanza vuota, un letto e poi niente
 	var hall = game.rooms.filter(func(r): return r.kind == game.RoomKind.NONE)[0]
 	var bed_spot: Vector2i = hall.cells.keys().min()

@@ -1,5 +1,5 @@
 # Esegui: godot --headless --path . -s tests/test_food.gd
-# Cibo: freschezza e marcio, intossicazione, cucina, pasti e loro bonus
+# Cibo: freschezza e marcio, intossicazione, cucina, pasti e loro bonus, pesca e caccia
 extends SceneTree
 
 
@@ -12,6 +12,8 @@ func _initialize() -> void:
 	main.needs_rate = 0.0  # bisogni fermi: nessuno va a mangiare finché non lo decide la prova
 	main.bushes.clear()
 	main.weeds.clear()
+	var wildlife: Array = main.animals.duplicate()  # tornano alla fine, per la caccia
+	main.animals.clear()
 	var V: int = main.Res.VEG
 	var MEAL: int = main.Res.MEAL
 	var FINE: int = main.Res.FINE_MEAL
@@ -70,8 +72,10 @@ func _initialize() -> void:
 	main.stockpile = {}
 
 	# mangiare: il crudo sazia meno e può intossicare, di più se vecchio
-	check(is_equal_approx(main.poison_chance(main.SHELF_LIFE[V]), main.POISON_FRESH) and is_equal_approx(main.poison_chance(0.0), main.POISON_STALE),
-		"intossicarsi: 5% fresco, 40% quasi marcio")
+	check(is_equal_approx(main.poison_chance(V, main.SHELF_LIFE[V]), 0.05) and is_equal_approx(main.poison_chance(V, 0.0), 0.4),
+		"intossicarsi coi vegetali: 5% freschi, 40% quasi marci")
+	check(main.poison_chance(main.Res.MEAT, main.SHELF_LIFE[main.Res.MEAT]) > main.poison_chance(main.Res.FISH, main.SHELF_LIFE[main.Res.FISH]) \
+		and main.poison_chance(main.Res.FISH, 0.0) > 0.4, "carne e pesce crudi sono più rischiosi")
 	var eater = main.Colonist.new()
 	eater.needs = [0.0, 100.0, 50.0, 50.0, 50.0]
 	eater.skills = main.Skill.values().map(func(_s): return 5)
@@ -165,7 +169,7 @@ func _initialize() -> void:
 	var meals: int = main.total(MEAL) + main.total(FINE)
 	var xp: int = main.colonists.reduce(func(sum, c): return sum + c.xp[main.Skill.COOKING], 0)
 	check(meals == 6 and main.meals_wanted() == 0, "cucinati i pasti che mancavano, non di più")
-	check(xp == 6 and main.total(V) == 20 - 6 * main.COOK_VEG, "2 vegetali e 1 punto esperienza per pasto")
+	check(xp == 6 and main.total(V) == 20 - 6 * main.COOK_RAW, "2 vegetali e 1 punto esperienza per pasto")
 	check(main.stored(MEAL) + main.stored(FINE) == 6, "i pasti finiscono in magazzino")
 	check(main.total(FINE) > 0, "a livello 10 qualcuno viene squisito")
 	check(main.colonists.all(func(c): return c.job == main.Job.NONE) and main.reserved.is_empty(), "poi tutti liberi")
@@ -192,7 +196,7 @@ func _initialize() -> void:
 		main.tick(0.05)
 		if hungry.needs[main.Need.FOOD] > main.NEED_LOW:
 			break
-	check(main.total(MEAL) + main.total(FINE) == before - 1 and main.total(V) == 20 - 6 * main.COOK_VEG, "un pasto, non il crudo")
+	check(main.total(MEAL) + main.total(FINE) == before - 1 and main.total(V) == 20 - 6 * main.COOK_RAW, "un pasto, non il crudo")
 	check(main.cell_of(hungry.pos) == chair and hungry.conds.has(main.Cond.AT_TABLE), "mangiato seduto al tavolo")
 	check(hungry.conds.has(main.Cond.WELL_FED) or hungry.conds.has(main.Cond.FEASTED), "ben nutrito")
 	# il goloso va a mangiare prima
@@ -252,6 +256,95 @@ func _initialize() -> void:
 	main.order = main.Order.HARVEST
 	main.mark(Rect2i(bush, Vector2i.ONE))
 	check(main.harvest_marks.has(bush) and not main.uproot_marks.has(bush), "si cambia idea")
+
+	# pesca: un punto d'acqua segnato; ogni lancio un pesce con catch_chance, finiti i pesci tornano dopo FISH_REGROW
+	var F: int = main.Res.FISH
+	check(is_equal_approx(main.catch_chance(1), 0.36) and is_equal_approx(main.catch_chance(10), 0.9), "pesca: 36% a livello 1, 90% a livello 10")
+	var shore: Array = main.water.keys().filter(func(k): return main.water[k] == main.Ground.SHALLOW and main.SIDES.any(
+		func(d): return main.astar.is_in_boundsv(k + d) and not main.water.has(k + d) and not main.astar.is_point_solid(k + d) \
+		and not main.trees.has(k + d)))
+	main.sort_by_distance(shore, main.center(main.MAP_SIZE / 2))
+	var spot: Vector2i = shore[0]
+	main.get_node("HUD/Tools/Row/Fish").button_pressed = true
+	check(main.order == main.Order.FISH, "tasto Fish")
+	main.mark(Rect2i(spot, Vector2i.ONE))
+	main.mark(Rect2i(free[0], Vector2i.ONE))  # sulla terra non segna niente
+	check(main.fish_marks.keys() == [spot] and main.job_list().contains("Fish spots: 1"), "un punto di pesca")
+	check(main.describe(spot) == ["Fishing spot", "Fish: 4 / 4"], "suggerimento del punto di pesca")
+	var xp_fish: int = main.colonists.reduce(func(n, c): return n + c.xp[main.Skill.FISHING], 0)
+	var fished := false
+	for i in 20000:
+		main.tick(0.05)
+		if main.fish_spots.has(spot):
+			fished = true
+			break
+	check(fished and main.total(F) == main.FISH_PER_SPOT, "pescati tutti i pesci del punto")
+	var casts: int = main.colonists.reduce(func(n, c): return n + c.xp[main.Skill.FISHING], 0) - xp_fish
+	check(casts >= main.FISH_PER_SPOT, "1 punto esperienza per lancio, anche a vuoto (%d lanci)" % casts)
+	check(main.fishable().is_empty() and main.describe(spot)[1].begins_with("Fish back in"), "il punto si è svuotato")
+	for i in 400:
+		main.tick(0.05)
+	check(main.colonists.all(func(c): return c.job != main.Job.FISH), "punto vuoto: nessuno pesca")
+	main.clock = main.fish_spots[spot]
+	check(main.fishable() == [spot], "i pesci tornano")
+	main.fish_marks.clear()
+
+	# caccia: un coniglio segnato; il cacciatore lo insegue, tira da lontano, l'animale scappa; abbattuto lascia la carne
+	var M: int = main.Res.MEAT
+	check(wildlife.size() == 9 and wildlife.all(func(a): return (main.cell_of(a.pos) - main.MAP_SIZE / 2).length() > main.WILD_RADIUS),
+		"animali lontani dalla radura")
+	check(is_equal_approx(main.hit_chance(5, 4.0), 0.35) and main.hit_chance(1, 6.0) < main.hit_chance(10, 1.0), "colpire: livello e distanza")
+	var deer = main.Animal.new()
+	deer.kind = main.Beast.DEER
+	deer.pos = main.center(free[30])
+	main.animals.append(deer)
+	for i in 400:  # gira da solo, senza entrare nelle stanze
+		main.tick(0.05)
+	check(main.roams(main.cell_of(deer.pos)) and deer.hunter == null, "il cervo gira per conto suo")
+	main.get_node("HUD/Tools/Row/Hunt").button_pressed = true
+	main.mark(Rect2i(main.cell_of(deer.pos), Vector2i.ONE))
+	check(deer.marked and main.job_list().contains("Hunt animals: 1") and main.describe(main.cell_of(deer.pos)) == ["Deer", "Marked: hunt"],
+		"cervo da cacciare")
+	for c in main.colonists:
+		c.skills[main.Skill.HUNTING] = 1  # mira scarsa: deve tirare più volte
+	var meat0: int = main.total(M)
+	var hunter = null
+	var shots := 0
+	var fled := false
+	for i in 40000:
+		main.tick(0.05)
+		if deer.hunter:
+			hunter = deer.hunter
+			check(not main.is_working(hunter) or hunter.pos.distance_to(deer.pos) <= (main.HUNT_RANGE + 0.25) * main.TILE, "tira solo a tiro")  # il cervo scappa prima che lui se ne accorga: un tick
+		fled = fled or deer.fleeing
+		if deer not in main.animals:
+			break
+	check(deer not in main.animals and hunter != null, "cervo abbattuto")
+	check(main.total(M) == meat0 + main.BEASTS[main.Beast.DEER][1], "la carne del cervo")
+	check(fled, "preso di mira scappa")
+	check(hunter.xp[main.Skill.HUNTING] >= main.BEASTS[main.Beast.DEER][0] and hunter.job != main.Job.HUNT and hunter.prey == null,
+		"1 punto esperienza per tiro, poi libero")
+	# la carne si cucina come i vegetali
+	main.rooms.append(kitchen)
+	for c in main.colonists:
+		c.needs[main.Need.FOOD] = 100.0
+		main.quit_job(c)
+	for r in [MEAL, FINE, V]:
+		for k in main.items[r].keys():
+			main.add_item(r, k, -main.items[r][k])
+	for i in 6000:
+		main.tick(0.05)
+	check(main.total(MEAL) + main.total(FINE) > 0 and main.total(M) < main.BEASTS[main.Beast.DEER][1], "carne cucinata in pasti")
+	# un nuovo animale arriva ogni ANIMAL_RESPAWN giorni, lontano dalla radura
+	main.animals.clear()
+	var count: int = main.animals.size()
+	main.clock = main.next_animal
+	main.tick(0.0)
+	check(main.animals.size() == count + 1 and (main.cell_of(main.animals[-1].pos) - main.MAP_SIZE / 2).length() > main.WILD_RADIUS,
+		"arriva un animale nuovo")
+	for name in ["Fish", "Hunt"]:
+		var b: Button = main.get_node("HUD/Tools/Row/" + name)
+		check(b.icon != null and b.button_group == main.order_group, "tasto %s nel gruppo delle azioni" % name)
 
 	print("OK: %d pasti cucinati, %d intossicati su 1000 crudi quasi marci" % [meals, poisoned])
 	quit()
