@@ -58,7 +58,7 @@ region = Rect2(0, 32, 32, 32)
 atlas = ExtResource("8")
 region = Rect2(0, 64, 16, 16)
 
-[sub_resource type="AtlasTexture" id="LampIcon"]
+[sub_resource type="AtlasTexture" id="TorchIcon"]
 atlas = ExtResource("8")
 region = Rect2(0, 96, 16, 16)
 
@@ -139,6 +139,12 @@ vertical_alignment = 1
 size_flags_horizontal = 3
 horizontal_alignment = 2
 vertical_alignment = 1
+
+[node name="Debug" type="MenuButton" parent="HUD/TopBar/Row"]
+custom_minimum_size = Vector2(80, 0)
+focus_mode = 0
+text = "Debug"
+flat = false
 
 [node name="Fullscreen" type="Button" parent="HUD/TopBar/Row"]
 custom_minimum_size = Vector2(100, 0)
@@ -261,12 +267,12 @@ icon = SubResource("ChairIcon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Lamp" type="Button" parent="HUD/FurnitureBar/Row"]
+[node name="Torch" type="Button" parent="HUD/FurnitureBar/Row"]
 custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
 toggle_mode = true
 button_group = SubResource("Kinds")
-icon = SubResource("LampIcon")
+icon = SubResource("TorchIcon")
 icon_alignment = 1
 expand_icon = true
 
@@ -383,7 +389,7 @@ custom_minimum_size = Vector2(38, 38)
 focus_mode = 0
 tooltip_text = "Furniture"
 toggle_mode = true
-icon = SubResource("LampIcon")
+icon = SubResource("TorchIcon")
 icon_alignment = 1
 expand_icon = true
 

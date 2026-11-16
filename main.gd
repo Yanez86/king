@@ -32,14 +32,17 @@ const ORDER_TOOLS := {Order.DEMOLISH: "Destroy", Order.MINE: "Mine", Order.CHOP:
 const ORDER_ICONS := {Order.CHOP: preload("res://art/icon_chop.png"), Order.MINE: preload("res://art/icon_mine.png"),
 	Order.UPROOT: preload("res://art/icon_uproot.png")}  # le stesse dei tasti: piccole e velate sopra ciò che è segnato
 enum RoomKind { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE }  # tipo di stanza, scelto dal cartello
-enum Build { WALL, FLOOR, DOOR, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE, ANVIL }  # porta e mobili si attraversano
-# materiale per casella; per i mobili, per pezzo
-const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3, Build.LAMP: 3,
-	Build.CAMPFIRE: 5, Build.FURNACE: 20, Build.ANVIL: 10}
+enum Build { WALL, FLOOR, DOOR, BED, TABLE, CHAIR, TORCH, CAMPFIRE, FURNACE, ANVIL }  # porta e mobili si attraversano
+# materiale per casella; per i mobili, per pezzo. Un numero: del materiale del progetto; se no risorsa -> quantità (vedi cost_of)
+const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3,
+	Build.TORCH: {Res.WOOD: 1, Res.COAL: 1}, Build.CAMPFIRE: 5, Build.FURNACE: 20, Build.ANVIL: 10}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
-const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
+const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.TORCH: Vector2i.ONE,
 	Build.CAMPFIRE: Vector2i.ONE, Build.FURNACE: Vector2i.ONE, Build.ANVIL: Vector2i.ONE}
-const FLAME_TIME := 0.15    # secondi per fotogramma della fiamma: il fuoco da campo usa le colonne dei quarti di giro
+const FLAME_TIME := 0.15    # secondi per fotogramma della fiamma: chi fa luce usa le colonne dei quarti di giro
+# mobili che fanno luce: raggio in caselle. La luce si vede col buio e la fermano i muri (vedi update_lights)
+const LIGHTS := {Build.TORCH: 5, Build.CAMPFIRE: 6, Build.FURNACE: 3}
+const LIGHT_COLOR := Color("ffb060")
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
 const BUILD_RES := {Build.FURNACE: Res.STONE, Build.ANVIL: Res.IRON}  # materiale fisso; il resto solo di legno
 # mobili che servono perché il cartello lasci scegliere il tipo di stanza: tipo -> {mobile: almeno quanti}
@@ -55,7 +58,7 @@ const ROOM_COLORS := [Color("e6e2d0"), Color("c9a23b"), Color("3b8fd3"), Color("
 # comfort di una stanza, 0-COMFORT_MAX: lo danno i mobili (per pezzo) e il pavimento (tutto se copre la stanza intera),
 # per il materiale. A metà né bonus né malus; fuori dalle stanze è 0. Vedi room_comfort e comfort_of
 const COMFORT_MAX := 10
-const COMFORT := {Build.FLOOR: 1.0, Build.BED: 1.0, Build.TABLE: 1.0, Build.CHAIR: 0.5, Build.LAMP: 0.5, Build.CAMPFIRE: 0.5}
+const COMFORT := {Build.FLOOR: 1.0, Build.BED: 1.0, Build.TABLE: 1.0, Build.CHAIR: 0.5, Build.TORCH: 0.5, Build.CAMPFIRE: 0.5}
 const COMFORT_MATERIAL := {Res.STONE: 1.5}  # il resto vale 1
 const COMFORT_EFFECT := 0.2  # a comfort 0 un'attività richiede il 20% di tempo in più, al massimo il 20% in meno
 const ROOM_SPACE := 6        # caselle a testa: chi ne ha meno (stanza piena di gente) ha il comfort in proporzione
@@ -69,7 +72,7 @@ const BUILD_INFO := {
 	Build.BED: "A place to sleep. A bedroom needs one, a dormitory two.",
 	Build.TABLE: "Where colonists eat and work.",
 	Build.CHAIR: "Put it at a table, turned to face it.",
-	Build.LAMP: "Lights up at night.",
+	Build.TORCH: "A wooden torch with a coal head. Lights up its surroundings; walls stop the light.",
 	Build.CAMPFIRE: "A wood fire inside a ring of stones. Burns day and night. A kitchen needs one.",
 	Build.FURNACE: "A stone furnace. A forge needs one, and an anvil.",
 	Build.ANVIL: "An iron anvil on a stump. A forge needs one, and a furnace.",
@@ -99,7 +102,6 @@ const BOULDERS := {  # massi: dimensione in caselle -> sprite, dal più grande (
 const ORE_ROCKS := {Res.IRON: preload("res://art/rock_iron.png"), Res.COAL: preload("res://art/rock_coal.png")}  # massi 1x1
 # 128x160, righe: mobili nell'ordine di Build; colonne: quarti di giro in senso orario, ognuno in un riquadro 32x32
 const FURNITURE_SHEET := preload("res://art/furniture.png")
-const FURNITURE_NIGHT := preload("res://art/furniture_night.png")  # abat-jour acceso
 const SIGN := preload("res://art/sign.png")  # sul muro accanto alla porta d'ingresso di una stanza finita
 const DAY_LENGTH := 240.0   # secondi per giorno a velocità 1x
 const NIGHT := Color(0.25, 0.28, 0.5)
@@ -246,6 +248,7 @@ var built := {}             # cella -> [Build, Res]: i muri sono solidi, i pavim
 var furniture_draft := {}
 var furniture_plans := {}
 var furniture := {}
+var delivered := {}         # [Job, cella d'origine] -> {Res: quantità} già al cantiere, per chi vuole più materiali
 var colonists: Array[Colonist] = []
 var order := Order.NONE
 var build_kind := Build.WALL  # cosa e con cosa costruisce l'ordine BUILD (scelti nella barra in alto)
@@ -256,6 +259,10 @@ var drag_end := Vector2i.ZERO
 var clock := 8.0 / 24       # giorni passati: la parte intera conta i giorni, quella decimale è l'ora
 var sky := CanvasModulate.new()   # tinge il mondo secondo SKY
 var sky_colors := Gradient.new()
+var lights := Node2D.new()        # una PointLight2D per mobile in LIGHTS, vedi update_lights
+var occluders := Node2D.new()     # LightOccluder2D sui lati dei muri: fermano la luce
+var light_texture := GradientTexture2D.new()  # chiazza tonda che sfuma, la stessa per tutte le luci
+var wall_sides := []              # OccluderPolygon2D per lato della casella, come WALL_LINKS
 var flat := Node2D.new()          # pavimenti, progetti, mucchi: stanno a terra, le ombre ci cadono sopra
 var shadows := CanvasGroup.new()  # fonde le sagome: dove si sovrappongono non scuriscono il doppio
 var casters := Node2D.new()       # dentro `shadows`: ci si disegnano le sagome
@@ -300,7 +307,21 @@ func _ready() -> void:
 	astar.cell_size = Vector2.ONE * TILE
 	astar.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_ONLY_IF_NO_OBSTACLES
 	astar.update()
-	generate_map()
+	light_texture.fill = GradientTexture2D.FILL_RADIAL
+	light_texture.fill_from = Vector2.ONE / 2
+	light_texture.fill_to = Vector2(0.5, 0)
+	light_texture.gradient = Gradient.new()
+	light_texture.gradient.colors = PackedColorArray([Color.WHITE, Color.TRANSPARENT])
+	var corners := [Vector2.ZERO, Vector2(TILE, 0), Vector2.ONE * TILE, Vector2(0, TILE)]  # in senso orario
+	for i in corners.size():
+		var side := OccluderPolygon2D.new()
+		side.closed = false
+		side.cull_mode = OccluderPolygon2D.CULL_COUNTER_CLOCKWISE  # il lato verso la luce non fa ombra: il muro s'illumina
+		side.polygon = PackedVector2Array([corners[i], corners[(i + 1) % corners.size()]])
+		wall_sides.append(side)
+	add_child(lights)
+	add_child(occluders)
+	generate_map()  # chiama update_lights: luci e lati dei muri vanno preparati prima
 	sky_colors.offsets = PackedFloat32Array(SKY.keys())
 	sky_colors.colors = PackedColorArray(SKY.values())
 	for layer in [flat, shadows]:  # sopra il terreno di bake_ground, sotto quello che disegna _draw
@@ -330,6 +351,9 @@ func _ready() -> void:
 		colonists.append(c)
 	camera.position = center(MAP_SIZE / 2)
 	fullscreen.pressed.connect(toggle_fullscreen)
+	var debug: PopupMenu = $HUD/TopBar/Row/Debug.get_popup()  # opzioni per provare il gioco: una voce per id
+	debug.add_item("Advance 12 hours", 0)
+	debug.id_pressed.connect(debug_pressed)
 	$HUD/TopBar/Row/Options.pressed.connect(get_tree().quit)  # ponytail: per ora chiude il gioco, poi aprirà le opzioni
 	structures_button.toggled.connect(toggle_build.bind(build_bar))
 	furniture_button.toggled.connect(toggle_build.bind(furniture_bar))
@@ -351,7 +375,7 @@ func _ready() -> void:
 	lens_canvas.draw.connect(draw_lens)
 	$HUD/Tools/Row/RoomsLens.toggled.connect(lens.set_visible)
 	$HUD/RoomPopup/Box/Ok.pressed.connect(room_popup.hide)
-	for kind in Build.values():  # un pulsante per tipo, con lo stesso nome: Wall, Floor, ... Lamp
+	for kind in Build.values():  # un pulsante per tipo, con lo stesso nome: Wall, Floor, ... Torch
 		var bar := furniture_bar if FURNITURE.has(kind) else build_bar
 		var button: Button = bar.get_node("Row/" + Build.keys()[kind].capitalize())
 		button.set_script(TIP)
@@ -416,7 +440,7 @@ func sync_select() -> void:
 		or order_group.get_pressed_button()))
 
 
-# tasti "Structures" (sega e martello) e "Furniture" (lampada) in basso a sinistra, uno alla volta: sopra compare
+# tasti "Structures" (sega e martello) e "Furniture" (torcia) in basso a sinistra, uno alla volta: sopra compare
 # la sua barra (strutture e materiale, o mobili e frecce per girarli), al centro "Build" e la X per cancellare.
 # Passando dall'uno all'altro il progetto resta (es. un letto sul pavimento appena disegnato); chiudendo si scarta
 func toggle_build(on: bool, bar: Control) -> void:
@@ -467,11 +491,15 @@ func build_tip(kind: Build) -> Control:
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	var costs := VBoxContainer.new()
-	for res in [Res.WOOD, Res.STONE] if kind in ANY_MATERIAL else [BUILD_RES.get(kind, Res.WOOD)]:
+	var cost := cost_of([kind, BUILD_RES.get(kind, Res.WOOD)])
+	if kind in ANY_MATERIAL:
+		cost[Res.STONE] = cost[Res.WOOD]
+	for res in cost:
 		var row := HBoxContainer.new()
 		row.alignment = BoxContainer.ALIGNMENT_END
 		var amount := Label.new()
-		amount.text = "%s%d%s" % ["or " if res == Res.STONE else "", BUILD_COST[kind], "" if FURNITURE.has(kind) else "/tile"]
+		amount.text = "%s%d%s" % ["or " if kind in ANY_MATERIAL and res == Res.STONE else "", cost[res],
+			"" if FURNITURE.has(kind) else "/tile"]
 		row.add_child(amount)
 		row.add_child(ui_icon(ICONS[res], Rect2(), Vector2(16, 16)))
 		costs.add_child(row)
@@ -941,6 +969,9 @@ func _process(delta: float) -> void:
 	info_label.text = "Day %d  %02d:%02d    Order: %s    Speed: %dx  (Space = pause, 1-3)" \
 		% [int(clock) + 1, int(t * 24), int(t * 1440) % 60, Order.keys()[order].capitalize(), Engine.time_scale]
 	sky.color = sky_colors.sample(t)
+	lights.visible = sky.color.get_luminance() < 0.99
+	for light in lights.get_children():  # più è buio, più si vedono
+		light.energy = 1.0 - sky.color.get_luminance()
 	var shade := SHADOW_ALPHA * clampf(sun_height() * 4, 0, 1)  # sfuma all'alba e al tramonto, zero di notte
 	shadows.self_modulate = Color(0, 0, 0, shade)
 	shadows.visible = shade > 0
@@ -950,6 +981,17 @@ func _process(delta: float) -> void:
 	if lens.visible:
 		lens_canvas.queue_redraw()
 		place_owners()
+
+
+func debug_pressed(id: int) -> void:  # le voci del menu Debug, vedi _ready
+	match id:
+		0:
+			advance(0.5)
+
+
+func advance(days: float) -> void:  # debug: simula, non salta, così bisogni e lavori vanno avanti davvero
+	for i in roundi(days * DAY_LENGTH / 0.05):
+		tick(0.05)
 
 
 func tick(delta: float) -> void:
@@ -1042,16 +1084,22 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			var plan: Array = plans[c.target]
 			if c.carrying == 0:     # arrivato al mucchio (a terra o in magazzino): prende il materiale e va al cantiere
 				var here := cell_of(c.pos)
-				var cost: int = BUILD_COST[plan[0]]
-				if items[plan[1]].get(here, 0) < cost:
+				var cost: int = missing(c.job, c.target).get(c.carry_res, 0)
+				if cost == 0 or items[c.carry_res].get(here, 0) < cost:
 					end_job(c)
 					return
-				add_item(plan[1], here, -cost)
+				add_item(c.carry_res, here, -cost)
 				reserved.erase(here)
 				c.carrying = cost
 				c.path = path_of(c, here, c.dest)
 				if c.path.is_empty():  # cantiere in una stanza dove nel frattempo non entra più: rimette giù il materiale
 					quit_job(c)
+				return
+			if missing(c.job, c.target).size() > 1:  # manca altro materiale: lascia questo al cantiere, poi si vedrà
+				var key := [c.job, c.target]
+				delivered[key] = delivered.get(key, {}).merged({c.carry_res: c.carrying})
+				c.carrying = 0
+				end_job(c)
 				return
 			var cells := cells_in(piece_rect(c.target, plan))
 			sort_by_distance(cells, c.pos)
@@ -1063,6 +1111,8 @@ func update_colonist(c: Colonist, delta: float) -> void:
 				else:
 					furniture[c.target] = plan
 					plans.erase(c.target)
+					update_lights()
+				delivered.erase([c.job, c.target])
 				c.carrying = 0
 				end_job(c)
 		Job.SLEEP:  # a letto o per terra (vedi update_needs), finché non è riposato del tutto
@@ -1171,14 +1221,15 @@ func find_job(c: Colonist) -> void:
 		var plans := plans_of(job)
 		var stands := {}  # casella libera accanto a un progetto per cui c'è un mucchio di materiale -> progetto
 		for cell in plans:
-			if is_free(cell) and not sources(plans[cell]).is_empty():
+			if is_free(cell) and not sources(job, cell).is_empty():
 				add_stands(stands, cells_in(piece_rect(cell, plans[cell])), cell, SIDES)
 		var path := path_to_nearest(c, stands.keys())
-		var to_source := [] if path.is_empty() else path_to_nearest(c, sources(plans[stands[path.back()]]))
+		var piles := {} if path.is_empty() else sources(job, stands[path.back()])
+		var to_source := path_to_nearest(c, piles.keys())
 		if not to_source.is_empty():  # prima al mucchio a prendere il materiale, poi al cantiere
 			start_job(c, job, to_source, stands[path.back()], BUILD_TIME)
 			c.dest = path.back()
-			c.carry_res = plans[c.target][1]
+			c.carry_res = piles[to_source.back()]
 			reserved[to_source.back()] = c  # intanto nessun altro prende da quel mucchio
 			return
 
@@ -1241,10 +1292,30 @@ func plans_of(job: Job) -> Dictionary:
 	return furniture_plans if job == Job.FURNISH else blueprints
 
 
-# mucchi (a terra o in magazzino) da cui prendere il materiale per `plan`, non prenotati da altri
-func sources(plan: Array) -> Array:
-	var ground: Dictionary = items[plan[1]]
-	return ground.keys().filter(func(cell): return ground[cell] >= BUILD_COST[plan[0]] and is_free(cell))
+# mucchi (a terra o in magazzino), non prenotati da altri, da cui prendere un materiale che manca al progetto in
+# `origin` di `job`: cella del mucchio -> risorsa
+func sources(job: Job, origin: Vector2i) -> Dictionary:
+	var found := {}
+	var need := missing(job, origin)
+	for res in need:
+		for cell in items[res]:
+			if items[res][cell] >= need[res] and is_free(cell):
+				found[cell] = res
+	return found
+
+
+# materiale che serve a `plan`: risorsa -> quantità
+func cost_of(plan: Array) -> Dictionary:
+	var cost = BUILD_COST[plan[0]]
+	return cost.duplicate() if cost is Dictionary else {plan[1]: cost}
+
+
+# materiale che manca al progetto in `origin` di `job`: ogni viaggio porta tutto quello di una risorsa
+func missing(job: Job, origin: Vector2i) -> Dictionary:
+	var need := cost_of(plans_of(job)[origin])
+	for res in delivered.get([job, origin], {}):
+		need.erase(res)
+	return need
 
 
 # avvia il trasporto del mucchio di `res` più vicino tra `piles`; false se non c'è posto o strada
@@ -1490,6 +1561,10 @@ func erase_plan(cell: Vector2i) -> void:
 	for origin in pieces_at(furniture_plans, cell):
 		furniture_plans.erase(origin)
 		drop_job(origin, Job.FURNISH)
+		var got: Dictionary = delivered.get([Job.FURNISH, origin], {})
+		for res in got:  # il materiale già portato torna a terra
+			drop(res, origin, got[res])
+		delivered.erase([Job.FURNISH, origin])
 
 
 # chi stava facendo `job` su `target` lascia a terra il materiale e torna libero
@@ -1626,6 +1701,30 @@ func update_rooms() -> void:
 				room.kind = RoomKind.NONE
 			rooms.append(room)
 	update_stockpile()
+	update_lights()  # i muri fermano la luce
+
+
+# Luci dei mobili in LIGHTS e muri che le fermano: si rifanno quando cambiano i muri o i mobili.
+func update_lights() -> void:
+	for node in lights.get_children() + occluders.get_children():
+		node.free()
+	for origin in furniture:
+		var kind: Build = furniture[origin][0]
+		if LIGHTS.has(kind):
+			var light := PointLight2D.new()
+			light.texture = light_texture
+			light.texture_scale = LIGHTS[kind] * 2.0 * TILE / light_texture.get_width()
+			light.color = LIGHT_COLOR
+			light.shadow_enabled = true
+			light.position = center(origin)
+			lights.add_child(light)
+	for cell in built:  # solo i lati liberi: quelli tra due muri farebbero ombre a triangolo sul muro accanto
+		for i in WALL_LINKS.size():
+			if built[cell][0] == Build.WALL and built.get(cell + WALL_LINKS[i], [-1])[0] != Build.WALL:
+				var wall := LightOccluder2D.new()
+				wall.occluder = wall_sides[i]
+				wall.position = Vector2(cell * TILE)
+				occluders.add_child(wall)
 
 
 func update_stockpile() -> void:
@@ -1813,7 +1912,7 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 		draw_texture(boulder_tex(cell), Vector2(cell) * TILE)
 	for cell in bushes:  # bassi, dentro la loro casella come i massi; con le bacche se sono mature
 		draw_texture_rect_region(PLANTS, tile_rect(cell.x, cell.y), tile_rect(2 if bushes[cell] <= clock else 1, 0))
-	draw_pieces(self, FURNITURE_NIGHT if sun_height() < 0 else FURNITURE_SHEET, furniture)
+	draw_pieces(self, FURNITURE_SHEET, furniture)
 	for room in rooms:  # cartelli: si cliccano per nome e tipo della stanza
 		draw_texture(SIGN, Vector2(room.sign) * TILE)
 
@@ -1899,7 +1998,7 @@ func room_mid(room: Room) -> Vector2:
 # Mobile `plan` in `origin`: [rettangolo nel mondo, rettangolo in FURNITURE_SHEET].
 func piece_rects(origin: Vector2i, plan: Array) -> Array[Rect2]:
 	var size := Vector2(piece_rect(origin, plan).size * TILE)
-	var col: int = int(clock * DAY_LENGTH / FLAME_TIME) % 4 if plan[0] == Build.CAMPFIRE else plan[2]  # la fiamma guizza
+	var col: int = int(clock * DAY_LENGTH / FLAME_TIME) % 4 if LIGHTS.has(plan[0]) else plan[2]  # la fiamma guizza
 	return [Rect2(Vector2(origin * TILE), size), Rect2(Vector2(col, plan[0] - Build.BED) * 32, size)]
 
 

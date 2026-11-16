@@ -280,7 +280,7 @@ func _initialize() -> void:
 	main.mark(Rect2i(at, Vector2i.ONE))
 	var bed := [main.Build.BED, W, 1]
 	check(main.furniture_draft.get(at) == bed, "letto girato nel progetto, sopra il pavimento")
-	for kind in [main.Build.WALL, main.Build.LAMP]:
+	for kind in [main.Build.WALL, main.Build.TORCH]:
 		check(not main.can_build(at + Vector2i.DOWN, kind), "girato, il letto prende la casella sotto: niente muri né mobili")
 	check(main.can_build(at + Vector2i.DOWN), "ma il pavimento sì")
 	var wood_bed: int = main.total(W)
@@ -562,8 +562,8 @@ func _initialize() -> void:
 	for k in main.cells_in(Rect2i(o, Vector2i(3, 2))):
 		den.cells[k] = true
 	main.rooms.append(den)
-	main.furniture = {o: [main.Build.BED, W, 0], o + Vector2i(2, 0): [main.Build.LAMP, W, 0], o + Vector2i(0, 1): [main.Build.CHAIR, W, 0]}
-	check(main.room_comfort(den) == 2, "letto, abat-jour e sedia: comfort 2")
+	main.furniture = {o: [main.Build.BED, W, 0], o + Vector2i(2, 0): [main.Build.TORCH, W, 0], o + Vector2i(0, 1): [main.Build.CHAIR, W, 0]}
+	check(main.room_comfort(den) == 2, "letto, torcia e sedia: comfort 2")
 	for k in den.cells:
 		main.built[k] = [main.Build.FLOOR, S]
 	check(main.room_comfort(den) == 3, "tutta pavimentata di pietra: +1.5")
@@ -643,6 +643,37 @@ func _initialize() -> void:
 	game.open_room(hall)
 	check(banned.button_pressed, "riaprendo il cartello resta bandita")
 	check(hall.cells.keys().all(func(k): return not game.astar.is_point_solid(k)), "dopo le ricerche la stanza torna percorribile")
+	var before: float = game.clock
+	game.get_node("HUD/TopBar/Row/Debug").get_popup().id_pressed.emit(0)
+	check(is_equal_approx(game.clock, before + 0.5), "debug: avanti di 12 ore")
+	# torcia: legna e carbone, un viaggio per materiale; fa luce, i muri la fermano
+	game.needs_rate = 0.0
+	check(tip_texts(game, "FurnitureBar/Row/Torch").slice(0, 3) == ["Torch", "1", "1"], "torcia: 1 legno e 1 carbone")
+	var lit = game.rooms.filter(func(r): return r != hall and r.kind == game.RoomKind.NONE)[0]
+	var torch_at: Vector2i = lit.cells.keys().min() + Vector2i.ONE
+	var wood_t: int = game.total(W)
+	var coal_t: int = game.total(game.Res.COAL)
+	game.furniture_plans[torch_at] = [game.Build.TORCH, W, 0]
+	for i in 2000:
+		game.tick(0.05)
+	check(game.furniture.get(torch_at, [-1])[0] == game.Build.TORCH and game.delivered.is_empty(), "torcia costruita")
+	check(game.total(W) == wood_t - 1 and game.total(game.Res.COAL) == coal_t - 1, "la torcia consuma legna e carbone")
+	check(game.lights.get_child_count() == 1 and game.lights.get_child(0).position == game.center(torch_at)
+		and game.lights.get_child(0).shadow_enabled, "la torcia fa luce, con le ombre")
+	var walls: Array = game.built.keys().filter(func(k): return game.built[k][0] == game.Build.WALL)
+	var blocked: Array = game.occluders.get_children().map(func(o): return game.cell_of(o.position))
+	check(walls.all(func(k): return k in blocked) and blocked.all(func(k): return k in walls)
+		and blocked.size() < 4 * walls.size(), "i muri fermano la luce, dai lati che non toccano altri muri")
+	var torch2: Vector2i = torch_at + Vector2i.RIGHT
+	game.furniture_plans[torch2] = [game.Build.TORCH, W, 0]
+	for i in 2000:
+		game.tick(0.05)
+		if not game.delivered.is_empty():
+			break
+	check(not game.delivered.is_empty() and not game.furniture.has(torch2), "un materiale per volta: il primo aspetta al cantiere")
+	game.erase_plan(torch2)
+	check(game.delivered.is_empty() and game.total(W) == wood_t - 1 and game.total(game.Res.COAL) == coal_t - 1,
+		"tolto il progetto, il materiale portato torna a terra")
 	game.queue_free()
 
 	print("OK: %d alberi, %d caselle di roccia; legna %d, pietra %d" % [chopped, mined, main.total(W), main.total(S)])
