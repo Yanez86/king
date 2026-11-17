@@ -42,6 +42,7 @@ const MEALS := [Res.FINE_MEAL, Res.MEAL]  # cotti: chi ha fame li prende in ques
 const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT]  # crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti
 const STASH := [Res.WOOD, Res.STONE, Res.VEG, Res.IRON, Res.COAL]  # scorta di debug: il resto si produce
 const START_GOLD := 60      # monete nel magazzino all'inizio
+const COIN := "[img=center]res://art/icon_coin.png[/img]"  # una moneta 16x16 nei testi ricchi (vedi coins)
 # cibo: quanto sazia (vedi eat) e in quanti giorni marcisce a terra fuori (vedi spoil); in magazzino ci mette il doppio.
 # Il crudo sazia meno e può intossicare (vedi poison_chance), i pasti no e danno un bonus (vedi Cond)
 const FOOD := {Res.VEG: 35.0, Res.FISH: 30.0, Res.MEAT: 40.0, Res.MEAL: 100.0, Res.FINE_MEAL: 100.0}
@@ -777,7 +778,7 @@ var lights_canvas := Node2D.new()
 @onready var room_kind: OptionButton = $HUD/RoomPopup/Box/Kind  # solo i tipi possibili, vedi refresh_room
 @onready var room_owners: Control = $HUD/RoomPopup/Box/Owners/List  # una casella da spuntare per colono: proprietari o lavoratori
 @onready var jobs_panel: Control = $HUD/JobsPanel  # a destra, si apre col tasto Jobs in basso: vedi job_list
-@onready var jobs_list: Label = $HUD/JobsPanel/Box/List
+@onready var jobs_list: RichTextLabel = $HUD/JobsPanel/Box/List  # testo ricco: le monete con l'icona
 @onready var resources_panel: Control = $HUD/ResourcesPanel  # stesso posto: vedi update_resources
 @onready var resources_list: Control = $HUD/ResourcesPanel/Box/List  # una riga per Res: icona, nome, quantità
 @onready var sheet_panel: Control = $HUD/ColonistSheet  # a sinistra, si apre cliccando un colono: vedi open_sheet
@@ -1146,7 +1147,7 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 	box.get_node("Sex/Icon").texture = SEX_ICONS[c.sex]
 	box.get_node("Sex/Label").text = SEX_NAMES[c.sex]
 	box.get_node("Hero").visible = c.hero != Hero.NONE
-	box.get_node("Hero").text = "%s, fee %d gold, %d expedition%s" % [hero_name(c), fee(c), c.trips, "" if c.trips == 1 else "s"] \
+	box.get_node("Hero").text = "%s, fee %s, %d expedition%s" % [hero_name(c), coins(fee(c)), c.trips, "" if c.trips == 1 else "s"] \
 		if c.hero != Hero.NONE else ""
 	box.get_node("Health").text = health_text(c)
 	for child in needs_grid.get_children() + skills_grid.get_children() + traits_box.get_children():
@@ -1438,18 +1439,18 @@ func job_list() -> String:
 		lines.append("Cook meals: %d" % meals_wanted())
 	for r in RECIPES:  # solo quello che manca e che ha una postazione
 		if gear_wanted(r[0]) > 0 and not stations(r[1]).is_empty():
-			lines.append("Make %s: %d" % [Res.keys()[r[0]].capitalize().to_lower(), gear_wanted(r[0])])
+			lines.append("Make %s: %d" % [res_name(r[0]), gear_wanted(r[0])])
 	for plans in [blueprints, furniture_plans]:  # prima le strutture (per casella), poi i mobili (per pezzo)
 		var counts := {}  # "wall (wood)" -> quanti
 		for plan in plans.values():
-			var what := "%s (%s)" % [Build.keys()[plan[0]].to_lower(), Res.keys()[plan[1]].to_lower()]
+			var what := "%s (%s)" % [Build.keys()[plan[0]].capitalize().to_lower(), res_name(plan[1])]
 			counts[what] = counts.get(what, 0) + 1
 		for what in counts:
 			lines.append("Build %s: %d" % [what, counts[what]])
 	for res in Res.values():
 		var piles: Array = items[res].keys().filter(func(cell): return not stockpile.has(cell))
 		if not piles.is_empty() and not stockpile.is_empty():  # senza magazzino nessuno trasporta
-			lines.append("Haul %s: %d piles" % [Res.keys()[res].to_lower(), piles.size()])
+			lines.append("Haul %s: %d pile%s" % [COIN if res == Res.GOLD else res_name(res), piles.size(), "" if piles.size() == 1 else "s"])
 	return "\n".join(lines) if not lines.is_empty() else "Nothing to do"
 
 
@@ -3052,8 +3053,8 @@ func send(party: Array, ruin: Ruin) -> bool:
 		travel(g)
 	expeditions.append(exp)
 	board_pick.clear()
-	note("Day %d: %s hired for the %s, for %d gold and %d of %d provisions." % [int(clock) + 1,
-		", ".join(party.map(func(g): return "%s (%s)" % [full_name(g), hero_name(g)])), RUINS[ruin.kind]["name"], cost,
+	note("Day %d: %s hired for the %s, for %s and %d of %d provisions." % [int(clock) + 1,
+		", ".join(party.map(func(g): return "%s (%s)" % [full_name(g), hero_name(g)])), RUINS[ruin.kind]["name"], coins(cost),
 		exp.food, want])
 	return true
 
@@ -3235,7 +3236,7 @@ func open_chest(exp: Expedition, data: Dictionary, last: bool) -> Array:
 		found[find[0]] = found.get(find[0], 0) + roundi(find[1] * haul)
 	for res in found:
 		exp.loot[res] = exp.loot.get(res, 0) + found[res]
-	var text := "a chest: %d gold, %s" % [gold, ", ".join(found.keys().map(func(r): return "%d %s" % [found[r], res_name(r)]))]
+	var text := "a chest: %s, %s" % [coins(gold), ", ".join(found.keys().map(func(r): return amount_text(r, found[r])))]
 	var unknown := RuinKind.values().filter(func(k): return not ruins.any(func(r): return r.kind == k) and k not in exp.maps)
 	var map = null
 	if last and exp.ruin.kind + 1 in unknown:
@@ -3269,9 +3270,9 @@ func update_expeditions() -> void:
 		var brought := PackedStringArray()
 		for res in exp.loot:
 			if exp.loot[res] > 0:
-				brought.append("%d %s" % [exp.loot[res], res_name(res)])
+				brought.append(amount_text(res, exp.loot[res]))
 		exp.lines.append("Back home with %s%s." % [", ".join(brought) if not brought.is_empty() else "nothing",
-			"; they keep %d gold" % kept if kept > 0 else ""])
+			"; they keep %s" % coins(kept) if kept > 0 else ""])
 		for kind in exp.maps:
 			if not ruins.any(func(r): return r.kind == kind):
 				var found := Ruin.new()
@@ -3292,9 +3293,19 @@ func update_expeditions() -> void:
 		report("Back from the %s" % name, exp.lines)
 
 
-# nome di una risorsa nei testi: "leather armor"
+# nome di una risorsa nei testi: "leather armor"; le monete con la loro icona (vedi coins)
 func res_name(res: Res) -> String:
 	return Res.keys()[res].capitalize().to_lower()
+
+
+# `n` monete: il numero e l'icona, per i testi ricchi (RichTextLabel con bbcode: bacheca, diario, cronaca, scheda)
+func coins(n: int) -> String:
+	return "%d %s" % [n, COIN]
+
+
+# quantità di una risorsa in un testo ricco: le monete con l'icona, il resto per nome
+func amount_text(res: Res, n: int) -> String:
+	return coins(n) if res == Res.GOLD else "%d %s" % [n, res_name(res)]
 
 
 # una riga nella cronaca
@@ -3334,7 +3345,7 @@ func fill_board() -> void:
 		return
 	board_key = key
 	var box: Control = $HUD/BoardPanel/Box
-	box.get_node("Gold").text = "Gold: %d    Provisions (meals, raw food): %d" % [stored(Res.GOLD), food_stored()]
+	box.get_node("Gold").text = "%s    Provisions (meals, raw food): %d" % [coins(stored(Res.GOLD)), food_stored()]
 	var list: Control = box.get_node("Heroes")
 	for child in list.get_children() + box.get_node("Ruins").get_children():
 		child.free()
@@ -3347,9 +3358,10 @@ func fill_board() -> void:
 		icon.tooltip_text = full_name(g)
 		icon.draw.connect(draw_figure.bind(icon, Rect2(Vector2.ZERO, Vector2.ONE * TILE * 2), Rect2(0, 0, TILE, TILE), g))
 		row.add_child(icon)
-		var label := Label.new()
-		label.text = "%s\n%s, %s, %d gold" % [full_name(g), hero_name(g), gift_names(g), fee(g)]
+		var label := rich("%s\n%s, %s, %s" % [full_name(g), hero_name(g), gift_names(g), coins(fee(g))])
+		label.custom_minimum_size.x = 280
 		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		row.add_child(label)
 		var pick := CheckBox.new()
 		pick.text = "Pick"
@@ -3368,15 +3380,21 @@ func fill_board() -> void:
 	for ruin in ruins:
 		var data: Dictionary = RUINS[ruin.kind]
 		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 16)
 		var label := Label.new()
-		label.text = "%s (danger %d): %s" % [data["name"], data["danger"],
+		label.text = "%s, danger %d: %s" % [data["name"], data["danger"],
 			"explored" if explored(ruin) else "rooms %d / %d" % [ruin.cleared, data["rooms"]]]
 		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(label)
 		if not explored(ruin):
 			var food := provisions(board_pick, ruin)
+			if not board_pick.is_empty():  # quanto costa mandarci gli spuntati
+				var price := rich("%s, %d food" % [coins(cost), food])
+				price.custom_minimum_size.x = 110
+				price.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+				row.add_child(price)
 			var send_button := Button.new()
-			send_button.text = "Send: %d gold, %d food" % [cost, food] if not board_pick.is_empty() else "Send"
+			send_button.text = "Send"
 			send_button.focus_mode = Control.FOCUS_NONE
 			send_button.disabled = board_pick.is_empty() or stored(Res.GOLD) < cost
 			send_button.tooltip_text = "Pick who goes" if board_pick.is_empty() else ("Not enough gold" if stored(Res.GOLD) < cost
@@ -3401,11 +3419,22 @@ func open_chronicle() -> void:
 
 
 func fill_chronicle() -> void:
-	var text: Label = $HUD/ChroniclePanel/Box/Scroll/Text
+	var text: RichTextLabel = $HUD/ChroniclePanel/Box/Scroll/Text
 	var pages := chronicle.duplicate()
 	pages.reverse()
 	text.text = "\n\n".join(pages) if not pages.is_empty() else "Nothing worth telling has happened yet."
 	text.set_meta("pages", chronicle.size())
+
+
+# testo ricco (con le icone delle monete, vedi coins) su una riga, alto quanto serve
+func rich(text: String) -> RichTextLabel:
+	var label := RichTextLabel.new()
+	label.bbcode_enabled = true
+	label.fit_content = true
+	label.scroll_active = false
+	label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	label.text = text
+	return label
 
 
 func toggle_pick(on: bool, g: Colonist) -> void:

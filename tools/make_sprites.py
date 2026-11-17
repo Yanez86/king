@@ -1872,6 +1872,18 @@ HERO_TRAITS_4 = """
 """
 
 # Stress 8x8, accanto alla sua barra nella scheda del colono: un fulmine.
+# Moneta 8x8 (raddoppiata), dentro i testi al posto della parola "gold": diari, bacheca, scheda.
+COIN = """
+..oooo..
+.og88go.
+og8gg<<o
+o8g<<g<o
+og8<<g<o
+ogg<g<<o
+.o<<<<o.
+..oooo..
+"""
+
 SEX_ICONS = """
 ....//// ..???...
 ......// .?...?..
@@ -2403,6 +2415,7 @@ def main():
     images["icon_sword"] = pixels(art(SWORD, 16, 16))
     images["icon_dagger"] = pixels(art(DAGGER, 16, 16))
     images["icon_gold"] = pixels(art(GOLD, 16, 16))
+    images["icon_coin"] = pixels(double(art(COIN, 8, 8)))
     for name, block in (("chalice", CHALICE), ("old_banner", OLD_BANNER), ("bust", BUST), ("crown", CROWN)):
         images["icon_" + name] = pixels(art(block, 16, 16))
     images["animals"] = pixels(art(ANIMALS.replace(" ", ""), 32, 48))

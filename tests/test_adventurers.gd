@@ -83,16 +83,21 @@ func _initialize() -> void:
 	var box = main.get_node("HUD/BoardPanel/Box")
 	check(main.get_node("HUD/BoardPanel").visible and box.get_node("Heroes").get_child_count() == 1, "la bacheca mostra chi aspetta")
 	var pick: CheckBox = box.get_node("Heroes").get_child(0).get_child(2)
-	var send: Button = box.get_node("Ruins").get_child(0).get_child(1)
+	var send: Button = box.get_node("Ruins").get_child(0).get_child(-1)
 	check(send.disabled, "senza nessuno spuntato non si manda nessuno")
 	pick.button_pressed = true
 	main.fill_board()
-	send = box.get_node("Ruins").get_child(0).get_child(1)
+	send = box.get_node("Ruins").get_child(0).get_child(-1)
 	check(main.board_pick == [g] and send.disabled == (main.fee(g) > 12), "spuntato; senza abbastanza oro non si parte")
 	check(not main.send([g], tower) or main.fee(g) <= 12, "ingaggio rifiutato")
 	main.add_item(R.GOLD, store, 50)
 	var gold_before: int = main.stored(R.GOLD)
 	check(main.provisions([g], tower) == 3, "provviste: un giorno a testa, andata, 3 stanze e ritorno")
+	main.fill_board()
+	check(box.get_node("Gold").text.begins_with(main.coins(main.stored(R.GOLD))), "sulla bacheca le monete con l'icona")
+	main.drop(R.LEATHER_ARMOR, mid + Vector2i(6, 6), 1)
+	check(main.job_list().contains("Haul leather armor: 1"), "finestra Jobs: nomi senza trattini")
+	main.items[R.LEATHER_ARMOR].clear()
 	check(main.send([g], tower), "ingaggiato")
 	check(main.stored(R.GOLD) == gold_before - main.fee(g) and g.hired and g.errand == main.Errand.DEPART, "pagato, va al bordo")
 	check(main.stored(R.MEAL) == 0 and main.expeditions[0].food == 3.0 and main.board_pick.is_empty(), "si porta i pasti")
@@ -111,6 +116,9 @@ func _initialize() -> void:
 	main.clock = exp.back_at
 	main.update_expeditions()
 	check(main.expeditions.is_empty() and main.get_node("HUD/ReportPanel").visible and main.chronicle.size() >= 2, "il diario")
+	if not lost:
+		check(main.COIN in main.get_node("HUD/ReportPanel/Box/Text").text and not " gold" in main.get_node("HUD/ReportPanel/Box/Text").text,
+			"nel diario le monete sono un'icona")
 	if not lost:
 		check(g in main.guests and g.errand == main.Errand.RETURN and g.trips == 1, "torna dal bordo")
 		check(g.loot[R.GOLD] == 20 - floori(20 * main.SHARE) and g.loot[R.IRON] == 5, "si tiene il 30% delle monete")

@@ -113,7 +113,8 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 ### 4.4 Risorse ed edifici
 - Materie prime: legname, pietra, ferro, carbone, oro, cibo crudo. Ferro e carbone vengono dalle vene nella roccia (massi 1x1).
 - **Oro**: monete, in magazzino (mucchi da 100). All'inizio 60; poi si trovano nelle rovine (vedi 4.4.4). Servono a pagare
-  gli avventurieri. Poi: vene d'oro nella roccia, commercio.
+  gli avventurieri. Nei testi (bacheca, scheda, diari, cronaca, finestra Jobs) al posto della parola c'è una monetina
+  16×16 dopo il numero. Poi: vene d'oro nella roccia, commercio.
 - Catene MVP:
   - Legname → assi (banco da falegname)
   - Ferro grezzo → lingotti (fornace) → attrezzi (fucina)

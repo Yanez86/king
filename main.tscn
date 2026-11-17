@@ -775,7 +775,11 @@ icon = ExtResource("6")
 icon_alignment = 1
 expand_icon = true
 
-[node name="List" type="Label" parent="HUD/JobsPanel/Box"]
+[node name="List" type="RichTextLabel" parent="HUD/JobsPanel/Box"]
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
 
 [node name="ResourcesPanel" type="PanelContainer" parent="HUD"]
 visible = false
@@ -847,8 +851,11 @@ stretch_mode = 5
 
 [node name="Label" type="Label" parent="HUD/ColonistSheet/Box/Sex"]
 
-[node name="Hero" type="Label" parent="HUD/ColonistSheet/Box"]
+[node name="Hero" type="RichTextLabel" parent="HUD/ColonistSheet/Box"]
 visible = false
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
 
 [node name="Health" type="Label" parent="HUD/ColonistSheet/Box"]
 
@@ -971,7 +978,10 @@ icon = ExtResource("6")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Gold" type="Label" parent="HUD/BoardPanel/Box"]
+[node name="Gold" type="RichTextLabel" parent="HUD/BoardPanel/Box"]
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
 
 [node name="Heroes" type="VBoxContainer" parent="HUD/BoardPanel/Box"]
 theme_override_constants/separation = 6
@@ -982,9 +992,11 @@ theme_override_constants/separation = 6
 
 [node name="Away" type="Label" parent="HUD/BoardPanel/Box"]
 
-[node name="Chronicle" type="Label" parent="HUD/BoardPanel/Box"]
+[node name="Chronicle" type="RichTextLabel" parent="HUD/BoardPanel/Box"]
 custom_minimum_size = Vector2(400, 0)
-autowrap_mode = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
 
 [node name="ChronicleButton" type="Button" parent="HUD/BoardPanel/Box"]
 focus_mode = 0
@@ -1020,9 +1032,11 @@ icon = ExtResource("6")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Text" type="Label" parent="HUD/ReportPanel/Box"]
+[node name="Text" type="RichTextLabel" parent="HUD/ReportPanel/Box"]
 custom_minimum_size = Vector2(400, 0)
-autowrap_mode = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
 
 [node name="Fallen" type="PanelContainer" parent="HUD"]
 visible = false
@@ -1073,7 +1087,9 @@ expand_icon = true
 custom_minimum_size = Vector2(460, 400)
 horizontal_scroll_mode = 0
 
-[node name="Text" type="Label" parent="HUD/ChroniclePanel/Box/Scroll"]
+[node name="Text" type="RichTextLabel" parent="HUD/ChroniclePanel/Box/Scroll"]
 custom_minimum_size = Vector2(440, 0)
 size_flags_horizontal = 3
-autowrap_mode = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
