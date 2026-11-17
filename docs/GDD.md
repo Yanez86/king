@@ -287,31 +287,39 @@ racconta il diario al ritorno.
   In più, a volte, uno dei talenti dei coloni che cambiano bisogni e routine.
 - **Paga, in oro**: all'ingaggio 10 + 5 × livello monete (15–35), prese dal magazzino; al ritorno la **quota**: il 30%
   delle monete trovate. Senza abbastanza oro non si ingaggia. A chi muore non si paga la quota.
-- **Rovine**: fuori dalla mappa, in un elenco; si raggiungono a piedi.
+- **Rovine**: fuori dalla mappa, in un elenco sulla bacheca; si raggiungono a piedi.
 
-  | Rovina | Pericolo | Stanze | Viaggio (andata) | Bottino |
-  |---|---|---|---|---|
-  | Torre diroccata | 1 | 3 | ½ giorno | 10–25 monete a forziere, e 10 legna, 10 pietra o 5 ferro |
-  | Miniera abbandonata | 2 | 5 | 1 giorno | 20–50 monete, ferro, carbone, lingotti, piccone |
-  | Cripta | 3 | 6 | 1 giorno | 40–90 monete, armi, armature, cimeli |
-  | Forte in rovina | 4 | 8 | 2 giorni | 60–150 monete, cotta di maglia, spade, cimeli, mappe |
+  | Rovina | Pericolo | Stanze | Viaggio (andata) | Forziere: monete | Forziere: un oggetto tra |
+  |---|---|---|---|---|---|
+  | Torre diroccata | 1 | 3 | ½ giorno | 10–25 | 10 legna, 10 pietra, 5 ferro |
+  | Miniera abbandonata | 2 | 5 | 1 giorno | 20–45 | 10 ferro, 10 carbone, 4 lingotti, un piccone |
+  | Cripta | 3 | 6 | 1 giorno | 35–70 | una spada, un elmo, un'armatura di cuoio, 6 lingotti |
+  | Forte in rovina | 4 | 8 | 2 giorni | 60–120 | una cotta di maglia, 2 spade, un elmo, 10 lingotti |
 
-  All'inizio si conosce solo la torre; le altre si scoprono con le **mappe** trovate nei forzieri. Le stanze ripulite
-  restano ripulite: la spedizione dopo riparte da lì. Finite le stanze, la rovina è esaurita.
-- **Spedizione** (dalla bacheca): rovina, gruppo (1–4 avventurieri) e provviste, 1 pasto a testa per ogni giorno di
-  viaggio (andata e ritorno) e per ogni 2 stanze, presi dal magazzino. Il gruppo esce dal bordo più vicino; nella barra
-  in alto "EXPEDITION: n". Senza provviste si perdono 20 punti ferita al giorno.
-- **Nella rovina** (calcolato, non si vede): una stanza ogni ½ giorno, a caso tra vuota (25%), trappola (20%), mostri (35%),
-  forziere (15%) e crollo (5%: si torna indietro). L'ultima stanza è un forziere col suo guardiano (mostri, forza doppia).
-  - Mostri: forza 5 × pericolo; forza del gruppo = somma dei livelli d'arma + protezione. Il gruppo perde
-    20 × forza dei mostri / forza del gruppo punti ferita, divisi fra i membri secondo la classe, meno la protezione
-    (−6% a punto, come in 4.4.3).
+  All'inizio si conosce solo la torre. Il **tesoro** dell'ultima stanza di ogni rovina ha il triplo delle monete e la
+  **mappa** della rovina dopo (in quest'ordine); a volte (15%) un forziere qualunque ha la mappa di una rovina che non
+  si conosce ancora. Le mappe le portano a casa: si conoscono al ritorno (e si perdono con una spedizione persa).
+  Le stanze ripulite restano ripulite: la spedizione dopo riparte da lì. Finite le stanze, la rovina è esaurita.
+- **Spedizione** (dalla bacheca): si spuntano 1–4 avventurieri tra chi aspetta alla locanda; ogni rovina ha il suo tasto
+  "Send", con la somma delle paghe e le provviste che servono: una a testa per ogni giorno del viaggio intero (andata,
+  ½ giorno per ogni stanza che resta, ritorno), prese dal magazzino, prima i pasti poi il crudo. Se non bastano partono
+  con quelle che ci sono (il tasto avvisa). Ognuno va al bordo più vicino; il primo che esce fissa il punto, gli altri
+  escono lì, e si parte quando sono usciti tutti. Nella barra in alto "EXPEDITION: n".
+- **Nella rovina** (calcolato alla partenza, non si vede): una stanza ogni ½ giorno, a caso tra vuota (25%), trappola
+  (20%), mostri (35%), forziere (15%) e crollo (5%: si torna indietro). L'ultima stanza è il tesoro col suo guardiano
+  (mostri, forza doppia); se il tesoro resta chiuso, quella stanza resta da fare.
+  - Mostri: forza 5 × pericolo; forza del gruppo = somma dei livelli d'arma + protezione. In media ognuno perde
+    20 × forza dei mostri / forza media del gruppo punti ferita (−25% con un arciere): il guerriero il doppio della
+    media, l'arciere la metà; poi la protezione di ognuno (−6% a punto, come in 4.4.3).
   - Trappola: la disinnesca il migliore a scassinare, con probabilità 20% + 8% per livello; se no 15 × pericolo danni a uno a caso.
-  - Forziere: monete e oggetti della rovina; una volta su due è chiuso e si apre solo con scassinare almeno 2 × pericolo.
+  - Forziere: monete e un oggetto della rovina; una volta su due è chiuso e si apre solo con scassinare almeno
+    2 × pericolo.
+  - Provviste: ogni ½ giorno se ne mangia ½ a testa; quando mancano, la fame costa 20 punti ferita al giorno a testa.
+    Nel ritorno si patisce la fame lo stesso, ma a casa ci si arriva.
   - Dopo ogni stanza il gruppo decide: torna se qualcuno è sotto la sua soglia (40 punti ferita; vedi Temerario e Codardo)
-    o se le provviste bastano appena per il ritorno.
-  - A 0 punti ferita si muore una volta su due; se no gli altri lo riportano a casa (a terra, si cura in colonia).
-    Se cadono tutti, la spedizione è **persa**: non torna nessuno, e nemmeno il bottino.
+    o se le provviste non bastano per un'altra stanza e il ritorno.
+  - A 0 punti ferita si muore una volta su due; se no gli altri lo riportano a casa (con 5 punti ferita, si cura in
+    colonia). Se cadono tutti, la spedizione è **persa**: non torna nessuno, e nemmeno il bottino.
 - **Ritorno**: rientrano dal bordo, portano bottino e feriti in magazzino e alla locanda, prendono la quota e restano
   2 giorni; intanto si possono ingaggiare di nuovo. +1 livello ogni 2 spedizioni tornate (al massimo 5).
 - **Diario**: al ritorno (o quando la spedizione si dà per persa: il doppio del tempo previsto) una finestra la racconta,
@@ -326,11 +334,13 @@ racconta il diario al ritorno.
 - **Ordine di lavoro**: (1) locanda e bacheca, oro, un avventuriero alla volta, solo la torre, bottino in risorse che
   esistono già; (2) classi, talenti, gruppi, provviste, diario; (3) altre rovine, mappe, cimeli, effetto dello splendore;
   (4) il resto.
-- **Stato**: fatta la fase 1, con in più le classi (aspetto, equipaggiamento, ruolo nella rovina), il diario (una
-  finestra al ritorno; nella bacheca l'ultima pagina della cronaca) e il livello secondo lo splendore. Alla torre
-  (pericolo 1) da soli non muore quasi nessuno: guerriero e arciere riportano meno monete di quanto costano (ma legna,
-  pietra, ferro), lo scassinatore ci guadagna. Mancano: gruppi (ora uno alla volta), provviste, talenti degli
-  avventurieri, le altre rovine e le mappe, i cimeli, la cronaca intera. Finita la torre, per ora non c'è altro da esplorare.
+- **Stato**: fatte le fasi 1 e 2 tranne i talenti, e della 3 le rovine con le mappe e l'effetto dello splendore.
+  Simulazioni (500 spedizioni per caso, provviste piene, rovina intatta): alla torre non muore nessuno, ma mandarci
+  gente di livello alto costa più di quello che rende; nelle rovine profonde chi va da solo non torna una volta su
+  cinque, un gruppo di livello 1 al forte perde in media un uomo ogni 9 spedizioni e torna presto; un gruppo del livello
+  giusto ci guadagna (cripta, tre di livello 3: 147 monete a casa per 75 di paghe; forte, quattro di livello 5: 268
+  per 140). Mancano: talenti degli avventurieri, cimeli, la cronaca intera (sulla bacheca solo l'ultima pagina), il resto
+  di "Poi".
 
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100.

@@ -148,17 +148,28 @@ const FEE_PER_LEVEL := 5
 const SHARE := 0.3          # al ritorno si tiene questa parte delle monete trovate
 const TRIPS_PER_LEVEL := 2  # spedizioni tornate per salire di un livello
 # Rovine, fuori dalla mappa: "danger" pericolo, "rooms" stanze, "travel" giorni di viaggio (andata), "gold" monete per
-# forziere (da-a), "finds" un oggetto per forziere, a caso tra questi [risorsa, quantità]. Poi miniera, cripta, forte
-enum RuinKind { TOWER }
+# forziere (da-a), "finds" un oggetto per forziere, a caso tra questi [risorsa, quantità]. In quest'ordine: all'inizio
+# si conosce la prima, il tesoro di ognuna ha la mappa della successiva (e a volte un forziere qualunque, MAP_CHANCE)
+enum RuinKind { TOWER, MINE, CRYPT, FORT }
 const RUINS := {
 	RuinKind.TOWER: {"name": "Ruined tower", "danger": 1, "rooms": 3, "travel": 0.5, "gold": [10, 25],
 		"finds": [[Res.WOOD, 10], [Res.STONE, 10], [Res.IRON, 5]]},
+	RuinKind.MINE: {"name": "Abandoned mine", "danger": 2, "rooms": 5, "travel": 1.0, "gold": [20, 45],
+		"finds": [[Res.IRON, 10], [Res.COAL, 10], [Res.INGOT, 4], [Res.PICKAXE, 1]]},
+	RuinKind.CRYPT: {"name": "Crypt", "danger": 3, "rooms": 6, "travel": 1.0, "gold": [35, 70],
+		"finds": [[Res.SWORD, 1], [Res.HELMET, 1], [Res.LEATHER_ARMOR, 1], [Res.INGOT, 6]]},
+	RuinKind.FORT: {"name": "Ruined fort", "danger": 4, "rooms": 8, "travel": 2.0, "gold": [60, 120],
+		"finds": [[Res.CHAINMAIL, 1], [Res.SWORD, 2], [Res.HELMET, 1], [Res.INGOT, 10]]},
 }
+const MAP_CHANCE := 0.15    # in un forziere qualunque, la mappa di una rovina che ancora non si conosce
+const TREASURE_GOLD := 3    # il tesoro dell'ultima stanza: monete di tanti forzieri
+const MAX_PARTY := 4        # avventurieri per spedizione
+const HUNGER_HURT := 20.0   # punti ferita al giorno, a testa, senza provviste
 enum Chamber { EMPTY, TRAP, MONSTERS, CHEST, COLLAPSE }  # cosa c'è in una stanza della rovina (vedi explore)
 const CHAMBER_ODDS := {Chamber.EMPTY: 25, Chamber.TRAP: 20, Chamber.MONSTERS: 35, Chamber.CHEST: 15, Chamber.COLLAPSE: 5}
 const ROOM_DAYS := 0.5      # giorni per stanza
 const MONSTER_POWER := 5.0  # forza dei mostri per punto di pericolo; il guardiano dell'ultima stanza il doppio
-const MONSTER_HURT := 20.0  # danni al gruppo: questo x forza dei mostri / forza del gruppo, poi la protezione
+const MONSTER_HURT := 20.0  # danni a testa: questo x forza dei mostri / forza media del gruppo, poi la protezione
 const TRAP_DISARM := 0.2    # + TRAP_PER_LEVEL per livello di scassinare del migliore
 const TRAP_PER_LEVEL := 0.08
 const TRAP_HURT := 15.0     # danni per punto di pericolo, a uno a caso, se non la disinnesca nessuno
@@ -635,6 +646,7 @@ var ruins: Array[Ruin] = []
 var expeditions: Array[Expedition] = []
 var chronicle: PackedStringArray = []  # diari delle spedizioni e morti, dal più vecchio (vedi note)
 var board_key := ""         # quello che mostra la bacheca: se cambia, la si rifà (vedi fill_board)
+var board_pick: Array[Colonist] = []  # spuntati alla bacheca per la prossima spedizione
 var items := {}  # risorsa -> (cella -> quantità a terra; nel magazzino = stoccata): un dizionario per Res, vedi _init  # risorsa -> (cella -> quantità a terra; nel magazzino = stoccata)
 var fresh := {}             # cella -> giorni (a terra fuori) prima che il mucchio di cibo marcisca, vedi spoil
 var stockpile := {}         # cella -> true: dentro le stanze di tipo magazzino, vedi update_stockpile
@@ -719,13 +731,15 @@ class Ruin:
 class Expedition:
 	var party: Array[Colonist] = []  # chi è partito; quelli morti nella rovina li toglie explore
 	var ruin: Ruin
-	var edge := Vector2i.ZERO     # dove sono usciti dalla mappa: tornano da lì
+	var edge := Vector2i(-1, -1)  # dove è uscito il primo: gli altri escono lì, e tornano da lì
 	var left_at := -1.0           # `clock` della partenza; -1 finché vanno verso il bordo
 	var due := INF                # `clock` del ritorno previsto: viaggio e tutte le stanze che restavano
 	var back_at := INF            # `clock` del ritorno, o di quando la si dà per persa
 	var lost := false             # non torna nessuno
 	var lines: PackedStringArray = []  # il diario, una riga per stanza
 	var loot := {}                # Res -> quantità trovate, monete comprese
+	var maps := []                # RuinKind delle mappe trovate: le rovine si conoscono al ritorno
+	var food := 0.0               # provviste, in giorni a testa (1 = un giorno per uno), vedi eat_on_trip
 
 
 func _init() -> void:
@@ -2717,11 +2731,13 @@ func die(c: Colonist, why: String) -> void:
 	for a in animals:
 		if a.target == c:
 			a.target = null
-	for exp in expeditions.duplicate():  # ingaggiato e morto prima di partire: la spedizione non c'è più
+	for exp in expeditions.duplicate():  # ingaggiato e morto prima di partire: gli altri partono senza di lui
 		if exp.left_at < 0 and c in exp.party:
 			exp.party.erase(c)
 			if exp.party.is_empty():
 				expeditions.erase(exp)
+			else:
+				leave_if_ready(exp)
 	if was_colonist:
 		for o in colonists:
 			add_cond(o, Cond.MOURNING)
@@ -2833,14 +2849,17 @@ func update_guests() -> void:
 			travel(g)
 
 
-# `c` si avvia dove lo porta la sua commissione: alla locanda o al bordo della mappa più vicino. Se non ci arriva
-# arriva lo stesso (vedi arrive): via dalla mappa, o resta dov'è
+# `c` si avvia dove lo porta la sua commissione: alla locanda, o al bordo della mappa più vicino (in spedizione,
+# dove è uscito il primo del gruppo). Se non ci arriva arriva lo stesso (vedi arrive): via dalla mappa, o resta dov'è
 func travel(c: Colonist) -> void:
 	var goals := []
+	var exp := trip_of(c)
 	if c.errand in [Errand.ARRIVE, Errand.RETURN]:
 		for room in rooms:
 			if is_inn(room):
 				goals.append_array(room.cells.keys().filter(func(k): return not astar.is_point_solid(k)))
+	elif c.errand == Errand.DEPART and exp != null and exp.edge.x >= 0:
+		goals = [exp.edge]
 	else:
 		goals = border_cells()
 	var path := path_to_nearest(c, goals)
@@ -2848,7 +2867,7 @@ func travel(c: Colonist) -> void:
 
 
 # `c` è arrivato dove andava (Job.TRAVEL): alla locanda aspetta (e di ritorno lascia lì il bottino), al bordo esce
-# dalla mappa: per sempre o per la spedizione
+# dalla mappa: per sempre, o per la spedizione (che parte quando è uscito tutto il gruppo)
 func arrive(c: Colonist) -> void:
 	end_job(c)
 	match c.errand:
@@ -2864,28 +2883,74 @@ func arrive(c: Colonist) -> void:
 			guests.erase(c)
 		Errand.DEPART:
 			guests.erase(c)
-			for exp in expeditions:
-				if c in exp.party and exp.left_at < 0:
+			var exp := trip_of(c)
+			if exp != null:
+				if exp.edge.x < 0:
 					exp.edge = cell_of(c.pos)
-					depart(exp)
+				leave_if_ready(exp)
 	c.errand = Errand.NONE
 
 
-# Ingaggia `g` per la rovina `ruin`: paga dal magazzino e va verso il bordo. false se non si può
-func hire(g: Colonist, ruin: Ruin) -> bool:
-	if g.hired or g not in guests or stored(Res.GOLD) < fee(g) or ruin.cleared >= RUINS[ruin.kind]["rooms"]:
+# la spedizione di `c` che non è ancora tornata, o null
+func trip_of(c: Colonist) -> Expedition:
+	for exp in expeditions:
+		if c in exp.party:
+			return exp
+	return null
+
+
+# fuori dalla mappa tutto il gruppo: si parte
+func leave_if_ready(exp: Expedition) -> void:
+	if exp.left_at < 0 and exp.party.all(func(g): return g not in guests):
+		depart(exp)
+
+
+func explored(ruin: Ruin) -> bool:
+	return ruin.cleared >= RUINS[ruin.kind]["rooms"]
+
+
+# giorni per andare alla rovina, esplorare le stanze che restano e tornare
+func trip_days(ruin: Ruin) -> float:
+	var data: Dictionary = RUINS[ruin.kind]
+	return 2 * data["travel"] + ROOM_DAYS * (data["rooms"] - ruin.cleared)
+
+
+# provviste che servono a un gruppo di `size` per tutto il viaggio: una a testa per giorno
+func provisions(size: int, ruin: Ruin) -> int:
+	return ceili(size * trip_days(ruin))
+
+
+func food_stored() -> int:
+	return (MEALS + RAW_FOOD).reduce(func(n, r): return n + stored(r), 0)
+
+
+# Manda il gruppo `party` (dalla locanda, al più MAX_PARTY) alla rovina `ruin`: paga dal magazzino la somma delle
+# paghe e prende le provviste che servono, prima i pasti poi il crudo (quelle che ci sono: le altre le pagheranno
+# con la fame). Vanno al bordo della mappa. false se non si può
+func send(party: Array, ruin: Ruin) -> bool:
+	var cost: int = party.reduce(func(n, g): return n + fee(g), 0)
+	if party.is_empty() or party.size() > MAX_PARTY or ruin not in ruins or explored(ruin) or stored(Res.GOLD) < cost \
+			or party.any(func(g): return g.hired or g not in guests):
 		return false
-	take_stored(Res.GOLD, fee(g))
+	take_stored(Res.GOLD, cost)
 	var exp := Expedition.new()
-	exp.party.append(g)
 	exp.ruin = ruin
+	var want := provisions(party.size(), ruin)
+	for res in MEALS + RAW_FOOD:
+		var n := mini(stored(res), want - int(exp.food))
+		take_stored(res, n)
+		exp.food += n
+	for g in party:
+		exp.party.append(g)
+		g.hired = true
+		g.errand = Errand.DEPART
+		quit_job(g)
+		travel(g)
 	expeditions.append(exp)
-	g.hired = true
-	g.errand = Errand.DEPART
-	quit_job(g)
-	travel(g)
-	note("Day %d: %s (%s) is hired for the %s, for %d gold." % [int(clock) + 1, full_name(g), hero_name(g),
-		RUINS[ruin.kind]["name"], fee(g)])
+	board_pick.clear()
+	note("Day %d: %s hired for the %s, for %d gold and %d of %d provisions." % [int(clock) + 1,
+		", ".join(party.map(func(g): return "%s (%s)" % [full_name(g), hero_name(g)])), RUINS[ruin.kind]["name"], cost,
+		exp.food, want])
 	return true
 
 
@@ -2903,25 +2968,28 @@ func take_stored(res: Res, amount: int) -> void:
 func depart(exp: Expedition) -> void:
 	var data: Dictionary = RUINS[exp.ruin.kind]
 	exp.left_at = clock
-	exp.due = clock + 2 * data["travel"] + ROOM_DAYS * (data["rooms"] - exp.ruin.cleared)
+	exp.due = clock + trip_days(exp.ruin)
 	var days := explore(exp)
 	exp.back_at = clock + (exp.due - clock) * LOST_AFTER if exp.lost else clock + 2 * data["travel"] + days
 
 
 # Esplora la rovina di `exp` dalla prima stanza non ancora ripulita, una ogni ROOM_DAYS (vedi Chamber): scrive il
-# diario, ferisce e uccide, raccoglie il bottino. L'ultima stanza è un forziere col suo guardiano. Il gruppo torna
-# indietro finite le stanze, se qualcuno è sotto TURN_BACK o se una frana chiude la strada. Restituisce i giorni passati
+# diario, ferisce e uccide, raccoglie bottino e mappe, mangia le provviste (vedi eat_on_trip). L'ultima stanza è il
+# tesoro col suo guardiano: se resta chiuso, la stanza resta da fare. Il gruppo torna indietro finite le stanze, se
+# qualcuno è sotto TURN_BACK, se le provviste non bastano per un'altra stanza e il ritorno, o se una frana chiude la
+# strada. Restituisce i giorni passati nella rovina
 func explore(exp: Expedition) -> float:
 	var data: Dictionary = RUINS[exp.ruin.kind]
 	var danger: int = data["danger"]
 	var days := 0.0
 	var start: float = exp.left_at + data["travel"]
-	exp.lines.append("Day %d: the party reaches the %s." % [int(start) + 1, data["name"]])
+	exp.lines.append("Day %d: the party reaches the %s. %s" % [int(start) + 1, data["name"], eat_on_trip(exp, data["travel"])])
 	while exp.ruin.cleared < data["rooms"] and not exp.party.is_empty():
 		var last: bool = exp.ruin.cleared == data["rooms"] - 1
 		var room := "Day %d, room %d: " % [int(start + days) + 1, exp.ruin.cleared + 1]
 		days += ROOM_DAYS
 		var kind: int = Chamber.CHEST if last else pick_chamber()
+		var opened := true
 		if last:
 			room += "the guardian of the treasure. %s " % fight_monsters(exp, MONSTER_POWER * danger * 2)
 		match kind:
@@ -2938,10 +3006,12 @@ func explore(exp: Expedition) -> float:
 			Chamber.MONSTERS:
 				room += "monsters! " + fight_monsters(exp, MONSTER_POWER * danger)
 			Chamber.CHEST:
-				room += open_chest(exp, data)
+				var chest := open_chest(exp, data, last)
+				room += chest[0]
+				opened = chest[1]
 			Chamber.COLLAPSE:
 				room += "a collapse blocks the way."
-		exp.lines.append(room.strip_edges())
+		exp.lines.append((room + " " + eat_on_trip(exp, ROOM_DAYS)).strip_edges())
 		for c in exp.party.duplicate():  # a 0 punti ferita: muore, o lo riportano gli altri (da solo, nessuno)
 			if c.hp <= 0:
 				if exp.party.size() == 1 or randf() < FALL_DEATH:
@@ -2958,13 +3028,41 @@ func explore(exp: Expedition) -> float:
 		if kind == Chamber.COLLAPSE:
 			exp.lines.append("The party turns back.")
 			break
+		if not opened and last:
+			exp.lines.append("The treasure stays locked: the party turns back.")
+			break
 		exp.ruin.cleared += 1
-		if exp.ruin.cleared < data["rooms"] and exp.party.any(func(c): return c.hp < TURN_BACK):
+		if explored(exp.ruin):
+			break
+		if exp.party.any(func(c): return c.hp < TURN_BACK):
 			exp.lines.append("Wounded, the party turns back.")
 			break
-	if exp.ruin.cleared >= data["rooms"]:
+		if exp.food < exp.party.size() * (data["travel"] + ROOM_DAYS) - 0.001:
+			exp.lines.append("Provisions are running low: the party turns back.")
+			break
+	if explored(exp.ruin):
 		exp.lines.append("The %s has nothing left to explore." % data["name"])
+	if not exp.lost:  # il ritorno: affamati, ma a casa ci arrivano
+		var hunger := eat_on_trip(exp, data["travel"])
+		if hunger != "":
+			exp.lines.append("On the way home: " + hunger.to_lower())
+		for c in exp.party:
+			c.hp = maxf(c.hp, 1.0)
 	return days
+
+
+# Provviste per `days` giorni di tutto il gruppo; quello che manca lo si paga in punti ferita, HUNGER_HURT al giorno.
+# Il testo per il diario, vuoto se hanno mangiato
+func eat_on_trip(exp: Expedition, days: float) -> String:
+	var need := days * exp.party.size()
+	var eaten := minf(exp.food, need)
+	exp.food -= eaten
+	if eaten >= need - 0.001:
+		return ""
+	var hurt := HUNGER_HURT * (need - eaten) / exp.party.size()
+	for c in exp.party:
+		c.hp -= hurt
+	return "No food left: hunger (-%d each)." % roundi(hurt)
 
 
 func pick_chamber() -> int:
@@ -2984,8 +3082,8 @@ func best_at(party: Array[Colonist], skill: Skill) -> Colonist:
 	return best
 
 
-# mostri di forza `power` contro il gruppo: danni MONSTER_HURT x mostri / gruppo (meno, con un arciere), divisi
-# secondo "hurt" della classe, meno la protezione di ognuno. Il testo per il diario
+# Mostri di forza `power` contro il gruppo: in media ognuno prende MONSTER_HURT x mostri / forza media del gruppo
+# (meno, con un arciere), chi più chi meno secondo "hurt" della classe, meno la sua protezione. Il testo per il diario
 func fight_monsters(exp: Expedition, power: float) -> String:
 	var strength := 0.0
 	var weights := 0.0
@@ -2994,35 +3092,47 @@ func fight_monsters(exp: Expedition, power: float) -> String:
 		strength += c.skills[HEROES[c.hero]["weapon"]] + gear_sum(c, "armor")
 		weights += HEROES[c.hero]["hurt"]
 		cover = minf(cover, HEROES[c.hero].get("cover", 1.0))
-	var hurt := MONSTER_HURT * power / maxf(strength, 1.0) * cover
+	var hurt := MONSTER_HURT * power * exp.party.size() / maxf(strength, 1.0) * cover
 	var wounds := PackedStringArray()
 	for c in exp.party:
-		var taken := roundf(hurt * HEROES[c.hero]["hurt"] / weights * armor_factor(c))
+		var taken := roundf(hurt * exp.party.size() * HEROES[c.hero]["hurt"] / weights * armor_factor(c))
 		c.hp -= taken
 		wounds.append("%s -%d" % [c.first_name, taken])
 		c.xp[HEROES[c.hero]["weapon"]] += 1
 	return ", ".join(wounds) + "."
 
 
-# forziere: chiuso (LOCKED) lo apre solo il migliore a scassinare, se ne sa abbastanza; dentro monete e un oggetto
-# della rovina, di più con la sacca dello scassinatore. Il testo per il diario
-func open_chest(exp: Expedition, data: Dictionary) -> String:
+# Forziere: chiuso (LOCKED) lo apre solo il migliore a scassinare, se ne sa abbastanza; dentro monete e un oggetto
+# della rovina, di più con la sacca dello scassinatore. Il tesoro (`last`) ha la mappa della rovina dopo; gli altri,
+# a volte, quella di una rovina che non si conosce. [testo per il diario, aperto]
+func open_chest(exp: Expedition, data: Dictionary, last: bool) -> Array:
 	var picker := best_at(exp.party, Skill.LOCKPICKING)
 	if randf() < LOCKED and picker.skills[Skill.LOCKPICKING] < LOCK_PER_DANGER * data["danger"]:
-		return "a locked chest nobody can open."
+		return ["a locked chest nobody can open.", false]
 	var haul := 1.0
 	for c in exp.party:
 		haul = maxf(haul, HEROES[c.hero].get("haul", 1.0))
-	var gold := roundi(randi_range(data["gold"][0], data["gold"][1]) * haul)
+	var gold := roundi(randi_range(data["gold"][0], data["gold"][1]) * haul * (TREASURE_GOLD if last else 1))
 	var find: Array = data["finds"].pick_random()
 	var amount := roundi(find[1] * haul)
 	exp.loot[Res.GOLD] = exp.loot.get(Res.GOLD, 0) + gold
 	exp.loot[find[0]] = exp.loot.get(find[0], 0) + amount
-	return "a chest: %d gold, %d %s." % [gold, amount, Res.keys()[find[0]].to_lower()]
+	var text := "a chest: %d gold, %d %s" % [gold, amount, Res.keys()[find[0]].to_lower()]
+	var unknown := RuinKind.values().filter(func(k): return not ruins.any(func(r): return r.kind == k) and k not in exp.maps)
+	var map = null
+	if last and exp.ruin.kind + 1 in unknown:
+		map = exp.ruin.kind + 1
+	elif not unknown.is_empty() and randf() < MAP_CHANCE:
+		map = unknown.pick_random()
+	if map != null:
+		exp.maps.append(map)
+		text += " and a map to the %s" % RUINS[map]["name"]
+	return [text + ".", true]
 
 
 # Ritorni: a back_at il gruppo rientra dal bordo da cui era uscito e va alla locanda col bottino (meno la quota
-# delle monete, che si tengono); sale di livello ogni TRIPS_PER_LEVEL spedizioni. Una spedizione persa: solo il diario
+# delle monete, che si tengono); le mappe fanno conoscere le loro rovine; ognuno sale di livello ogni TRIPS_PER_LEVEL
+# spedizioni. Una spedizione persa: solo il diario (le mappe sono perse con loro)
 func update_expeditions() -> void:
 	for exp in expeditions.duplicate():
 		if exp.left_at < 0 or clock < exp.back_at:
@@ -3043,6 +3153,13 @@ func update_expeditions() -> void:
 				brought.append("%d %s" % [exp.loot[res], Res.keys()[res].to_lower()])
 		exp.lines.append("Back home with %s%s." % [", ".join(brought) if not brought.is_empty() else "nothing",
 			"; they keep %d gold" % kept if kept > 0 else ""])
+		for kind in exp.maps:
+			if not ruins.any(func(r): return r.kind == kind):
+				var found := Ruin.new()
+				found.kind = kind
+				ruins.append(found)
+				exp.lines.append("New on the notice board: the %s." % RUINS[kind]["name"])
+		ruins.sort_custom(func(a, b): return a.kind < b.kind)
 		for g in exp.party:
 			g.trips += 1
 			if g.trips % TRIPS_PER_LEVEL == 0 and g.level < HERO_LEVEL_MAX:
@@ -3078,18 +3195,23 @@ func open_board() -> void:
 	$HUD/BoardPanel.show()
 
 
-# Finestra della bacheca: l'oro, chi aspetta alla locanda (con un tasto per rovina da esplorare), le rovine, le
-# spedizioni in corso e l'ultima pagina della cronaca. Si rifà solo quando cambia qualcosa, se no i tasti non si premono
+# Finestra della bacheca: oro e provviste nei magazzini, chi aspetta alla locanda (da spuntare per la spedizione, al
+# più MAX_PARTY), le rovine conosciute (ognuna col tasto per mandarci gli spuntati: paghe e provviste), le spedizioni
+# in corso e l'ultima pagina della cronaca. Si rifà solo quando cambia qualcosa, se no i tasti non si premono
 func fill_board() -> void:
 	var waiting := guests.filter(func(g): return not g.hired and g.errand != Errand.LEAVE)
-	var key := str([stored(Res.GOLD), waiting, ruins.map(func(r): return r.cleared), expeditions.size(), chronicle.size()])
+	for g in board_pick.duplicate():
+		if g not in waiting:
+			board_pick.erase(g)
+	var key := str([stored(Res.GOLD), food_stored(), waiting, board_pick, ruins.map(func(r): return r.cleared),
+		expeditions.map(func(exp): return exp.left_at), chronicle.size()])
 	if key == board_key:
 		return
 	board_key = key
 	var box: Control = $HUD/BoardPanel/Box
-	box.get_node("Gold").text = "Gold in the warehouses: %d" % stored(Res.GOLD)
+	box.get_node("Gold").text = "Gold: %d    Provisions (meals, raw food): %d" % [stored(Res.GOLD), food_stored()]
 	var list: Control = box.get_node("Heroes")
-	for child in list.get_children():
+	for child in list.get_children() + box.get_node("Ruins").get_children():
 		child.free()
 	for g in waiting:
 		var row := HBoxContainer.new()
@@ -3101,31 +3223,56 @@ func fill_board() -> void:
 		icon.draw.connect(draw_figure.bind(icon, Rect2(Vector2.ZERO, Vector2.ONE * TILE * 2), Rect2(0, 0, TILE, TILE), g))
 		row.add_child(icon)
 		var label := Label.new()
-		label.text = "%s\n%s" % [full_name(g), hero_name(g)]
+		label.text = "%s\n%s, %d gold" % [full_name(g), hero_name(g), fee(g)]
 		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(label)
-		for ruin in ruins:
-			var send := Button.new()
-			send.text = "%s: %d gold" % [RUINS[ruin.kind]["name"], fee(g)]
-			send.focus_mode = Control.FOCUS_NONE
-			send.disabled = stored(Res.GOLD) < fee(g) or ruin.cleared >= RUINS[ruin.kind]["rooms"]
-			send.tooltip_text = "Not enough gold" if stored(Res.GOLD) < fee(g) else "Send %s to the %s" % [g.first_name, RUINS[ruin.kind]["name"]]
-			send.pressed.connect(func(): hire(g, ruin))
-			row.add_child(send)
+		var pick := CheckBox.new()
+		pick.text = "Pick"
+		pick.focus_mode = Control.FOCUS_NONE
+		pick.button_pressed = g in board_pick
+		pick.disabled = g not in board_pick and board_pick.size() >= MAX_PARTY
+		pick.toggled.connect(toggle_pick.bind(g))
+		row.add_child(pick)
 		list.add_child(row)
 	if waiting.is_empty():
 		var nobody := Label.new()
 		nobody.text = "Nobody is waiting at the inn." if inn_beds() > 0 else "Nobody will come without an inn: a room with a bed, a table and this board."
 		nobody.autowrap_mode = TextServer.AUTOWRAP_WORD
 		list.add_child(nobody)
-	box.get_node("Ruins").text = "\n".join(ruins.map(func(r): return "%s (danger %d): %s" % [RUINS[r.kind]["name"],
-		RUINS[r.kind]["danger"], "explored" if r.cleared >= RUINS[r.kind]["rooms"] else "rooms explored %d / %d" % [r.cleared, RUINS[r.kind]["rooms"]]]))
+	var cost: int = board_pick.reduce(func(n, g): return n + fee(g), 0)
+	for ruin in ruins:
+		var data: Dictionary = RUINS[ruin.kind]
+		var row := HBoxContainer.new()
+		var label := Label.new()
+		label.text = "%s (danger %d): %s" % [data["name"], data["danger"],
+			"explored" if explored(ruin) else "rooms %d / %d" % [ruin.cleared, data["rooms"]]]
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(label)
+		if not explored(ruin):
+			var food := provisions(maxi(board_pick.size(), 1), ruin)
+			var send_button := Button.new()
+			send_button.text = "Send: %d gold, %d food" % [cost, food] if not board_pick.is_empty() else "Send"
+			send_button.focus_mode = Control.FOCUS_NONE
+			send_button.disabled = board_pick.is_empty() or stored(Res.GOLD) < cost
+			send_button.tooltip_text = "Pick who goes" if board_pick.is_empty() else ("Not enough gold" if stored(Res.GOLD) < cost
+				else ("Only %d of %d provisions: they will go hungry" % [food_stored(), food] if food_stored() < food
+				else "%d days there and back" % ceili(trip_days(ruin))))
+			send_button.pressed.connect(func(): send(board_pick.duplicate(), ruin))
+			row.add_child(send_button)
+		box.get_node("Ruins").add_child(row)
 	box.get_node("Away").text = "\n".join(expeditions.map(func(exp): return "%s: %s" % [", ".join(exp.party.map(func(c): return c.first_name)),
 		"on the way out" if exp.left_at < 0 else "at the %s, due back by day %d" % [RUINS[exp.ruin.kind]["name"], int(exp.due) + 1]]))
 	box.get_node("Away").visible = not expeditions.is_empty()
 	box.get_node("Chronicle").text = chronicle[-1] if not chronicle.is_empty() else ""
 	box.get_node("Chronicle").visible = not chronicle.is_empty()
 	$HUD/BoardPanel.reset_size()
+
+
+func toggle_pick(on: bool, g: Colonist) -> void:
+	if on and g not in board_pick and board_pick.size() < MAX_PARTY:
+		board_pick.append(g)
+	elif not on:
+		board_pick.erase(g)
 
 
 # --- Pesca e caccia ---

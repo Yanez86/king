@@ -924,7 +924,7 @@ theme_override_constants/separation = 6
 
 [node name="Separator" type="HSeparator" parent="HUD/BoardPanel/Box"]
 
-[node name="Ruins" type="Label" parent="HUD/BoardPanel/Box"]
+[node name="Ruins" type="VBoxContainer" parent="HUD/BoardPanel/Box"]
 
 [node name="Away" type="Label" parent="HUD/BoardPanel/Box"]
 

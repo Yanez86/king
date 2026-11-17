@@ -39,10 +39,13 @@ func _initialize() -> void:
 	main.furniture[board] = [B.NOTICE_BOARD, R.WOOD, 0]
 	check(main.room_meets(inn, main.RoomKind.INN) and main.ROOM_CLASS[main.RoomKind.INN] == main.RoomClass.SERVICE, "locanda: servizio")
 	inn.kind = main.RoomKind.INN
-	var store := mid + Vector2i(8, 0)  # un magazzino all'aperto, con l'oro
+	var store := mid + Vector2i(8, 0)  # un magazzino all'aperto, con l'oro e qualche pasto
+	var pantry := store + Vector2i.RIGHT
 	clear(store)
-	main.stockpile = {store: true}
+	clear(pantry)
+	main.stockpile = {store: true, pantry: true}
 	main.add_item(R.GOLD, store, 12)
+	main.add_item(R.MEAL, pantry, 3)
 
 	# i letti della locanda sono degli avventurieri, gli altri dei coloni
 	var bed := mid + Vector2i(-2, -2)
@@ -73,18 +76,25 @@ func _initialize() -> void:
 	main.find_job(g)
 	check(g.job not in main.WORK_JOBS, "non lavora")
 
-	# la bacheca: chi aspetta, col tasto per la torre; l'oro non basta
+	# la bacheca: chi aspetta, da spuntare; le rovine col tasto per mandarci gli spuntati; l'oro non basta
 	main.open_board()
 	var box = main.get_node("HUD/BoardPanel/Box")
 	check(main.get_node("HUD/BoardPanel").visible and box.get_node("Heroes").get_child_count() == 1, "la bacheca mostra chi aspetta")
-	var send: Button = box.get_node("Heroes").get_child(0).get_child(2)
-	check(send.disabled == (main.fee(g) > 12), "senza abbastanza oro non si ingaggia")
-	check(not main.hire(g, tower) or main.fee(g) <= 12, "ingaggio rifiutato")
+	var pick: CheckBox = box.get_node("Heroes").get_child(0).get_child(2)
+	var send: Button = box.get_node("Ruins").get_child(0).get_child(1)
+	check(send.disabled, "senza nessuno spuntato non si manda nessuno")
+	pick.button_pressed = true
+	main.fill_board()
+	send = box.get_node("Ruins").get_child(0).get_child(1)
+	check(main.board_pick == [g] and send.disabled == (main.fee(g) > 12), "spuntato; senza abbastanza oro non si parte")
+	check(not main.send([g], tower) or main.fee(g) <= 12, "ingaggio rifiutato")
 	main.add_item(R.GOLD, store, 50)
 	var gold_before: int = main.stored(R.GOLD)
-	check(main.hire(g, tower), "ingaggiato")
+	check(main.provisions(1, tower) == 3, "provviste: un giorno a testa, andata, 3 stanze e ritorno")
+	check(main.send([g], tower), "ingaggiato")
 	check(main.stored(R.GOLD) == gold_before - main.fee(g) and g.hired and g.errand == main.Errand.DEPART, "pagato, va al bordo")
-	check(not main.hire(g, tower), "non due volte")
+	check(main.stored(R.MEAL) == 0 and main.expeditions[0].food == 3.0 and main.board_pick.is_empty(), "si porta i pasti")
+	check(not main.send([g], tower), "non due volte")
 	var exp = main.expeditions[0]
 	walk_until(func(): return g not in main.guests, 6000)
 	check(g not in main.guests and exp.left_at >= 0 and exp.back_at > main.clock and not exp.lines.is_empty(), "partito: è nella rovina")
@@ -111,6 +121,24 @@ func _initialize() -> void:
 		walk_until(func(): return g not in main.guests, 6000)
 		check(g not in main.guests, "andato via")
 
+	# in gruppo: si parte quando sono usciti tutti, dallo stesso bordo
+	var duo := [main.new_hero(main.Hero.WARRIOR, 1), main.new_hero(main.Hero.ARCHER, 1)]
+	for h in duo:
+		h.pos = main.center(mid + Vector2i(-1 + duo.find(h) * 2, 0))
+		main.guests.append(h)
+	main.add_item(R.GOLD, store, 60)
+	check(main.send(duo, tower), "due insieme")
+	var pair = main.expeditions[-1]
+	check(pair.food == 0.0, "senza provviste: patiranno la fame")
+	for i in 8000:
+		if duo.any(func(h): return h in main.guests):
+			check(pair.left_at < 0, "si aspetta che escano tutti")
+		else:
+			break
+		main.tick(0.05)
+	check(pair.left_at >= 0 and "No food left" in "\n".join(pair.lines), "partiti, e senza cibo hanno fame")
+	main.expeditions.erase(pair)
+
 	# nella rovina, per conto suo: il guardiano ferisce di più chi regge di meno
 	var warrior = main.new_hero(main.Hero.WARRIOR, 1)
 	var burglar = main.new_hero(main.Hero.BURGLAR, 1)
@@ -126,7 +154,7 @@ func _initialize() -> void:
 	for i in 200:
 		var e = main.Expedition.new()
 		e.party.append(warrior if i % 2 else burglar)
-		opened += 1 if main.open_chest(e, main.RUINS[tower.kind]).begins_with("a chest") and i % 2 else 0
+		opened += 1 if main.open_chest(e, main.RUINS[tower.kind], false)[1] and i % 2 else 0
 		if i % 2 == 0:
 			check(e.loot[R.GOLD] >= 15 and e.loot[R.GOLD] <= 38, "lo scassinatore apre tutto, +50%")
 	check(opened > 20 and opened < 80, "il guerriero apre circa metà dei forzieri (%d su 100)" % opened)
@@ -141,6 +169,52 @@ func _initialize() -> void:
 	main.depart(e2)
 	check(e2.lost and e2.party.is_empty() and is_equal_approx(e2.back_at - main.clock, (e2.due - main.clock) * main.LOST_AFTER),
 		"nessuno torna: la si dà per persa al doppio del tempo")
+	# il tesoro dell'ultima stanza ha la mappa della rovina dopo; se resta chiuso, la stanza resta da fare
+	var treasure = main.Expedition.new()
+	treasure.party.append(burglar)
+	treasure.ruin = tower
+	check(main.open_chest(treasure, main.RUINS[tower.kind], true)[1] and treasure.maps == [main.RuinKind.MINE], "la mappa della miniera")
+	var stuck := false
+	for i in 60:
+		var r = main.Ruin.new()
+		r.cleared = main.RUINS[r.kind]["rooms"] - 1
+		var e = main.Expedition.new()
+		e.party.append(main.new_hero(main.Hero.WARRIOR, 5))
+		e.ruin = r
+		e.food = 10.0
+		main.depart(e)
+		if "stays locked" in "\n".join(e.lines):
+			stuck = r.cleared == main.RUINS[r.kind]["rooms"] - 1 and e.maps.is_empty()
+			break
+	check(stuck, "tesoro chiuso: l'ultima stanza resta da fare, niente mappa")
+	# provviste per una stanza sola: dopo la prima si torna
+	var short := false
+	for i in 60:
+		var r = main.Ruin.new()
+		var e = main.Expedition.new()
+		e.party.append(main.new_hero(main.Hero.WARRIOR, 5))
+		e.ruin = r
+		e.food = main.RUINS[r.kind]["travel"] + main.ROOM_DAYS
+		main.depart(e)
+		if "Provisions are running low" in "\n".join(e.lines):
+			short = r.cleared == 1
+			break
+	check(short, "provviste agli sgoccioli: si torna")
+	# al ritorno le mappe fanno conoscere le rovine, in ordine
+	var mapped = main.Expedition.new()
+	mapped.party.append(main.new_hero(main.Hero.BURGLAR, 1))
+	mapped.ruin = tower
+	mapped.maps = [main.RuinKind.MINE]
+	mapped.left_at = main.clock
+	mapped.back_at = main.clock
+	mapped.edge = start
+	main.expeditions.append(mapped)
+	main.update_expeditions()
+	check(main.ruins.map(func(r): return r.kind) == [main.RuinKind.TOWER, main.RuinKind.MINE], "la miniera sulla bacheca")
+	main.fill_board()
+	check(box.get_node("Ruins").get_child_count() == 2, "due rovine sulla bacheca")
+	main.guests.erase(mapped.party[0])
+
 	# livelli: ogni 2 spedizioni tornate
 	var vet = main.new_hero(main.Hero.ARCHER, 1)
 	vet.trips = 1
