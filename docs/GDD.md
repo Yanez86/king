@@ -108,15 +108,18 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 - Il **sovrano** (re solo alla fine, vedi Titolo) è un colono come gli altri: lavori e priorità, bisogni, routine, abilità che
   crescono, equipaggiamento, combattimento. In più lo crea il giocatore a inizio partita (vedi 4.3.1) e il suo stato
   influisce sugli altri coloni.
-- **Titolo**: cresce con la colonia, e con lui il nome del reame e la corona sullo stemma (vedi 4.3.2). Soglie da definire
-  (splendore, numero di coloni). È della casata: l'erede lo eredita. Il gioco si chiama King: diventare re è l'arco della partita.
+- **Titolo**: cresce con la colonia, e con lui il nome del reame e la corona sullo stemma (vedi 4.3.2); non cala mai.
+  Soglie provvisorie: lo splendore della colonia (poi anche il numero di coloni, quando la colonia potrà crescere).
+  È della casata: l'erede lo eredita. Il gioco si chiama King: diventare re è l'arco della partita.
 
-  | Titolo | Reame | Corona sullo stemma |
-  |---|---|---|
-  | Signore / Signora | Signoria di … | nessuna |
-  | Barone / Baronessa | Baronia di … | cerchio |
-  | Conte / Contessa | Contea di … | corona a punte |
-  | Re / Regina | Regno di … | corona reale |
+  | Titolo | Reame | Corona sullo stemma | Splendore | Sigilli (4.7.5) |
+  |---|---|---|---|---|
+  | Signore / Signora | Signoria di … | nessuna | — | 2 |
+  | Barone / Baronessa | Baronia di … | cerchio | 15 | 3 |
+  | Conte / Contessa | Contea di … | corona a punte | 35 | 4 |
+  | Re / Regina | Regno di … | corona reale | 60 | 5 |
+
+  Quando sale, una finestra al centro (e la cronaca) lo annuncia coi sigilli e l'autorità di ogni giorno.
 
 - **Influenza sugli altri coloni**: condizioni come in 4.2, con l'icona nella scheda (numeri provvisori):
 
@@ -209,7 +212,7 @@ abilità; (2) stemma base: 4 forme, 6 partizioni, i 7 smalti, 6 pezze, una decin
 nella barra in alto e nella scheda; (3) sovrano sereno e cupo, lutto regale, incoronazione; (4) riepilogo coi coloni di
 partenza; (5) talenti a punti e stile di regno; (6) titolo che cresce e corona sullo stemma; (7) linee, pellicce, motivi,
 ornamenti, motto, blasonatura; (8) presenza, difesa del sovrano, epiteti; (9) il resto di "Poi".
-**Stato**: fatte le fasi 1 e 2, e della 5 i talenti a punti (nella pagina del sovrano, col costo sul pulsante). "New Game" apre la pagina (creation.gd), "Start" la partita: il sovrano è il primo colono,
+**Stato**: fatte le fasi 1, 2 e 6, e della 5 i talenti a punti (nella pagina del sovrano, col costo sul pulsante). "New Game" apre la pagina (creation.gd), "Start" la partita: il sovrano è il primo colono,
 coi talenti scelti; in alto a sinistra la corona e "Lordship of …", che apre la sua scheda, dove sotto il
 nome c'è "Lord/Lady of …". Senza la pagina (nei test) sovrano, colonia e stemma vengono a caso.
 Fase 2: la pagina è divisa in due, "Your House" (nomi e stemma) e "Your Ruler"; stemma con 4 forme (francese antico,
@@ -219,6 +222,8 @@ Ogni pulsante mostra lo stemma com'è con quella scelta. Maglia e mantello seguo
 sceglie (dagli smalti). Il dado rispetta la regola degli smalti: campo partito senza pezza né figura, niente figura
 sulle pezze che passano dal centro. Lo stemma sta nella barra in alto (al posto della corona), nella scheda del
 sovrano davanti al nome e sul drappo degli stendardi (ombreggiato dalle pieghe che ondeggiano).
+Fase 6: il titolo sale con lo splendore (soglie sopra); la corona (16x6, in fondo a art/arms.png) sta sopra lo scudo
+nella barra in alto e nella scheda del sovrano, che con lei diventano più alti; "Barony of …", "Baron …".
 
 ### 4.4 Risorse ed edifici
 - Materie prime: legname, pietra, ferro, carbone, oro, cibo crudo. Ferro e carbone vengono dalle vene nella roccia (massi 1x1).
@@ -677,10 +682,10 @@ Quattro fasce, una per titolo; sei categorie. ✓ = c'è nel gioco.
 | | Decima ✓ | signoria | 40 | Tasse | un pezzo su dieci di quello che si raccoglie, caccia, pesca, cucina e fa va al granaio | tutti −3 |
 | | Gabella sul bottino ✓ | signoria | 40 | Locanda | quota degli avventurieri 20% (non 30); un quarto in meno di arrivi, niente avidi | avventurieri −5 |
 | | Tassa di soggiorno ✓ | signoria | 30 | Locanda | una moneta a notte da chi aspetta alla locanda; resta un giorno in meno | avventurieri −3 |
-| | Taglia | baronia | 100 | Tasse, dopo Decima | un pezzo su cinque al granaio | tutti −8 |
+| | Taglia ✓ | baronia | 100 | Tasse, dopo Decima | un pezzo su cinque al granaio | tutti −8 |
 | | Pedaggio | baronia | 80 | Palizzata | 2 monete da chi entra dal cancello o dal ponte; un quinto in meno di arrivi | avventurieri −3 |
 | | Granaio aperto | baronia | 60 | dopo Decima | senza cibo in magazzino si mangia dal granaio; una volta a stagione un pasto a tutti | tutti +4 |
-| | Tributo | contea | 150 | — | +1 autorità al giorno a colono | tutti −4 |
+| | Tributo ✓ | contea | 150 | — | +1 autorità al giorno a colono | tutti −4 |
 | Lavoro | Turni lunghi ✓ | signoria | 40 | Turni | 10 ore di lavoro (il pigro 7, lo stacanovista resta a 12); stress +25% | tutti −5; stacanovista +3; pigro, festaiolo, irrequieto −10 |
 | | Giornata corta ✓ | signoria | 40 | Turni | al più 6 ore; stress −25% | tutti +8; stacanovista −5 |
 | | Riposo festivo ✓ | signoria | 30 | — | ogni settimo giorno si cucina e basta | tutti +6; stacanovista −5; asceta 0 |
@@ -724,12 +729,13 @@ monastero, livello II e III di quello che c'è già (cotta, fontana, statua); (3
 Laws, le leggi di signoria che usano cose che esistono, consenso sulla scheda; (4) granaio e decima, titolo che cresce
 (4.3, fase 6) con sigilli e fasce; (5) il resto dell'albero un nodo alla volta, erudito errante, protesta; (6) livello
 IV, regno, leggi finali, cittadella.
-**Stato**: fatte le fasi 1–3 e della 4 la decima. Nel gioco: scrittoio, libreria e trono; stanze Studio e Sala del trono;
-lavori Studiare e Governare; studio e autorità (nelle finestre Knowledge e Laws, tasti K e G, o clic su scrittoio e
-trono); i tre libri, nei forzieri e nei tesori, col monastero; le 12 ricerche segnate ✓ (Statuaria per ora dopo
-Muratura, finché non c'è Arredo fine); le 9 leggi segnate ✓, con 2 sigilli (il titolo non cresce ancora). Il granaio è
-un conto, non una stanza, e niente ci marcisce; la festa del raccolto, finché non ci sono le stagioni, è ogni 10 giorni.
-Manca il resto, e i contatori di studio e autorità nella barra in alto (a 1280 di larghezza non ci stanno).
+**Stato**: fatte le fasi 1–4. Nel gioco: scrittoio, libreria e trono; stanze Studio e Sala del trono; lavori Studiare
+e Governare; studio e autorità (nelle finestre Knowledge e Laws, tasti K e G, o clic su scrittoio e trono); i tre
+libri, nei forzieri e nei tesori, col monastero; le 12 ricerche segnate ✓ (Statuaria per ora dopo Muratura, finché non
+c'è Arredo fine); le 11 leggi segnate ✓; il titolo cresce con lo splendore (4.3) e dà i sigilli (2–5), le fasce delle
+leggi e l'autorità di ogni giorno; la finestra Laws dice la prossima soglia e la lista scorre. Il granaio è un conto,
+non una stanza, e niente ci marcisce; la festa del raccolto, finché non ci sono le stagioni, è ogni 10 giorni. Manca
+il resto, e i contatori di studio e autorità nella barra in alto (a 1280 di larghezza non ci stanno).
 
 ## 5. Scope
 

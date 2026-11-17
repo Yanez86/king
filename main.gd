@@ -667,13 +667,22 @@ const BEARD_CHANCE := 0.5  # uomini con la barba
 const NICKNAMES := ["Badger", "Crow", "Lefty", "Moss", "Pebble", "Red", "Stub", "Thistle"]
 const LAST_NAMES := ["Ashdown", "Barrow", "Cooper", "Fenwick", "Hale", "Marsh", "Thatcher", "Woodward"]
 # Il sovrano (GDD 4.3): il primo colono, lo crea il giocatore (vedi creation.gd) coi RULER_POINTS punti abilità, al
-# massimo RULER_SKILL_CAP per abilità. Senza (nei test) è uno a caso. Titolo e reame per ora fissi: poi crescono
+# massimo RULER_SKILL_CAP per abilità. Senza (nei test) è uno a caso
 const COLONY_NAMES := ["Valbruna", "Ashford", "Roccalta", "Greywater", "Montalto", "Fernhill", "Pietrabianca", "Oakmere"]
 const RULER_POINTS := 12
 const RULER_SKILL_CAP := 3
 const RULER_TRAITS := 2     # talenti che si scelgono al massimo, mai due in contrasto (vedi TRAIT_CLASH)
-const RULER_TITLES := ["Lord", "Lady"]  # per Sex
-const REALM_TITLE := "Lordship"
+# Titolo (GDD 4.3), indice di TITLES: signoria, baronia, contea, regno. È della casata e cresce, mai cala, quando lo
+# splendore della colonia arriva a "splendor" (vedi tick, rise): cambiano il nome del reame, il titolo del sovrano (per
+# Sex), la corona sullo stemma (vedi arms_texture), i sigilli delle leggi e l'autorità di ogni giorno (AUTHORITY_DAILY
+# a titolo). Le leggi di una fascia ("tier" in LAWS) si codificano da quel titolo in su.
+# ponytail: soglie provvisorie, e solo lo splendore: anche il numero di coloni quando la colonia potrà crescere
+const TITLES := [
+	{"realm": "Lordship", "ruler": ["Lord", "Lady"], "splendor": 0, "seals": 2},
+	{"realm": "Barony", "ruler": ["Baron", "Baroness"], "splendor": 15, "seals": 3},
+	{"realm": "County", "ruler": ["Count", "Countess"], "splendor": 35, "seals": 4},
+	{"realm": "Kingdom", "ruler": ["King", "Queen"], "splendor": 60, "seals": 5},
+]
 const CROWN_IMG := "[img=center]res://art/icon_crown.png[/img]"
 # Stemma della casata (GDD 4.3.2): {"shape", "division", "field", "field2", "ordinary", "ordinary_tincture", "charge",
 # "charge_tincture"}: indici di queste liste (pezza e figura: 0 nessuna; gli smalti di Tincture). Lo compongono
@@ -689,8 +698,11 @@ enum Ordinary { NONE, CHIEF, BASE, PALE, FESS, BEND, CROSS, SALTIRE, CHEVRON, BO
 enum Charge { NONE, STAR, CRESCENT, FLEUR, ROSE, TOWER, CROWN, SWORD, KEY, TREE, EAGLE }
 # passano dal centro, sotto la figura 8x8 che è più larga: col dado, niente figura
 const CENTRAL := [Ordinary.PALE, Ordinary.FESS, Ordinary.BEND, Ordinary.CROSS, Ordinary.SALTIRE, Ordinary.CHEVRON]
-# 80x29: forme 16x16 (bordo scuro, campo chiaro) in alto; figure 8x8 (per lo scudo) sotto; figure 5x5 (stendardo) in fondo
+# 80x35: forme 16x16 (bordo scuro, campo chiaro) in alto; figure 8x8 (per lo scudo) sotto; figure 5x5 (stendardo); in
+# fondo le corone dei titoli
 const ARMS_SHEET := preload("res://art/arms.png")
+const ARMS_CROWN_Y := 29    # in ARMS_SHEET le corone 16x6 dei titoli (baronia, contea, regno), sotto le figure
+const CROWN_RISE := 5       # di quanto la corona alza lo stemma: la sua ultima riga sta sul bordo dello scudo
 const BANNER_DRAPE := preload("res://art/banner_drape.png")  # 64x16: il drappo nei 4 fotogrammi, chiaro e in ombra
 const BANNER_SHADE := 0.75  # la piega in ombra del drappo
 static var sheet_images := {}  # Texture2D -> Image, letta una volta: lo stemma si ricompone a ogni scelta (vedi image_of)
@@ -747,31 +759,34 @@ const TECHS := {
 }
 # Autorità: il sovrano la raccoglie governando dal trono (Job.GOVERN, in una sala del trono), AUTHORITY_PER_HOUR all'ora,
 # di più se è sereno e di meno se è cupo (RULER_MOODS: da quanta felicità, quanto); in più ogni giorno AUTHORITY_DAILY
-# (per titolo: per ora la signoria) e uno ogni SPLENDOR_PER_AUTHORITY di splendore. Si spende per codificare le leggi,
-# una volta, e per promulgarle (ENACT_COST) su un sigillo libero: SEALS leggi in vigore insieme.
-# ponytail: il titolo non cresce ancora: sempre signoria, SEALS fissi; con baronia, contea e regno 3, 4, 5
+# per titolo (signoria 1, regno 4) e uno ogni SPLENDOR_PER_AUTHORITY di splendore. Si spende per codificare le leggi,
+# una volta, e per promulgarle (ENACT_COST) su un sigillo libero: tante leggi in vigore insieme quanti i "seals" del titolo
 const AUTHORITY_PER_HOUR := 1.0
 const RULER_MOODS := [[70.0, 1.25], [30.0, 0.5]]  # sopra la prima soglia governa meglio, sotto la seconda peggio
 const AUTHORITY_DAILY := 1.0
 const SPLENDOR_PER_AUTHORITY := 20
-const SEALS := 2
 const ENACT_COST := 10.0
 const REVOKE_WAIT := 3.0    # giorni prima di poter ripromulgare una legge revocata
-enum Law { EXEMPTION, TITHE, LOOT_TAX, LODGING_TAX, LONG_SHIFTS, SHORT_DAY, DAY_OF_REST, CURFEW, HARVEST_FEAST }
+enum Law { EXEMPTION, TITHE, LOOT_TAX, LODGING_TAX, LONG_SHIFTS, SHORT_DAY, DAY_OF_REST, CURFEW, HARVEST_FEAST, TALLAGE, TRIBUTE }
 const LAWS_SHEET := preload("res://art/laws.png")  # colonne nell'ordine di Law
 enum LawKind { TREASURY, WORK, ORDER, FEASTS }
-# Leggi: "kind" categoria; "cost" autorità per codificarla; "group" in vigore una sola dello stesso gruppo; "needs" la
-# ricerca che serve. "mood": felicità di chi è in colonia finché è in vigore (vedi law_mood): "all" a tutti i coloni,
-# un Trait al posto di "all" a chi ce l'ha, "guests" agli avventurieri. Le altre cose le fanno le funzioni che le nominano.
-# ponytail: solo le leggi della signoria che usano cose che ci sono già; le altre del GDD arrivano coi loro sistemi
+# Leggi: "kind" categoria; "cost" autorità per codificarla; "tier" il titolo che serve (di TITLES, se no la signoria);
+# "group" in vigore una sola dello stesso gruppo; "needs" la ricerca che serve; "after" la legge da codificare prima.
+# "mood": felicità di chi è in colonia finché è in vigore (vedi law_mood): "all" a tutti i coloni, un Trait al posto di
+# "all" a chi ce l'ha, "guests" agli avventurieri. Le altre cose le fanno le funzioni che le nominano.
+# ponytail: solo le leggi che usano cose che ci sono già; le altre del GDD arrivano coi loro sistemi
 const LAWS := {
 	Law.EXEMPTION: {"kind": LawKind.TREASURY, "cost": 30, "group": "taxes", "mood": {"all": 5.0}, "info": "No tithe: the granary stays empty."},
 	Law.TITHE: {"kind": LawKind.TREASURY, "cost": 40, "group": "taxes", "mood": {"all": -3.0},
 		"info": "One piece in ten of what is gathered, hunted, fished, cooked and made goes to the crown's granary."},
+	Law.TALLAGE: {"kind": LawKind.TREASURY, "tier": 1, "cost": 100, "group": "taxes", "after": Law.TITHE, "mood": {"all": -8.0},
+		"info": "One piece in five of what is gathered, hunted, fished, cooked and made goes to the crown's granary."},
 	Law.LOOT_TAX: {"kind": LawKind.TREASURY, "cost": 40, "needs": Tech.INN, "mood": {"guests": -5.0},
 		"info": "Adventurers keep 20% of the gold they find, not 30%. A quarter fewer come, and the greedy stay away."},
 	Law.LODGING_TAX: {"kind": LawKind.TREASURY, "cost": 30, "needs": Tech.INN, "mood": {"guests": -3.0},
 		"info": "Every adventurer waiting at the inn pays a coin a night, and stays a day less."},
+	Law.TRIBUTE: {"kind": LawKind.TREASURY, "tier": 2, "cost": 150, "mood": {"all": -4.0},
+		"info": "The colonists' loyalty is the crown's: +1 authority a day for each of them."},
 	Law.LONG_SHIFTS: {"kind": LawKind.WORK, "cost": 40, "group": "shifts",
 		"mood": {"all": -5.0, Trait.WORKAHOLIC: 3.0, Trait.LAZY: -10.0, Trait.FUN_LOVING: -10.0, Trait.RESTLESS: -10.0},
 		"info": "Up to 10 hours of work a day (the lazy 7). Stress from work +25%."},
@@ -785,7 +800,7 @@ const LAWS := {
 		"info": "The last day of every season is a feast: nobody works but the cooks. Then +10 happiness for 3 days, +5 authority."},
 }
 const SHIFTS := {Law.LONG_SHIFTS: [10.0, 1.25], Law.SHORT_DAY: [6.0, 0.75]}  # ore di lavoro al giorno, stress da lavoro x
-const TITHE := 0.1          # parte di quello che si produce che va al granaio della corona (vedi produce)
+const TAXES := {Law.TITHE: 0.1, Law.TALLAGE: 0.2}  # parte di quello che si produce che va al granaio della corona (vedi produce)
 const LOOT_SHARE := 0.2     # quota delle monete degli avventurieri con la gabella sul bottino (se no SHARE)
 const LOOT_TAX_WAIT := 4.0 / 3  # con la gabella: giorni tra un arrivo e l'altro x
 const REST_EVERY := 7       # riposo festivo: l'ultimo giorno di ogni tanti
@@ -931,7 +946,8 @@ var study := 0.0            # punti studio: il mucchio comune, scritto allo scri
 var researched := {}        # Tech -> true: le ricerche fatte (vedi research)
 var authority := 0.0        # raccolta dal sovrano sul trono (vedi Job.GOVERN), spesa nelle leggi
 var codified := {}          # Law -> true: si può promulgare (vedi codify)
-var enacted: Array = []     # Law in vigore, al più SEALS (vedi enact)
+var enacted: Array = []     # Law in vigore, al più i sigilli del titolo (vedi enact)
+var rank := 0               # il titolo, indice di TITLES: cresce con lo splendore (vedi rise)
 var revoked := {}           # Law -> `clock` da cui si può ripromulgare
 var granary := {}           # Res -> quantità: il granaio della corona, riempito dalla decima (vedi produce)
 var tithe_owed := {}        # Res -> parte di pezzo dovuta alla decima, che si accumula finché non fa un pezzo intero
@@ -1098,11 +1114,8 @@ func _ready() -> void:
 	ruler = colonists[0]
 	realm = setup.get("colony", COLONY_NAMES.pick_random())
 	arms = setup.get("arms", random_arms())
-	arms_tex = arms_texture(arms)
 	banner_tex = banner_texture(arms)
-	$HUD/TopBar/Row/RealmIcon.texture = arms_tex
-	realm_button.text = "%s of %s" % [REALM_TITLE, realm]
-	realm_button.tooltip_text = "%s %s" % [RULER_TITLES[ruler.sex], full_name(ruler)]
+	show_title()
 	realm_button.pressed.connect(func(): open_sheet(ruler))
 	camera.position = center(MAP_SIZE / 2)
 	fullscreen.pressed.connect(toggle_fullscreen)
@@ -1628,11 +1641,10 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 	box.get_node("Head/Name").text = full_name(c)
 	box.get_node("Sex/Icon").texture = SEX_ICONS[c.sex]
 	box.get_node("Sex/Label").text = SEX_NAMES[c.sex]
-	box.get_node("Head/Arms").visible = c == ruler
-	box.get_node("Head/Arms").texture = arms_tex
+	box.get_node("Head/Arms").visible = c == ruler  # lo stemma lo mette show_title
 	box.get_node("Hero").visible = c.hero != Hero.NONE or c == ruler
 	box.get_node("Hero").text = "%s, fee %s, %d expedition%s" % [hero_name(c), coins(fee(c)), c.trips, "" if c.trips == 1 else "s"] \
-		if c.hero != Hero.NONE else ("%s %s of %s" % [CROWN_IMG, RULER_TITLES[c.sex], realm] if c == ruler else "")
+		if c.hero != Hero.NONE else ("%s %s of %s" % [CROWN_IMG, TITLES[rank]["ruler"][c.sex], realm] if c == ruler else "")
 	box.get_node("Health").text = health_text(c)
 	for child in needs_grid.get_children() + skills_grid.get_children() + traits_box.get_children():
 		child.free()
@@ -2180,7 +2192,11 @@ func _process(delta: float) -> void:
 func tick(delta: float) -> void:
 	clock += delta / DAY_LENGTH
 	spoil(delta / DAY_LENGTH)
-	authority += (AUTHORITY_DAILY + floorf(colony_splendor() / float(SPLENDOR_PER_AUTHORITY))) * delta / DAY_LENGTH
+	var splendor := colony_splendor()
+	authority += (AUTHORITY_DAILY * (rank + 1) + floorf(splendor / float(SPLENDOR_PER_AUTHORITY))
+		+ (colonists.size() if enacted.has(Law.TRIBUTE) else 0)) * delta / DAY_LENGTH
+	while rank < TITLES.size() - 1 and splendor >= TITLES[rank + 1]["splendor"]:
+		rise()
 	if int(clock) != today:
 		today = int(clock)
 		new_day()
@@ -4244,16 +4260,44 @@ func new_day() -> void:
 		authority += FEAST_AUTHORITY
 
 
-# Posa a terra `amount` di `res` appena prodotto (raccolto, cacciato, pescato, cucinato, fatto). Con la decima una
-# parte va al granaio della corona: TITHE di ogni pezzo, che si accumula finché non fa un pezzo intero.
+# il nome del reame col titolo: "Barony of Valbruna"
+func realm_name() -> String:
+	return "%s of %s" % [TITLES[rank]["realm"], realm]
+
+
+# Il titolo, dove si vede: nella barra in alto il reame e lo stemma con la corona (anche nella scheda del sovrano, al
+# doppio come lo scudo: la corona lo fa più alto)
+func show_title() -> void:
+	arms_tex = arms_texture(arms, rank)
+	for icon in [$HUD/TopBar/Row/RealmIcon, $HUD/ColonistSheet/Box/Head/Arms]:
+		icon.texture = arms_tex
+		icon.custom_minimum_size = arms_tex.get_size() * 2
+	realm_button.text = realm_name()
+	realm_button.tooltip_text = "%s %s" % [TITLES[rank]["ruler"][ruler.sex], full_name(ruler)]
+
+
+# Lo splendore è arrivato al titolo dopo: sale (mai giù). Nella cronaca e in una finestra al centro, coi sigilli in più
+func rise() -> void:
+	var was := realm_name()
+	rank += 1
+	show_title()
+	laws_key = ""
+	report(realm_name(), ["Day %d: the %s is now the %s." % [int(clock) + 1, was, realm_name()],
+		"%s %s. Seals: %d. Authority every day: +%d." % [TITLES[rank]["ruler"][ruler.sex], full_name(ruler),
+		TITLES[rank]["seals"], AUTHORITY_DAILY * (rank + 1)]])
+
+
+# Posa a terra `amount` di `res` appena prodotto (raccolto, cacciato, pescato, cucinato, fatto). Con la decima (o la
+# taglia) una parte va al granaio della corona: TAXES di ogni pezzo, che si accumula finché non fa un pezzo intero.
 # ponytail: il granaio è un conto, non una stanza, e niente ci marcisce; una stanza vera quando servirà vederlo
 func produce(res: Res, cell: Vector2i, amount: int) -> void:
-	if enacted.has(Law.TITHE) and amount > 0:
-		tithe_owed[res] = tithe_owed.get(res, 0.0) + amount * TITHE
-		var due := mini(floori(tithe_owed[res] + 0.001), amount)
-		tithe_owed[res] -= due
-		granary[res] = granary.get(res, 0) + due
-		amount -= due
+	for law in TAXES:
+		if enacted.has(law) and amount > 0:
+			tithe_owed[res] = tithe_owed.get(res, 0.0) + amount * TAXES[law]
+			var due := mini(floori(tithe_owed[res] + 0.001), amount)
+			tithe_owed[res] -= due
+			granary[res] = granary.get(res, 0) + due
+			amount -= due
 	drop(res, cell, amount)
 
 
@@ -4261,6 +4305,10 @@ func produce(res: Res, cell: Vector2i, amount: int) -> void:
 func codify_block(law: Law) -> String:
 	if codified.has(law):
 		return "Codified"
+	if LAWS[law].get("tier", 0) > rank:
+		return "Needs a %s" % TITLES[LAWS[law]["tier"]]["realm"].to_lower()
+	if LAWS[law].has("after") and not codified.has(LAWS[law]["after"]):
+		return "First: %s" % law_name(LAWS[law]["after"])
 	if LAWS[law].has("needs") and not researched.has(LAWS[law]["needs"]):
 		return "Needs the research %s" % tech_name(LAWS[law]["needs"])
 	if authority < LAWS[law]["cost"]:
@@ -4296,7 +4344,7 @@ func enact_block(law: Law) -> String:
 		return "Revoked: again in %.1f days" % (revoked[law] - clock)
 	if authority < ENACT_COST:
 		return "%d more authority" % ceili(ENACT_COST - authority)
-	if rival(law) == null and enacted.size() >= SEALS:
+	if rival(law) == null and enacted.size() >= TITLES[rank]["seals"]:
 		return "No free seal: revoke a law first"
 	return ""
 
@@ -4328,6 +4376,8 @@ func law_tip(law: Law) -> String:
 	var who := mood.keys().map(func(k): return "%s %s" % [{"all": "everyone", "guests": "adventurers"}.get(k,
 		Trait.keys()[k].capitalize().to_lower() if k is int else ""), signed(mood[k])])
 	return LAWS[law]["info"] + ("\nHappiness: " + ", ".join(who) if not who.is_empty() else "") \
+		+ ("\nNeeds a %s" % TITLES[LAWS[law]["tier"]]["realm"].to_lower() if LAWS[law].get("tier", 0) > 0 else "") \
+		+ ("\nAfter %s" % law_name(LAWS[law]["after"]) if LAWS[law].has("after") else "") \
 		+ ("\nNeeds the research %s" % tech_name(LAWS[law]["needs"]) if LAWS[law].has("needs") else "")
 
 
@@ -4398,16 +4448,19 @@ func tech_button(t: Tech) -> Button:
 # suo pulsante (codifica, promulga, revoca). Col mouse sopra cosa fa e a chi piace. Si rifà quando cambia qualcosa
 func fill_laws() -> void:
 	var thrones := rooms.filter(func(r): return r.kind == RoomKind.THRONE_ROOM).size()
-	var key := str([floori(authority), codified.keys(), enacted, revoked, granary, researched.keys(), thrones, floori(clock)])
+	var splendor := colony_splendor()
+	var key := str([floori(authority), codified.keys(), enacted, revoked, granary, researched.keys(), thrones, floori(clock), rank, splendor])
 	if key == laws_key:
 		return
 	laws_key = key
 	var box: Control = $HUD/LawsPanel/Box
 	var stock := granary.keys().filter(func(r): return granary[r] > 0).map(func(r): return amount_text(r, granary[r]))
-	box.get_node("Authority").text = "%d [img=center]%s[/img] authority    Seals: %d / %d\nGranary: %s" % [floori(authority),
-		AUTHORITY_ICON.resource_path, enacted.size(), SEALS, ", ".join(stock) if not stock.is_empty() else "empty"]
+	var next := "" if rank == TITLES.size() - 1 else ": a %s at %d splendor (now %d)" % [TITLES[rank + 1]["realm"].to_lower(),
+		TITLES[rank + 1]["splendor"], splendor]
+	box.get_node("Authority").text = "%s%s\n%d [img=center]%s[/img] authority    Seals: %d / %d\nGranary: %s" % [realm_name(), next,
+		floori(authority), AUTHORITY_ICON.resource_path, enacted.size(), TITLES[rank]["seals"], ", ".join(stock) if not stock.is_empty() else "empty"]
 	box.get_node("Hint").visible = thrones == 0
-	var list: Control = box.get_node("List")
+	var list: Control = box.get_node("Scroll/List")
 	for child in list.get_children():
 		child.free()
 	for kind in LawKind.values():
@@ -5539,7 +5592,7 @@ static func tincture_at(a: Dictionary, px: float, py: float, w: float, h: float,
 
 
 # Lo scudo 16x16: la forma, il campo (partizione e pezza) e la figura 8x8 al centro
-static func arms_texture(a: Dictionary) -> ImageTexture:
+static func arms_texture(a: Dictionary, crown := 0) -> ImageTexture:
 	var sheet := image_of(ARMS_SHEET)
 	var field := func(x: int, y: int) -> bool:  # dentro lo scudo, non sul bordo scuro
 		if x < 0 or y < 0 or x >= 16 or y >= 16:
@@ -5558,6 +5611,11 @@ static func arms_texture(a: Dictionary) -> ImageTexture:
 					and sheet.get_pixel((a.charge - 1) * 8 + x - 4, 16 + y - 4).a > 0:
 				color = TINCTURE_COLORS[a.charge_tincture]
 			img.set_pixel(x, y, color)
+	if crown > 0:  # la corona del titolo sopra lo scudo, con l'ultima riga sul suo bordo: 16x21
+		var crowned := Image.create(16, 16 + CROWN_RISE, false, Image.FORMAT_RGBA8)
+		crowned.blit_rect(img, Rect2i(0, 0, 16, 16), Vector2i(0, CROWN_RISE))
+		crowned.blend_rect(sheet, Rect2i((crown - 1) * 16, ARMS_CROWN_Y, 16, CROWN_RISE + 1), Vector2i.ZERO)
+		img = crowned
 	return ImageTexture.create_from_image(img)
 
 

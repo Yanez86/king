@@ -1380,7 +1380,12 @@ autowrap_mode = 0
 theme_override_colors/font_color = Color(1, 0.415686, 0.290196, 1)
 text = "The ruler gathers authority on a throne, in a throne room."
 
-[node name="List" type="VBoxContainer" parent="HUD/LawsPanel/Box"]
+[node name="Scroll" type="ScrollContainer" parent="HUD/LawsPanel/Box"]
+custom_minimum_size = Vector2(0, 380)
+horizontal_scroll_mode = 0
+
+[node name="List" type="VBoxContainer" parent="HUD/LawsPanel/Box/Scroll"]
+size_flags_horizontal = 3
 theme_override_constants/separation = 4
 
 [node name="ReportPanel" type="PanelContainer" parent="HUD"]

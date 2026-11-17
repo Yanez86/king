@@ -2568,6 +2568,22 @@ LAW_SYMBOLS_3 = """
 .oooooooooo. ..oooooooo.. ......o.....
 """
 
+# Leggi di baronia e contea: taglia (il sacco del granaio con la moneta), tributo (il cuore fedele con la corona)
+LAW_SYMBOLS_4 = """
+....oooo.... ............
+...oCcCCo... ...o.oo.o...
+....oCCo.... ..o8og8o8o..
+..oocccCoo.. ..og8gg8<o..
+.occcccccCo. ..ogjgg<<o..
+occcoooooCCo ..oooooooo..
+occco8g<oCCo .oojjoojjoo.
+occcog<<oCCo ojjjjjjjjjJo
+occcoooooCCo ojjjjjjjjjJo
+.occcccccCo. .ojjjjjjjJo.
+.oCCCCCCCCo. ..ojjjjjJo..
+..oooooooo.. ...ojjJJo...
+"""
+
 # Rami dell'albero del sapere 12x12, nei quadratini: terra (spiga), fuoco (fiamma), pietra (mattoni), ferro (spada e
 # scudo), strada (rosa dei venti), sapere (lucerna)
 
@@ -2864,12 +2880,24 @@ ARMS_SMALL = """
 #...# ..... .###. .###. .#.#. ..... .###. ..##. .###. .#.#.
 """
 
+# Corone dei titoli 16x6, sopra lo scudo (l'ultima riga sul suo bordo): baronia (cerchio), contea (a punte), regno
+# (corona reale, con la croce). La signoria non ne ha.
+ARMS_CROWNS = """
+................ ................ .......oo.......
+................ ..o....oo....o.. ..o..o88<<o..o..
+................ .o8o..o8<o..o8o. .o8o.oo8<oo.o8o.
+.oooooooooooooo. .og<oog88goog<o. .og<oog8<goog<o.
+.og8gjgg8gàgg<o. .og8gjgg8gjgg<o. .ogjg8gàg8gjg<o.
+.oooooooooooooo. .oooooooooooooo. .oooooooooooooo.
+"""
+
 
 def arms_sheet():
-    """Stemmi, foglio 80x29: in alto le forme (16x16), sotto le figure 8x8, in fondo quelle 5x5. "x" chiaro: da colorare."""
+    """Stemmi, foglio 80x35: in alto le forme (16x16), sotto le figure 8x8, poi quelle 5x5, in fondo le corone 16x6.
+    "x" chiaro: da colorare."""
     pad = lambda rows: [line.replace("#", "x").ljust(80, ".") for line in rows]
     return (pad(side_by_side(frames(ARMS_SHAPES, count=4))) + pad(side_by_side(frames(ARMS_CHARGES, 8, 10, 8)))
-            + pad(side_by_side(frames(ARMS_SMALL, 5, 10, 5))))
+            + pad(side_by_side(frames(ARMS_SMALL, 5, 10, 5))) + pad(side_by_side(frames(ARMS_CROWNS, 6, 3, 16))))
 
 
 def banner_drape():
@@ -3026,7 +3054,7 @@ def main():
     images["icon_authority"] = pixels(art(AUTHORITY_ICON, 16, 16))
     techs = [f for block in (TECH_SYMBOLS_1, TECH_SYMBOLS_2, TECH_SYMBOLS_3) for f in frames(block, 12, 4, 12)]
     images["techs"] = pixels(side_by_side([badge(f) for f in techs]))
-    laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)]
+    laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 2, 12)
     images["laws"] = pixels(side_by_side([badge(f, "I", "x", "U") for f in laws]))
     branches = [f for block in (BRANCH_SYMBOLS_1, BRANCH_SYMBOLS_2) for f in frames(block, 12, 3, 12)]
     images["branches"] = pixels(side_by_side([badge(f) for f in branches]))

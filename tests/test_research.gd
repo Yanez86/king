@@ -148,7 +148,7 @@ func _initialize() -> void:
 	check(main.rival(L.SHORT_DAY) == L.LONG_SHIFTS and main.enact(L.SHORT_DAY) and main.enacted == [L.SHORT_DAY], "giornata corta al posto dei turni lunghi")
 	check(main.work_hours(guy) == 6.0 and main.enact_block(L.LONG_SHIFTS).begins_with("Revoked"), "6 ore; i turni lunghi aspettano")
 	main.codify(L.CURFEW)
-	check(main.enact(L.CURFEW) and main.enacted.size() == main.SEALS, "due sigilli pieni")
+	check(main.enact(L.CURFEW) and main.enacted.size() == main.TITLES[0]["seals"], "due sigilli pieni")
 	main.codify(L.DAY_OF_REST)
 	check(main.enact_block(L.DAY_OF_REST) == "No free seal: revoke a law first", "niente sigillo libero")
 	check(main.routine_of(guy)[21] == main.Act.SLEEP and main.routine_of(guy)[20] == main.Act.FREE, "coprifuoco: alle 21 a letto")
@@ -178,7 +178,7 @@ func _initialize() -> void:
 	check(main.food_stored() >= 1, "le provviste contano anche il granaio")
 	main.get_node("HUD/Tools/Row/Laws").button_pressed = true
 	main.fill_laws()
-	var law_buttons: Array = main.get_node("HUD/LawsPanel/Box/List").find_children("*", "Button", true, false)
+	var law_buttons: Array = main.get_node("HUD/LawsPanel/Box/Scroll/List").find_children("*", "Button", true, false)
 	check(law_buttons.size() == L.size() and law_buttons.filter(func(b): return b.text == "Revoke").size() == 1, "una riga per legge, la decima da revocare")
 	check(main.get_node("HUD/LawsPanel/Box/Authority").text.contains("Granary: "), "il granaio nella finestra")
 	main.get_node("HUD/LawsPanel").hide()
@@ -204,6 +204,37 @@ func _initialize() -> void:
 	check(main.colonists.all(func(c): return c.conds.has(main.Cond.FESTIVE)) and main.authority >= power + main.FEAST_AUTHORITY,
 		"dopo la festa: felici, e più autorità")
 	main.guests.clear()
+
+	# il titolo: sale con lo splendore, mai giù; sigilli, nome del reame, corona sullo stemma; le leggi delle fasce
+	check(main.rank == 0 and main.realm_button.text.begins_with("Lordship of") and main.arms_tex.get_height() == 16, "si parte signori")
+	main.authority = 1000.0
+	check(main.codify_block(L.TALLAGE) == "Needs a barony", "la taglia vuole la baronia")
+	var statues: Array = [free[10], free[11]]  # 8 di splendore l'una
+	for k in statues:
+		main.furniture[k] = [B.STATUE, R.STONE, 0]
+	main.tick(0.0)
+	check(main.rank == 1 and main.realm_button.text.begins_with("Barony of") and main.chronicle[-1].begins_with("Barony of"),
+		"16 di splendore: baronia, nella cronaca")
+	check(main.arms_tex.get_height() == 16 + main.CROWN_RISE
+		and main.get_node("HUD/TopBar/Row/RealmIcon").custom_minimum_size == Vector2(32, 42), "la corona sopra lo stemma")
+	main.codified.erase(L.TITHE)
+	check(main.codify_block(L.TALLAGE) == "First: Tithe", "la taglia dopo la decima")
+	main.codified[L.TITHE] = true
+	check(main.codify(L.TALLAGE) and main.enact(L.TALLAGE) and main.enacted.size() == 3, "codificata, sul terzo sigillo")
+	main.produce(R.VEG, free[3], 10)
+	check(main.items[R.VEG].get(free[3], 0) == 8, "con la taglia due pezzi su dieci al granaio")
+	check(main.codify_block(L.TRIBUTE) == "Needs a county", "il tributo vuole la contea")
+	for k in [free[12], free[13], free[14]]:
+		main.furniture[k] = [B.STATUE, R.STONE, 0]
+		statues.append(k)
+	main.tick(0.0)
+	check(main.rank == 2 and main.codify(L.TRIBUTE), "40 di splendore: contea, e il tributo")
+	main.fill_laws()
+	check(main.get_node("HUD/LawsPanel/Box/Authority").text.begins_with("County of %s: a kingdom at 60" % main.realm), "la prossima soglia nella finestra")
+	for k in statues:
+		main.furniture.erase(k)
+	main.tick(0.0)
+	check(main.rank == 2, "il titolo non cala")
 
 	# libri nelle rovine: nei forzieri a volte, nel tesoro sempre; nel monastero sempre
 	var burglar = main.new_hero(main.Hero.BURGLAR, 5)
