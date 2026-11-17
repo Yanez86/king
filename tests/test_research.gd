@@ -236,6 +236,50 @@ func _initialize() -> void:
 	main.tick(0.0)
 	check(main.rank == 2, "il titolo non cala")
 
+	# eventi d'autorità: mai sotto zero; tesoro +5; all'alba -1 per scontento; colono morto -5
+	main.gain(-1000.0)
+	check(main.authority == 0.0, "l'autorità non va sotto zero")
+	var trip = main.Expedition.new()
+	trip.party.append(main.new_hero(main.Hero.ARCHER, 1))
+	trip.ruin = main.ruins[0]
+	trip.left_at = 0.0
+	trip.back_at = main.clock
+	trip.edge = Vector2i(0, main.MAP_SIZE.y / 2)
+	trip.treasure = true
+	main.expeditions.append(trip)
+	main.update_expeditions()
+	check(main.authority == main.TREASURE_AUTHORITY and trip.lines[-1].contains("+5 authority"), "il tesoro: +5, nel diario")
+	main.guests.clear()
+	main.get_node("HUD/ReportPanel").hide()
+	main.authority = 10.0
+	main.colonists[1].needs[main.Need.HAPPINESS] = 10.0
+	main.today = 3  # a metà stagione: niente feste
+	main.new_day()
+	check(main.authority == 9.0, "uno scontento: -1 all'alba")
+
+	# granaio aperto: dopo la decima e in baronia; senza cibo in magazzino il granaio ne manda, a stagione un pasto a tutti
+	main.authority = 500.0
+	check(main.codify(L.OPEN_GRANARY), "granaio aperto codificato")
+	main.revoke(L.TRIBUTE)
+	main.enacted.clear()
+	check(main.enact(L.OPEN_GRANARY), "e promulgato")
+	for res in main.MEALS + main.RAW_FOOD:
+		for cell in main.items[res].keys():
+			main.items[res].erase(cell)
+	main.granary = {R.MEAL: 2, R.VEG: 10}
+	main.stockpile = {free[20]: true, free[21]: true, free[22]: true}  # caselle che nessuno ha prenotato
+	main.new_hour()
+	check(main.stored(R.MEAL) == 2 and main.stored(R.VEG) == 1 and main.granary[R.MEAL] == 0 and main.granary[R.VEG] == 9,
+		"magazzino vuoto: un pezzo a colono dal granaio, prima i pasti")
+	main.new_hour()
+	check(main.granary[R.VEG] == 9, "c'è cibo in magazzino: il granaio resta chiuso")
+	for c in main.colonists:
+		c.needs[main.Need.FOOD] = 20.0
+	main.today = main.SEASON_DAYS
+	main.new_day()
+	var fed: Array = main.colonists.filter(func(c): return c.needs[main.Need.FOOD] == main.NEED_MAX and c.conds.has(main.Cond.WELL_FED))
+	check(main.granary[R.VEG] == 6 and fed.size() == 3, "stagione nuova: un pasto a tutti dal granaio")
+
 	# libri nelle rovine: nei forzieri a volte, nel tesoro sempre; nel monastero sempre
 	var burglar = main.new_hero(main.Hero.BURGLAR, 5)
 	burglar.gifts = [main.Gift.LOYAL]
@@ -264,6 +308,10 @@ func _initialize() -> void:
 		main.open_chest(e, main.RUINS[main.RuinKind.TOWER], false)
 		books += e.loot.get(R.NOTEBOOK, 0)
 	check(books > 230, "con lo studioso il doppio (%d su 400)" % books)
+
+	main.authority = 10.0
+	main.die(main.colonists[2], "fell")
+	check(main.authority == 5.0, "un colono morto: -5 autorità")
 
 	# una partita vera: niente studiato, lupi dal quinto giorno, un'arma abbandonata sulla mappa
 	main.queue_free()

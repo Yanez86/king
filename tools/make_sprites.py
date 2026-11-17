@@ -2568,20 +2568,21 @@ LAW_SYMBOLS_3 = """
 .oooooooooo. ..oooooooo.. ......o.....
 """
 
-# Leggi di baronia e contea: taglia (il sacco del granaio con la moneta), tributo (il cuore fedele con la corona)
+# Leggi di baronia e contea: taglia (il sacco del granaio con la moneta), tributo (il cuore fedele con la corona),
+# granaio aperto (il granaio con le porte aperte e il grano)
 LAW_SYMBOLS_4 = """
-....oooo.... ............
-...oCcCCo... ...o.oo.o...
-....oCCo.... ..o8og8o8o..
-..oocccCoo.. ..og8gg8<o..
-.occcccccCo. ..ogjgg<<o..
-occcoooooCCo ..oooooooo..
-occco8g<oCCo .oojjoojjoo.
-occcog<<oCCo ojjjjjjjjjJo
-occcoooooCCo ojjjjjjjjjJo
-.occcccccCo. .ojjjjjjjJo.
-.oCCCCCCCCo. ..ojjjjjJo..
-..oooooooo.. ...ojjJJo...
+....oooo.... ............ .....oo.....
+...oCcCCo... ...o.oo.o... ....oFFo....
+....oCCo.... ..o8og8o8o.. ...oFFfFo...
+..oocccCoo.. ..og8gg8<o.. ..oFFffFFo..
+.occcccccCo. ..ogjgg<<o.. .oFFfffffFo.
+occcoooooCCo ..oooooooo.. oooooooooooo
+occco8g<oCCo .oojjoojjoo. .owwoooowWo.
+occcog<<oCCo ojjjjjjjjjJo .owwo**owWo.
+occcoooooCCo ojjjjjjjjjJo .owwo**owWo.
+.occcccccCo. .ojjjjjjjJo. .owwo**owWo.
+.oCCCCCCCCo. ..ojjjjjJo.. .owwo**owWo.
+..oooooooo.. ...ojjJJo... .oooooooooo.
 """
 
 # Rami dell'albero del sapere 12x12, nei quadratini: terra (spiga), fuoco (fiamma), pietra (mattoni), ferro (spada e
@@ -3054,7 +3055,7 @@ def main():
     images["icon_authority"] = pixels(art(AUTHORITY_ICON, 16, 16))
     techs = [f for block in (TECH_SYMBOLS_1, TECH_SYMBOLS_2, TECH_SYMBOLS_3) for f in frames(block, 12, 4, 12)]
     images["techs"] = pixels(side_by_side([badge(f) for f in techs]))
-    laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 2, 12)
+    laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 3, 12)
     images["laws"] = pixels(side_by_side([badge(f, "I", "x", "U") for f in laws]))
     branches = [f for block in (BRANCH_SYMBOLS_1, BRANCH_SYMBOLS_2) for f in frames(block, 12, 3, 12)]
     images["branches"] = pixels(side_by_side([badge(f) for f in branches]))

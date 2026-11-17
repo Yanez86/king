@@ -767,7 +767,7 @@ const AUTHORITY_DAILY := 1.0
 const SPLENDOR_PER_AUTHORITY := 20
 const ENACT_COST := 10.0
 const REVOKE_WAIT := 3.0    # giorni prima di poter ripromulgare una legge revocata
-enum Law { EXEMPTION, TITHE, LOOT_TAX, LODGING_TAX, LONG_SHIFTS, SHORT_DAY, DAY_OF_REST, CURFEW, HARVEST_FEAST, TALLAGE, TRIBUTE }
+enum Law { EXEMPTION, TITHE, LOOT_TAX, LODGING_TAX, LONG_SHIFTS, SHORT_DAY, DAY_OF_REST, CURFEW, HARVEST_FEAST, TALLAGE, TRIBUTE, OPEN_GRANARY }
 const LAWS_SHEET := preload("res://art/laws.png")  # colonne nell'ordine di Law
 enum LawKind { TREASURY, WORK, ORDER, FEASTS }
 # Leggi: "kind" categoria; "cost" autorità per codificarla; "tier" il titolo che serve (di TITLES, se no la signoria);
@@ -785,6 +785,8 @@ const LAWS := {
 		"info": "Adventurers keep 20% of the gold they find, not 30%. A quarter fewer come, and the greedy stay away."},
 	Law.LODGING_TAX: {"kind": LawKind.TREASURY, "cost": 30, "needs": Tech.INN, "mood": {"guests": -3.0},
 		"info": "Every adventurer waiting at the inn pays a coin a night, and stays a day less."},
+	Law.OPEN_GRANARY: {"kind": LawKind.TREASURY, "tier": 1, "cost": 60, "after": Law.TITHE, "mood": {"all": 4.0},
+		"info": "With no food left in the warehouses, the granary feeds the colony. Every new season, a meal for everyone."},
 	Law.TRIBUTE: {"kind": LawKind.TREASURY, "tier": 2, "cost": 150, "mood": {"all": -4.0},
 		"info": "The colonists' loyalty is the crown's: +1 authority a day for each of them."},
 	Law.LONG_SHIFTS: {"kind": LawKind.WORK, "cost": 40, "group": "shifts",
@@ -806,6 +808,11 @@ const LOOT_TAX_WAIT := 4.0 / 3  # con la gabella: giorni tra un arrivo e l'altro
 const REST_EVERY := 7       # riposo festivo: l'ultimo giorno di ogni tanti
 const SEASON_DAYS := 10     # ponytail: finché non ci sono le stagioni, la festa del raccolto è l'ultimo giorno di ogni tanti
 const FEAST_AUTHORITY := 5.0
+# Eventi (GDD 4.7.4): autorità data o tolta una volta (mai sotto zero, vedi gain)
+const TREASURE_AUTHORITY := 5.0  # spedizione tornata col tesoro dell'ultima stanza
+const RELIC_AUTHORITY := 3.0     # cimelio posato
+const DEATH_AUTHORITY := -5.0    # colono morto
+const UNHAPPY := 20.0            # all'alba, -1 autorità per ogni colono sotto questa felicità
 # All'inizio, su ogni mappa, un'arma abbandonata accanto ai resti di un bivacco, tra FOUND_WEAPON_REACH caselle dalla radura
 const FOUND_WEAPONS := [Res.SWORD, Res.AXE, Res.BOW]
 const FOUND_WEAPON_REACH := [15, 25]
@@ -952,6 +959,7 @@ var revoked := {}           # Law -> `clock` da cui si può ripromulgare
 var granary := {}           # Res -> quantità: il granaio della corona, riempito dalla decima (vedi produce)
 var tithe_owed := {}        # Res -> parte di pezzo dovuta alla decima, che si accumula finché non fa un pezzo intero
 var today := 0              # il giorno visto per ultimo: cambiato, è l'alba di uno nuovo (vedi new_day)
+var hour := 0               # lo stesso per l'ora (vedi new_hour)
 var knowledge_key := ""     # quello che mostra la finestra Knowledge: se cambia, la si rifà (vedi fill_knowledge)
 var laws_key := ""          # lo stesso per la finestra Laws
 var items := {}  # risorsa -> (cella -> quantità a terra; nel magazzino = stoccata): un dizionario per Res, vedi _init  # risorsa -> (cella -> quantità a terra; nel magazzino = stoccata)
@@ -1068,6 +1076,7 @@ class Expedition:
 	var loot := {}                # Res -> quantità trovate, monete comprese
 	var maps := []                # RuinKind delle mappe trovate: le rovine si conoscono al ritorno
 	var food := 0.0               # provviste, in giorni a testa (1 = un giorno per uno), vedi eat_on_trip
+	var treasure := false         # ha aperto il tesoro dell'ultima stanza: al ritorno, autorità
 
 
 func _init() -> void:
@@ -2200,6 +2209,9 @@ func tick(delta: float) -> void:
 	if int(clock) != today:
 		today = int(clock)
 		new_day()
+	if int(clock * 24) != hour:
+		hour = int(clock * 24)
+		new_hour()
 	for c in people():
 		if c.died == 0.0:  # morto durante il giro
 			update_colonist(c, delta)
@@ -2348,6 +2360,8 @@ func update_colonist(c: Colonist, delta: float) -> void:
 				else:
 					furniture[c.target] = plan
 					plans.erase(c.target)
+					if RELICS.has(plan[0]):
+						gain(RELIC_AUTHORITY)
 				c.carrying = 0
 				c.xp[Skill.CONSTRUCTION] += 1
 				end_job(c)
@@ -3433,6 +3447,7 @@ func die(c: Colonist, why: String) -> void:
 			else:
 				leave_if_ready(exp)
 	if was_colonist:
+		gain(DEATH_AUTHORITY)
 		for o in colonists:
 			add_cond(o, Cond.MOURNING)
 	if shown == c:
@@ -3660,10 +3675,7 @@ func send(party: Array, ruin: Ruin) -> bool:
 	var exp := Expedition.new()
 	exp.ruin = ruin
 	var want := provisions(party, ruin)
-	for res in MEALS + RAW_FOOD:  # prima dal granaio della corona
-		var from_granary := mini(granary.get(res, 0), want - int(exp.food))
-		granary[res] = granary.get(res, 0) - from_granary
-		exp.food += from_granary
+	exp.food += from_granary(want)  # prima dal granaio della corona
 	for res in MEALS + RAW_FOOD:
 		var n := mini(stored(res), want - int(exp.food))
 		take_stored(res, n)
@@ -3770,6 +3782,7 @@ func explore(exp: Expedition, travel: float) -> float:
 			exp.lines.append("The treasure stays locked: the party turns back.")
 			break
 		exp.ruin.cleared += 1
+		exp.treasure = last
 		if explored(exp.ruin):
 			break
 		var weak := exp.party.filter(func(c): return c.hp < gift(c, "turn_back", TURN_BACK))
@@ -3920,6 +3933,9 @@ func update_expeditions() -> void:
 			g.errand = Errand.RETURN
 			guests.append(g)
 			travel(g)
+		if exp.treasure:
+			gain(TREASURE_AUTHORITY)
+			exp.lines.append("The treasure of the %s: %s authority for the crown." % [name, signed(TREASURE_AUTHORITY)])
 		exp.party[0].loot = exp.loot  # lo porta il primo, lo lascia alla locanda (vedi arrive)
 		report("Back from the %s" % name, exp.lines)
 
@@ -4248,16 +4264,58 @@ func holiday() -> bool:
 
 
 # All'alba di ogni giorno (a mezzanotte): la tassa di soggiorno di chi aspetta alla locanda, una moneta lì dov'è;
-# finita la festa del raccolto, la sua felicità e la sua autorità
+# chi è scontento toglie autorità. A stagione nuova: finita la festa del raccolto, la sua felicità e la sua autorità;
+# col granaio aperto un pasto a tutti, un pezzo del granaio a testa finché ce n'è
 func new_day() -> void:
 	if enacted.has(Law.LODGING_TAX):
 		for g in guests:
 			if not g.hired and g.errand == Errand.NONE:
 				drop(Res.GOLD, cell_of(g.pos), 1)
-	if enacted.has(Law.HARVEST_FEAST) and posmod(today - 1, SEASON_DAYS) == SEASON_DAYS - 1:
+	gain(-colonists.filter(func(c): return c.needs[Need.HAPPINESS] < UNHAPPY).size())
+	if posmod(today - 1, SEASON_DAYS) != SEASON_DAYS - 1:
+		return
+	if enacted.has(Law.HARVEST_FEAST):
 		for c in colonists:
 			add_cond(c, Cond.FESTIVE)
-		authority += FEAST_AUTHORITY
+		gain(FEAST_AUTHORITY)
+	if enacted.has(Law.OPEN_GRANARY):
+		for c in colonists:
+			if from_granary(1) == 0:
+				break
+			c.needs[Need.FOOD] = NEED_MAX
+			c.conds.erase(Cond.FEASTED)
+			add_cond(c, Cond.WELL_FED)
+
+
+# A ogni ora: col granaio aperto, se nei magazzini non c'è più cibo il granaio ne manda un pezzo a colono, che si
+# posa in magazzino dove ci sta (vedi dest_cells; pieno, resta nel granaio) e si mangia come gli altri.
+# ponytail: un'ora di attesa al più; un giorno di scorta alla volta
+func new_hour() -> void:
+	if not enacted.has(Law.OPEN_GRANARY) or (MEALS + RAW_FOOD).any(func(r): return stored(r) > 0):
+		return
+	var left := colonists.size()
+	for res in MEALS + RAW_FOOD:
+		var dests := dest_cells(res)
+		var n := mini(granary.get(res, 0), left)
+		if n > 0 and not dests.is_empty():
+			granary[res] -= n
+			left -= n
+			drop(res, dests[0], n)
+
+
+# toglie dal granaio fino a `n` pezzi di cibo, prima i pasti; quanti ne ha tolti
+func from_granary(n: int) -> int:
+	var taken := 0
+	for res in MEALS + RAW_FOOD:
+		var k := mini(granary.get(res, 0), n - taken)
+		granary[res] = granary.get(res, 0) - k
+		taken += k
+	return taken
+
+
+# autorità dagli eventi (vedi TREASURE_AUTHORITY), mai sotto zero
+func gain(amount: float) -> void:
+	authority = maxf(authority + amount, 0.0)
 
 
 # il nome del reame col titolo: "Barony of Valbruna"

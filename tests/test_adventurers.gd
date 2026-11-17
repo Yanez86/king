@@ -326,10 +326,12 @@ func _initialize() -> void:
 	main.stockpile[shelf] = true
 	main.add_item(R.CROWN, shelf, 1)
 	var before: int = main.colony_splendor()
+	var power: float = main.authority
 	main.furniture_plans[plinth] = [B.CROWN, R.CROWN, 0]
 	walk_until(func(): return main.furniture.has(plinth), 6000)
 	check(main.furniture[plinth][0] == B.CROWN and main.colony_splendor() == before + main.SPLENDOR[B.CROWN] and main.total(R.CROWN) == 0,
 		"la corona sul suo cuscino: +6 splendore")
+	check(main.authority >= power + main.RELIC_AUTHORITY, "cimelio posato: +3 autorità")
 	# la cronaca: tutto, dal più recente
 	main.open_board()
 	main.fill_board()
