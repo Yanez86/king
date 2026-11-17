@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=3]
+[gd_scene load_steps=39 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Texture2D" path="res://art/icon_wood.png" id="2"]
@@ -119,6 +119,8 @@ region = Rect2(0, 448, 32, 32)
 
 [sub_resource type="ButtonGroup" id="Categories"]
 
+[sub_resource type="ButtonGroup" id="OptionTabs"]
+
 [sub_resource type="ButtonGroup" id="Orders"]
 allow_unpress = true
 
@@ -201,7 +203,7 @@ text = "Fullscreen"
 [node name="Options" type="Button" parent="HUD/TopBar/Row"]
 custom_minimum_size = Vector2(32, 32)
 focus_mode = 0
-tooltip_text = "Quit"
+tooltip_text = "Options (Esc)"
 icon = ExtResource("options_icon")
 icon_alignment = 1
 expand_icon = true
@@ -888,3 +890,88 @@ theme_override_constants/separation = 8
 [node name="Name" type="Label" parent="HUD/ObjectSheet/Box"]
 
 [node name="Info" type="Label" parent="HUD/ObjectSheet/Box"]
+
+[node name="Options" type="ColorRect" parent="HUD"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.4)
+
+[node name="Window" type="PanelContainer" parent="HUD/Options"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Box" type="VBoxContainer" parent="HUD/Options/Window"]
+theme_override_constants/separation = 8
+
+[node name="Head" type="HBoxContainer" parent="HUD/Options/Window/Box"]
+
+[node name="Title" type="Label" parent="HUD/Options/Window/Box/Head"]
+size_flags_horizontal = 3
+text = "Options"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Close" type="Button" parent="HUD/Options/Window/Box/Head"]
+custom_minimum_size = Vector2(32, 32)
+focus_mode = 0
+tooltip_text = "Close (Esc)"
+icon = ExtResource("6")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Body" type="HBoxContainer" parent="HUD/Options/Window/Box"]
+theme_override_constants/separation = 12
+
+[node name="Tabs" type="VBoxContainer" parent="HUD/Options/Window/Box/Body"]
+custom_minimum_size = Vector2(150, 0)
+theme_override_constants/separation = 6
+
+[node name="Keybindings" type="Button" parent="HUD/Options/Window/Box/Body/Tabs"]
+custom_minimum_size = Vector2(0, 36)
+focus_mode = 0
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("OptionTabs")
+text = "Keybindings"
+
+[node name="Space" type="Control" parent="HUD/Options/Window/Box/Body/Tabs"]
+size_flags_vertical = 3
+
+[node name="Quit" type="Button" parent="HUD/Options/Window/Box/Body/Tabs"]
+custom_minimum_size = Vector2(0, 36)
+focus_mode = 0
+text = "Quit game"
+
+[node name="Separator" type="VSeparator" parent="HUD/Options/Window/Box/Body"]
+
+[node name="Pages" type="VBoxContainer" parent="HUD/Options/Window/Box/Body"]
+custom_minimum_size = Vector2(300, 0)
+
+[node name="Keybindings" type="VBoxContainer" parent="HUD/Options/Window/Box/Body/Pages"]
+theme_override_constants/separation = 8
+
+[node name="List" type="GridContainer" parent="HUD/Options/Window/Box/Body/Pages/Keybindings"]
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 4
+columns = 3
+
+[node name="Hint" type="Label" parent="HUD/Options/Window/Box/Body/Pages/Keybindings"]
+custom_minimum_size = Vector2(300, 0)
+theme_override_colors/font_color = Color(0.85, 0.77, 0.54, 1)
+text = "Click a key, then press the new one. Esc cancels, Delete clears it. Space, 1-3, E and R are fixed."
+autowrap_mode = 3
+
+[node name="Reset" type="Button" parent="HUD/Options/Window/Box/Body/Pages/Keybindings"]
+custom_minimum_size = Vector2(0, 32)
+size_flags_horizontal = 8
+focus_mode = 0
+text = "Reset to defaults"

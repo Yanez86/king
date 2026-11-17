@@ -216,6 +216,12 @@ const SPLENDOR := {Build.FLOWER_BED: 1, Build.PLANTER: 1, Build.BENCH: 1, Build.
 const SPLENDOR_COLOR := Color("e8c34a")
 const ROOM_SPACE := 6        # caselle a testa: chi ne ha meno (stanza piena di gente) ha il comfort in proporzione
 # suggerimento dei pulsanti di costruzione (vedi build_tip): sotto nome e costo il comfort, poi la descrizione colorata
+# menù delle opzioni (Esc o ingranaggio), tab Keybindings: tasti di partenza dei comandi della barra in basso, per
+# nome del pulsante in HUD/Tools/Row (quelli che non ci sono partono senza). Cambiati, si salvano: vedi bind_key
+const DEFAULT_KEYS := {"Select": KEY_Q, "Build": KEY_B, "Destroy": KEY_X, "Mine": KEY_M, "Chop": KEY_C, "Uproot": KEY_U,
+	"Harvest": KEY_H, "Fish": KEY_F, "Hunt": KEY_T, "Jobs": KEY_J, "Resources": KEY_I, "RoomsLens": KEY_L}
+const FIXED_KEYS := [KEY_SPACE, KEY_1, KEY_2, KEY_3, KEY_E, KEY_R, KEY_ESCAPE]  # velocità, giro dei mobili, menù
+const MODIFIER_KEYS := [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]  # da soli non sono un tasto
 const TIP := preload("res://tip_button.gd")  # suggerimento fatto di Control: pulsanti di costruzione, figurine
 const BUILD_INFO_COLOR := Color("d9c48a")
 const BUILD_INFO := {
@@ -536,6 +542,11 @@ var lens_owners := []       # [centro, proprietari o lavoratori] per stanza dell
 var needs_rate := 1.0       # 0 nei test: i bisogni restano fermi e non cambiano i lavori
 var routines := true        # false nei test: niente orari né ore massime, chi è libero prende il primo lavoro
 var start_rooms := true     # false nei test: mappa di sempre, senza stanze né scorte di partenza (va messo prima di _ready)
+var settings_file := "user://settings.cfg"  # "" nei test: tasti di partenza, niente da leggere né da salvare
+var hotkeys := {}           # nome del pulsante in HUD/Tools/Row -> Key, KEY_NONE se non ne ha: vedi bind_key
+var tool_names := {}        # nome del pulsante in HUD/Tools/Row -> suggerimento senza il tasto
+var rebinding := ""         # comando che aspetta il suo nuovo tasto, vedi capture_key
+var resume_speed := 1.0     # velocità a cui riprende il gioco chiudendo il menù delle opzioni
 var reserved := {}          # cella -> Colonist che la sta usando
 var unreachable := {}       # cella -> `clock` da cui riprovare ad arrivarci, vedi path_to_nearest
 var draft := {}             # cella -> [Build, Res]: progetto in preparazione, i coloni lo ignorano fino a "Build"
@@ -600,6 +611,9 @@ var lights_canvas := Node2D.new()
 @onready var sheet_panel: Control = $HUD/ColonistSheet  # a sinistra, si apre cliccando un colono: vedi open_sheet
 @onready var object_sheet: Control = $HUD/ObjectSheet  # in basso a destra: la casella sotto il mouse, vedi show_tip
 @onready var sheet_needs: GridContainer = $HUD/ColonistSheet/Box/Needs  # 4 colonne: nome, freccia giù, barra, freccia su
+@onready var hotbar: Control = $HUD/Tools/Row
+@onready var options: Control = $HUD/Options  # velo su tutto lo schermo con la finestra al centro: vedi toggle_options
+@onready var key_list: GridContainer = $HUD/Options/Window/Box/Body/Pages/Keybindings/List  # icona, nome, tasto
 
 
 func _init() -> void:
@@ -645,7 +659,8 @@ func _ready() -> void:
 		colonists.append(c)
 	camera.position = center(MAP_SIZE / 2)
 	fullscreen.pressed.connect(toggle_fullscreen)
-	$HUD/TopBar/Row/Options.pressed.connect(get_tree().quit)  # ponytail: per ora chiude il gioco, poi aprirà le opzioni
+	$HUD/TopBar/Row/Options.pressed.connect(toggle_options)
+	setup_options()
 	build_button.toggled.connect(toggle_build)
 	structures_button.toggled.connect(toggle_category.bind(build_bar))
 	furniture_button.toggled.connect(toggle_category.bind(furniture_bar))
@@ -704,6 +719,138 @@ func _ready() -> void:
 		window.get_node("Box/Head/Close").pressed.connect(window.hide)
 		window.gui_input.connect(drag_window.bind(window))
 		window.visibility_changed.connect(window.move_to_front, CONNECT_DEFERRED)  # l'ultima aperta sta sopra
+
+
+# menù delle opzioni: le tab a sinistra (una per pagina, con lo stesso nome), "Quit game" in fondo; nella pagina dei
+# tasti una riga per comando della barra in basso, nell'ordine dei pulsanti
+func setup_options() -> void:
+	var window: Control = options.get_node("Window")
+	window.get_node("Box/Head/Close").pressed.connect(options.hide)
+	window.gui_input.connect(drag_window.bind(window))
+	options.visibility_changed.connect(options_toggled)
+	var pages := window.get_node("Box/Body/Pages")
+	for tab in window.get_node("Box/Body/Tabs").get_children():
+		if tab is Button and tab.toggle_mode:
+			tab.toggled.connect(pages.get_node(NodePath(tab.name)).set_visible)
+	window.get_node("Box/Body/Tabs/Quit").pressed.connect(get_tree().quit)
+	pages.get_node("Keybindings/Reset").pressed.connect(reset_keys)
+	for button in hotbar.get_children():
+		if not button is Button:
+			continue
+		tool_names[String(button.name)] = button.tooltip_text
+		key_list.add_child(ui_icon(button.icon, Rect2(), Vector2(32, 32)))
+		var label := Label.new()
+		label.text = button.tooltip_text
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		key_list.add_child(label)
+		var key := Button.new()
+		key.name = button.name
+		key.custom_minimum_size = Vector2(120, 32)
+		key.focus_mode = Control.FOCUS_NONE
+		key.toggle_mode = true  # premuto finché aspetta il tasto nuovo
+		key.pressed.connect(start_rebind.bind(String(button.name)))
+		key_list.add_child(key)
+	load_keys()
+
+
+# Esc o ingranaggio in alto a destra: apre o chiude il menù delle opzioni
+func toggle_options() -> void:
+	options.visible = not options.visible
+
+
+# aperto il menù il gioco si ferma; chiuso (anche con la X) riprende alla velocità di prima
+func options_toggled() -> void:
+	if options.visible:
+		resume_speed = Engine.time_scale
+		Engine.time_scale = 0.0
+		options.move_to_front()  # sopra le finestre aperte dopo
+	else:
+		Engine.time_scale = resume_speed
+		rebinding = ""
+		show_keys()
+
+
+# tasti di partenza, poi quelli salvati
+func load_keys() -> void:
+	for name in tool_names:
+		hotkeys[name] = DEFAULT_KEYS.get(name, KEY_NONE)
+	var config := ConfigFile.new()
+	if settings_file != "" and config.load(settings_file) == OK and config.has_section("keys"):
+		for name in config.get_section_keys("keys"):
+			if tool_names.has(name):  # comandi tolti dalla barra: si ignorano
+				bind_key(name, config.get_value("keys", name), false)
+	show_keys()
+
+
+func reset_keys() -> void:
+	for name in tool_names:
+		hotkeys[name] = DEFAULT_KEYS.get(name, KEY_NONE)
+	rebinding = ""
+	save_keys()
+	show_keys()
+
+
+# lega il comando al tasto, tolto a chi lo aveva (un tasto, un comando); KEY_NONE: nessun tasto
+func bind_key(name: String, key: Key, save := true) -> void:
+	for other in hotkeys:
+		if hotkeys[other] == key:
+			hotkeys[other] = KEY_NONE
+	hotkeys[name] = key
+	if save:
+		save_keys()
+	show_keys()
+
+
+func save_keys() -> void:
+	if settings_file == "":
+		return
+	var config := ConfigFile.new()
+	config.load(settings_file)  # tiene le altre sezioni, se ci sono
+	for name in hotkeys:
+		config.set_value("keys", name, hotkeys[name])
+	config.save(settings_file)
+
+
+# il tasto di ogni comando, nella sua riga del menù e tra parentesi nel suggerimento del pulsante in basso
+func show_keys() -> void:
+	for name in hotkeys:
+		var key: Key = hotkeys[name]
+		hotbar.get_node(NodePath(name)).tooltip_text = tool_names[name] + ("" if key == KEY_NONE else " (%s)" % OS.get_keycode_string(key))
+		var button: Button = key_list.get_node(NodePath(name))
+		button.text = "Press a key" if name == rebinding else "-" if key == KEY_NONE else OS.get_keycode_string(key)
+		button.set_pressed_no_signal(name == rebinding)
+
+
+# clic sul tasto di un comando nel menù: aspetta il nuovo, vedi capture_key
+func start_rebind(name: String) -> void:
+	rebinding = name
+	show_keys()
+
+
+# tasto premuto mentre un comando aspetta il suo: Esc annulla, Canc e Backspace lo tolgono; quelli fissi (velocità,
+# giro dei mobili) e i modificatori da soli non si prendono, si resta in attesa
+func capture_key(key: Key) -> void:
+	if key in MODIFIER_KEYS or (key in FIXED_KEYS and key != KEY_ESCAPE):
+		return
+	var name := rebinding
+	rebinding = ""
+	if key == KEY_ESCAPE:
+		show_keys()
+	elif key in [KEY_DELETE, KEY_BACKSPACE]:
+		bind_key(name, KEY_NONE)
+	else:
+		bind_key(name, key)
+
+
+# tasto di un comando della barra in basso: come cliccarne il pulsante
+func press_hotkey(key: Key) -> bool:
+	var name = hotkeys.find_key(key)
+	if key == KEY_NONE or name == null:
+		return false
+	var button: Button = hotbar.get_node(NodePath(name))
+	button.button_pressed = not button.button_pressed
+	return true
 
 
 # finestre: col tasto sinistro si portano sopra le altre e si trascinano, senza uscire dallo schermo
@@ -3209,7 +3356,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		camera.position += event.delta * 10 / camera.zoom
 	elif event is InputEventMagnifyGesture:  # trackpad: pizzico
 		zoom_by(event.factor)
-	elif event is InputEventKey and event.pressed:
+	elif event is InputEventKey and event.pressed and rebinding != "":
+		if not event.echo:
+			capture_key(event.keycode)
+	elif event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+		if not event.echo:
+			toggle_options()
+	elif event is InputEventKey and event.pressed and not options.visible:  # col menù aperto il gioco è fermo
+		if not event.echo and not (event.ctrl_pressed or event.alt_pressed or event.meta_pressed) and press_hotkey(event.keycode):
+			return
 		match event.keycode:
 			KEY_SPACE: Engine.time_scale = 0.0 if Engine.time_scale > 0 else 1.0
 			KEY_1: Engine.time_scale = 1.0
