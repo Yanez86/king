@@ -602,7 +602,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Apicoltura | III | 450 | Forno di pietra | arnia accanto alle aiuole: miele (non marcisce), cera (candele: si studia di notte) |
   | | Banchetto reale | IV | 1000 | Apicoltura | il banchetto al forno: +15 felicità per 3 giorni, +20 autorità |
   | | Caccia ✓ | I | 50 | — | *filatoio, corda d'arco, banco del falegname, falegnameria, arco* |
-  | | Affumicatoio | II | 200 | Caccia | carne e pesce affumicati durano quattro volte tanto |
+  | | Affumicatoio ✓ | II | 200 | Caccia | al fuoco: carne e pesce affumicati durano quattro volte tanto (scorta 0 dal menu); si mangiano e si cucinano come il crudo |
   | | Dispensa fredda ✓ | I | 100 | — | stanza dispensa, solo per il cibo, che ci va per primo: dura il triplo che fuori (in magazzino il doppio) |
   | Fuoco | Forgia ✓ | I | 60 | — | *fornace, incudine, forgia, lingotto, piccone, ascia, falcetto* |
   | | Acciaio | II | 300 | Forgia | acciaio (2 lingotti + 2 carbone): attrezzi −40% tempo, spada danno 20 |
@@ -620,7 +620,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Strada lastricata ✓ | I | 60 | — | lastre di pietra (2 a casella): si cammina il 25% più svelti, e i coloni le scelgono |
   | | Ponte | II | 200 | Strada lastricata | si attraversa l'acqua alta, si pesca dal ponte |
   | Ferro | Palizzata ✓ | I | 80 | — | palizzata e cancello: i lupi non passano; un recinto non è una stanza |
-  | | Torre di guardia | II | 300 | Palizzata | lupi visti a 20 caselle; arciere in torre +2 caselle, +15%; campana |
+  | | Torre di guardia ✓ | II | 300 | Palizzata | lupi visti a 20 caselle da tutti (la campana); arciere in torre +2 caselle, +15% (lassù non ci sale ancora da sé) |
   | | Balestra | III | 500 | Torre di guardia | danno 22, un tiro ogni 4 s, +15% a segno |
   | | Armatura a piastre | IV | 1200 | Balestra, Cotta di maglia, Acciaio | protezione 7, +15% tempo |
   | | Armi di ferro ✓ | I | 80 | Forgia | *spada, elmo* |
@@ -628,7 +628,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Fantoccio ✓ | I | 60 | — | allenamento nel tempo libero: svago e +1 esperienza in mischia a colpo (uno ogni 2,5 s) |
   | | Scudo | II | 250 | Fantoccio | scudo tondo: +3 protezione con spada o pugnale |
   | Strada | Locanda ✓ | I | 40 | — | *bacheca degli incarichi, locanda, ingaggi e spedizioni* |
-  | | Locanda rinomata | II | 250 | Locanda | arrivi ogni giorno e mezzo, restano 5 giorni; avviso per la classe |
+  | | Locanda rinomata ✓ | II | 250 | Locanda | arrivi ogni giorno e mezzo, restano 5 giorni; avviso per la classe (sulla bacheca) |
   | | Compagnia della corona | III | 500 | Locanda rinomata | i coloni partono con gli avventurieri |
   | | Mappa del Re Dimenticato | IV | 1000 | Compagnia, Cartografia | la Cittadella: pericolo 5, 10 stanze, 3 giorni |
   | | Provviste secche ✓ | I | 80 | — | gallette al fuoco (2 vegetali, scorta 0 dal menu): valgono 2 provviste, non marciscono, a casa non si mangiano |
@@ -663,8 +663,9 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
 - **Revocare** è gratis, ma per 3 giorni la legge non si ripromulga.
 - **Consenso**: ogni legge in vigore cambia la felicità di chi è in colonia secondo i talenti (agli avventurieri la
   loro). Sulla scheda sta tra le condizioni, con l'icona della legge (col mouse sopra: approva o disapprova, quanto).
-- **Protesta** (poi): un colono sotto 20 di felicità che disapprova almeno due leggi molla il lavoro per 2 ore e va a
-  lamentarsi nella sala del trono; −5 autorità. Con Pene severe finisce alla gogna; con Clemenza il sovrano lo ascolta.
+- **Protesta** ✓: un colono sotto 20 di felicità che disapprova almeno due leggi molla il lavoro per 2 ore e va a
+  lamentarsi nella sala del trono (senza, lì attorno); −5 autorità; una volta al giorno al più, il sovrano no. Poi: con
+  Pene severe finisce alla gogna; con Clemenza il sovrano lo ascolta.
 
 #### 4.7.6 Le tasse
 I coloni non hanno monete: l'oro viene dalle rovine e va agli avventurieri. Le tasse non lo fanno nascere dal nulla:
@@ -732,16 +733,16 @@ monastero, livello II e III di quello che c'è già (cotta, fontana, statua); (3
 Laws, le leggi di signoria che usano cose che esistono, consenso sulla scheda; (4) granaio e decima, titolo che cresce
 (4.3, fase 6) con sigilli e fasce; (5) il resto dell'albero un nodo alla volta, erudito errante, protesta; (6) livello
 IV, regno, leggi finali, cittadella.
-**Stato**: fatte le fasi 1–4; della 5 i primi nodi e l'erudito errante. Nel gioco: scrittoio, libreria e trono; stanze
-Studio e Sala del trono; lavori Studiare e Governare; studio e autorità (nelle finestre Knowledge e Laws, tasti K e G,
-o clic su scrittoio e trono; tutte e due scorrono); i tre libri, nei forzieri e nei tesori, col monastero; le 19
-ricerche segnate ✓ (Statuaria per ora dopo Muratura, finché non c'è Arredo fine); le 15 leggi segnate ✓; il titolo
-cresce con lo splendore (4.3) e dà i sigilli (2–5), le fasce delle leggi e l'autorità di ogni giorno; gli eventi
-d'autorità del 4.7.4 tranne l'incoronazione (manca la successione), mai sotto zero. Il granaio è un conto, non una
-stanza, e niente ci marcisce; paga le provviste, poi (Granaio aperto) l'ora senza cibo in magazzino e il pasto di ogni
-stagione; la festa del raccolto e il pasto, finché non ci sono le stagioni, sono ogni 10 giorni. Le spedizioni
-prendono prima dal granaio, poi le gallette, poi pasti e crudo. Manca il resto, e i contatori di studio e autorità
-nella barra in alto (a 1280 di larghezza non ci stanno).
+**Stato**: fatte le fasi 1–4; della 5 una parte dei nodi, l'erudito errante e la protesta. Nel gioco: scrittoio,
+libreria e trono; stanze Studio e Sala del trono; lavori Studiare e Governare; studio e autorità (nelle finestre
+Knowledge e Laws, tasti K e G, o clic su scrittoio e trono; tutte e due scorrono); i tre libri, nei forzieri e nei
+tesori, col monastero; le 22 ricerche segnate ✓ (Statuaria per ora dopo Muratura, finché non c'è Arredo fine); le 15
+leggi segnate ✓; il titolo cresce con lo splendore (4.3) e dà i sigilli (2–5), le fasce delle leggi e l'autorità di
+ogni giorno; gli eventi d'autorità del 4.7.4 tranne l'incoronazione (manca la successione), mai sotto zero. Il granaio
+è un conto, non una stanza, e niente ci marcisce; paga le provviste, poi (Granaio aperto) l'ora senza cibo in
+magazzino e il pasto di ogni stagione; la festa del raccolto e il pasto, finché non ci sono le stagioni, sono ogni 10
+giorni. Le spedizioni prendono prima dal granaio, poi le gallette, poi pasti e crudo. Manca il resto, e i contatori di
+studio e autorità nella barra in alto (a 1280 di larghezza non ci stanno).
 
 ## 5. Scope
 

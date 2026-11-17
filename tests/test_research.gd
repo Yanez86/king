@@ -495,6 +495,68 @@ func _initialize() -> void:
 	main.update_scholar()
 	check(main.scholar_until < 0 and main.next_scholar > main.clock + 7, "dopo un giorno riparte; torna fra una decina di giorni")
 
+	# protesta: sotto 20 di felicità e contro due leggi, si va a lamentarsi nella sala del trono; una volta al giorno
+	var hall = main.Room.new()
+	hall.kind = main.RoomKind.THRONE_ROOM
+	hall.cells = {free[45]: true, free[46]: true}
+	main.rooms.append(hall)
+	var grumpy = main.colonists[1]
+	main.quit_job(grumpy)
+	grumpy.traits = []
+	grumpy.needs[main.Need.HAPPINESS] = 10.0
+	main.enacted = [L.LONG_SHIFTS, L.CURFEW]
+	main.authority = 20.0
+	main.new_hour()
+	check(grumpy.job == main.Job.PROTEST and hall.cells.has(grumpy.target) and main.authority == 15.0
+		and main.chronicle[-1].contains("Long Shifts and Curfew"), "protesta nella sala del trono: -5, nella cronaca")
+	main.quit_job(grumpy)
+	main.new_hour()
+	check(grumpy.job != main.Job.PROTEST, "una volta al giorno")
+	grumpy.protested = -1
+	main.enacted = [L.LONG_SHIFTS]
+	main.new_hour()
+	check(grumpy.job != main.Job.PROTEST, "contro una legge sola non protesta")
+	main.enacted.clear()
+	grumpy.needs[main.Need.HAPPINESS] = 50.0
+
+	# affumicatoio: al fuoco, carne e pesce che durano quattro volte tanto; si mangiano e si cucinano come il crudo
+	check(main.SHELF_LIFE[R.SMOKED_MEAT] == 4 * main.SHELF_LIFE[R.MEAT] and main.SHELF_LIFE[R.SMOKED_FISH] == 4 * main.SHELF_LIFE[R.FISH]
+		and R.SMOKED_MEAT in main.RAW_FOOD and main.tech_for("makes", R.SMOKED_FISH) == T.SMOKEHOUSE, "affumicati: quattro volte tanto")
+
+	# locanda rinomata: un arrivo ogni giorno e mezzo, e sulla bacheca l'avviso per la classe
+	main.furniture[free[40]] = [B.BED, R.WOOD, 0]
+	main.guests.clear()
+	main.board_key = ""
+	main.fill_board()
+	var notice: OptionButton = main.get_node("HUD/BoardPanel/Box/Notice/Class")
+	check(main.get_node("HUD/BoardPanel/Box/Notice").visible and notice.item_count == main.Hero.size(), "l'avviso sulla bacheca")
+	notice.item_selected.emit(notice.get_item_index(main.Hero.BURGLAR))
+	check(main.wanted_hero == main.Hero.BURGLAR, "si chiede uno scassinatore")
+	main.next_guest = main.clock
+	main.update_guests()
+	check(main.guests.size() == 1 and main.guests[0].hero == main.Hero.BURGLAR and main.next_guest - main.clock <= 2.0 + 0.001,
+		"arriva lo scassinatore; il prossimo fra un giorno e mezzo, più o meno")
+	main.guests.clear()
+	main.wanted_hero = main.Hero.NONE
+
+	# torre di guardia: con la campana i lupi si vedono a 20 caselle; l'arciere lassù tira più lontano e meglio
+	var lookout: Vector2i = free.filter(func(k): return main.can_build(k))[3]
+	var archer = main.ruler
+	main.quit_job(archer)
+	archer.pos = main.center(lookout)
+	var prowler = main.add_animal(main.Beast.WOLF, lookout + Vector2i(15, 0) if main.roams(lookout + Vector2i(15, 0)) else lookout + Vector2i(-15, 0))
+	prowler.blocked = 0.0
+	check(main.nearest_foe(archer) == null, "senza torre a 15 caselle il lupo non si vede")
+	main.furniture[lookout] = [B.WATCHTOWER, R.WOOD, 0]
+	check(main.nearest_foe(archer) == prowler, "con la torre sì")
+	archer.gear[main.Slot.HANDS] = R.BOW
+	check(main.gear_sum(archer, "range") == main.GEAR[R.BOW]["range"] + main.TOWER["range"]
+		and is_equal_approx(main.gear_sum(archer, "hit"), main.GEAR[R.BOW]["hit"] + main.TOWER["hit"]), "l'arciere sulla torre: +2 caselle, +15%")
+	archer.pos = main.center(lookout + Vector2i.DOWN)
+	check(main.gear_sum(archer, "range") == main.GEAR[R.BOW]["range"], "sceso, niente")
+	main.animals.erase(prowler)
+	main.furniture.erase(lookout)
+
 	# una partita vera: niente studiato, lupi dal quinto giorno, un'arma abbandonata sulla mappa
 	main.queue_free()
 	var real = load("res://main.tscn").instantiate()

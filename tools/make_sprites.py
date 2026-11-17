@@ -2429,6 +2429,26 @@ DUMMY = """
 ....zzzzzzzz....
 """
 
+# Torre di guardia 16x16: la tettoia, la campana, la piattaforma e la scala
+WATCHTOWER = """
+.......oo.......
+......oFFo......
+.....oFFfFo.....
+....oFFffFFo....
+...oFFfffffDo...
+..oooooooooooo..
+..ow...gg...Wo..
+..ow..g88g..Wo..
+..ow...<<...Wo..
+..oBBBBBBBBBBo..
+..oWWWWWWWWWWo..
+..ow.o....o.Wo..
+..ow.oBBBBo.Wo..
+..ow.o....o.Wo..
+..ow.oBBBBo.Wo..
+.zzzzzzzzzzzzzz.
+"""
+
 # Libri 16x16, come ICONS -> quaderno azzurro (sottile, una fascia), tomo rosso (spesso, due fasce, fermaglio),
 # codice di porpora (grande, tre fasce, angoli d'oro e gemma): si riconoscono anche dalla sagoma
 BOOK_ICONS = """
@@ -2590,6 +2610,23 @@ oBwWoBwWoBwo ....oooo....
 oBwWoBwWoBwo .....wW.....
 oBwWoBwWoBwo .....wW.....
 oooooooooooo ....owWo....
+"""
+
+# Ricerche di livello II: affumicatoio (il prosciutto nel fumo), locanda rinomata (l'insegna con la stella), torre di
+# guardia
+TECH_SYMBOLS_6 = """
+..X..X..X... oooooooooooo .....oo.....
+.X..X..X.... ..o......o.. ....oFFo....
+..X..X..X... ..o......o.. ...oFFfFo...
+.....o...... .oooooooooo. ..oFFffFFo..
+....owo..... .occccccccCo .oooooooooo.
+...owwWo.... .occcc8cccCo .ow..gg..Wo.
+..owwwwWo... .occ88888cCo .ow.g88g.Wo.
+..owwwwWWo.. .occc888ccCo .oBBBBBBBBo.
+..owwwWWWo.. .occ8ccc8cCo .ow.oBBo.Wo.
+...oWWWWo... .occccccccCo .ow.o..o.Wo.
+....oxxo.... .oCCCCCCCCCo .ow.oBBo.Wo.
+.....oo..... .oooooooooo. .ow.o..o.Wo.
 """
 
 # Leggi 12x12, nei quadratini color pergamena (vedi badge), nell'ordine di Law in main.gd: esenzione, decima, gabella sul
@@ -3043,7 +3080,7 @@ def banner_drape():
 def furniture_sheet():
     """Mobili, foglio 128x800. Righe: letto, tavolo, sedia, abat-jour, fuoco da campo, fornace, incudine, banco da lavoro,
     filatoio, banco del falegname, poi le decorazioni: aiuola, fioriera, panca, stendardo, lampione, fontana, statua;
-    la bacheca; i cimeli: calice, stendardo antico, busto, corona; scrittoio, libreria, trono, fantoccio (come Build in main.gd);
+    la bacheca; i cimeli: calice, stendardo antico, busto, corona; scrittoio, libreria, trono, fantoccio, torre di guardia (come Build in main.gd);
     colonne: quarti di giro in senso orario (per fuoco, stendardo e fontana, fotogrammi), ognuno in alto a sinistra nel suo riquadro 32x32."""
     bed, chair, chair_left = art(BED, 32, 16), art(CHAIR, 16, 16), art(CHAIR_LEFT, 16, 16)
     table, lamp, anvil = art(TABLE, 32, 32), art(LAMP, 16, 16), art(ANVIL, 16, 16)
@@ -3068,7 +3105,7 @@ def furniture_sheet():
             [art(STATUE, 32, 32)] * 4,
             [art(NOTICE_BOARD, 16, 16)] * 4] + [[art(r, 16, 16)] * 4 for r in (CHALICE, OLD_BANNER, BUST, CROWN)] \
         + [[art(DESK, 16, 16), mirror(art(DESK, 16, 16))] * 2, [art(BOOKSHELF, 16, 16)] * 4, [art(THRONE, 16, 16)] * 4,
-           [art(DUMMY, 16, 16)] * 4]
+           [art(DUMMY, 16, 16)] * 4, [art(WATCHTOWER, 16, 16)] * 4]
     slot = lambda g: [line.ljust(32, ".") for line in g] + ["." * 32] * (32 - len(g))
     return [line for row in rows for line in side_by_side([slot(g) for g in row])]
 
@@ -3145,6 +3182,9 @@ def main():
     images["icon_flax"] = pixels(art(FLAX_ICON, 16, 16))
     images["icon_bowstring"] = pixels(art(BOWSTRING_ICON, 16, 16))
     images["icon_hardtack"] = pixels(art(HARDTACK_ICON, 16, 16))
+    meat, fish = frames(RAW_ICONS, count=2)  # affumicati: la carne bruna, il pesce dorato
+    images["icon_smoked_meat"] = pixels([line.translate(str.maketrans("jJs", "wWc")) for line in meat])
+    images["icon_smoked_fish"] = pixels([line.translate(str.maketrans("urR", "c<W")) for line in fish])
     images["animals"] = pixels(art(ANIMALS.replace(" ", ""), 32, 48))
     images["sign"] = pixels(art(SIGN, 16, 16))
     images["structures"] = pixels(structures_sheet())
@@ -3186,7 +3226,7 @@ def main():
     images["icon_notebook"], images["icon_tome"], images["icon_codex"] = (pixels(f) for f in frames(BOOK_ICONS))
     images["icon_study"] = pixels(art(STUDY_ICON, 16, 16))
     images["icon_authority"] = pixels(art(AUTHORITY_ICON, 16, 16))
-    techs = [f for block in (TECH_SYMBOLS_1, TECH_SYMBOLS_2, TECH_SYMBOLS_3) for f in frames(block, 12, 4, 12)] + frames(TECH_SYMBOLS_4, 12, 5, 12) + frames(TECH_SYMBOLS_5, 12, 2, 12)
+    techs = [f for block in (TECH_SYMBOLS_1, TECH_SYMBOLS_2, TECH_SYMBOLS_3) for f in frames(block, 12, 4, 12)] + frames(TECH_SYMBOLS_4, 12, 5, 12) + frames(TECH_SYMBOLS_5, 12, 2, 12) + frames(TECH_SYMBOLS_6, 12, 3, 12)
     images["techs"] = pixels(side_by_side([badge(f) for f in techs]))
     laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 3, 12) + frames(LAW_SYMBOLS_5, 12, 3, 12)
     images["laws"] = pixels(side_by_side([badge(f, "I", "x", "U") for f in laws]))

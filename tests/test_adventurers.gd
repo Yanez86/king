@@ -73,7 +73,8 @@ func _initialize() -> void:
 	main.update_guests()
 	check(main.guests.size() == 1, "un letto, un avventuriero")
 	walk_until(func(): return g.errand == main.Errand.NONE, 4000)
-	check(main.room_at(main.cell_of(g.pos)) == inn and is_equal_approx(g.stay_until, main.clock + main.GUEST_STAY), "arrivato alla locanda, aspetta")
+	check(main.room_at(main.cell_of(g.pos)) == inn and is_equal_approx(g.stay_until, main.clock + main.RENOWNED_GUESTS[1]),
+		"arrivato alla locanda, aspetta (5 giorni: nei test la locanda rinomata è studiata)")
 	check(main.free_beds(g) == [bed], "dorme solo nei letti della locanda")
 	main.find_job(g)
 	check(g.job not in main.WORK_JOBS, "non lavora")

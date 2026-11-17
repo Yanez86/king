@@ -23,7 +23,7 @@ const SIDES := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 const TREE_SIDES := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  # da sopra la chioma coprirebbe chi taglia
 
 enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE,
-	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN }
+	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST }
 const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FURNISH, Job.HARVEST, Job.COOK, Job.FISH,
 	Job.HUNT, Job.CRAFT, Job.STUDY, Job.GOVERN]  # contano come ore di lavoro
 # VEG: vegetali, dalle bacche dei cespugli; IRON, COAL: dai massi con le vene; MEAL, FINE_MEAL: pasti, dalla cucina;
@@ -33,16 +33,17 @@ const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FUR
 # ingaggiare gli avventurieri (vedi send); DAGGER: il pugnale degli scassinatori, non si fabbrica; da CHALICE in poi
 # i cimeli, dalle rovine: si piazzano come decorazioni (vedi RELICS); NOTEBOOK, TOME, CODEX: i libri, dalle rovine, che
 # le ricerche di livello II, III e IV consumano (vedi BOOKS); HARDTACK: gallette, provviste per le spedizioni che non
-# marciscono e non si mangiano a casa (vedi send)
+# marciscono e non si mangiano a casa (vedi send); SMOKED_MEAT, SMOKED_FISH: affumicati al fuoco, crudi che durano
+# quattro volte tanto
 enum Res { WOOD, STONE, VEG, IRON, COAL, MEAL, FINE_MEAL, MEAT, FISH, HIDE, INGOT, FLAX, BOWSTRING,
 	PICKAXE, AXE, SICKLE, BOW, LEATHER_ARMOR, LEATHER_HOOD, HELMET, CHAINMAIL, SWORD, GOLD, DAGGER,
-	CHALICE, OLD_BANNER, BUST, CROWN, NOTEBOOK, TOME, CODEX, HARDTACK }
+	CHALICE, OLD_BANNER, BUST, CROWN, NOTEBOOK, TOME, CODEX, HARDTACK, SMOKED_MEAT, SMOKED_FISH }
 const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.IRON: 50, Res.COAL: 50, Res.MEAL: 20, Res.FINE_MEAL: 20,
 	Res.MEAT: 50, Res.FISH: 50, Res.HIDE: 50, Res.INGOT: 50, Res.FLAX: 50, Res.BOWSTRING: 50, Res.PICKAXE: 10, Res.AXE: 10, Res.SICKLE: 10, Res.BOW: 10,
 	Res.LEATHER_ARMOR: 10, Res.LEATHER_HOOD: 10, Res.HELMET: 10, Res.CHAINMAIL: 10, Res.SWORD: 10, Res.GOLD: 100, Res.DAGGER: 10,
-	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5, Res.NOTEBOOK: 10, Res.TOME: 10, Res.CODEX: 10, Res.HARDTACK: 50}  # quantità massima per mucchio (casella)
+	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5, Res.NOTEBOOK: 10, Res.TOME: 10, Res.CODEX: 10, Res.HARDTACK: 50, Res.SMOKED_MEAT: 50, Res.SMOKED_FISH: 50}  # quantità massima per mucchio (casella)
 const MEALS := [Res.FINE_MEAL, Res.MEAL]  # cotti: chi ha fame li prende in quest'ordine, poi il crudo
-const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT]  # crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti
+const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT, Res.SMOKED_FISH, Res.SMOKED_MEAT]  # crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti
 const STASH := [Res.WOOD, Res.STONE, Res.VEG, Res.IRON, Res.COAL, Res.FLAX]  # scorta di debug: il resto si produce
 const START_GOLD := 60      # monete nel magazzino all'inizio
 const COIN := "[img=center]res://art/icon_coin.png[/img]"  # una moneta 16x16 nei testi ricchi (vedi coins)
@@ -67,15 +68,19 @@ const ITEM_KIND := {
 	Res.GOLD: ItemKind.COINS,
 	Res.CHALICE: ItemKind.RELIC, Res.OLD_BANNER: ItemKind.RELIC, Res.BUST: ItemKind.RELIC, Res.CROWN: ItemKind.RELIC,
 	Res.NOTEBOOK: ItemKind.BOOK, Res.TOME: ItemKind.BOOK, Res.CODEX: ItemKind.BOOK, Res.HARDTACK: ItemKind.FOOD,
+	Res.SMOKED_MEAT: ItemKind.FOOD, Res.SMOKED_FISH: ItemKind.FOOD,
 }
 # cibo: quanto sazia (vedi eat) e in quanti giorni marcisce a terra fuori (vedi spoil); in magazzino ci mette il doppio.
 # Il crudo sazia meno e può intossicare (vedi poison_chance), i pasti no e danno un bonus (vedi Cond)
-const FOOD := {Res.VEG: 35.0, Res.FISH: 30.0, Res.MEAT: 40.0, Res.MEAL: 100.0, Res.FINE_MEAL: 100.0}
-const SHELF_LIFE := {Res.VEG: 3.0, Res.FISH: 1.5, Res.MEAT: 2.0, Res.MEAL: 3.0, Res.FINE_MEAL: 3.0}
+const FOOD := {Res.VEG: 35.0, Res.FISH: 30.0, Res.MEAT: 40.0, Res.MEAL: 100.0, Res.FINE_MEAL: 100.0,
+	Res.SMOKED_FISH: 30.0, Res.SMOKED_MEAT: 40.0}
+const SHELF_LIFE := {Res.VEG: 3.0, Res.FISH: 1.5, Res.MEAT: 2.0, Res.MEAL: 3.0, Res.FINE_MEAL: 3.0,
+	Res.SMOKED_FISH: 6.0, Res.SMOKED_MEAT: 8.0}  # affumicati: quattro volte il fresco
 const SPOIL_STORED := 0.5   # in magazzino il cibo marcisce a metà velocità
 const SPOIL_PANTRY := 1.0 / 3  # in dispensa a un terzo: dura il triplo che fuori
 # probabilità di intossicarsi mangiando crudo: [appena preso, quasi marcio], in mezzo in proporzione
-const POISON := {Res.VEG: [0.05, 0.4], Res.FISH: [0.1, 0.5], Res.MEAT: [0.15, 0.6]}
+const POISON := {Res.VEG: [0.05, 0.4], Res.FISH: [0.1, 0.5], Res.MEAT: [0.15, 0.6], Res.SMOKED_FISH: [0.05, 0.5],
+	Res.SMOKED_MEAT: [0.05, 0.6]}
 const FRESH_WORDS := [[0.5, "Fresh"], [0.2, "Stale"], [0.0, "Almost rotten"]]  # sopra quale parte della durata, nel suggerimento
 # cucinare (vedi try_cook): 2 crudi dello stesso mucchio (vegetali, pesce o carne) -> 1 pasto al fuoco da campo di una
 # cucina, finché in giro ci sono meno pasti di quanti chiede il menu del fuoco (all'inizio MEALS_PER_COLONIST a testa)
@@ -313,6 +318,8 @@ const RECIPES := [
 	[Res.SWORD, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 3, Res.WOOD: 1}, 20.0],
 	[Res.COAL, Build.FURNACE, Skill.SMITHING, {Res.WOOD: 5}, 10.0, 2],  # carbonaia: legna cotta piano, senza aria
 	[Res.HARDTACK, Build.CAMPFIRE, Skill.COOKING, {Res.VEG: 2}, 10.0],  # gallette
+	[Res.SMOKED_MEAT, Build.CAMPFIRE, Skill.COOKING, {Res.MEAT: 1}, 8.0],  # affumicati
+	[Res.SMOKED_FISH, Build.CAMPFIRE, Skill.COOKING, {Res.FISH: 1}, 8.0],
 ]
 const STATION_ROOM := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP,
 	Build.SPINNING_WHEEL: RoomKind.WORKSHOP, Build.CARPENTER_BENCH: RoomKind.CARPENTRY}
@@ -352,6 +359,7 @@ enum Build { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE
 	CHALICE, OLD_BANNER, BUST, CROWN,  # cimeli: decorazioni fatte con l'oggetto trovato nelle rovine (vedi RELICS)
 	DESK, BOOKSHELF, THRONE,  # ricerca: scrittoio e libreria nello studio, trono nella sala del trono (vedi SEAT_ROOM)
 	DUMMY,  # il fantoccio: ci si allena nel tempo libero (vedi relax)
+	WATCHTOWER,  # la torre di guardia con la campana: lupi visti da lontano, l'arciere lassù tira meglio (vedi TOWER)
 	ROAD,  # strada lastricata: ci si cammina più svelti (vedi ROAD_SPEED)
 	PALISADE, GATE }  # palizzata e cancello: i lupi non passano; non fanno stanze (vedi update_rooms, beast_path)
 # materiale per casella; per i mobili, per pezzo
@@ -359,7 +367,7 @@ const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1
 	Build.LAMP: 3, Build.CAMPFIRE: 5, Build.FURNACE: 20, Build.ANVIL: 10, Build.WORKBENCH: 15, Build.SPINNING_WHEEL: 10,
 	Build.CARPENTER_BENCH: 15, Build.FLOWER_BED: 3, Build.PLANTER: 5,
 	Build.BENCH: 6, Build.BANNER: 4, Build.LANTERN: 4, Build.FOUNTAIN: 30, Build.STATUE: 40, Build.NOTICE_BOARD: 8,
-	Build.CHALICE: 1, Build.OLD_BANNER: 1, Build.BUST: 1, Build.CROWN: 1, Build.DESK: 10, Build.BOOKSHELF: 12, Build.THRONE: 12, Build.ROAD: 2, Build.DUMMY: 6,
+	Build.CHALICE: 1, Build.OLD_BANNER: 1, Build.BUST: 1, Build.CROWN: 1, Build.DESK: 10, Build.BOOKSHELF: 12, Build.THRONE: 12, Build.ROAD: 2, Build.DUMMY: 6, Build.WATCHTOWER: 20,
 	Build.PALISADE: 4, Build.GATE: 6}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
 const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
@@ -368,7 +376,8 @@ const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Buil
 	Build.FLOWER_BED: Vector2i.ONE, Build.PLANTER: Vector2i.ONE, Build.BENCH: Vector2i(2, 1), Build.BANNER: Vector2i.ONE,
 	Build.LANTERN: Vector2i.ONE, Build.FOUNTAIN: Vector2i(2, 2), Build.STATUE: Vector2i(2, 2), Build.NOTICE_BOARD: Vector2i.ONE,
 	Build.CHALICE: Vector2i.ONE, Build.OLD_BANNER: Vector2i.ONE, Build.BUST: Vector2i.ONE, Build.CROWN: Vector2i.ONE,
-	Build.DESK: Vector2i.ONE, Build.BOOKSHELF: Vector2i.ONE, Build.THRONE: Vector2i.ONE, Build.DUMMY: Vector2i.ONE}
+	Build.DESK: Vector2i.ONE, Build.BOOKSHELF: Vector2i.ONE, Build.THRONE: Vector2i.ONE, Build.DUMMY: Vector2i.ONE,
+	Build.WATCHTOWER: Vector2i.ONE}
 # mobili animati: secondi per fotogramma; i fotogrammi stanno nelle colonne dei quarti di giro (sono simmetrici)
 const ANIMATED := {Build.CAMPFIRE: 0.15, Build.BANNER: 0.3, Build.FOUNTAIN: 0.2}
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
@@ -451,6 +460,7 @@ const BUILD_INFO := {
 	Build.DESK: "An open book and a candle. A study needs one: colonists write study here, one at a time.",
 	Build.BOOKSHELF: "Shelves of books. +10% study in the room, up to three.",
 	Build.THRONE: "Where the ruler governs. A throne room needs one: the ruler gathers authority here.",
+	Build.WATCHTOWER: "A wooden lookout with a bell: wolves are seen 20 tiles away. An archer standing on it shoots 2 tiles farther, +15% to hit.",
 	Build.DUMMY: "A straw dummy on a post. In their free time colonists train here: fun, and melee experience.",
 }
 enum Facing { DOWN, LEFT, RIGHT, UP }  # righe del foglio
@@ -537,6 +547,8 @@ const ICONS := {
 	Res.TOME: preload("res://art/icon_tome.png"),
 	Res.CODEX: preload("res://art/icon_codex.png"),
 	Res.HARDTACK: preload("res://art/icon_hardtack.png"),
+	Res.SMOKED_MEAT: preload("res://art/icon_smoked_meat.png"),
+	Res.SMOKED_FISH: preload("res://art/icon_smoked_fish.png"),
 }
 # 256x128, righe: muri di legno, muri di pietra (colonna = lati collegati, vedi WALL_LINKS), pavimenti (colonna = Res,
 # poi il sentiero), porte (di fronte, di lato), erba sui pavimenti (lati, angoli, due varianti); vedi structure_src e draw_grass_over
@@ -755,7 +767,7 @@ const BRANCHES_SHEET := preload("res://art/branches.png")
 # dall'inizio. Gli effetti senza oggetto (passo, viaggi) li guardano le funzioni che li nominano.
 # ponytail: solo i nodi che hanno già qualcosa da sbloccare; gli altri dell'albero del GDD arrivano con le loro cose
 enum Tech { FORGE, TAILORING, HUNTING, INN, MASONRY, DECOR, LANTERNS, IRON_ARMS, BOOKSHELF, CHAINMAIL, FOUNTAIN, STATUARY,
-	CHARCOAL, COLD_STORE, PAVED_ROAD, DRY_RATIONS, CARTOGRAPHY, PALISADE, TRAINING_DUMMY }
+	CHARCOAL, COLD_STORE, PAVED_ROAD, DRY_RATIONS, CARTOGRAPHY, PALISADE, TRAINING_DUMMY, SMOKEHOUSE, RENOWNED_INN, WATCHTOWER }
 const TECHS_SHEET := preload("res://art/techs.png")
 const TECHS := {
 	Tech.FORGE: {"branch": Branch.FIRE, "tier": 1, "cost": 60, "builds": [Build.FURNACE, Build.ANVIL],
@@ -796,6 +808,12 @@ const TECHS := {
 		"info": "Palisade and gate: wolves cannot get through."},
 	Tech.TRAINING_DUMMY: {"branch": Branch.IRON, "tier": 1, "cost": 60, "builds": [Build.DUMMY],
 		"info": "The training dummy: in their free time colonists train there, for fun and melee experience."},
+	Tech.SMOKEHOUSE: {"branch": Branch.LAND, "tier": 2, "cost": 200, "needs": [Tech.HUNTING],
+		"makes": [Res.SMOKED_MEAT, Res.SMOKED_FISH], "info": "At the campfire, smoked meat and fish: they keep four times as long."},
+	Tech.RENOWNED_INN: {"branch": Branch.ROAD, "tier": 2, "cost": 250, "needs": [Tech.INN],
+		"info": "Adventurers come every day and a half and wait 5 days. On the notice board, ask for a class: the next one is that."},
+	Tech.WATCHTOWER: {"branch": Branch.IRON, "tier": 2, "cost": 300, "needs": [Tech.PALISADE], "builds": [Build.WATCHTOWER],
+		"info": "The watchtower and its bell: wolves are seen 20 tiles away. An archer up there shoots 2 tiles farther, +15% to hit."},
 }
 const ROAD_SPEED := 1.25    # sulla strada lastricata si va più svelti
 const MAPPED_TRAVEL := 0.75 # con la cartografia, giorni di viaggio x
@@ -863,11 +881,19 @@ const TOLL := 2             # monete del pedaggio, per avventuriero che arriva
 const TOLL_WAIT := 1.25     # col pedaggio: giorni tra un arrivo e l'altro x (un quinto in meno)
 const MILITIA_FLEE := 30.0  # con la milizia si scappa sotto questi punti ferita (se no FLEE_HP)
 const TRAIN_HIT := 2.5      # secondi per colpo al fantoccio: +1 esperienza in mischia
+const TOWER_SIGHT := 20     # caselle: con una torre di guardia (e la sua campana) i lupi si vedono da qui (se no ALERT)
+const TOWER := {"range": 2.0, "hit": 0.15}  # all'arciere sulla torre, in più (vedi gear_sum)
+const RENOWNED_GUESTS := [1.5, 5.0]  # con la locanda rinomata: giorni tra un arrivo e l'altro, giorni che aspettano
 # Eventi (GDD 4.7.4): autorità data o tolta una volta (mai sotto zero, vedi gain)
 const TREASURE_AUTHORITY := 5.0  # spedizione tornata col tesoro dell'ultima stanza
 const RELIC_AUTHORITY := 3.0     # cimelio posato
 const DEATH_AUTHORITY := -5.0    # colono morto
 const UNHAPPY := 20.0            # all'alba, -1 autorità per ogni colono sotto questa felicità
+# Protesta (GDD 4.7.5): un colono sotto UNHAPPY di felicità che disapprova almeno PROTEST_LAWS leggi in vigore molla
+# il lavoro e va a lamentarsi nella sala del trono per PROTEST_HOURS; una volta al giorno al più. Toglie autorità
+const PROTEST_LAWS := 2
+const PROTEST_HOURS := 2.0
+const PROTEST_AUTHORITY := -5.0
 # All'inizio, su ogni mappa, un'arma abbandonata accanto ai resti di un bivacco, tra FOUND_WEAPON_REACH caselle dalla radura
 const FOUND_WEAPONS := [Res.SWORD, Res.AXE, Res.BOW]
 const FOUND_WEAPON_REACH := [15, 25]
@@ -921,6 +947,7 @@ class Colonist:
 	var trips := 0                # spedizioni tornate
 	var stay_until := 0.0         # `clock` fino a cui aspetta alla locanda che qualcuno lo ingaggi
 	var drilled := -1             # il giorno dell'ultima ora di milizia al fantoccio (vedi relax)
+	var protested := -1           # il giorno dell'ultima protesta (vedi protest)
 	var errand := Errand.NONE     # dove va col Job.TRAVEL (vedi travel)
 	var hired := false            # ingaggiato: va alla rovina, ci è, o ne torna
 	var loot := {}                # Res -> quantità che riporta dalla rovina e lascia alla locanda
@@ -1021,6 +1048,7 @@ var next_scholar := SCHOLAR_EVERY  # `clock` del prossimo passaggio dell'erudito
 var scholar_until := -1.0   # `clock` fino a cui l'erudito è alla locanda
 var scholar_books: Array = []  # Res che ha ancora da vendere
 var scholar_bought := false # ha già comprato il suo libro, a questo passaggio
+var wanted_hero := Hero.NONE  # l'avviso sulla bacheca (locanda rinomata): la classe di chi arriva; NONE chiunque
 var laws_key := ""          # lo stesso per la finestra Laws
 var items := {}  # risorsa -> (cella -> quantità a terra; nel magazzino = stoccata): un dizionario per Res, vedi _init  # risorsa -> (cella -> quantità a terra; nel magazzino = stoccata)
 var fresh := {}             # cella -> giorni (a terra fuori) prima che il mucchio di cibo marcisca, vedi spoil
@@ -2306,7 +2334,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 		return
 	if routines:
 		update_routine(c, delta)
-	c.idle = c.idle + delta if c.job in [Job.NONE, Job.RELAX, Job.TANTRUM] and c.path.is_empty() else 0.0
+	c.idle = c.idle + delta if c.job in [Job.NONE, Job.RELAX, Job.TANTRUM, Job.PROTEST] and c.path.is_empty() else 0.0
 	if c.idle > LOOK_TIME and randf() < delta / LOOK_TIME:  # si guarda attorno, a caso: niente coloni sincronizzati
 		c.facing = Facing.values().pick_random()
 	if c.job in [Job.HUNT, Job.FIGHT]:
@@ -2523,7 +2551,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 					var meal: Res = Res.FINE_MEAL if roll >= 1.0 - fine_chance(c.skills[Skill.COOKING], comfort) else Res.MEAL
 					produce(meal, here, 1)
 					try_haul(c, meal, [here])  # lo porta subito in magazzino
-		Job.RELAX, Job.TANTRUM:  # arrivato al fuoco, in fondo alla passeggiata o a sbollire: resta lì finché non è ora
+		Job.RELAX, Job.TANTRUM, Job.PROTEST:  # al fuoco, in fondo alla passeggiata, a sbollire, a protestare: resta lì finché non è ora
 			var before := c.work_left
 			c.work_left -= delta
 			if c.work_total > 0:  # al fantoccio (vedi relax): un colpo ogni TRAIN_HIT, +1 esperienza in mischia
@@ -2700,7 +2728,7 @@ func update_needs(c: Colonist, delta: float) -> void:
 		c.needs[Need.FUN] -= FUN_DROP * fx(c, "fun", 1.0) * day
 	if fx(c, "fun", 1.0) == 0:  # non gli serve: sempre a posto
 		c.needs[Need.FUN] = NEED_MAX
-	if c.job not in [Job.NONE, Job.SLEEP, Job.EAT, Job.RELAX, Job.TANTRUM]:  # lavori, ma anche combattere e scappare
+	if c.job not in [Job.NONE, Job.SLEEP, Job.EAT, Job.RELAX, Job.TANTRUM, Job.PROTEST]:  # lavori, ma anche combattere e scappare
 		c.needs[Need.STRESS] += STRESS_WORK * fx(c, "stress", 1.0) * cond_product(c, 2) * outdoor_stress(c) * shift_stress() * day
 	else:
 		c.needs[Need.STRESS] -= STRESS_RELIEF * (TANTRUM_VENT if c.job == Job.TANTRUM else 1.0) * day
@@ -2997,9 +3025,9 @@ func outdoor_stress(c: Colonist) -> float:
 	return f
 
 
-# somma di `key` per quello che `c` ha addosso (es. "armor", "hit", "range")
+# somma di `key` per quello che `c` ha addosso (es. "armor", "hit", "range"); con l'arco sulla torre, di più
 func gear_sum(c: Colonist, key: String) -> float:
-	var sum := 0.0
+	var sum: float = TOWER.get(key, 0.0) if has_bow(c) and furniture.get(cell_of(c.pos), [-1])[0] == Build.WATCHTOWER else 0.0
 	for g in c.gear.values():
 		sum += GEAR[g].get(key, 0.0)
 	if key == "armor":
@@ -3312,7 +3340,7 @@ func attack_time(c: Colonist) -> float:
 # il lupo più vicino a `c` entro ALERT caselle (tranne quelli che per un po' non si raggiungono, vedi chase)
 func nearest_foe(c: Colonist) -> Animal:
 	var best: Animal = null
-	var sight: float = INF if on_watch() else ALERT * TILE  # di guardia, i lupi si vedono appena entrano
+	var sight: float = INF if on_watch() else (TOWER_SIGHT if towers() > 0 else ALERT) * TILE  # di guardia, appena entrano
 	for a in animals:
 		if hostile(a) and a.blocked <= clock and a.pos.distance_to(c.pos) <= sight \
 				and (best == null or a.pos.distance_squared_to(c.pos) < best.pos.distance_squared_to(c.pos)):
@@ -3547,6 +3575,11 @@ func store(res: Res, amount: int) -> void:
 	drop(res, cells[0] if not cells.is_empty() else stockpile.keys()[0], amount)
 
 
+# torri di guardia finite
+func towers() -> int:
+	return furniture.values().filter(func(plan): return plan[0] == Build.WATCHTOWER).size()
+
+
 # Turno di guardia (legge): veglia di notte un nottambulo, se c'è, se no il primo colono che non è il sovrano (che
 # allora dorme di giorno, vedi routine_of); null senza la legge o senza nessuno
 func watchman() -> Colonist:
@@ -3751,12 +3784,13 @@ func update_guests() -> void:
 	if inn_beds() <= guests.size() + away:
 		next_guest = maxf(next_guest, clock + GUEST_EVERY)
 	elif clock >= next_guest:
-		next_guest = clock + (GUEST_EVERY + randf_range(-GUEST_JITTER, GUEST_JITTER)) * (LOOT_TAX_WAIT if enacted.has(Law.LOOT_TAX) else 1.0) \
+		var every: float = RENOWNED_GUESTS[0] if researched.has(Tech.RENOWNED_INN) else GUEST_EVERY
+		next_guest = clock + (every + randf_range(-GUEST_JITTER, GUEST_JITTER)) * (LOOT_TAX_WAIT if enacted.has(Law.LOOT_TAX) else 1.0) \
 			* (TOLL_WAIT if enacted.has(Law.TOLL) else 1.0)
 		var edges := border_cells()
 		if not edges.is_empty():
 			var level := clampi(1 + colony_splendor() / SPLENDOR_PER_LEVEL + randi_range(-1, 1), 1, HERO_LEVEL_MAX)
-			var g := new_hero(Hero.values().slice(1).pick_random(), level)
+			var g := new_hero(wanted_hero if wanted_hero != Hero.NONE and researched.has(Tech.RENOWNED_INN) else Hero.values().slice(1).pick_random(), level)
 			while enacted.has(Law.LOOT_TAX) and Gift.GREEDY in g.gifts:  # con la gabella gli avidi non vengono
 				g.gifts = [Gift.values().pick_random()]
 			g.pos = center(edges.pick_random())
@@ -3794,7 +3828,7 @@ func arrive(c: Colonist) -> void:
 	end_job(c)
 	match c.errand:
 		Errand.ARRIVE:
-			c.stay_until = clock + GUEST_STAY - (1.0 if enacted.has(Law.LODGING_TAX) else 0.0)
+			c.stay_until = clock + (RENOWNED_GUESTS[1] if researched.has(Tech.RENOWNED_INN) else GUEST_STAY) - (1.0 if enacted.has(Law.LODGING_TAX) else 0.0)
 		Errand.RETURN:
 			c.stay_until = clock + GUEST_REST
 			c.hired = false
@@ -4206,6 +4240,13 @@ func fill_board() -> void:
 		return
 	board_key = key
 	var box: Control = $HUD/BoardPanel/Box
+	var notice: OptionButton = box.get_node("Notice/Class")
+	box.get_node("Notice").visible = researched.has(Tech.RENOWNED_INN)
+	if notice.item_count == 0:
+		for kind in Hero.values():
+			notice.add_item("Anyone" if kind == Hero.NONE else Hero.keys()[kind].capitalize(), kind)
+		notice.item_selected.connect(func(i): wanted_hero = notice.get_item_id(i))
+	notice.select(notice.get_item_index(wanted_hero))
 	box.get_node("Gold").text = "%s    %d %s provisions (meals, raw food, hardtack)" % [coins(stored(Res.GOLD)), food_stored(),
 		"[img=center]%s[/img]" % KIND_ICONS[ItemKind.FOOD].resource_path]
 	var list: Control = box.get_node("Heroes")
@@ -4489,10 +4530,15 @@ func new_day() -> void:
 			add_cond(c, Cond.WELL_FED)
 
 
-# A ogni ora: col granaio aperto, se nei magazzini non c'è più cibo il granaio ne manda un pezzo a colono, che si
+# A ogni ora: le proteste (vedi protest); col granaio aperto, se nei magazzini non c'è più cibo il granaio ne manda un pezzo a colono, che si
 # posa in magazzino dove ci sta (vedi dest_cells; pieno, resta nel granaio) e si mangia come gli altri.
 # ponytail: un'ora di attesa al più; un giorno di scorta alla volta
 func new_hour() -> void:
+	for c in colonists:
+		if c != ruler and c.needs[Need.HAPPINESS] < UNHAPPY and c.protested != today and not c.downed \
+				and c.job not in [Job.SLEEP, Job.FIGHT, Job.FLEE, Job.TANTRUM, Job.PROTEST] \
+				and enacted.filter(func(law): return law_mood_of(c, law) < 0).size() >= PROTEST_LAWS:
+			protest(c)
 	if not enacted.has(Law.OPEN_GRANARY) or (MEALS + RAW_FOOD).any(func(r): return stored(r) > 0):
 		return
 	var left := colonists.size()
@@ -4503,6 +4549,25 @@ func new_hour() -> void:
 			granary[res] -= n
 			left -= n
 			drop(res, dests[0], n)
+
+
+# `c` molla tutto e va nella sala del trono più vicina (se non ce n'è, lì attorno) a lamentarsi delle leggi che non gli
+# piacciono, per PROTEST_HOURS; nella cronaca. ponytail: con Pene severe e Clemenza (gogna, udienza) quando ci saranno
+func protest(c: Colonist) -> void:
+	quit_job(c)
+	c.protested = today
+	var hall := []
+	for room in rooms:
+		if room.kind == RoomKind.THRONE_ROOM:
+			hall.append_array(room.cells.keys().filter(func(k): return not astar.is_point_solid(k) and is_free(k)))
+	var path := path_to_nearest(c, hall)
+	if path.is_empty():
+		path = stroll(c, TANTRUM_REACH)
+	start_job(c, Job.PROTEST, path, path.back() if not path.is_empty() else cell_of(c.pos), 0.0)
+	c.work_left = PROTEST_HOURS * DAY_LENGTH / 24
+	gain(PROTEST_AUTHORITY)
+	note("Day %d: %s protests in the throne room against %s." % [int(clock) + 1, full_name(c),
+		" and ".join(enacted.filter(func(law): return law_mood_of(c, law) < 0).map(law_name))])
 
 
 # toglie dal granaio fino a `n` pezzi di cibo, prima i pasti; quanti ne ha tolti
@@ -5850,9 +5915,9 @@ func draw_colonist(c: Colonist) -> void:
 	if c.job == Job.SLEEP and c.path.is_empty():  # ponytail: niente sprite sdraiato, solo una "z" che sale
 		draw_string(ThemeDB.fallback_font, at + Vector2(11, 2 - fmod(clock * DAY_LENGTH, 2.0) * 2), "z",
 			HORIZONTAL_ALIGNMENT_LEFT, -1, 8)
-	elif c.job == Job.TANTRUM:  # sfuriata: un punto esclamativo rosso che sobbalza
+	elif c.job in [Job.TANTRUM, Job.PROTEST]:  # sfuriata, protesta: un punto esclamativo, rosso o giallo, che sobbalza
 		draw_string(ThemeDB.fallback_font, at + Vector2(11, 3 - absf(sin(clock * DAY_LENGTH * 6)) * 2), "!",
-			HORIZONTAL_ALIGNMENT_LEFT, -1, 8, Color("ff5a5a"))
+			HORIZONTAL_ALIGNMENT_LEFT, -1, 8, Color("ff5a5a") if c.job == Job.TANTRUM else SPLENDOR_COLOR)
 
 
 # ---- Stemma della casata (vedi Tincture) ----

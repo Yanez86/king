@@ -1,4 +1,4 @@
-[gd_scene load_steps=71 format=3]
+[gd_scene load_steps=72 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Texture2D" path="res://art/icon_wood.png" id="2"]
@@ -144,6 +144,10 @@ region = Rect2(0, 736, 16, 16)
 [sub_resource type="AtlasTexture" id="ThroneIcon"]
 atlas = ExtResource("8")
 region = Rect2(0, 768, 16, 16)
+
+[sub_resource type="AtlasTexture" id="WatchtowerIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 832, 16, 16)
 
 [sub_resource type="AtlasTexture" id="DummyIcon"]
 atlas = ExtResource("8")
@@ -562,6 +566,15 @@ focus_mode = 0
 toggle_mode = true
 button_group = SubResource("Kinds")
 icon = SubResource("DummyIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Watchtower" type="Button" parent="HUD/FurnitureBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("WatchtowerIcon")
 icon_alignment = 1
 expand_icon = true
 
@@ -1327,6 +1340,15 @@ expand_icon = true
 bbcode_enabled = true
 fit_content = true
 scroll_active = false
+
+[node name="Notice" type="HBoxContainer" parent="HUD/BoardPanel/Box"]
+visible = false
+
+[node name="Label" type="Label" parent="HUD/BoardPanel/Box/Notice"]
+text = "Notice: wanted at the inn"
+
+[node name="Class" type="OptionButton" parent="HUD/BoardPanel/Box/Notice"]
+focus_mode = 0
 
 [node name="Heroes" type="VBoxContainer" parent="HUD/BoardPanel/Box"]
 theme_override_constants/separation = 6

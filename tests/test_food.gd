@@ -179,8 +179,8 @@ func _initialize() -> void:
 	# clic sul fuoco: il menu coi pasti; quanti tenerne si cambia da lì
 	var menu: Control = main.get_node("HUD/CraftPopup/Box")
 	main.open_craft(fire)
-	check(main.craft_popup.visible and menu.get_node("List").get_child_count() == 2 and not menu.get_node("Room").visible,
-		"menu del fuoco: i pasti e le gallette, nella cucina")
+	check(main.craft_popup.visible and menu.get_node("List").get_child_count() == 4 and not menu.get_node("Room").visible,
+		"menu del fuoco: i pasti, le gallette e gli affumicati, nella cucina")
 	menu.get_node("List").get_child(0).get_child(-1).value = 8
 	check(main.keep[MEAL] == 8 and main.meals_wanted() == 2, "dal menu se ne chiedono 2 in più")
 	main.keep[MEAL] = 6
