@@ -2105,22 +2105,22 @@ STRESS_ICON = """
 
 # Slot vuoti dell'equipaggiamento 16x16, sotto i talenti -> mani, corpo, testa: incavo con la sagoma di cosa ci va.
 EQUIPMENT = """
-oooooooooooooooo oooooooooooooooo oooooooooooooooo
-oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR
-oiiiiRiRiRiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR
-oiiiiRiRiRiiiiiR oiiiRRRiiRRRiiiR oiiiiiRRRRiiiiiR
-oiiiiRiRiRiRiiiR oiiRRRRRRRRRRiiR oiiiiRRRRRRiiiiR
-oiiiiRiRiRiRiiiR oiRRRRRRRRRRRRiR oiiiRRRRRRRRiiiR
-oiiiiRRRRRiRiiiR oiRRRRRRRRRRRRiR oiiiRRRRRRRRiiiR
-oiiiiRRRRRRRiiiR oiiiRRRRRRRRiiiR oiiRRRRRRRRRRiiR
-oiiiiRRRRRRiiiiR oiiiRRRRRRRRiiiR oiiiRRiRRiRRiiiR
-oiiiiRRRRRRiiiiR oiiiRRRRRRRRiiiR oiiiRRiRRiRRiiiR
-oiiiiiRRRRiiiiiR oiiiRRRRRRRRiiiR oiiiRRiiiiRRiiiR
-oiiiiiRRRRiiiiiR oiiiRRRRRRRRiiiR oiiiiRiiiiRiiiiR
-oiiiiiRRRRiiiiiR oiiiRRRRRRRRiiiR oiiiiiiiiiiiiiiR
-oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR
-oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR
-oRRRRRRRRRRRRRRR oRRRRRRRRRRRRRRR oRRRRRRRRRRRRRRR
+oooooooooooooooo oooooooooooooooo oooooooooooooooo oooooooooooooooo
+oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR
+oiiiiRiRiRiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR oiiiiiRRRRiiiiiR
+oiiiiRiRiRiiiiiR oiiiRRRiiRRRiiiR oiiiiiRRRRiiiiiR oiiiiRRRRRRiiiiR
+oiiiiRiRiRiRiiiR oiiRRRRRRRRRRiiR oiiiiRRRRRRiiiiR oiiiRRRRRRRRiiiR
+oiiiiRiRiRiRiiiR oiRRRRRRRRRRRRiR oiiiRRRRRRRRiiiR oiiRRRRRRRRRRiiR
+oiiiiRRRRRiRiiiR oiRRRRRRRRRRRRiR oiiiRRRRRRRRiiiR oiiRRRRRRRRRRiiR
+oiiiiRRRRRRRiiiR oiiiRRRRRRRRiiiR oiiRRRRRRRRRRiiR oiiRRRRRRRRRRiiR
+oiiiiRRRRRRiiiiR oiiiRRRRRRRRiiiR oiiiRRiRRiRRiiiR oiiRRRRRRRRRRiiR
+oiiiiRRRRRRiiiiR oiiiRRRRRRRRiiiR oiiiRRiRRiRRiiiR oiiRRRRRRRRRRiiR
+oiiiiiRRRRiiiiiR oiiiRRRRRRRRiiiR oiiiRRiiiiRRiiiR oiiiRRRRRRRRiiiR
+oiiiiiRRRRiiiiiR oiiiRRRRRRRRiiiR oiiiiRiiiiRiiiiR oiiiiRRRRRRiiiiR
+oiiiiiRRRRiiiiiR oiiiRRRRRRRRiiiR oiiiiiiiiiiiiiiR oiiiiiRRRRiiiiiR
+oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR
+oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR
+oRRRRRRRRRRRRRRR oRRRRRRRRRRRRRRR oRRRRRRRRRRRRRRR oRRRRRRRRRRRRRRR
 """
 
 # Icona "ruota" 16x16, in senso orario (quella antioraria è lo specchio).
@@ -2510,6 +2510,26 @@ ojjjjggggg<jjJJo
 ................
 """
 
+# Scudo tondo 16x16: legno col bordo e la borchia di ferro
+SHIELD_ICON = """
+................
+.....oooooo.....
+...oorrrrrroo...
+..orrccccccRRo..
+..orccccccccRo..
+.orcccccccccCRo.
+.orccccuuccccRo.
+.orcccuurRccCRo.
+.orccccrRRccCRo.
+.orcccccccccCRo.
+..orcccccccCRo..
+..oRRcccccCRRo..
+...ooRRRRRRoo...
+.....oooooo.....
+....zzzzzzzz....
+................
+"""
+
 # Galletta 16x16: biscotto secco, coi buchi
 HARDTACK_ICON = """
 ................
@@ -2627,6 +2647,22 @@ TECH_SYMBOLS_6 = """
 ...oWWWWo... .occccccccCo .ow.o..o.Wo.
 ....oxxo.... .oCCCCCCCCCo .ow.oBBo.Wo.
 .....oo..... .oooooooooo. .ow.o..o.Wo.
+"""
+
+# Ricerche di livello II: scudo, armeria di prestito (la rastrelliera con la spada e l'elmo)
+TECH_SYMBOLS_7 = """
+...oooooo... oooooooooooo
+..orrrrrRo.. oWWWWWWWWWWo
+.orccccccRo. oooooooooooo
+orcccccccCRo ..o.....oo..
+orccuuccccRo .oro...orro.
+orcuurRcccRo .oro..orrrRo
+orccrRRcccRo .oro..orrrRo
+orcccccccCRo .oro..oRRRRo
+.orcccccCRo. ooooo.oRooRo
+.oRRcccCRRo. .ogo...o..o.
+..ooRRRRoo.. .owo........
+....oooo.... ..o.........
 """
 
 # Leggi 12x12, nei quadratini color pergamena (vedi badge), nell'ordine di Law in main.gd: esenzione, decima, gabella sul
@@ -3182,6 +3218,7 @@ def main():
     images["icon_flax"] = pixels(art(FLAX_ICON, 16, 16))
     images["icon_bowstring"] = pixels(art(BOWSTRING_ICON, 16, 16))
     images["icon_hardtack"] = pixels(art(HARDTACK_ICON, 16, 16))
+    images["icon_shield"] = pixels(art(SHIELD_ICON, 16, 16))
     meat, fish = frames(RAW_ICONS, count=2)  # affumicati: la carne bruna, il pesce dorato
     images["icon_smoked_meat"] = pixels([line.translate(str.maketrans("jJs", "wWc")) for line in meat])
     images["icon_smoked_fish"] = pixels([line.translate(str.maketrans("urR", "c<W")) for line in fish])
@@ -3226,7 +3263,7 @@ def main():
     images["icon_notebook"], images["icon_tome"], images["icon_codex"] = (pixels(f) for f in frames(BOOK_ICONS))
     images["icon_study"] = pixels(art(STUDY_ICON, 16, 16))
     images["icon_authority"] = pixels(art(AUTHORITY_ICON, 16, 16))
-    techs = [f for block in (TECH_SYMBOLS_1, TECH_SYMBOLS_2, TECH_SYMBOLS_3) for f in frames(block, 12, 4, 12)] + frames(TECH_SYMBOLS_4, 12, 5, 12) + frames(TECH_SYMBOLS_5, 12, 2, 12) + frames(TECH_SYMBOLS_6, 12, 3, 12)
+    techs = [f for block in (TECH_SYMBOLS_1, TECH_SYMBOLS_2, TECH_SYMBOLS_3) for f in frames(block, 12, 4, 12)] + frames(TECH_SYMBOLS_4, 12, 5, 12) + frames(TECH_SYMBOLS_5, 12, 2, 12) + frames(TECH_SYMBOLS_6, 12, 3, 12) + frames(TECH_SYMBOLS_7, 12, 2, 12)
     images["techs"] = pixels(side_by_side([badge(f) for f in techs]))
     laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 3, 12) + frames(LAW_SYMBOLS_5, 12, 3, 12)
     images["laws"] = pixels(side_by_side([badge(f, "I", "x", "U") for f in laws]))
@@ -3238,7 +3275,7 @@ def main():
     images["icon_stress"] = pixels(art(STRESS_ICON, 8, 8))
     images["icon_male"], images["icon_female"] = (pixels(f) for f in frames(SEX_ICONS, 8, 2, 8))
     images["skills"] = pixels(side_by_side(frames(SKILLS, 8, 13, 8)))
-    images["equipment"] = pixels(side_by_side(frames(EQUIPMENT)))
+    images["equipment"] = pixels(side_by_side(frames(EQUIPMENT, count=4)))
     for name, rows in images.items():
         write_png(out / f"{name}.png", rows)
         print("scritto", out / f"{name}.png")

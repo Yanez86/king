@@ -130,7 +130,7 @@ func _initialize() -> void:
 	check(main.job_list().contains("Make %s: 10" % main.item_name(I)) and main.job_list().contains("Make %s: 1" % main.item_name(main.Res.PICKAXE)),
 		"finestra Jobs: cosa si fa, col tipo davanti al nome")
 	main.open_craft(anvil)
-	check(main.get_node("HUD/CraftPopup/Box/List").get_child_count() == 6, "menu dell'incudine: sei ricette")
+	check(main.get_node("HUD/CraftPopup/Box/List").get_child_count() == 7, "menu dell'incudine: sette ricette (con lo scudo)")
 	main.keep[main.Res.SWORD] = 2
 	check(main.gear_wanted(main.Res.SWORD) == 2, "spade di scorta chieste dal menu")
 	main.keep.erase(main.Res.SWORD)

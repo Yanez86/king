@@ -34,14 +34,14 @@ const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FUR
 # i cimeli, dalle rovine: si piazzano come decorazioni (vedi RELICS); NOTEBOOK, TOME, CODEX: i libri, dalle rovine, che
 # le ricerche di livello II, III e IV consumano (vedi BOOKS); HARDTACK: gallette, provviste per le spedizioni che non
 # marciscono e non si mangiano a casa (vedi send); SMOKED_MEAT, SMOKED_FISH: affumicati al fuoco, crudi che durano
-# quattro volte tanto
+# quattro volte tanto; SHIELD: lo scudo tondo, nel suo slot (vedi GEAR)
 enum Res { WOOD, STONE, VEG, IRON, COAL, MEAL, FINE_MEAL, MEAT, FISH, HIDE, INGOT, FLAX, BOWSTRING,
 	PICKAXE, AXE, SICKLE, BOW, LEATHER_ARMOR, LEATHER_HOOD, HELMET, CHAINMAIL, SWORD, GOLD, DAGGER,
-	CHALICE, OLD_BANNER, BUST, CROWN, NOTEBOOK, TOME, CODEX, HARDTACK, SMOKED_MEAT, SMOKED_FISH }
+	CHALICE, OLD_BANNER, BUST, CROWN, NOTEBOOK, TOME, CODEX, HARDTACK, SMOKED_MEAT, SMOKED_FISH, SHIELD }
 const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.IRON: 50, Res.COAL: 50, Res.MEAL: 20, Res.FINE_MEAL: 20,
 	Res.MEAT: 50, Res.FISH: 50, Res.HIDE: 50, Res.INGOT: 50, Res.FLAX: 50, Res.BOWSTRING: 50, Res.PICKAXE: 10, Res.AXE: 10, Res.SICKLE: 10, Res.BOW: 10,
 	Res.LEATHER_ARMOR: 10, Res.LEATHER_HOOD: 10, Res.HELMET: 10, Res.CHAINMAIL: 10, Res.SWORD: 10, Res.GOLD: 100, Res.DAGGER: 10,
-	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5, Res.NOTEBOOK: 10, Res.TOME: 10, Res.CODEX: 10, Res.HARDTACK: 50, Res.SMOKED_MEAT: 50, Res.SMOKED_FISH: 50}  # quantità massima per mucchio (casella)
+	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5, Res.NOTEBOOK: 10, Res.TOME: 10, Res.CODEX: 10, Res.HARDTACK: 50, Res.SMOKED_MEAT: 50, Res.SMOKED_FISH: 50, Res.SHIELD: 10}  # quantità massima per mucchio (casella)
 const MEALS := [Res.FINE_MEAL, Res.MEAL]  # cotti: chi ha fame li prende in quest'ordine, poi il crudo
 const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT, Res.SMOKED_FISH, Res.SMOKED_MEAT]  # crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti
 const STASH := [Res.WOOD, Res.STONE, Res.VEG, Res.IRON, Res.COAL, Res.FLAX]  # scorta di debug: il resto si produce
@@ -68,7 +68,7 @@ const ITEM_KIND := {
 	Res.GOLD: ItemKind.COINS,
 	Res.CHALICE: ItemKind.RELIC, Res.OLD_BANNER: ItemKind.RELIC, Res.BUST: ItemKind.RELIC, Res.CROWN: ItemKind.RELIC,
 	Res.NOTEBOOK: ItemKind.BOOK, Res.TOME: ItemKind.BOOK, Res.CODEX: ItemKind.BOOK, Res.HARDTACK: ItemKind.FOOD,
-	Res.SMOKED_MEAT: ItemKind.FOOD, Res.SMOKED_FISH: ItemKind.FOOD,
+	Res.SMOKED_MEAT: ItemKind.FOOD, Res.SMOKED_FISH: ItemKind.FOOD, Res.SHIELD: ItemKind.ARMOR,
 }
 # cibo: quanto sazia (vedi eat) e in quanti giorni marcisce a terra fuori (vedi spoil); in magazzino ci mette il doppio.
 # Il crudo sazia meno e può intossicare (vedi poison_chance), i pasti no e danno un bonus (vedi Cond)
@@ -278,7 +278,7 @@ const LOST_AFTER := 2.0     # una spedizione da cui non torna nessuno la si dà 
 # "time": {Job: tempo x}, "slow": tempo x per ogni lavoro, "hit": a segno + cacciando, "range": caselle di tiro in più,
 # "outdoor_stress": stress x lavorando fuori dalle stanze; "look": come si vede addosso (Held in mano, Look sul corpo
 # e in testa), "tint": tinta di quel livello (vedi figure_layers)
-enum Slot { HANDS, BODY, HEAD }  # come HUD/ColonistSheet/Box/Equipment/Slots
+enum Slot { HANDS, BODY, HEAD, SHIELD }  # come HUD/ColonistSheet/Box/Equipment/Slots
 enum Held { TOOL, PICKAXE, AXE, SICKLE, SWORD, BOW, DAGGER }  # righe di colonist_hands; TOOL: a mani vuote, nei lavori
 enum Look { LEATHER_ARMOR, CHAINMAIL, HELMET, HOOD, SHIELD, QUIVER, MASK, PACK }  # righe di colonist_gear
 const GEAR := {
@@ -295,6 +295,7 @@ const GEAR := {
 	Res.LEATHER_HOOD: {"slot": Slot.HEAD, "armor": 1, "hit": 0.05, "look": Look.HOOD, "tint": Color("8a5a34"), "info": "Blends in: +5% to hit when hunting."},
 	Res.HELMET: {"slot": Slot.HEAD, "armor": 3, "time": {Job.MINE: 0.9}, "look": Look.HELMET, "info": "Safe from falling rocks: mining 10% faster."},
 	Res.CHAINMAIL: {"slot": Slot.BODY, "armor": 5, "slow": 1.1, "look": Look.CHAINMAIL, "info": "Heavy: all work 10% slower."},
+	Res.SHIELD: {"slot": Slot.SHIELD, "armor": 3, "look": Look.SHIELD, "info": "Round, iron-rimmed: armor 3, only with a sword or a dagger."},
 	Res.DAGGER: {"slot": Slot.HANDS, "skill": Skill.LOCKPICKING, "damage": 10.0, "look": Held.DAGGER,
 		"info": "A burglar's knife. Melee damage 10."},
 }
@@ -316,6 +317,7 @@ const RECIPES := [
 	[Res.HELMET, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 3}, 20.0],
 	[Res.CHAINMAIL, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 6}, 30.0],
 	[Res.SWORD, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 3, Res.WOOD: 1}, 20.0],
+	[Res.SHIELD, Build.ANVIL, Skill.SMITHING, {Res.WOOD: 3, Res.INGOT: 1}, 15.0],
 	[Res.COAL, Build.FURNACE, Skill.SMITHING, {Res.WOOD: 5}, 10.0, 2],  # carbonaia: legna cotta piano, senza aria
 	[Res.HARDTACK, Build.CAMPFIRE, Skill.COOKING, {Res.VEG: 2}, 10.0],  # gallette
 	[Res.SMOKED_MEAT, Build.CAMPFIRE, Skill.COOKING, {Res.MEAT: 1}, 8.0],  # affumicati
@@ -549,6 +551,7 @@ const ICONS := {
 	Res.HARDTACK: preload("res://art/icon_hardtack.png"),
 	Res.SMOKED_MEAT: preload("res://art/icon_smoked_meat.png"),
 	Res.SMOKED_FISH: preload("res://art/icon_smoked_fish.png"),
+	Res.SHIELD: preload("res://art/icon_shield.png"),
 }
 # 256x128, righe: muri di legno, muri di pietra (colonna = lati collegati, vedi WALL_LINKS), pavimenti (colonna = Res,
 # poi il sentiero), porte (di fronte, di lato), erba sui pavimenti (lati, angoli, due varianti); vedi structure_src e draw_grass_over
@@ -767,7 +770,8 @@ const BRANCHES_SHEET := preload("res://art/branches.png")
 # dall'inizio. Gli effetti senza oggetto (passo, viaggi) li guardano le funzioni che li nominano.
 # ponytail: solo i nodi che hanno già qualcosa da sbloccare; gli altri dell'albero del GDD arrivano con le loro cose
 enum Tech { FORGE, TAILORING, HUNTING, INN, MASONRY, DECOR, LANTERNS, IRON_ARMS, BOOKSHELF, CHAINMAIL, FOUNTAIN, STATUARY,
-	CHARCOAL, COLD_STORE, PAVED_ROAD, DRY_RATIONS, CARTOGRAPHY, PALISADE, TRAINING_DUMMY, SMOKEHOUSE, RENOWNED_INN, WATCHTOWER }
+	CHARCOAL, COLD_STORE, PAVED_ROAD, DRY_RATIONS, CARTOGRAPHY, PALISADE, TRAINING_DUMMY, SMOKEHOUSE, RENOWNED_INN, WATCHTOWER,
+	SHIELD, LENDING_ARMORY }
 const TECHS_SHEET := preload("res://art/techs.png")
 const TECHS := {
 	Tech.FORGE: {"branch": Branch.FIRE, "tier": 1, "cost": 60, "builds": [Build.FURNACE, Build.ANVIL],
@@ -812,6 +816,10 @@ const TECHS := {
 		"makes": [Res.SMOKED_MEAT, Res.SMOKED_FISH], "info": "At the campfire, smoked meat and fish: they keep four times as long."},
 	Tech.RENOWNED_INN: {"branch": Branch.ROAD, "tier": 2, "cost": 250, "needs": [Tech.INN],
 		"info": "Adventurers come every day and a half and wait 5 days. On the notice board, ask for a class: the next one is that."},
+	Tech.SHIELD: {"branch": Branch.IRON, "tier": 2, "cost": 250, "needs": [Tech.TRAINING_DUMMY], "makes": [Res.SHIELD],
+		"info": "At the anvil, the round shield: armor 3 for whoever fights with a sword or a dagger."},
+	Tech.LENDING_ARMORY: {"branch": Branch.ROAD, "tier": 2, "cost": 250, "needs": [Tech.DRY_RATIONS],
+		"info": "Adventurers borrow better armor, helmets and shields from the warehouses for an expedition, and bring them back (unless they die)."},
 	Tech.WATCHTOWER: {"branch": Branch.IRON, "tier": 2, "cost": 300, "needs": [Tech.PALISADE], "builds": [Build.WATCHTOWER],
 		"info": "The watchtower and its bell: wolves are seen 20 tiles away. An archer up there shoots 2 tiles farther, +15% to hit."},
 }
@@ -948,6 +956,7 @@ class Colonist:
 	var stay_until := 0.0         # `clock` fino a cui aspetta alla locanda che qualcuno lo ingaggi
 	var drilled := -1             # il giorno dell'ultima ora di milizia al fantoccio (vedi relax)
 	var protested := -1           # il giorno dell'ultima protesta (vedi protest)
+	var lent := {}                # Slot -> il suo pezzo (o null) al posto del quale porta quello prestato (vedi lend)
 	var errand := Errand.NONE     # dove va col Job.TRAVEL (vedi travel)
 	var hired := false            # ingaggiato: va alla rovina, ci è, o ne torna
 	var loot := {}                # Res -> quantità che riporta dalla rovina e lascia alla locanda
@@ -3025,11 +3034,13 @@ func outdoor_stress(c: Colonist) -> float:
 	return f
 
 
-# somma di `key` per quello che `c` ha addosso (es. "armor", "hit", "range"); con l'arco sulla torre, di più
+# somma di `key` per quello che `c` ha addosso (es. "armor", "hit", "range"); con l'arco sulla torre, di più; lo
+# scudo conta solo con la spada o il pugnale in mano
 func gear_sum(c: Colonist, key: String) -> float:
 	var sum: float = TOWER.get(key, 0.0) if has_bow(c) and furniture.get(cell_of(c.pos), [-1])[0] == Build.WATCHTOWER else 0.0
 	for g in c.gear.values():
-		sum += GEAR[g].get(key, 0.0)
+		if g != Res.SHIELD or shielded(c):
+			sum += GEAR[g].get(key, 0.0)
 	if key == "armor":
 		for k in c.kit:
 			sum += KIT_ARMOR.get(k, 0)
@@ -3166,7 +3177,7 @@ func wanted_tool(c: Colonist) -> Res:
 
 # pezzi che `c` metterebbe nello slot `slot` se lo ha vuoto: nelle mani solo il suo attrezzo, se no tutti quelli dello slot
 func fits(c: Colonist, slot: Slot) -> Array:
-	if c.gear.has(slot):
+	if c.gear.has(slot) or (slot == Slot.SHIELD and not shielded(c)):
 		return []
 	if slot == Slot.HANDS:
 		return [wanted_tool(c)]
@@ -3304,6 +3315,11 @@ func craft(c: Colonist, delta: float) -> void:
 
 func hostile(a: Animal) -> bool:
 	return BEASTS[a.kind].get("hostile", false)
+
+
+# in mano un'arma con cui lo scudo serve: spada o pugnale
+func shielded(c: Colonist) -> bool:
+	return c.gear.get(Slot.HANDS) in [Res.SWORD, Res.DAGGER]
 
 
 func has_bow(c: Colonist) -> bool:
@@ -3904,7 +3920,10 @@ func send(party: Array, ruin: Ruin) -> bool:
 		var n := mini(stored(res), want - int(exp.food))
 		take_stored(res, n)
 		exp.food += n
+	var loans := PackedStringArray()
 	for g in party:
+		if researched.has(Tech.LENDING_ARMORY):
+			loans.append_array(lend(g))
 		exp.party.append(g)
 		g.hired = true
 		g.errand = Errand.DEPART
@@ -3914,7 +3933,7 @@ func send(party: Array, ruin: Ruin) -> bool:
 	board_pick.clear()
 	note("Day %d: %s hired for the %s, for %s and %d of %d provisions." % [int(clock) + 1,
 		", ".join(party.map(func(g): return "%s (%s)" % [full_name(g), hero_name(g)])), RUINS[ruin.kind]["name"], coins(cost),
-		exp.food, want])
+		exp.food, want] + (" The armory lends: %s." % ", ".join(loans) if not loans.is_empty() else ""))
 	return true
 
 
@@ -4169,6 +4188,8 @@ func update_expeditions() -> void:
 		if exp.treasure:
 			gain(TREASURE_AUTHORITY)
 			exp.lines.append("The treasure of the %s: %s authority for the crown." % [name, signed(TREASURE_AUTHORITY)])
+		for g in exp.party:
+			give_back(g)
 		exp.party[0].loot = exp.loot  # lo porta il primo, lo lascia alla locanda (vedi arrive)
 		report("Back from the %s" % name, exp.lines)
 
@@ -4568,6 +4589,37 @@ func protest(c: Colonist) -> void:
 	gain(PROTEST_AUTHORITY)
 	note("Day %d: %s protests in the throne room against %s." % [int(clock) + 1, full_name(c),
 		" and ".join(enacted.filter(func(law): return law_mood_of(c, law) < 0).map(law_name))])
+
+
+# Armeria di prestito: per la spedizione `g` prende dal magazzino l'armatura e l'elmo che proteggono più dei suoi, e lo
+# scudo se tira di spada o di pugnale e non ne ha uno nel corredo. Tiene da parte i suoi (vedi give_back). I prestiti, per la cronaca
+func lend(g: Colonist) -> PackedStringArray:
+	var out := PackedStringArray()
+	for slot in [Slot.BODY, Slot.HEAD, Slot.SHIELD]:
+		if slot == Slot.SHIELD and (not shielded(g) or Look.SHIELD in g.kit):
+			continue
+		var own = g.gear.get(slot)
+		var best = own
+		for piece in GEAR.keys().filter(func(p): return GEAR[p]["slot"] == slot and stored(p) > 0):
+			if best == null or GEAR[piece].get("armor", 0) > GEAR[best].get("armor", 0):
+				best = piece
+		if best != own:
+			take_stored(best, 1)
+			g.lent[slot] = own
+			g.gear[slot] = best
+			out.append("%s to %s" % [res_name(best), g.first_name])
+	return out
+
+
+# tornato dalla spedizione: i pezzi prestati in magazzino, i suoi di nuovo addosso
+func give_back(g: Colonist) -> void:
+	for slot in g.lent:
+		store(g.gear[slot], 1)
+		if g.lent[slot] == null:
+			g.gear.erase(slot)
+		else:
+			g.gear[slot] = g.lent[slot]
+	g.lent.clear()
 
 
 # toglie dal granaio fino a `n` pezzi di cibo, prima i pasti; quanti ne ha tolti
@@ -6061,7 +6113,7 @@ static func figure_layers(c: Colonist) -> Array:
 	if head != null:
 		var tint: Color = c.hood_tint if c.hood_tint != null and GEAR[head]["look"] == Look.HOOD else GEAR[head].get("tint", Color.WHITE)
 		layers.append([COLONIST_GEAR, GEAR[head]["look"], tint])
-	for k in c.kit:  # corredo degli avventurieri
+	for k in c.kit + ([Look.SHIELD] if c.gear.has(Slot.SHIELD) else []):  # corredo degli avventurieri, lo scudo
 		layers.append([COLONIST_GEAR, k, Color.WHITE])
 	var hands = c.gear.get(Slot.HANDS)
 	layers.append([COLONIST_HANDS, GEAR[hands]["look"] if hands != null else Held.TOOL, Color.WHITE])

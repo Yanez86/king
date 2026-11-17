@@ -557,6 +557,42 @@ func _initialize() -> void:
 	main.animals.erase(prowler)
 	main.furniture.erase(lookout)
 
+	# scudo: nel suo slot, lo vuole e lo usa solo chi ha spada o pugnale; sullo sprite come quello dei guerrieri
+	var squire = main.colonists[1]
+	squire.gear = {main.Slot.HANDS: R.BOW}
+	check(main.fits(squire, main.Slot.SHIELD).is_empty(), "con l'arco lo scudo non serve")
+	squire.gear = {main.Slot.HANDS: R.SWORD}
+	check(main.fits(squire, main.Slot.SHIELD) == [R.SHIELD], "con la spada sì")
+	squire.gear[main.Slot.SHIELD] = R.SHIELD
+	check(main.gear_sum(squire, "armor") == 3.0 and main.figure_layers(squire).any(func(l): return l[1] == main.Look.SHIELD),
+		"scudo: protezione 3, sullo sprite")
+	squire.gear[main.Slot.HANDS] = R.AXE
+	check(main.gear_sum(squire, "armor") == 0.0, "con l'ascia lo scudo non protegge")
+	squire.gear = {}
+
+	# armeria di prestito: per la spedizione gli avventurieri prendono di meglio dal magazzino, e lo riportano
+	var borrower = main.new_hero(main.Hero.ARCHER, 1)
+	var own_body = borrower.gear[main.Slot.BODY]
+	main.guests.append(borrower)
+	main.stockpile = {free[50]: true, free[51]: true, free[52]: true, free[53]: true}
+	main.add_item(R.CHAINMAIL, free[50], 1)
+	main.add_item(R.GOLD, free[51], main.fee(borrower))
+	var far_tower = main.Ruin.new()
+	main.ruins.append(far_tower)
+	check(main.send([borrower], far_tower) and borrower.gear[main.Slot.BODY] == R.CHAINMAIL and main.stored(R.CHAINMAIL) == 0
+		and not borrower.gear.has(main.Slot.SHIELD) and main.chronicle[-1].contains("The armory lends: chainmail to"),
+		"in prestito la cotta (lo scudo no: tira con l'arco)")
+	var trip2 = main.expeditions[-1]
+	trip2.left_at = main.clock
+	trip2.back_at = main.clock
+	trip2.edge = Vector2i(0, main.MAP_SIZE.y / 2)
+	main.update_expeditions()
+	check(borrower.gear[main.Slot.BODY] == own_body and main.stored(R.CHAINMAIL) == 1 and borrower.lent.is_empty(),
+		"al ritorno la cotta torna in magazzino, lui riprende la sua")
+	main.guests.clear()
+	main.ruins.erase(far_tower)
+	main.get_node("HUD/ReportPanel").hide()
+
 	# una partita vera: niente studiato, lupi dal quinto giorno, un'arma abbandonata sulla mappa
 	main.queue_free()
 	var real = load("res://main.tscn").instantiate()

@@ -1,4 +1,4 @@
-[gd_scene load_steps=72 format=3]
+[gd_scene load_steps=73 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Texture2D" path="res://art/icon_wood.png" id="2"]
@@ -40,6 +40,10 @@ region = Rect2(16, 0, 16, 16)
 [sub_resource type="AtlasTexture" id="HeadSlot"]
 atlas = ExtResource("equipment")
 region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="ShieldSlot"]
+atlas = ExtResource("equipment")
+region = Rect2(48, 0, 16, 16)
 
 [sub_resource type="AtlasTexture" id="WallIcon"]
 atlas = ExtResource("5")
@@ -1153,6 +1157,13 @@ stretch_mode = 5
 custom_minimum_size = Vector2(32, 32)
 tooltip_text = "Head"
 texture = SubResource("HeadSlot")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Shield" type="TextureRect" parent="HUD/ColonistSheet/Box/Equipment/Slots"]
+custom_minimum_size = Vector2(32, 32)
+tooltip_text = "Shield"
+texture = SubResource("ShieldSlot")
 expand_mode = 1
 stretch_mode = 5
 

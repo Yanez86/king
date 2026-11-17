@@ -102,7 +102,7 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   | Lutto (è morto un colono) | 3 giorni | — | +25% | −15 |
 
   Ben nutrito e pasto squisito si escludono: vale l'ultimo pasto. Poi: malattie dal narratore, perdita di punti ferita.
-- **Scheda** (clic sul colono): nome, soprannome (facoltativo), cognome, sesso, punti ferita, abilità (ognuna con un'icona 8×8), talenti (solo icone, il nome col mouse sopra), equipaggiamento (3 slot: mani, corpo, testa). Poi bisogni, relazioni.
+- **Scheda** (clic sul colono): nome, soprannome (facoltativo), cognome, sesso, punti ferita, abilità (ognuna con un'icona 8×8), talenti (solo icone, il nome col mouse sopra), equipaggiamento (4 slot: mani, corpo, testa, scudo). Poi bisogni, relazioni.
 
 ### 4.3 Il re e la dinastia
 - Il **sovrano** (re solo alla fine, vedi Titolo) è un colono come gli altri: lavori e priorità, bisogni, routine, abilità che
@@ -626,13 +626,13 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Armi di ferro ✓ | I | 80 | Forgia | *spada, elmo* |
   | | Cotta di maglia ✓ | II | 300 | Armi di ferro | *cotta di maglia* |
   | | Fantoccio ✓ | I | 60 | — | allenamento nel tempo libero: svago e +1 esperienza in mischia a colpo (uno ogni 2,5 s) |
-  | | Scudo | II | 250 | Fantoccio | scudo tondo: +3 protezione con spada o pugnale |
+  | | Scudo ✓ | II | 250 | Fantoccio | scudo tondo all'incudine (3 legna, 1 lingotto), nel suo slot: +3 protezione con spada o pugnale |
   | Strada | Locanda ✓ | I | 40 | — | *bacheca degli incarichi, locanda, ingaggi e spedizioni* |
   | | Locanda rinomata ✓ | II | 250 | Locanda | arrivi ogni giorno e mezzo, restano 5 giorni; avviso per la classe (sulla bacheca) |
   | | Compagnia della corona | III | 500 | Locanda rinomata | i coloni partono con gli avventurieri |
   | | Mappa del Re Dimenticato | IV | 1000 | Compagnia, Cartografia | la Cittadella: pericolo 5, 10 stanze, 3 giorni |
   | | Provviste secche ✓ | I | 80 | — | gallette al fuoco (2 vegetali, scorta 0 dal menu): valgono 2 provviste, non marciscono, a casa non si mangiano |
-  | | Armeria di prestito | II | 250 | Provviste secche | si presta l'equipaggiamento agli avventurieri |
+  | | Armeria di prestito ✓ | II | 250 | Provviste secche | si presta l'equipaggiamento agli avventurieri: armatura, elmo e scudo migliori dei loro, dal magazzino; tornano con loro (morti, persi) |
   | | Cartografia ✓ | I | 80 | Locanda | sulla bacheca la prossima stanza di ogni rovina; viaggio −25% |
   | Sapere | Libreria ✓ | I | 60 | — | libreria: −10% tempo a pagina nella stanza, fino a 3 |
   | | Scriptorium | II | 250 | Libreria | pergamena e inchiostro: si copiano i quaderni (3 pergamene, 1 inchiostro, 150 studio) |
@@ -736,7 +736,7 @@ IV, regno, leggi finali, cittadella.
 **Stato**: fatte le fasi 1–4; della 5 una parte dei nodi, l'erudito errante e la protesta. Nel gioco: scrittoio,
 libreria e trono; stanze Studio e Sala del trono; lavori Studiare e Governare; studio e autorità (nelle finestre
 Knowledge e Laws, tasti K e G, o clic su scrittoio e trono; tutte e due scorrono); i tre libri, nei forzieri e nei
-tesori, col monastero; le 22 ricerche segnate ✓ (Statuaria per ora dopo Muratura, finché non c'è Arredo fine); le 15
+tesori, col monastero; le 24 ricerche segnate ✓ (Statuaria per ora dopo Muratura, finché non c'è Arredo fine); le 15
 leggi segnate ✓; il titolo cresce con lo splendore (4.3) e dà i sigilli (2–5), le fasce delle leggi e l'autorità di
 ogni giorno; gli eventi d'autorità del 4.7.4 tranne l'incoronazione (manca la successione), mai sotto zero. Il granaio
 è un conto, non una stanza, e niente ci marcisce; paga le provviste, poi (Granaio aperto) l'ora senza cibo in
