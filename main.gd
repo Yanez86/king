@@ -642,6 +642,8 @@ func _ready() -> void:
 		colonists.append(c)
 	camera.position = center(MAP_SIZE / 2)
 	fullscreen.pressed.connect(toggle_fullscreen)
+	if DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN:  # passato a schermo intero dal titolo
+		fullscreen.text = "Window"
 	$HUD/TopBar/Row/Options.pressed.connect(get_tree().quit)  # ponytail: per ora chiude il gioco, poi aprirà le opzioni
 	structures_button.toggled.connect(toggle_build.bind(build_bar))
 	furniture_button.toggled.connect(toggle_build.bind(furniture_bar))

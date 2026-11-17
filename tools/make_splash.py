@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Splash screen di "Colonia: Long Live the King" -> PNG in art/splash/.
+"""Splash screen e schermata del titolo di "Colonia: Long Live the King".
 Le scene usano gli sprite di make_sprites.py; il logo è disegnato qui, sempre a griglie di caratteri.
 Esegui dalla cartella del progetto: python3 tools/make_splash.py [--scale N]
-(--scale 1 = 320x180, la risoluzione del gioco ÷4; di default 4 = 1280x720)
+- art/title_scene.png: la scena di notte del titolo, TITLE_FRAMES fotogrammi 320x180 uno sotto l'altro (vedi title.gd)
+- art/title_logo.png: il logo, 320x180 trasparente, da mettere sopra la scena
+- art/splash/: le quattro prove di splash (--scale 1 = 320x180, la risoluzione del gioco ÷4; di default 4 = 1280x720)
 """
 import random
 import sys
@@ -143,6 +145,7 @@ INK = "1f1a24"
 class Canvas:
     def __init__(self, w=W, h=H, fill=(0, 0, 0)):
         self.w, self.h = w, h
+        fill = tuple(fill) + (255,) * (4 - len(fill))
         self.px = [[list(fill) for _ in range(w)] for _ in range(h)]
         self.glow = [[False] * w for _ in range(h)]  # pixel che di notte restano accesi
 
@@ -154,8 +157,11 @@ class Canvas:
         if a <= 0:
             return
         p = self.px[y][x]
+        pa = p[3] / 255
+        out = a + pa * (1 - a)
         for i, c in enumerate((r, g, b)):
-            p[i] = round(p[i] * (1 - a) + c * a)
+            p[i] = round((c * a + p[i] * pa * (1 - a)) / out)
+        p[3] = round(out * 255)
         if a >= 1:
             self.glow[y][x] = glow
 
@@ -173,12 +179,14 @@ class Canvas:
                     c = tuple(round(v * k / 255) for v, k in zip(c[:3], t)) + c[3:]
                 self.put(x + dx, y + dy, c, ch in glow_chars)
 
-    def save(self, path, scale):
-        rows = []
+    def rows(self, scale=1):
+        out = []
         for line in self.px:
-            row = [tuple(p) + (255,) for p in line for _ in range(scale)]
-            rows += [row] * scale
-        ms.write_png(path, rows)
+            out += [[tuple(p) for p in line for _ in range(scale)]] * scale
+        return out
+
+    def save(self, path, scale=1):
+        ms.write_png(path, self.rows(scale))
 
 
 def big_mask(blocks):
@@ -428,8 +436,9 @@ def night(cv, lights, tint=(0.30, 0.34, 0.56), warm=(1.0, 0.78, 0.5), steps=4, w
                     p[i] = round(p[i] * (1 - wash[1]) + hexrgb(wash[0])[i] * wash[1])
 
 
-def vignette(cv, strength=0.55, top_band=None):
-    """Bordi più scuri, a gradini; top_band = (altezza, forza) scurisce in più la parte alta dove va il logo."""
+def vignette(cv, strength=0.55, top_band=None, left_band=None):
+    """Bordi più scuri, a gradini; top_band = (altezza, forza) scurisce in più la parte alta dove va il logo,
+    left_band = (larghezza, forza) la parte a sinistra dove va il menu del titolo."""
     cx, cy = cv.w / 2, cv.h / 2
     for y in range(cv.h):
         for x in range(cv.w):
@@ -439,6 +448,8 @@ def vignette(cv, strength=0.55, top_band=None):
             k = round(min(k, 1.0) * 5) / 5 * strength
             if top_band and y < top_band[0]:
                 k = max(k, round((1 - y / top_band[0]) * 4) / 4 * top_band[1])
+            if left_band and x < left_band[0]:
+                k = max(k, round((1 - x / left_band[0]) * 4) / 4 * left_band[1])
             p = cv.px[y][x]
             for i, base in enumerate(hexrgb(INK)):
                 p[i] = round(p[i] * (1 - k) + base * k)
@@ -490,44 +501,87 @@ def splash_day():
     return cv
 
 
-def splash_night():
-    """Notte: i coloni attorno al fuoco da campo, il magazzino con le finestre accese."""
+NIGHT_LAYOUTS = {
+    # splash: il fuoco al centro sotto il logo
+    "splash": dict(
+        stony=[(3, 10), (4, 10), (4, 11), (5, 11), (14, 3), (15, 3)],
+        paths=[(x, 10) for x in range(6, 21)] + [(9, 9), (9, 8)],
+        trees=[(0, 1, 1), (1, 0, 0), (2, 2, 2), (3, 0, 1), (16, 0, 1), (17, 1, 0), (18, 0, 2), (19, 2, 1), (0, 5, 0),
+               (1, 7, 1), (0, 9, 2), (19, 6, 0), (18, 8, 1), (19, 10, 2), (2, 12, 0), (6, 12, 1), (12, 12, 2),
+               (15, 12, 0), (17, 12, 1), (5, 1, 2), (14, 1, 0), (7, 0, 1), (12, 0, 0)],
+        warehouse=(3, 7), fire=(11 * TILE + 8, 8 * TILE), lanterns=[(15, 9), (7, 9)], banner=(15, 7),
+        bench=(12 * TILE, 10 * TILE - 6)),
+    # titolo: il fuoco più a destra, a sinistra il prato libero per il menu
+    "title": dict(
+        stony=[(14, 3), (15, 3), (18, 11), (19, 11)],
+        paths=[(x, 10) for x in range(7, 21)] + [(7, 11), (10, 9), (10, 8)],
+        trees=[(0, 1, 1), (1, 0, 0), (2, 2, 2), (3, 0, 1), (5, 1, 2), (7, 0, 1), (12, 0, 0), (14, 1, 0), (16, 0, 1),
+               (17, 1, 0), (18, 0, 2), (19, 2, 1), (1, 4, 1), (4, 3, 0), (0, 6, 0), (0, 9, 2), (0, 12, 1), (19, 5, 0),
+               (18, 7, 1), (19, 9, 0), (19, 12, 2), (15, 12, 0), (11, 12, 2), (17, 12, 1), (13, 3, 2), (6, 3, 1)],
+        warehouse=(8, 6), fire=(13 * TILE, 8 * TILE), lanterns=[(8, 9), (17, 9)], banner=(17, 7), bench=None),
+}
+TITLE_FRAMES = 16  # 0.15 s l'uno, come il fuoco in gioco (ANIMATED in main.gd)
+FIRE_FLICKER = [0, 2, 1, 3, 1, -1, 2, 0, 3, 1, -1, 0, 2, 3, 0, 1]  # pixel in più nel raggio della luce, per fotogramma
+SPARKS = [(6, 0, 1), (9, 3, -1), (4, 6, 1), (11, 9, 0), (7, 12, -1)]  # x nel fuoco, fotogramma in cui nasce, deriva
+
+
+def night_scene(layout="splash", frame=0, logo=True):
+    """Notte: i coloni attorno al fuoco da campo, il magazzino con le finestre accese. Con frame si anima: fuoco,
+    stendardo, respiro dei coloni, luce che tremola, scintille."""
+    lay = NIGHT_LAYOUTS[layout]
     rng = random.Random(3)
     cv = Canvas()
-    ground = {(x, y): "stony" for x, y in [(3, 10), (4, 10), (4, 11), (5, 11), (14, 3), (15, 3)]}
-    floors = {(x, 10): 2 for x in range(6, 21)}
-    floors.update({(9, 9): 2, (9, 8): 2})
-    draw_ground(cv, ground, floors, rng)
+    ground = {c: "stony" for c in lay["stony"]}
+    draw_ground(cv, ground, {c: 2 for c in lay["paths"]}, rng)
     night_pal = ms.PALETTE | ms.NIGHT_LIGHTS
     things = []
-    for tx, ty, k in [(0, 1, 1), (1, 0, 0), (2, 2, 2), (3, 0, 1), (16, 0, 1), (17, 1, 0), (18, 0, 2), (19, 2, 1),
-                      (0, 5, 0), (1, 7, 1), (0, 9, 2), (19, 6, 0), (18, 8, 1), (19, 10, 2), (2, 12, 0), (6, 12, 1),
-                      (12, 12, 2), (15, 12, 0), (17, 12, 1), (5, 1, 2), (14, 1, 0), (7, 0, 1), (12, 0, 0)]:
+    for tx, ty, k in lay["trees"]:
         things.append((ty * TILE + 15, lambda tx=tx, ty=ty, k=k: cv.grid(tree(k), tx * TILE, (ty - 1) * TILE)))
-    things.append((8 * TILE + 15, lambda: cv.grid(furniture("WAREHOUSE"), 3 * TILE, 7 * TILE, night_pal,
-                                                  glow_chars="EQY")))
-    fire_x, fire_y = 11 * TILE + 8, 8 * TILE
-    things.append((fire_y + 15, lambda: cv.grid(furniture("CAMPFIRE", 2), fire_x, fire_y, glow_chars="89=")))
-    for x, y in ((15, 9), (7, 9)):
+    wx, wy = lay["warehouse"]
+    things.append(((wy + 1) * TILE + 15, lambda: cv.grid(furniture("WAREHOUSE"), wx * TILE, wy * TILE, night_pal,
+                                                         glow_chars="EQY")))
+    fire_x, fire_y = lay["fire"]
+    things.append((fire_y + 15, lambda: cv.grid(furniture("CAMPFIRE", (frame + 2) % 4), fire_x, fire_y,
+                                                glow_chars="89=")))
+    for x, y in lay["lanterns"]:
         things.append((y * TILE + 15, lambda x=x, y=y: cv.grid(furniture("LANTERN"), x * TILE, y * TILE, night_pal,
                                                               glow_chars="EQY")))
-    things.append((10 * TILE + 15, lambda: cv.grid(furniture("BENCH"), 12 * TILE, 10 * TILE - 6)))
-    things.append((7 * TILE + 15, lambda: cv.grid(furniture("BANNER", 3), 15 * TILE, 7 * TILE)))
-    for dx, dy, look, face in [(-19, 1, 0, 2), (19, 1, 1, 1), (-10, -13, 2, 0), (11, -13, 3, 0), (-9, 13, 4, 3),
-                               (10, 14, 5, 3)]:
+    if lay["bench"]:
+        things.append((lay["bench"][1] + 15, lambda: cv.grid(furniture("BENCH"), *lay["bench"])))
+    bx, by = lay["banner"]
+    things.append((by * TILE + 15, lambda: cv.grid(furniture("BANNER", (frame // 2 + 3) % 4), bx * TILE, by * TILE)))
+    for i, (dx, dy, look, face) in enumerate([(-19, 1, 0, 2), (19, 1, 1, 1), (-10, -13, 2, 0), (11, -13, 3, 0),
+                                              (-9, 13, 4, 3), (10, 14, 5, 3)]):
         x, y = fire_x + dx, fire_y + dy
-        things.append((y + 15, lambda x=x, y=y, look=look, face=face:
-                       draw_colonist(cv, x, y, COLONIST_LOOKS[look], face, 5 if look % 2 else 0)))
+        breath = 5 if (frame + i * 5) // 8 % 2 else 0  # respiro lento, ognuno col suo passo
+        things.append((y + 15, lambda x=x, y=y, look=look, face=face, breath=breath:
+                       draw_colonist(cv, x, y, COLONIST_LOOKS[look], face, breath)))
     for _, draw in sorted(things, key=lambda t: t[0]):
         draw()
-    night(cv, [(fire_x + 8, fire_y + 8, 74, 1.0), (3 * TILE + 32, 7 * TILE + 20, 26, 0.55),
-               (15 * TILE + 8, 9 * TILE + 5, 30, 0.6), (7 * TILE + 8, 9 * TILE + 5, 30, 0.6)])
-    # scintille sopra al fuoco
-    for sx, sy in [(fire_x + 6, fire_y - 6), (fire_x + 10, fire_y - 12), (fire_x + 4, fire_y - 17),
-                   (fire_x + 11, fire_y - 22)]:
-        cv.put(sx, sy, hexrgb("f2a03a"))
-    vignette(cv, 0.5, top_band=(84, 0.45))
-    draw_logo(cv, W // 2, 8, glow=True)
+    flicker = FIRE_FLICKER[frame % len(FIRE_FLICKER)]
+    lights = [(fire_x + 8, fire_y + 8, 74 + flicker, 1.0 + flicker * 0.01),
+              (wx * TILE + 32, wy * TILE + 20, 26, 0.55)]
+    lights += [(x * TILE + 8, y * TILE + 5, 30, 0.6) for x, y in lay["lanterns"]]
+    night(cv, lights)
+    for sx, born, drift in SPARKS:  # scintille che salgono dal fuoco e si spengono
+        age = (frame - born) % TITLE_FRAMES
+        if age < 7:
+            color = "ffe6a0" if age < 2 else ("f2a03a" if age < 5 else "d8562f")
+            cv.put(fire_x + sx + drift * (age // 3), fire_y + 2 - age * 4, hexrgb(color), True)
+    vignette(cv, 0.5, top_band=(84, 0.45), left_band=(120, 0.35) if layout == "title" else None)
+    if logo:
+        draw_logo(cv, W // 2, 8)
+    return cv
+
+
+def splash_night():
+    return night_scene()
+
+
+def title_logo():
+    """Il logo da solo, su fondo trasparente, nella stessa posizione che ha negli splash."""
+    cv = Canvas(fill=(0, 0, 0, 0))
+    draw_logo(cv, W // 2, 8)
     return cv
 
 
@@ -586,12 +640,16 @@ SPLASHES = {"day": splash_day, "night": splash_night, "crest": splash_crest, "du
 
 def main():
     scale = int(sys.argv[sys.argv.index("--scale") + 1]) if "--scale" in sys.argv else 4
-    out = Path(sys.argv[sys.argv.index("--out") + 1]) if "--out" in sys.argv else \
-        Path(__file__).resolve().parent.parent / "art" / "splash"
+    art = Path(__file__).resolve().parent.parent / "art"
+    out = Path(sys.argv[sys.argv.index("--out") + 1]) if "--out" in sys.argv else art / "splash"
     out.mkdir(parents=True, exist_ok=True)
     for name, make in SPLASHES.items():
         make().save(out / f"splash_{name}.png", scale)
         print("scritto", out / f"splash_{name}.png")
+    frames = [night_scene("title", f, logo=False) for f in range(TITLE_FRAMES)]
+    ms.write_png(art / "title_scene.png", [row for cv in frames for row in cv.rows()])
+    title_logo().save(art / "title_logo.png")
+    print("scritto", art / "title_scene.png", art / "title_logo.png")
 
 
 if __name__ == "__main__":
