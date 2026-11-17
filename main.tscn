@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3]
+[gd_scene load_steps=38 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Texture2D" path="res://art/icon_wood.png" id="2"]
@@ -117,6 +117,8 @@ region = Rect2(0, 448, 32, 32)
 
 [sub_resource type="ButtonGroup" id="Materials"]
 
+[sub_resource type="ButtonGroup" id="Categories"]
+
 [sub_resource type="ButtonGroup" id="Orders"]
 allow_unpress = true
 
@@ -204,7 +206,7 @@ icon = ExtResource("options_icon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="BuildBar" type="PanelContainer" parent="HUD"]
+[node name="Categories" type="PanelContainer" parent="HUD"]
 visible = false
 anchors_preset = 2
 anchor_top = 1.0
@@ -212,6 +214,40 @@ anchor_bottom = 1.0
 offset_left = 8.0
 offset_top = -78.0
 offset_bottom = -78.0
+grow_vertical = 0
+theme_type_variation = &"Bar"
+
+[node name="Row" type="HBoxContainer" parent="HUD/Categories"]
+theme_override_constants/separation = 6
+
+[node name="Structures" type="Button" parent="HUD/Categories/Row"]
+custom_minimum_size = Vector2(0, 40)
+focus_mode = 0
+tooltip_text = "Walls, floors, paths and doors"
+toggle_mode = true
+button_group = SubResource("Categories")
+text = "Structures"
+icon = SubResource("WallIcon")
+expand_icon = true
+
+[node name="Furniture" type="Button" parent="HUD/Categories/Row"]
+custom_minimum_size = Vector2(0, 40)
+focus_mode = 0
+tooltip_text = "Furniture, workstations and decorations"
+toggle_mode = true
+button_group = SubResource("Categories")
+text = "Furniture"
+icon = SubResource("LampIcon")
+expand_icon = true
+
+[node name="BuildBar" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = -150.0
+offset_bottom = -150.0
 grow_vertical = 0
 theme_type_variation = &"Bar"
 
@@ -286,8 +322,8 @@ anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 8.0
-offset_top = -78.0
-offset_bottom = -78.0
+offset_top = -150.0
+offset_bottom = -150.0
 grow_vertical = 0
 theme_type_variation = &"Bar"
 
@@ -503,21 +539,12 @@ icon = ExtResource("select_icon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Structures" type="Button" parent="HUD/Tools/Row"]
+[node name="Build" type="Button" parent="HUD/Tools/Row"]
 custom_minimum_size = Vector2(38, 38)
 focus_mode = 0
-tooltip_text = "Structures"
+tooltip_text = "Build"
 toggle_mode = true
 icon = ExtResource("4")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Furniture" type="Button" parent="HUD/Tools/Row"]
-custom_minimum_size = Vector2(38, 38)
-focus_mode = 0
-tooltip_text = "Furniture"
-toggle_mode = true
-icon = SubResource("LampIcon")
 icon_alignment = 1
 expand_icon = true
 

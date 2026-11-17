@@ -152,7 +152,7 @@ const INGOT_STOCK := 10
 enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT }  # cosa segna il trascinamento del mouse
 const ORDER_COLORS := [Color.TRANSPARENT, Color.ORANGE, Color("8fd3ff"), Color("9be36a"), Color("e6e2d0"),
 	Color("ff5a5a"), Color("c83030"), Color("d84a6a"), Color("6ab0e0"), Color("c87a3a")]  # selezione e segni, per Order
-# tasti in HUD/Tools/Row dopo Structures e Furniture, uno alla volta (ButtonGroup "Orders"): vedi toggle_order
+# tasti in HUD/Tools/Row dopo Build, uno alla volta (ButtonGroup "Orders"): vedi toggle_order
 const ORDER_TOOLS := {Order.DEMOLISH: "Destroy", Order.MINE: "Mine", Order.CHOP: "Chop", Order.UPROOT: "Uproot",
 	Order.HARVEST: "Harvest", Order.FISH: "Fish", Order.HUNT: "Hunt"}
 const ORDER_ICONS := {Order.CHOP: preload("res://art/icon_chop.png"), Order.MINE: preload("res://art/icon_mine.png"),
@@ -574,7 +574,8 @@ var lights_canvas := Node2D.new()
 @onready var splendor_label: Label = $HUD/TopBar/Row/Splendor
 @onready var info_label: Label = $HUD/TopBar/Row/Info
 @onready var fullscreen: Button = $HUD/TopBar/Row/Fullscreen
-@onready var build_bar: Control = $HUD/BuildBar
+@onready var categories: Control = $HUD/Categories  # si apre col tasto Build: una categoria per barra di costruzione
+@onready var build_bar: Control = $HUD/BuildBar  # sopra le categorie: quella scelta
 @onready var furniture_bar: Control = $HUD/FurnitureBar
 @onready var materials: Control = $HUD/BuildBar/Row/Materials
 @onready var actions: Control = $HUD/Actions  # in basso al centro: "Build" e la X rossa
@@ -583,8 +584,10 @@ var lights_canvas := Node2D.new()
 @onready var material_group: ButtonGroup = $HUD/BuildBar/Row/Materials/Wood.button_group
 @onready var kind_group: ButtonGroup = $HUD/BuildBar/Row/Wall.button_group  # anche dei mobili
 @onready var select_button: Button = $HUD/Tools/Row/Select  # la freccia, prima a sinistra: vedi select_tool
-@onready var structures_button: Button = $HUD/Tools/Row/Structures
-@onready var furniture_button: Button = $HUD/Tools/Row/Furniture
+@onready var build_button: Button = $HUD/Tools/Row/Build  # sega e martello: apre le categorie, vedi toggle_build
+@onready var structures_button: Button = $HUD/Categories/Row/Structures
+@onready var furniture_button: Button = $HUD/Categories/Row/Furniture
+@onready var category_group: ButtonGroup = structures_button.button_group
 @onready var order_group: ButtonGroup = $HUD/Tools/Row/Destroy.button_group  # Destroy, Mine, Chop, Uproot
 @onready var room_popup: Control = $HUD/RoomPopup  # pannello al centro
 @onready var room_name: LineEdit = $HUD/RoomPopup/Box/Name
@@ -643,12 +646,13 @@ func _ready() -> void:
 	camera.position = center(MAP_SIZE / 2)
 	fullscreen.pressed.connect(toggle_fullscreen)
 	$HUD/TopBar/Row/Options.pressed.connect(get_tree().quit)  # ponytail: per ora chiude il gioco, poi aprirà le opzioni
-	structures_button.toggled.connect(toggle_build.bind(build_bar))
-	furniture_button.toggled.connect(toggle_build.bind(furniture_bar))
+	build_button.toggled.connect(toggle_build)
+	structures_button.toggled.connect(toggle_category.bind(build_bar))
+	furniture_button.toggled.connect(toggle_category.bind(furniture_bar))
 	for o in ORDER_TOOLS:
 		get_node("HUD/Tools/Row/" + ORDER_TOOLS[o]).toggled.connect(toggle_order.bind(o))
 	select_button.toggled.connect(select_tool.unbind(1))
-	for button in [structures_button, furniture_button] + order_group.get_buttons():
+	for button in [build_button] + order_group.get_buttons():
 		button.toggled.connect(sync_select.unbind(1))
 	room_name.text_changed.connect(func(text): editing.name = text)
 	room_kind.item_selected.connect(func(index): set_room_kind(room_kind.get_item_id(index)))
@@ -722,34 +726,41 @@ func toggle_fullscreen() -> void:
 # tasto "Select" (freccia): nessuno strumento, il clic sulla mappa apre le schede. Premuto chiude quello aperto;
 # resta premuto finché non se ne sceglie un altro e torna su da solo quando si chiude l'ultimo (vedi sync_select)
 func select_tool() -> void:
-	for button in [structures_button, furniture_button, order_group.get_pressed_button()]:
+	for button in [build_button, order_group.get_pressed_button()]:
 		if button:
 			button.button_pressed = false
 	sync_select()  # cliccato già premuto si spegnerebbe: lo riaccende
 
 
 func sync_select() -> void:
-	select_button.set_pressed_no_signal(not (structures_button.button_pressed or furniture_button.button_pressed
-		or order_group.get_pressed_button()))
+	select_button.set_pressed_no_signal(not (build_button.button_pressed or order_group.get_pressed_button()))
 
 
-# tasti "Structures" (sega e martello) e "Furniture" (lampada) in basso a sinistra, uno alla volta: sopra compare
-# la sua barra (strutture e materiale, o mobili e frecce per girarli), al centro "Build" e la X per cancellare.
-# Passando dall'uno all'altro il progetto resta (es. un letto sul pavimento appena disegnato); chiudendo si scarta
-func toggle_build(on: bool, bar: Control) -> void:
-	bar.visible = on
+# tasto "Build" (sega e martello) in basso a sinistra: sopra compaiono le categorie di costruzione, ancora nessuna
+# scelta. Chiuderlo chiude anche la categoria aperta e scarta il progetto non confermato
+func toggle_build(on: bool) -> void:
+	categories.visible = on
 	if on:
-		reset_choice()  # il tipo scelto nell'altra barra qui non c'è
-		var other: Button = furniture_button if bar == build_bar else structures_button
-		other.button_pressed = false
 		var tool := order_group.get_pressed_button()
 		if tool:
 			tool.button_pressed = false
-	actions.visible = structures_button.button_pressed or furniture_button.button_pressed
-	if not actions.visible:
-		draft.clear()  # chiudere senza confermare scarta il progetto
-		furniture_draft.clear()
-		reset_choice()
+		return
+	var open := category_group.get_pressed_button()
+	if open:
+		open.button_pressed = false  # nasconde la sua barra e "Build" al centro
+	draft.clear()  # chiudere senza confermare scarta il progetto
+	furniture_draft.clear()
+	reset_choice()
+
+
+# categorie "Structures" (muro) e "Furniture" (lampada), una alla volta: sopra compare la sua barra (strutture e
+# materiale, o mobili e frecce per girarli), al centro "Build" e la X per cancellare. Passando dall'una all'altra
+# il progetto resta (es. un letto sul pavimento appena disegnato)
+func toggle_category(on: bool, bar: Control) -> void:
+	bar.visible = on
+	if on:
+		reset_choice()  # il tipo scelto nell'altra barra qui non c'è
+	actions.visible = category_group.get_pressed_button() != null
 
 
 # nessun tipo scelto: il trascinamento non disegna progetti finché non se ne sceglie uno
@@ -836,13 +847,12 @@ func toggle_erase(on: bool) -> void:
 		order = Order.BUILD if material_group.get_pressed_button() else Order.NONE
 
 
-# tasti "Destroy", "Mine", "Chop", "Uproot", "Harvest" dopo "Furniture": finché uno è premuto, trascinando o cliccando
+# tasti "Destroy", "Mine", "Chop", "Uproot", "Harvest" dopo "Build": finché uno è premuto, trascinando o cliccando
 # si abbatte quello che è costruito, si segnano massi da scavare, alberi da tagliare, erbacce e cespugli da estirpare,
 # cespugli da cui raccogliere le bacche (ogni volta che maturano, finché il segno resta)
 func toggle_order(on: bool, which: Order) -> void:
 	if on:
-		structures_button.button_pressed = false
-		furniture_button.button_pressed = false
+		build_button.button_pressed = false
 		order = which
 	elif order == which:
 		order = Order.NONE

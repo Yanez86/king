@@ -271,9 +271,15 @@ func _initialize() -> void:
 	main.build_kind = main.Build.FLOOR
 	main.build_res = W
 	main.mark(Rect2i(at, Vector2i(1, 2)))
+	main.build_button.button_pressed = true  # tasto "Build": sopra compaiono le categorie, ancora nessuna aperta
+	check(main.categories.visible and not main.build_bar.visible and not main.furniture_bar.visible and not main.actions.visible,
+		"Build apre le categorie, senza barre né Build e X")
+	main.structures_button.button_pressed = true
+	check(main.build_bar.visible and main.actions.visible, "categoria Structures: la sua barra, con Build e X")
 	main.get_node("HUD/BuildBar/Row/Wall").button_pressed = true
-	main.furniture_button.button_pressed = true  # tasto "Furniture": la barra dei mobili al posto di quella delle strutture
+	main.furniture_button.button_pressed = true  # categoria "Furniture": la barra dei mobili al posto di quella delle strutture
 	check(main.furniture_bar.visible and not main.build_bar.visible and main.actions.visible, "barra dei mobili, con Build e X")
+	check(not main.structures_button.button_pressed, "una categoria alla volta")
 	check(main.draft.has(at) and main.draft.has(at + Vector2i.DOWN), "cambiando barra il pavimento in progetto resta")
 	check(main.order == main.Order.NONE and main.kind_group.get_pressed_button() == null, "il muro scelto prima qui non vale")
 	main.choose_kind(main.Build.ANVIL)
@@ -398,11 +404,22 @@ func _initialize() -> void:
 	main.mark(Rect2i(weed, Vector2i.ONE))
 	check(main.uproot_marks.size() == 2 and main.ripe_bushes().is_empty(), "da estirpare: le bacche non si raccolgono più")
 	check(main.job_list().contains("Uproot plants: 2"), "finestra Jobs: piante da estirpare")
-	main.structures_button.button_pressed = true
-	check(main.order == main.Order.NONE and main.order_group.get_pressed_button() == null, "Structures chiude le azioni")
+	main.build_button.button_pressed = true
+	check(main.order == main.Order.NONE and main.order_group.get_pressed_button() == null, "Build chiude le azioni")
 	check(not main.select_button.button_pressed, "con uno strumento aperto Select è su")
-	main.structures_button.button_pressed = false
+	main.furniture_button.button_pressed = true
+	main.choose_kind(main.Build.LAMP)
+	var lamp_at: Vector2i = main.cells_in(area).filter(func(k): return main.can_build(k, main.Build.LAMP))[0]
+	main.mark(Rect2i(lamp_at, Vector2i.ONE))
+	check(main.furniture_draft.has(lamp_at), "lampada nel progetto")
+	main.build_button.button_pressed = false
+	check(not main.categories.visible and not main.furniture_bar.visible and not main.actions.visible, "Build chiude categorie e barra")
+	check(main.category_group.get_pressed_button() == null and main.furniture_draft.is_empty(), "chiuso Build, il progetto si scarta")
 	check(main.select_button.button_pressed, "chiuso l'ultimo strumento torna Select")
+	main.build_button.button_pressed = true
+	main.structures_button.button_pressed = true
+	main.get_node("HUD/Tools/Row/Mine").button_pressed = true
+	check(not main.build_button.button_pressed and not main.categories.visible and not main.build_bar.visible, "un'azione chiude Build")
 	main.get_node("HUD/Tools/Row/Mine").button_pressed = true
 	main.select_button.button_pressed = true
 	check(main.order == main.Order.NONE and main.order_group.get_pressed_button() == null, "Select chiude le azioni")
