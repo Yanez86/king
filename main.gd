@@ -43,6 +43,26 @@ const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT]  # crudo: si cucina, o si mangia
 const STASH := [Res.WOOD, Res.STONE, Res.VEG, Res.IRON, Res.COAL]  # scorta di debug: il resto si produce
 const START_GOLD := 60      # monete nel magazzino all'inizio
 const COIN := "[img=center]res://art/icon_coin.png[/img]"  # una moneta 16x16 nei testi ricchi (vedi coins)
+# Tipo di ogni oggetto: la sua icona 16x16 (art/kind_*.png, per le monete la moneta) sta davanti al nome, ovunque
+# (vedi item_name, item_title, kind_icon)
+enum ItemKind { MATERIAL, FOOD, TOOL, WEAPON, ARMOR, COINS, RELIC }
+const KIND_NAMES := ["Material", "Food", "Tool", "Weapon", "Armor", "Coins", "Relic"]
+const KIND_ICONS := {
+	ItemKind.MATERIAL: preload("res://art/kind_material.png"), ItemKind.FOOD: preload("res://art/kind_food.png"),
+	ItemKind.TOOL: preload("res://art/kind_tool.png"), ItemKind.WEAPON: preload("res://art/kind_weapon.png"),
+	ItemKind.ARMOR: preload("res://art/kind_armor.png"), ItemKind.COINS: preload("res://art/icon_coin.png"),
+	ItemKind.RELIC: preload("res://art/kind_relic.png"),
+}
+const ITEM_KIND := {
+	Res.WOOD: ItemKind.MATERIAL, Res.STONE: ItemKind.MATERIAL, Res.IRON: ItemKind.MATERIAL, Res.COAL: ItemKind.MATERIAL,
+	Res.HIDE: ItemKind.MATERIAL, Res.INGOT: ItemKind.MATERIAL,
+	Res.VEG: ItemKind.FOOD, Res.MEAL: ItemKind.FOOD, Res.FINE_MEAL: ItemKind.FOOD, Res.MEAT: ItemKind.FOOD, Res.FISH: ItemKind.FOOD,
+	Res.PICKAXE: ItemKind.TOOL, Res.AXE: ItemKind.TOOL, Res.SICKLE: ItemKind.TOOL,
+	Res.BOW: ItemKind.WEAPON, Res.SWORD: ItemKind.WEAPON, Res.DAGGER: ItemKind.WEAPON,
+	Res.LEATHER_ARMOR: ItemKind.ARMOR, Res.LEATHER_HOOD: ItemKind.ARMOR, Res.HELMET: ItemKind.ARMOR, Res.CHAINMAIL: ItemKind.ARMOR,
+	Res.GOLD: ItemKind.COINS,
+	Res.CHALICE: ItemKind.RELIC, Res.OLD_BANNER: ItemKind.RELIC, Res.BUST: ItemKind.RELIC, Res.CROWN: ItemKind.RELIC,
+}
 # cibo: quanto sazia (vedi eat) e in quanti giorni marcisce a terra fuori (vedi spoil); in magazzino ci mette il doppio.
 # Il crudo sazia meno e può intossicare (vedi poison_chance), i pasti no e danno un bonus (vedi Cond)
 const FOOD := {Res.VEG: 35.0, Res.FISH: 30.0, Res.MEAT: 40.0, Res.MEAL: 100.0, Res.FINE_MEAL: 100.0}
@@ -892,6 +912,10 @@ func _ready() -> void:
 	for res in Res.values():
 		var row := HBoxContainer.new()
 		row.add_child(ui_icon(ICONS[res], Rect2(), Vector2(32, 32)))
+		var kind := ui_icon(KIND_ICONS[ITEM_KIND[res]], Rect2(), Vector2(16, 16))  # il tipo, prima del nome
+		kind.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		kind.tooltip_text = KIND_NAMES[ITEM_KIND[res]]
+		row.add_child(kind)
 		for text in [Res.keys()[res].capitalize(), ""]:  # nome, quantità
 			var label := Label.new()
 			label.text = text
@@ -1228,7 +1252,18 @@ func update_gear(box: Control, c: Colonist) -> void:
 		icon.texture = ICONS[g] if g != null else icon.get_meta("empty")
 		icon.tooltip_text = Slot.keys()[slot].capitalize() if g == null else "%s\n%s%s" % [Res.keys()[g].capitalize(),
 			"Armor %d. " % GEAR[g]["armor"] if GEAR[g].has("armor") else "", GEAR[g]["info"]]
+		if icon.get_script() == null:
+			icon.set_script(TIP)
+		icon.set("make_tip", gear_tip.bind(g) if g != null else Callable())
 	box.get_node("Equipment/Title").text = "Equipment" + ("  (armor %d)" % gear_sum(c, "armor") if gear_sum(c, "armor") > 0 else "")
+
+
+# suggerimento di un pezzo dell'equipaggiamento: tipo e nome, poi protezione ed effetto (come tooltip_text)
+func gear_tip(g: Res) -> Control:
+	var text := rich("%s\n%s%s" % [item_title(g), "Armor %d. " % GEAR[g]["armor"] if GEAR[g].has("armor") else "", GEAR[g]["info"]])
+	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	text.custom_minimum_size.x = 260
+	return text
 
 
 # condizioni di `c` sotto i talenti, solo icone come loro: col mouse sopra nome, effetto e quanto manca. Le icone si
@@ -1398,7 +1433,7 @@ func describe(cell: Vector2i) -> Array:
 				var part: float = fresh[cell] / SHELF_LIFE[res]
 				about += "\n%s, rots in %.1f days" % [FRESH_WORDS.filter(func(w): return part > w[0] or w[0] == 0.0)[0][1],
 					fresh[cell] / spoil_rate(cell)]
-			return ["%s pile" % Res.keys()[res].capitalize(), about]
+			return ["%s pile" % item_title(res), about]
 	for origin in pieces_at(furniture, cell):
 		return [Build.keys()[furniture[origin][0]].capitalize(), ""]
 	if built.has(cell):
@@ -1439,18 +1474,18 @@ func job_list() -> String:
 		lines.append("Cook meals: %d" % meals_wanted())
 	for r in RECIPES:  # solo quello che manca e che ha una postazione
 		if gear_wanted(r[0]) > 0 and not stations(r[1]).is_empty():
-			lines.append("Make %s: %d" % [res_name(r[0]), gear_wanted(r[0])])
+			lines.append("Make %s: %d" % [item_name(r[0]), gear_wanted(r[0])])
 	for plans in [blueprints, furniture_plans]:  # prima le strutture (per casella), poi i mobili (per pezzo)
 		var counts := {}  # "wall (wood)" -> quanti
 		for plan in plans.values():
-			var what := "%s (%s)" % [Build.keys()[plan[0]].capitalize().to_lower(), res_name(plan[1])]
+			var what := "%s (%s)" % [Build.keys()[plan[0]].capitalize().to_lower(), item_name(plan[1])]
 			counts[what] = counts.get(what, 0) + 1
 		for what in counts:
 			lines.append("Build %s: %d" % [what, counts[what]])
 	for res in Res.values():
 		var piles: Array = items[res].keys().filter(func(cell): return not stockpile.has(cell))
 		if not piles.is_empty() and not stockpile.is_empty():  # senza magazzino nessuno trasporta
-			lines.append("Haul %s: %d pile%s" % [COIN if res == Res.GOLD else res_name(res), piles.size(), "" if piles.size() == 1 else "s"])
+			lines.append("Haul %s: %d pile%s" % [item_name(res), piles.size(), "" if piles.size() == 1 else "s"])
 	return "\n".join(lines) if not lines.is_empty() else "Nothing to do"
 
 
@@ -1460,7 +1495,7 @@ func update_resources() -> void:
 	for res in Res.values():
 		var row: Control = resources_list.get_child(res)
 		row.visible = amounts[res] > 0
-		row.get_child(2).text = str(amounts[res])
+		row.get_child(-1).text = str(amounts[res])  # la quantità, in fondo alla riga
 	$HUD/ResourcesPanel/Box/Empty.visible = amounts.max() == 0
 	resources_panel.reset_size()  # si stringe se una risorsa finisce
 
@@ -3303,9 +3338,24 @@ func coins(n: int) -> String:
 	return "%d %s" % [n, COIN]
 
 
-# quantità di una risorsa in un testo ricco: le monete con l'icona, il resto per nome
+# quantità di una risorsa in un testo ricco: le monete con l'icona, il resto col suo nome (e l'icona del tipo)
 func amount_text(res: Res, n: int) -> String:
-	return coins(n) if res == Res.GOLD else "%d %s" % [n, res_name(res)]
+	return coins(n) if res == Res.GOLD else "%d %s" % [n, item_name(res)]
+
+
+# l'icona del tipo di `res`, per i testi ricchi
+func kind_icon(res: Res) -> String:
+	return "[img=center]%s[/img]" % KIND_ICONS[ITEM_KIND[res]].resource_path
+
+
+# nome di un oggetto nei testi ricchi, minuscolo: l'icona del tipo e il nome ("leather armor"); le monete solo l'icona
+func item_name(res: Res) -> String:
+	return COIN if res == Res.GOLD else "%s %s" % [kind_icon(res), res_name(res)]
+
+
+# nome di un oggetto come titolo: l'icona del tipo e il nome ("Leather Armor")
+func item_title(res: Res) -> String:
+	return "%s %s" % [kind_icon(res), Res.keys()[res].capitalize()]
 
 
 # una riga nella cronaca
@@ -3345,7 +3395,8 @@ func fill_board() -> void:
 		return
 	board_key = key
 	var box: Control = $HUD/BoardPanel/Box
-	box.get_node("Gold").text = "%s    Provisions (meals, raw food): %d" % [coins(stored(Res.GOLD)), food_stored()]
+	box.get_node("Gold").text = "%s    %d %s provisions (meals, raw food)" % [coins(stored(Res.GOLD)), food_stored(),
+		"[img=center]%s[/img]" % KIND_ICONS[ItemKind.FOOD].resource_path]
 	var list: Control = box.get_node("Heroes")
 	for child in list.get_children() + box.get_node("Ruins").get_children():
 		child.free()
@@ -3389,7 +3440,7 @@ func fill_board() -> void:
 		if not explored(ruin):
 			var food := provisions(board_pick, ruin)
 			if not board_pick.is_empty():  # quanto costa mandarci gli spuntati
-				var price := rich("%s, %d food" % [coins(cost), food])
+				var price := rich("%s, %d [img=center]%s[/img]" % [coins(cost), food, KIND_ICONS[ItemKind.FOOD].resource_path])
 				price.custom_minimum_size.x = 110
 				price.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 				row.add_child(price)

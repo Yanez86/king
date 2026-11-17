@@ -457,13 +457,13 @@ func _initialize() -> void:
 	main.drop(W, spot, 150)
 	check(main.items[W][spot] == 100 and main.total(W) == wood_spot + 150, "oltre 100 tronchi il mucchio trabocca accanto")
 	check(main.items[W].values().max() <= main.STACK_MAX[W], "nessun mucchio oltre 100")
-	check(main.describe(spot) == ["Wood pile", "100 / 100"], "finestra del mucchio")
+	check(main.describe(spot) == [main.item_title(W) + " pile", "100 / 100"], "finestra del mucchio: tipo e nome")
 	check(main.describe(Vector2i(-5, -5)).is_empty(), "fuori dagli oggetti niente finestra")
 
 	main.chop_marks = {Vector2i(1, 1): true}
 	main.blueprints = {Vector2i(1, 2): [main.Build.WALL, W], Vector2i(2, 2): [main.Build.WALL, W]}
 	var jobs: String = main.job_list()
-	check(jobs.contains("Chop trees: 1") and jobs.contains("Build wall (wood): 2"), "la finestra Jobs conta i lavori per tipo")
+	check(jobs.contains("Chop trees: 1") and jobs.contains("Build wall (%s): 2" % main.item_name(W)), "la finestra Jobs conta i lavori per tipo")
 
 	# finestre: si aprono insieme, la X chiude (e il tasto torna su), si trascinano restando nello schermo
 	var jobs_button: Button = main.get_node("HUD/Tools/Row/Jobs")
@@ -486,7 +486,7 @@ func _initialize() -> void:
 	main.update_resources()
 	for res in main.Res.values():
 		var row: Control = main.resources_list.get_child(res)
-		check(row.visible == (main.stored(res) > 0) and row.get_child(2).text == str(main.stored(res)), "quantità in magazzino")
+		check(row.visible == (main.stored(res) > 0) and row.get_child(-1).text == str(main.stored(res)), "quantità in magazzino")
 	check(main.stored(V) > 0 and not main.get_node("HUD/ResourcesPanel/Box/Empty").visible, "c'è roba in magazzino")
 	main.furniture = {Vector2i(0, 0): [main.Build.BED, W, 0], Vector2i(0, 2): [main.Build.CHAIR, W, 0]}  # il letto della fase 9 è stato abbattuto
 	main.furniture_plans = {Vector2i(4, 0): [main.Build.BED, W, 0]}  # in progetto: non conta

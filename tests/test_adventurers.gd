@@ -96,7 +96,9 @@ func _initialize() -> void:
 	main.fill_board()
 	check(box.get_node("Gold").text.begins_with(main.coins(main.stored(R.GOLD))), "sulla bacheca le monete con l'icona")
 	main.drop(R.LEATHER_ARMOR, mid + Vector2i(6, 6), 1)
-	check(main.job_list().contains("Haul leather armor: 1"), "finestra Jobs: nomi senza trattini")
+	check(main.job_list().contains("Haul %s: 1" % main.item_name(R.LEATHER_ARMOR)) and main.item_name(R.LEATHER_ARMOR).ends_with(" leather armor"),
+		"finestra Jobs: nomi senza trattini, col tipo")
+	check(main.describe(mid + Vector2i(6, 6))[0] == main.item_title(R.LEATHER_ARMOR) + " pile", "il mucchio: tipo e nome")
 	main.items[R.LEATHER_ARMOR].clear()
 	check(main.send([g], tower), "ingaggiato")
 	check(main.stored(R.GOLD) == gold_before - main.fee(g) and g.hired and g.errand == main.Errand.DEPART, "pagato, va al bordo")

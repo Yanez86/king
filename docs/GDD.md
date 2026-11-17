@@ -112,6 +112,18 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 
 ### 4.4 Risorse ed edifici
 - Materie prime: legname, pietra, ferro, carbone, oro, cibo crudo. Ferro e carbone vengono dalle vene nella roccia (massi 1x1).
+- **Tipi di oggetto**: ogni oggetto ha un tipo, con una piccola icona 16×16 che sta sempre davanti al suo nome (elenco
+  delle risorse, riquadro del mucchio, suggerimenti dell'equipaggiamento, finestra Jobs, diari e cronaca):
+
+  | Tipo | Icona | Oggetti |
+  |---|---|---|
+  | Materiale | cassa | legname, pietra, ferro, carbone, pelli, lingotti |
+  | Cibo | mela | vegetali, carne, pesce, pasti, pasti squisiti |
+  | Strumento | martello | piccone, ascia, falcetto |
+  | Arma | spada | arco, spada, pugnale |
+  | Armatura | scudo | armatura di cuoio, cotta di maglia, cappuccio, elmo |
+  | Monete | moneta | oro (nei testi c'è solo la moneta, dopo il numero) |
+  | Cimelio | gemma | calice, stendardo antico, busto, corona |
 - **Oro**: monete, in magazzino (mucchi da 100). All'inizio 60; poi si trovano nelle rovine (vedi 4.4.4). Servono a pagare
   gli avventurieri. Nei testi (bacheca, scheda, diari, cronaca, finestra Jobs) al posto della parola c'è una monetina
   16×16 dopo il numero. Poi: vene d'oro nella roccia, commercio.

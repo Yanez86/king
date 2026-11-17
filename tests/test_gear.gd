@@ -125,7 +125,8 @@ func _initialize() -> void:
 		c.gear = {}
 	check(main.gear_wanted(I) == main.INGOT_STOCK and main.gear_wanted(main.Res.PICKAXE) == 1 and main.gear_wanted(main.Res.CHAINMAIL) == 3,
 		"servono lingotti, un piccone, tre corpetti")
-	check(main.job_list().contains("Make ingot: 10") and main.job_list().contains("Make pickaxe: 1"), "finestra Jobs: cosa si fa")
+	check(main.job_list().contains("Make %s: 10" % main.item_name(I)) and main.job_list().contains("Make %s: 1" % main.item_name(main.Res.PICKAXE)),
+		"finestra Jobs: cosa si fa, col tipo davanti al nome")
 	var iron0: int = main.total(main.Res.IRON)
 	for i in 60000:
 		main.tick(0.05)
@@ -198,6 +199,20 @@ func _initialize() -> void:
 	var slots: Array = main.get_node("HUD/ColonistSheet/Box/Equipment/Slots").get_children()
 	check(slots[main.Slot.HANDS].texture == main.ICONS[main.Res.PICKAXE] and slots[main.Slot.BODY].tooltip_text.begins_with("Chainmail\nArmor 5."),
 		"slot della scheda")
+	var tip: RichTextLabel = slots[main.Slot.BODY].make_tip.call()
+	check(tip.text.begins_with(main.item_title(main.Res.CHAINMAIL) + "\nArmor 5."), "suggerimento dello slot: tipo e nome")
+	tip.free()
+	# ogni oggetto ha un tipo, con la sua icona davanti al nome
+	for r in main.Res.values():
+		check(main.ITEM_KIND.has(r), "%s ha un tipo" % main.Res.keys()[r])
+	check(main.item_name(main.Res.PICKAXE) == "[img=center]res://art/kind_tool.png[/img] pickaxe"
+		and main.item_name(main.Res.SWORD).contains("kind_weapon") and main.item_name(main.Res.HELMET).contains("kind_armor")
+		and main.item_name(main.Res.GOLD) == main.COIN, "strumento, arma, armatura; le monete solo la moneta")
+	var row: Control = main.resources_list.get_child(main.Res.CHAINMAIL)
+	main.update_resources()
+	check(row.get_child(1).texture == main.KIND_ICONS[main.ItemKind.ARMOR] and row.get_child(1).tooltip_text == "Armor"
+		and row.get_child(2).text == "Chainmail" and row.get_child(3).text == str(main.stored(main.Res.CHAINMAIL)),
+		"risorse: icona, tipo, nome e quantità")
 	check(main.gear_sum(smith, "armor") >= 5 and main.get_node("HUD/ColonistSheet/Box/Equipment/Title").text \
 		== "Equipment  (armor %d)" % main.gear_sum(smith, "armor"), "protezione totale")
 	smith.gear.clear()

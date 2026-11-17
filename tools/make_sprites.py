@@ -1872,6 +1872,17 @@ HERO_TRAITS_4 = """
 """
 
 # Stress 8x8, accanto alla sua barra nella scheda del colono: un fulmine.
+# Tipi di oggetto 8x8 (raddoppiati), davanti al nome di ogni oggetto: materiale (cassa), cibo (mela), strumento
+# (martello), arma (spada), armatura (scudo), cimelio (gemma); per le monete la moneta (COIN)
+ITEM_KINDS = {
+    "material": ['oooooooo', 'ocCCCCwo', 'oCcCCwCo', 'oCCcwCCo', 'oCCwcCCo', 'oCwCCcCo', 'owCCCCco', 'oooooooo'],
+    "food": ['....oo..', '...owo..', '.oooooo.', 'oj+jjjJo', 'ojjjjjJo', 'ojjjjJJo', '.ojJJJo.', '..oooo..'],
+    "tool": ['.ooooo..', 'ouuurRo.', 'orrrRRo.', '.oowoo..', '...owo..', '...owo..', '...owo..', '...ooo..'],
+    "weapon": ['......oo', '.....oxo', '....oxXo', '.o.oxXo.', '.ogoXo..', '..ogo...', '.owogo..', '.oo.oo..'],
+    "armor": ['oooooooo', 'ourrrrRo', 'orjjjjRo', 'orjggjRo', 'orjjjjRo', '.orjjRo.', '..orRo..', '...oo...'],
+    "relic": ['..oooo..', '.o+//Qo.', 'o+////Qo', 'oooooooo', '.o//QQo.', '..o/Qo..', '...oo...', '........'],
+}
+
 # Moneta 8x8 (raddoppiata), dentro i testi al posto della parola "gold": diari, bacheca, scheda.
 COIN = """
 ..oooo..
@@ -2416,6 +2427,8 @@ def main():
     images["icon_dagger"] = pixels(art(DAGGER, 16, 16))
     images["icon_gold"] = pixels(art(GOLD, 16, 16))
     images["icon_coin"] = pixels(double(art(COIN, 8, 8)))
+    for name, rows in ITEM_KINDS.items():
+        images["kind_" + name] = pixels(double(rows))
     for name, block in (("chalice", CHALICE), ("old_banner", OLD_BANNER), ("bust", BUST), ("crown", CROWN)):
         images["icon_" + name] = pixels(art(block, 16, 16))
     images["animals"] = pixels(art(ANIMALS.replace(" ", ""), 32, 48))
