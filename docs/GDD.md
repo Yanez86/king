@@ -342,23 +342,31 @@ racconta il diario al ritorno.
   2 giorni; intanto si possono ingaggiare di nuovo. +1 livello ogni 2 spedizioni tornate (al massimo 5).
 - **Diario**: al ritorno (o quando la spedizione si dà per persa: il doppio del tempo previsto) una finestra la racconta,
   una riga per stanza. Per esempio: «Giorno 12 – Bruna disinnesca una trappola nella cripta. Oddo cade sotto le spade
-  degli scheletri. Tornano con 14 monete e un calice d'argento.» I diari restano in una **cronaca** da rileggere.
+  degli scheletri. Tornano con 14 monete e un calice d'argento.» I diari restano in una **cronaca** da rileggere
+  (sulla bacheca l'ultima pagina e il tasto "Chronicle": tutto, dal più recente; ci sono anche ingaggi e morti).
   Frasi a chiave, tradotte come il resto.
-- **Cimeli** (calice d'argento, stendardo antico, busto di pietra…): decorazioni che si trovano solo nelle rovine;
-  piazzate danno splendore (3–6), che attira avventurieri più forti.
+- **Cimeli**: si trovano solo nei forzieri delle rovine e arrivano in magazzino come oggetti; nella barra dei mobili
+  (dopo le decorazioni) diventano decorazioni da piazzare, fatte col cimelio stesso (uno a pezzo), e danno splendore,
+  che attira avventurieri più forti.
+
+  | Cimelio | Dove | Splendore |
+  |---|---|---|
+  | Calice d'argento (col rubino) | cripta | 3 |
+  | Stendardo antico (strappato, d'una casata caduta) | forte | 4 |
+  | Busto di pietra (un re dimenticato) | cripta | 5 |
+  | Corona (su un cuscino di velluto) | forte | 6 |
 - Poi: un avventuriero contento dopo 3 spedizioni chiede di **restare come colono** (il primo modo di avere più coloni);
   coloni in spedizione; prestare equipaggiamento agli avventurieri; vene d'oro e commercio; una rovina sulla mappa da
   esplorare davvero.
 - **Ordine di lavoro**: (1) locanda e bacheca, oro, un avventuriero alla volta, solo la torre, bottino in risorse che
   esistono già; (2) classi, talenti, gruppi, provviste, diario; (3) altre rovine, mappe, cimeli, effetto dello splendore;
   (4) il resto.
-- **Stato**: fatte le fasi 1 e 2, e della 3 le rovine con le mappe e l'effetto dello splendore.
+- **Stato**: fatte le fasi 1, 2 e 3.
   Simulazioni (500 spedizioni per caso, provviste piene, rovina intatta): alla torre non muore nessuno, ma mandarci
   gente di livello alto costa più di quello che rende; nelle rovine profonde chi va da solo non torna una volta su
   cinque, un gruppo di livello 1 al forte perde in media un uomo ogni 9 spedizioni e torna presto; un gruppo del livello
   giusto ci guadagna (cripta, tre di livello 3: 147 monete a casa per 75 di paghe; forte, quattro di livello 5: 268
-  per 140); coi talenti a caso i numeri restano questi, più o meno. Mancano: cimeli, la cronaca intera (sulla bacheca
-  solo l'ultima pagina), il resto di "Poi".
+  per 140); coi talenti a caso i numeri restano questi, più o meno. Manca il resto di "Poi".
 
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100.

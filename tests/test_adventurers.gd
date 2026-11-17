@@ -303,6 +303,33 @@ func _initialize() -> void:
 	main.guests.erase(sneaky)
 	main.sheet_panel.hide()
 
+	# cimeli: si trovano nella cripta e nel forte; in magazzino, un colono ne fa una decorazione che dà splendore
+	for kind in main.RELICS:
+		var relic: int = main.RELICS[kind]
+		check(main.ICONS.has(relic) and main.BUILD_RES[kind] == relic and main.BUILD_COST[kind] == 1 and main.SPLENDOR.has(kind),
+			"cimelio %s" % main.Build.keys()[kind])
+		check(main.RUINS.values().any(func(d): return d["finds"].any(func(f): return f[0] == relic)), "si trova in una rovina")
+	var shelf := store + Vector2i.DOWN
+	var plinth := store + Vector2i(0, 3)
+	clear(shelf)
+	clear(plinth)
+	main.stockpile[shelf] = true
+	main.add_item(R.CROWN, shelf, 1)
+	var before: int = main.colony_splendor()
+	main.furniture_plans[plinth] = [B.CROWN, R.CROWN, 0]
+	walk_until(func(): return main.furniture.has(plinth), 6000)
+	check(main.furniture[plinth][0] == B.CROWN and main.colony_splendor() == before + main.SPLENDOR[B.CROWN] and main.total(R.CROWN) == 0,
+		"la corona sul suo cuscino: +6 splendore")
+	# la cronaca: tutto, dal più recente
+	main.open_board()
+	main.fill_board()
+	main.get_node("HUD/BoardPanel/Box/ChronicleButton").pressed.emit()
+	var pages: String = main.get_node("HUD/ChroniclePanel/Box/Scroll/Text").text
+	check(main.get_node("HUD/ChroniclePanel").visible and pages.begins_with(main.chronicle[-1]) and main.chronicle[0] in pages,
+		"la cronaca intera, dal più recente")
+	main.get_node("HUD/ChroniclePanel").hide()
+	main.get_node("HUD/BoardPanel").hide()
+
 	# morte: la protezione abbassa la probabilità di morire; a terra, il morso uccide
 	check(is_equal_approx(main.death_chance(colonist), main.DEATH_BASE) or not colonist.gear.is_empty(), "senza protezione 25%")
 	colonist.gear = {main.Slot.BODY: R.CHAINMAIL, main.Slot.HEAD: R.HELMET}

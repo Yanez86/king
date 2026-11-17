@@ -29,12 +29,15 @@ const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FUR
 # VEG: vegetali, dalle bacche dei cespugli; IRON, COAL: dai massi con le vene; MEAL, FINE_MEAL: pasti, dalla cucina;
 # MEAT, HIDE: carne e pelle, dagli animali cacciati; FISH: pesce, dai punti di pesca; INGOT: lingotti, dalla fornace;
 # da PICKAXE in poi: equipaggiamento (vedi GEAR), dalla forgia e dal banco da lavoro (vedi RECIPES); GOLD: monete, per
-# ingaggiare gli avventurieri (vedi hire); DAGGER: il pugnale degli scassinatori, non si fabbrica
+# ingaggiare gli avventurieri (vedi send); DAGGER: il pugnale degli scassinatori, non si fabbrica; da CHALICE in poi
+# i cimeli, dalle rovine: si piazzano come decorazioni (vedi RELICS)
 enum Res { WOOD, STONE, VEG, IRON, COAL, MEAL, FINE_MEAL, MEAT, FISH, HIDE, INGOT,
-	PICKAXE, AXE, SICKLE, BOW, LEATHER_ARMOR, LEATHER_HOOD, HELMET, CHAINMAIL, SWORD, GOLD, DAGGER }
+	PICKAXE, AXE, SICKLE, BOW, LEATHER_ARMOR, LEATHER_HOOD, HELMET, CHAINMAIL, SWORD, GOLD, DAGGER,
+	CHALICE, OLD_BANNER, BUST, CROWN }
 const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.IRON: 50, Res.COAL: 50, Res.MEAL: 20, Res.FINE_MEAL: 20,
 	Res.MEAT: 50, Res.FISH: 50, Res.HIDE: 50, Res.INGOT: 50, Res.PICKAXE: 10, Res.AXE: 10, Res.SICKLE: 10, Res.BOW: 10,
-	Res.LEATHER_ARMOR: 10, Res.LEATHER_HOOD: 10, Res.HELMET: 10, Res.CHAINMAIL: 10, Res.SWORD: 10, Res.GOLD: 100, Res.DAGGER: 10}  # quantità massima per mucchio (casella)
+	Res.LEATHER_ARMOR: 10, Res.LEATHER_HOOD: 10, Res.HELMET: 10, Res.CHAINMAIL: 10, Res.SWORD: 10, Res.GOLD: 100, Res.DAGGER: 10,
+	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5}  # quantità massima per mucchio (casella)
 const MEALS := [Res.FINE_MEAL, Res.MEAL]  # cotti: chi ha fame li prende in quest'ordine, poi il crudo
 const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT]  # crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti
 const STASH := [Res.WOOD, Res.STONE, Res.VEG, Res.IRON, Res.COAL]  # scorta di debug: il resto si produce
@@ -204,9 +207,9 @@ const RUINS := {
 	RuinKind.MINE: {"name": "Abandoned mine", "danger": 2, "rooms": 5, "travel": 1.0, "gold": [20, 45],
 		"finds": [[Res.IRON, 10], [Res.COAL, 10], [Res.INGOT, 4], [Res.PICKAXE, 1]]},
 	RuinKind.CRYPT: {"name": "Crypt", "danger": 3, "rooms": 6, "travel": 1.0, "gold": [35, 70],
-		"finds": [[Res.SWORD, 1], [Res.HELMET, 1], [Res.LEATHER_ARMOR, 1], [Res.INGOT, 6]]},
+		"finds": [[Res.SWORD, 1], [Res.HELMET, 1], [Res.LEATHER_ARMOR, 1], [Res.INGOT, 6], [Res.CHALICE, 1], [Res.BUST, 1]]},
 	RuinKind.FORT: {"name": "Ruined fort", "danger": 4, "rooms": 8, "travel": 2.0, "gold": [60, 120],
-		"finds": [[Res.CHAINMAIL, 1], [Res.SWORD, 2], [Res.HELMET, 1], [Res.INGOT, 10]]},
+		"finds": [[Res.CHAINMAIL, 1], [Res.SWORD, 2], [Res.HELMET, 1], [Res.INGOT, 10], [Res.OLD_BANNER, 1], [Res.CROWN, 1]]},
 }
 const MAP_CHANCE := 0.15    # in un forziere qualunque, la mappa di una rovina che ancora non si conosce
 const TREASURE_GOLD := 3    # il tesoro dell'ultima stanza: monete di tanti forzieri
@@ -297,23 +300,28 @@ const ROOM_CLASS := {
 const ROOM_PEOPLE := {RoomClass.WORK: "Workers", RoomClass.RESIDENCE: "Owners"}
 enum Build { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE, ANVIL, WORKBENCH,  # porta e mobili si attraversano
 	FLOWER_BED, PLANTER, BENCH, BANNER, LANTERN, FOUNTAIN, STATUE,  # decorazioni: vedi SPLENDOR
-	NOTICE_BOARD }  # la bacheca degli incarichi, nella locanda (vedi open_board)
+	NOTICE_BOARD,  # la bacheca degli incarichi, nella locanda (vedi open_board)
+	CHALICE, OLD_BANNER, BUST, CROWN }  # cimeli: decorazioni fatte con l'oggetto trovato nelle rovine (vedi RELICS)
 # materiale per casella; per i mobili, per pezzo
 const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3,
 	Build.LAMP: 3, Build.CAMPFIRE: 5, Build.FURNACE: 20, Build.ANVIL: 10, Build.WORKBENCH: 15, Build.FLOWER_BED: 3, Build.PLANTER: 5,
-	Build.BENCH: 6, Build.BANNER: 4, Build.LANTERN: 4, Build.FOUNTAIN: 30, Build.STATUE: 40, Build.NOTICE_BOARD: 8}
+	Build.BENCH: 6, Build.BANNER: 4, Build.LANTERN: 4, Build.FOUNTAIN: 30, Build.STATUE: 40, Build.NOTICE_BOARD: 8,
+	Build.CHALICE: 1, Build.OLD_BANNER: 1, Build.BUST: 1, Build.CROWN: 1}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
 const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
 	Build.CAMPFIRE: Vector2i.ONE, Build.FURNACE: Vector2i.ONE, Build.ANVIL: Vector2i.ONE, Build.WORKBENCH: Vector2i.ONE,
 	Build.FLOWER_BED: Vector2i.ONE, Build.PLANTER: Vector2i.ONE, Build.BENCH: Vector2i(2, 1), Build.BANNER: Vector2i.ONE,
-	Build.LANTERN: Vector2i.ONE, Build.FOUNTAIN: Vector2i(2, 2), Build.STATUE: Vector2i(2, 2), Build.NOTICE_BOARD: Vector2i.ONE}
+	Build.LANTERN: Vector2i.ONE, Build.FOUNTAIN: Vector2i(2, 2), Build.STATUE: Vector2i(2, 2), Build.NOTICE_BOARD: Vector2i.ONE,
+	Build.CHALICE: Vector2i.ONE, Build.OLD_BANNER: Vector2i.ONE, Build.BUST: Vector2i.ONE, Build.CROWN: Vector2i.ONE}
 # mobili animati: secondi per fotogramma; i fotogrammi stanno nelle colonne dei quarti di giro (sono simmetrici)
 const ANIMATED := {Build.CAMPFIRE: 0.15, Build.BANNER: 0.3, Build.FOUNTAIN: 0.2}
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
 const PAVING := [Build.FLOOR, Build.PATH]  # a terra: si calpestano, ci stanno sopra i mobili, l'erba ci sborda sopra
 # materiale fisso; il resto solo di legno
+# i cimeli: la decorazione si fa con l'oggetto trovato nelle rovine, uno a pezzo
+const RELICS := {Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}
 const BUILD_RES := {Build.PATH: Res.STONE, Build.FURNACE: Res.STONE, Build.ANVIL: Res.IRON, Build.PLANTER: Res.STONE, Build.FOUNTAIN: Res.STONE,
-	Build.STATUE: Res.STONE}
+	Build.STATUE: Res.STONE, Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}
 # mobili che servono perché il cartello lasci scegliere il tipo di stanza: tipo -> {mobile: almeno quanti}
 # ponytail: la cucina accetterà anche la stufa, quando ci sarà: allora "uno tra" invece di "tutti"
 const ROOM_NEEDS := {
@@ -337,7 +345,7 @@ const COMFORT_EFFECT := 0.2  # a comfort 0 un'attività richiede il 20% di tempo
 # splendore della colonia: lo danno le decorazioni finite, dentro e fuori dalle stanze (vedi colony_splendor).
 # ponytail: per ora solo il totale in alto; poi terrà felici i coloni e sbloccherà cose (strade, feste: vedi GDD)
 const SPLENDOR := {Build.FLOWER_BED: 1, Build.PLANTER: 1, Build.BENCH: 1, Build.BANNER: 2, Build.LANTERN: 1,
-	Build.FOUNTAIN: 6, Build.STATUE: 8}
+	Build.FOUNTAIN: 6, Build.STATUE: 8, Build.CHALICE: 3, Build.OLD_BANNER: 4, Build.BUST: 5, Build.CROWN: 6}
 const SPLENDOR_COLOR := Color("e8c34a")
 const ROOM_SPACE := 6        # caselle a testa: chi ne ha meno (stanza piena di gente) ha il comfort in proporzione
 # suggerimento dei pulsanti di costruzione (vedi build_tip): sotto nome e costo il comfort, poi la descrizione colorata
@@ -364,6 +372,10 @@ const BUILD_INFO := {
 	Build.FOUNTAIN: "A stone basin with a jet of water. The pride of the square.",
 	Build.STATUE: "The king in stone, hands on his sword, on a gilded plinth.",
 	Build.NOTICE_BOARD: "Notices pinned to a board. An inn needs one, a bed and a table. Click it to hire adventurers.",
+	Build.CHALICE: "A silver chalice set with a ruby, from a forgotten altar. Only adventurers find these, in ruins.",
+	Build.OLD_BANNER: "A torn banner of a fallen house. Only adventurers find these, in ruins.",
+	Build.BUST: "The stone face of a king nobody remembers. Only adventurers find these, in ruins.",
+	Build.CROWN: "A jeweled crown on a velvet cushion. Only adventurers find these, in ruins.",
 }
 enum Facing { DOWN, LEFT, RIGHT, UP }  # righe del foglio
 enum TreeKind { OAK, PINE, BIRCH }     # colonne del foglio alberi
@@ -434,6 +446,10 @@ const ICONS := {
 	Res.SWORD: preload("res://art/icon_sword.png"),
 	Res.GOLD: preload("res://art/icon_gold.png"),
 	Res.DAGGER: preload("res://art/icon_dagger.png"),
+	Res.CHALICE: preload("res://art/icon_chalice.png"),
+	Res.OLD_BANNER: preload("res://art/icon_old_banner.png"),
+	Res.BUST: preload("res://art/icon_bust.png"),
+	Res.CROWN: preload("res://art/icon_crown.png"),
 }
 # 256x128, righe: muri di legno, muri di pietra (colonna = lati collegati, vedi WALL_LINKS), pavimenti (colonna = Res,
 # poi il sentiero), porte (di fronte, di lato), erba sui pavimenti (lati, angoli, due varianti); vedi structure_src e draw_grass_over
@@ -884,7 +900,8 @@ func _ready() -> void:
 			row.add_child(label)
 		resources_list.add_child(row)
 	ruins.append(Ruin.new())  # per ora solo la torre
-	for window in [room_popup, jobs_panel, resources_panel, sheet_panel, $HUD/BoardPanel, $HUD/ReportPanel]:  # X in alto a destra, si trascinano
+	$HUD/BoardPanel/Box/ChronicleButton.pressed.connect(open_chronicle)
+	for window in [room_popup, jobs_panel, resources_panel, sheet_panel, $HUD/BoardPanel, $HUD/ReportPanel, $HUD/ChroniclePanel]:  # X in alto a destra, si trascinano
 		window.get_node("Box/Head/Close").pressed.connect(window.hide)
 		window.gui_input.connect(drag_window.bind(window))
 		window.visibility_changed.connect(window.move_to_front, CONNECT_DEFERRED)  # l'ultima aperta sta sopra
@@ -1129,7 +1146,8 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 	box.get_node("Sex/Icon").texture = SEX_ICONS[c.sex]
 	box.get_node("Sex/Label").text = SEX_NAMES[c.sex]
 	box.get_node("Hero").visible = c.hero != Hero.NONE
-	box.get_node("Hero").text = "%s, fee %d gold, %d expeditions" % [hero_name(c), fee(c), c.trips] if c.hero != Hero.NONE else ""
+	box.get_node("Hero").text = "%s, fee %d gold, %d expedition%s" % [hero_name(c), fee(c), c.trips, "" if c.trips == 1 else "s"] \
+		if c.hero != Hero.NONE else ""
 	box.get_node("Health").text = health_text(c)
 	for child in needs_grid.get_children() + skills_grid.get_children() + traits_box.get_children():
 		child.free()
@@ -1283,14 +1301,17 @@ func ui_icon(tex: Texture2D, region: Rect2, size: Vector2) -> TextureRect:
 	return icon
 
 
-# sesso a caso, e secondo il sesso nome e acconciatura; colori del mantello e dei capelli
+# sesso a caso, e secondo il sesso nome (uno che nessuno sulla mappa ha già, se ce n'è) e acconciatura; colori del
+# mantello e dei capelli
 func dress(c: Colonist) -> void:
 	c.sex = Sex.values().pick_random()
 	c.hair_style = HAIR_STYLES[c.sex].pick_random()
 	c.beard = c.sex == Sex.MALE and randf() < BEARD_CHANCE
 	c.cape = CAPE_COLORS.pick_random()
 	c.hair = HAIR_COLORS.pick_random()
-	c.first_name = FIRST_NAMES[c.sex].pick_random()
+	var taken := people().map(func(o): return o.first_name)
+	var free: Array = FIRST_NAMES[c.sex].filter(func(n): return n not in taken)
+	c.first_name = (free if not free.is_empty() else FIRST_NAMES[c.sex]).pick_random()
 	c.nickname = NICKNAMES.pick_random() if randf() < 0.5 else ""
 	c.last_name = LAST_NAMES.pick_random()
 
@@ -1602,6 +1623,8 @@ func _process(delta: float) -> void:
 		update_resources()
 	if $HUD/BoardPanel.visible:
 		fill_board()
+	if $HUD/ChroniclePanel.visible and $HUD/ChroniclePanel/Box/Scroll/Text.get_meta("pages", -1) != chronicle.size():
+		fill_chronicle()
 	if get_viewport().gui_get_hovered_control():  # mouse sull'interfaccia: niente suggerimento
 		object_sheet.hide()
 	else:
@@ -3206,13 +3229,13 @@ func open_chest(exp: Expedition, data: Dictionary, last: bool) -> Array:
 		haul = maxf(haul, HEROES[c.hero].get("haul", 1.0))
 	var gold := roundi(randi_range(data["gold"][0], data["gold"][1]) * haul * (TREASURE_GOLD if last else 1))
 	exp.loot[Res.GOLD] = exp.loot.get(Res.GOLD, 0) + gold
-	var found := PackedStringArray()
+	var found := {}  # Res -> quantità in questo forziere
 	for i in 1 + party_gift(exp.party, "finds", 0):  # col fortunato un oggetto in più
 		var find: Array = data["finds"].pick_random()
-		var amount := roundi(find[1] * haul)
-		exp.loot[find[0]] = exp.loot.get(find[0], 0) + amount
-		found.append("%d %s" % [amount, Res.keys()[find[0]].to_lower()])
-	var text := "a chest: %d gold, %s" % [gold, ", ".join(found)]
+		found[find[0]] = found.get(find[0], 0) + roundi(find[1] * haul)
+	for res in found:
+		exp.loot[res] = exp.loot.get(res, 0) + found[res]
+	var text := "a chest: %d gold, %s" % [gold, ", ".join(found.keys().map(func(r): return "%d %s" % [found[r], res_name(r)]))]
 	var unknown := RuinKind.values().filter(func(k): return not ruins.any(func(r): return r.kind == k) and k not in exp.maps)
 	var map = null
 	if last and exp.ruin.kind + 1 in unknown:
@@ -3246,7 +3269,7 @@ func update_expeditions() -> void:
 		var brought := PackedStringArray()
 		for res in exp.loot:
 			if exp.loot[res] > 0:
-				brought.append("%d %s" % [exp.loot[res], Res.keys()[res].to_lower()])
+				brought.append("%d %s" % [exp.loot[res], res_name(res)])
 		exp.lines.append("Back home with %s%s." % [", ".join(brought) if not brought.is_empty() else "nothing",
 			"; they keep %d gold" % kept if kept > 0 else ""])
 		for kind in exp.maps:
@@ -3267,6 +3290,11 @@ func update_expeditions() -> void:
 			travel(g)
 		exp.party[0].loot = exp.loot  # lo porta il primo, lo lascia alla locanda (vedi arrive)
 		report("Back from the %s" % name, exp.lines)
+
+
+# nome di una risorsa nei testi: "leather armor"
+func res_name(res: Res) -> String:
+	return Res.keys()[res].capitalize().to_lower()
 
 
 # una riga nella cronaca
@@ -3293,7 +3321,8 @@ func open_board() -> void:
 
 # Finestra della bacheca: oro e provviste nei magazzini, chi aspetta alla locanda (da spuntare per la spedizione, al
 # più MAX_PARTY), le rovine conosciute (ognuna col tasto per mandarci gli spuntati: paghe e provviste), le spedizioni
-# in corso e l'ultima pagina della cronaca. Si rifà solo quando cambia qualcosa, se no i tasti non si premono
+# in corso e il titolo dell'ultima pagina della cronaca (tutta col tasto Chronicle). Si rifà solo quando cambia
+# qualcosa, se no i tasti non si premono
 func fill_board() -> void:
 	var waiting := guests.filter(func(g): return not g.hired and g.errand != Errand.LEAVE)
 	for g in board_pick.duplicate():
@@ -3359,9 +3388,24 @@ func fill_board() -> void:
 	box.get_node("Away").text = "\n".join(expeditions.map(func(exp): return "%s: %s" % [", ".join(exp.party.map(func(c): return c.first_name)),
 		"on the way out" if exp.left_at < 0 else "at the %s, due back by day %d" % [RUINS[exp.ruin.kind]["name"], int(exp.due) + 1]]))
 	box.get_node("Away").visible = not expeditions.is_empty()
-	box.get_node("Chronicle").text = chronicle[-1] if not chronicle.is_empty() else ""
+	box.get_node("Chronicle").text = "Last: " + chronicle[-1].get_slice("\n", 0) if not chronicle.is_empty() else ""  # il resto nella cronaca
 	box.get_node("Chronicle").visible = not chronicle.is_empty()
+	box.get_node("ChronicleButton").text = "Chronicle (%d)" % chronicle.size()
 	$HUD/BoardPanel.reset_size()
+
+
+# Cronaca: tutto quello che è successo (ingaggi, diari delle spedizioni, morti), dal più recente
+func open_chronicle() -> void:
+	fill_chronicle()
+	$HUD/ChroniclePanel.show()
+
+
+func fill_chronicle() -> void:
+	var text: Label = $HUD/ChroniclePanel/Box/Scroll/Text
+	var pages := chronicle.duplicate()
+	pages.reverse()
+	text.text = "\n\n".join(pages) if not pages.is_empty() else "Nothing worth telling has happened yet."
+	text.set_meta("pages", chronicle.size())
 
 
 func toggle_pick(on: bool, g: Colonist) -> void:

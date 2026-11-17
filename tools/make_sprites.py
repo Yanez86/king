@@ -628,6 +628,84 @@ DAGGER = """
 ....oo..........
 """
 
+# Cimeli 16x16, dalle rovine: calice d'argento, stendardo antico, busto di pietra, corona su un cuscino.
+# Sono decorazioni (righe in fondo al foglio dei mobili) e oggetti in magazzino (icone)
+CHALICE = """
+................
+....oooooooo....
+...ouxuuuuurro..
+..ouxuuuuuuurRo.
+..ouxuuujuuurRo.
+..ouuuuuuuuurRo.
+...ouuuuuuurRo..
+....oouuurRoo...
+......ourRo.....
+.......oRo......
+.......oro......
+......ouuro.....
+.....ouuurRo....
+....oruuuurRRo..
+....oooooooooo..
+....zzzzzzzzzz..
+"""
+
+OLD_BANNER = """
+..ooo...........
+..ogo...........
+..owoooooooooo..
+..ow//////////o.
+..ow///gg/////o.
+..ow//gggg////o.
+..ow///gg/////o.
+..ow//////////o.
+..ow/}//////}/o.
+..ow//o///o//o..
+..ow/o.o/o.o/o..
+..owo...o...o...
+..ow............
+..ow............
+..oW............
+.zzzz...........
+"""
+
+BUST = """
+................
+.....oooooo.....
+....ouuuuuro....
+....ouRuuRro....
+....ouuuuuro....
+....ouuruurRo...
+.....oruurRo....
+....ooouurRooo..
+..oouuuuuuurRRoo
+..ouuuuuuuurrRRo
+..orrrrrrrrrRRRo
+..oooooooooooooo
+....orrrrrrRio..
+....orrrrrrRio..
+...oooooooooooo.
+...zzzzzzzzzzzz.
+"""
+
+CROWN = """
+................
+................
+..o....o....o...
+.ojo..ogo..o/o..
+.ogoooogooooogo.
+.og8ggggg8gggg<o
+.og8gjgg/gjggg<o
+.og<<<<<<<<<<<<o
+.oooooooooooooo.
+oJjjjjjjjjjjjjJo
+ojjjjjjjjjjjjjjo
+oJjjjjjjjjjjjjJo
+.oJJJJJJJJJJJJo.
+.oooooooooooooo.
+..zzzzzzzzzzzz..
+................
+"""
+
 # Banco da lavoro 16x16 (sartoria e archi): un pezzo di pelle e l'ago sul piano.
 WORKBENCH = """
 ................
@@ -2233,8 +2311,9 @@ def double(grid):
 
 
 def furniture_sheet():
-    """Mobili, foglio 128x512. Righe: letto, tavolo, sedia, abat-jour, fuoco da campo, fornace, incudine, banco da lavoro,
-    poi le decorazioni: aiuola, fioriera, panca, stendardo, lampione, fontana, statua; infine la bacheca (come Build in main.gd);
+    """Mobili, foglio 128x640. Righe: letto, tavolo, sedia, abat-jour, fuoco da campo, fornace, incudine, banco da lavoro,
+    poi le decorazioni: aiuola, fioriera, panca, stendardo, lampione, fontana, statua; la bacheca; i cimeli: calice,
+    stendardo antico, busto, corona (come Build in main.gd);
     colonne: quarti di giro in senso orario (per fuoco, stendardo e fontana, fotogrammi), ognuno in alto a sinistra nel suo riquadro 32x32."""
     bed, chair, chair_left = art(BED, 32, 16), art(CHAIR, 16, 16), art(CHAIR_LEFT, 16, 16)
     table, lamp, anvil = art(TABLE, 32, 32), art(LAMP, 16, 16), art(ANVIL, 16, 16)
@@ -2255,7 +2334,7 @@ def furniture_sheet():
             [art(LANTERN, 16, 16)] * 4,
             frames(FOUNTAIN, height=32, count=4, width=32),
             [art(STATUE, 32, 32)] * 4,
-            [art(NOTICE_BOARD, 16, 16)] * 4]
+            [art(NOTICE_BOARD, 16, 16)] * 4] + [[art(r, 16, 16)] * 4 for r in (CHALICE, OLD_BANNER, BUST, CROWN)]
     slot = lambda g: [line.ljust(32, ".") for line in g] + ["." * 32] * (32 - len(g))
     return [line for row in rows for line in side_by_side([slot(g) for g in row])]
 
@@ -2324,6 +2403,8 @@ def main():
     images["icon_sword"] = pixels(art(SWORD, 16, 16))
     images["icon_dagger"] = pixels(art(DAGGER, 16, 16))
     images["icon_gold"] = pixels(art(GOLD, 16, 16))
+    for name, block in (("chalice", CHALICE), ("old_banner", OLD_BANNER), ("bust", BUST), ("crown", CROWN)):
+        images["icon_" + name] = pixels(art(block, 16, 16))
     images["animals"] = pixels(art(ANIMALS.replace(" ", ""), 32, 48))
     images["sign"] = pixels(art(SIGN, 16, 16))
     images["structures"] = pixels(structures_sheet())
