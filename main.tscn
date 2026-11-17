@@ -221,7 +221,7 @@ theme_type_variation = &"Bar"
 theme_override_constants/separation = 6
 
 [node name="Structures" type="Button" parent="HUD/Categories/Row"]
-custom_minimum_size = Vector2(0, 40)
+custom_minimum_size = Vector2(150, 40)
 focus_mode = 0
 tooltip_text = "Walls, floors, paths and doors"
 toggle_mode = true
@@ -231,7 +231,7 @@ icon = SubResource("WallIcon")
 expand_icon = true
 
 [node name="Furniture" type="Button" parent="HUD/Categories/Row"]
-custom_minimum_size = Vector2(0, 40)
+custom_minimum_size = Vector2(150, 40)
 focus_mode = 0
 tooltip_text = "Furniture, workstations and decorations"
 toggle_mode = true
