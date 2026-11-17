@@ -342,14 +342,19 @@ func _initialize() -> void:
 	check(c.facing == main.Facing.LEFT and c.walked > 0, "guarda e cammina verso sinistra")
 
 	main.clock = 3 + 8.0 / 24
-	check(main.sun_height() > 0 and main.sun_shadow().x < 0, "di mattina il sole è su e le ombre vanno a ovest")
+	check(main.sun_height() > 0, "di mattina il sole è su")
 	main.clock = 3 + 16.0 / 24
-	check(main.sun_height() > 0 and main.sun_shadow().x > 0, "di pomeriggio le ombre vanno a est")
-	check(main.sun_shadow().y < 0, "il sole passa a sud: le ombre vanno verso nord")
-	# alberi: tronco fino alla riga 28 del foglio 16x32, sotto solo ombra semitrasparente e vuoto
-	check(main.foot_of(main.TREES, Rect2(0, 0, 16, 32)) == 29, "l'ombra parte dalla base del tronco")
+	check(main.sun_height() > 0, "e di pomeriggio pure")
+	# ombre col sole a picco: un ovale netto sotto i piedi, centrato, che non cambia con l'ora
+	var blob: Array = main.blob(Vector2i(20, 30), 10)
+	check(blob == [Rect2i(16, 29, 8, 1), Rect2i(15, 30, 10, 1), Rect2i(16, 31, 8, 1)], "ovale d'ombra di 10x3 pixel")
+	check(main.foot_of(main.COLONIST_BASE, Rect2(0, 0, 16, 16)) == 16, "i coloni toccano terra sull'ultima riga")
+	check(main.foot_of(main.ANIMALS, Rect2(0, 0, 16, 16)) == 15, "il coniglio una riga più su")
+	# alberi: tronco fino alla riga 28 del foglio 16x32, sotto solo l'ombra semitrasparente della chioma
+	check(main.foot_of(main.TREES, Rect2(0, 0, 16, 32)) == 29, "l'ombra della chioma non conta come tronco")
 	main.clock = 3 + 23.0 / 24
 	check(main.sun_height() < 0, "di notte niente sole")
+	check(main.shadows.visible and main.shadows.self_modulate == main.SHADOW, "le ombre restano uguali anche di notte")
 	var lazy = main.Colonist.new()  # senza lavoro né strada: respira
 	lazy.idle = main.BREATH_TIME * 0.9
 	check(main.frame_of(lazy) == 5 and main.COLONIST_BASE.get_width() == 6 * main.TILE, "chi non fa nulla respira")

@@ -65,11 +65,11 @@ const CATCH_PER_LEVEL := 0.06
 # da al più HUNT_RANGE caselle. Ogni tiro: AIM_TIME a livello 5, colpisce con probabilità hit_chance; l'animale scappa
 enum Beast { RABBIT, DEER, WOLF }  # righe di ANIMALS
 # "hp": danni per abbatterlo; "speed": caselle al secondo; "start": quanti all'inizio; i lupi ("hostile") arrivano in
-# branco (vedi spawn_pack) e mordono ("bite": danno)
+# branco (vedi spawn_pack) e mordono ("bite": danno); "shadow": larghezza in pixel dell'ovale d'ombra sotto le zampe
 const BEASTS := {
-	Beast.RABBIT: {"hp": 10, "meat": 3, "hide": 1, "speed": 2.0, "start": 6},
-	Beast.DEER: {"hp": 20, "meat": 10, "hide": 3, "speed": 1.5, "start": 3},
-	Beast.WOLF: {"hp": 30, "meat": 5, "hide": 2, "speed": 3.0, "start": 0, "hostile": true, "bite": 8.0},
+	Beast.RABBIT: {"hp": 10, "meat": 3, "hide": 1, "speed": 2.0, "start": 6, "shadow": 10},
+	Beast.DEER: {"hp": 20, "meat": 10, "hide": 3, "speed": 1.5, "start": 3, "shadow": 12},
+	Beast.WOLF: {"hp": 30, "meat": 5, "hide": 2, "speed": 3.0, "start": 0, "hostile": true, "bite": 8.0, "shadow": 12},
 }
 const ANIMALS := preload("res://art/animals.png")  # 16x16, colonne: fermo, passo; guardano a destra
 const ANIMALS_MAX := 12     # sotto questo numero ogni ANIMAL_RESPAWN giorni ne arriva uno nuovo, lontano dalla radura
@@ -272,9 +272,11 @@ const NIGHT := Color(0.25, 0.28, 0.5)
 # luce sul mondo nelle 24 ore (0 = mezzanotte, 0.5 = mezzogiorno); l'interfaccia non cambia
 const SKY := {0.0: NIGHT, 0.21: NIGHT, 0.25: Color(1.0, 0.7, 0.6), 0.31: Color.WHITE,
 	0.69: Color.WHITE, 0.75: Color(1.0, 0.62, 0.45), 0.79: NIGHT, 1.0: NIGHT}
-const SHADOW_ALPHA := 0.35  # quanto scuriscono le ombre col sole alto
-const SHADOW_SKEW := 1.5    # pixel d'ombra in orizzontale per pixel d'altezza, col sole all'orizzonte
-const SHADOW_DROP := 0.3    # e in verticale verso nord (il sole passa a sud): a mezzogiorno resta corta, dietro la base
+# Ombre col sole sempre a picco: ognuna sta sotto chi la fa e non si muove con l'ora. Mobili, alberi, rocce e cespugli
+# ce l'hanno disegnata nello sprite (la "z" di tools/make_sprites.py); a coloni, animali e muri la aggiunge draw_shadows.
+const SHADOW := Color("1f1a2460")  # come la "z" degli sprite, così tutte le ombre hanno lo stesso colore
+const SHADOW_WIDTH := 10    # pixel: ovale sotto i piedi dei coloni (gli animali hanno il loro in BEASTS)
+const SHADOW_WALL := 2      # righe d'ombra sotto muri e porte, dove sotto non c'è un altro muro
 const GROUND := preload("res://art/ground.png")  # terreno 64x176, righe = Ground
 const WATER_SHADER := preload("res://water.gdshader")  # anima l'acqua sul terreno
 # righe di GROUND: 4 varianti per terreno, poi i bordi che un terreno disegna su quello vicino; gli angoli 3 righe più giù
@@ -557,9 +559,9 @@ var clock := 8.0 / 24       # giorni passati: la parte intera conta i giorni, qu
 var sky := CanvasModulate.new()   # tinge il mondo secondo SKY
 var sky_colors := Gradient.new()
 var flat := Node2D.new()          # pavimenti, progetti, mucchi: stanno a terra, le ombre ci cadono sopra
-var shadows := CanvasGroup.new()  # fonde le sagome: dove si sovrappongono non scuriscono il doppio
-var casters := Node2D.new()       # dentro `shadows`: ci si disegnano le sagome
-var feet := {}                    # [texture, rettangolo] -> base della sagoma, vedi foot_of
+var shadows := CanvasGroup.new()  # fonde le ombre: dove si sovrappongono non scuriscono il doppio
+var casters := Node2D.new()       # dentro `shadows`: ci si disegnano le ombre, in bianco (il colore è SHADOW)
+var feet := {}                    # [texture, rettangolo] -> riga dei piedi, vedi foot_of
 # lenti: sopra il mondo e sotto l'interfaccia (HUD è al livello 2), in un livello a parte così la notte non le scurisce
 var lens := CanvasLayer.new()
 var lens_canvas := Node2D.new()   # ci disegna draw_lens
@@ -616,6 +618,7 @@ func _ready() -> void:
 		layer.show_behind_parent = true
 		add_child(layer)
 	shadows.add_child(casters)
+	shadows.self_modulate = SHADOW
 	flat.draw.connect(draw_flat)
 	casters.draw.connect(draw_shadows)
 	add_child(sky)
@@ -1411,9 +1414,6 @@ func _process(delta: float) -> void:
 	info_label.text = ("WOLVES: %d    " % wolves if wolves > 0 else "") + "Day %d  %02d:%02d    Order: %s    Speed: %dx  (Space = pause, 1-3)" \
 		% [int(clock) + 1, int(t * 24), int(t * 1440) % 60, Order.keys()[order].capitalize(), Engine.time_scale]
 	sky.color = sky_colors.sample(t)
-	var shade := SHADOW_ALPHA * clampf(sun_height() * 4, 0, 1)  # sfuma all'alba e al tramonto, zero di notte
-	shadows.self_modulate = Color(0, 0, 0, shade)
-	shadows.visible = shade > 0
 	queue_redraw()
 	flat.queue_redraw()
 	casters.queue_redraw()
@@ -3225,17 +3225,7 @@ func selection_rect() -> Rect2i:
 
 # Altezza del sole: 0 all'alba (6:00) e al tramonto (18:00), 1 a mezzogiorno, negativa di notte.
 func sun_height() -> float:
-	return sin(sun_angle())
-
-
-func sun_angle() -> float:  # 0 all'alba, PI al tramonto
-	return (fmod(clock, 1.0) - 0.25) * TAU
-
-
-# Di quanto si sposta l'ombra per ogni pixel d'altezza. Il sole sorge a est, passa a sud e tramonta a ovest:
-# l'ombra va a ovest al mattino, a est la sera, sempre un po' verso nord; a mezzogiorno è corta, dietro la base.
-func sun_shadow() -> Vector2:
-	return Vector2(-cos(sun_angle()) * SHADOW_SKEW, -SHADOW_DROP)
+	return sin((fmod(clock, 1.0) - 0.25) * TAU)
 
 
 # Pezzo di STRUCTURES per `plan` in `cell`: muri e porte si collegano a muri e porte vicini in `layers`.
@@ -3293,39 +3283,41 @@ func is_lawn(cell: Vector2i) -> bool:
 	return astar.is_in_boundsv(cell) and ground_of(cell) == Ground.GRASS and not built.has(cell)
 
 
-# Le sagome di ciò che sta in piedi, coricate a terra dalla parte opposta al sole; il colore lo dà `shadows`.
+# Le ombre che gli sprite non hanno già, col sole a picco (vedi SHADOW): una striscia sotto muri e porte, un ovale
+# sotto i piedi di coloni e animali. In bianco: il colore lo dà `shadows`, sotto tutto ciò che sta in piedi.
 func draw_shadows() -> void:
 	for cell in built:
-		if built[cell][0] not in PAVING:
-			cast(STRUCTURES, Rect2(tile_rect(cell.x, cell.y)), Rect2(structure_src(cell, built[cell], [built])))
-	for cell in boulders:
-		var rock := boulder_tex(cell)
-		cast(rock, Rect2(Vector2(cell) * TILE, rock.get_size()), Rect2(Vector2.ZERO, rock.get_size()))
-	for cell in bushes:
-		cast(PLANTS, Rect2(tile_rect(cell.x, cell.y)), Rect2(tile_rect(1, 0)))
-	for origin in furniture:
-		var r := piece_rects(origin, furniture[origin])
-		cast(FURNITURE_SHEET, r[0], r[1])
-	for cell in trees:
-		cast(TREES, Rect2(Vector2(cell.x, cell.y - 1) * TILE, Vector2(1, 2) * TILE), Rect2(Vector2(trees[cell], 0) * TILE, Vector2(1, 2) * TILE))
-	for a in animals:
-		cast(ANIMALS, Rect2((a.pos - Vector2.ONE * TILE / 2.0).round(), Vector2.ONE * TILE), animal_src(a))
+		if built[cell][0] not in PAVING and built.get(cell + Vector2i.DOWN, [Build.FLOOR])[0] in PAVING:
+			casters.draw_rect(Rect2(Vector2(cell.x, cell.y + 1) * TILE, Vector2(TILE, SHADOW_WALL)), Color.WHITE)
+	for a in animals:  # sulla riga più bassa delle zampe; l'ovale è simmetrico, va bene anche specchiato
+		draw_blob(a.pos + Vector2(0, foot_of(ANIMALS, animal_src(a)) - 1 - TILE / 2.0), BEASTS[a.kind]["shadow"])
 	for c in colonists:
-		var dst := Rect2((c.pos - Vector2.ONE * TILE / 2.0).round(), Vector2.ONE * TILE)
-		var src := Rect2(Vector2(frame_of(c), c.facing) * TILE, Vector2.ONE * TILE)
-		for sheet in [COLONIST_BASE, COLONIST_HAIR, COLONIST_TUNIC, COLONIST_CAPE]:
-			cast(sheet, dst, src)
+		if c.downed:  # sdraiato (vedi draw_colonist): l'ovale sporge appena sotto il fianco
+			draw_blob(c.pos + Vector2(0, 5), TILE - 2)
+		else:  # i piedi della posa da fermo: l'ovale non balla coi passi e coi colpi
+			var src := Rect2(Vector2(0, c.facing) * TILE, Vector2.ONE * TILE)
+			draw_blob(c.pos + Vector2(0, foot_of(COLONIST_BASE, src) - 1 - TILE / 2.0), SHADOW_WIDTH)
 
 
-# Disegna `src` di `tex` dov'è `dst`, ma coricato a terra da dove tocca terra: ogni pixel d'altezza va di sun_shadow.
-func cast(tex: Texture2D, dst: Rect2, src: Rect2) -> void:
-	var foot := Vector2(dst.get_center().x, dst.position.y + foot_of(tex, src))
-	casters.draw_set_transform_matrix(Transform2D(Vector2.RIGHT, -sun_shadow(), foot) * Transform2D(0.0, -foot))
-	casters.draw_texture_rect_region(tex, dst, src)
+# `mid` come il centro degli sprite: arrotondato, così l'ovale sta sugli stessi pixel di chi lo fa.
+func draw_blob(mid: Vector2, width: int) -> void:
+	for row in blob(Vector2i(mid.round()), width):
+		casters.draw_rect(row, Color.WHITE)
 
 
-# Dove la sagoma tocca terra, in pixel dalla cima di `src`: sotto l'ultima riga con pixel pieni.
-# Le ombre semitrasparenti già disegnate negli sprite e i bordi vuoti non contano, se no l'ombra si stacca.
+# Ovale d'ombra alto 3 pixel e largo `width`, centrato in `mid` (riga di mezzo, tra due colonne se `width` è pari):
+# una riga di pixel per rettangolo, accorciata ai lati come un'ellisse, così resta netta e allineata ai pixel.
+func blob(mid: Vector2i, width: int) -> Array[Rect2i]:
+	var rows: Array[Rect2i] = []
+	for j in 3:
+		var dy: float = (j + 0.5) / 3.0 * 2.0 - 1.0  # da -1 in cima a 1 in fondo
+		var inset: int = roundi(width / 2.0 * (1.0 - sqrt(1.0 - dy * dy)))
+		rows.append(Rect2i(mid.x - floori(width / 2.0) + inset, mid.y - 1 + j, width - 2 * inset, 1))
+	return rows
+
+
+# Dove lo sprite tocca terra, in pixel dalla cima di `src`: sotto l'ultima riga con pixel pieni.
+# Le ombre semitrasparenti già disegnate negli sprite e i bordi vuoti non contano.
 func foot_of(tex: Texture2D, src: Rect2) -> int:
 	var key := [tex, src]
 	if not feet.has(key):
