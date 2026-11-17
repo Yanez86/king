@@ -258,8 +258,11 @@ func _initialize() -> void:
 	var guide = plain(main.new_hero(main.Hero.ARCHER, 1))
 	guide.gifts = [G.PATHFINDER]
 	var fresh_tower = main.Ruin.new()
+	main.researched.erase(main.Tech.CARTOGRAPHY)
 	check(main.provisions([forager], fresh_tower) == 2 and main.provisions([guide], fresh_tower) == 2
 		and main.trip_days(fresh_tower, [guide]) == 2.0, "chi trova cibo e la guida: meno provviste, viaggio più corto")
+	main.researched[main.Tech.CARTOGRAPHY] = true
+	check(main.trip_days(fresh_tower, [guide]) == 1.875, "con la cartografia l'andata e il ritorno un quarto più corti")
 	var famous = plain(main.new_hero(main.Hero.ARCHER, 1))
 	famous.gifts = [G.FAMOUS]
 	var shine: int = main.colony_splendor()

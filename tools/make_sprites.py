@@ -1059,22 +1059,22 @@ oooooooooooooooo oCCCCCCCCCCCCCCo
 
 # Pavimenti: si ripetono senza giunte visibili tra caselle vicine.
 FLOORS = """
-BBBBBBBBBBBWBBBB urrrrrrRurrrrrrR ((((((((((())(((
-BBBwBBBBBBBWBBBB rrrrrrrRrrrrrrrR ((__((_r((((((((
-BBBBBBBBBBBWBBwB rrrrrrrRrrrrRrrR ((((((()(((ur(((
-WWWWWWWWWWWWWWWW rrRrrrrRrrrrrrrR (_ur(((((((R)(((
-BBBBWBBBBBBBBBBB rrrrrrrRrrrrrrrR ()R)(((((())((((
-BBBBWBBBBBwBBBBB rrrrrrrRrrrrrrrR (((((r((((((((((
-BwBBWBBBBBBBBBBB rrrrrrrRrrrrrrrR ((((()(((ur(((((
-WWWWWWWWWWWWWWWW RRRRRRRRRRRRRRRR ((_((_(((R)(((r(
-BBBBBBBBWBBBBBBB rrrRurrrrrrRurrr (r(((((((((((()(
-BBBBBBBBWBBBBwBB rrrRrrrrrrrRrrrr ()(__(ur((((((((
-BBBwBBBBWBBBBBBB rrrRrrrrrRrRrrrr )()(((R)((((()()
-WWWWWWWWWWWWWWWW rrrRrrrrrrrRrrrr ((((((_((((((())
-BBBBBBBBBBBBBBWB rRrRrrrrrrrRrrrr (_(((((((((((ur(
-BBBBBwBBBBBBBBWB rrrRrrrrrrrRrrrr (((ur((((((((R)(
-BBBBBBBBBBBBBBWB rrrRrrrrrrrRrrrr (((R)(((()r((((_
-WWWWWWWWWWWWWWWW RRRRRRRRRRRRRRRR (((__(((__)(((((
+BBBBBBBBBBBWBBBB urrrrrrRurrrrrrR ((((((((((())((( urrrrrrRiurrrrRi
+BBBwBBBBBBBWBBBB rrrrrrrRrrrrrrrR ((__((_r(((((((( rrrrrrrRirrrrrRi
+BBBBBBBBBBBWBBwB rrrrrrrRrrrrRrrR ((((((()(((ur((( rrrrrrrRirrrrrRi
+WWWWWWWWWWWWWWWW rrRrrrrRrrrrrrrR (_ur(((((((R)((( rrrrrrrRirrrrrRi
+BBBBWBBBBBBBBBBB rrrrrrrRrrrrrrrR ()R)(((((())(((( rrrrrrrRirrrrrRi
+BBBBWBBBBBwBBBBB rrrrrrrRrrrrrrrR (((((r(((((((((( RRRRRRRRiRRRRRRi
+BwBBWBBBBBBBBBBB rrrrrrrRrrrrrrrR ((((()(((ur((((( iiiiiiiiiiiiiiii
+WWWWWWWWWWWWWWWW RRRRRRRRRRRRRRRR ((_((_(((R)(((r( rrRiurrrrrRiurrr
+BBBBBBBBWBBBBBBB rrrRurrrrrrRurrr (r(((((((((((()( rrRirrrrrrRirrrr
+BBBBBBBBWBBBBwBB rrrRrrrrrrrRrrrr ()(__(ur(((((((( rrRirrrrrrRirrrr
+BBBwBBBBWBBBBBBB rrrRrrrrrRrRrrrr )()(((R)((((()() rrRirrrrrrRirrrr
+WWWWWWWWWWWWWWWW rrrRrrrrrrrRrrrr ((((((_((((((()) rrRirrrrrrRirrrr
+BBBBBBBBBBBBBBWB rRrRrrrrrrrRrrrr (_(((((((((((ur( rrRirrrrrrRirrrr
+BBBBBwBBBBBBBBWB rrrRrrrrrrrRrrrr (((ur((((((((R)( rrRirrrrrrRirrrr
+BBBBBBBBBBBBBBWB rrrRrrrrrrrRrrrr (((R)(((()r((((_ RRRiRRRRRRRiRRRR
+WWWWWWWWWWWWWWWW RRRRRRRRRRRRRRRR (((__(((__)((((( iiiiiiiiiiiiiiii
 """
 
 # Rocce: massi da 1x1, 2x1 e 2x2 caselle, disegnati dentro il loro ingombro.
@@ -2470,6 +2470,26 @@ ojjjjggggg<jjJJo
 ................
 """
 
+# Galletta 16x16: biscotto secco, coi buchi
+HARDTACK_ICON = """
+................
+................
+..oooooooooooo..
+..occcccccccCo..
+..occcccccccCo..
+..occwccwccwCo..
+..occcccccccCo..
+..occcccccccCo..
+..occwccwccwCo..
+..occcccccccCo..
+..occcccccccCo..
+..occwccwccwCo..
+..oCCCCCCCCCCo..
+..oooooooooooo..
+...zzzzzzzzzz...
+................
+"""
+
 # Ricerche 12x12, nei quadratini come i talenti (vedi badge), nell'ordine di Tech in main.gd:
 # forgia, sartoria, caccia, locanda, muratura (camino), decorazioni, lanterne, armi di ferro, libreria, cotta di maglia,
 # fontana, statuaria
@@ -2517,6 +2537,23 @@ oáàoéèoLmojJ ...ouruRo... ouuuuuuuuuRo ..ouurRo.oo.
 oooooooooooo ...oruRRo... orrrrrrrrrRo ..orrRRo....
 ocCCCCCCCCwo ...oRRRRo... .oRRRRRRRRo. .ouurrrRRo..
 oooooooooooo ...oooooo... ..oooooooo.. .oooooooooo.
+"""
+
+# Ricerche del livello I che usano cose che ci sono già: carbonaia (il cumulo che fuma), dispensa fredda (il fiocco di
+# neve), strada lastricata (le lastre), provviste secche (le gallette), cartografia (la mappa con la croce)
+TECH_SYMBOLS_4 = """
+.....xX..... .....00..... oooooooooooo ............ .oooooooooo.
+....xX...... ..0..00..0.. ourrRourrrRo ............ oIIIIIIIIIUo
+.....xX..... ...0.00.0... orrrRorrrrRo ..oooooooo.. oIoIIIIIIIUo
+......X..... ....0000.... oRRRRoRRRRRo .occwccwcCo. oIIoIIIIIIUo
+.....oo..... .0..0000..0. oooooooooooo .occcccccCo. oIIIIoIIIIUo
+....o(_o.... 000000000000 ourrrrRourRo .oCCCCCCCCo. oIIIIIIoIIUo
+...o((_(o... 000000000000 orrrrrRorrRo oooooooooooo oIIIIIIjIjUo
+..o((6((_o.. .0..0000..0. oRRRRRRoRRRo occwccwccwCo oIIIIIIIjIUo
+.o((((6(((o. ....0000.... oooooooooooo occcccccccCo oIIIIIIjIjUo
+o(((6((((6(o ...0.00.0... ourRourrrrRo occwccwccwCo oIIIIIIIIIUo
+o))))))))))o ..0..00..0.. oRRRoRRRRRRo oCCCCCCCCCCo oUUUUUUUUUUo
+oooooooooooo .....00..... oooooooooooo oooooooooooo .oooooooooo.
 """
 
 # Leggi 12x12, nei quadratini color pergamena (vedi badge), nell'ordine di Law in main.gd: esenzione, decima, gabella sul
@@ -2809,12 +2846,12 @@ def wall(top, front, links):
 
 def structures_sheet():
     """Costruzioni, foglio 256x128. Righe: muri di legno, muri di pietra (colonna = lati collegati, vedi wall),
-    pavimenti (legno, pietra, sentiero), porte (di fronte, di lato), erba che sborda sui pavimenti: lati (prato
+    pavimenti (legno, pietra, sentiero, strada lastricata), porte (di fronte, di lato), erba che sborda sui pavimenti: lati (prato
     sopra, a destra, sotto, a sinistra) e angoli (prato in alto a sx, alto a dx, basso a dx, basso a sx), due varianti."""
     tops, fronts = frames(WALL_TOPS, count=2), frames(WALL_FRONTS, height=10, count=2)
     rows = [[wall(tops[m], fronts[m], links) for links in range(16)] for m in range(2)]
     edges = frames(FLOOR_EDGE, count=4)  # lato, angolo, lato, angolo
-    rows += [frames(FLOORS, count=3), frames(DOORS, count=2)] + [turns(e) for e in edges]
+    rows += [frames(FLOORS, count=4), frames(DOORS, count=2)] + [turns(e) for e in edges]
     empty = ["." * 16] * 16
     return [line for fs in rows for line in side_by_side(fs + [empty] * (16 - len(fs)))]
 
@@ -3012,6 +3049,7 @@ def main():
         images["icon_" + name] = pixels(art(block, 16, 16))
     images["icon_flax"] = pixels(art(FLAX_ICON, 16, 16))
     images["icon_bowstring"] = pixels(art(BOWSTRING_ICON, 16, 16))
+    images["icon_hardtack"] = pixels(art(HARDTACK_ICON, 16, 16))
     images["animals"] = pixels(art(ANIMALS.replace(" ", ""), 32, 48))
     images["sign"] = pixels(art(SIGN, 16, 16))
     images["structures"] = pixels(structures_sheet())
@@ -3053,7 +3091,7 @@ def main():
     images["icon_notebook"], images["icon_tome"], images["icon_codex"] = (pixels(f) for f in frames(BOOK_ICONS))
     images["icon_study"] = pixels(art(STUDY_ICON, 16, 16))
     images["icon_authority"] = pixels(art(AUTHORITY_ICON, 16, 16))
-    techs = [f for block in (TECH_SYMBOLS_1, TECH_SYMBOLS_2, TECH_SYMBOLS_3) for f in frames(block, 12, 4, 12)]
+    techs = [f for block in (TECH_SYMBOLS_1, TECH_SYMBOLS_2, TECH_SYMBOLS_3) for f in frames(block, 12, 4, 12)] + frames(TECH_SYMBOLS_4, 12, 5, 12)
     images["techs"] = pixels(side_by_side([badge(f) for f in techs]))
     laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 3, 12)
     images["laws"] = pixels(side_by_side([badge(f, "I", "x", "U") for f in laws]))

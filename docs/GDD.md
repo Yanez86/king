@@ -600,21 +600,21 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Banchetto reale | IV | 1000 | Apicoltura | il banchetto al forno: +15 felicità per 3 giorni, +20 autorità |
   | | Caccia ✓ | I | 50 | — | *filatoio, corda d'arco, banco del falegname, falegnameria, arco* |
   | | Affumicatoio | II | 200 | Caccia | carne e pesce affumicati durano quattro volte tanto |
-  | | Dispensa fredda | I | 100 | — | stanza dispensa: il cibo dura il triplo |
+  | | Dispensa fredda ✓ | I | 100 | — | stanza dispensa, solo per il cibo, che ci va per primo: dura il triplo che fuori (in magazzino il doppio) |
   | Fuoco | Forgia ✓ | I | 60 | — | *fornace, incudine, forgia, lingotto, piccone, ascia, falcetto* |
   | | Acciaio | II | 300 | Forgia | acciaio (2 lingotti + 2 carbone): attrezzi −40% tempo, spada danno 20 |
   | | Vetreria | III | 500 | Acciaio | vetro: finestre (+1 comfort), occhiali (studiare e cucire −20%) |
   | | Altoforno | IV | 1100 | Vetreria | lingotti e acciaio tre alla volta, con metà carbone |
   | | Sartoria ✓ | I | 50 | — | *banco da lavoro, laboratorio, armatura e cappuccio di cuoio* |
   | | Telaio | II | 200 | Sartoria | tela: mantello imbottito (freddo), bende |
-  | | Carbonaia | I | 80 | — | 5 legna → 2 carbone: il carbone non solo dalle vene |
+  | | Carbonaia ✓ | I | 80 | — | alla fornace 5 legna → 2 carbone (scorta 5 dal menu): il carbone non solo dalle vene |
   | Pietra | Muratura ✓ | I | 60 | — | *muri e pavimenti di pietra*; poi il camino |
   | | Arredo fine | II | 250 | Muratura | letto a baldacchino, tappeto, armadio: la camera signorile del sovrano |
   | | Statuaria ✓ | III | 500 | Arredo fine | *statua del re*; poi i memoriali dei caduti (lutto un giorno in meno) |
   | | Palazzo | IV | 1200 | Statuaria | la sala del trono diventa palazzo: udienza +50%, +10 splendore |
   | | Decorazioni ✓ | I | 40 | — | *aiuola, fioriera, panca* |
   | | Fontana ✓ | II | 250 | Decorazioni | *fontana* |
-  | | Strada lastricata | I | 60 | — | lastre di pietra: si cammina il 25% più svelti |
+  | | Strada lastricata ✓ | I | 60 | — | lastre di pietra (2 a casella): si cammina il 25% più svelti, e i coloni le scelgono |
   | | Ponte | II | 200 | Strada lastricata | si attraversa l'acqua alta, si pesca dal ponte |
   | Ferro | Palizzata | I | 80 | — | palizzata e cancello: i lupi non passano |
   | | Torre di guardia | II | 300 | Palizzata | lupi visti a 20 caselle; arciere in torre +2 caselle, +15%; campana |
@@ -628,9 +628,9 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Locanda rinomata | II | 250 | Locanda | arrivi ogni giorno e mezzo, restano 5 giorni; avviso per la classe |
   | | Compagnia della corona | III | 500 | Locanda rinomata | i coloni partono con gli avventurieri |
   | | Mappa del Re Dimenticato | IV | 1000 | Compagnia, Cartografia | la Cittadella: pericolo 5, 10 stanze, 3 giorni |
-  | | Provviste secche | I | 80 | — | gallette: valgono 2 provviste, non marciscono |
+  | | Provviste secche ✓ | I | 80 | — | gallette al fuoco (2 vegetali, scorta 0 dal menu): valgono 2 provviste, non marciscono, a casa non si mangiano |
   | | Armeria di prestito | II | 250 | Provviste secche | si presta l'equipaggiamento agli avventurieri |
-  | | Cartografia | I | 80 | Locanda | stanze rimaste e la prossima; viaggio −25% |
+  | | Cartografia ✓ | I | 80 | Locanda | sulla bacheca la prossima stanza di ogni rovina; viaggio −25% |
   | Sapere | Libreria ✓ | I | 60 | — | libreria: −10% tempo a pagina nella stanza, fino a 3 |
   | | Scriptorium | II | 250 | Libreria | pergamena e inchiostro: si copiano i quaderni (3 pergamene, 1 inchiostro, 150 studio) |
   | | Astronomia | III | 500 | Scriptorium | sfera armillare: meteo e stagioni un giorno prima |
@@ -684,7 +684,7 @@ Quattro fasce, una per titolo; sei categorie. ✓ = c'è nel gioco.
 | | Tassa di soggiorno ✓ | signoria | 30 | Locanda | una moneta a notte da chi aspetta alla locanda; resta un giorno in meno | avventurieri −3 |
 | | Taglia ✓ | baronia | 100 | Tasse, dopo Decima | un pezzo su cinque al granaio | tutti −8 |
 | | Pedaggio | baronia | 80 | Palizzata | 2 monete da chi entra dal cancello o dal ponte; un quinto in meno di arrivi | avventurieri −3 |
-| | Granaio aperto | baronia | 60 | dopo Decima | senza cibo in magazzino si mangia dal granaio; una volta a stagione un pasto a tutti | tutti +4 |
+| | Granaio aperto ✓ | baronia | 60 | dopo Decima | senza cibo in magazzino si mangia dal granaio; una volta a stagione un pasto a tutti | tutti +4 |
 | | Tributo ✓ | contea | 150 | — | +1 autorità al giorno a colono | tutti −4 |
 | Lavoro | Turni lunghi ✓ | signoria | 40 | Turni | 10 ore di lavoro (il pigro 7, lo stacanovista resta a 12); stress +25% | tutti −5; stacanovista +3; pigro, festaiolo, irrequieto −10 |
 | | Giornata corta ✓ | signoria | 40 | Turni | al più 6 ore; stress −25% | tutti +8; stacanovista −5 |
@@ -729,13 +729,16 @@ monastero, livello II e III di quello che c'è già (cotta, fontana, statua); (3
 Laws, le leggi di signoria che usano cose che esistono, consenso sulla scheda; (4) granaio e decima, titolo che cresce
 (4.3, fase 6) con sigilli e fasce; (5) il resto dell'albero un nodo alla volta, erudito errante, protesta; (6) livello
 IV, regno, leggi finali, cittadella.
-**Stato**: fatte le fasi 1–4. Nel gioco: scrittoio, libreria e trono; stanze Studio e Sala del trono; lavori Studiare
-e Governare; studio e autorità (nelle finestre Knowledge e Laws, tasti K e G, o clic su scrittoio e trono); i tre
-libri, nei forzieri e nei tesori, col monastero; le 12 ricerche segnate ✓ (Statuaria per ora dopo Muratura, finché non
-c'è Arredo fine); le 11 leggi segnate ✓; il titolo cresce con lo splendore (4.3) e dà i sigilli (2–5), le fasce delle
-leggi e l'autorità di ogni giorno; la finestra Laws dice la prossima soglia e la lista scorre. Il granaio è un conto,
-non una stanza, e niente ci marcisce; la festa del raccolto, finché non ci sono le stagioni, è ogni 10 giorni. Manca
-il resto, e i contatori di studio e autorità nella barra in alto (a 1280 di larghezza non ci stanno).
+**Stato**: fatte le fasi 1–4; della 5 i primi nodi. Nel gioco: scrittoio, libreria e trono; stanze Studio e Sala del
+trono; lavori Studiare e Governare; studio e autorità (nelle finestre Knowledge e Laws, tasti K e G, o clic su
+scrittoio e trono; tutte e due scorrono); i tre libri, nei forzieri e nei tesori, col monastero; le 17 ricerche
+segnate ✓ (Statuaria per ora dopo Muratura, finché non c'è Arredo fine); le 12 leggi segnate ✓; il titolo cresce con
+lo splendore (4.3) e dà i sigilli (2–5), le fasce delle leggi e l'autorità di ogni giorno; gli eventi d'autorità del
+4.7.4 tranne l'incoronazione (manca la successione), mai sotto zero. Il granaio è un conto, non una stanza, e niente
+ci marcisce; paga le provviste, poi (Granaio aperto) l'ora senza cibo in magazzino e il pasto di ogni stagione; la
+festa del raccolto e il pasto, finché non ci sono le stagioni, sono ogni 10 giorni. Le spedizioni prendono prima dal
+granaio, poi le gallette, poi pasti e crudo. Manca il resto, e i contatori di studio e autorità nella barra in alto (a
+1280 di larghezza non ci stanno).
 
 ## 5. Scope
 

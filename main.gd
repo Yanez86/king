@@ -32,14 +32,15 @@ const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FUR
 # da PICKAXE in poi: equipaggiamento (vedi GEAR), dalla forgia e dai banchi (vedi RECIPES); GOLD: monete, per
 # ingaggiare gli avventurieri (vedi send); DAGGER: il pugnale degli scassinatori, non si fabbrica; da CHALICE in poi
 # i cimeli, dalle rovine: si piazzano come decorazioni (vedi RELICS); NOTEBOOK, TOME, CODEX: i libri, dalle rovine, che
-# le ricerche di livello II, III e IV consumano (vedi BOOKS)
+# le ricerche di livello II, III e IV consumano (vedi BOOKS); HARDTACK: gallette, provviste per le spedizioni che non
+# marciscono e non si mangiano a casa (vedi send)
 enum Res { WOOD, STONE, VEG, IRON, COAL, MEAL, FINE_MEAL, MEAT, FISH, HIDE, INGOT, FLAX, BOWSTRING,
 	PICKAXE, AXE, SICKLE, BOW, LEATHER_ARMOR, LEATHER_HOOD, HELMET, CHAINMAIL, SWORD, GOLD, DAGGER,
-	CHALICE, OLD_BANNER, BUST, CROWN, NOTEBOOK, TOME, CODEX }
+	CHALICE, OLD_BANNER, BUST, CROWN, NOTEBOOK, TOME, CODEX, HARDTACK }
 const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.IRON: 50, Res.COAL: 50, Res.MEAL: 20, Res.FINE_MEAL: 20,
 	Res.MEAT: 50, Res.FISH: 50, Res.HIDE: 50, Res.INGOT: 50, Res.FLAX: 50, Res.BOWSTRING: 50, Res.PICKAXE: 10, Res.AXE: 10, Res.SICKLE: 10, Res.BOW: 10,
 	Res.LEATHER_ARMOR: 10, Res.LEATHER_HOOD: 10, Res.HELMET: 10, Res.CHAINMAIL: 10, Res.SWORD: 10, Res.GOLD: 100, Res.DAGGER: 10,
-	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5, Res.NOTEBOOK: 10, Res.TOME: 10, Res.CODEX: 10}  # quantità massima per mucchio (casella)
+	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5, Res.NOTEBOOK: 10, Res.TOME: 10, Res.CODEX: 10, Res.HARDTACK: 50}  # quantità massima per mucchio (casella)
 const MEALS := [Res.FINE_MEAL, Res.MEAL]  # cotti: chi ha fame li prende in quest'ordine, poi il crudo
 const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT]  # crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti
 const STASH := [Res.WOOD, Res.STONE, Res.VEG, Res.IRON, Res.COAL, Res.FLAX]  # scorta di debug: il resto si produce
@@ -65,13 +66,14 @@ const ITEM_KIND := {
 	Res.LEATHER_ARMOR: ItemKind.ARMOR, Res.LEATHER_HOOD: ItemKind.ARMOR, Res.HELMET: ItemKind.ARMOR, Res.CHAINMAIL: ItemKind.ARMOR,
 	Res.GOLD: ItemKind.COINS,
 	Res.CHALICE: ItemKind.RELIC, Res.OLD_BANNER: ItemKind.RELIC, Res.BUST: ItemKind.RELIC, Res.CROWN: ItemKind.RELIC,
-	Res.NOTEBOOK: ItemKind.BOOK, Res.TOME: ItemKind.BOOK, Res.CODEX: ItemKind.BOOK,
+	Res.NOTEBOOK: ItemKind.BOOK, Res.TOME: ItemKind.BOOK, Res.CODEX: ItemKind.BOOK, Res.HARDTACK: ItemKind.FOOD,
 }
 # cibo: quanto sazia (vedi eat) e in quanti giorni marcisce a terra fuori (vedi spoil); in magazzino ci mette il doppio.
 # Il crudo sazia meno e può intossicare (vedi poison_chance), i pasti no e danno un bonus (vedi Cond)
 const FOOD := {Res.VEG: 35.0, Res.FISH: 30.0, Res.MEAT: 40.0, Res.MEAL: 100.0, Res.FINE_MEAL: 100.0}
 const SHELF_LIFE := {Res.VEG: 3.0, Res.FISH: 1.5, Res.MEAT: 2.0, Res.MEAL: 3.0, Res.FINE_MEAL: 3.0}
 const SPOIL_STORED := 0.5   # in magazzino il cibo marcisce a metà velocità
+const SPOIL_PANTRY := 1.0 / 3  # in dispensa a un terzo: dura il triplo che fuori
 # probabilità di intossicarsi mangiando crudo: [appena preso, quasi marcio], in mezzo in proporzione
 const POISON := {Res.VEG: [0.05, 0.4], Res.FISH: [0.1, 0.5], Res.MEAT: [0.15, 0.6]}
 const FRESH_WORDS := [[0.5, "Fresh"], [0.2, "Stale"], [0.0, "Almost rotten"]]  # sopra quale parte della durata, nel suggerimento
@@ -251,6 +253,7 @@ const TREASURE_GOLD := 3    # il tesoro dell'ultima stanza: monete di tanti forz
 const MAX_PARTY := 4        # avventurieri per spedizione
 const HUNGER_HURT := 20.0   # punti ferita al giorno, a testa, senza provviste
 enum Chamber { EMPTY, TRAP, MONSTERS, CHEST, COLLAPSE }  # cosa c'è in una stanza della rovina (vedi explore)
+const CHAMBER_NAMES := ["an empty room", "a trap", "monsters", "a chest", "a collapse"]  # per Chamber, sulla bacheca
 const CHAMBER_ODDS := {Chamber.EMPTY: 25, Chamber.TRAP: 20, Chamber.MONSTERS: 35, Chamber.CHEST: 15, Chamber.COLLAPSE: 5}
 const ROOM_DAYS := 0.5      # giorni per stanza
 const MONSTER_POWER := 5.0  # forza dei mostri per punto di pericolo; il guardiano dell'ultima stanza il doppio
@@ -291,7 +294,7 @@ const GEAR := {
 		"info": "A burglar's knife. Melee damage 10."},
 }
 const KIT_ARMOR := {Look.SHIELD: 3}  # protezione del corredo degli avventurieri (vedi gear_sum)
-# Produzione (vedi try_craft): [prodotto, mobile, abilità, ingredienti, secondi a livello 5]. Il mobile dentro una stanza
+# Produzione (vedi try_craft): [prodotto, mobile, abilità, ingredienti, secondi a livello 5, pezzi (se no 1)]. Il mobile dentro una stanza
 # del tipo STATION_ROOM. Si fa ogni prodotto finché ce ne sono meno di quanti chiede il menu della postazione (vedi keep,
 # open_craft), e i pezzi che mancano perché ogni colono abbia pieni i suoi slot (vedi gear_wanted); per uno slot, il
 # primo in elenco di cui ci sono gli ingredienti.
@@ -308,10 +311,12 @@ const RECIPES := [
 	[Res.HELMET, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 3}, 20.0],
 	[Res.CHAINMAIL, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 6}, 30.0],
 	[Res.SWORD, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 3, Res.WOOD: 1}, 20.0],
+	[Res.COAL, Build.FURNACE, Skill.SMITHING, {Res.WOOD: 5}, 10.0, 2],  # carbonaia: legna cotta piano, senza aria
+	[Res.HARDTACK, Build.CAMPFIRE, Skill.COOKING, {Res.VEG: 2}, 10.0],  # gallette
 ]
 const STATION_ROOM := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP,
 	Build.SPINNING_WHEEL: RoomKind.WORKSHOP, Build.CARPENTER_BENCH: RoomKind.CARPENTRY}
-const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.MEAL: MEALS_PER_COLONIST * COLONIST_COUNT}  # scorte di partenza, vedi keep
+const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.MEAL: MEALS_PER_COLONIST * COLONIST_COUNT, Res.COAL: 5}  # scorte di partenza, vedi keep
 enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT }  # cosa segna il trascinamento del mouse
 const ORDER_COLORS := [Color.TRANSPARENT, Color.ORANGE, Color("8fd3ff"), Color("9be36a"), Color("e6e2d0"),
 	Color("ff5a5a"), Color("c83030"), Color("d84a6a"), Color("6ab0e0"), Color("c87a3a")]  # selezione e segni, per Order
@@ -321,7 +326,7 @@ const ORDER_TOOLS := {Order.DEMOLISH: "Destroy", Order.MINE: "Mine", Order.CHOP:
 const ORDER_ICONS := {Order.CHOP: preload("res://art/icon_chop.png"), Order.MINE: preload("res://art/icon_mine.png"),
 	Order.UPROOT: preload("res://art/icon_uproot.png"), Order.HARVEST: preload("res://art/icon_harvest.png"),
 	Order.FISH: preload("res://art/icon_fishing.png"), Order.HUNT: preload("res://art/icon_hunting.png")}  # le stesse dei tasti: piccole e velate sopra ciò che è segnato
-enum RoomKind { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE, WORKSHOP, CARPENTRY, INN, STUDY, THRONE_ROOM }  # tipo di stanza, scelto dal cartello
+enum RoomKind { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE, WORKSHOP, CARPENTRY, INN, STUDY, THRONE_ROOM, PANTRY }  # tipo di stanza, scelto dal cartello
 # categoria del tipo: lavoro (niente proprietari, gli si assegnano dei lavoratori), residenza (può avere dei proprietari),
 # servizio (comune a tutti, con uno scopo preciso: magazzino, locanda). Senza tipo: nessuna, né proprietari né lavoratori
 enum RoomClass { NONE, WORK, RESIDENCE, SERVICE }
@@ -336,6 +341,7 @@ const ROOM_CLASS := {
 	RoomKind.INN: RoomClass.SERVICE,
 	RoomKind.STUDY: RoomClass.WORK,
 	RoomKind.THRONE_ROOM: RoomClass.WORK,  # un solo lavoratore possibile: il sovrano (vedi fill_people)
+	RoomKind.PANTRY: RoomClass.SERVICE,  # un magazzino solo per il cibo, che ci dura di più (vedi spoil_rate)
 }
 # titolo della lista di coloni da spuntare nel popup del cartello, per RoomClass (le altre non ce l'hanno)
 const ROOM_PEOPLE := {RoomClass.WORK: "Workers", RoomClass.RESIDENCE: "Owners"}
@@ -344,13 +350,14 @@ enum Build { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE
 	FLOWER_BED, PLANTER, BENCH, BANNER, LANTERN, FOUNTAIN, STATUE,  # decorazioni: vedi SPLENDOR
 	NOTICE_BOARD,  # la bacheca degli incarichi, nella locanda (vedi open_board)
 	CHALICE, OLD_BANNER, BUST, CROWN,  # cimeli: decorazioni fatte con l'oggetto trovato nelle rovine (vedi RELICS)
-	DESK, BOOKSHELF, THRONE }  # ricerca: scrittoio e libreria nello studio, trono nella sala del trono (vedi SEAT_ROOM)
+	DESK, BOOKSHELF, THRONE,  # ricerca: scrittoio e libreria nello studio, trono nella sala del trono (vedi SEAT_ROOM)
+	ROAD }  # strada lastricata: ci si cammina più svelti (vedi ROAD_SPEED)
 # materiale per casella; per i mobili, per pezzo
 const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3,
 	Build.LAMP: 3, Build.CAMPFIRE: 5, Build.FURNACE: 20, Build.ANVIL: 10, Build.WORKBENCH: 15, Build.SPINNING_WHEEL: 10,
 	Build.CARPENTER_BENCH: 15, Build.FLOWER_BED: 3, Build.PLANTER: 5,
 	Build.BENCH: 6, Build.BANNER: 4, Build.LANTERN: 4, Build.FOUNTAIN: 30, Build.STATUE: 40, Build.NOTICE_BOARD: 8,
-	Build.CHALICE: 1, Build.OLD_BANNER: 1, Build.BUST: 1, Build.CROWN: 1, Build.DESK: 10, Build.BOOKSHELF: 12, Build.THRONE: 12}
+	Build.CHALICE: 1, Build.OLD_BANNER: 1, Build.BUST: 1, Build.CROWN: 1, Build.DESK: 10, Build.BOOKSHELF: 12, Build.THRONE: 12, Build.ROAD: 2}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
 const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
 	Build.CAMPFIRE: Vector2i.ONE, Build.FURNACE: Vector2i.ONE, Build.ANVIL: Vector2i.ONE, Build.WORKBENCH: Vector2i.ONE,
@@ -362,11 +369,11 @@ const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Buil
 # mobili animati: secondi per fotogramma; i fotogrammi stanno nelle colonne dei quarti di giro (sono simmetrici)
 const ANIMATED := {Build.CAMPFIRE: 0.15, Build.BANNER: 0.3, Build.FOUNTAIN: 0.2}
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
-const PAVING := [Build.FLOOR, Build.PATH]  # a terra: si calpestano, ci stanno sopra i mobili, l'erba ci sborda sopra
+const PAVING := [Build.FLOOR, Build.PATH, Build.ROAD]  # a terra: si calpestano, ci stanno sopra i mobili, l'erba ci sborda sopra
 # materiale fisso; il resto solo di legno
 # i cimeli: la decorazione si fa con l'oggetto trovato nelle rovine, uno a pezzo
 const RELICS := {Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}
-const BUILD_RES := {Build.PATH: Res.STONE, Build.FURNACE: Res.STONE, Build.ANVIL: Res.IRON, Build.PLANTER: Res.STONE, Build.FOUNTAIN: Res.STONE,
+const BUILD_RES := {Build.PATH: Res.STONE, Build.ROAD: Res.STONE, Build.FURNACE: Res.STONE, Build.ANVIL: Res.IRON, Build.PLANTER: Res.STONE, Build.FOUNTAIN: Res.STONE,
 	Build.STATUE: Res.STONE, Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}
 # mobili che servono perché il cartello lasci scegliere il tipo di stanza: tipo -> {mobile: almeno quanti}
 # ponytail: la cucina accetterà anche la stufa, quando ci sarà: allora "uno tra" invece di "tutti"
@@ -383,7 +390,7 @@ const ROOM_NEEDS := {
 }
 # lente delle stanze (tasto col cartello in basso): le stanze finite velate col colore del loro tipo, per RoomKind
 const ROOM_COLORS := [Color("e6e2d0"), Color("c9a23b"), Color("3b8fd3"), Color("8a5ad3"), Color("e0703a"), Color("d33b3b"),
-	Color("3bb08a"), Color("9be36a"), Color("d38a3b"), Color("6a9ae0"), Color("c48ad8")]
+	Color("3bb08a"), Color("9be36a"), Color("d38a3b"), Color("6a9ae0"), Color("c48ad8"), Color("8fd8e8")]
 # comfort di una stanza, 0-COMFORT_MAX: lo danno i mobili (per pezzo) e il pavimento (tutto se copre la stanza intera),
 # per il materiale. A metà né bonus né malus; fuori dalle stanze è 0. Vedi room_comfort e comfort_of
 const COMFORT_MAX := 10
@@ -412,6 +419,7 @@ const BUILD_INFO := {
 	Build.FLOOR: "Paves the ground. Furniture can stand on it.",
 	Build.DOOR: "Colonists walk through it. A room needs one to be entered.",
 	Build.PATH: "A trodden earth path with pebbles. Grass grows over its edges.",
+	Build.ROAD: "Stone slabs, fitted tight. Walking on them is 25% faster.",
 	Build.BED: "A place to sleep. A bedroom needs one, a dormitory two.",
 	Build.TABLE: "Where colonists eat and work.",
 	Build.CHAIR: "Put it at a table, turned to face it.",
@@ -521,6 +529,7 @@ const ICONS := {
 	Res.NOTEBOOK: preload("res://art/icon_notebook.png"),
 	Res.TOME: preload("res://art/icon_tome.png"),
 	Res.CODEX: preload("res://art/icon_codex.png"),
+	Res.HARDTACK: preload("res://art/icon_hardtack.png"),
 }
 # 256x128, righe: muri di legno, muri di pietra (colonna = lati collegati, vedi WALL_LINKS), pavimenti (colonna = Res,
 # poi il sentiero), porte (di fronte, di lato), erba sui pavimenti (lati, angoli, due varianti); vedi structure_src e draw_grass_over
@@ -727,9 +736,11 @@ enum Branch { LAND, FIRE, STONE, IRON, ROAD, LORE }  # rami dell'albero, colonne
 const BRANCHES_SHEET := preload("res://art/branches.png")
 # Ricerche (colonne di TECHS_SHEET nell'ordine di Tech): "tier" livello 1-4, dal 2 costa anche un libro (BOOKS);
 # "cost" punti studio; "needs" le ricerche che vengono prima. Sbloccano mobili ("builds"), ricette (i prodotti in
-# "makes") e materiali da costruzione ("materials"). Quello che nessuna ricerca nomina c'è dall'inizio.
+# "makes"), materiali da costruzione ("materials") e tipi di stanza ("rooms"). Quello che nessuna ricerca nomina c'è
+# dall'inizio. Gli effetti senza oggetto (passo, viaggi) li guardano le funzioni che li nominano.
 # ponytail: solo i nodi che hanno già qualcosa da sbloccare; gli altri dell'albero del GDD arrivano con le loro cose
-enum Tech { FORGE, TAILORING, HUNTING, INN, MASONRY, DECOR, LANTERNS, IRON_ARMS, BOOKSHELF, CHAINMAIL, FOUNTAIN, STATUARY }
+enum Tech { FORGE, TAILORING, HUNTING, INN, MASONRY, DECOR, LANTERNS, IRON_ARMS, BOOKSHELF, CHAINMAIL, FOUNTAIN, STATUARY,
+	CHARCOAL, COLD_STORE, PAVED_ROAD, DRY_RATIONS, CARTOGRAPHY }
 const TECHS_SHEET := preload("res://art/techs.png")
 const TECHS := {
 	Tech.FORGE: {"branch": Branch.FIRE, "tier": 1, "cost": 60, "builds": [Build.FURNACE, Build.ANVIL],
@@ -756,7 +767,20 @@ const TECHS := {
 		"info": "The fountain, the pride of the square."},
 	Tech.STATUARY: {"branch": Branch.STONE, "tier": 3, "cost": 500, "needs": [Tech.MASONRY], "builds": [Build.STATUE],
 		"info": "The king in stone, on a gilded plinth."},
+	Tech.CHARCOAL: {"branch": Branch.FIRE, "tier": 1, "cost": 80, "makes": [Res.COAL],
+		"info": "At the furnace, 5 wood make 2 coal: coal not only from the veins."},
+	Tech.COLD_STORE: {"branch": Branch.LAND, "tier": 1, "cost": 100, "rooms": [RoomKind.PANTRY],
+		"info": "The pantry, a cool room only for food: it keeps three times as long as outside (twice in a warehouse)."},
+	Tech.PAVED_ROAD: {"branch": Branch.STONE, "tier": 1, "cost": 60, "builds": [Build.ROAD],
+		"info": "Stone slabs: walking on them is 25% faster, and colonists choose them."},
+	Tech.DRY_RATIONS: {"branch": Branch.ROAD, "tier": 1, "cost": 80, "makes": [Res.HARDTACK],
+		"info": "At the campfire, hardtack from 2 vegetables: worth 2 provisions on an expedition, and it never spoils."},
+	Tech.CARTOGRAPHY: {"branch": Branch.ROAD, "tier": 1, "cost": 80, "needs": [Tech.INN],
+		"info": "The notice board shows the next room of every ruin. The way to the ruins is 25% shorter."},
 }
+const ROAD_SPEED := 1.25    # sulla strada lastricata si va più svelti
+const MAPPED_TRAVEL := 0.75 # con la cartografia, giorni di viaggio x
+const HARDTACK_FOOD := 2    # provviste che vale una galletta
 # Autorità: il sovrano la raccoglie governando dal trono (Job.GOVERN, in una sala del trono), AUTHORITY_PER_HOUR all'ora,
 # di più se è sereno e di meno se è cupo (RULER_MOODS: da quanta felicità, quanto); in più ogni giorno AUTHORITY_DAILY
 # per titolo (signoria 1, regno 4) e uno ogni SPLENDOR_PER_AUTHORITY di splendore. Si spende per codificare le leggi,
@@ -964,7 +988,8 @@ var knowledge_key := ""     # quello che mostra la finestra Knowledge: se cambia
 var laws_key := ""          # lo stesso per la finestra Laws
 var items := {}  # risorsa -> (cella -> quantità a terra; nel magazzino = stoccata): un dizionario per Res, vedi _init  # risorsa -> (cella -> quantità a terra; nel magazzino = stoccata)
 var fresh := {}             # cella -> giorni (a terra fuori) prima che il mucchio di cibo marcisca, vedi spoil
-var stockpile := {}         # cella -> true: dentro le stanze di tipo magazzino, vedi update_stockpile
+var stockpile := {}         # cella -> true: dentro le stanze di tipo magazzino o dispensa, vedi update_stockpile
+var pantry := {}            # cella -> true: le caselle di stockpile nelle dispense, solo per il cibo
 var rooms: Array[Room] = []  # stanze finite, vedi update_rooms
 var rooms_made := 0         # per i nomi di default
 var editing: Room           # la stanza aperta nel popup del cartello
@@ -1061,6 +1086,7 @@ var lights_canvas := Node2D.new()
 class Ruin:
 	var kind := RuinKind.TOWER
 	var cleared := 0
+	var next := -1  # Chamber della prossima stanza, una volta vista (vedi next_chamber); -1 da scoprire
 
 
 # Spedizione: il gruppo va al bordo della mappa, parte (lì si decide com'è andata, vedi explore) e torna a back_at
@@ -1592,7 +1618,7 @@ func open_craft(origin: Vector2i) -> void:
 		var raw := {}
 		for res in RAW_FOOD:
 			raw[res] = COOK_RAW
-		rows = [[Res.MEAL, raw, "or"]]
+		rows.push_front([Res.MEAL, raw, "or"])
 	for r in rows:
 		var row := HBoxContainer.new()
 		row.add_child(ui_icon(ICONS[r[0]], Rect2(), Vector2(32, 32)))
@@ -2252,8 +2278,9 @@ func update_colonist(c: Colonist, delta: float) -> void:
 		var goal := center(c.path[0])
 		var d := goal - c.pos
 		face(c, d)
-		c.walked += minf(d.length(), SPEED * TILE * delta)
-		c.pos = c.pos.move_toward(goal, SPEED * TILE * delta)
+		var step := SPEED * TILE * delta * (ROAD_SPEED if built.get(cell_of(c.pos), [-1])[0] == Build.ROAD else 1.0)
+		c.walked += minf(d.length(), step)
+		c.pos = c.pos.move_toward(goal, step)
 		if c.pos == goal:
 			c.path.pop_front()
 		return
@@ -2711,8 +2738,11 @@ func comfort_time(comfort: int) -> float:
 	return 1.0 + COMFORT_EFFECT * (mid - comfort) / mid
 
 
-# la stanza ha i mobili che servono per il tipo `kind`? (vedi ROOM_NEEDS; i tipi senza requisiti sì)
+# la stanza ha i mobili che servono per il tipo `kind`? (vedi ROOM_NEEDS; i tipi senza requisiti sì). Alcuni tipi
+# vogliono una ricerca ("rooms" in TECHS)
 func room_meets(room: Room, kind: RoomKind) -> bool:
+	if not unlocked("rooms", kind):
+		return false
 	var needs: Dictionary = ROOM_NEEDS.get(kind, {})
 	var inside: Array = furniture.keys().filter(func(o): return room.cells.has(o)).map(func(o): return furniture[o][0])
 	return needs.keys().all(func(b): return inside.count(b) >= needs[b])
@@ -3172,7 +3202,7 @@ func craft(c: Colonist, delta: float) -> void:
 	c.xp[r[2]] += 1
 	end_job(c)
 	if randf() >= burn_chance(c.skills[r[2]], room_comfort(room_at(c.target))):
-		produce(r[0], here, 1)
+		produce(r[0], here, r[5] if r.size() > 5 else 1)
 		try_haul(c, r[0], [here])
 
 
@@ -3646,7 +3676,7 @@ func explored(ruin: Ruin) -> bool:
 
 # giorni di viaggio (andata) del gruppo `party` alla rovina: meno con una guida
 func travel_days(ruin: Ruin, party: Array) -> float:
-	return RUINS[ruin.kind]["travel"] * party_gift(party, "travel", 1.0)
+	return RUINS[ruin.kind]["travel"] * party_gift(party, "travel", 1.0) * (MAPPED_TRAVEL if researched.has(Tech.CARTOGRAPHY) else 1.0)
 
 
 # giorni per andare alla rovina, esplorare le stanze che restano e tornare
@@ -3660,7 +3690,7 @@ func provisions(party: Array, ruin: Ruin) -> int:
 
 
 func food_stored() -> int:
-	return (MEALS + RAW_FOOD).reduce(func(n, r): return n + stored(r) + granary.get(r, 0), 0)
+	return (MEALS + RAW_FOOD).reduce(func(n, r): return n + stored(r) + granary.get(r, 0), 0) + stored(Res.HARDTACK) * HARDTACK_FOOD
 
 
 # Manda il gruppo `party` (dalla locanda, al più MAX_PARTY) alla rovina `ruin`: paga dal magazzino la somma delle
@@ -3675,7 +3705,10 @@ func send(party: Array, ruin: Ruin) -> bool:
 	var exp := Expedition.new()
 	exp.ruin = ruin
 	var want := provisions(party, ruin)
-	exp.food += from_granary(want)  # prima dal granaio della corona
+	exp.food += from_granary(want)  # prima dal granaio della corona, poi le gallette
+	var biscuits := mini(stored(Res.HARDTACK), ceili((want - exp.food) / HARDTACK_FOOD))
+	take_stored(Res.HARDTACK, biscuits)
+	exp.food += biscuits * HARDTACK_FOOD
 	for res in MEALS + RAW_FOOD:
 		var n := mini(stored(res), want - int(exp.food))
 		take_stored(res, n)
@@ -3729,7 +3762,8 @@ func explore(exp: Expedition, travel: float) -> float:
 		var last: bool = exp.ruin.cleared == data["rooms"] - 1
 		var room := "Day %d, room %d: " % [int(start + days) + 1, exp.ruin.cleared + 1]
 		days += ROOM_DAYS
-		var kind: int = Chamber.CHEST if last else pick_chamber()
+		var kind: int = Chamber.CHEST if last else next_chamber(exp.ruin)
+		exp.ruin.next = -1
 		var opened := true
 		if last:
 			room += "the guardian of the treasure. %s " % fight_monsters(exp, MONSTER_POWER * danger * 2)
@@ -3815,6 +3849,14 @@ func eat_on_trip(exp: Expedition, days: float) -> String:
 	for c in exp.party:
 		c.hp -= hurt
 	return "No food left: hunger (-%d each)." % roundi(hurt)
+
+
+# la prossima stanza di `ruin`: pescata la prima volta che la si guarda (la cartografia la mostra sulla bacheca), poi
+# resta quella finché la si esplora
+func next_chamber(ruin: Ruin) -> int:
+	if ruin.next < 0:
+		ruin.next = pick_chamber()
+	return ruin.next
 
 
 func pick_chamber() -> int:
@@ -4007,7 +4049,7 @@ func fill_board() -> void:
 		return
 	board_key = key
 	var box: Control = $HUD/BoardPanel/Box
-	box.get_node("Gold").text = "%s    %d %s provisions (meals, raw food)" % [coins(stored(Res.GOLD)), food_stored(),
+	box.get_node("Gold").text = "%s    %d %s provisions (meals, raw food, hardtack)" % [coins(stored(Res.GOLD)), food_stored(),
 		"[img=center]%s[/img]" % KIND_ICONS[ItemKind.FOOD].resource_path]
 	var list: Control = box.get_node("Heroes")
 	for child in list.get_children() + box.get_node("Ruins").get_children():
@@ -4047,6 +4089,8 @@ func fill_board() -> void:
 		var label := Label.new()
 		label.text = "%s, danger %d: %s" % [data["name"], data["danger"],
 			"explored" if explored(ruin) else "rooms %d / %d" % [ruin.cleared, data["rooms"]]]
+		if researched.has(Tech.CARTOGRAPHY) and not explored(ruin):
+			label.text += ", next: %s" % ("the treasure" if ruin.cleared == data["rooms"] - 1 else CHAMBER_NAMES[next_chamber(ruin)])
 		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(label)
 		if not explored(ruin):
@@ -4170,6 +4214,7 @@ func unlocks_text(t: Tech) -> String:
 	var names: Array = data.get("builds", []).map(func(b): return Build.keys()[b].capitalize()) \
 		+ data.get("makes", []).map(func(r): return Res.keys()[r].capitalize()) \
 		+ data.get("materials", []).map(func(r): return "%s walls and floors" % Res.keys()[r].capitalize()) \
+		+ data.get("rooms", []).map(func(k): return "the %s room" % RoomKind.keys()[k].capitalize().to_lower()) \
 		+ LAWS.keys().filter(func(law): return LAWS[law].get("needs", -1) == t).map(func(law): return "the law %s" % law_name(law))
 	return "Unlocks: " + ", ".join(names)
 
@@ -4451,7 +4496,7 @@ func fill_knowledge() -> void:
 	box.get_node("Study").text = "%d [img=center]%s[/img] study    %s" % [floori(study), STUDY_ICON.resource_path,
 		"   ".join(BOOKS.map(func(b): return "%d [img=center]%s[/img]" % [stored(b), ICONS[b].resource_path]))]
 	box.get_node("Hint").visible = not rooms.any(func(r): return r.kind == RoomKind.STUDY)
-	var grid: GridContainer = box.get_node("Tree")
+	var grid: GridContainer = box.get_node("Scroll/Tree")
 	for child in grid.get_children():
 		child.free()
 	grid.add_child(Control.new())
@@ -4767,12 +4812,12 @@ func try_haul(c: Colonist, res: Res, piles: Array) -> bool:
 		return false
 	start_job(c, Job.HAUL, path, path.back(), 0.0)
 	c.carry_res = res
-	# prima le pile già iniziate della stessa risorsa, poi la più vicina
+	# prima la dispensa (c'è solo per il cibo), poi le pile già iniziate della stessa risorsa, poi la più vicina
 	# ponytail: una prenotazione = un colono per cella, quindi coloni in parallelo lasciano qualche pila a metà;
 	# prenotare lo spazio (quantità) invece della cella se il magazzino si riempie troppo presto
 	var from := center(c.target)
-	dests.sort_custom(func(a, b): return [not items[res].has(a), center(a).distance_squared_to(from)] \
-		< [not items[res].has(b), center(b).distance_squared_to(from)])
+	dests.sort_custom(func(a, b): return [not pantry.has(a), not items[res].has(a), center(a).distance_squared_to(from)] \
+		< [not pantry.has(b), not items[res].has(b), center(b).distance_squared_to(from)])  # il cibo prima in dispensa
 	c.dest = dests[0]  # se non ci si arriva, al mucchio il lavoro si annulla (vedi HAUL)
 	reserved[c.dest] = c
 	return true
@@ -4896,6 +4941,8 @@ func is_free(cell: Vector2i) -> bool:
 # celle di magazzino che possono ricevere `res`: libere, vuote o con la stessa risorsa non piena
 func dest_cells(res: Res) -> Array:
 	return stockpile.keys().filter(func(cell):
+		if pantry.has(cell) and not SHELF_LIFE.has(res):  # in dispensa solo quello che marcisce
+			return false
 		for other in items:
 			if other != res and items[other].has(cell):
 				return false
@@ -4937,7 +4984,7 @@ func spoil(days: float) -> void:
 
 
 func spoil_rate(cell: Vector2i) -> float:
-	return SPOIL_STORED if stockpile.has(cell) else 1.0
+	return SPOIL_PANTRY if pantry.has(cell) else (SPOIL_STORED if stockpile.has(cell) else 1.0)
 
 
 # Posa a terra `amount` di `res` su `cell`; oltre STACK_MAX il resto va sulle caselle più vicine dove ci sta
@@ -5030,6 +5077,8 @@ func mark(rect: Rect2i) -> void:
 			for cell in built.keys().filter(func(k): return rect.has_point(k)):
 				if built[cell][0] == Build.WALL:
 					astar.set_point_solid(cell, false)
+				if built[cell][0] == Build.ROAD:
+					astar.set_point_weight_scale(cell, 1.0)
 				built.erase(cell)
 			for origin in furniture.keys().filter(func(o): return rect.intersects(piece_rect(o, furniture[o]))):
 				furniture.erase(origin)
@@ -5081,6 +5130,8 @@ func can_build(cell: Vector2i, kind := Build.FLOOR) -> bool:
 func build(cell: Vector2i) -> void:
 	built[cell] = blueprints[cell]
 	blueprints.erase(cell)
+	if built[cell][0] == Build.ROAD:  # la strada si preferisce, come si va più svelti
+		astar.set_point_weight_scale(cell, 1.0 / ROAD_SPEED)
 	if built[cell][0] == Build.WALL:
 		astar.set_point_solid(cell)
 		# ponytail: se non resta strada il colono lavora da dov'è; annullarne il lavoro se capita spesso
@@ -5196,9 +5247,12 @@ func update_rooms() -> void:
 
 func update_stockpile() -> void:
 	stockpile.clear()
+	pantry.clear()
 	for room in rooms:
-		if room.kind == RoomKind.WAREHOUSE:
+		if room.kind in [RoomKind.WAREHOUSE, RoomKind.PANTRY]:
 			stockpile.merge(room.cells)
+		if room.kind == RoomKind.PANTRY:
+			pantry.merge(room.cells)
 
 
 func total(res: Res) -> int:
@@ -5311,6 +5365,7 @@ func structure_src(cell: Vector2i, plan: Array, layers: Array) -> Rect2i:
 		Build.WALL: return tile_rect(links, plan[1])
 		Build.FLOOR: return tile_rect(plan[1], 2)
 		Build.PATH: return tile_rect(2, 2)
+		Build.ROAD: return tile_rect(3, 2)
 		_: return tile_rect(1 if links & 5 and not links & 10 else 0, 3)  # porta: di lato se ha muri solo sopra e sotto
 
 

@@ -246,6 +246,18 @@ func _initialize() -> void:
 	check(main.Res.values().all(func(r): return main.ICONS.has(r) and main.STACK_MAX.has(r) and main.items.has(r)), "ogni risorsa ha icona e mucchio")
 	check(main.SKILLS_SHEET.get_width() == main.Skill.size() * 8, "un'icona per abilità")
 
+	# carbonaia: finito il carbone, alla fornace 5 legna fanno 2 carboni, finché non c'è la scorta del menu
+	main.add_item(W, rest[2], 30)  # legna per la carbonaia, quella di prima è andata negli archi
+	for res in [main.Res.COAL, main.Res.IRON, I]:  # senza ferro né lingotti la fornace fa solo carbone
+		for k in main.items[res].keys():
+			main.items[res].erase(k)
+	var wood0: int = main.total(W)
+	for i in 20000:
+		main.tick(0.05)
+		if main.total(main.Res.COAL) >= main.STOCK[main.Res.COAL] and not main.colonists.any(func(c): return c.job == main.Job.CRAFT):
+			break
+	check(main.total(main.Res.COAL) == 6 and main.total(W) == wood0 - 15, "carbonaia: tre volte 5 legna, 6 carboni (scorta 5)")
+
 	print("OK: forgia, sartoria ed equipaggiamento")
 	quit()
 

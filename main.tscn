@@ -1,4 +1,4 @@
-[gd_scene load_steps=67 format=3]
+[gd_scene load_steps=68 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Texture2D" path="res://art/icon_wood.png" id="2"]
@@ -52,6 +52,10 @@ region = Rect2(0, 32, 16, 16)
 [sub_resource type="AtlasTexture" id="PathIcon"]
 atlas = ExtResource("5")
 region = Rect2(32, 32, 16, 16)
+
+[sub_resource type="AtlasTexture" id="RoadIcon"]
+atlas = ExtResource("5")
+region = Rect2(48, 32, 16, 16)
 
 [sub_resource type="AtlasTexture" id="DoorIcon"]
 atlas = ExtResource("5")
@@ -335,6 +339,15 @@ focus_mode = 0
 toggle_mode = true
 button_group = SubResource("Kinds")
 icon = SubResource("PathIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Road" type="Button" parent="HUD/BuildBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("RoadIcon")
 icon_alignment = 1
 expand_icon = true
 
@@ -1335,7 +1348,11 @@ autowrap_mode = 0
 theme_override_colors/font_color = Color(1, 0.415686, 0.290196, 1)
 text = "Nobody studies without a study: a room with a desk."
 
-[node name="Tree" type="GridContainer" parent="HUD/KnowledgePanel/Box"]
+[node name="Scroll" type="ScrollContainer" parent="HUD/KnowledgePanel/Box"]
+custom_minimum_size = Vector2(0, 440)
+horizontal_scroll_mode = 0
+
+[node name="Tree" type="GridContainer" parent="HUD/KnowledgePanel/Box/Scroll"]
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 columns = 5

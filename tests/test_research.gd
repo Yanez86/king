@@ -55,7 +55,7 @@ func _initialize() -> void:
 	main.study = 40.0
 	main.get_node("HUD/Tools/Row/Knowledge").button_pressed = true
 	main.fill_knowledge()
-	var buttons: Array = main.get_node("HUD/KnowledgePanel/Box/Tree").find_children("*", "Button", true, false)
+	var buttons: Array = main.get_node("HUD/KnowledgePanel/Box/Scroll/Tree").find_children("*", "Button", true, false)
 	check(buttons.size() == T.size(), "un pulsante per ricerca")
 	var inn_button: Button = buttons.filter(func(b): return b.text.begins_with("Inn"))[0]
 	check(not inn_button.disabled, "la locanda si può studiare")
@@ -312,6 +312,77 @@ func _initialize() -> void:
 	main.authority = 10.0
 	main.die(main.colonists[2], "fell")
 	check(main.authority == 5.0, "un colono morto: -5 autorità")
+
+	# dispensa fredda: una stanza che è magazzino solo per il cibo, che ci marcisce a un terzo; il cibo ci va per primo
+	var den = main.Room.new()
+	den.cells = {free[23]: true, free[24]: true}
+	den.kind = main.RoomKind.PANTRY
+	main.rooms.append(den)
+	main.update_stockpile()
+	main.stockpile[free[25]] = true  # e un magazzino qualunque
+	check(main.stockpile.has(free[23]) and main.spoil_rate(free[23]) == main.SPOIL_PANTRY and main.spoil_rate(free[25]) == main.SPOIL_STORED,
+		"la dispensa: il cibo dura il triplo")
+	check(free[23] not in main.dest_cells(R.WOOD) and free[23] in main.dest_cells(R.VEG), "in dispensa solo quello che marcisce")
+	main.researched.erase(T.COLD_STORE)
+	check(not main.room_meets(den, main.RoomKind.PANTRY), "senza la ricerca niente dispensa")
+	main.researched[T.COLD_STORE] = true
+	var porter = main.colonists[0]
+	main.quit_job(porter)
+	main.add_item(R.VEG, free[26], 5)
+	check(main.try_haul(porter, R.VEG, [free[26]]) and main.pantry.has(porter.dest), "il cibo si porta in dispensa")
+	main.quit_job(porter)
+
+	# strada lastricata: la si preferisce e ci si va un quarto più svelti
+	var road: Vector2i = free[27]
+	main.blueprints[road] = [B.ROAD, R.STONE]
+	main.build(road)
+	check(is_equal_approx(main.astar.get_point_weight_scale(road), 0.8), "la strada si preferisce")
+	var walker = main.colonists[1]
+	walker.job = main.Job.NONE
+	walker.pos = main.center(road)
+	walker.path.assign([road + Vector2i.RIGHT])
+	main.update_colonist(walker, 0.1)
+	check(is_equal_approx(walker.pos.distance_to(main.center(road)), main.SPEED * main.TILE * 0.1 * main.ROAD_SPEED), "sulla strada più svelti")
+
+	# provviste secche: la galletta vale due provviste, parte dopo il granaio e prima dei pasti
+	main.granary = {R.VEG: 1}
+	for res in main.MEALS + main.RAW_FOOD:
+		for cell in main.items[res].keys():
+			main.items[res].erase(cell)
+	main.add_item(R.HARDTACK, free[25], 3)
+	main.add_item(R.MEAL, free[23], 4)
+	check(main.food_stored() == 1 + 6 + 4, "nelle provviste la galletta conta due")
+	var hiker = main.new_hero(main.Hero.ARCHER, 1)
+	main.guests.append(hiker)
+	main.add_item(R.GOLD, free[28], main.fee(hiker))
+	main.stockpile[free[28]] = true
+	var walk_to = main.Ruin.new()
+	main.ruins.append(walk_to)
+	check(main.provisions([hiker], walk_to) == 3 and main.send([hiker], walk_to), "partito per la torre: 3 provviste (2,25 giorni)")
+	check(main.expeditions[-1].food == 3.0 and main.granary[R.VEG] == 0 and main.stored(R.HARDTACK) == 2 and main.stored(R.MEAL) == 4,
+		"il granaio e una galletta: niente pasti")
+	main.expeditions.clear()
+	main.guests.clear()
+	main.ruins.erase(walk_to)
+
+	# cartografia: la prossima stanza di una rovina, sulla bacheca; l'esplorazione trova quella
+	var crypt = main.Ruin.new()
+	main.ruins.append(crypt)
+	var ahead: int = main.next_chamber(crypt)
+	check(main.next_chamber(crypt) == ahead, "la prossima stanza resta quella")
+	main.board_key = ""
+	main.fill_board()
+	var rows: Array = main.get_node("HUD/BoardPanel/Box/Ruins").find_children("*", "Label", true, false).map(func(l): return l.text)
+	check(rows.any(func(t): return t.contains("next: " + main.CHAMBER_NAMES[ahead])), "sulla bacheca la prossima stanza")
+	crypt.next = main.Chamber.COLLAPSE
+	var dig = main.Expedition.new()
+	dig.party.append(main.new_hero(main.Hero.WARRIOR, 5))
+	dig.ruin = crypt
+	dig.left_at = main.clock
+	dig.food = 10.0
+	main.explore(dig, 0.5)
+	check(dig.lines[1].contains("collapse") and crypt.next == -1, "l'esplorazione trova la stanza vista, poi se ne pesca un'altra")
+	main.ruins.erase(crypt)
 
 	# una partita vera: niente studiato, lupi dal quinto giorno, un'arma abbandonata sulla mappa
 	main.queue_free()

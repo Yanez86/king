@@ -635,7 +635,8 @@ func _initialize() -> void:
 		and main.get_node("HUD/RoomPopup/Box/Owners/Title").text == "Owners", "la camera è una residenza: ha i proprietari")
 	check(main.get_node("HUD/RoomPopup/Box/Comfort").text == "Comfort: 3 / 10", "il cartello mostra il comfort")
 	var shown_kinds: Array = range(main.room_kind.item_count).map(main.room_kind.get_item_id)
-	check(shown_kinds == [main.RoomKind.NONE, main.RoomKind.WAREHOUSE, main.RoomKind.BEDROOM], "un letto: in tendina la camera sì, dormitorio, cucina e forgia no")
+	check(shown_kinds == [main.RoomKind.NONE, main.RoomKind.WAREHOUSE, main.RoomKind.BEDROOM, main.RoomKind.PANTRY],
+		"un letto: in tendina la camera sì (e la dispensa, senza mobili), dormitorio, cucina e forgia no")
 	var ticks: Array = main.room_owners.get_children()
 	check(ticks.size() == main.colonists.size() and den.owners.is_empty(), "una casella per colono, nessun proprietario")
 	ticks[0].button_pressed = true
