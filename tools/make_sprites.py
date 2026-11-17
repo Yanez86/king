@@ -2758,6 +2758,22 @@ oooooooooooo .oIIIIIIIUo. ogoèèèèèèogo
 ............ .oooooooooo. oooooooooooo
 """
 
+# Palazzo: le torri dorate col portone
+TECH_SYMBOLS_9 = """
+..o......o..
+.o8o....o8o.
+oggo.oo.oggo
+oggooggoogg<
+ogggggggggg<
+og<gg<<gg<g<
+oggggoogggg<
+og<gojjogg<<
+oggggjjgggg<
+oggggjjgggg<
+o<<<<<<<<<<<
+oooooooooooo
+"""
+
 # Leggi 12x12, nei quadratini color pergamena (vedi badge), nell'ordine di Law in main.gd: esenzione, decima, gabella sul
 # bottino, tassa di soggiorno, turni lunghi, giornata corta, riposo festivo, coprifuoco, festa del raccolto. Sulla scheda
 # dei coloni sono anche le condizioni "approva / disapprova"
@@ -3384,7 +3400,7 @@ def main():
     images["icon_notebook"], images["icon_tome"], images["icon_codex"] = (pixels(f) for f in frames(BOOK_ICONS))
     images["icon_study"] = pixels(art(STUDY_ICON, 16, 16))
     images["icon_authority"] = pixels(art(AUTHORITY_ICON, 16, 16))
-    techs = [f for block in (TECH_SYMBOLS_1, TECH_SYMBOLS_2, TECH_SYMBOLS_3) for f in frames(block, 12, 4, 12)] + frames(TECH_SYMBOLS_4, 12, 5, 12) + frames(TECH_SYMBOLS_5, 12, 2, 12) + frames(TECH_SYMBOLS_6, 12, 3, 12) + frames(TECH_SYMBOLS_7, 12, 2, 12) + frames(TECH_SYMBOLS_8, 12, 3, 12)
+    techs = [f for block in (TECH_SYMBOLS_1, TECH_SYMBOLS_2, TECH_SYMBOLS_3) for f in frames(block, 12, 4, 12)] + frames(TECH_SYMBOLS_4, 12, 5, 12) + frames(TECH_SYMBOLS_5, 12, 2, 12) + frames(TECH_SYMBOLS_6, 12, 3, 12) + frames(TECH_SYMBOLS_7, 12, 2, 12) + frames(TECH_SYMBOLS_8, 12, 3, 12) + frames(TECH_SYMBOLS_9, 12, 1, 12)
     images["techs"] = pixels(side_by_side([badge(f) for f in techs]))
     laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 3, 12) + frames(LAW_SYMBOLS_5, 12, 3, 12) + frames(LAW_SYMBOLS_6, 12, 4, 12)
     images["laws"] = pixels(side_by_side([badge(f, "I", "x", "U") for f in laws]))

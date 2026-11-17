@@ -614,7 +614,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | Pietra | Muratura ✓ | I | 60 | — | *muri e pavimenti di pietra*; poi il camino |
   | | Arredo fine ✓ | II | 250 | Muratura | letto a baldacchino (un letto, comfort 2), tappeto di pelli, armadio (comfort 1): la camera signorile del sovrano |
   | | Statuaria ✓ | III | 500 | Arredo fine | *statua del re*; poi i memoriali dei caduti (lutto un giorno in meno) |
-  | | Palazzo | IV | 1200 | Statuaria | la sala del trono diventa palazzo: udienza +50%, +10 splendore |
+  | | Palazzo ✓ | IV | 1200 | Statuaria | la sala del trono diventa palazzo: udienza +50%, +10 splendore (se ce n'è una) |
   | | Decorazioni ✓ | I | 40 | — | *aiuola, fioriera, panca* |
   | | Fontana ✓ | II | 250 | Decorazioni | *fontana* |
   | | Strada lastricata ✓ | I | 60 | — | lastre di pietra (2 a casella): si cammina il 25% più svelti, e i coloni le scelgono |
@@ -736,7 +736,7 @@ IV, regno, leggi finali, cittadella.
 **Stato**: fatte le fasi 1–4; della 5 una parte dei nodi, l'erudito errante e la protesta. Nel gioco: scrittoio,
 libreria e trono; stanze Studio e Sala del trono; lavori Studiare e Governare; studio e autorità (nelle finestre
 Knowledge e Laws, tasti K e G, o clic su scrittoio e trono; tutte e due scorrono); i tre libri, nei forzieri e nei
-tesori, col monastero; le 27 ricerche segnate ✓; le 19 leggi segnate ✓; il titolo cresce con lo splendore (4.3) e dà i
+tesori, col monastero; le 28 ricerche segnate ✓; le 19 leggi segnate ✓; il titolo cresce con lo splendore (4.3) e dà i
 sigilli (2–5), le fasce delle leggi e l'autorità di ogni giorno; gli eventi d'autorità del 4.7.4 tranne
 l'incoronazione (manca la successione), mai sotto zero. Il granaio è un conto, non una stanza, e niente ci marcisce;
 paga le provviste, poi (Granaio aperto) l'ora senza cibo in magazzino e il pasto di ogni stagione; la festa del

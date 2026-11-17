@@ -23,6 +23,7 @@ func _initialize() -> void:
 	var R = main.Res
 	var B = main.Build
 	check(main.researched.size() == T.size(), "nei test tutto studiato")
+	main.researched.erase(T.PALACE)  # il palazzo cambia l'udienza: lo si prova a parte, in fondo
 	check(main.TECHS_SHEET.get_width() == T.size() * 16 and main.LAWS_SHEET.get_width() == L.size() * 16
 		and main.CONDITIONS_SHEET.get_width() == main.Cond.size() * 16 and main.BRANCHES_SHEET.get_width() == main.Branch.size() * 16,
 		"un'icona per ricerca, per legge, per condizione, per ramo")
@@ -65,6 +66,7 @@ func _initialize() -> void:
 	check(not main.get_node("HUD/Tools/Row/Knowledge").button_pressed, "la X chiude Knowledge e alza il tasto")
 	for t in T.values():
 		main.researched[t] = true
+	main.researched.erase(T.PALACE)
 	main.refresh_unlocks()
 
 	# lo studio e la sala del trono: due stanze 3x3 coi loro mobili
@@ -723,6 +725,23 @@ func _initialize() -> void:
 		and main.free_beds(main.colonists[1]).has(bed_cell), "il baldacchino: un letto, comodo il doppio")
 	main.furniture.erase(bed_cell)
 	check(main.TECHS[T.STATUARY]["needs"] == [T.FINE_FURNITURE], "la statuaria dopo l'arredo fine")
+
+	# palazzo: con una sala del trono, +10 splendore e udienze più ricche
+	main.enacted.clear()
+	var throne_hall = main.Room.new()
+	throne_hall.kind = main.RoomKind.THRONE_ROOM
+	throne_hall.cells = {free[58]: true}
+	main.rooms.append(throne_hall)
+	var plain_splendor: int = main.colony_splendor()
+	var plain_rate: float = main.govern_rate(main.ruler)
+	main.researched[T.PALACE] = true
+	check(main.colony_splendor() == plain_splendor + 10 and is_equal_approx(main.govern_rate(main.ruler), plain_rate * 1.5),
+		"il palazzo: +10 splendore, udienza +50%")
+	main.rooms.assign(main.rooms.filter(func(r): return r.kind != main.RoomKind.THRONE_ROOM))
+	main.researched.erase(T.PALACE)
+	var bare: int = main.colony_splendor()
+	main.researched[T.PALACE] = true
+	check(main.colony_splendor() == bare, "senza sala del trono niente palazzo")
 
 	# una partita vera: niente studiato, lupi dal quinto giorno, un'arma abbandonata sulla mappa
 	main.queue_free()

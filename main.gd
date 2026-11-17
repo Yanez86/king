@@ -789,7 +789,7 @@ const BRANCHES_SHEET := preload("res://art/branches.png")
 # ponytail: solo i nodi che hanno già qualcosa da sbloccare; gli altri dell'albero del GDD arrivano con le loro cose
 enum Tech { FORGE, TAILORING, HUNTING, INN, MASONRY, DECOR, LANTERNS, IRON_ARMS, BOOKSHELF, CHAINMAIL, FOUNTAIN, STATUARY,
 	CHARCOAL, COLD_STORE, PAVED_ROAD, DRY_RATIONS, CARTOGRAPHY, PALISADE, TRAINING_DUMMY, SMOKEHOUSE, RENOWNED_INN, WATCHTOWER,
-	SHIELD, LENDING_ARMORY, STEEL, SCRIPTORIUM, FINE_FURNITURE }
+	SHIELD, LENDING_ARMORY, STEEL, SCRIPTORIUM, FINE_FURNITURE, PALACE }
 const TECHS_SHEET := preload("res://art/techs.png")
 const TECHS := {
 	Tech.FORGE: {"branch": Branch.FIRE, "tier": 1, "cost": 60, "builds": [Build.FURNACE, Build.ANVIL],
@@ -844,6 +844,8 @@ const TECHS := {
 		"info": "Parchment (from hides) and ink (coal and berries) at the workbench; at the desk notebooks are copied: 3 parchment, 1 ink, 150 study."},
 	Tech.FINE_FURNITURE: {"branch": Branch.STONE, "tier": 2, "cost": 250, "needs": [Tech.MASONRY], "builds": [Build.CANOPY_BED, Build.RUG, Build.WARDROBE],
 		"info": "Canopy bed, rug and wardrobe: the ruler's fine chamber."},
+	Tech.PALACE: {"branch": Branch.STONE, "tier": 4, "cost": 1200, "needs": [Tech.STATUARY],
+		"info": "The throne room becomes a palace: audiences give 50% more authority, +10 splendor."},
 	Tech.WATCHTOWER: {"branch": Branch.IRON, "tier": 2, "cost": 300, "needs": [Tech.PALISADE], "builds": [Build.WATCHTOWER],
 		"info": "The watchtower and its bell: wolves are seen 20 tiles away. An archer up there shoots 2 tiles farther, +15% to hit."},
 }
@@ -925,6 +927,7 @@ const MILITIA_FLEE := 30.0  # con la milizia si scappa sotto questi punti ferita
 const HARSH_STRESS := 2.0 / 3  # con le pene severe, stress dal lavoro x per l'iracondo: sfuriate un terzo meno spesso
 const CLEMENT_HOURS := 1.0  # con la clemenza sfuriate e proteste durano tanto
 const COURT_AUDIENCE := 1.5 # con la corte, autorità dall'udienza x
+const PALACE := [1.5, 10]   # col palazzo (e una sala del trono): autorità dall'udienza x, splendore in più
 const RESERVE_AUTHORITY := 3.0  # riserva di caccia: per ogni cervo abbattuto dal sovrano
 const TRAIN_HIT := 2.5      # secondi per colpo al fantoccio: +1 esperienza in mischia
 const STEEL_GEAR := [Res.PICKAXE, Res.AXE, Res.SICKLE, Res.SWORD]  # con l'acciaio: si fanno d'acciaio, e rendono di più
@@ -2832,7 +2835,8 @@ func in_bed(c: Colonist) -> bool:
 
 # Splendore della colonia: la somma delle decorazioni finite (SPLENDOR), ovunque stiano, e degli avventurieri famosi.
 func colony_splendor() -> int:
-	return furniture.values().map(func(plan): return SPLENDOR.get(plan[0], 0)).reduce(func(a, b): return a + b, 0) \
+	return (PALACE[1] if researched.has(Tech.PALACE) and rooms.any(func(r): return r.kind == RoomKind.THRONE_ROOM) else 0) \
+		+ furniture.values().map(func(plan): return SPLENDOR.get(plan[0], 0)).reduce(func(a, b): return a + b, 0) \
 		+ guests.reduce(func(n, g): return n + gift(g, "splendor", 0), 0)  # gli avventurieri famosi
 
 
@@ -4556,7 +4560,7 @@ func page_time(c: Colonist, room: Room) -> float:
 # autorità di un'ora d'udienza del sovrano `c`: di più se è sereno, di meno se è cupo (vedi RULER_MOODS)
 func govern_rate(c: Colonist) -> float:
 	var happy: float = c.needs[Need.HAPPINESS]
-	var rate := AUTHORITY_PER_HOUR * (COURT_AUDIENCE if enacted.has(Law.COURT) else 1.0)
+	var rate := AUTHORITY_PER_HOUR * (COURT_AUDIENCE if enacted.has(Law.COURT) else 1.0) * (PALACE[0] if researched.has(Tech.PALACE) else 1.0)
 	if happy >= RULER_MOODS[0][0]:
 		return rate * RULER_MOODS[0][1]
 	if happy <= RULER_MOODS[1][0]:
