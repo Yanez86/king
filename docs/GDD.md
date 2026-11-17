@@ -94,17 +94,19 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 ### 4.4 Risorse ed edifici
 - Materie prime: legname, pietra, ferro, carbone, oro, cibo crudo. Ferro e carbone vengono dalle vene nella roccia (massi 1x1).
 - Catene MVP:
-  - Legname → assi (banco da falegname)
+  - Legname → assi (banco del falegname)
+  - Lino → corda d'arco (filatoio) → arco, con la legna (banco del falegname)
   - Ferro grezzo → lingotti (fornace) → attrezzi (fucina)
   - Cibo crudo → pasto (cucina, vedi 4.4.1)
 - Attrezzi equipaggiati = bonus all'abilità corrispondente.
 - Edifici MVP: muri, porte, tetto, letto, focolare, cucina, magazzino (zona), banco da lavoro, fornace, fucina.
 - Stanze chiuse con tetto proteggono da pioggia e freddo; il focolare scalda.
 - **Stanze**: zona chiusa da muri con una porta; il cartello sul muro accanto alla porta apre nome e tipo.
-  Tipi: magazzino; camera (1 letto); dormitorio (2 letti); cucina (fuoco da campo, poi anche stufa); forgia (fornace e incudine).
+  Tipi: magazzino; camera (1 letto); dormitorio (2 letti); cucina (fuoco da campo, poi anche stufa); forgia (fornace e incudine);
+  laboratorio (banco da lavoro); falegnameria (banco del falegname).
   Un tipo si sceglie solo se ci sono i mobili (gli altri non compaiono); tolti, la stanza torna senza tipo.
   Ogni tipo ha una categoria:
-  - **lavoro** (cucina, forgia): niente proprietari, ma le si assegnano dei lavoratori (per ora senza effetto; poi
+  - **lavoro** (cucina, forgia, laboratorio, falegnameria): niente proprietari, ma le si assegnano dei lavoratori (per ora senza effetto; poi
     solo loro ne faranno i lavori). L'ingresso resta libero.
   - **residenza** (camera, dormitorio): può avere uno o più proprietari tra i coloni; un colono entra (anche solo per
     passarci) solo nelle residenze sue o senza proprietari.
@@ -135,8 +137,8 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   Se entro 20 caselle c'è una sedia libera accanto a un tavolo, lo porta lì e lo mangia seduto (*mangiato al tavolo*).
 - **Cucinare** (abilità cucinare): in una stanza di tipo cucina, accanto al fuoco da campo. Il cuoco prende 2 crudi dal
   mucchio più vicino, cucina, il pasto cade ai suoi piedi e lo porta in magazzino. Si cucina finché in giro
-  (a terra, in magazzino, in mano) ci sono meno di 2 pasti a colono; nella finestra Jobs: "Cook meals: N".
-  Poi: ricette e quantità impostabili dal cartello della cucina.
+  (a terra, in magazzino, in mano) ci sono meno pasti di quanti ne chiede il menu del fuoco (vedi 4.4.2; all'inizio
+  2 a colono, 6); nella finestra Jobs: "Cook meals: N". Poi: altre ricette (stufato, conserve).
   - Tempo: 8 s a livello 5 (×1,5 a livello 0, ×0,5 a livello 10), secondo il comfort della cucina (±20%) e le condizioni del cuoco.
   - +1 punto esperienza per pasto.
   - **Bruciato** (vegetali persi): 6% per livello sotto il 6 (36% a livello 0), +3% per punto di comfort della cucina sotto 5 (sopra lo abbassa).
@@ -144,10 +146,16 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 - **Pescare** (abilità pescare, tasto "Fish", canna): si segnano caselle d'acqua. Il pescatore sta accanto (anche nell'acqua
   bassa) e lancia: 10 s a lancio a livello 5, un pesce con probabilità 30% + 6% per livello (30% a livello 0, 90% a 10).
   +1 punto esperienza per lancio, anche a vuoto. Ogni punto ha 4 pesci, poi si svuota per 1 giorno; il segno resta.
-- **Cacciare** (abilità cacciare, tasto "Hunt", arco): sulla mappa girano animali selvatici, mai nelle stanze né in acqua.
-  Si segnano trascinando sopra di loro. Il cacciatore li insegue e tira da al più 6 caselle: un tiro ogni 4 s a livello 5;
+- **Cacciare** (abilità cacciare, tasto "Hunt"): sulla mappa girano animali selvatici, mai nelle stanze né in acqua.
+  Si segnano trascinando sopra di loro. Si caccia **solo con l'arco**: chi non ce l'ha va a prenderne uno libero e posa lì
+  quello che aveva in mano; se non ce ne sono se ne fa uno (vedi 4.4.2) e la finestra Jobs dice "(needs a bow)".
+  Il cacciatore li insegue e tira da al più 8 caselle (6 + 2 dell'arco): un tiro ogni 4 s a livello 5;
   colpisce con probabilità 30% + 5% per livello − 5% per casella di distanza (5–95%). Colpito o mancato, l'animale scappa
   di 8 caselle e il cacciatore lo rincorre. +1 punto esperienza per tiro. Abbattuto, lascia la carne.
+  - **Animazione**: mirando tende l'arco (fotogramma a corda lenta subito dopo il tiro, per un quarto del tempo di mira,
+    poi a corda tesa con la freccia incoccata), per le quattro direzioni. Al tiro parte una freccia (20 caselle/s, su una
+    parabola bassa, con l'ombra a terra): se va a segno insegue l'animale, se no finisce un po' più in là, di lato.
+    Il colpo, o lo spavento, arriva con la freccia. Vale anche in combattimento.
 
   | Animale | Colpi | Carne | Velocità | All'inizio |
   |---|---|---|---|---|
@@ -160,28 +168,39 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 - Poi: animali che si difendono; stufato (vegetali + carne o pesce), conserve per l'inverno.
 - **Raccogliere** (tasto "Harvest", cestino, dopo "Uproot"): si segnano i cespugli; i coloni ne raccolgono le bacche ogni
   volta che maturano (5 ogni 2 giorni), finché il segno resta, e le portano in magazzino. Segnare "Uproot" toglie il segno e viceversa.
+  - **Lino**: ciuffi coi fiori azzurri sparsi nei prati (circa 1 casella su 100). Si segna e si raccoglie come i cespugli
+    (abilità raccogliere): in fiore dà 5 lino, poi rifiorisce in 2 giorni. Non si mangia: si fila in corde d'arco.
   Un colono mangia circa 2 vegetali al giorno se cucinati, 2,6 crudi; un cespuglio ne dà 2,5: 1–2 cespugli a testa.
 
 ### 4.4.2 Forgia, sartoria ed equipaggiamento
-- **Stanze**: forgia (fornace e incudine), laboratorio (banco da lavoro, 15 legna).
+- **Stanze**: forgia (fornace e incudine), laboratorio (banco da lavoro, 15 legna; ci lavora anche il filatoio, 10 legna),
+  falegnameria (banco del falegname, 15 legna).
 - **Ricette** (si fanno da sé, come in cucina; il produttore va a prendere gli ingredienti uno alla volta e li porta alla
   postazione; tempo secondo livello, comfort della stanza e condizioni; rovinato come il cibo bruciato, ingredienti persi):
 
   | Oggetto | Dove | Abilità | Ingredienti | Secondi (liv. 5) |
   |---|---|---|---|---|
   | Lingotto | fornace | forgiare | 1 ferro + 1 carbone | 6 |
-  | Armatura di cuoio | banco | cucire | 4 pelli | 20 |
-  | Cappuccio di cuoio | banco | cucire | 2 pelli | 12 |
-  | Arco | banco | armi a distanza | 3 legna + 1 pelle | 15 |
+  | Corda d'arco | filatoio | cucire (filare) | 2 lino | 8 |
+  | Armatura di cuoio | banco da lavoro | cucire | 4 pelli | 20 |
+  | Cappuccio di cuoio | banco da lavoro | cucire | 2 pelli | 12 |
+  | Arco | banco del falegname | armi a distanza | 3 legna + 1 corda d'arco | 15 |
   | Piccone, ascia | incudine | forgiare | 2 lingotti + 2 legna | 15 |
   | Spada | incudine | forgiare | 3 lingotti + 1 legna | 20 |
   | Falcetto | incudine | forgiare | 1 lingotto + 1 legna | 10 |
   | Elmo | incudine | forgiare | 3 lingotti | 20 |
   | Cotta di maglia | incudine | forgiare | 6 lingotti | 30 |
 
-  Lingotti: finché ce ne sono meno di 10. Equipaggiamento: quanto manca perché ogni colono abbia pieni i suoi slot; per
-  corpo e testa il primo in elenco di cui ci sono gli ingredienti (prima il cuoio, poi il metallo).
-  Poi: ordinazioni dal cartello, qualità degli oggetti, cambiare un pezzo con uno migliore.
+- **Menu della postazione**: clic su fuoco da campo, fornace, incudine, banco da lavoro, filatoio o banco del falegname
+  (senza strumenti scelti) apre il suo menu: una riga per ricetta con icona, nome (col mouse sopra l'effetto del pezzo),
+  ingredienti e **"Keep N"**, quanti tenerne. Si fa finché in giro (a terra, in magazzino, in mano, in lavorazione) ce
+  ne sono meno; vale per tutte le postazioni dello stesso tipo. Fuori dalla sua stanza il menu lo dice, in rosso.
+  Al fuoco da campo i pasti, da 2 crudi uguali qualsiasi. Il suggerimento sul mobile dice "Click: what to make".
+  All'inizio: pasti 6, lingotti 10, corde d'arco 2, equipaggiamento 0.
+- Equipaggiamento: oltre ai "Keep", quanto manca perché ogni colono abbia pieni i suoi slot; per corpo e testa il primo
+  in elenco di cui ci sono gli ingredienti (prima il cuoio, poi il metallo). Almeno un arco se ci sono animali segnati e
+  nessuno ne ha uno. "Keep" per un pezzo = quanti tenerne di scorta, oltre a quelli indossati.
+  Poi: ordini "fanne N" e "per sempre", sospendere una ricetta, qualità degli oggetti, cambiare un pezzo con uno migliore.
 - **Pelli**: dagli animali cacciati, 1 dal coniglio, 3 dal cervo. Non marciscono.
 - **Equipaggiamento** (3 slot: mani, corpo, testa): ogni colono con uno slot vuoto va a prendere in magazzino il pezzo
   giusto. Nelle mani l'attrezzo della sua abilità migliore tra estrarre, tagliare legna, raccogliere e cacciare.
@@ -192,7 +211,7 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   | Piccone | mani | — | scavare −25% tempo |
   | Ascia | mani | — | tagliare −25% tempo |
   | Falcetto | mani | — | raccogliere ed estirpare −25% tempo |
-  | Arco | mani | — | caccia: +10% a segno, +2 caselle di tiro, mira col migliore tra cacciare e armi a distanza (+1 esperienza in entrambe); in combattimento tira (danno 14) |
+  | Arco | mani | — | serve per cacciare: +10% a segno, +2 caselle di tiro, mira col migliore tra cacciare e armi a distanza (+1 esperienza in entrambe); in combattimento tira (danno 14) |
   | Spada | mani | — | arma: danno 15 corpo a corpo (la prende chi è più bravo in mischia) |
   | Armatura di cuoio | corpo | 2 | −25% stress lavorando fuori dalle stanze |
   | Cotta di maglia | corpo | 5 | pesante: ogni lavoro +10% tempo |
@@ -212,7 +231,7 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   - Corpo a corpo: un colpo ogni 1,5 s a livello 5 (abilità armi da mischia), a segno 50% + 5% per livello sopra il 5;
     danno dell'arma o dell'attrezzo in mano (spada 15, ascia 12, piccone 10, falcetto 8, mani nude 5). +1 esperienza a colpo.
   - Con l'arco: tira da lontano (fino a 8 caselle), un tiro ogni 2 s a livello 5 (armi a distanza), a segno come a caccia;
-    danno 14. +1 esperienza a tiro.
+    danno 14. +1 esperienza a tiro. La freccia vola come a caccia: anche mancato, il lupo se la prende con chi ha tirato.
   - **Protezione**: −6% di danno per punto (cotta ed elmo, 8 punti: −48%), al massimo −80%.
 - Un lupo segnato da cacciare, colpito o mancato, attacca il cacciatore invece di scappare.
 - Poi: predoni (umani), morte e funerali, medico e cure, animali che fuggono o si difendono, ordini di combattimento dati dal re.

@@ -52,7 +52,9 @@ func _initialize() -> void:
 	for cell in main.bushes.keys() + main.weeds.keys():
 		check(not main.rocks.has(cell) and not main.water.has(cell) and not main.trees.has(cell), "piante solo sul prato")
 	check(main.bushes.values().all(func(t): return t <= main.clock), "bacche mature fin dall'inizio")
+	check(not main.flax.is_empty() and main.flax.keys().all(func(k): return main.bushes.has(k)), "c'è il lino, in mezzo ai cespugli")
 	main.bushes.clear()  # la fase 10 ne rimette uno
+	main.flax.clear()
 	main.weeds.clear()
 
 	var W: int = main.Res.WOOD
@@ -352,7 +354,7 @@ func _initialize() -> void:
 	check(main.sun_height() < 0, "di notte niente sole")
 	var lazy = main.Colonist.new()  # senza lavoro né strada: respira
 	lazy.idle = main.BREATH_TIME * 0.9
-	check(main.frame_of(lazy) == 5 and main.COLONIST_BASE.get_width() == 6 * main.TILE, "chi non fa nulla respira")
+	check(main.frame_of(lazy) == 5 and main.COLONIST_BASE.get_width() == 8 * main.TILE, "chi non fa nulla respira")
 	lazy.idle = 0.0
 	check(main.frame_of(lazy) == 0, "il respiro parte da fermo")
 	main.end_job(c)  # via il finto trasporto di prima: non ha un mucchio vero
@@ -810,7 +812,7 @@ func _initialize() -> void:
 	check(game.rooms.all(func(r): return game.built[r.sign][0] == game.Build.WALL and (r.sign - r.door).length() == 1),
 		"cartelli sul muro accanto alla porta")
 	for res in game.Res.values():
-		check(game.stored(res) == (game.DEBUG_STASH if res in game.STASH else 0), "scorta di debug nel magazzino della prima stanza, solo materiali e vegetali")
+		check(game.stored(res) == (game.DEBUG_STASH if res in game.STASH else 0), "scorta di debug nel magazzino della prima stanza, solo materiali, vegetali e lino")
 	# il tipo resta finché ci sono i suoi mobili: in una stanza vuota, un letto e poi niente
 	var hall = game.rooms.filter(func(r): return r.kind == game.RoomKind.NONE)[0]
 	var bed_spot: Vector2i = hall.cells.keys().min()

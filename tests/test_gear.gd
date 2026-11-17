@@ -14,6 +14,7 @@ func _initialize() -> void:
 	main.threats = false  # niente branchi di lupi: le prove del combattimento sono in test_combat
 	main.animals.clear()
 	main.bushes.clear()
+	main.flax.clear()
 	main.weeds.clear()
 	var W: int = main.Res.WOOD
 	var I: int = main.Res.INGOT
@@ -87,6 +88,7 @@ func _initialize() -> void:
 	rabbit.marked = true
 	main.animals.append(rabbit)
 	hunter.skills[main.Skill.HUNTING] = 10
+	hunter.gear = {main.Slot.HANDS: main.Res.BOW}  # si caccia solo con l'arco
 	for i in 6000:
 		main.tick(0.05)
 		if rabbit not in main.animals:
@@ -123,9 +125,15 @@ func _initialize() -> void:
 	for c in main.colonists:
 		c.skills[main.Skill.SMITHING] = 10  # niente pezzi rovinati
 		c.gear = {}
-	check(main.gear_wanted(I) == main.INGOT_STOCK and main.gear_wanted(main.Res.PICKAXE) == 1 and main.gear_wanted(main.Res.CHAINMAIL) == 3,
+	check(main.gear_wanted(I) == main.STOCK[I] and main.gear_wanted(main.Res.PICKAXE) == 1 and main.gear_wanted(main.Res.CHAINMAIL) == 3,
 		"servono lingotti, un piccone, tre corpetti")
 	check(main.job_list().contains("Make ingot: 10") and main.job_list().contains("Make pickaxe: 1"), "finestra Jobs: cosa si fa")
+	main.open_craft(anvil)
+	check(main.get_node("HUD/CraftPopup/Box/List").get_child_count() == 6, "menu dell'incudine: sei ricette")
+	main.keep[main.Res.SWORD] = 2
+	check(main.gear_wanted(main.Res.SWORD) == 2, "spade di scorta chieste dal menu")
+	main.keep.erase(main.Res.SWORD)
+	main.craft_popup.hide()
 	var iron0: int = main.total(main.Res.IRON)
 	for i in 60000:
 		main.tick(0.05)
@@ -135,14 +143,15 @@ func _initialize() -> void:
 	check(smith.gear == {main.Slot.HANDS: main.Res.PICKAXE, main.Slot.BODY: main.Res.CHAINMAIL, main.Slot.HEAD: main.Res.HELMET},
 		"il minatore: piccone, cotta ed elmo")
 	check(tailor.gear[main.Slot.HANDS] == main.Res.AXE and hunter.gear.get(main.Slot.HANDS) == null,
-		"il taglialegna l'ascia; l'arco non si fa senza banco da lavoro")
+		"il taglialegna l'ascia; l'arco non si fa senza banco del falegname")
 	var ingots_used: int = 2 + 2 + 3 * (3 + 6)  # piccone, ascia, tre elmi e tre cotte
 	check(main.total(I) == iron0 - main.total(main.Res.IRON) - ingots_used, "un lingotto per ferro, consumati quelli dei pezzi")
 	check(main.total(main.Res.COAL) == main.total(main.Res.IRON), "e un carbone per lingotto")
 	check(main.colonists.reduce(func(n, c): return n + c.xp[main.Skill.SMITHING], 0) >= iron0 - main.total(main.Res.IRON) + 8, "esperienza da fabbro")
 	check(main.GEAR.keys().all(func(g): return main.total(g) == 0), "niente pezzi in più del necessario")
 
-	# laboratorio: banco da lavoro; con le pelli cuoio invece del metallo, e l'arco al cacciatore
+	# laboratorio: banco da lavoro e filatoio; con le pelli cuoio invece del metallo, col lino le corde.
+	# Falegnameria: banco del falegname, l'arco (legna e corda) al cacciatore
 	var shop = main.Room.new()
 	var spot2: Vector2i = Vector2i.ZERO
 	for k in rest:
@@ -154,6 +163,19 @@ func _initialize() -> void:
 	main.rooms.append(shop)
 	var bench: Vector2i = spot2 + Vector2i.ONE
 	main.furniture[bench] = [main.Build.WORKBENCH, W, 0]
+	main.furniture[spot2 + Vector2i(2, 0)] = [main.Build.SPINNING_WHEEL, W, 0]
+	var joinery = main.Room.new()
+	var spot3: Vector2i = Vector2i.ZERO
+	for k in rest:
+		if main.cells_in(Rect2i(k, Vector2i(3, 3))).all(func(h): return rest.has(h) and not main.stockpile.has(h) and not shop.cells.has(h)):
+			spot3 = k
+			break
+	for k in main.cells_in(Rect2i(spot3, Vector2i(3, 3))):
+		joinery.cells[k] = true
+	main.rooms.append(joinery)
+	main.furniture[spot3 + Vector2i.ONE] = [main.Build.CARPENTER_BENCH, W, 0]
+	check(main.room_meets(joinery, main.RoomKind.CARPENTRY) and not main.room_meets(shop, main.RoomKind.CARPENTRY), "falegnameria: col suo banco")
+	joinery.kind = main.RoomKind.CARPENTRY
 	main.open_room(shop)
 	check(range(main.room_kind.item_count).map(main.room_kind.get_item_id).has(main.RoomKind.WORKSHOP), "col banco si fa un laboratorio")
 	main.room_kind.item_selected.emit(main.room_kind.get_item_index(main.RoomKind.WORKSHOP))
@@ -161,6 +183,7 @@ func _initialize() -> void:
 	for k in rest.slice(-20):
 		main.stockpile[k] = true
 	main.add_item(main.Res.HIDE, rest[3], 20)
+	main.add_item(main.Res.FLAX, rest[4], 10)
 	for c in main.colonists:
 		c.skills[main.Skill.TAILORING] = 10
 		c.skills[main.Skill.RANGED] = 10
@@ -175,7 +198,9 @@ func _initialize() -> void:
 	check(hunter.gear[main.Slot.HANDS] == main.Res.BOW, "il cacciatore ha l'arco")
 	check(tailor.gear[main.Slot.BODY] == main.Res.LEATHER_ARMOR and tailor.gear[main.Slot.HEAD] == main.Res.LEATHER_HOOD,
 		"con le pelli: armatura e cappuccio di cuoio")
-	check(main.total(main.Res.HIDE) == 20 - 1 - 4 - 2, "pelli: 1 per l'arco, 4 per l'armatura, 2 per il cappuccio")
+	check(main.total(main.Res.HIDE) == 20 - 4 - 2, "pelli: 4 per l'armatura, 2 per il cappuccio")
+	check(main.total(main.Res.BOWSTRING) == main.STOCK[main.Res.BOWSTRING] and main.total(main.Res.FLAX) == 10 - 2 * (main.STOCK[main.Res.BOWSTRING] + 1),
+		"lino filato in corde: una nell'arco, le altre di scorta")
 
 	# a metà lavoro, abbattuta la postazione: gli ingredienti già portati restano a terra
 	for c in main.colonists:

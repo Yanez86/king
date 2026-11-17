@@ -65,7 +65,7 @@ NIGHT_LIGHTS = {                 # ...tranne le luci
 
 # file -> caratteri che finiscono in quel livello
 LAYERS = {
-    "colonist_base": "oesSpPblgwWurR",  # w W, u r R: attrezzo (manico, testa)
+    "colonist_base": "oesSpPblgwWurRxc",  # w W, u r R: attrezzo (manico, testa); arco: x corda, c freccia
     "colonist_hair": "hH",
     "colonist_tunic": "tT",
     "colonist_cape": "kK",
@@ -130,6 +130,64 @@ LEFT = """
 ....oooooo...... ..oooooooo...... ..oooooooo...... ....oooooo...... ....oooooo......
 """
 
+# Arco, stessi blocchi -> corda lenta (appena scoccato), teso con la freccia incoccata. Di fronte lo tiene di traverso
+# davanti alla pancia e la freccia punta in giù; di spalle spuntano solo i flettenti e la punta sopra la testa.
+BOW_DOWN = """
+................ ................
+.....oooooo..... .....oooooo.....
+....ohhhhhho.... ....ohhhhhho....
+...ohhhhhhhho... ...ohhhhhhhho...
+...ohhhhhhhHo... ...ohhhhhhhHo...
+...oHhhhsssHo... ...oHhhhsssHo...
+...oHsessesHo... ...oHsessesHo...
+....oSssssSo.... ....oSsossSo....
+..okkkkggkkkko.. ..okkkxcsxkkko..
+.ooKtTttttTtKoo. .ooKxxtcttxxKoo.
+owxxxxxxxxxxxxwo owxxtTtcttTtxxwo
+.owKslsggllsKwo. .owKsllcgllsKwo.
+..owwwtsstwwwo.. ..owwwwcswwwwo..
+...oooooooooo... ...oooocoooooo..
+....obboobbo.... ....obbuobbo....
+....ooo..ooo.... ....ooo..ooo....
+"""
+
+BOW_LEFT = """
+................ ................
+.....oooooo..... .....oooooo.....
+....ohhhhhho.... ....ohhhhhho....
+...ohhhhhhhho... ...ohhhhhhhho...
+...ohhhhhhhHo... ...ohhhhhhhHo...
+..oohssshhhHo... ..oohssshhhHo...
+.owosessShhHo... .owxsessShhHo...
+owx.ossSsHHo.... ow.xossSsHHo....
+owx.ogkkkkkko... ow..xgkkkkkko...
+owx.otTttTkko... uccccsTttTkko...
+owstotTttTkKo... owstotTttTkKo...
+owx.oglsslkKo... ow.xoglsslkKo...
+.ow.ottootkKKo.. .owxottootkKKo..
+..o..oppPoooo... ..o..oppPoooo...
+....obbbbo...... ....obbbbo......
+....oooooo...... ....oooooo......
+"""
+
+BOW_UP = """
+................ .......u........
+.....oooooo..... .....oooooo.....
+....ohhhhhho.... ....ohhhhhho....
+...ohhhhhhhho... ...ohhhhhhhho...
+...ohhhhhhhho... .o.ohhhhhhhho.o.
+...ohhhhhhhHo... .woohhhhhhhHoow.
+.o.oHhhhhhhHo.o. .owoHhhhhhhHowo.
+.wo.oHHHHHHo.ow. ..oxoHHHHHHoxo..
+.owkkkkkkkkkkwo. ..ooxskkkksxoo..
+..oxxskkkksxxo.. ..oKkkkkkkkkKo..
+..oKkkKkkKkkKo.. ..oKkkKkkKkkKo..
+..oKkkKkkKkkKo.. ..oKkkKkkKkkKo..
+..oKKkKkkKkKKo.. ..oKKkKkkKkKKo..
+...oopPooPpoo... ...oopPooPpoo...
+....obboobbo.... ....obboobbo....
+....ooo..ooo.... ....ooo..ooo....
+"""
 
 TREES_HEIGHT = 32  # il tronco sta nella sua casella, la chioma sale in quella sopra
 
@@ -252,24 +310,25 @@ CONDITIONS = """
 ................ ................ ................ ................ ................
 """
 
-# Piante 16x16 -> erbaccia, cespuglio, cespuglio con le bacche. Si attraversano, ma non ci si costruisce sopra.
+# Piante 16x16 -> erbaccia, cespuglio, cespuglio con le bacche, lino, lino in fiore (azzurro: si raccoglie).
+# Si attraversano, ma non ci si costruisce sopra.
 PLANTS = """
-................ ................ ................
-................ ................ ................
-................ ................ ................
-................ ......oooo...... ......oooo......
-..........o..... ....ooyyLLoo.... ....ooyyLLoo....
-.........o+o.... ...oyyLLLLmmo... ...oyyLL+jmmo...
-........o+++o... ..oyLLLyLLmmmo.. ..oyLLLyjJmmmo..
-.........o+o.... ..oyLLyyLLmmmo.. ..oyLLyyLLmmmo..
-..........v..... .oyLLLLLLmmmmdo. .oyL+jLLLmm+jdo.
-..o.......v..o.. .oLLLLLmmmLmmdo. .oLLjJLmmmLjJdo.
-.oAo...o..v.oAo. oLLLmmmmLLLmmddo oLLLmmmmLLLmmddo
-.oAAo.oAo.v.oAAo oLLmmmmmmLmmdddo oL+jmmm+jLmm+jdo
-..oAAooAAovoAAo. omLmmmmmmmmddddo omjJmmmjJmmdjJdo
-...oAAvAAvvAAvo. .oddmmmmmdddddo. .oddmmmmmdddddo.
-..ooAvvvvvvvvoo. ..oooddddddooo.. ..oooddddddooo..
-....zzoooooozz.. ..zzzoooooozzz.. ..zzzoooooozzz..
+................ ................ ................ ................ ................
+................ ................ ................ ................ ................
+................ ................ ................ ................ ......o.........
+................ ......oooo...... ......oooo...... ................ .....o/o...o....
+..........o..... ....ooyyLLoo.... ....ooyyLLoo.... ......o......... ....o/*/o.o/o...
+.........o+o.... ...oyyLLLLmmo... ...oyyLL+jmmo... .....oAo...o.... ..o..o/o.o/*/o..
+........o+++o... ..oyLLLyLLmmmo.. ..oyLLLyjJmmmo.. ..o...A...oAo... .o/o..A...o/o...
+.........o+o.... ..oyLLyyLLmmmo.. ..oyLLyyLLmmmo.. .oAo..A....A.... o/*/o.A....A.o..
+..........v..... .oyLLLLLLmmmmdo. .oyL+jLLLmm+jdo. ..A..oAo...A.o.. .o/o.oAo...Ao/o.
+..o.......v..o.. .oLLLLLmmmLmmdo. .oLLjJLmmmLjJdo. ..A...A.A..AoAo. ..A.o/*/o..o/*/o
+.oAo...o..v.oAo. oLLLmmmmLLLmmddo oLLLmmmmLLLmmddo ...A..A.A.A..A.. ...A.o/oA.A..o/o
+.oAAo.oAo.v.oAAo oLLmmmmmmLmmdddo oL+jmmm+jLmm+jdo ...A..A.A.A.A... ...A..A.A.A..A..
+..oAAooAAovoAAo. omLmmmmmmmmddddo omjJmmmjJmmdjJdo ....A.A.AA..A... ....A.A.AA..A...
+...oAAvAAvvAAvo. .oddmmmmmdddddo. .oddmmmmmdddddo. ....A.AAA..A.... ....A.AAA..A....
+..ooAvvvvvvvvoo. ..oooddddddooo.. ..oooddddddooo.. ....ooAvvvAoo... ....ooAvvvAoo...
+....zzoooooozz.. ..zzzoooooozzz.. ..zzzoooooozzz.. ....zzoooooozz.. ....zzoooooozz..
 """
 
 # Icona 16x16 dell'azione "raccogli" (dopo "estirpa"): cestino di vimini pieno di bacche.
@@ -444,7 +503,7 @@ owo.............
 oo..............
 """
 
-# Banco da lavoro 16x16 (sartoria e archi): un pezzo di pelle e l'ago sul piano.
+# Banco da lavoro 16x16 (sartoria): un pezzo di pelle e l'ago sul piano.
 WORKBENCH = """
 ................
 ................
@@ -461,6 +520,86 @@ WORKBENCH = """
 ..owo......owo..
 ..oWo......oWo..
 ..ooozzzzzzooo..
+................
+"""
+
+# Filatoio 16x16 (corde d'arco dal lino): la rocca col lino a sinistra, la ruota coi raggi sulla panca.
+SPINNING_WHEEL = """
+................
+.oo.....oooo....
+oxXo..oowWwwoo..
+oxxXo.ow.W..wo..
+.oXo.ow..W...wo.
+..wo.owWWoWWWwo.
+..wo.ow..W...wo.
+..wo..ow.W..wo..
+..wo..oowWwwoo..
+..wo....oooo....
+..wo.....ow.....
+.oooooooooooooo.
+.owwwwwwwwwwwWo.
+.oooooooooooooo.
+..owo......owo..
+..ooozzzzzzooo..
+"""
+
+# Banco del falegname 16x16 (archi): una sega su un'asse, la morsa di ferro sulla gamba sinistra.
+CARPENTER_BENCH = """
+................
+................
+................
+....ooooooo.....
+...ouuuuuuuoooo.
+..orurururuowwWo
+...oooooooooooo.
+.oocCcCcCcCcCoo.
+.owwwwwwwwwwwWo.
+.oWWWWWWWWWWWWo.
+.oooooooooooooo.
+.orro......owo..
+.oRRo......owo..
+..owo......oWo..
+..ooozzzzzzooo..
+................
+"""
+
+# Icona 16x16 del lino: un mazzo di steli coi fiori azzurri, legato in mezzo.
+FLAX_ICON = """
+................
+...o....o.......
+..o/o..o/o..o...
+.o/*/oo/*/oo/o..
+..o/o..o/o.o/*/o
+...Ao..oAo..o/o.
+....A..A...Ao...
+.....A.A..A.....
+.....A.A.A......
+.....oxxxo......
+.....oXxXo......
+....A.A.A.A.....
+...A..A.A..A....
+..A...A..A..A...
+.oo..oo..oo..oo.
+................
+"""
+
+# Icona 16x16 della corda d'arco: una matassa di filo di lino, col capo che pende.
+BOWSTRING_ICON = """
+................
+......oooo......
+....ooxxxxoo....
+...oxxXooXxxo...
+..oxXoo..ooXxo..
+..oxo.oooo.oxo..
+.oxo.oxxxxo.oxo.
+.oxo.oxooxo.oxo.
+.oxo.oxooxo.oxo.
+.oxo.oXxxXo.oxo.
+..oxo.oooo.oxo..
+..oxXoo..ooXxo..
+...oxxXooXxxoxo.
+....ooxxxxoo.oxo
+......oooo....oo
 ................
 """
 
@@ -1820,12 +1959,12 @@ def breath(f):
 
 
 def sheet():
-    """Coloni, foglio 96x64. Righe: giù, sinistra, destra (specchio), su.
-    Colonne: fermo, passo A, passo B, carica, colpo, respiro (ricavato dal fermo)."""
-    left = frames(LEFT, count=5)
-    right = [[line[::-1] for line in f] for f in left]
-    return [row for fs in (frames(DOWN, count=5), left, right, frames(UP, count=5))
-            for row in side_by_side(fs + [breath(fs[0])])]
+    """Coloni, foglio 128x64. Righe: giù, sinistra, destra (specchio), su.
+    Colonne: fermo, passo A, passo B, carica, colpo, respiro (ricavato dal fermo), arco a corda lenta, arco teso."""
+    down, left, up = ([*fs, breath(fs[0]), *frames(bow, count=2)]
+                      for fs, bow in ((frames(b, count=5), bow) for b, bow in ((DOWN, BOW_DOWN), (LEFT, BOW_LEFT), (UP, BOW_UP))))
+    right = [mirror(f) for f in left]
+    return [row for fs in (down, left, right, up) for row in side_by_side(fs)]
 
 
 def rotate(grid):
@@ -1888,12 +2027,12 @@ def double(grid):
 
 
 def furniture_sheet():
-    """Mobili, foglio 128x480. Righe: letto, tavolo, sedia, abat-jour, fuoco da campo, fornace, incudine, banco da lavoro,
-    poi le decorazioni: aiuola, fioriera, panca, stendardo, lampione, fontana, statua (come Build in main.gd);
+    """Mobili, foglio 128x544. Righe: letto, tavolo, sedia, abat-jour, fuoco da campo, fornace, incudine, banco da lavoro,
+    filatoio, banco del falegname, poi le decorazioni: aiuola, fioriera, panca, stendardo, lampione, fontana, statua (come Build in main.gd);
     colonne: quarti di giro in senso orario (per fuoco, stendardo e fontana, fotogrammi), ognuno in alto a sinistra nel suo riquadro 32x32."""
     bed, chair, chair_left = art(BED, 32, 16), art(CHAIR, 16, 16), art(CHAIR_LEFT, 16, 16)
     table, lamp, anvil = art(TABLE, 32, 32), art(LAMP, 16, 16), art(ANVIL, 16, 16)
-    workbench = art(WORKBENCH, 16, 16)
+    workbench, wheel, carpenter = art(WORKBENCH, 16, 16), art(SPINNING_WHEEL, 16, 16), art(CARPENTER_BENCH, 16, 16)
     bench, bench_side = art(BENCH, 32, 16), art(BENCH_SIDE, 16, 32)
     rows = [[bed, art(BED_UP, 16, 32), mirror(bed), art(BED_DOWN, 16, 32)],
             [table] * 4,  # simmetrici: girarli non cambia il disegno
@@ -1903,6 +2042,8 @@ def furniture_sheet():
             [art(FURNACE, 16, 16)] * 4,
             [anvil, mirror(anvil)] * 2,
             [workbench, mirror(workbench)] * 2,
+            [wheel, mirror(wheel)] * 2,
+            [carpenter, mirror(carpenter)] * 2,
             [art(FLOWER_BED, 16, 16)] * 4,
             [art(PLANTER, 16, 16)] * 4,
             [bench, bench_side] * 2,
@@ -1958,7 +2099,7 @@ def main():
     images = {name: pixels(grid, chars) for name, chars in LAYERS.items()}
     images["trees"] = pixels(trees_sheet())
     images["icon_wood"], images["icon_stone"], images["icon_veg"] = (pixels(f) for f in frames(ICONS))
-    images["plants"] = pixels(side_by_side(frames(PLANTS)))
+    images["plants"] = pixels(side_by_side(frames(PLANTS, count=5)))
     images["icon_build"] = pixels(art(BUILD_ICON, 15, 15))
     images["icon_cancel"] = pixels(art(CANCEL_ICON, 16, 16))
     images["icon_destroy"] = pixels(art(DESTROY_ICON, 15, 15))
@@ -1972,6 +2113,8 @@ def main():
     for name, f in zip(["hide", "ingot", "sickle", "leather_armor", "leather_hood", "helmet", "chainmail"], frames(ITEMS, count=7)):
         images["icon_" + name] = pixels(f)
     images["icon_sword"] = pixels(art(SWORD, 16, 16))
+    images["icon_flax"] = pixels(art(FLAX_ICON, 16, 16))
+    images["icon_bowstring"] = pixels(art(BOWSTRING_ICON, 16, 16))
     images["animals"] = pixels(art(ANIMALS.replace(" ", ""), 32, 48))
     images["sign"] = pixels(art(SIGN, 16, 16))
     images["structures"] = pixels(structures_sheet())

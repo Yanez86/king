@@ -13,6 +13,7 @@ func _initialize() -> void:
 	main.routines = false  # niente orari: la routine è provata in test_jobs
 	main.threats = false  # niente branchi di lupi: le prove del combattimento sono in test_combat
 	main.bushes.clear()
+	main.flax.clear()
 	main.weeds.clear()
 	var wildlife: Array = main.animals.duplicate()  # tornano alla fine, per la caccia
 	main.animals.clear()
@@ -175,6 +176,16 @@ func _initialize() -> void:
 	check(main.stored(MEAL) + main.stored(FINE) == 6, "i pasti finiscono in magazzino")
 	check(main.colonists.all(func(c): return c.job == main.Job.NONE) and main.reserved.is_empty(), "poi tutti liberi")
 
+	# clic sul fuoco: il menu coi pasti; quanti tenerne si cambia da lì
+	var menu: Control = main.get_node("HUD/CraftPopup/Box")
+	main.open_craft(fire)
+	check(main.craft_popup.visible and menu.get_node("List").get_child_count() == 1 and not menu.get_node("Room").visible,
+		"menu del fuoco: una ricetta, nella cucina")
+	menu.get_node("List").get_child(0).get_child(-1).value = 8
+	check(main.keep[MEAL] == 8 and main.meals_wanted() == 2, "dal menu se ne chiedono 2 in più")
+	main.keep[MEAL] = 6
+	main.craft_popup.hide()
+
 	# chi ha fame prende un pasto prima del crudo, e lo mangia seduto al tavolo vicino
 	var table: Vector2i = Vector2i.ZERO
 	for k in free:
@@ -251,7 +262,20 @@ func _initialize() -> void:
 	for i in 4000:
 		main.tick(0.05)
 	check(main.total(V) == veg0 + 2 * main.BERRIES_PER_BUSH, "maturate di nuovo, raccolte di nuovo")
+	# il lino si raccoglie come le bacche, e dà il lino
+	var plant: Vector2i = free.filter(func(k): return main.can_build(k) and not main.stockpile.has(k) and k != bush)[0]
+	main.bushes[plant] = main.clock
+	main.flax[plant] = true
+	main.mark(Rect2i(plant, Vector2i.ONE))
+	check(main.describe(plant) == ["Flax", "Flax: 5 / 5\nMarked: harvest"], "lino in fiore, segnato")
+	for i in 4000:
+		main.tick(0.05)
+	check(main.total(main.Res.FLAX) == main.BERRIES_PER_BUSH and main.total(V) == veg0 + 2 * main.BERRIES_PER_BUSH, "raccolto il lino")
 	main.order = main.Order.UPROOT
+	main.mark(Rect2i(plant, Vector2i.ONE))
+	for i in 400:
+		main.tick(0.05)
+	check(not main.bushes.has(plant) and not main.flax.has(plant), "lino estirpato")
 	main.mark(Rect2i(bush, Vector2i.ONE))
 	check(main.uproot_marks.has(bush) and not main.harvest_marks.has(bush), "da estirpare: non si raccoglie più")
 	main.order = main.Order.HARVEST
@@ -308,7 +332,14 @@ func _initialize() -> void:
 		"cervo da cacciare")
 	for c in main.colonists:
 		c.skills[main.Skill.HUNTING] = 1  # mira scarsa: deve tirare più volte
+		c.gear = {main.Slot.HANDS: main.Res.PICKAXE}
+	for i in 200:
+		main.tick(0.05)
+	check(deer.hunter == null and main.gear_wanted(main.Res.BOW) == 1, "senza arco non si caccia: ne serve uno")
+	var bow_pile: Vector2i = free.filter(func(k): return main.items.values().all(func(g): return not g.has(k)))[0]
+	main.add_item(main.Res.BOW, bow_pile, 1)
 	var meat0: int = main.total(M)
+	var aimed := false
 	var hunter = null
 	var shots := 0
 	var fled := false
@@ -316,11 +347,16 @@ func _initialize() -> void:
 		main.tick(0.05)
 		if deer.hunter:
 			hunter = deer.hunter
-			check(not main.is_working(hunter) or hunter.pos.distance_to(deer.pos) <= (main.HUNT_RANGE + 0.25) * main.TILE, "tira solo a tiro")  # il cervo scappa prima che lui se ne accorga: un tick
+			check(not main.is_working(hunter) or hunter.pos.distance_to(deer.pos) <= (main.hunt_range(hunter) + 0.25) * main.TILE, "tira solo a tiro")  # il cervo scappa prima che lui se ne accorga: un tick
+			if main.is_working(hunter):
+				check(main.frame_of(hunter) in [main.BOW_LOOSE, main.BOW_DRAW], "mira con l'arco")
+				aimed = aimed or main.frame_of(hunter) == main.BOW_DRAW
 		fled = fled or deer.fleeing
 		if deer not in main.animals:
 			break
 	check(deer not in main.animals and hunter != null, "cervo abbattuto")
+	check(hunter.gear[main.Slot.HANDS] == main.Res.BOW and main.total(main.Res.PICKAXE) == 1, "preso l'arco, posato il piccone")
+	check(aimed and main.arrows.is_empty(), "tende l'arco; le frecce arrivano")
 	check(main.total(M) == meat0 + main.BEASTS[main.Beast.DEER]["meat"], "la carne del cervo")
 	check(fled, "preso di mira scappa")
 	check(hunter.xp[main.Skill.HUNTING] >= 2 and hunter.job != main.Job.HUNT and hunter.prey == null,
