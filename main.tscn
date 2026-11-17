@@ -221,23 +221,23 @@ theme_type_variation = &"Bar"
 theme_override_constants/separation = 6
 
 [node name="Structures" type="Button" parent="HUD/Categories/Row"]
-custom_minimum_size = Vector2(150, 40)
+custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
-tooltip_text = "Walls, floors, paths and doors"
+tooltip_text = "Structures"
 toggle_mode = true
 button_group = SubResource("Categories")
-text = "Structures"
 icon = SubResource("WallIcon")
+icon_alignment = 1
 expand_icon = true
 
 [node name="Furniture" type="Button" parent="HUD/Categories/Row"]
-custom_minimum_size = Vector2(150, 40)
+custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
-tooltip_text = "Furniture, workstations and decorations"
+tooltip_text = "Furniture"
 toggle_mode = true
 button_group = SubResource("Categories")
-text = "Furniture"
 icon = SubResource("LampIcon")
+icon_alignment = 1
 expand_icon = true
 
 [node name="BuildBar" type="PanelContainer" parent="HUD"]
