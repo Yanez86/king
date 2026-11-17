@@ -1438,25 +1438,46 @@ ouuurroooouRRRRo
 ......oooo......
 """
 
-# Icona "tasti" 16x16, tab Keybindings del menù delle opzioni: tastiera di pietra, tasti chiari con l'ombra sotto,
-# la seconda fila sfalsata e la barra spaziatrice in basso.
+# Icona "tasti" 16x16, tab Keybindings del menù delle opzioni: tastiera di pietra (tasti chiari con l'ombra sotto, la
+# seconda fila sfalsata, la barra spaziatrice) e davanti, in basso a destra, il mouse con la rotella.
 KEYBINDINGS_ICON = """
 ................
+.oooooooooooo...
+oRRRRRRRRRRRRo..
+oRuuiuuiuuiuuo..
+oRrrirrirrirro..
+oRiiiiiiiiiiio..
+oRiuuiuuiuuiio..
+oRirrirrirooooo.
+oRiiiiiiioxxoxxo
+oRuuiuuuuoxxRxXo
+oRrrirrrroxxRxXo
+oRiiiiiiioXXoXXo
+.oooooooooxxxxXo
+.........oxxxxXo
+.........oXxxXXo
+..........ooooo.
+"""
+
+# Icona "partita" 16x16, tab Game del menù delle opzioni (menù principale, carica, esci): porta di legno spalancata
+# verso chi guarda, e nel vano la luce di fuori.
+GAME_ICON = """
 ................
-.oooooooooooooo.
-oRRRRRRRRRRRRRRo
-oRuuiuuiuuiuuiio
-oRrrirrirrirriio
-oRiiiiiiiiiiiiio
-oRiuuiuuiuuiuuio
-oRirrirrirrirrio
-oRiiiiiiiiiiiiio
-oRuuiuuuuuuiuuio
-oRrrirrrrrrirrio
-oRiiiiiiiiiiiiio
-.oooooooooooooo.
-................
-................
+.oo...ooooooooo.
+.oBoo.oWWWWWWWo.
+.oBwwooW88888Wo.
+.oBwWwoW88888Wo.
+.oBwWwoW88888Wo.
+.oBwWwoW88888Wo.
+.oBwWwoW88888Wo.
+.oBgWwoW88888Wo.
+.oBwWwoW88888Wo.
+.oBwWwoW88888Wo.
+.oBwWwoW88888Wo.
+.oBwWwoW88888Wo.
+.oBwwooW88888Wo.
+.oBoo.oW88888Wo.
+.oo...ooooooooo.
 """
 
 # Talenti, nella scheda del colono (come Trait in main.gd): simboli 12x12, 5 per blocco, che badge() mette al
@@ -2021,6 +2042,7 @@ def main():
     images["icon_colonists"] = pixels(art(COLONISTS_ICON, 16, 16))
     images["icon_options"] = pixels(art(OPTIONS_ICON, 16, 16))
     images["icon_keybindings"] = pixels(art(KEYBINDINGS_ICON, 16, 16))
+    images["icon_game"] = pixels(art(GAME_ICON, 16, 16))
     symbols = [f for block in (TRAITS_1, TRAITS_2, TRAITS_3) for f in frames(block, 12, 5, 12)]
     images["traits"] = pixels(side_by_side([badge(f) for f in symbols]))
     images["icon_star"] = pixels(art(STAR, 9, 9))

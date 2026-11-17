@@ -43,6 +43,21 @@ func _initialize() -> void:
 	press(main, KEY_ESCAPE)
 	check(main.options.visible and Engine.time_scale == 0.0, "Esc apre il menù e ferma il gioco")
 	check(main.key_list.is_visible_in_tree(), "tab Keybindings aperta")
+	var tabs: Node = main.get_node("HUD/Options/Window/Box/Body/Tabs")
+	var game: Control = main.get_node("HUD/Options/Window/Box/Body/Pages/Game")
+	check(tabs.get_children().map(func(t): return String(t.name)) == ["Keybindings", "Game"], "due tab: tasti e partita")
+	check(tabs.get_children().all(func(t): return t.text == "" and t.icon != null), "tab: solo icone")
+	await process_frame
+	var size: Vector2 = main.options.get_node("Window").size
+	tabs.get_node("Game").button_pressed = true
+	await process_frame
+	check(game.is_visible_in_tree() and not main.key_list.is_visible_in_tree(), "tab Game: la sua pagina al posto dei tasti")
+	check(game.get_node("MainMenu").disabled and game.get_node("Load").disabled and not game.get_node("Quit").disabled,
+		"menù principale e carica non ci sono ancora, esci sì")
+	check(main.options.get_node("Window").size == size, "cambiando tab la finestra non cambia misura")
+	tabs.get_node("Keybindings").button_pressed = true
+	check(main.key_list.is_visible_in_tree() and not game.is_visible_in_tree() and not tabs.get_node("Game").button_pressed,
+		"di nuovo i tasti, una tab alla volta")
 	press(main, KEY_B)
 	press(main, KEY_SPACE)
 	check(not main.build_button.button_pressed and Engine.time_scale == 0.0, "col menù aperto i tasti del gioco non valgono")

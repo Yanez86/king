@@ -1,4 +1,4 @@
-[gd_scene load_steps=40 format=3]
+[gd_scene load_steps=42 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Texture2D" path="res://art/icon_wood.png" id="2"]
@@ -25,6 +25,7 @@
 [ext_resource type="Texture2D" path="res://art/icon_select.png" id="select_icon"]
 [ext_resource type="Texture2D" path="res://art/sign.png" id="sign_icon"]
 [ext_resource type="Texture2D" path="res://art/icon_keybindings.png" id="keybindings_icon"]
+[ext_resource type="Texture2D" path="res://art/icon_game.png" id="game_icon"]
 
 [sub_resource type="AtlasTexture" id="HandsSlot"]
 atlas = ExtResource("equipment")
@@ -121,6 +122,8 @@ region = Rect2(0, 448, 32, 32)
 [sub_resource type="ButtonGroup" id="Categories"]
 
 [sub_resource type="ButtonGroup" id="OptionTabs"]
+
+[sub_resource type="StyleBoxEmpty" id="NoPanel"]
 
 [sub_resource type="ButtonGroup" id="Orders"]
 allow_unpress = true
@@ -947,18 +950,24 @@ icon = ExtResource("keybindings_icon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Space" type="Control" parent="HUD/Options/Window/Box/Body/Tabs"]
-size_flags_vertical = 3
-
-[node name="Quit" type="Button" parent="HUD/Options/Window/Box/Body/Tabs"]
-custom_minimum_size = Vector2(0, 36)
+[node name="Game" type="Button" parent="HUD/Options/Window/Box/Body/Tabs"]
+custom_minimum_size = Vector2(40, 40)
+size_flags_horizontal = 0
 focus_mode = 0
-text = "Quit game"
+tooltip_text = "Game"
+toggle_mode = true
+button_group = SubResource("OptionTabs")
+icon = ExtResource("game_icon")
+icon_alignment = 1
+expand_icon = true
 
 [node name="Separator" type="VSeparator" parent="HUD/Options/Window/Box/Body"]
 
-[node name="Pages" type="VBoxContainer" parent="HUD/Options/Window/Box/Body"]
+[node name="Pages" type="TabContainer" parent="HUD/Options/Window/Box/Body"]
 custom_minimum_size = Vector2(300, 0)
+theme_override_styles/panel = SubResource("NoPanel")
+tabs_visible = false
+use_hidden_tabs_for_min_size = true
 
 [node name="Keybindings" type="VBoxContainer" parent="HUD/Options/Window/Box/Body/Pages"]
 theme_override_constants/separation = 8
@@ -979,3 +988,30 @@ custom_minimum_size = Vector2(0, 32)
 size_flags_horizontal = 8
 focus_mode = 0
 text = "Reset to defaults"
+
+[node name="Game" type="VBoxContainer" parent="HUD/Options/Window/Box/Body/Pages"]
+visible = false
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="MainMenu" type="Button" parent="HUD/Options/Window/Box/Body/Pages/Game"]
+custom_minimum_size = Vector2(200, 40)
+size_flags_horizontal = 4
+focus_mode = 0
+tooltip_text = "Not available yet"
+disabled = true
+text = "Main menu"
+
+[node name="Load" type="Button" parent="HUD/Options/Window/Box/Body/Pages/Game"]
+custom_minimum_size = Vector2(200, 40)
+size_flags_horizontal = 4
+focus_mode = 0
+tooltip_text = "Not available yet"
+disabled = true
+text = "Load game"
+
+[node name="Quit" type="Button" parent="HUD/Options/Window/Box/Body/Pages/Game"]
+custom_minimum_size = Vector2(200, 40)
+size_flags_horizontal = 4
+focus_mode = 0
+text = "Quit game"

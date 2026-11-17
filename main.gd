@@ -721,19 +721,21 @@ func _ready() -> void:
 		window.visibility_changed.connect(window.move_to_front, CONNECT_DEFERRED)  # l'ultima aperta sta sopra
 
 
-# menù delle opzioni: le tab a sinistra (una per pagina, con lo stesso nome), "Quit game" in fondo; nella pagina dei
-# tasti una riga per comando della barra in basso, nell'ordine dei pulsanti
+# menù delle opzioni: a sinistra le tab, icone (una per pagina, con lo stesso nome); le pagine stanno in un
+# TabContainer senza linguette, grande quanto la più grande, così la finestra non cambia misura passando dall'una
+# all'altra. Keybindings: una riga per comando della barra in basso, nell'ordine dei pulsanti. Game: menù principale,
+# carica, esci dal gioco
 func setup_options() -> void:
 	var window: Control = options.get_node("Window")
 	window.get_node("Box/Head/Close").pressed.connect(options.hide)
 	window.gui_input.connect(drag_window.bind(window))
 	options.visibility_changed.connect(options_toggled)
-	var pages := window.get_node("Box/Body/Pages")
+	var pages: TabContainer = window.get_node("Box/Body/Pages")
 	for tab in window.get_node("Box/Body/Tabs").get_children():
-		if tab is Button and tab.toggle_mode:
-			tab.toggled.connect(pages.get_node(NodePath(tab.name)).set_visible)
-	window.get_node("Box/Body/Tabs/Quit").pressed.connect(get_tree().quit)
+		tab.toggled.connect(show_page.bind(pages.get_node(NodePath(tab.name))))
 	pages.get_node("Keybindings/Reset").pressed.connect(reset_keys)
+	# ponytail: menù principale e salvataggi non ci sono ancora: "Main menu" e "Load game" restano spenti
+	pages.get_node("Game/Quit").pressed.connect(get_tree().quit)
 	for button in hotbar.get_children():
 		if not button is Button:
 			continue
@@ -752,6 +754,12 @@ func setup_options() -> void:
 		key.pressed.connect(start_rebind.bind(String(button.name)))
 		key_list.add_child(key)
 	load_keys()
+
+
+# tab del menù delle opzioni: la sua pagina al posto di quella aperta
+func show_page(on: bool, page: Control) -> void:
+	if on:
+		page.get_parent().current_tab = page.get_index()
 
 
 # Esc o ingranaggio in alto a destra: apre o chiude il menù delle opzioni
