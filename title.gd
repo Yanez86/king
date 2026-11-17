@@ -66,7 +66,7 @@ func new_game() -> void:
 	fade.mouse_filter = Control.MOUSE_FILTER_STOP
 	var tween := create_tween()
 	tween.tween_property(fade, "color:a", 1.0, 0.5)
-	tween.tween_callback(get_tree().change_scene_to_file.bind("res://main.tscn"))
+	tween.tween_callback(get_tree().change_scene_to_file.bind("res://creation.tscn"))  # poi la partita
 
 
 func toggle_fullscreen() -> void:

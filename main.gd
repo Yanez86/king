@@ -28,19 +28,20 @@ const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FUR
 	Job.HUNT, Job.CRAFT]  # contano come ore di lavoro
 # VEG: vegetali, dalle bacche dei cespugli; IRON, COAL: dai massi con le vene; MEAL, FINE_MEAL: pasti, dalla cucina;
 # MEAT, HIDE: carne e pelle, dagli animali cacciati; FISH: pesce, dai punti di pesca; INGOT: lingotti, dalla fornace;
-# da PICKAXE in poi: equipaggiamento (vedi GEAR), dalla forgia e dal banco da lavoro (vedi RECIPES); GOLD: monete, per
+# FLAX: lino, dai fiori (vedi flax); BOWSTRING: corda d'arco, dal filatoio;
+# da PICKAXE in poi: equipaggiamento (vedi GEAR), dalla forgia e dai banchi (vedi RECIPES); GOLD: monete, per
 # ingaggiare gli avventurieri (vedi send); DAGGER: il pugnale degli scassinatori, non si fabbrica; da CHALICE in poi
 # i cimeli, dalle rovine: si piazzano come decorazioni (vedi RELICS)
-enum Res { WOOD, STONE, VEG, IRON, COAL, MEAL, FINE_MEAL, MEAT, FISH, HIDE, INGOT,
+enum Res { WOOD, STONE, VEG, IRON, COAL, MEAL, FINE_MEAL, MEAT, FISH, HIDE, INGOT, FLAX, BOWSTRING,
 	PICKAXE, AXE, SICKLE, BOW, LEATHER_ARMOR, LEATHER_HOOD, HELMET, CHAINMAIL, SWORD, GOLD, DAGGER,
 	CHALICE, OLD_BANNER, BUST, CROWN }
 const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.IRON: 50, Res.COAL: 50, Res.MEAL: 20, Res.FINE_MEAL: 20,
-	Res.MEAT: 50, Res.FISH: 50, Res.HIDE: 50, Res.INGOT: 50, Res.PICKAXE: 10, Res.AXE: 10, Res.SICKLE: 10, Res.BOW: 10,
+	Res.MEAT: 50, Res.FISH: 50, Res.HIDE: 50, Res.INGOT: 50, Res.FLAX: 50, Res.BOWSTRING: 50, Res.PICKAXE: 10, Res.AXE: 10, Res.SICKLE: 10, Res.BOW: 10,
 	Res.LEATHER_ARMOR: 10, Res.LEATHER_HOOD: 10, Res.HELMET: 10, Res.CHAINMAIL: 10, Res.SWORD: 10, Res.GOLD: 100, Res.DAGGER: 10,
 	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5}  # quantità massima per mucchio (casella)
 const MEALS := [Res.FINE_MEAL, Res.MEAL]  # cotti: chi ha fame li prende in quest'ordine, poi il crudo
 const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT]  # crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti
-const STASH := [Res.WOOD, Res.STONE, Res.VEG, Res.IRON, Res.COAL]  # scorta di debug: il resto si produce
+const STASH := [Res.WOOD, Res.STONE, Res.VEG, Res.IRON, Res.COAL, Res.FLAX]  # scorta di debug: il resto si produce
 const START_GOLD := 60      # monete nel magazzino all'inizio
 const COIN := "[img=center]res://art/icon_coin.png[/img]"  # una moneta 16x16 nei testi ricchi (vedi coins)
 # Tipo di ogni oggetto: la sua icona 16x16 (art/kind_*.png, per le monete la moneta) sta davanti al nome, ovunque
@@ -55,7 +56,8 @@ const KIND_ICONS := {
 }
 const ITEM_KIND := {
 	Res.WOOD: ItemKind.MATERIAL, Res.STONE: ItemKind.MATERIAL, Res.IRON: ItemKind.MATERIAL, Res.COAL: ItemKind.MATERIAL,
-	Res.HIDE: ItemKind.MATERIAL, Res.INGOT: ItemKind.MATERIAL,
+	Res.HIDE: ItemKind.MATERIAL, Res.INGOT: ItemKind.MATERIAL, Res.FLAX: ItemKind.MATERIAL,
+	Res.BOWSTRING: ItemKind.MATERIAL,
 	Res.VEG: ItemKind.FOOD, Res.MEAL: ItemKind.FOOD, Res.FINE_MEAL: ItemKind.FOOD, Res.MEAT: ItemKind.FOOD, Res.FISH: ItemKind.FOOD,
 	Res.PICKAXE: ItemKind.TOOL, Res.AXE: ItemKind.TOOL, Res.SICKLE: ItemKind.TOOL,
 	Res.BOW: ItemKind.WEAPON, Res.SWORD: ItemKind.WEAPON, Res.DAGGER: ItemKind.WEAPON,
@@ -72,7 +74,7 @@ const SPOIL_STORED := 0.5   # in magazzino il cibo marcisce a metà velocità
 const POISON := {Res.VEG: [0.05, 0.4], Res.FISH: [0.1, 0.5], Res.MEAT: [0.15, 0.6]}
 const FRESH_WORDS := [[0.5, "Fresh"], [0.2, "Stale"], [0.0, "Almost rotten"]]  # sopra quale parte della durata, nel suggerimento
 # cucinare (vedi try_cook): 2 crudi dello stesso mucchio (vegetali, pesce o carne) -> 1 pasto al fuoco da campo di una
-# cucina, finché in giro ci sono meno di MEALS_PER_COLONIST pasti a testa
+# cucina, finché in giro ci sono meno pasti di quanti chiede il menu del fuoco (all'inizio MEALS_PER_COLONIST a testa)
 const COOK_RAW := 2
 const COOK_TIME := 8.0      # secondi a livello 5, come gather_time; anche secondo il comfort della cucina (vedi comfort_time)
 const MEALS_PER_COLONIST := 2
@@ -87,8 +89,9 @@ const FISH_PER_SPOT := 4
 const FISH_REGROW := 1.0
 const CATCH_BASE := 0.3     # + CATCH_PER_LEVEL per livello: 36% a livello 1, 90% a livello 10
 const CATCH_PER_LEVEL := 0.06
-# caccia (vedi try_hunt): animali che girano per la mappa; quelli segnati con "Hunt" li insegue un cacciatore, che tira
-# da al più HUNT_RANGE caselle. Ogni tiro: AIM_TIME a livello 5, colpisce con probabilità hit_chance; l'animale scappa
+# caccia (vedi try_hunt): animali che girano per la mappa; quelli segnati con "Hunt" li insegue un cacciatore con l'arco,
+# che tira da al più HUNT_RANGE caselle. Ogni tiro: AIM_TIME a livello 5, colpisce con probabilità hit_chance; la freccia
+# vola (vedi shoot) e, arrivata, l'animale scappa
 enum Beast { RABBIT, DEER, WOLF }  # righe di ANIMALS
 # "hp": danni per abbatterlo; "speed": caselle al secondo; "start": quanti all'inizio; i lupi ("hostile") arrivano in
 # branco (vedi spawn_pack) e mordono ("bite": danno); "shadow": larghezza in pixel dell'ovale d'ombra sotto le zampe
@@ -110,7 +113,8 @@ const AIM_TIME := 4.0       # secondi per tiro a livello 5 (vedi skill_time)
 const HIT_BASE := 0.3       # + HIT_PER_LEVEL per livello, - HIT_PER_TILE per casella di distanza
 const HIT_PER_LEVEL := 0.05
 const HIT_PER_TILE := 0.05
-const SHOT_DAMAGE := 10.0   # tiro senza arco (sassi, lance improvvisate); con l'arco "shot" di GEAR
+const ARROW_SPEED := 20.0   # caselle al secondo
+const ARROW_ARC := 0.1      # altezza della parabola, per pixel di tiro
 # combattimento (vedi react, Job.FIGHT, update_wolf): i lupi arrivano in branco dal bordo della mappa e inseguono i coloni
 # fuori dalle stanze; chi sta bene combatte, chi è ferito scappa al chiuso. A 0 punti ferita si resta a terra, o si
 # muore (vedi die): coi lupi, con le probabilità di DEATH_BASE; a terra, il primo morso uccide
@@ -267,7 +271,7 @@ const GEAR := {
 	Res.SICKLE: {"slot": Slot.HANDS, "skill": Skill.GATHERING, "time": {Job.HARVEST: 0.75, Job.UPROOT: 0.75}, "damage": 8.0,
 		"look": Held.SICKLE, "info": "Harvesting and uprooting 25% faster. Melee damage 8."},
 	Res.BOW: {"slot": Slot.HANDS, "skill": Skill.HUNTING, "hit": 0.1, "range": 2.0, "shot": 14.0, "look": Held.BOW,
-		"info": "Hunting: +10% to hit, 2 more tiles of range, aims with the better of Hunting and Ranged. Shoots in a fight (damage 14)."},
+		"info": "Needed to hunt. Aims with the better of Hunting and Ranged, +10% to hit, 2 more tiles of range. Shoots in a fight (damage 14)."},
 	Res.SWORD: {"slot": Slot.HANDS, "skill": Skill.MELEE, "damage": 15.0, "look": Held.SWORD, "info": "A weapon. Melee damage 15."},
 	Res.LEATHER_ARMOR: {"slot": Slot.BODY, "armor": 2, "outdoor_stress": 0.75, "look": Look.LEATHER_ARMOR, "info": "Light. 25% less stress working outdoors."},
 	Res.LEATHER_HOOD: {"slot": Slot.HEAD, "armor": 1, "hit": 0.05, "look": Look.HOOD, "tint": Color("8a5a34"), "info": "Blends in: +5% to hit when hunting."},
@@ -278,14 +282,16 @@ const GEAR := {
 }
 const KIT_ARMOR := {Look.SHIELD: 3}  # protezione del corredo degli avventurieri (vedi gear_sum)
 # Produzione (vedi try_craft): [prodotto, mobile, abilità, ingredienti, secondi a livello 5]. Il mobile dentro una stanza
-# del tipo STATION_ROOM. Si fanno lingotti finché ce ne sono meno di INGOT_STOCK, e i pezzi che mancano perché ogni
-# colono abbia pieni i suoi slot (vedi gear_wanted); per uno slot, il primo in elenco di cui ci sono gli ingredienti.
+# del tipo STATION_ROOM. Si fa ogni prodotto finché ce ne sono meno di quanti chiede il menu della postazione (vedi keep,
+# open_craft), e i pezzi che mancano perché ogni colono abbia pieni i suoi slot (vedi gear_wanted); per uno slot, il
+# primo in elenco di cui ci sono gli ingredienti.
 # Come in cucina: tempo e rischio di rovinarlo (ingredienti persi, vedi burn_chance) secondo livello e comfort
 const RECIPES := [
 	[Res.INGOT, Build.FURNACE, Skill.SMITHING, {Res.IRON: 1, Res.COAL: 1}, 6.0],
+	[Res.BOWSTRING, Build.SPINNING_WHEEL, Skill.TAILORING, {Res.FLAX: 2}, 8.0],  # filare il lino: lavoro da sarto
 	[Res.LEATHER_ARMOR, Build.WORKBENCH, Skill.TAILORING, {Res.HIDE: 4}, 20.0],
 	[Res.LEATHER_HOOD, Build.WORKBENCH, Skill.TAILORING, {Res.HIDE: 2}, 12.0],
-	[Res.BOW, Build.WORKBENCH, Skill.RANGED, {Res.WOOD: 3, Res.HIDE: 1}, 15.0],  # l'arco lo fa chi lo sa usare
+	[Res.BOW, Build.CARPENTER_BENCH, Skill.RANGED, {Res.WOOD: 3, Res.BOWSTRING: 1}, 15.0],  # l'arco lo fa chi lo sa usare
 	[Res.PICKAXE, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 2, Res.WOOD: 2}, 15.0],
 	[Res.AXE, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 2, Res.WOOD: 2}, 15.0],
 	[Res.SICKLE, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 1, Res.WOOD: 1}, 10.0],
@@ -293,8 +299,9 @@ const RECIPES := [
 	[Res.CHAINMAIL, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 6}, 30.0],
 	[Res.SWORD, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 3, Res.WOOD: 1}, 20.0],
 ]
-const STATION_ROOM := {Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP}
-const INGOT_STOCK := 10
+const STATION_ROOM := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP,
+	Build.SPINNING_WHEEL: RoomKind.WORKSHOP, Build.CARPENTER_BENCH: RoomKind.CARPENTRY}
+const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.MEAL: MEALS_PER_COLONIST * COLONIST_COUNT}  # scorte di partenza, vedi keep
 enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT }  # cosa segna il trascinamento del mouse
 const ORDER_COLORS := [Color.TRANSPARENT, Color.ORANGE, Color("8fd3ff"), Color("9be36a"), Color("e6e2d0"),
 	Color("ff5a5a"), Color("c83030"), Color("d84a6a"), Color("6ab0e0"), Color("c87a3a")]  # selezione e segni, per Order
@@ -304,7 +311,7 @@ const ORDER_TOOLS := {Order.DEMOLISH: "Destroy", Order.MINE: "Mine", Order.CHOP:
 const ORDER_ICONS := {Order.CHOP: preload("res://art/icon_chop.png"), Order.MINE: preload("res://art/icon_mine.png"),
 	Order.UPROOT: preload("res://art/icon_uproot.png"), Order.HARVEST: preload("res://art/icon_harvest.png"),
 	Order.FISH: preload("res://art/icon_fishing.png"), Order.HUNT: preload("res://art/icon_hunting.png")}  # le stesse dei tasti: piccole e velate sopra ciò che è segnato
-enum RoomKind { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE, WORKSHOP, INN }  # tipo di stanza, scelto dal cartello
+enum RoomKind { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE, WORKSHOP, CARPENTRY, INN }  # tipo di stanza, scelto dal cartello
 # categoria del tipo: lavoro (niente proprietari, gli si assegnano dei lavoratori), residenza (può avere dei proprietari),
 # servizio (comune a tutti, con uno scopo preciso: magazzino, locanda). Senza tipo: nessuna, né proprietari né lavoratori
 enum RoomClass { NONE, WORK, RESIDENCE, SERVICE }
@@ -315,22 +322,26 @@ const ROOM_CLASS := {
 	RoomKind.KITCHEN: RoomClass.WORK,
 	RoomKind.FORGE: RoomClass.WORK,
 	RoomKind.WORKSHOP: RoomClass.WORK,
+	RoomKind.CARPENTRY: RoomClass.WORK,
 	RoomKind.INN: RoomClass.SERVICE,
 }
 # titolo della lista di coloni da spuntare nel popup del cartello, per RoomClass (le altre non ce l'hanno)
 const ROOM_PEOPLE := {RoomClass.WORK: "Workers", RoomClass.RESIDENCE: "Owners"}
 enum Build { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE, ANVIL, WORKBENCH,  # porta e mobili si attraversano
+	SPINNING_WHEEL, CARPENTER_BENCH,
 	FLOWER_BED, PLANTER, BENCH, BANNER, LANTERN, FOUNTAIN, STATUE,  # decorazioni: vedi SPLENDOR
 	NOTICE_BOARD,  # la bacheca degli incarichi, nella locanda (vedi open_board)
 	CHALICE, OLD_BANNER, BUST, CROWN }  # cimeli: decorazioni fatte con l'oggetto trovato nelle rovine (vedi RELICS)
 # materiale per casella; per i mobili, per pezzo
 const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3,
-	Build.LAMP: 3, Build.CAMPFIRE: 5, Build.FURNACE: 20, Build.ANVIL: 10, Build.WORKBENCH: 15, Build.FLOWER_BED: 3, Build.PLANTER: 5,
+	Build.LAMP: 3, Build.CAMPFIRE: 5, Build.FURNACE: 20, Build.ANVIL: 10, Build.WORKBENCH: 15, Build.SPINNING_WHEEL: 10,
+	Build.CARPENTER_BENCH: 15, Build.FLOWER_BED: 3, Build.PLANTER: 5,
 	Build.BENCH: 6, Build.BANNER: 4, Build.LANTERN: 4, Build.FOUNTAIN: 30, Build.STATUE: 40, Build.NOTICE_BOARD: 8,
 	Build.CHALICE: 1, Build.OLD_BANNER: 1, Build.BUST: 1, Build.CROWN: 1}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
 const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
 	Build.CAMPFIRE: Vector2i.ONE, Build.FURNACE: Vector2i.ONE, Build.ANVIL: Vector2i.ONE, Build.WORKBENCH: Vector2i.ONE,
+	Build.SPINNING_WHEEL: Vector2i.ONE, Build.CARPENTER_BENCH: Vector2i.ONE,
 	Build.FLOWER_BED: Vector2i.ONE, Build.PLANTER: Vector2i.ONE, Build.BENCH: Vector2i(2, 1), Build.BANNER: Vector2i.ONE,
 	Build.LANTERN: Vector2i.ONE, Build.FOUNTAIN: Vector2i(2, 2), Build.STATUE: Vector2i(2, 2), Build.NOTICE_BOARD: Vector2i.ONE,
 	Build.CHALICE: Vector2i.ONE, Build.OLD_BANNER: Vector2i.ONE, Build.BUST: Vector2i.ONE, Build.CROWN: Vector2i.ONE}
@@ -351,11 +362,12 @@ const ROOM_NEEDS := {
 	RoomKind.KITCHEN: {Build.CAMPFIRE: 1},
 	RoomKind.FORGE: {Build.FURNACE: 1, Build.ANVIL: 1},
 	RoomKind.WORKSHOP: {Build.WORKBENCH: 1},
+	RoomKind.CARPENTRY: {Build.CARPENTER_BENCH: 1},
 	RoomKind.INN: {Build.BED: 1, Build.TABLE: 1, Build.NOTICE_BOARD: 1},
 }
 # lente delle stanze (tasto col cartello in basso): le stanze finite velate col colore del loro tipo, per RoomKind
 const ROOM_COLORS := [Color("e6e2d0"), Color("c9a23b"), Color("3b8fd3"), Color("8a5ad3"), Color("e0703a"), Color("d33b3b"),
-	Color("3bb08a"), Color("d38a3b")]
+	Color("3bb08a"), Color("9be36a"), Color("d38a3b")]
 # comfort di una stanza, 0-COMFORT_MAX: lo danno i mobili (per pezzo) e il pavimento (tutto se copre la stanza intera),
 # per il materiale. A metà né bonus né malus; fuori dalle stanze è 0. Vedi room_comfort e comfort_of
 const COMFORT_MAX := 10
@@ -390,11 +402,13 @@ const BUILD_INFO := {
 	Build.CAMPFIRE: "A wood fire inside a ring of stones. Burns day and night. A kitchen needs one.",
 	Build.FURNACE: "A stone furnace. A forge needs one, and an anvil. Smelts iron and coal into ingots.",
 	Build.ANVIL: "An iron anvil on a stump. A forge needs one, and a furnace. Tools and metal armor are made here.",
-	Build.WORKBENCH: "A sturdy bench. A workshop needs one. Leather armor and bows are made here.",
+	Build.WORKBENCH: "A sturdy bench. A workshop needs one. Leather armor is made here.",
+	Build.SPINNING_WHEEL: "Spins flax into bowstrings. Works in a workshop.",
+	Build.CARPENTER_BENCH: "A bench with a vise and a saw. A carpentry needs one. Bows are made here.",
 	Build.FLOWER_BED: "A wooden box of soil and flowers.",
 	Build.PLANTER: "A stone urn overflowing with flowers.",
 	Build.BENCH: "A wooden bench to rest along the roads.",
-	Build.BANNER: "The royal banner, red and gold, waving in the wind.",
+	Build.BANNER: "The banner of your house, waving in the wind.",
 	Build.LANTERN: "A lantern on a post. Lights up the roads at night.",
 	Build.FOUNTAIN: "A stone basin with a jet of water. The pride of the square.",
 	Build.STATUE: "The king in stone, hands on his sword, on a gilded plinth.",
@@ -408,7 +422,7 @@ enum Facing { DOWN, LEFT, RIGHT, UP }  # righe del foglio
 enum TreeKind { OAK, PINE, BIRCH }     # colonne del foglio alberi
 const TREE_LOGS := {TreeKind.OAK: 28, TreeKind.PINE: 35, TreeKind.BIRCH: 20}  # tronchi di un albero intero
 
-# fogli 96x64 generati da tools/make_sprites.py; quelli con più voci le hanno una sotto l'altra (vedi figure_layers)
+# fogli 128x64 generati da tools/make_sprites.py; quelli con più voci le hanno una sotto l'altra (vedi figure_layers)
 const COLONIST_BASE := preload("res://art/colonist_base.png")
 const COLONIST_HAIR := preload("res://art/colonist_hair.png")
 const COLONIST_TUNIC := preload("res://art/colonist_tunic.png")
@@ -418,19 +432,22 @@ const COLONIST_GEAR := preload("res://art/colonist_gear.png")    # armature, cop
 const COLONIST_HANDS := preload("res://art/colonist_hands.png")  # quello che tiene in mano: Held
 const WALK_CYCLE := [0, 1, 0, 2]  # colonne del foglio: fermo, passo A, fermo, passo B
 const WORK_CYCLE := [3, 3, 4]     # carica, carica, colpo: per ogni lavoro a tempo (taglio, scavo, costruzione)
+const BOW_LOOSE := 6              # arco con la corda lenta: appena scoccato, poi lo tende (BOW_DRAW) fino al tiro
+const BOW_DRAW := 7
+const BOW_LOOSE_PART := 0.25      # parte del tempo di mira con la corda ancora lenta
 const SWING_TIME := 0.6           # secondi per colpo
 const IDLE_CYCLE := [0, 0, 5]     # fermo, fermo, respiro: chi non ha niente da fare
 const BREATH_TIME := 2.0          # secondi per respiro
 const LOOK_TIME := 3.0            # secondi, in media, tra un'occhiata e l'altra di chi è fermo
 const TREES := preload("res://art/trees.png")  # 16x32 ciascuno: la chioma sale nella casella sopra
-const PLANTS := preload("res://art/plants.png")  # 16x16: erbaccia, cespuglio, cespuglio con le bacche
+const PLANTS := preload("res://art/plants.png")  # 16x16: erbaccia, cespuglio, cespuglio con le bacche, lino, lino in fiore
 const BOULDERS := {  # massi: dimensione in caselle -> sprite, dal più grande (ordine usato in generate_map)
 	Vector2i(2, 2): preload("res://art/rock_2x2.png"),
 	Vector2i(2, 1): preload("res://art/rock_2x1.png"),
 	Vector2i(1, 1): preload("res://art/rock_1x1.png"),
 }
 const ORE_ROCKS := {Res.IRON: preload("res://art/rock_iron.png"), Res.COAL: preload("res://art/rock_coal.png")}  # massi 1x1
-# 128x448, righe: mobili nell'ordine di Build; colonne: quarti di giro in senso orario, ognuno in un riquadro 32x32
+# 128x544, righe: mobili nell'ordine di Build; colonne: quarti di giro in senso orario, ognuno in un riquadro 32x32
 const FURNITURE_SHEET := preload("res://art/furniture.png")
 const FURNITURE_NIGHT := preload("res://art/furniture_night.png")  # abat-jour e lampioni accesi
 const FURNITURE_GLOW := preload("res://art/furniture_glow.png")    # solo le luci accese, per `lights`
@@ -464,6 +481,8 @@ const ICONS := {
 	Res.FISH: preload("res://art/icon_fish.png"),
 	Res.HIDE: preload("res://art/icon_hide.png"),
 	Res.INGOT: preload("res://art/icon_ingot.png"),
+	Res.FLAX: preload("res://art/icon_flax.png"),
+	Res.BOWSTRING: preload("res://art/icon_bowstring.png"),
 	Res.PICKAXE: preload("res://art/icon_mine.png"),
 	Res.AXE: preload("res://art/icon_chop.png"),
 	Res.SICKLE: preload("res://art/icon_sickle.png"),
@@ -577,6 +596,10 @@ const TRAIT_CLASH := [  # mai insieme nello stesso colono
 	[Trait.GLUTTON, Trait.SMALL_APPETITE], [Trait.LAZY, Trait.WORKAHOLIC], [Trait.EARLY_BIRD, Trait.NIGHT_OWL],
 	[Trait.SLEEPYHEAD, Trait.TIRELESS], [Trait.FUN_LOVING, Trait.ASCETIC], [Trait.HOTHEAD, Trait.EASYGOING],
 ]
+# punti abilità che un talento costa al sovrano, nella creazione: i pregi costano, i difetti ne danno; gli altri niente
+const TRAIT_COST := {Trait.WORKAHOLIC: 2, Trait.TIRELESS: 2, Trait.EASYGOING: 2, Trait.ASCETIC: 2, Trait.SMALL_APPETITE: 2,
+	Trait.LAZY: -2, Trait.HOTHEAD: -2, Trait.SLEEPYHEAD: -2, Trait.RESTLESS: -2, Trait.SLEEPWALKER: -2, Trait.GLUTTON: -2,
+	Trait.FUN_LOVING: -2}
 const TANTRUM_HOURS := 2.0   # quanto dura la sfuriata dell'iracondo; intanto lo stress scende TANTRUM_VENT volte più in fretta
 const TANTRUM_VENT := 4.0
 const TANTRUM_REACH := 8     # caselle: quanto lontano va a sbollire
@@ -619,6 +642,34 @@ const BEARD := 2           # riga della barba in colonist_hair_styles
 const BEARD_CHANCE := 0.5  # uomini con la barba
 const NICKNAMES := ["Badger", "Crow", "Lefty", "Moss", "Pebble", "Red", "Stub", "Thistle"]
 const LAST_NAMES := ["Ashdown", "Barrow", "Cooper", "Fenwick", "Hale", "Marsh", "Thatcher", "Woodward"]
+# Il sovrano (GDD 4.3): il primo colono, lo crea il giocatore (vedi creation.gd) coi RULER_POINTS punti abilità, al
+# massimo RULER_SKILL_CAP per abilità. Senza (nei test) è uno a caso. Titolo e reame per ora fissi: poi crescono
+const COLONY_NAMES := ["Valbruna", "Ashford", "Roccalta", "Greywater", "Montalto", "Fernhill", "Pietrabianca", "Oakmere"]
+const RULER_POINTS := 12
+const RULER_SKILL_CAP := 3
+const RULER_TRAITS := 2     # talenti che si scelgono al massimo, mai due in contrasto (vedi TRAIT_CLASH)
+const RULER_TITLES := ["Lord", "Lady"]  # per Sex
+const REALM_TITLE := "Lordship"
+const CROWN_IMG := "[img=center]res://art/icon_crown.png[/img]"
+# Stemma della casata (GDD 4.3.2): {"shape", "division", "field", "field2", "ordinary", "ordinary_tincture", "charge",
+# "charge_tincture"}: indici di queste liste (pezza e figura: 0 nessuna; gli smalti di Tincture). Lo compongono
+# arms_texture (scudo 16x16) e banner_texture (il drappo dello stendardo): partizioni e pezze sono formule (vedi
+# divided, on_ordinary), così vanno bene a ogni misura; forme e figure stanno in ARMS_SHEET
+enum Tincture { OR, ARGENT, GULES, AZURE, VERT, SABLE, PURPURE }  # oro, argento (metalli); rosso, azzurro, verde, nero, porpora
+const TINCTURE_COLORS := [Color("e8c040"), Color("ece8dc"), Color("b8302c"), Color("2f5cb0"), Color("3a8a3e"),
+	Color("2a2630"), Color("7a3c8e")]
+const METALS := [Tincture.OR, Tincture.ARGENT]
+enum Shape { HEATER, SAMNITE, ROUND, LOZENGE }  # francese antico, sannitico, tondo, a losanga
+enum Division { PLAIN, PALE, FESS, BEND, BEND_SINISTER, QUARTERLY, SALTIRE }  # pieno, partito, troncato, trinciato, tagliato, inquartato, in decusse
+enum Ordinary { NONE, CHIEF, BASE, PALE, FESS, BEND, CROSS, SALTIRE, CHEVRON, BORDURE }  # capo, campagna, palo, fascia, banda, croce, decusse, scaglione, bordura
+enum Charge { NONE, STAR, CRESCENT, FLEUR, ROSE, TOWER, CROWN, SWORD, KEY, TREE, EAGLE }
+# passano dal centro, sotto la figura 8x8 che è più larga: col dado, niente figura
+const CENTRAL := [Ordinary.PALE, Ordinary.FESS, Ordinary.BEND, Ordinary.CROSS, Ordinary.SALTIRE, Ordinary.CHEVRON]
+# 80x29: forme 16x16 (bordo scuro, campo chiaro) in alto; figure 8x8 (per lo scudo) sotto; figure 5x5 (stendardo) in fondo
+const ARMS_SHEET := preload("res://art/arms.png")
+const BANNER_DRAPE := preload("res://art/banner_drape.png")  # 64x16: il drappo nei 4 fotogrammi, chiaro e in ombra
+const BANNER_SHADE := 0.75  # la piega in ombra del drappo
+static var sheet_images := {}  # Texture2D -> Image, letta una volta: lo stemma si ricompone a ogni scelta (vedi image_of)
 
 
 class Colonist:
@@ -695,6 +746,16 @@ class Animal:
 	var blocked := 0.0            # `clock` fino a cui nessuno ci arriva: lo si lascia stare
 
 
+# Freccia in volo, vedi shoot e fly
+class Arrow:
+	var pos: Vector2
+	var from: Vector2
+	var prey                      # l'Animal a cui è tirata
+	var by                        # il Colonist che l'ha tirata
+	var damage := 0.0             # 0: tiro mancato, finisce in `miss`
+	var miss: Vector2
+
+
 # Zona chiusa da muri (o roccia, acqua alta) con almeno una porta: una struttura finita.
 class Room:
 	var cells := {}               # caselle dentro, senza muri né porte
@@ -718,6 +779,7 @@ var ground_texture: ImageTexture  # tutto il terreno già disegnato, vedi bake_g
 var trees := {}             # cella -> TreeKind (attraversabile), in ordine di riga: serve a _draw
 var stock := {}             # albero, masso (cella d'origine) o cespuglio -> quanto resta da raccogliere; se manca, full_stock
 var bushes := {}            # cella -> `clock` da cui ha le bacche (attraversabile): raccolte, il cespuglio resta
+var flax := {}              # cella -> true: i cespugli che sono lino; in fiore (le "bacche") danno il lino
 var weeds := {}             # cella -> true: erbacce (attraversabili)
 var chop_marks := {}        # cella -> true: alberi da tagliare
 var mine_marks := {}        # cella d'origine -> true: massi da scavare
@@ -726,6 +788,7 @@ var harvest_marks := {}     # cella -> true: cespugli da cui raccogliere le bacc
 var fish_marks := {}        # cella d'acqua -> true: punti di pesca
 var fish_spots := {}        # cella d'acqua -> `clock` da cui ci sono di nuovo pesci (se manca, ci sono)
 var animals: Array[Animal] = []
+var arrows: Array[Arrow] = []  # in volo, vedi shoot
 var wild := RandomNumberGenerator.new()  # tutto il caso degli animali: non sposta quello del resto della partita
 var next_animal := ANIMAL_RESPAWN  # `clock` del prossimo arrivo
 var threats := true         # false nei test: niente branchi di lupi
@@ -746,6 +809,8 @@ var stockpile := {}         # cella -> true: dentro le stanze di tipo magazzino,
 var rooms: Array[Room] = []  # stanze finite, vedi update_rooms
 var rooms_made := 0         # per i nomi di default
 var editing: Room           # la stanza aperta nel popup del cartello
+var keep := STOCK.duplicate()  # prodotto -> quanti tenerne (a terra, in magazzino, in mano): si cambia nel menu della postazione
+var crafting := Vector2i(-1, -1)  # la postazione aperta nel menu, vedi open_craft
 var shown: Colonist         # il colono nella scheda: le barre dei bisogni lo seguono
 var lens_owners := []       # [centro, proprietari o lavoratori] per stanza delle figurine sulla lente, vedi place_owners
 var needs_rate := 1.0       # 0 nei test: i bisogni restano fermi e non cambiano i lavori
@@ -767,6 +832,12 @@ var furniture_draft := {}
 var furniture_plans := {}
 var furniture := {}
 var colonists: Array[Colonist] = []
+static var setup := {}      # nuova partita, da creation.gd: {"colony": nome, "ruler": Colonist.proprietà -> valore}
+var ruler: Colonist         # il sovrano, vedi RULER_POINTS
+var realm := ""             # nome della colonia
+var arms := {}              # stemma della casata, vedi Tincture
+var arms_tex: ImageTexture  # lo scudo 16x16: barra in alto, scheda del sovrano
+var banner_tex: ImageTexture  # il drappo degli stendardi, sopra quello rosso del foglio dei mobili
 var order := Order.NONE
 var build_kind := Build.WALL  # cosa e con cosa costruisce l'ordine BUILD (scelti nella barra in alto)
 var build_res := Res.WOOD
@@ -793,6 +864,7 @@ var lights_canvas := Node2D.new()
 @onready var beds_label: Label = $HUD/TopBar/Row/Beds
 @onready var splendor_label: Label = $HUD/TopBar/Row/Splendor
 @onready var info_label: Label = $HUD/TopBar/Row/Info
+@onready var realm_button: Button = $HUD/TopBar/Row/Realm  # nome del reame: apre la scheda del sovrano
 @onready var fullscreen: Button = $HUD/TopBar/Row/Fullscreen
 @onready var categories: Control = $HUD/Categories  # si apre col tasto Build: una categoria per barra di costruzione
 @onready var build_bar: Control = $HUD/BuildBar  # sopra le categorie: quella scelta
@@ -813,6 +885,7 @@ var lights_canvas := Node2D.new()
 @onready var room_name: LineEdit = $HUD/RoomPopup/Box/Name
 @onready var room_kind: OptionButton = $HUD/RoomPopup/Box/Kind  # solo i tipi possibili, vedi refresh_room
 @onready var room_owners: Control = $HUD/RoomPopup/Box/Owners/List  # una casella da spuntare per colono: proprietari o lavoratori
+@onready var craft_popup: Control = $HUD/CraftPopup  # menu della postazione cliccata, vedi open_craft
 @onready var jobs_panel: Control = $HUD/JobsPanel  # a destra, si apre col tasto Jobs in basso: vedi job_list
 @onready var jobs_list: RichTextLabel = $HUD/JobsPanel/Box/List  # testo ricco: le monete con l'icona
 @onready var resources_panel: Control = $HUD/ResourcesPanel  # stesso posto: vedi update_resources
@@ -871,19 +944,31 @@ func _ready() -> void:
 		var c := Colonist.new()
 		c.pos = center(MAP_SIZE / 2 + Vector2i(i - 1, 0))
 		c.tunic = TUNIC_COLORS[i % TUNIC_COLORS.size()]
-		dress(c)
+		dress(c, people().map(func(o): return o.first_name))
 		c.skills = Skill.values().map(func(_s): return 0)
 		c.xp = Skill.values().map(func(_s): return 0)
+		var made: Dictionary = setup.get("ruler", {}) if i == 0 else {}
+		for key in made:  # il sovrano, come l'ha fatto il giocatore: gli altri evitano il suo nome
+			c.set(key, made[key])
 		# sfalsati: non dormono tutti insieme; lo stress parte basso
 		c.needs = Need.values().map(func(n): return randf_range(0, 40) if n == Need.STRESS else randf_range(60, NEED_MAX))
 		c.trend = c.needs.map(func(_v): return 0.0)
 		var pool := Trait.values()
 		pool.shuffle()
-		var count := randi_range(0, 2)
+		var count := 0 if not made.is_empty() else randi_range(0, 2)  # il sovrano ha quelli scelti dal giocatore
 		for t in pool:  # a caso, ma niente talenti in contrasto (vedi TRAIT_CLASH)
 			if c.traits.size() < count and not c.traits.any(func(o): return clash(o, t)):
 				c.traits.append(t)
 		colonists.append(c)
+	ruler = colonists[0]
+	realm = setup.get("colony", COLONY_NAMES.pick_random())
+	arms = setup.get("arms", random_arms())
+	arms_tex = arms_texture(arms)
+	banner_tex = banner_texture(arms)
+	$HUD/TopBar/Row/RealmIcon.texture = arms_tex
+	realm_button.text = "%s of %s" % [REALM_TITLE, realm]
+	realm_button.tooltip_text = "%s %s" % [RULER_TITLES[ruler.sex], full_name(ruler)]
+	realm_button.pressed.connect(func(): open_sheet(ruler))
 	camera.position = center(MAP_SIZE / 2)
 	fullscreen.pressed.connect(toggle_fullscreen)
 	if DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN:  # passato a schermo intero dal titolo
@@ -950,7 +1035,7 @@ func _ready() -> void:
 		resources_list.add_child(row)
 	ruins.append(Ruin.new())  # per ora solo la torre
 	$HUD/BoardPanel/Box/ChronicleButton.pressed.connect(open_chronicle)
-	for window in [room_popup, jobs_panel, resources_panel, sheet_panel, $HUD/BoardPanel, $HUD/ReportPanel, $HUD/ChroniclePanel]:  # X in alto a destra, si trascinano
+	for window in [room_popup, craft_popup, jobs_panel, resources_panel, sheet_panel, $HUD/BoardPanel, $HUD/ReportPanel, $HUD/ChroniclePanel]:  # X in alto a destra, si trascinano
 		window.get_node("Box/Head/Close").pressed.connect(window.hide)
 		window.gui_input.connect(drag_window.bind(window))
 		window.visibility_changed.connect(window.move_to_front, CONNECT_DEFERRED)  # l'ultima aperta sta sopra
@@ -1314,6 +1399,55 @@ func people_of(room: Room) -> Array[Colonist]:
 	return nobody
 
 
+# menu della postazione `origin` (fuoco da campo, fornace, incudine, banchi): una riga per ricetta, con gli ingredienti
+# e quanti tenerne (vedi keep). Al fuoco i pasti, da 2 crudi uguali qualsiasi. Fuori dalla sua stanza lo dice: lì non si lavora
+func open_craft(origin: Vector2i) -> void:
+	crafting = origin
+	var kind: Build = furniture[origin][0]
+	var box: Control = $HUD/CraftPopup/Box
+	box.get_node("Head/Title").text = Build.keys()[kind].capitalize()
+	box.get_node("Room").text = "Works only in a %s" % RoomKind.keys()[STATION_ROOM[kind]].capitalize().to_lower()
+	box.get_node("Room").visible = not stations(kind).has(origin)
+	var list := box.get_node("List")
+	for child in list.get_children():
+		child.free()
+	var rows := RECIPES.filter(func(r): return r[1] == kind).map(func(r): return [r[0], r[3], "+"])  # [prodotto, ingredienti, tra uno e l'altro]
+	if kind == Build.CAMPFIRE:
+		var raw := {}
+		for res in RAW_FOOD:
+			raw[res] = COOK_RAW
+		rows = [[Res.MEAL, raw, "or"]]
+	for r in rows:
+		var row := HBoxContainer.new()
+		row.add_child(ui_icon(ICONS[r[0]], Rect2(), Vector2(32, 32)))
+		var label := Label.new()
+		label.text = Res.keys()[r[0]].capitalize()
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		label.custom_minimum_size.x = 110
+		label.tooltip_text = GEAR[r[0]]["info"] if GEAR.has(r[0]) else ""
+		label.mouse_filter = Control.MOUSE_FILTER_PASS
+		row.add_child(label)
+		for res in r[1]:
+			if res != r[1].keys()[0]:
+				var between := Label.new()
+				between.text = r[2]
+				row.add_child(between)
+			var amount := Label.new()
+			amount.text = str(r[1][res])
+			row.add_child(amount)
+			row.add_child(ui_icon(ICONS[res], Rect2(), Vector2(16, 16)))
+		var count := SpinBox.new()
+		count.prefix = "Keep"
+		count.custom_minimum_size.x = 100  # se no taglia la scritta
+		count.value = keep.get(r[0], 0)
+		count.tooltip_text = "Made until there are this many" + (", besides what colonists need to wear" if GEAR.has(r[0]) else "")
+		count.value_changed.connect(func(v): keep[r[0]] = int(v))
+		row.add_child(count)
+		list.add_child(row)
+	craft_popup.show()
+	craft_popup.reset_size()
+
+
 # scheda del colono, a sinistra: si aggiorna mentre è aperta (vedi _process)
 func open_sheet(c: Colonist) -> void:
 	fill_sheet($HUD/ColonistSheet/Box, c)
@@ -1340,9 +1474,11 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 	box.get_node("Head/Name").text = full_name(c)
 	box.get_node("Sex/Icon").texture = SEX_ICONS[c.sex]
 	box.get_node("Sex/Label").text = SEX_NAMES[c.sex]
-	box.get_node("Hero").visible = c.hero != Hero.NONE
+	box.get_node("Head/Arms").visible = c == ruler
+	box.get_node("Head/Arms").texture = arms_tex
+	box.get_node("Hero").visible = c.hero != Hero.NONE or c == ruler
 	box.get_node("Hero").text = "%s, fee %s, %d expedition%s" % [hero_name(c), coins(fee(c)), c.trips, "" if c.trips == 1 else "s"] \
-		if c.hero != Hero.NONE else ""
+		if c.hero != Hero.NONE else ("%s %s of %s" % [CROWN_IMG, RULER_TITLES[c.sex], realm] if c == ruler else "")
 	box.get_node("Health").text = health_text(c)
 	for child in needs_grid.get_children() + skills_grid.get_children() + traits_box.get_children():
 		child.free()
@@ -1493,7 +1629,7 @@ func bar_style(tex: Texture2D) -> StyleBoxTexture:
 
 
 # icona della scheda: il pezzo `region` di `tex` (tutta se vuoto), ingrandita a `size` senza deformarla
-func ui_icon(tex: Texture2D, region: Rect2, size: Vector2) -> TextureRect:
+static func ui_icon(tex: Texture2D, region: Rect2, size: Vector2) -> TextureRect:
 	if region.has_area():
 		var piece := AtlasTexture.new()
 		piece.atlas = tex
@@ -1507,15 +1643,14 @@ func ui_icon(tex: Texture2D, region: Rect2, size: Vector2) -> TextureRect:
 	return icon
 
 
-# sesso a caso, e secondo il sesso nome (uno che nessuno sulla mappa ha già, se ce n'è) e acconciatura; colori del
-# mantello e dei capelli
-func dress(c: Colonist) -> void:
+# sesso a caso, e secondo il sesso nome (uno che non è tra i `taken`, se ce n'è) e acconciatura; colori del mantello
+# e dei capelli
+static func dress(c: Colonist, taken := []) -> void:
 	c.sex = Sex.values().pick_random()
 	c.hair_style = HAIR_STYLES[c.sex].pick_random()
 	c.beard = c.sex == Sex.MALE and randf() < BEARD_CHANCE
 	c.cape = CAPE_COLORS.pick_random()
 	c.hair = HAIR_COLORS.pick_random()
-	var taken := people().map(func(o): return o.first_name)
 	var free: Array = FIRST_NAMES[c.sex].filter(func(n): return n not in taken)
 	c.first_name = (free if not free.is_empty() else FIRST_NAMES[c.sex]).pick_random()
 	c.nickname = NICKNAMES.pick_random() if randf() < 0.5 else ""
@@ -1592,8 +1727,9 @@ func describe(cell: Vector2i) -> Array:
 	var uproot := "\nMarked: uproot" if uproot_marks.has(cell) else ("\nMarked: harvest" if harvest_marks.has(cell) else "")
 	if bushes.has(cell):
 		var ripe: bool = bushes[cell] <= clock
-		return ["Bush", ("Berries: %d / %d" % [stock.get(cell, BERRIES_PER_BUSH), BERRIES_PER_BUSH] if ripe
-			else "Berries in %.1f days" % (bushes[cell] - clock)) + uproot]
+		var crop := "Flax" if flax.has(cell) else "Berries"
+		return ["Flax" if flax.has(cell) else "Bush", ("%s: %d / %d" % [crop, stock.get(cell, BERRIES_PER_BUSH), BERRIES_PER_BUSH]
+			if ripe else "%s in %.1f days" % [crop, bushes[cell] - clock]) + uproot]
 	if weeds.has(cell):
 		return ["Weed", uproot.strip_edges()]
 	for res in items:
@@ -1605,7 +1741,7 @@ func describe(cell: Vector2i) -> Array:
 					fresh[cell] / spoil_rate(cell)]
 			return ["%s pile" % item_title(res), about]
 	for origin in pieces_at(furniture, cell):
-		return [Build.keys()[furniture[origin][0]].capitalize(), ""]
+		return [Build.keys()[furniture[origin][0]].capitalize(), "Click: what to make" if STATION_ROOM.has(furniture[origin][0]) else ""]
 	if built.has(cell):
 		return [Build.keys()[built[cell][0]].capitalize(), Res.keys()[built[cell][1]].capitalize()]
 	return []
@@ -1639,7 +1775,7 @@ func job_list() -> String:
 		lines.append("Fish spots: %d" % fishable().size())
 	var hunted := animals.filter(func(a): return a.marked)
 	if not hunted.is_empty():
-		lines.append("Hunt animals: %d" % hunted.size())
+		lines.append("Hunt animals: %d%s" % [hunted.size(), "" if colonists.any(has_bow) or available(Res.BOW) > 0 else " (needs a bow)"])
 	if meals_wanted() > 0 and not kitchen_fires().is_empty():
 		lines.append("Cook meals: %d" % meals_wanted())
 	for r in RECIPES:  # solo quello che manca e che ha una postazione
@@ -1696,6 +1832,9 @@ func generate_map() -> void:
 				trees[cell] = TreeKind.PINE if n < -0.4 else (TreeKind.BIRCH if randf() < 0.2 else TreeKind.OAK)
 			elif n < -0.05 and randf() < 0.1:  # cespugli nel sottobosco e ai margini, con le bacche già mature
 				bushes[cell] = 0.0
+			elif randf() < 0.01:  # lino sparso nei prati, già in fiore
+				bushes[cell] = 0.0
+				flax[cell] = true
 			elif randf() < 0.03:  # erbacce sparse nei prati
 				weeds[cell] = true
 
@@ -1749,8 +1888,8 @@ func generate_map() -> void:
 			spawn_animal(kind)
 	if start_rooms:  # ponytail: scorta di debug, da togliere (o DEBUG_STASH a 0) quando si gioca sul serio
 		var first: Vector2i = MAP_SIZE / 2 + START_ROOMS[0] * 8
-		for res in STASH:  # un mucchio per risorsa lungo la riga di mezzo, il resto si allarga accanto
-			drop(res, first + Vector2i(res - 2, 0), DEBUG_STASH)
+		for i in STASH.size():  # un mucchio per risorsa, cinque per riga dalla riga di mezzo, il resto si allarga accanto
+			drop(STASH[i], first + Vector2i(i % 5 - 2, i / 5), DEBUG_STASH)
 		drop(Res.GOLD, first + Vector2i(0, 1), START_GOLD)
 		rooms.filter(func(r): return r.cells.has(first))[0].kind = RoomKind.WAREHOUSE
 		update_stockpile()
@@ -1840,6 +1979,8 @@ func _process(delta: float) -> void:
 			refresh_room()
 		else:
 			room_popup.hide()
+	if craft_popup.visible and not furniture.has(crafting):  # postazione abbattuta: si chiude
+		craft_popup.hide()
 	if sheet_panel.visible:
 		update_need_bars(sheet_needs, shown)
 		update_conds($HUD/ColonistSheet/Box, shown)
@@ -1867,6 +2008,8 @@ func tick(delta: float) -> void:
 	for c in people():
 		if c.died == 0.0:  # morto durante il giro
 			update_colonist(c, delta)
+	for arrow in arrows.duplicate():  # una freccia può abbattere un animale
+		fly(arrow, delta)
 	update_guests()
 	update_expeditions()
 	for c in corpses.duplicate():
@@ -1923,7 +2066,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			if c.work_left > 0:
 				return
 			var gather: Array = GATHER[c.job]
-			var res: Res = ores.get(c.target, gather[3])
+			var res: Res = Res.FLAX if flax.has(c.target) else ores.get(c.target, gather[3])
 			var left: int = stock.get(c.target, full_stock(c.target))
 			var got := mini(left, gather[2])
 			if c.job == Job.FISH:
@@ -1963,6 +2106,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			c.work_left -= delta
 			if c.work_left <= 0:
 				bushes.erase(c.target)
+				flax.erase(c.target)
 				weeds.erase(c.target)
 				uproot_marks.erase(c.target)
 				harvest_marks.erase(c.target)
@@ -2032,10 +2176,13 @@ func update_colonist(c: Colonist, delta: float) -> void:
 					return
 			eat(c)
 			end_job(c)
-		Job.EQUIP:  # al mucchio: prende il pezzo (carry_res) e lo indossa
+		Job.EQUIP:  # al mucchio: prende il pezzo (carry_res) e lo indossa; quello che aveva in quello slot lo posa lì
 			if items[c.carry_res].has(c.target):
+				var slot: Slot = GEAR[c.carry_res]["slot"]
 				add_item(c.carry_res, c.target, -1)
-				c.gear[GEAR[c.carry_res]["slot"]] = c.carry_res
+				if c.gear.has(slot):
+					drop(c.gear[slot], c.target, 1)
+				c.gear[slot] = c.carry_res
 			end_job(c)
 		Job.CRAFT:
 			craft(c, delta)
@@ -2051,13 +2198,9 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			if c.work_left > 0:
 				return
 			c.xp[Skill.HUNTING] += 1
-			if has_bow(c):
-				c.xp[Skill.RANGED] += 1
+			c.xp[Skill.RANGED] += 1
 			c.work_left = c.work_total
-			if randf() < hit_chance(hunt_level(c), dist) + gear_sum(c, "hit"):
-				wound(a, GEAR[Res.BOW]["shot"] if has_bow(c) else SHOT_DAMAGE, c)
-			else:
-				startle(a, c)
+			shoot(c, a, randf() < hit_chance(hunt_level(c), dist) + gear_sum(c, "hit"))
 		Job.FIGHT:  # a portata (vedi track_prey): con l'arco tira, se no colpisce con quello che ha in mano
 			var foe: Animal = c.prey
 			var dist := c.pos.distance_to(foe.pos) / TILE
@@ -2072,8 +2215,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			c.work_left = c.work_total
 			if has_bow(c):
 				c.xp[Skill.RANGED] += 1
-				if randf() < hit_chance(c.skills[Skill.RANGED], dist) + gear_sum(c, "hit"):
-					wound(foe, GEAR[Res.BOW]["shot"], c)
+				shoot(c, foe, randf() < hit_chance(c.skills[Skill.RANGED], dist) + gear_sum(c, "hit"))
 			else:
 				c.xp[Skill.MELEE] += 1
 				if randf() < melee_chance(c.skills[Skill.MELEE]):
@@ -2207,7 +2349,7 @@ func fx(c: Colonist, key: String, base: Variant) -> Variant:
 	return value
 
 
-func clash(a: Trait, b: Trait) -> bool:
+static func clash(a: Trait, b: Trait) -> bool:
 	return TRAIT_CLASH.any(func(pair): return a in pair and b in pair)
 
 
@@ -2575,9 +2717,7 @@ func seats() -> Array:
 
 # fuochi da campo dentro le stanze di tipo cucina
 func kitchen_fires() -> Array:
-	var kitchens := rooms.filter(func(r): return r.kind == RoomKind.KITCHEN)
-	return furniture.keys().filter(func(o): return furniture[o][0] == Build.CAMPFIRE \
-		and kitchens.any(func(r): return r.cells.has(o)))
+	return stations(Build.CAMPFIRE)
 
 
 func room_at(cell: Vector2i) -> Room:
@@ -2587,16 +2727,15 @@ func room_at(cell: Vector2i) -> Room:
 	return null
 
 
-# pasti che mancano perché ce ne siano MEALS_PER_COLONIST a testa: contano quelli a terra, in mano e sul fuoco
+# pasti che mancano perché ce ne siano quanti chiede il menu del fuoco (vedi keep): contano quelli a terra, in mano e sul fuoco
 func meals_wanted() -> int:
 	var have: int = MEALS.reduce(func(sum, r): return sum + total(r), 0)
 	have += colonists.filter(func(o): return o.job == Job.COOK).size()
-	return maxi(MEALS_PER_COLONIST * colonists.size() - have, 0)
+	return maxi(keep[Res.MEAL] - have, 0)
 
 
 # Cucinare, se mancano pasti: dal mucchio di crudo più vicino con almeno COOK_RAW (a terra o in magazzino)
 # a una casella libera accanto a un fuoco da campo libero, dentro la cucina. false se non si può.
-# ponytail: la scorta è automatica; quando ci sarà la tabella delle priorità, il cartello della cucina potrà dire quanti
 func try_cook(c: Colonist) -> bool:
 	if meals_wanted() == 0:
 		return false
@@ -2665,26 +2804,38 @@ func fits(c: Colonist, slot: Slot) -> Array:
 func try_equip(c: Colonist) -> bool:
 	for slot in Slot.values():
 		for g in fits(c, slot):
-			var path := path_to_nearest(c, items[g].keys().filter(func(cell): return is_free(cell)))
-			if not path.is_empty():
-				start_job(c, Job.EQUIP, path, path.back(), 0.0)
-				c.carry_res = g
+			if take(c, g):
 				return true
 	return false
 
 
-# Quanti `res` mancano. Lingotti: fino a INGOT_STOCK. Equipaggiamento: i coloni con lo slot vuoto che lo prenderebbero
-# (per le mani: chi vuole proprio quell'attrezzo; se no tutti), meno quelli già fatti e in lavorazione per lo stesso slot
+# va a prendere il pezzo `g` dal mucchio libero più vicino (Job.EQUIP); false se non ce n'è
+func take(c: Colonist, g: Res) -> bool:
+	var path := path_to_nearest(c, items[g].keys().filter(func(cell): return is_free(cell)))
+	if path.is_empty():
+		return false
+	start_job(c, Job.EQUIP, path, path.back(), 0.0)
+	c.carry_res = g
+	return true
+
+
+# Quanti `res` mancano: fino a quanti chiede il menu (vedi keep), contando anche quelli in lavorazione. Equipaggiamento,
+# se sono di più: i coloni con lo slot vuoto che lo prenderebbero (per le mani: chi vuole proprio quell'attrezzo; se no
+# tutti), meno quelli già fatti e in lavorazione per lo stesso slot.
+# Almeno un arco se ci sono animali da cacciare e nessuno ce l'ha: chi va a caccia se lo prende (vedi try_hunt)
 func gear_wanted(res: Res) -> int:
 	var making := func(r): return colonists.filter(func(o): return o.job == Job.CRAFT and RECIPES[o.recipe][0] == r).size()
-	if res == Res.INGOT:
-		return INGOT_STOCK - total(Res.INGOT) - making.call(Res.INGOT)
+	var spare: int = keep.get(res, 0) - total(res) - making.call(res)
+	if not GEAR.has(res):
+		return spare
 	var slot: Slot = GEAR[res]["slot"]
 	var same: Array = [res] if slot == Slot.HANDS else GEAR.keys().filter(func(g): return GEAR[g]["slot"] == slot)
 	var want := colonists.filter(func(o): return res in fits(o, slot)).size()
+	if res == Res.BOW and animals.any(func(a): return a.marked) and not colonists.any(has_bow):
+		want = maxi(want, 1)
 	for g in same:
 		want -= total(g) + making.call(g)
-	return want
+	return maxi(want, spare)
 
 
 # mobili `kind` (fornace, incudine, banco) dentro una stanza del tipo giusto (STATION_ROOM)
@@ -2785,9 +2936,9 @@ func has_bow(c: Colonist) -> bool:
 	return c.gear.get(Slot.HANDS) == Res.BOW
 
 
-# caselle da cui colpisce: a caccia o con l'arco quelle di tiro, se no corpo a corpo
+# caselle da cui colpisce: con l'arco quelle di tiro, se no corpo a corpo
 func reach(c: Colonist) -> float:
-	return hunt_range(c) if c.job == Job.HUNT or has_bow(c) else MELEE_RANGE
+	return hunt_range(c) if has_bow(c) else MELEE_RANGE
 
 
 func melee_chance(level: int) -> float:
@@ -2868,6 +3019,34 @@ func wound(a: Animal, damage: float, by: Colonist) -> void:
 		kill(a, by)
 	else:
 		startle(a, by)
+
+
+# Scocca una freccia da `c` verso `a`: se va a segno (`hit`) lo insegue, se no finisce un po' più in là, di lato.
+# Il colpo (o lo spavento) arriva con la freccia, vedi fly
+func shoot(c: Colonist, a: Animal, hit: bool) -> void:
+	var arrow := Arrow.new()
+	var dir := c.pos.direction_to(a.pos)
+	arrow.from = c.pos + dir * 5  # dall'arco, davanti al colono
+	arrow.pos = arrow.from
+	arrow.prey = a
+	arrow.by = c
+	arrow.damage = GEAR[Res.BOW]["shot"] if hit else 0.0
+	arrow.miss = a.pos + dir * TILE + dir.orthogonal() * randf_range(-1.0, 1.0) * TILE
+	arrows.append(arrow)
+
+
+# Un passo della freccia; arrivata colpisce o spaventa l'animale, se c'è ancora (abbattuto da altri: finisce dov'era)
+func fly(arrow: Arrow, delta: float) -> void:
+	var goal: Vector2 = arrow.prey.pos if arrow.damage > 0 and arrow.prey in animals else arrow.miss
+	arrow.pos = arrow.pos.move_toward(goal, ARROW_SPEED * TILE * delta)
+	if arrow.pos != goal:
+		return
+	arrows.erase(arrow)
+	if arrow.prey in animals:
+		if arrow.damage > 0:
+			wound(arrow.prey, arrow.damage, arrow.by)
+		else:
+			startle(arrow.prey, arrow.by)
 
 
 # preso di mira (colpito o mancato): il lupo attacca chi ha tirato, gli altri animali scappano
@@ -3060,7 +3239,7 @@ func inn_beds() -> int:
 # avventuriero `kind` di livello `level`, col suo nome, aspetto, abilità ed equipaggiamento
 func new_hero(kind: Hero, level: int) -> Colonist:
 	var c := Colonist.new()
-	dress(c)
+	dress(c, people().map(func(o): return o.first_name))
 	var data: Dictionary = HEROES[kind]
 	c.hero = kind
 	c.tunic = data["tunic"]
@@ -3688,12 +3867,15 @@ func hit_chance(level: int, tiles: float) -> float:
 	return clampf(HIT_BASE + HIT_PER_LEVEL * level - HIT_PER_TILE * tiles, 0.05, 0.95)
 
 
-# Caccia: l'animale segnato più vicino che nessuno insegue già. Il cacciatore va verso di lui finché non è a tiro
-# (vedi track_prey), poi tira (vedi Job.HUNT). false se non ce n'è o non ci si arriva.
+# Caccia, solo con l'arco: l'animale segnato più vicino che nessuno insegue già. Il cacciatore va verso di lui finché
+# non è a tiro (vedi track_prey), poi tira (vedi Job.HUNT). Senza arco va a prenderne uno, se ce n'è uno libero, e posa
+# quello che aveva in mano. false se non c'è niente da cacciare, nessun arco o non ci si arriva.
 func try_hunt(c: Colonist) -> bool:
 	var prey := animals.filter(func(a): return a.marked and a.hunter == null and a.blocked <= clock)
 	if prey.is_empty():
 		return false
+	if not has_bow(c):
+		return take(c, Res.BOW)
 	prey.sort_custom(func(a, b): return a.pos.distance_squared_to(c.pos) < b.pos.distance_squared_to(c.pos))
 	c.job = Job.HUNT
 	c.prey = prey[0]
@@ -4327,6 +4509,8 @@ func _unhandled_input(event: InputEvent) -> void:
 						open_board()
 					elif not signed.is_empty():
 						open_room(signed[0])
+					elif pieces_at(furniture, cell).any(func(o): return STATION_ROOM.has(furniture[o][0])):
+						open_craft(pieces_at(furniture, cell)[0])
 					else:
 						sheet_panel.hide()  # clic altrove: la scheda si chiude
 				elif event.pressed:
@@ -4492,9 +4676,13 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 			draw_texture_rect_region(STRUCTURES, tile_rect(cell.x, cell.y), structure_src(cell, built[cell], [built]))
 	for cell in boulders:  # stanno dentro le loro caselle: niente ordine per righe
 		draw_texture(boulder_tex(cell), Vector2(cell) * TILE)
-	for cell in bushes:  # bassi, dentro la loro casella come i massi; con le bacche se sono mature
-		draw_texture_rect_region(PLANTS, tile_rect(cell.x, cell.y), tile_rect(2 if bushes[cell] <= clock else 1, 0))
+	for cell in bushes:  # bassi, dentro la loro casella come i massi; con le bacche (o i fiori) se sono maturi
+		draw_texture_rect_region(PLANTS, tile_rect(cell.x, cell.y), tile_rect(plant_col(cell) + (1 if bushes[cell] <= clock else 0), 0))
 	draw_pieces(self, FURNITURE_NIGHT if sun_height() < 0 else FURNITURE_SHEET, furniture)
+	for origin in furniture:  # stendardi: sopra il drappo rosso, quello della casata (stesso fotogramma)
+		if furniture[origin][0] == Build.BANNER:
+			var r := piece_rects(origin, furniture[origin])
+			draw_texture_rect_region(banner_tex, r[0], Rect2(r[1].position.x / 32 * TILE, 0, TILE, TILE))
 	for room in rooms:  # cartelli: si cliccano per nome e tipo della stanza
 		draw_texture(SIGN, Vector2(room.sign) * TILE)
 
@@ -4513,6 +4701,8 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 			Rect2(Vector2(trees[cell], 0) * TILE, Vector2(1, 2) * TILE))
 	for c in queue:
 		draw_creature(c)
+	for arrow in arrows:  # sopra tutto: volano
+		draw_arrow(arrow)
 
 	for cell in chop_marks:
 		draw_mark(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE), Order.CHOP)
@@ -4538,6 +4728,27 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 	if drag_start != null:
 		var r := selection_rect()
 		draw_rect(Rect2(Vector2(r.position) * TILE, Vector2(r.size) * TILE), ORDER_COLORS[order], false, 1.0)
+
+
+# colonna di PLANTS del cespuglio (o del lino) in `cell` senza bacche (fiori); quella dopo è con
+func plant_col(cell: Vector2i) -> int:
+	return 3 if flax.has(cell) else 1
+
+
+# Freccia in volo: asticella di legno con la punta di ferro e le penne, su una parabola bassa (la sua ombra resta a
+# terra); inclinata come sale e scende
+func draw_arrow(arrow: Arrow) -> void:
+	var goal: Vector2 = arrow.prey.pos if arrow.damage > 0 and arrow.prey in animals else arrow.miss
+	var done := arrow.from.distance_to(arrow.pos)
+	var length := done + arrow.pos.distance_to(goal)
+	var f := done / length if length > 0 else 1.0
+	var lift := Vector2(0, -sin(PI * f) * ARROW_ARC * length)
+	var dir := (arrow.from.direction_to(goal) * length + Vector2(0, -PI * cos(PI * f) * ARROW_ARC * length)).normalized()
+	var tip := arrow.pos + lift
+	draw_line(arrow.pos - dir * 6, arrow.pos, Color(0, 0, 0, 0.25), 1.0)
+	draw_line(tip - dir * 6, tip, Color("7a5434"), 1.0)
+	draw_line(tip - dir * 6, tip - dir * 4, Color("e8e4d8"), 1.0)
+	draw_rect(Rect2(tip - Vector2.ONE * 0.5, Vector2.ONE), Color("d0d0d8"))
 
 
 # Segno di un ordine: la sua icona a mezza misura, velata, al centro
@@ -4666,8 +4877,121 @@ func draw_colonist(c: Colonist) -> void:
 			HORIZONTAL_ALIGNMENT_LEFT, -1, 8, Color("ff5a5a"))
 
 
+# ---- Stemma della casata (vedi Tincture) ----
+
+static func image_of(tex: Texture2D) -> Image:
+	if not sheet_images.has(tex):
+		sheet_images[tex] = tex.get_image()
+	return sheet_images[tex]
+
+
+# Partizione: true dove il campo ha il secondo smalto. (px, py): pixel dal centro del campo
+static func divided(division: int, px: float, py: float) -> bool:
+	match division:
+		Division.PALE: return px > 0
+		Division.FESS: return py > 0
+		Division.BEND: return py > px
+		Division.BEND_SINISTER: return py > -px
+		Division.QUARTERLY: return (px > 0) != (py > 0)
+		Division.SALTIRE: return absf(px) > absf(py)
+	return false
+
+
+# Pezza: true dove c'è, in un campo `w` x `h`; `edge`: il pixel tocca il bordo (la bordura)
+static func on_ordinary(ordinary: int, px: float, py: float, w: float, h: float, edge: bool) -> bool:
+	var s := minf(w, h)
+	match ordinary:
+		Ordinary.CHIEF: return py < -h / 4  # sopra la figura, che sta al centro
+		Ordinary.BASE: return py > h / 4
+		Ordinary.PALE: return absf(px) < s / 6
+		Ordinary.FESS: return absf(py) < s / 6
+		Ordinary.BEND: return absf(px - py) < s / 4
+		Ordinary.CROSS: return absf(px) < s / 8 or absf(py) < s / 8
+		Ordinary.SALTIRE: return absf(px - py) < s / 5 or absf(px + py) < s / 5
+		Ordinary.CHEVRON: return absf(py - absf(px) + s / 8) < s / 7
+		Ordinary.BORDURE: return edge
+	return false
+
+
+static func tincture_at(a: Dictionary, px: float, py: float, w: float, h: float, edge: bool) -> Color:
+	var t: int = a.field2 if divided(a.division, px, py) else a.field
+	return TINCTURE_COLORS[a.ordinary_tincture if on_ordinary(a.ordinary, px, py, w, h, edge) else t]
+
+
+# Lo scudo 16x16: la forma, il campo (partizione e pezza) e la figura 8x8 al centro
+static func arms_texture(a: Dictionary) -> ImageTexture:
+	var sheet := image_of(ARMS_SHEET)
+	var field := func(x: int, y: int) -> bool:  # dentro lo scudo, non sul bordo scuro
+		if x < 0 or y < 0 or x >= 16 or y >= 16:
+			return false
+		var m := sheet.get_pixel(a.shape * 16 + x, y)
+		return m.a > 0 and m.r > 0.5
+	var img := Image.create(16, 16, false, Image.FORMAT_RGBA8)
+	for y in 16:
+		for x in 16:
+			if not field.call(x, y):
+				img.set_pixel(x, y, sheet.get_pixel(a.shape * 16 + x, y))  # il bordo, o niente
+				continue
+			var edge := range(-1, 2).any(func(dx): return range(-1, 2).any(func(dy): return not field.call(x + dx, y + dy)))
+			var color := tincture_at(a, x - 7.5, y - 7.5, 14.0, 14.0, edge)
+			if a.charge != Charge.NONE and x >= 4 and y >= 4 and x < 12 and y < 12 \
+					and sheet.get_pixel((a.charge - 1) * 8 + x - 4, 16 + y - 4).a > 0:
+				color = TINCTURE_COLORS[a.charge_tincture]
+			img.set_pixel(x, y, color)
+	return ImageTexture.create_from_image(img)
+
+
+# Il drappo degli stendardi, 64x16 come BANNER_DRAPE: in ogni fotogramma il campo, la pezza e la figura 5x5,
+# ombreggiati dalle pieghe. Si disegna sopra il drappo rosso del foglio dei mobili
+static func banner_texture(a: Dictionary) -> ImageTexture:
+	var drape := image_of(BANNER_DRAPE)
+	var sheet := image_of(ARMS_SHEET)
+	var img := Image.create(drape.get_width(), TILE, false, Image.FORMAT_RGBA8)
+	for f in drape.get_width() / TILE:
+		var cells: Array[Vector2i] = []
+		for y in TILE:
+			for x in TILE:
+				if drape.get_pixel(f * TILE + x, y).a > 0:
+					cells.append(Vector2i(x, y))
+		var box := Rect2i(cells[0], Vector2i.ONE)
+		for cell in cells:
+			box = box.expand(cell + Vector2i.ONE)
+		var mid := Vector2(box.position) + Vector2(box.size - Vector2i.ONE) / 2.0
+		var corner := Vector2i((mid - Vector2.ONE * 2).floor())  # della figura 5x5
+		for cell in cells:
+			var edge := SIDES.any(func(d): return not cells.has(cell + d))
+			var color := tincture_at(a, cell.x - mid.x, cell.y - mid.y, box.size.x, box.size.y, edge)
+			var c := cell - corner
+			if a.charge != Charge.NONE and c.x >= 0 and c.y >= 0 and c.x < 5 and c.y < 5 \
+					and sheet.get_pixel((a.charge - 1) * 5 + c.x, 24 + c.y).a > 0:
+				color = TINCTURE_COLORS[a.charge_tincture]
+			if drape.get_pixel(f * TILE + cell.x, cell.y).r < 0.8:
+				color = color.darkened(1.0 - BANNER_SHADE)
+			img.set_pixelv(Vector2i(f * TILE, 0) + cell, color)
+	return ImageTexture.create_from_image(img)
+
+
+# Uno stemma a caso che rispetta la regola degli smalti (metallo su colore, colore su metallo): un campo partito
+# resta senza pezza né figura; su un campo pieno pezza e figura hanno l'altro smalto, la figura solo se la pezza non
+# passa dal centro (CENTRAL)
+static func random_arms() -> Dictionary:
+	var metal: int = METALS.pick_random()
+	var colour: int = Tincture.values().filter(func(t): return t not in METALS).pick_random()
+	var field := metal if randf() < 0.5 else colour
+	var other := colour if field == metal else metal
+	var a := {"shape": randi() % Shape.size(), "division": Division.PLAIN, "field": field, "field2": other,
+		"ordinary": Ordinary.NONE, "ordinary_tincture": other, "charge": Charge.NONE, "charge_tincture": other}
+	if randf() < 0.4:
+		a.division = randi_range(1, Division.size() - 1)
+		return a
+	if randf() < 0.6:
+		a.ordinary = randi_range(1, Ordinary.size() - 1)
+	if a.ordinary not in CENTRAL and (randf() < 0.8 or a.ordinary == Ordinary.NONE):
+		a.charge = randi_range(1, Charge.size() - 1)
+	return a
+
 # il colono `c` (il fotogramma `src` dei fogli) in `dst` di `canvas`, un livello sull'altro (vedi figure_layers)
-func draw_figure(canvas: CanvasItem, dst: Rect2, src: Rect2, c: Colonist, shade := Color.WHITE) -> void:
+static func draw_figure(canvas: CanvasItem, dst: Rect2, src: Rect2, c: Colonist, shade := Color.WHITE) -> void:
 	for layer in figure_layers(c):
 		canvas.draw_texture_rect_region(layer[0], dst, layer_src(src, layer), layer[2] * shade)
 
@@ -4675,7 +4999,7 @@ func draw_figure(canvas: CanvasItem, dst: Rect2, src: Rect2, c: Colonist, shade 
 # Livelli dello sprite di `c`, dal basso: [foglio, voce del foglio (i 96x64 uno sotto l'altro), tinta].
 # Corpo, maglia e mantello; l'armatura sopra la maglia; capelli, acconciatura e barba; il copricapo sopra i capelli;
 # il corredo degli avventurieri; per ultimo quello che ha in mano (a mani vuote, nei lavori, un attrezzo qualunque)
-func figure_layers(c: Colonist) -> Array:
+static func figure_layers(c: Colonist) -> Array:
 	var layers := [[COLONIST_BASE, 0, Color.WHITE], [COLONIST_TUNIC, 0, c.tunic], [COLONIST_CAPE, 0, c.cape]]
 	var body = c.gear.get(Slot.BODY)
 	if body != null:
@@ -4697,13 +5021,15 @@ func figure_layers(c: Colonist) -> Array:
 
 
 # il fotogramma `src` nella voce del foglio di `layer` (ogni voce: 4 direzioni, alte una casella)
-func layer_src(src: Rect2, layer: Array) -> Rect2:
+static func layer_src(src: Rect2, layer: Array) -> Rect2:
 	return Rect2(src.position + Vector2(0, layer[1] * 4 * TILE), src.size)
 
 
 func frame_of(c: Colonist) -> int:
 	if not c.path.is_empty():
 		return WALK_CYCLE[int(c.walked / (TILE / 2.0)) % WALK_CYCLE.size()]
+	if is_working(c) and c.job in [Job.HUNT, Job.FIGHT] and has_bow(c):  # tende l'arco, mira e scocca (vedi Job.HUNT)
+		return BOW_LOOSE if c.work_left > c.work_total * (1.0 - BOW_LOOSE_PART) else BOW_DRAW
 	if is_working(c):
 		return WORK_CYCLE[int((c.work_total - c.work_left) / SWING_TIME * WORK_CYCLE.size()) % WORK_CYCLE.size()]
 	return IDLE_CYCLE[int(c.idle / BREATH_TIME * IDLE_CYCLE.size()) % IDLE_CYCLE.size()]

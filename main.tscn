@@ -1,4 +1,4 @@
-[gd_scene load_steps=42 format=3]
+[gd_scene load_steps=44 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Texture2D" path="res://art/icon_wood.png" id="2"]
@@ -87,53 +87,61 @@ region = Rect2(0, 192, 16, 16)
 atlas = ExtResource("8")
 region = Rect2(0, 224, 16, 16)
 
-[sub_resource type="AtlasTexture" id="FlowerBedIcon"]
+[sub_resource type="AtlasTexture" id="SpinningWheelIcon"]
 atlas = ExtResource("8")
 region = Rect2(0, 256, 16, 16)
 
-[sub_resource type="AtlasTexture" id="PlanterIcon"]
+[sub_resource type="AtlasTexture" id="CarpenterBenchIcon"]
 atlas = ExtResource("8")
 region = Rect2(0, 288, 16, 16)
 
-[sub_resource type="AtlasTexture" id="BenchIcon"]
+[sub_resource type="AtlasTexture" id="FlowerBedIcon"]
 atlas = ExtResource("8")
-region = Rect2(0, 320, 32, 16)
+region = Rect2(0, 320, 16, 16)
 
-[sub_resource type="AtlasTexture" id="BannerIcon"]
+[sub_resource type="AtlasTexture" id="PlanterIcon"]
 atlas = ExtResource("8")
 region = Rect2(0, 352, 16, 16)
 
+[sub_resource type="AtlasTexture" id="BenchIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 384, 32, 16)
+
+[sub_resource type="AtlasTexture" id="BannerIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 416, 16, 16)
+
 [sub_resource type="AtlasTexture" id="LanternIcon"]
 atlas = ExtResource("8")
-region = Rect2(0, 384, 16, 16)
+region = Rect2(0, 448, 16, 16)
 
 [sub_resource type="AtlasTexture" id="FountainIcon"]
 atlas = ExtResource("8")
-region = Rect2(0, 416, 32, 32)
+region = Rect2(0, 480, 32, 32)
 
 [sub_resource type="AtlasTexture" id="StatueIcon"]
 atlas = ExtResource("8")
-region = Rect2(0, 448, 32, 32)
+region = Rect2(0, 512, 32, 32)
 
 [sub_resource type="AtlasTexture" id="NoticeBoardIcon"]
 atlas = ExtResource("8")
-region = Rect2(0, 480, 16, 16)
+region = Rect2(0, 544, 16, 16)
 
 [sub_resource type="AtlasTexture" id="ChaliceIcon"]
 atlas = ExtResource("8")
-region = Rect2(0, 512, 16, 16)
+region = Rect2(0, 576, 16, 16)
 
 [sub_resource type="AtlasTexture" id="OldBannerIcon"]
 atlas = ExtResource("8")
-region = Rect2(0, 544, 16, 16)
+region = Rect2(0, 608, 16, 16)
 
 [sub_resource type="AtlasTexture" id="BustIcon"]
 atlas = ExtResource("8")
-region = Rect2(0, 576, 16, 16)
+region = Rect2(0, 640, 16, 16)
 
 [sub_resource type="AtlasTexture" id="CrownIcon"]
 atlas = ExtResource("8")
-region = Rect2(0, 608, 16, 16)
+region = Rect2(0, 672, 16, 16)
 
 [sub_resource type="ButtonGroup" id="Kinds"]
 
@@ -165,6 +173,15 @@ theme_type_variation = &"Bar"
 
 [node name="Row" type="HBoxContainer" parent="HUD/TopBar"]
 theme_override_constants/separation = 6
+
+[node name="RealmIcon" type="TextureRect" parent="HUD/TopBar/Row"]
+custom_minimum_size = Vector2(32, 32)
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Realm" type="Button" parent="HUD/TopBar/Row"]
+focus_mode = 0
+flat = true
 
 [node name="StoredIcon" type="TextureRect" parent="HUD/TopBar/Row"]
 custom_minimum_size = Vector2(32, 32)
@@ -425,6 +442,24 @@ focus_mode = 0
 toggle_mode = true
 button_group = SubResource("Kinds")
 icon = SubResource("WorkbenchIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Spinning Wheel" type="Button" parent="HUD/FurnitureBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("SpinningWheelIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Carpenter Bench" type="Button" parent="HUD/FurnitureBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("CarpenterBenchIcon")
 icon_alignment = 1
 expand_icon = true
 
@@ -746,6 +781,40 @@ text = "Owners"
 [node name="Ok" type="Button" parent="HUD/RoomPopup/Box"]
 text = "OK"
 
+[node name="CraftPopup" type="PanelContainer" parent="HUD"]
+visible = false
+custom_minimum_size = Vector2(320, 0)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Box" type="VBoxContainer" parent="HUD/CraftPopup"]
+theme_override_constants/separation = 8
+
+[node name="Head" type="HBoxContainer" parent="HUD/CraftPopup/Box"]
+
+[node name="Title" type="Label" parent="HUD/CraftPopup/Box/Head"]
+size_flags_horizontal = 3
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Close" type="Button" parent="HUD/CraftPopup/Box/Head"]
+custom_minimum_size = Vector2(32, 32)
+focus_mode = 0
+tooltip_text = "Close"
+icon = ExtResource("6")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Room" type="Label" parent="HUD/CraftPopup/Box"]
+theme_override_colors/font_color = Color(1, 0.415686, 0.290196, 1)
+
+[node name="List" type="VBoxContainer" parent="HUD/CraftPopup/Box"]
+
 [node name="Separator" type="VSeparator" parent="HUD/Tools/Row"]
 
 [node name="Jobs" type="Button" parent="HUD/Tools/Row"]
@@ -862,6 +931,12 @@ offset_bottom = 64.0
 theme_override_constants/separation = 4
 
 [node name="Head" type="HBoxContainer" parent="HUD/ColonistSheet/Box"]
+
+[node name="Arms" type="TextureRect" parent="HUD/ColonistSheet/Box/Head"]
+visible = false
+custom_minimum_size = Vector2(32, 32)
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Name" type="Label" parent="HUD/ColonistSheet/Box/Head"]
 size_flags_horizontal = 3

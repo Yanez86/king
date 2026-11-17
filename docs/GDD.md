@@ -105,10 +105,120 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 - **Scheda** (clic sul colono): nome, soprannome (facoltativo), cognome, sesso, punti ferita, abilità (ognuna con un'icona 8×8), talenti (solo icone, il nome col mouse sopra), equipaggiamento (3 slot: mani, corpo, testa). Poi bisogni, relazioni.
 
 ### 4.3 Il re e la dinastia
-- Il re è un colono speciale: lavora poco, il suo stato dà bonus/malus al reame.
-- Può sposarsi, avere figli; i figli crescono e ereditano parte dei talenti.
-- Alla morte del re: successione all'erede (regola semplice: primogenito). Nessun erede → game over (o fine della dinastia).
+- Il **sovrano** (re solo alla fine, vedi Titolo) è un colono come gli altri: lavori e priorità, bisogni, routine, abilità che
+  crescono, equipaggiamento, combattimento. In più lo crea il giocatore a inizio partita (vedi 4.3.1) e il suo stato
+  influisce sugli altri coloni.
+- **Titolo**: cresce con la colonia, e con lui il nome del reame e la corona sullo stemma (vedi 4.3.2). Soglie da definire
+  (splendore, numero di coloni). È della casata: l'erede lo eredita. Il gioco si chiama King: diventare re è l'arco della partita.
+
+  | Titolo | Reame | Corona sullo stemma |
+  |---|---|---|
+  | Signore / Signora | Signoria di … | nessuna |
+  | Barone / Baronessa | Baronia di … | cerchio |
+  | Conte / Contessa | Contea di … | corona a punte |
+  | Re / Regina | Regno di … | corona reale |
+
+- **Influenza sugli altri coloni**: condizioni come in 4.2, con l'icona nella scheda (numeri provvisori):
+
+  | Condizione | Quando, durata | Lavoro | Stress da lavoro | Felicità |
+  |---|---|---|---|---|
+  | Sovrano sereno | felicità del sovrano ≥ 70, finché dura | — | — | +5 |
+  | Sovrano cupo | felicità del sovrano ≤ 30, finché dura | — | +15% | −5 |
+  | Sotto lo sguardo del sovrano | entro 8 caselle da lui, finché dura | −10% tempo | — (pigro e irrequieto: +25%) | — |
+  | Lutto regale | è morto il sovrano, 7 giorni (invece del lutto) | — | +25% | −20 |
+  | Incoronazione | il nuovo sovrano, finito il lutto regale, 2 giorni | — | — | +10 |
+
+  Quando lo stress del sovrano arriva a 90, chi è entro 8 caselle prende subito +10 stress.
+- **In battaglia**: chi è entro 8 caselle dal sovrano scappa solo sotto 20 punti ferita (non 40), come il Temerario.
+  Se il sovrano è a terra, i coloni in piedi entro 12 caselle lasciano tutto e vanno a difenderlo (combattono il nemico più vicino a lui).
+- **Stile di regno**: uno, scelto alla creazione; vale per tutta la colonia finché regna. All'incoronazione il giocatore
+  ne sceglie uno per l'erede.
+
+  | Stile | Effetto |
+  |---|---|
+  | Condottiero | +10% a segno in combattimento |
+  | Costruttore | costruire −15% tempo |
+  | Mecenate | +25% splendore dalle decorazioni |
+  | Padre del popolo | +5 felicità a tutti |
+  | Tesoriere | paga degli avventurieri −15% |
+  | Saggio | +20% punti esperienza a tutti |
+
+- **Epiteto**: alla morte la cronaca gli dà un soprannome secondo il regno, per esempio "il Costruttore" (più edifici finiti),
+  "il Lupo" (più lupi abbattuti), "il Breve" (meno di 10 giorni). Lista da definire.
+- Può sposarsi, avere figli; i figli crescono, prendono il cognome della casata e ereditano parte dei talenti.
+- Alla morte del sovrano: successione all'erede (regola semplice: primogenito). Nessun erede → game over (o fine della dinastia).
 - MVP: solo matrimonio, figli, successione. Intrighi/vassalli fuori scope.
+
+### 4.3.1 Nuova partita: casata e sovrano
+Quattro pagine, in quest'ordine (lo stemma prima del sovrano, perché gli dà i colori). Accanto a ogni nome un dado che
+pesca dalle liste dei nomi.
+1. **Casata**: nome della casata (è il cognome del sovrano e dei figli), nome della colonia (nel nome del reame:
+   "Signoria di Valbruna"), motto facoltativo (sul cartiglio dello stemma).
+2. **Stemma**: vedi 4.3.2.
+3. **Sovrano**:
+   - Nome, soprannome facoltativo, sesso.
+   - **Abilità**: 12 punti da dare, al massimo 3 per abilità (almeno quattro abilità); il resto con l'esperienza.
+     Gli altri coloni partono da 0.
+   - **Talenti**: fino a 2 tra quelli dei coloni (4.2), mai due in contrasto. I difetti danno 2 punti abilità in più
+     (pigro, iracondo, dormiglione, irrequieto, sonnambulo, goloso, festaiolo), i pregi ne costano 2 (stacanovista,
+     instancabile, tranquillo, asceta, di poco appetito), gli altri niente (mattiniero, nottambulo, pennichella).
+   - **Stile di regno**: vedi 4.3.
+   - **Aspetto** (i livelli di 4.2): tono della pelle (3–4, livello tinto nuovo; poi anche per gli altri coloni); capelli
+     (calotta, lunghi, treccia, per tutti e due i sessi) e il loro colore; barba; colore di maglia e mantello (all'inizio
+     i primi due smalti dello stemma; finché non c'è lo stemma, le tinte dei coloni); la barba solo agli uomini; l'insegna sopra i capelli, la corona del titolo (sotto un copricapo non si vede).
+     Anteprima grande, girabile nelle quattro direzioni.
+4. **Riepilogo**: casata, stemma, sovrano e gli altri coloni di partenza (a caso, come ora), ognuno col suo dado per
+   ritirarlo (nome, sesso, aspetto, talenti), più un dado per tutti. Poi "Start".
+
+### 4.3.2 Stemma
+Lo stemma della casata si compone a livelli, uno sull'altro, come lo sprite dei coloni. **Palette chiusa**: solo gli
+smalti dell'araldica, che tingono anche mantello e stendardi.
+
+| Livello | Scelte |
+|---|---|
+| Forma | sannitico, francese antico (a punta), a mandorla, tondo, a testa di cavallo, a losanga |
+| Partizione del campo | pieno, partito, troncato, trinciato, tagliato, inquartato, inquartato in decusse, interzato in palo, gheronato |
+| Linea di partizione | dritta, dentata, ondata, merlata, nebulosa |
+| Smalti | metalli: oro, argento; colori: rosso, azzurro, verde, nero, porpora |
+| Pellicce e motivi (al posto di uno smalto pieno, in una parte del campo o nella pezza) | ermellino, vaio (coi loro colori); palato, fasciato, bandato, scaccato, losangato (due smalti a scelta); seminato di gigli, stelle o crescenti |
+| Pezza (sopra il campo) | capo, campagna, palo, fascia, banda, croce, decusse, scaglione, pergola, bordura |
+| Figura | leone, aquila, lupo, orso, cervo, cinghiale, drago, grifone; torre, spada, chiave, ascia, martello, corona, spiga, albero; giglio, rosa, stella, crescente, sole |
+| Disposizione della figura | una al centro, tre (2 e 1), in capo; uno smalto per la figura |
+| Ornamenti | corona del titolo (non si sceglie, vedi 4.3), elmo e cimiero, svolazzi, motto sul cartiglio |
+
+- **Editor**: anteprima grande e, accanto, a 32 e a 16 px (come si vedrà sulla mappa); una scheda per livello, ogni scelta
+  con la sua miniatura. Dado per tutto e lucchetto per ogni livello (il dado ritira solo quelli aperti). Annulla.
+- **Regola degli smalti**: mai colore su colore né metallo su metallo. Se la si rompe, un avviso (disattivabile), non un
+  divieto; il dado la rispetta.
+- **Blasonatura**: sotto lo scudo il testo che lo descrive, composto a chiavi e tradotto come il resto:
+  «D'azzurro, alla torre d'argento; al capo d'oro.»
+- **Dove si vede**: lo stendardo (oggi drappo rosso con la corona) col drappo dello stemma, che sventola come ora;
+  il mantello del sovrano; la barra in alto, accanto al nome del reame; la scheda del sovrano; l'intestazione della
+  cronaca e dei diari; i salvataggi.
+- **Disegno**: lo scudo è di 16x16 (2x nella barra e nella scheda, 8x nella pagina della casata). Partizioni e pezze
+  sono formule sul campo, così vanno bene a ogni misura (scudo e drappo); forme e figure sono maschere disegnate a mano
+  (tools/make_sprites.py, art/arms.png), le figure senza bordo, in due misure: 8x8 al centro dello scudo, 5x5 sul
+  drappo dello stendardo (largo 7). Capo e campagna prendono un quarto del campo, così non toccano la figura.
+  Poi: una versione a 32 px, con gli animali (leone, lupo, orso…), che a 8 px non si leggono.
+- Poi: lo stendardo antico dei cimeli (4.4.4) con uno stemma a caso e il nome della casata caduta ("Stendardo dei
+  Valdora"); il matrimonio unisce i due stemmi (partito); l'erede porta il lambello finché non regna; le casate finite
+  in una "Sala delle casate" nel menu.
+
+**Ordine di lavoro** (4.3–4.3.2): (1) una pagina sola: nome, casata, sesso, colonia, capelli, barba, colori, 12 punti
+abilità; (2) stemma base: 4 forme, 6 partizioni, i 7 smalti, 6 pezze, una decina di figure, dado; sullo stendardo,
+nella barra in alto e nella scheda; (3) sovrano sereno e cupo, lutto regale, incoronazione; (4) riepilogo coi coloni di
+partenza; (5) talenti a punti e stile di regno; (6) titolo che cresce e corona sullo stemma; (7) linee, pellicce, motivi,
+ornamenti, motto, blasonatura; (8) presenza, difesa del sovrano, epiteti; (9) il resto di "Poi".
+**Stato**: fatte le fasi 1 e 2, e della 5 i talenti a punti (nella pagina del sovrano, col costo sul pulsante). "New Game" apre la pagina (creation.gd), "Start" la partita: il sovrano è il primo colono,
+coi talenti scelti; in alto a sinistra la corona e "Lordship of …", che apre la sua scheda, dove sotto il
+nome c'è "Lord/Lady of …". Senza la pagina (nei test) sovrano, colonia e stemma vengono a caso.
+Fase 2: la pagina è divisa in due, "Your House" (nomi e stemma) e "Your Ruler"; stemma con 4 forme (francese antico,
+sannitico, tondo, losanga), 7 partizioni, i 7 smalti, 9 pezze (capo, campagna, palo, fascia, banda, croce, decusse,
+scaglione, bordura), 10 figure (stella, crescente, giglio, rosa, torre, corona, spada, chiave, albero, aquila).
+Ogni pulsante mostra lo stemma com'è con quella scelta. Maglia e mantello seguono i primi due smalti finché non li si
+sceglie (dagli smalti). Il dado rispetta la regola degli smalti: campo partito senza pezza né figura, niente figura
+sulle pezze che passano dal centro. Lo stemma sta nella barra in alto (al posto della corona), nella scheda del
+sovrano davanti al nome e sul drappo degli stendardi (ombreggiato dalle pieghe che ondeggiano).
 
 ### 4.4 Risorse ed edifici
 - Materie prime: legname, pietra, ferro, carbone, oro, cibo crudo. Ferro e carbone vengono dalle vene nella roccia (massi 1x1).
@@ -128,17 +238,19 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   gli avventurieri. Nei testi (bacheca, scheda, diari, cronaca, finestra Jobs) al posto della parola c'è una monetina
   16×16 dopo il numero. Poi: vene d'oro nella roccia, commercio.
 - Catene MVP:
-  - Legname → assi (banco da falegname)
+  - Legname → assi (banco del falegname)
+  - Lino → corda d'arco (filatoio) → arco, con la legna (banco del falegname)
   - Ferro grezzo → lingotti (fornace) → attrezzi (fucina)
   - Cibo crudo → pasto (cucina, vedi 4.4.1)
 - Attrezzi equipaggiati = bonus all'abilità corrispondente.
 - Edifici MVP: muri, porte, tetto, letto, focolare, cucina, magazzino (zona), banco da lavoro, fornace, fucina.
 - Stanze chiuse con tetto proteggono da pioggia e freddo; il focolare scalda.
 - **Stanze**: zona chiusa da muri con una porta; il cartello sul muro accanto alla porta apre nome e tipo.
-  Tipi: magazzino; camera (1 letto); dormitorio (2 letti); cucina (fuoco da campo, poi anche stufa); forgia (fornace e incudine).
+  Tipi: magazzino; camera (1 letto); dormitorio (2 letti); cucina (fuoco da campo, poi anche stufa); forgia (fornace e incudine);
+  laboratorio (banco da lavoro); falegnameria (banco del falegname).
   Un tipo si sceglie solo se ci sono i mobili (gli altri non compaiono); tolti, la stanza torna senza tipo.
   Ogni tipo ha una categoria:
-  - **lavoro** (cucina, forgia): niente proprietari, ma le si assegnano dei lavoratori (per ora senza effetto; poi
+  - **lavoro** (cucina, forgia, laboratorio, falegnameria): niente proprietari, ma le si assegnano dei lavoratori (per ora senza effetto; poi
     solo loro ne faranno i lavori). L'ingresso resta libero.
   - **residenza** (camera, dormitorio): può avere uno o più proprietari tra i coloni; un colono entra (anche solo per
     passarci) solo nelle residenze sue o senza proprietari.
@@ -169,8 +281,8 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   Se entro 20 caselle c'è una sedia libera accanto a un tavolo, lo porta lì e lo mangia seduto (*mangiato al tavolo*).
 - **Cucinare** (abilità cucinare): in una stanza di tipo cucina, accanto al fuoco da campo. Il cuoco prende 2 crudi dal
   mucchio più vicino, cucina, il pasto cade ai suoi piedi e lo porta in magazzino. Si cucina finché in giro
-  (a terra, in magazzino, in mano) ci sono meno di 2 pasti a colono; nella finestra Jobs: "Cook meals: N".
-  Poi: ricette e quantità impostabili dal cartello della cucina.
+  (a terra, in magazzino, in mano) ci sono meno pasti di quanti ne chiede il menu del fuoco (vedi 4.4.2; all'inizio
+  2 a colono, 6); nella finestra Jobs: "Cook meals: N". Poi: altre ricette (stufato, conserve).
   - Tempo: 8 s a livello 5 (×1,5 a livello 0, ×0,5 a livello 10), secondo il comfort della cucina (±20%) e le condizioni del cuoco.
   - +1 punto esperienza per pasto.
   - **Bruciato** (vegetali persi): 6% per livello sotto il 6 (36% a livello 0), +3% per punto di comfort della cucina sotto 5 (sopra lo abbassa).
@@ -178,10 +290,16 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 - **Pescare** (abilità pescare, tasto "Fish", canna): si segnano caselle d'acqua. Il pescatore sta accanto (anche nell'acqua
   bassa) e lancia: 10 s a lancio a livello 5, un pesce con probabilità 30% + 6% per livello (30% a livello 0, 90% a 10).
   +1 punto esperienza per lancio, anche a vuoto. Ogni punto ha 4 pesci, poi si svuota per 1 giorno; il segno resta.
-- **Cacciare** (abilità cacciare, tasto "Hunt", arco): sulla mappa girano animali selvatici, mai nelle stanze né in acqua.
-  Si segnano trascinando sopra di loro. Il cacciatore li insegue e tira da al più 6 caselle: un tiro ogni 4 s a livello 5;
+- **Cacciare** (abilità cacciare, tasto "Hunt"): sulla mappa girano animali selvatici, mai nelle stanze né in acqua.
+  Si segnano trascinando sopra di loro. Si caccia **solo con l'arco**: chi non ce l'ha va a prenderne uno libero e posa lì
+  quello che aveva in mano; se non ce ne sono se ne fa uno (vedi 4.4.2) e la finestra Jobs dice "(needs a bow)".
+  Il cacciatore li insegue e tira da al più 8 caselle (6 + 2 dell'arco): un tiro ogni 4 s a livello 5;
   colpisce con probabilità 30% + 5% per livello − 5% per casella di distanza (5–95%). Colpito o mancato, l'animale scappa
   di 8 caselle e il cacciatore lo rincorre. +1 punto esperienza per tiro. Abbattuto, lascia la carne.
+  - **Animazione**: mirando tende l'arco (fotogramma a corda lenta subito dopo il tiro, per un quarto del tempo di mira,
+    poi a corda tesa con la freccia incoccata), per le quattro direzioni. Al tiro parte una freccia (20 caselle/s, su una
+    parabola bassa, con l'ombra a terra): se va a segno insegue l'animale, se no finisce un po' più in là, di lato.
+    Il colpo, o lo spavento, arriva con la freccia. Vale anche in combattimento.
 
   | Animale | Colpi | Carne | Velocità | All'inizio |
   |---|---|---|---|---|
@@ -194,28 +312,39 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 - Poi: animali che si difendono; stufato (vegetali + carne o pesce), conserve per l'inverno.
 - **Raccogliere** (tasto "Harvest", cestino, dopo "Uproot"): si segnano i cespugli; i coloni ne raccolgono le bacche ogni
   volta che maturano (5 ogni 2 giorni), finché il segno resta, e le portano in magazzino. Segnare "Uproot" toglie il segno e viceversa.
+  - **Lino**: ciuffi coi fiori azzurri sparsi nei prati (circa 1 casella su 100). Si segna e si raccoglie come i cespugli
+    (abilità raccogliere): in fiore dà 5 lino, poi rifiorisce in 2 giorni. Non si mangia: si fila in corde d'arco.
   Un colono mangia circa 2 vegetali al giorno se cucinati, 2,6 crudi; un cespuglio ne dà 2,5: 1–2 cespugli a testa.
 
 ### 4.4.2 Forgia, sartoria ed equipaggiamento
-- **Stanze**: forgia (fornace e incudine), laboratorio (banco da lavoro, 15 legna).
+- **Stanze**: forgia (fornace e incudine), laboratorio (banco da lavoro, 15 legna; ci lavora anche il filatoio, 10 legna),
+  falegnameria (banco del falegname, 15 legna).
 - **Ricette** (si fanno da sé, come in cucina; il produttore va a prendere gli ingredienti uno alla volta e li porta alla
   postazione; tempo secondo livello, comfort della stanza e condizioni; rovinato come il cibo bruciato, ingredienti persi):
 
   | Oggetto | Dove | Abilità | Ingredienti | Secondi (liv. 5) |
   |---|---|---|---|---|
   | Lingotto | fornace | forgiare | 1 ferro + 1 carbone | 6 |
-  | Armatura di cuoio | banco | cucire | 4 pelli | 20 |
-  | Cappuccio di cuoio | banco | cucire | 2 pelli | 12 |
-  | Arco | banco | armi a distanza | 3 legna + 1 pelle | 15 |
+  | Corda d'arco | filatoio | cucire (filare) | 2 lino | 8 |
+  | Armatura di cuoio | banco da lavoro | cucire | 4 pelli | 20 |
+  | Cappuccio di cuoio | banco da lavoro | cucire | 2 pelli | 12 |
+  | Arco | banco del falegname | armi a distanza | 3 legna + 1 corda d'arco | 15 |
   | Piccone, ascia | incudine | forgiare | 2 lingotti + 2 legna | 15 |
   | Spada | incudine | forgiare | 3 lingotti + 1 legna | 20 |
   | Falcetto | incudine | forgiare | 1 lingotto + 1 legna | 10 |
   | Elmo | incudine | forgiare | 3 lingotti | 20 |
   | Cotta di maglia | incudine | forgiare | 6 lingotti | 30 |
 
-  Lingotti: finché ce ne sono meno di 10. Equipaggiamento: quanto manca perché ogni colono abbia pieni i suoi slot; per
-  corpo e testa il primo in elenco di cui ci sono gli ingredienti (prima il cuoio, poi il metallo).
-  Poi: ordinazioni dal cartello, qualità degli oggetti, cambiare un pezzo con uno migliore.
+- **Menu della postazione**: clic su fuoco da campo, fornace, incudine, banco da lavoro, filatoio o banco del falegname
+  (senza strumenti scelti) apre il suo menu: una riga per ricetta con icona, nome (col mouse sopra l'effetto del pezzo),
+  ingredienti e **"Keep N"**, quanti tenerne. Si fa finché in giro (a terra, in magazzino, in mano, in lavorazione) ce
+  ne sono meno; vale per tutte le postazioni dello stesso tipo. Fuori dalla sua stanza il menu lo dice, in rosso.
+  Al fuoco da campo i pasti, da 2 crudi uguali qualsiasi. Il suggerimento sul mobile dice "Click: what to make".
+  All'inizio: pasti 6, lingotti 10, corde d'arco 2, equipaggiamento 0.
+- Equipaggiamento: oltre ai "Keep", quanto manca perché ogni colono abbia pieni i suoi slot; per corpo e testa il primo
+  in elenco di cui ci sono gli ingredienti (prima il cuoio, poi il metallo). Almeno un arco se ci sono animali segnati e
+  nessuno ne ha uno. "Keep" per un pezzo = quanti tenerne di scorta, oltre a quelli indossati.
+  Poi: ordini "fanne N" e "per sempre", sospendere una ricetta, qualità degli oggetti, cambiare un pezzo con uno migliore.
 - **Pelli**: dagli animali cacciati, 1 dal coniglio, 3 dal cervo. Non marciscono.
 - **Equipaggiamento** (3 slot: mani, corpo, testa): ogni colono con uno slot vuoto va a prendere in magazzino il pezzo
   giusto. Nelle mani l'attrezzo della sua abilità migliore tra estrarre, tagliare legna, raccogliere e cacciare.
@@ -226,7 +355,7 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   | Piccone | mani | — | scavare −25% tempo |
   | Ascia | mani | — | tagliare −25% tempo |
   | Falcetto | mani | — | raccogliere ed estirpare −25% tempo |
-  | Arco | mani | — | caccia: +10% a segno, +2 caselle di tiro, mira col migliore tra cacciare e armi a distanza (+1 esperienza in entrambe); in combattimento tira (danno 14) |
+  | Arco | mani | — | serve per cacciare: +10% a segno, +2 caselle di tiro, mira col migliore tra cacciare e armi a distanza (+1 esperienza in entrambe); in combattimento tira (danno 14) |
   | Spada | mani | — | arma: danno 15 corpo a corpo (la prende chi è più bravo in mischia) |
   | Armatura di cuoio | corpo | 2 | −25% stress lavorando fuori dalle stanze |
   | Cotta di maglia | corpo | 5 | pesante: ogni lavoro +10% tempo |
@@ -249,7 +378,7 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   - Corpo a corpo: un colpo ogni 1,5 s a livello 5 (abilità armi da mischia), a segno 50% + 5% per livello sopra il 5;
     danno dell'arma o dell'attrezzo in mano (spada 15, ascia 12, piccone 10, falcetto 8, mani nude 5). +1 esperienza a colpo.
   - Con l'arco: tira da lontano (fino a 8 caselle), un tiro ogni 2 s a livello 5 (armi a distanza), a segno come a caccia;
-    danno 14. +1 esperienza a tiro.
+    danno 14. +1 esperienza a tiro. La freccia vola come a caccia: anche mancato, il lupo se la prende con chi ha tirato.
   - **Protezione**: −6% di danno per punto (cotta ed elmo, 8 punti: −48%), al massimo −80%.
 - Un lupo segnato da cacciare, colpito o mancato, attacca il cacciatore invece di scappare.
 - Si muore: vedi Morte in 4.2. Un lupo senza nessuno in piedi da inseguire morde chi è a terra.
