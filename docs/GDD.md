@@ -568,6 +568,9 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   (5–20) e sempre con un libro. La sua mappa è nel tesoro del forte.
 - **Erudito errante** (evento del narratore): se c'è una locanda, ogni 10 giorni circa passa per un giorno; vende 1–2
   libri o ne compra uno a metà prezzo. È il ponte tra oro e sapere.
+  Nel gioco (per ora un evento, non una figura alla locanda): ogni 10 giorni ±2, se c'è una locanda; vende quaderni e,
+  una volta su quattro, un tomo (mai codici); compra un libro a metà prezzo (il codice vale 300, ne paga 150). Si
+  tratta nella finestra Knowledge, sotto lo studio, e paga solo in monete.
 - **Bilancio**: ripulite le rovine si trovano circa 5 quaderni, 3–4 tomi e 2–3 codici; le ricerche ne chiedono 14, 6 e
   6. I quaderni si copiano, i tomi bastano per metà, i codici per due o tre capolavori: il livello IV è una scelta, a
   meno di partire per la Cittadella.
@@ -729,16 +732,16 @@ monastero, livello II e III di quello che c'è già (cotta, fontana, statua); (3
 Laws, le leggi di signoria che usano cose che esistono, consenso sulla scheda; (4) granaio e decima, titolo che cresce
 (4.3, fase 6) con sigilli e fasce; (5) il resto dell'albero un nodo alla volta, erudito errante, protesta; (6) livello
 IV, regno, leggi finali, cittadella.
-**Stato**: fatte le fasi 1–4; della 5 i primi nodi. Nel gioco: scrittoio, libreria e trono; stanze Studio e Sala del
-trono; lavori Studiare e Governare; studio e autorità (nelle finestre Knowledge e Laws, tasti K e G, o clic su
-scrittoio e trono; tutte e due scorrono); i tre libri, nei forzieri e nei tesori, col monastero; le 19 ricerche
-segnate ✓ (Statuaria per ora dopo Muratura, finché non c'è Arredo fine); le 15 leggi segnate ✓; il titolo cresce con
-lo splendore (4.3) e dà i sigilli (2–5), le fasce delle leggi e l'autorità di ogni giorno; gli eventi d'autorità del
-4.7.4 tranne l'incoronazione (manca la successione), mai sotto zero. Il granaio è un conto, non una stanza, e niente
-ci marcisce; paga le provviste, poi (Granaio aperto) l'ora senza cibo in magazzino e il pasto di ogni stagione; la
-festa del raccolto e il pasto, finché non ci sono le stagioni, sono ogni 10 giorni. Le spedizioni prendono prima dal
-granaio, poi le gallette, poi pasti e crudo. Manca il resto, e i contatori di studio e autorità nella barra in alto (a
-1280 di larghezza non ci stanno).
+**Stato**: fatte le fasi 1–4; della 5 i primi nodi e l'erudito errante. Nel gioco: scrittoio, libreria e trono; stanze
+Studio e Sala del trono; lavori Studiare e Governare; studio e autorità (nelle finestre Knowledge e Laws, tasti K e G,
+o clic su scrittoio e trono; tutte e due scorrono); i tre libri, nei forzieri e nei tesori, col monastero; le 19
+ricerche segnate ✓ (Statuaria per ora dopo Muratura, finché non c'è Arredo fine); le 15 leggi segnate ✓; il titolo
+cresce con lo splendore (4.3) e dà i sigilli (2–5), le fasce delle leggi e l'autorità di ogni giorno; gli eventi
+d'autorità del 4.7.4 tranne l'incoronazione (manca la successione), mai sotto zero. Il granaio è un conto, non una
+stanza, e niente ci marcisce; paga le provviste, poi (Granaio aperto) l'ora senza cibo in magazzino e il pasto di ogni
+stagione; la festa del raccolto e il pasto, finché non ci sono le stagioni, sono ogni 10 giorni. Le spedizioni
+prendono prima dal granaio, poi le gallette, poi pasti e crudo. Manca il resto, e i contatori di studio e autorità
+nella barra in alto (a 1280 di larghezza non ci stanno).
 
 ## 5. Scope
 

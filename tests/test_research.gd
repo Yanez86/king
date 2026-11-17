@@ -462,6 +462,39 @@ func _initialize() -> void:
 	main.pay_toll(visitor)
 	check(main.items[R.GOLD].get(gate_cell, 0) == main.TOLL, "due monete al cancello")
 
+	# erudito errante: senza locanda non viene; con la locanda passa un giorno, vende 1-2 libri e ne compra uno
+	main.scholar_until = -1.0
+	main.next_scholar = main.clock
+	main.rooms.clear()
+	main.update_scholar()
+	check(main.scholar_until < 0 and main.next_scholar > main.clock, "senza locanda l'erudito non passa")
+	var inn = main.Room.new()
+	inn.kind = main.RoomKind.INN
+	inn.cells = {free[40]: true}
+	main.rooms.append(inn)
+	main.next_scholar = main.clock
+	main.update_scholar()
+	check(main.scholar_until > main.clock and main.scholar_books.size() in [1, 2] and main.chronicle[-1].contains("wandering scholar"),
+		"con la locanda arriva, coi suoi libri, nella cronaca")
+	main.scholar_books = [R.NOTEBOOK]
+	main.stockpile = {free[41]: true, free[42]: true, free[43]: true, free[44]: true}
+	for res in [R.GOLD, R.NOTEBOOK, R.TOME]:
+		for cell in main.items[res].keys():
+			main.items[res].erase(cell)
+	check(not main.buy_book(0), "senza monete non si compra")
+	main.add_item(R.GOLD, free[41], 50)
+	check(main.buy_book(0) and main.stored(R.GOLD) == 10 and main.stored(R.NOTEBOOK) == 1 and main.scholar_books.is_empty(),
+		"un quaderno: 40 monete")
+	main.add_item(R.TOME, free[43], 2)
+	check(main.sell_book(R.TOME) and main.stored(R.GOLD) == 70 and main.stored(R.TOME) == 1, "un tomo venduto: 60 monete")
+	check(not main.sell_book(R.NOTEBOOK), "ne compra uno solo a passaggio")
+	main.knowledge_key = ""
+	main.fill_knowledge()
+	check(main.get_node("HUD/KnowledgePanel/Box/Scholar").visible, "nella finestra Knowledge")
+	main.clock = main.scholar_until
+	main.update_scholar()
+	check(main.scholar_until < 0 and main.next_scholar > main.clock + 7, "dopo un giorno riparte; torna fra una decina di giorni")
+
 	# una partita vera: niente studiato, lupi dal quinto giorno, un'arma abbandonata sulla mappa
 	main.queue_free()
 	var real = load("res://main.tscn").instantiate()

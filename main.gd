@@ -739,6 +739,14 @@ const SEAT_ROOM := {Build.DESK: RoomKind.STUDY, Build.THRONE: RoomKind.THRONE_RO
 const STUDY_ICON := preload("res://art/icon_study.png")
 const AUTHORITY_ICON := preload("res://art/icon_authority.png")
 const BOOKS := [Res.NOTEBOOK, Res.TOME, Res.CODEX]  # il libro che consuma una ricerca di livello II, III, IV
+# Erudito errante (GDD 4.7.2): con una locanda, ogni SCHOLAR_EVERY giorni (± SCHOLAR_JITTER) passa per un giorno; vende
+# 1-2 libri (quaderni, a volte un tomo; mai codici) a BOOK_PRICE e ne compra uno a metà prezzo. Si tratta nella
+# finestra Knowledge (vedi fill_knowledge). ponytail: un evento, non una figura che arriva alla locanda; e paga solo in
+# monete (il GDD vuole anche il granaio)
+const SCHOLAR_EVERY := 10.0
+const SCHOLAR_JITTER := 2.0
+const SCHOLAR_TOME := 0.25  # per ogni libro in vendita, la volta che è un tomo
+const BOOK_PRICE := {Res.NOTEBOOK: 40, Res.TOME: 120, Res.CODEX: 300}
 enum Branch { LAND, FIRE, STONE, IRON, ROAD, LORE }  # rami dell'albero, colonne di BRANCHES_SHEET
 const BRANCHES_SHEET := preload("res://art/branches.png")
 # Ricerche (colonne di TECHS_SHEET nell'ordine di Tech): "tier" livello 1-4, dal 2 costa anche un libro (BOOKS);
@@ -1009,6 +1017,10 @@ var tithe_owed := {}        # Res -> parte di pezzo dovuta alla decima, che si a
 var today := 0              # il giorno visto per ultimo: cambiato, è l'alba di uno nuovo (vedi new_day)
 var hour := 0               # lo stesso per l'ora (vedi new_hour)
 var knowledge_key := ""     # quello che mostra la finestra Knowledge: se cambia, la si rifà (vedi fill_knowledge)
+var next_scholar := SCHOLAR_EVERY  # `clock` del prossimo passaggio dell'erudito (vedi update_scholar)
+var scholar_until := -1.0   # `clock` fino a cui l'erudito è alla locanda
+var scholar_books: Array = []  # Res che ha ancora da vendere
+var scholar_bought := false # ha già comprato il suo libro, a questo passaggio
 var laws_key := ""          # lo stesso per la finestra Laws
 var items := {}  # risorsa -> (cella -> quantità a terra; nel magazzino = stoccata): un dizionario per Res, vedi _init  # risorsa -> (cella -> quantità a terra; nel magazzino = stoccata)
 var fresh := {}             # cella -> giorni (a terra fuori) prima che il mucchio di cibo marcisca, vedi spoil
@@ -2269,6 +2281,7 @@ func tick(delta: float) -> void:
 		fly(arrow, delta)
 	update_guests()
 	update_expeditions()
+	update_scholar()
 	for c in corpses.duplicate():
 		if clock >= c.died + CORPSE_DAYS:
 			corpses.erase(c)
@@ -3483,6 +3496,57 @@ func flee_hp() -> float:
 	return MILITIA_FLEE if enacted.has(Law.MILITIA) else FLEE_HP
 
 
+# L'erudito arriva se c'è una locanda (se no riprova domani) e resta un giorno, poi riparte con quello che non ha venduto
+func update_scholar() -> void:
+	if scholar_until >= 0 and clock >= scholar_until:
+		scholar_until = -1.0
+		scholar_books.clear()
+		knowledge_key = ""
+	if clock < next_scholar:
+		return
+	if not rooms.any(is_inn):
+		next_scholar = clock + 1.0
+		return
+	next_scholar = clock + SCHOLAR_EVERY + randf_range(-SCHOLAR_JITTER, SCHOLAR_JITTER)
+	scholar_until = clock + 1.0
+	scholar_bought = false
+	scholar_books.clear()
+	for i in randi_range(1, 2):
+		scholar_books.append(Res.TOME if randf() < SCHOLAR_TOME else Res.NOTEBOOK)
+	knowledge_key = ""
+	note("Day %d: a wandering scholar stops at the inn, with %s to sell (see Knowledge)." % [int(clock) + 1,
+		", ".join(scholar_books.map(func(b): return "a " + res_name(b)))])
+
+
+# compra dall'erudito il libro `i` della sua lista: monete dal magazzino, il libro in magazzino. false se non si può
+func buy_book(i: int) -> bool:
+	if i >= scholar_books.size() or stored(Res.GOLD) < BOOK_PRICE[scholar_books[i]]:
+		return false
+	var book: Res = scholar_books[i]
+	take_stored(Res.GOLD, BOOK_PRICE[book])
+	store(book, 1)
+	scholar_books.remove_at(i)
+	knowledge_key = ""
+	return true
+
+
+# vende all'erudito un libro `book` del magazzino, a metà prezzo; uno solo a passaggio. false se non si può
+func sell_book(book: Res) -> bool:
+	if scholar_until < 0 or scholar_bought or stored(book) == 0:
+		return false
+	take_stored(book, 1)
+	store(Res.GOLD, BOOK_PRICE[book] / 2)
+	scholar_bought = true
+	knowledge_key = ""
+	return true
+
+
+# posa `amount` di `res` in magazzino, dove ci sta (vedi dest_cells); pieno, accanto alla prima casella
+func store(res: Res, amount: int) -> void:
+	var cells := dest_cells(res)
+	drop(res, cells[0] if not cells.is_empty() else stockpile.keys()[0], amount)
+
+
 # Turno di guardia (legge): veglia di notte un nottambulo, se c'è, se no il primo colono che non è il sovrano (che
 # allora dorme di giorno, vedi routine_of); null senza la legge o senza nessuno
 func watchman() -> Colonist:
@@ -4581,7 +4645,7 @@ func law_tip(law: Law) -> String:
 # colonna per livello. Ogni ricerca è un pulsante: col mouse sopra cosa sblocca e cosa manca, cliccato la studia.
 # Si rifà solo quando cambia qualcosa, se no i pulsanti non si premono
 func fill_knowledge() -> void:
-	var key := str([floori(study), BOOKS.map(stored), researched.keys()])
+	var key := str([floori(study), BOOKS.map(stored), researched.keys(), scholar_until, scholar_books, scholar_bought, stored(Res.GOLD)])
 	if key == knowledge_key:
 		return
 	knowledge_key = key
@@ -4589,6 +4653,7 @@ func fill_knowledge() -> void:
 	box.get_node("Study").text = "%d [img=center]%s[/img] study    %s" % [floori(study), STUDY_ICON.resource_path,
 		"   ".join(BOOKS.map(func(b): return "%d [img=center]%s[/img]" % [stored(b), ICONS[b].resource_path]))]
 	box.get_node("Hint").visible = not rooms.any(func(r): return r.kind == RoomKind.STUDY)
+	fill_scholar(box.get_node("Scholar"))
 	var grid: GridContainer = box.get_node("Scroll/Tree")
 	for child in grid.get_children():
 		child.free()
@@ -4612,6 +4677,38 @@ func fill_knowledge() -> void:
 					cell.add_child(tech_button(t))
 			grid.add_child(cell)
 	$HUD/KnowledgePanel.reset_size()
+
+
+# L'erudito alla locanda, finché c'è: i libri che vende (Buy, col prezzo) e quelli del magazzino che comprerebbe
+# (Sell, a metà prezzo, uno solo a passaggio)
+func fill_scholar(row: Control) -> void:
+	for child in row.get_children():
+		child.free()
+	row.visible = scholar_until >= 0
+	if not row.visible:
+		return
+	row.add_child(rich("A wandering scholar at the inn, until day %d:" % (int(scholar_until) + 1)))
+	for i in scholar_books.size():
+		var book: Res = scholar_books[i]
+		var buy := Button.new()
+		buy.focus_mode = Control.FOCUS_NONE
+		buy.text = "Buy %s: %d" % [res_name(book), BOOK_PRICE[book]]
+		buy.icon = KIND_ICONS[ItemKind.COINS]  # la moneta dopo il numero, come nei testi
+		buy.icon_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		buy.disabled = stored(Res.GOLD) < BOOK_PRICE[book]
+		buy.tooltip_text = "Not enough gold in the warehouses" if buy.disabled else "Paid from the warehouses"
+		buy.pressed.connect(buy_book.bind(i))
+		row.add_child(buy)
+	for book in BOOKS:
+		if stored(book) > 0 and not scholar_bought:
+			var sell := Button.new()
+			sell.focus_mode = Control.FOCUS_NONE
+			sell.text = "Sell a %s: %d" % [res_name(book), BOOK_PRICE[book] / 2]
+			sell.icon = KIND_ICONS[ItemKind.COINS]
+			sell.icon_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+			sell.tooltip_text = "He buys one book, at half price"
+			sell.pressed.connect(sell_book.bind(book))
+			row.add_child(sell)
 
 
 # pulsante di una ricerca: icona, nome e costo; dorato se fatta, velato se mancano le ricerche prima
