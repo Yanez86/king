@@ -50,7 +50,25 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   Nella raccolta (tagliare, estrarre, raccogliere) 1 punto esperienza a raccolta finita (albero abbattuto, masso scavato, cespuglio spogliato), non a colpo; negli altri lavori +1 per pezzo costruito, lancio, tiro o oggetto fatto. Soglie di livello da definire.
   Tempo di un lavoro: ×1,5 a livello 0, ×1 a livello 5, ×0,5 a livello 10. Ricerca ancora senza effetto.
 - **Punti ferita** (0–100): si curano da soli, 30 al giorno (60 dormendo). A 0 il colono resta **a terra** (sdraiato,
-  non fa niente) e si cura di 40 al giorno; a 30 si rialza. Per ora nessuno muore. Sopra la testa, una barretta se è ferito.
+  non fa niente) e si cura di 40 al giorno; a 30 si rialza. Sopra la testa, una barretta se è ferito.
+- **Morte**: coloni e avventurieri possono morire.
+  - Il colpo che butta a terra uccide con probabilità 25% − 3% per punto di protezione (al minimo 5%: con cotta ed elmo).
+  - A terra si è indifesi: un nemico che non ha nessuno in piedi da inseguire attacca chi è a terra, e il primo colpo uccide.
+  - Il corpo resta dove è caduto per un giorno, poi sparisce; l'equipaggiamento cade a terra lì accanto e si riporta in
+    magazzino. Gli altri coloni prendono *lutto* (vedi Condizioni).
+  - Il re che muore lascia la corona all'erede (vedi 4.3). Se muoiono tutti i coloni, la partita finisce.
+  - Poi: tombe e cimitero, funerali, medico che cura chi è a terra.
+- **Sesso**: uomo o donna, a caso (metà e metà); il nome viene dalla lista del suo sesso. Nella scheda, sotto il nome,
+  l'icona (♂ azzurro, ♀ rosa) e la parola. Per ora non cambia abilità né bisogni; servirà alla dinastia (matrimonio, figli, 4.3).
+- **Aspetto**: lo sprite è fatto di livelli, uno sull'altro:
+  1. corpo; maglia e mantello, tinti col colore del colono;
+  2. l'armatura, sopra la maglia: cuoio marrone con le cuciture, cotta di maglia grigia a scacchi;
+  3. i capelli, tinti: tutti una calotta; in più le donne li hanno lunghi fino alle spalle o la treccia, metà degli uomini la barba;
+  4. il copricapo, sopra i capelli: elmo d'acciaio col nasale (sotto escono i capelli dei lati), o cappuccio di cuoio che scende
+     sulle spalle (la treccia e i capelli lunghi escono fuori);
+  5. quello che tiene in mano (vedi 4.4.2).
+
+  Gli avventurieri hanno lo stesso sprite, col corredo della loro classe (vedi 4.4.4).
 - **Talenti**: modificano la routine e i ritmi dei bisogni, ognuno con un'icona 16×16 (un quadratino in rilievo col simbolo al centro).
   Ogni colono ne ha 0–2, mai due in contrasto (goloso/di poco appetito, pigro/stacanovista, mattiniero/nottambulo,
   dormiglione/instancabile, festaiolo/asceta, iracondo/tranquillo).
@@ -81,9 +99,10 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   | Pasto squisito | ½ giorno | −20% tempo | −50% | +10 |
   | Mangiato al tavolo | ½ giorno | — | — | +5 |
   | Mangiato crudo (solo il goloso) | ½ giorno | — | — | −10 |
+  | Lutto (è morto un colono) | 3 giorni | — | +25% | −15 |
 
   Ben nutrito e pasto squisito si escludono: vale l'ultimo pasto. Poi: malattie dal narratore, perdita di punti ferita.
-- **Scheda** (clic sul colono): nome, soprannome (facoltativo), cognome, punti ferita, abilità (ognuna con un'icona 8×8), talenti (solo icone, il nome col mouse sopra), equipaggiamento (3 slot: mani, corpo, testa). Poi bisogni, relazioni.
+- **Scheda** (clic sul colono): nome, soprannome (facoltativo), cognome, sesso, punti ferita, abilità (ognuna con un'icona 8×8), talenti (solo icone, il nome col mouse sopra), equipaggiamento (3 slot: mani, corpo, testa). Poi bisogni, relazioni.
 
 ### 4.3 Il re e la dinastia
 - Il re è un colono speciale: lavora poco, il suo stato dà bonus/malus al reame.
@@ -93,6 +112,21 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 
 ### 4.4 Risorse ed edifici
 - Materie prime: legname, pietra, ferro, carbone, oro, cibo crudo. Ferro e carbone vengono dalle vene nella roccia (massi 1x1).
+- **Tipi di oggetto**: ogni oggetto ha un tipo, con una piccola icona 16×16 che sta sempre davanti al suo nome (elenco
+  delle risorse, riquadro del mucchio, suggerimenti dell'equipaggiamento, finestra Jobs, diari e cronaca):
+
+  | Tipo | Icona | Oggetti |
+  |---|---|---|
+  | Materiale | cassa | legname, pietra, ferro, carbone, pelli, lingotti |
+  | Cibo | mela | vegetali, carne, pesce, pasti, pasti squisiti |
+  | Strumento | martello | piccone, ascia, falcetto |
+  | Arma | spada | arco, spada, pugnale |
+  | Armatura | scudo | armatura di cuoio, cotta di maglia, cappuccio, elmo |
+  | Monete | moneta | oro (nei testi c'è solo la moneta, dopo il numero) |
+  | Cimelio | gemma | calice, stendardo antico, busto, corona |
+- **Oro**: monete, in magazzino (mucchi da 100). All'inizio 60; poi si trovano nelle rovine (vedi 4.4.4). Servono a pagare
+  gli avventurieri. Nei testi (bacheca, scheda, diari, cronaca, finestra Jobs) al posto della parola c'è una monetina
+  16×16 dopo il numero. Poi: vene d'oro nella roccia, commercio.
 - Catene MVP:
   - Legname → assi (banco da falegname)
   - Ferro grezzo → lingotti (fornace) → attrezzi (fucina)
@@ -200,6 +234,9 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   | Elmo | testa | 3 | scavare −10% tempo |
 
   Nella scheda gli slot mostrano i pezzi (col mouse sopra nome, protezione, effetto), il titolo la protezione totale.
+- **Si vede addosso** (vedi Aspetto in 4.2): armatura e copricapo sempre. In mano: nei colpi (taglio, scavo, costruzione,
+  cucina, combattimento) il pezzo che ha, ognuno col suo disegno (piccone, ascia, falcetto, spada, arco); a mani vuote un
+  attrezzo qualunque. Da fermo e camminando la spada sta al fianco e l'arco sulla schiena; gli attrezzi non si vedono.
 
 ### 4.4.3 Combattimento
 - **Lupi**: dal giorno 3 (poi ogni 3 giorni) un branco di 2–3 lupi entra da un bordo della mappa e punta alla colonia.
@@ -215,16 +252,134 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
     danno 14. +1 esperienza a tiro.
   - **Protezione**: −6% di danno per punto (cotta ed elmo, 8 punti: −48%), al massimo −80%.
 - Un lupo segnato da cacciare, colpito o mancato, attacca il cacciatore invece di scappare.
-- Poi: predoni (umani), morte e funerali, medico e cure, animali che fuggono o si difendono, ordini di combattimento dati dal re.
+- Si muore: vedi Morte in 4.2. Un lupo senza nessuno in piedi da inseguire morde chi è a terra.
+- Poi: predoni (umani), funerali, medico e cure, animali che fuggono o si difendono, ordini di combattimento dati dal re.
 
 - **Splendore** della colonia (termine provvisorio; alternative: decoro, prestigio, lustro): tiene felici i coloni e
-  sblocca cose. Lo danno le decorazioni finite, ovunque stiano (per ora solo il totale in alto, senza effetti).
+  sblocca cose. Lo danno le decorazioni finite, ovunque stiano (il totale in alto). Primo effetto: attira avventurieri
+  più forti (vedi 4.4.4).
   Decorazioni (+splendore): aiuola 1, fioriera di pietra 1, panca 1 (anche +0,5 comfort), lampione 1 (si accende di
   notte), stendardo 2 (sventola), fontana 6 (2x2, zampilla), statua del re 8 (2x2).
   Poi: strade che collegano le case, alberi piantati, feste.
 - **Sentiero**: pavimento di terra battuta e sassolini (1 pietra a casella); i mobili ci stanno sopra.
   Su tutti i pavimenti l'erba dei prati vicini sborda, frastagliata, così non finiscono di netto; contro muri, porte
   e altri pavimenti il bordo resta netto. Poi: i sentieri che collegano le case danno splendore.
+
+### 4.4.4 Avventurieri e rovine
+Il re non manda i suoi coloni (per ora non possono partire): **ingaggia avventurieri**, li paga in **oro** e li manda
+a esplorare **rovine fuori dalla mappa**. Non si controllano: si sceglie chi, dove e con quante provviste; il resto lo
+racconta il diario al ritorno.
+
+- **Locanda**: nuovo tipo di stanza, categoria servizio. Mobili: almeno 1 letto, 1 tavolo e la **bacheca degli incarichi**
+  (mobile nuovo, 8 legna; cliccata apre la finestra degli ingaggi). Tanti letti, tanti avventurieri in attesa.
+  I letti della locanda sono solo degli avventurieri, e gli avventurieri dormono solo lì (se no per terra).
+- **Arrivi**: con una locanda e un letto libero, ogni 2 giorni circa (±½) arriva un avventuriero da un bordo della mappa,
+  va alla locanda e resta 3 giorni; se nessuno lo ingaggia, se ne va. Livello: 1 + 1 ogni 10 punti di **splendore**
+  (±1 a caso, da 1 a 5); da 20 punti di splendore, una volta su quattro ne arrivano due insieme.
+- **In colonia** non lavorano e non hanno priorità: mangiano dal magazzino, dormono nei letti della locanda, si svagano
+  come i coloni (nelle ore di lavoro anche). Se arrivano i lupi combattono con le regole di 4.4.3, e possono morire.
+- **Scheda** come quella dei coloni (nome, sesso, punti ferita, talenti, equipaggiamento), più classe, livello, paga e
+  spedizioni fatte. Le abilità sono solo quelle della classe, a 2 × livello (lo scassinatore anche armi da mischia, a
+  1 × livello).
+- **Classi**:
+
+  | Classe | Abilità | Porta | Nella rovina |
+  |---|---|---|---|
+  | Guerriero | armi da mischia | spada, scudo (+3 protezione), cotta di maglia (cuoio sotto il livello 3), elmo | prende il doppio dei colpi |
+  | Arciere | armi a distanza | arco, faretra, armatura e cappuccio di cuoio | tira per primo: −25% danni al gruppo; prende metà dei colpi |
+  | Scassinatore | scassinare (nuova) | pugnale (danno 10), maschera, sacca, armatura di cuoio | disinnesca le trappole, apre i forzieri chiusi; con la sacca +50% di bottino |
+
+  Scudo, faretra, maschera, sacca e pugnale per ora li hanno solo gli avventurieri: non si fabbricano.
+- **Aspetto**: lo sprite dei coloni (sesso, capelli, tinte; vedi 4.2) con il corredo della classe sopra.
+  Guerriero: cotta, elmo, scudo tondo di legno sul braccio (da dietro sulla schiena), spada al fianco.
+  Arciere: cappuccio (verde), armatura di cuoio, arco e faretra sulla schiena (da davanti spuntano le penne).
+  Scassinatore: cappuccio scuro, fazzoletto sul naso e sulla bocca, sacco sulla schiena, pugnale alla cintura; maglia e
+  mantello scuri.
+- **Talenti**: uno a testa, a caso, con la sua icona 16×16 (nella scheda accanto a quelli dei coloni, il nome anche
+  sulla bacheca). In più, tre volte su dieci, uno dei talenti dei coloni (bisogni e routine).
+
+  | Talento | Icona | Effetto |
+  |---|---|---|
+  | Avido | sacco di monete | paga +25% |
+  | Leale | cuore | non prende la quota delle monete |
+  | Temerario | fiamma | il gruppo torna per lui solo sotto 20 punti ferita (non 40) |
+  | Codardo | bandiera bianca | il gruppo torna appena lui scende sotto 60 |
+  | Fortunato | quadrifoglio | un oggetto in più in ogni forziere del gruppo |
+  | Cartografo | mappa | il gruppo trova mappe tre volte più spesso |
+  | Iettato | gatto nero | ogni trappola colpisce lui; paga −25% |
+  | Berserker | ascia insanguinata | la sua arma conta doppio nella forza del gruppo, ma prende il 50% di ferite in più |
+  | Robusto | zampa d'orso | un terzo di ferite in meno (mostri e trappole) |
+  | Furtivo | figura incappucciata | il gruppo evita i mostri una volta su quattro (non il guardiano) |
+  | Medico | croce rossa | dopo ogni stanza tutti +6 punti ferita; chi cade non muore mai, lo riportano a casa (se non è solo) |
+  | Raccoglitore | fungo | il gruppo mangia un terzo in meno |
+  | Guida | stivale | il viaggio dura la metà |
+  | Occhio di lince | occhio | +30% a disinnescare le trappole |
+  | Studioso | libro | sale di livello dopo ogni spedizione (non ogni 2) |
+  | Famoso | stella | +5 splendore finché è sulla mappa (alla locanda, o di passaggio) |
+- **Paga, in oro**: all'ingaggio 10 + 5 × livello monete (15–35), prese dal magazzino; al ritorno la **quota**: il 30%
+  delle monete trovate. Senza abbastanza oro non si ingaggia. A chi muore non si paga la quota.
+- **Rovine**: fuori dalla mappa, in un elenco sulla bacheca; si raggiungono a piedi.
+
+  | Rovina | Pericolo | Stanze | Viaggio (andata) | Forziere: monete | Forziere: un oggetto tra |
+  |---|---|---|---|---|---|
+  | Torre diroccata | 1 | 3 | ½ giorno | 10–25 | 10 legna, 10 pietra, 5 ferro |
+  | Miniera abbandonata | 2 | 5 | 1 giorno | 20–45 | 10 ferro, 10 carbone, 4 lingotti, un piccone |
+  | Cripta | 3 | 6 | 1 giorno | 35–70 | una spada, un elmo, un'armatura di cuoio, 6 lingotti |
+  | Forte in rovina | 4 | 8 | 2 giorni | 60–120 | una cotta di maglia, 2 spade, un elmo, 10 lingotti |
+
+  All'inizio si conosce solo la torre. Il **tesoro** dell'ultima stanza di ogni rovina ha il triplo delle monete e la
+  **mappa** della rovina dopo (in quest'ordine); a volte (15%) un forziere qualunque ha la mappa di una rovina che non
+  si conosce ancora. Le mappe le portano a casa: si conoscono al ritorno (e si perdono con una spedizione persa).
+  Le stanze ripulite restano ripulite: la spedizione dopo riparte da lì. Finite le stanze, la rovina è esaurita.
+- **Spedizione** (dalla bacheca): si spuntano 1–4 avventurieri tra chi aspetta alla locanda; ogni rovina ha il suo tasto
+  "Send", con la somma delle paghe e le provviste che servono: una a testa per ogni giorno del viaggio intero (andata,
+  ½ giorno per ogni stanza che resta, ritorno), prese dal magazzino, prima i pasti poi il crudo. Se non bastano partono
+  con quelle che ci sono (il tasto avvisa). Ognuno va al bordo più vicino; il primo che esce fissa il punto, gli altri
+  escono lì, e si parte quando sono usciti tutti. Nella barra in alto "EXPEDITION: n".
+- **Nella rovina** (calcolato alla partenza, non si vede): una stanza ogni ½ giorno, a caso tra vuota (25%), trappola
+  (20%), mostri (35%), forziere (15%) e crollo (5%: si torna indietro). L'ultima stanza è il tesoro col suo guardiano
+  (mostri, forza doppia); se il tesoro resta chiuso, quella stanza resta da fare.
+  - Mostri: forza 5 × pericolo; forza del gruppo = somma dei livelli d'arma + protezione. In media ognuno perde
+    20 × forza dei mostri / forza media del gruppo punti ferita (−25% con un arciere): il guerriero il doppio della
+    media, l'arciere la metà; poi la protezione di ognuno (−6% a punto, come in 4.4.3).
+  - Trappola: la disinnesca il migliore a scassinare, con probabilità 20% + 8% per livello; se no 15 × pericolo danni a uno a caso.
+  - Forziere: monete e un oggetto della rovina; una volta su due è chiuso e si apre solo con scassinare almeno
+    2 × pericolo.
+  - Provviste: ogni ½ giorno se ne mangia ½ a testa; quando mancano, la fame costa 20 punti ferita al giorno a testa.
+    Nel ritorno si patisce la fame lo stesso, ma a casa ci si arriva.
+  - Dopo ogni stanza il gruppo decide: torna se qualcuno è sotto la sua soglia (40 punti ferita; vedi Temerario e Codardo)
+    o se le provviste non bastano per un'altra stanza e il ritorno.
+  - A 0 punti ferita si muore una volta su due; se no gli altri lo riportano a casa (con 5 punti ferita, si cura in
+    colonia). Se cadono tutti, la spedizione è **persa**: non torna nessuno, e nemmeno il bottino.
+- **Ritorno**: rientrano dal bordo, portano bottino e feriti in magazzino e alla locanda, prendono la quota e restano
+  2 giorni; intanto si possono ingaggiare di nuovo. +1 livello ogni 2 spedizioni tornate (al massimo 5).
+- **Diario**: al ritorno (o quando la spedizione si dà per persa: il doppio del tempo previsto) una finestra la racconta,
+  una riga per stanza. Per esempio: «Giorno 12 – Bruna disinnesca una trappola nella cripta. Oddo cade sotto le spade
+  degli scheletri. Tornano con 14 monete e un calice d'argento.» I diari restano in una **cronaca** da rileggere
+  (sulla bacheca l'ultima pagina e il tasto "Chronicle": tutto, dal più recente; ci sono anche ingaggi e morti).
+  Frasi a chiave, tradotte come il resto.
+- **Cimeli**: si trovano solo nei forzieri delle rovine e arrivano in magazzino come oggetti; nella barra dei mobili
+  (dopo le decorazioni) diventano decorazioni da piazzare, fatte col cimelio stesso (uno a pezzo), e danno splendore,
+  che attira avventurieri più forti.
+
+  | Cimelio | Dove | Splendore |
+  |---|---|---|
+  | Calice d'argento (col rubino) | cripta | 3 |
+  | Stendardo antico (strappato, d'una casata caduta) | forte | 4 |
+  | Busto di pietra (un re dimenticato) | cripta | 5 |
+  | Corona (su un cuscino di velluto) | forte | 6 |
+- Poi: un avventuriero contento dopo 3 spedizioni chiede di **restare come colono** (il primo modo di avere più coloni);
+  coloni in spedizione; prestare equipaggiamento agli avventurieri; vene d'oro e commercio; una rovina sulla mappa da
+  esplorare davvero.
+- **Ordine di lavoro**: (1) locanda e bacheca, oro, un avventuriero alla volta, solo la torre, bottino in risorse che
+  esistono già; (2) classi, talenti, gruppi, provviste, diario; (3) altre rovine, mappe, cimeli, effetto dello splendore;
+  (4) il resto.
+- **Stato**: fatte le fasi 1, 2 e 3.
+  Simulazioni (500 spedizioni per caso, provviste piene, rovina intatta): alla torre non muore nessuno, ma mandarci
+  gente di livello alto costa più di quello che rende; nelle rovine profonde chi va da solo non torna una volta su
+  cinque, un gruppo di livello 1 al forte perde in media un uomo ogni 9 spedizioni e torna presto; un gruppo del livello
+  giusto ci guadagna (cripta, tre di livello 3: 147 monete a casa per 75 di paghe; forte, quattro di livello 5: 268
+  per 140); coi talenti a caso i numeri restano questi, più o meno. Manca il resto di "Poi".
 
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100.
@@ -248,6 +403,7 @@ una stagione invernale, salvataggio locale, inglese + italiano.
 3. Narratore ed eventi
 4. Salvataggio cloud
 5. Umore, relazioni, più talenti
+6. Avventurieri e rovine (vedi 4.4.4)
 
 ### Fuori scope (per ora)
 Combattimento tattico (oggi i coloni si difendono da soli, vedi 4.4.3), livelli verticali, commercio/diplomazia, mod.

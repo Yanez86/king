@@ -23,20 +23,46 @@ const SIDES := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 const TREE_SIDES := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  # da sopra la chioma coprirebbe chi taglia
 
 enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE,
-	RELAX, TANTRUM }
+	RELAX, TANTRUM, TRAVEL }
 const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FURNISH, Job.HARVEST, Job.COOK, Job.FISH,
 	Job.HUNT, Job.CRAFT]  # contano come ore di lavoro
 # VEG: vegetali, dalle bacche dei cespugli; IRON, COAL: dai massi con le vene; MEAL, FINE_MEAL: pasti, dalla cucina;
 # MEAT, HIDE: carne e pelle, dagli animali cacciati; FISH: pesce, dai punti di pesca; INGOT: lingotti, dalla fornace;
-# da PICKAXE in poi: equipaggiamento (vedi GEAR), dalla forgia e dal banco da lavoro (vedi RECIPES)
+# da PICKAXE in poi: equipaggiamento (vedi GEAR), dalla forgia e dal banco da lavoro (vedi RECIPES); GOLD: monete, per
+# ingaggiare gli avventurieri (vedi send); DAGGER: il pugnale degli scassinatori, non si fabbrica; da CHALICE in poi
+# i cimeli, dalle rovine: si piazzano come decorazioni (vedi RELICS)
 enum Res { WOOD, STONE, VEG, IRON, COAL, MEAL, FINE_MEAL, MEAT, FISH, HIDE, INGOT,
-	PICKAXE, AXE, SICKLE, BOW, LEATHER_ARMOR, LEATHER_HOOD, HELMET, CHAINMAIL, SWORD }
+	PICKAXE, AXE, SICKLE, BOW, LEATHER_ARMOR, LEATHER_HOOD, HELMET, CHAINMAIL, SWORD, GOLD, DAGGER,
+	CHALICE, OLD_BANNER, BUST, CROWN }
 const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.IRON: 50, Res.COAL: 50, Res.MEAL: 20, Res.FINE_MEAL: 20,
 	Res.MEAT: 50, Res.FISH: 50, Res.HIDE: 50, Res.INGOT: 50, Res.PICKAXE: 10, Res.AXE: 10, Res.SICKLE: 10, Res.BOW: 10,
-	Res.LEATHER_ARMOR: 10, Res.LEATHER_HOOD: 10, Res.HELMET: 10, Res.CHAINMAIL: 10, Res.SWORD: 10}  # quantità massima per mucchio (casella)
+	Res.LEATHER_ARMOR: 10, Res.LEATHER_HOOD: 10, Res.HELMET: 10, Res.CHAINMAIL: 10, Res.SWORD: 10, Res.GOLD: 100, Res.DAGGER: 10,
+	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5}  # quantità massima per mucchio (casella)
 const MEALS := [Res.FINE_MEAL, Res.MEAL]  # cotti: chi ha fame li prende in quest'ordine, poi il crudo
 const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT]  # crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti
 const STASH := [Res.WOOD, Res.STONE, Res.VEG, Res.IRON, Res.COAL]  # scorta di debug: il resto si produce
+const START_GOLD := 60      # monete nel magazzino all'inizio
+const COIN := "[img=center]res://art/icon_coin.png[/img]"  # una moneta 16x16 nei testi ricchi (vedi coins)
+# Tipo di ogni oggetto: la sua icona 16x16 (art/kind_*.png, per le monete la moneta) sta davanti al nome, ovunque
+# (vedi item_name, item_title, kind_icon)
+enum ItemKind { MATERIAL, FOOD, TOOL, WEAPON, ARMOR, COINS, RELIC }
+const KIND_NAMES := ["Material", "Food", "Tool", "Weapon", "Armor", "Coins", "Relic"]
+const KIND_ICONS := {
+	ItemKind.MATERIAL: preload("res://art/kind_material.png"), ItemKind.FOOD: preload("res://art/kind_food.png"),
+	ItemKind.TOOL: preload("res://art/kind_tool.png"), ItemKind.WEAPON: preload("res://art/kind_weapon.png"),
+	ItemKind.ARMOR: preload("res://art/kind_armor.png"), ItemKind.COINS: preload("res://art/icon_coin.png"),
+	ItemKind.RELIC: preload("res://art/kind_relic.png"),
+}
+const ITEM_KIND := {
+	Res.WOOD: ItemKind.MATERIAL, Res.STONE: ItemKind.MATERIAL, Res.IRON: ItemKind.MATERIAL, Res.COAL: ItemKind.MATERIAL,
+	Res.HIDE: ItemKind.MATERIAL, Res.INGOT: ItemKind.MATERIAL,
+	Res.VEG: ItemKind.FOOD, Res.MEAL: ItemKind.FOOD, Res.FINE_MEAL: ItemKind.FOOD, Res.MEAT: ItemKind.FOOD, Res.FISH: ItemKind.FOOD,
+	Res.PICKAXE: ItemKind.TOOL, Res.AXE: ItemKind.TOOL, Res.SICKLE: ItemKind.TOOL,
+	Res.BOW: ItemKind.WEAPON, Res.SWORD: ItemKind.WEAPON, Res.DAGGER: ItemKind.WEAPON,
+	Res.LEATHER_ARMOR: ItemKind.ARMOR, Res.LEATHER_HOOD: ItemKind.ARMOR, Res.HELMET: ItemKind.ARMOR, Res.CHAINMAIL: ItemKind.ARMOR,
+	Res.GOLD: ItemKind.COINS,
+	Res.CHALICE: ItemKind.RELIC, Res.OLD_BANNER: ItemKind.RELIC, Res.BUST: ItemKind.RELIC, Res.CROWN: ItemKind.RELIC,
+}
 # cibo: quanto sazia (vedi eat) e in quanti giorni marcisce a terra fuori (vedi spoil); in magazzino ci mette il doppio.
 # Il crudo sazia meno e può intossicare (vedi poison_chance), i pasti no e danno un bonus (vedi Cond)
 const FOOD := {Res.VEG: 35.0, Res.FISH: 30.0, Res.MEAT: 40.0, Res.MEAL: 100.0, Res.FINE_MEAL: 100.0}
@@ -86,7 +112,8 @@ const HIT_PER_LEVEL := 0.05
 const HIT_PER_TILE := 0.05
 const SHOT_DAMAGE := 10.0   # tiro senza arco (sassi, lance improvvisate); con l'arco "shot" di GEAR
 # combattimento (vedi react, Job.FIGHT, update_wolf): i lupi arrivano in branco dal bordo della mappa e inseguono i coloni
-# fuori dalle stanze; chi sta bene combatte, chi è ferito scappa al chiuso. Nessuno muore: a 0 punti ferita si resta a terra
+# fuori dalle stanze; chi sta bene combatte, chi è ferito scappa al chiuso. A 0 punti ferita si resta a terra, o si
+# muore (vedi die): coi lupi, con le probabilità di DEATH_BASE; a terra, il primo morso uccide
 const WOLF_FIRST := 2.0     # giorno del primo branco (vedi threats)
 const WOLF_EVERY := 3.0     # giorni tra un branco e l'altro
 const PACK := [2, 3]        # lupi per branco, da-a
@@ -110,27 +137,146 @@ const HIT_STRESS := 5.0     # stress per ogni morso preso
 const HP_REGEN := 30.0      # punti ferita al giorno; il doppio dormendo
 const DOWNED_REGEN := 40.0  # a terra si rialza a GET_UP
 const GET_UP := 30.0
+const DEATH_BASE := 0.25    # il colpo che butta a terra uccide con questa probabilità, meno DEATH_PER_ARMOR per punto
+const DEATH_PER_ARMOR := 0.03  # di protezione, ma almeno DEATH_MIN
+const DEATH_MIN := 0.05
+const CORPSE_DAYS := 1.0    # il corpo resta a terra un giorno, poi sparisce (vedi corpses)
+
+# --- Avventurieri (vedi GDD 4.4.4): arrivano alla locanda, si ingaggiano con l'oro alla bacheca, esplorano le rovine ---
+enum Hero { NONE, WARRIOR, ARCHER, BURGLAR }  # classe; NONE: un colono
+# dove va un avventuriero col Job.TRAVEL: alla locanda, via per sempre, al bordo per partire, alla locanda di ritorno
+enum Errand { NONE, ARRIVE, LEAVE, DEPART, RETURN }
+# "skills": abilità -> livello per livello dell'avventuriero; "weapon": l'abilità con cui combatte nella rovina; "gear" e
+# "kit" quello che porta ("heavy": l'armatura da HEAVY_LEVEL); "hurt": quanti colpi prende nella rovina, rispetto agli
+# altri del gruppo; "cover": i danni al gruppo, se c'è lui (tira per primo); "haul": il bottino, se c'è lui (la sacca)
+const HEROES := {
+	Hero.WARRIOR: {"skills": {Skill.MELEE: 2}, "weapon": Skill.MELEE, "hurt": 2.0, "kit": [Look.SHIELD],
+		"gear": {Slot.HANDS: Res.SWORD, Slot.BODY: Res.LEATHER_ARMOR, Slot.HEAD: Res.HELMET}, "heavy": Res.CHAINMAIL,
+		"tunic": Color("8a2a2a"), "cape": Color("6e2f2f")},
+	Hero.ARCHER: {"skills": {Skill.RANGED: 2}, "weapon": Skill.RANGED, "hurt": 0.5, "cover": 0.75, "kit": [Look.QUIVER],
+		"gear": {Slot.HANDS: Res.BOW, Slot.BODY: Res.LEATHER_ARMOR, Slot.HEAD: Res.LEATHER_HOOD}, "hood": Color("6f8a4a"),
+		"tunic": Color("4f6b30"), "cape": Color("3b4a2a")},
+	Hero.BURGLAR: {"skills": {Skill.LOCKPICKING: 2, Skill.MELEE: 1}, "weapon": Skill.MELEE, "hurt": 1.0, "haul": 1.5,
+		"kit": [Look.MASK, Look.PACK], "gear": {Slot.HANDS: Res.DAGGER, Slot.BODY: Res.LEATHER_ARMOR, Slot.HEAD: Res.LEATHER_HOOD},
+		"hood": Color("4a4858"), "tunic": Color("3a3848"), "cape": Color("2a2833")},
+}
+# Talenti degli avventurieri: uno a testa (vedi new_hero), con la sua icona (colonne di HERO_TRAITS_SHEET).
+# Effetti (vedi gift, party_gift): "fee" paga x; "share" quota delle monete; "turn_back" punti ferita sotto cui fa
+# tornare il gruppo; "weapon" la sua arma x nella forza del gruppo; "hurt" ferite x (mostri e trappole); "trips"
+# spedizioni per salire di livello; "splendor" splendore della colonia mentre è sulla mappa. Del gruppo, se c'è lui:
+# "finds" oggetti in più per forziere; "maps" probabilità delle mappe x; "lure" le trappole colpiscono lui; "sneak"
+# probabilità di evitare i mostri; "heal" punti ferita a testa dopo ogni stanza; "carry" chi cade non muore mai (se
+# non è solo); "food" provviste x; "travel" giorni di viaggio x; "disarm" + a disinnescare le trappole
+enum Gift { GREEDY, LOYAL, RECKLESS, COWARD, LUCKY, CARTOGRAPHER, JINXED, BERSERKER, STOUT, STEALTHY, MEDIC, FORAGER,
+	PATHFINDER, KEEN_EYED, SCHOLAR, FAMOUS }
+const HERO_TRAITS_SHEET := preload("res://art/hero_traits.png")  # 16x16, colonne nell'ordine di Gift
+const GIFT_FX := {
+	Gift.GREEDY: {"fee": 1.25},
+	Gift.LOYAL: {"share": 0.0},
+	Gift.RECKLESS: {"turn_back": 20.0},
+	Gift.COWARD: {"turn_back": 60.0},
+	Gift.LUCKY: {"finds": 1},
+	Gift.CARTOGRAPHER: {"maps": 3.0},
+	Gift.JINXED: {"lure": true, "fee": 0.75},
+	Gift.BERSERKER: {"weapon": 2.0, "hurt": 1.5},
+	Gift.STOUT: {"hurt": 2.0 / 3},
+	Gift.STEALTHY: {"sneak": 0.25},
+	Gift.MEDIC: {"heal": 6.0, "carry": true},
+	Gift.FORAGER: {"food": 2.0 / 3},
+	Gift.PATHFINDER: {"travel": 0.5},
+	Gift.KEEN_EYED: {"disarm": 0.3},
+	Gift.SCHOLAR: {"trips": 1},
+	Gift.FAMOUS: {"splendor": 5},
+}
+const GIFT_INFO := {
+	Gift.GREEDY: "Always wants more.\nAsks 25% more to be hired.",
+	Gift.LOYAL: "Fights for the glory of the realm.\nKeeps no share of the gold.",
+	Gift.RECKLESS: "Never knows when to stop.\nThe party turns back for them only under 20 health.",
+	Gift.COWARD: "Lives to fight another day.\nThe party turns back when they drop under 60 health.",
+	Gift.LUCKY: "Born under a good star.\nOne more item in every chest the party opens.",
+	Gift.CARTOGRAPHER: "Draws every corridor.\nThe party finds maps three times as often.",
+	Gift.JINXED: "Bad things happen around them.\nEvery trap hits them. Asks 25% less.",
+	Gift.BERSERKER: "Fights like a storm.\nTheir weapon counts double, but they take 50% more wounds.",
+	Gift.STOUT: "Hard as an old oak.\nTakes a third fewer wounds.",
+	Gift.STEALTHY: "Moves without a sound.\nThe party slips past monsters one time in four.",
+	Gift.MEDIC: "Knows herbs and bandages.\nAfter each room everyone heals 6; whoever falls is carried home.",
+	Gift.FORAGER: "Finds food anywhere.\nThe party eats a third less.",
+	Gift.PATHFINDER: "Knows every shortcut.\nThe journey takes half the time.",
+	Gift.KEEN_EYED: "Nothing escapes their eyes.\n+30% to disarm traps.",
+	Gift.SCHOLAR: "Learns from everything.\nGoes up a level after every expedition.",
+	Gift.FAMOUS: "Their name is sung in every tavern.\n+5 colony splendor while they are here.",
+}
+const HERO_TRAIT_CHANCE := 0.3  # avventurieri con anche un talento dei coloni (bisogni e routine)
+const HEAVY_LEVEL := 3      # il guerriero ha la cotta di maglia da questo livello
+const HERO_LEVEL_MAX := 5
+const SPLENDOR_PER_LEVEL := 10  # chi arriva: livello 1, +1 ogni tanti punti di splendore, ±1 a caso
+const GUEST_EVERY := 2.0    # giorni tra un arrivo e l'altro (±GUEST_JITTER), se alla locanda c'è un letto libero
+const GUEST_JITTER := 0.5
+const GUEST_STAY := 3.0     # giorni alla locanda: poi, se nessuno l'ha ingaggiato, se ne va
+const GUEST_REST := 2.0     # giorni alla locanda dopo una spedizione, prima di andarsene
+const FEE_BASE := 10        # monete d'ingaggio: FEE_BASE + FEE_PER_LEVEL per livello
+const FEE_PER_LEVEL := 5
+const SHARE := 0.3          # al ritorno si tiene questa parte delle monete trovate
+const TRIPS_PER_LEVEL := 2  # spedizioni tornate per salire di un livello
+# Rovine, fuori dalla mappa: "danger" pericolo, "rooms" stanze, "travel" giorni di viaggio (andata), "gold" monete per
+# forziere (da-a), "finds" un oggetto per forziere, a caso tra questi [risorsa, quantità]. In quest'ordine: all'inizio
+# si conosce la prima, il tesoro di ognuna ha la mappa della successiva (e a volte un forziere qualunque, MAP_CHANCE)
+enum RuinKind { TOWER, MINE, CRYPT, FORT }
+const RUINS := {
+	RuinKind.TOWER: {"name": "Ruined tower", "danger": 1, "rooms": 3, "travel": 0.5, "gold": [10, 25],
+		"finds": [[Res.WOOD, 10], [Res.STONE, 10], [Res.IRON, 5]]},
+	RuinKind.MINE: {"name": "Abandoned mine", "danger": 2, "rooms": 5, "travel": 1.0, "gold": [20, 45],
+		"finds": [[Res.IRON, 10], [Res.COAL, 10], [Res.INGOT, 4], [Res.PICKAXE, 1]]},
+	RuinKind.CRYPT: {"name": "Crypt", "danger": 3, "rooms": 6, "travel": 1.0, "gold": [35, 70],
+		"finds": [[Res.SWORD, 1], [Res.HELMET, 1], [Res.LEATHER_ARMOR, 1], [Res.INGOT, 6], [Res.CHALICE, 1], [Res.BUST, 1]]},
+	RuinKind.FORT: {"name": "Ruined fort", "danger": 4, "rooms": 8, "travel": 2.0, "gold": [60, 120],
+		"finds": [[Res.CHAINMAIL, 1], [Res.SWORD, 2], [Res.HELMET, 1], [Res.INGOT, 10], [Res.OLD_BANNER, 1], [Res.CROWN, 1]]},
+}
+const MAP_CHANCE := 0.15    # in un forziere qualunque, la mappa di una rovina che ancora non si conosce
+const TREASURE_GOLD := 3    # il tesoro dell'ultima stanza: monete di tanti forzieri
+const MAX_PARTY := 4        # avventurieri per spedizione
+const HUNGER_HURT := 20.0   # punti ferita al giorno, a testa, senza provviste
+enum Chamber { EMPTY, TRAP, MONSTERS, CHEST, COLLAPSE }  # cosa c'è in una stanza della rovina (vedi explore)
+const CHAMBER_ODDS := {Chamber.EMPTY: 25, Chamber.TRAP: 20, Chamber.MONSTERS: 35, Chamber.CHEST: 15, Chamber.COLLAPSE: 5}
+const ROOM_DAYS := 0.5      # giorni per stanza
+const MONSTER_POWER := 5.0  # forza dei mostri per punto di pericolo; il guardiano dell'ultima stanza il doppio
+const MONSTER_HURT := 20.0  # danni a testa: questo x forza dei mostri / forza media del gruppo, poi la protezione
+const TRAP_DISARM := 0.2    # + TRAP_PER_LEVEL per livello di scassinare del migliore
+const TRAP_PER_LEVEL := 0.08
+const TRAP_HURT := 15.0     # danni per punto di pericolo, a uno a caso, se non la disinnesca nessuno
+const LOCKED := 0.5         # forzieri chiusi: li apre solo chi ha scassinare almeno LOCK_PER_DANGER per punto di pericolo
+const LOCK_PER_DANGER := 2
+const TURN_BACK := 40.0     # punti ferita sotto cui il gruppo torna indietro
+const FALL_DEATH := 0.5     # a 0 punti ferita nella rovina si muore una volta su due; se no lo riportano gli altri
+const CARRIED_HP := 5.0     # chi è riportato a casa
+const LOST_AFTER := 2.0     # una spedizione da cui non torna nessuno la si dà per persa al doppio del tempo previsto
 # Equipaggiamento: un pezzo per slot (vedi Colonist.gear), messo da sé col primo che trova in magazzino (vedi try_equip).
 # Nelle mani l'attrezzo della sua abilità migliore tra quelle degli attrezzi ("skill"). Armature: "armor" è la protezione,
 # per il combattimento e il freddo che verranno; i bonus li dà solo il pezzo che li ha. Chiavi:
 # "time": {Job: tempo x}, "slow": tempo x per ogni lavoro, "hit": a segno + cacciando, "range": caselle di tiro in più,
-# "outdoor_stress": stress x lavorando fuori dalle stanze
+# "outdoor_stress": stress x lavorando fuori dalle stanze; "look": come si vede addosso (Held in mano, Look sul corpo
+# e in testa), "tint": tinta di quel livello (vedi figure_layers)
 enum Slot { HANDS, BODY, HEAD }  # come HUD/ColonistSheet/Box/Equipment/Slots
+enum Held { TOOL, PICKAXE, AXE, SICKLE, SWORD, BOW, DAGGER }  # righe di colonist_hands; TOOL: a mani vuote, nei lavori
+enum Look { LEATHER_ARMOR, CHAINMAIL, HELMET, HOOD, SHIELD, QUIVER, MASK, PACK }  # righe di colonist_gear
 const GEAR := {
 	Res.PICKAXE: {"slot": Slot.HANDS, "skill": Skill.MINING, "time": {Job.MINE: 0.75}, "damage": 10.0,
-		"info": "Mining 25% faster. Melee damage 10."},
+		"look": Held.PICKAXE, "info": "Mining 25% faster. Melee damage 10."},
 	Res.AXE: {"slot": Slot.HANDS, "skill": Skill.WOODCUTTING, "time": {Job.CHOP: 0.75}, "damage": 12.0,
-		"info": "Woodcutting 25% faster. Melee damage 12."},
+		"look": Held.AXE, "info": "Woodcutting 25% faster. Melee damage 12."},
 	Res.SICKLE: {"slot": Slot.HANDS, "skill": Skill.GATHERING, "time": {Job.HARVEST: 0.75, Job.UPROOT: 0.75}, "damage": 8.0,
-		"info": "Harvesting and uprooting 25% faster. Melee damage 8."},
-	Res.BOW: {"slot": Slot.HANDS, "skill": Skill.HUNTING, "hit": 0.1, "range": 2.0, "shot": 14.0,
+		"look": Held.SICKLE, "info": "Harvesting and uprooting 25% faster. Melee damage 8."},
+	Res.BOW: {"slot": Slot.HANDS, "skill": Skill.HUNTING, "hit": 0.1, "range": 2.0, "shot": 14.0, "look": Held.BOW,
 		"info": "Hunting: +10% to hit, 2 more tiles of range, aims with the better of Hunting and Ranged. Shoots in a fight (damage 14)."},
-	Res.SWORD: {"slot": Slot.HANDS, "skill": Skill.MELEE, "damage": 15.0, "info": "A weapon. Melee damage 15."},
-	Res.LEATHER_ARMOR: {"slot": Slot.BODY, "armor": 2, "outdoor_stress": 0.75, "info": "Light. 25% less stress working outdoors."},
-	Res.LEATHER_HOOD: {"slot": Slot.HEAD, "armor": 1, "hit": 0.05, "info": "Blends in: +5% to hit when hunting."},
-	Res.HELMET: {"slot": Slot.HEAD, "armor": 3, "time": {Job.MINE: 0.9}, "info": "Safe from falling rocks: mining 10% faster."},
-	Res.CHAINMAIL: {"slot": Slot.BODY, "armor": 5, "slow": 1.1, "info": "Heavy: all work 10% slower."},
+	Res.SWORD: {"slot": Slot.HANDS, "skill": Skill.MELEE, "damage": 15.0, "look": Held.SWORD, "info": "A weapon. Melee damage 15."},
+	Res.LEATHER_ARMOR: {"slot": Slot.BODY, "armor": 2, "outdoor_stress": 0.75, "look": Look.LEATHER_ARMOR, "info": "Light. 25% less stress working outdoors."},
+	Res.LEATHER_HOOD: {"slot": Slot.HEAD, "armor": 1, "hit": 0.05, "look": Look.HOOD, "tint": Color("8a5a34"), "info": "Blends in: +5% to hit when hunting."},
+	Res.HELMET: {"slot": Slot.HEAD, "armor": 3, "time": {Job.MINE: 0.9}, "look": Look.HELMET, "info": "Safe from falling rocks: mining 10% faster."},
+	Res.CHAINMAIL: {"slot": Slot.BODY, "armor": 5, "slow": 1.1, "look": Look.CHAINMAIL, "info": "Heavy: all work 10% slower."},
+	Res.DAGGER: {"slot": Slot.HANDS, "skill": Skill.LOCKPICKING, "damage": 10.0, "look": Held.DAGGER,
+		"info": "A burglar's knife. Melee damage 10."},
 }
+const KIT_ARMOR := {Look.SHIELD: 3}  # protezione del corredo degli avventurieri (vedi gear_sum)
 # Produzione (vedi try_craft): [prodotto, mobile, abilità, ingredienti, secondi a livello 5]. Il mobile dentro una stanza
 # del tipo STATION_ROOM. Si fanno lingotti finché ce ne sono meno di INGOT_STOCK, e i pezzi che mancano perché ogni
 # colono abbia pieni i suoi slot (vedi gear_wanted); per uno slot, il primo in elenco di cui ci sono gli ingredienti.
@@ -158,9 +304,9 @@ const ORDER_TOOLS := {Order.DEMOLISH: "Destroy", Order.MINE: "Mine", Order.CHOP:
 const ORDER_ICONS := {Order.CHOP: preload("res://art/icon_chop.png"), Order.MINE: preload("res://art/icon_mine.png"),
 	Order.UPROOT: preload("res://art/icon_uproot.png"), Order.HARVEST: preload("res://art/icon_harvest.png"),
 	Order.FISH: preload("res://art/icon_fishing.png"), Order.HUNT: preload("res://art/icon_hunting.png")}  # le stesse dei tasti: piccole e velate sopra ciò che è segnato
-enum RoomKind { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE, WORKSHOP }  # tipo di stanza, scelto dal cartello
+enum RoomKind { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE, WORKSHOP, INN }  # tipo di stanza, scelto dal cartello
 # categoria del tipo: lavoro (niente proprietari, gli si assegnano dei lavoratori), residenza (può avere dei proprietari),
-# servizio (comune a tutti, con uno scopo preciso: il magazzino). Senza tipo: nessuna, né proprietari né lavoratori
+# servizio (comune a tutti, con uno scopo preciso: magazzino, locanda). Senza tipo: nessuna, né proprietari né lavoratori
 enum RoomClass { NONE, WORK, RESIDENCE, SERVICE }
 const ROOM_CLASS := {
 	RoomKind.WAREHOUSE: RoomClass.SERVICE,
@@ -169,27 +315,34 @@ const ROOM_CLASS := {
 	RoomKind.KITCHEN: RoomClass.WORK,
 	RoomKind.FORGE: RoomClass.WORK,
 	RoomKind.WORKSHOP: RoomClass.WORK,
+	RoomKind.INN: RoomClass.SERVICE,
 }
 # titolo della lista di coloni da spuntare nel popup del cartello, per RoomClass (le altre non ce l'hanno)
 const ROOM_PEOPLE := {RoomClass.WORK: "Workers", RoomClass.RESIDENCE: "Owners"}
 enum Build { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE, ANVIL, WORKBENCH,  # porta e mobili si attraversano
-	FLOWER_BED, PLANTER, BENCH, BANNER, LANTERN, FOUNTAIN, STATUE }  # decorazioni: vedi SPLENDOR
+	FLOWER_BED, PLANTER, BENCH, BANNER, LANTERN, FOUNTAIN, STATUE,  # decorazioni: vedi SPLENDOR
+	NOTICE_BOARD,  # la bacheca degli incarichi, nella locanda (vedi open_board)
+	CHALICE, OLD_BANNER, BUST, CROWN }  # cimeli: decorazioni fatte con l'oggetto trovato nelle rovine (vedi RELICS)
 # materiale per casella; per i mobili, per pezzo
 const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3,
 	Build.LAMP: 3, Build.CAMPFIRE: 5, Build.FURNACE: 20, Build.ANVIL: 10, Build.WORKBENCH: 15, Build.FLOWER_BED: 3, Build.PLANTER: 5,
-	Build.BENCH: 6, Build.BANNER: 4, Build.LANTERN: 4, Build.FOUNTAIN: 30, Build.STATUE: 40}
+	Build.BENCH: 6, Build.BANNER: 4, Build.LANTERN: 4, Build.FOUNTAIN: 30, Build.STATUE: 40, Build.NOTICE_BOARD: 8,
+	Build.CHALICE: 1, Build.OLD_BANNER: 1, Build.BUST: 1, Build.CROWN: 1}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
 const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
 	Build.CAMPFIRE: Vector2i.ONE, Build.FURNACE: Vector2i.ONE, Build.ANVIL: Vector2i.ONE, Build.WORKBENCH: Vector2i.ONE,
 	Build.FLOWER_BED: Vector2i.ONE, Build.PLANTER: Vector2i.ONE, Build.BENCH: Vector2i(2, 1), Build.BANNER: Vector2i.ONE,
-	Build.LANTERN: Vector2i.ONE, Build.FOUNTAIN: Vector2i(2, 2), Build.STATUE: Vector2i(2, 2)}
+	Build.LANTERN: Vector2i.ONE, Build.FOUNTAIN: Vector2i(2, 2), Build.STATUE: Vector2i(2, 2), Build.NOTICE_BOARD: Vector2i.ONE,
+	Build.CHALICE: Vector2i.ONE, Build.OLD_BANNER: Vector2i.ONE, Build.BUST: Vector2i.ONE, Build.CROWN: Vector2i.ONE}
 # mobili animati: secondi per fotogramma; i fotogrammi stanno nelle colonne dei quarti di giro (sono simmetrici)
 const ANIMATED := {Build.CAMPFIRE: 0.15, Build.BANNER: 0.3, Build.FOUNTAIN: 0.2}
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
 const PAVING := [Build.FLOOR, Build.PATH]  # a terra: si calpestano, ci stanno sopra i mobili, l'erba ci sborda sopra
 # materiale fisso; il resto solo di legno
+# i cimeli: la decorazione si fa con l'oggetto trovato nelle rovine, uno a pezzo
+const RELICS := {Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}
 const BUILD_RES := {Build.PATH: Res.STONE, Build.FURNACE: Res.STONE, Build.ANVIL: Res.IRON, Build.PLANTER: Res.STONE, Build.FOUNTAIN: Res.STONE,
-	Build.STATUE: Res.STONE}
+	Build.STATUE: Res.STONE, Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}
 # mobili che servono perché il cartello lasci scegliere il tipo di stanza: tipo -> {mobile: almeno quanti}
 # ponytail: la cucina accetterà anche la stufa, quando ci sarà: allora "uno tra" invece di "tutti"
 const ROOM_NEEDS := {
@@ -198,10 +351,11 @@ const ROOM_NEEDS := {
 	RoomKind.KITCHEN: {Build.CAMPFIRE: 1},
 	RoomKind.FORGE: {Build.FURNACE: 1, Build.ANVIL: 1},
 	RoomKind.WORKSHOP: {Build.WORKBENCH: 1},
+	RoomKind.INN: {Build.BED: 1, Build.TABLE: 1, Build.NOTICE_BOARD: 1},
 }
 # lente delle stanze (tasto col cartello in basso): le stanze finite velate col colore del loro tipo, per RoomKind
 const ROOM_COLORS := [Color("e6e2d0"), Color("c9a23b"), Color("3b8fd3"), Color("8a5ad3"), Color("e0703a"), Color("d33b3b"),
-	Color("3bb08a")]
+	Color("3bb08a"), Color("d38a3b")]
 # comfort di una stanza, 0-COMFORT_MAX: lo danno i mobili (per pezzo) e il pavimento (tutto se copre la stanza intera),
 # per il materiale. A metà né bonus né malus; fuori dalle stanze è 0. Vedi room_comfort e comfort_of
 const COMFORT_MAX := 10
@@ -212,7 +366,7 @@ const COMFORT_EFFECT := 0.2  # a comfort 0 un'attività richiede il 20% di tempo
 # splendore della colonia: lo danno le decorazioni finite, dentro e fuori dalle stanze (vedi colony_splendor).
 # ponytail: per ora solo il totale in alto; poi terrà felici i coloni e sbloccherà cose (strade, feste: vedi GDD)
 const SPLENDOR := {Build.FLOWER_BED: 1, Build.PLANTER: 1, Build.BENCH: 1, Build.BANNER: 2, Build.LANTERN: 1,
-	Build.FOUNTAIN: 6, Build.STATUE: 8}
+	Build.FOUNTAIN: 6, Build.STATUE: 8, Build.CHALICE: 3, Build.OLD_BANNER: 4, Build.BUST: 5, Build.CROWN: 6}
 const SPLENDOR_COLOR := Color("e8c34a")
 const ROOM_SPACE := 6        # caselle a testa: chi ne ha meno (stanza piena di gente) ha il comfort in proporzione
 # suggerimento dei pulsanti di costruzione (vedi build_tip): sotto nome e costo il comfort, poi la descrizione colorata
@@ -244,16 +398,24 @@ const BUILD_INFO := {
 	Build.LANTERN: "A lantern on a post. Lights up the roads at night.",
 	Build.FOUNTAIN: "A stone basin with a jet of water. The pride of the square.",
 	Build.STATUE: "The king in stone, hands on his sword, on a gilded plinth.",
+	Build.NOTICE_BOARD: "Notices pinned to a board. An inn needs one, a bed and a table. Click it to hire adventurers.",
+	Build.CHALICE: "A silver chalice set with a ruby, from a forgotten altar. Only adventurers find these, in ruins.",
+	Build.OLD_BANNER: "A torn banner of a fallen house. Only adventurers find these, in ruins.",
+	Build.BUST: "The stone face of a king nobody remembers. Only adventurers find these, in ruins.",
+	Build.CROWN: "A jeweled crown on a velvet cushion. Only adventurers find these, in ruins.",
 }
 enum Facing { DOWN, LEFT, RIGHT, UP }  # righe del foglio
 enum TreeKind { OAK, PINE, BIRCH }     # colonne del foglio alberi
 const TREE_LOGS := {TreeKind.OAK: 28, TreeKind.PINE: 35, TreeKind.BIRCH: 20}  # tronchi di un albero intero
 
-# fogli 96x64 generati da tools/make_sprites.py
+# fogli 96x64 generati da tools/make_sprites.py; quelli con più voci le hanno una sotto l'altra (vedi figure_layers)
 const COLONIST_BASE := preload("res://art/colonist_base.png")
 const COLONIST_HAIR := preload("res://art/colonist_hair.png")
 const COLONIST_TUNIC := preload("res://art/colonist_tunic.png")
 const COLONIST_CAPE := preload("res://art/colonist_cape.png")
+const COLONIST_HAIR_STYLES := preload("res://art/colonist_hair_styles.png")  # capelli lunghi, treccia, barba
+const COLONIST_GEAR := preload("res://art/colonist_gear.png")    # armature, copricapi, corredo: Look
+const COLONIST_HANDS := preload("res://art/colonist_hands.png")  # quello che tiene in mano: Held
 const WALK_CYCLE := [0, 1, 0, 2]  # colonne del foglio: fermo, passo A, fermo, passo B
 const WORK_CYCLE := [3, 3, 4]     # carica, carica, colpo: per ogni lavoro a tempo (taglio, scavo, costruzione)
 const SWING_TIME := 0.6           # secondi per colpo
@@ -311,14 +473,22 @@ const ICONS := {
 	Res.HELMET: preload("res://art/icon_helmet.png"),
 	Res.CHAINMAIL: preload("res://art/icon_chainmail.png"),
 	Res.SWORD: preload("res://art/icon_sword.png"),
+	Res.GOLD: preload("res://art/icon_gold.png"),
+	Res.DAGGER: preload("res://art/icon_dagger.png"),
+	Res.CHALICE: preload("res://art/icon_chalice.png"),
+	Res.OLD_BANNER: preload("res://art/icon_old_banner.png"),
+	Res.BUST: preload("res://art/icon_bust.png"),
+	Res.CROWN: preload("res://art/icon_crown.png"),
 }
 # 256x128, righe: muri di legno, muri di pietra (colonna = lati collegati, vedi WALL_LINKS), pavimenti (colonna = Res,
 # poi il sentiero), porte (di fronte, di lato), erba sui pavimenti (lati, angoli, due varianti); vedi structure_src e draw_grass_over
 const STRUCTURES := preload("res://art/structures.png")
 const WALL_LINKS := [Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]  # bit 1, 2, 4, 8 della colonna dei muri
 # scheda del colono, vedi open_sheet
-enum Skill { GATHERING, MINING, WOODCUTTING, CONSTRUCTION, SMITHING, TAILORING, COOKING, FISHING, HUNTING, MELEE, RANGED, RESEARCH }
+enum Skill { GATHERING, MINING, WOODCUTTING, CONSTRUCTION, SMITHING, TAILORING, COOKING, FISHING, HUNTING, MELEE, RANGED, RESEARCH,
+	LOCKPICKING }  # scassinare: per ora solo gli scassinatori (vedi HEROES)
 const SKILL_MAX := 10       # livelli 0-10 (si parte da 0): al massimo, nella scheda, compare la stellina
+const CORPSE_SHADE := Color(0.6, 0.6, 0.65)  # i morti, smorti
 # raccolta: [abilità, secondi per colpo a livello 5 (vedi gather_time), quantità per colpo, risorsa]; i massi con la
 # vena danno il minerale (vedi ores). 1 punto esperienza nell'abilità a raccolta finita (albero abbattuto, masso
 # scavato, cespuglio spogliato), non a colpo
@@ -367,7 +537,7 @@ const TRAIT_INFO := {  # suggerimento col mouse sopra il talento: com'è, poi co
 }
 # condizioni: effetti a tempo, con un'icona 16x16 nella scheda (colonne di CONDITIONS_SHEET nell'ordine di Cond).
 # Dati: [giorni, tempo di lavoro x, stress da lavoro x, felicità +, descrizione]. Vedi add_cond, work_factor, update_needs
-enum Cond { POISONED, WELL_FED, FEASTED, AT_TABLE, ATE_RAW }
+enum Cond { POISONED, WELL_FED, FEASTED, AT_TABLE, ATE_RAW, MOURNING }
 const CONDITIONS_SHEET := preload("res://art/conditions.png")
 const COND_INFO := {
 	Cond.POISONED: [1.0, 1.5, 1.0, -20.0, "Ate raw food that was going bad. Works slowly."],
@@ -375,6 +545,7 @@ const COND_INFO := {
 	Cond.FEASTED: [0.5, 0.8, 0.5, 10.0, "Had a fine meal. Works much faster, much less stress."],
 	Cond.AT_TABLE: [0.5, 1.0, 1.0, 5.0, "Ate sitting at a table."],
 	Cond.ATE_RAW: [0.5, 1.0, 1.0, -10.0, "A glutton forced to eat raw food."],
+	Cond.MOURNING: [3.0, 1.0, 1.25, -15.0, "A fellow colonist has died."],
 }
 const GLUTTON_MOOD := 2.0  # il goloso: tanta felicità in più (o in meno) da quello che mangia
 const FOOD_CONDS := [Cond.WELL_FED, Cond.FEASTED, Cond.AT_TABLE, Cond.ATE_RAW]
@@ -434,12 +605,26 @@ const ARROW := preload("res://art/icon_arrow.png")  # a destra della barra; a si
 const TREND_DOWN := Color("ff6a4a")  # freccia a sinistra accesa: il bisogno scende
 const TREND_UP := Color("9be36a")    # freccia a destra accesa: sale
 const TREND_OFF := Color(1, 1, 1, 0.12)
-const FIRST_NAMES := ["Aldo", "Bertha", "Corrado", "Edda", "Folco", "Gisella", "Ilario", "Matilde", "Odo", "Rosalind", "Ugo", "Wilma"]
+enum Sex { MALE, FEMALE }
+const SEX_NAMES := ["Male", "Female"]
+const SEX_ICONS := {Sex.MALE: preload("res://art/icon_male.png"), Sex.FEMALE: preload("res://art/icon_female.png")}
+const FIRST_NAMES := {
+	Sex.MALE: ["Aldo", "Corrado", "Folco", "Ilario", "Odo", "Ugo", "Bertrand", "Gualtiero"],
+	Sex.FEMALE: ["Bertha", "Edda", "Gisella", "Matilde", "Rosalind", "Wilma", "Adelaide", "Ottavia"],
+}
+# acconciatura: la calotta di colonist_hair ce l'hanno tutti; LONG e BRAID aggiungono la riga omonima di colonist_hair_styles
+enum Hair { SHORT, LONG, BRAID }
+const HAIR_STYLES := {Sex.MALE: [Hair.SHORT], Sex.FEMALE: [Hair.LONG, Hair.BRAID]}
+const BEARD := 2           # riga della barba in colonist_hair_styles
+const BEARD_CHANCE := 0.5  # uomini con la barba
 const NICKNAMES := ["Badger", "Crow", "Lefty", "Moss", "Pebble", "Red", "Stub", "Thistle"]
 const LAST_NAMES := ["Ashdown", "Barrow", "Cooper", "Fenwick", "Hale", "Marsh", "Thatcher", "Woodward"]
 
 
 class Colonist:
+	var sex := Sex.MALE
+	var hair_style := Hair.SHORT
+	var beard := false
 	var first_name := ""
 	var nickname := ""            # facoltativo: non tutti ce l'hanno
 	var last_name := ""
@@ -477,6 +662,18 @@ class Colonist:
 	var streak := 0.0             # ore di lavoro di fila, senza pause né pasti
 	var pause_until := 0.0        # `clock` fino a cui non lavora: è in pausa (vedi "streak" in TRAIT_FX)
 	var hour := -1                # ultima ora vista, per accorgersi di quando scocca la successiva
+	var died := 0.0               # `clock` della morte (vedi corpses)
+	# avventurieri (vedi HEROES): per i coloni hero è NONE e il resto non conta
+	var hero := Hero.NONE
+	var level := 0                # 1-HERO_LEVEL_MAX
+	var trips := 0                # spedizioni tornate
+	var stay_until := 0.0         # `clock` fino a cui aspetta alla locanda che qualcuno lo ingaggi
+	var errand := Errand.NONE     # dove va col Job.TRAVEL (vedi travel)
+	var hired := false            # ingaggiato: va alla rovina, ci è, o ne torna
+	var loot := {}                # Res -> quantità che riporta dalla rovina e lascia alla locanda
+	var kit := []                 # Look del corredo: scudo, faretra, maschera, sacca
+	var hood_tint = null          # Color del cappuccio, se non è di cuoio
+	var gifts := []               # Gift: i talenti da avventuriero
 
 
 # Animale selvatico: gira da solo per la mappa, fuori dalle stanze (vedi update_animal); si caccia (vedi try_hunt).
@@ -533,6 +730,16 @@ var wild := RandomNumberGenerator.new()  # tutto il caso degli animali: non spos
 var next_animal := ANIMAL_RESPAWN  # `clock` del prossimo arrivo
 var threats := true         # false nei test: niente branchi di lupi
 var next_pack := WOLF_FIRST # `clock` del prossimo branco
+var deaths := true          # false nei test: a 0 punti ferita si resta a terra, nessuno muore
+var corpses: Array[Colonist] = []  # morti: restano a terra CORPSE_DAYS (vedi die)
+var fallen := false         # sono morti tutti i coloni
+var guests: Array[Colonist] = []   # avventurieri sulla mappa: alla locanda, per strada, di ritorno (vedi update_guests)
+var next_guest := GUEST_EVERY      # `clock` del prossimo arrivo alla locanda
+var ruins: Array[Ruin] = []
+var expeditions: Array[Expedition] = []
+var chronicle: PackedStringArray = []  # diari delle spedizioni e morti, dal più vecchio (vedi note)
+var board_key := ""         # quello che mostra la bacheca: se cambia, la si rifà (vedi fill_board)
+var board_pick: Array[Colonist] = []  # spuntati alla bacheca per la prossima spedizione
 var items := {}  # risorsa -> (cella -> quantità a terra; nel magazzino = stoccata): un dizionario per Res, vedi _init  # risorsa -> (cella -> quantità a terra; nel magazzino = stoccata)
 var fresh := {}             # cella -> giorni (a terra fuori) prima che il mucchio di cibo marcisca, vedi spoil
 var stockpile := {}         # cella -> true: dentro le stanze di tipo magazzino, vedi update_stockpile
@@ -607,7 +814,7 @@ var lights_canvas := Node2D.new()
 @onready var room_kind: OptionButton = $HUD/RoomPopup/Box/Kind  # solo i tipi possibili, vedi refresh_room
 @onready var room_owners: Control = $HUD/RoomPopup/Box/Owners/List  # una casella da spuntare per colono: proprietari o lavoratori
 @onready var jobs_panel: Control = $HUD/JobsPanel  # a destra, si apre col tasto Jobs in basso: vedi job_list
-@onready var jobs_list: Label = $HUD/JobsPanel/Box/List
+@onready var jobs_list: RichTextLabel = $HUD/JobsPanel/Box/List  # testo ricco: le monete con l'icona
 @onready var resources_panel: Control = $HUD/ResourcesPanel  # stesso posto: vedi update_resources
 @onready var resources_list: Control = $HUD/ResourcesPanel/Box/List  # una riga per Res: icona, nome, quantità
 @onready var sheet_panel: Control = $HUD/ColonistSheet  # a sinistra, si apre cliccando un colono: vedi open_sheet
@@ -616,6 +823,27 @@ var lights_canvas := Node2D.new()
 @onready var hotbar: Control = $HUD/Tools/Row
 @onready var options: Control = $HUD/Options  # velo su tutto lo schermo con la finestra al centro: vedi toggle_options
 @onready var key_list: GridContainer = $HUD/Options/Window/Box/Body/Pages/Keybindings/List  # icona, nome, tasto
+
+
+# Rovina fuori dalla mappa (vedi RUINS): le stanze ripulite restano ripulite
+class Ruin:
+	var kind := RuinKind.TOWER
+	var cleared := 0
+
+
+# Spedizione: il gruppo va al bordo della mappa, parte (lì si decide com'è andata, vedi explore) e torna a back_at
+class Expedition:
+	var party: Array[Colonist] = []  # chi è partito; quelli morti nella rovina li toglie explore
+	var ruin: Ruin
+	var edge := Vector2i(-1, -1)  # dove è uscito il primo: gli altri escono lì, e tornano da lì
+	var left_at := -1.0           # `clock` della partenza; -1 finché vanno verso il bordo
+	var due := INF                # `clock` del ritorno previsto: viaggio e tutte le stanze che restavano
+	var back_at := INF            # `clock` del ritorno, o di quando la si dà per persa
+	var lost := false             # non torna nessuno
+	var lines: PackedStringArray = []  # il diario, una riga per stanza
+	var loot := {}                # Res -> quantità trovate, monete comprese
+	var maps := []                # RuinKind delle mappe trovate: le rovine si conoscono al ritorno
+	var food := 0.0               # provviste, in giorni a testa (1 = un giorno per uno), vedi eat_on_trip
 
 
 func _init() -> void:
@@ -643,11 +871,7 @@ func _ready() -> void:
 		var c := Colonist.new()
 		c.pos = center(MAP_SIZE / 2 + Vector2i(i - 1, 0))
 		c.tunic = TUNIC_COLORS[i % TUNIC_COLORS.size()]
-		c.cape = CAPE_COLORS.pick_random()
-		c.hair = HAIR_COLORS.pick_random()
-		c.first_name = FIRST_NAMES.pick_random()
-		c.nickname = NICKNAMES.pick_random() if randf() < 0.5 else ""
-		c.last_name = LAST_NAMES.pick_random()
+		dress(c)
 		c.skills = Skill.values().map(func(_s): return 0)
 		c.xp = Skill.values().map(func(_s): return 0)
 		# sfalsati: non dormono tutti insieme; lo stress parte basso
@@ -712,6 +936,10 @@ func _ready() -> void:
 	for res in Res.values():
 		var row := HBoxContainer.new()
 		row.add_child(ui_icon(ICONS[res], Rect2(), Vector2(32, 32)))
+		var kind := ui_icon(KIND_ICONS[ITEM_KIND[res]], Rect2(), Vector2(16, 16))  # il tipo, prima del nome
+		kind.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		kind.tooltip_text = KIND_NAMES[ITEM_KIND[res]]
+		row.add_child(kind)
 		for text in [Res.keys()[res].capitalize(), ""]:  # nome, quantità
 			var label := Label.new()
 			label.text = text
@@ -720,7 +948,9 @@ func _ready() -> void:
 			label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT if text == "" else HORIZONTAL_ALIGNMENT_LEFT
 			row.add_child(label)
 		resources_list.add_child(row)
-	for window in [room_popup, jobs_panel, resources_panel, sheet_panel]:  # X in alto a destra, si trascinano
+	ruins.append(Ruin.new())  # per ora solo la torre
+	$HUD/BoardPanel/Box/ChronicleButton.pressed.connect(open_chronicle)
+	for window in [room_popup, jobs_panel, resources_panel, sheet_panel, $HUD/BoardPanel, $HUD/ReportPanel, $HUD/ChroniclePanel]:  # X in alto a destra, si trascinano
 		window.get_node("Box/Head/Close").pressed.connect(window.hide)
 		window.gui_input.connect(drag_window.bind(window))
 		window.visibility_changed.connect(window.move_to_front, CONNECT_DEFERRED)  # l'ultima aperta sta sopra
@@ -1101,13 +1331,18 @@ func colonist_tip(c: Colonist) -> Control:
 	return box
 
 
-# riempie `box` (HUD/ColonistSheet/Box o una sua copia) col colono `c`: nome, salute, bisogni (nome,
+# riempie `box` (HUD/ColonistSheet/Box o una sua copia) col colono `c`: nome, sesso, salute, bisogni (nome,
 # freccia giù, barra, freccia su), abilità (stellina al massimo) e sotto i talenti, col suggerimento
 func fill_sheet(box: Control, c: Colonist) -> void:
 	var needs_grid: Control = box.get_node("Needs")
-	var skills_grid: Control = box.get_node("Skills")  # 4 colonne: icona, nome, livello, stellina
+	var skills_grid: Control = box.get_node("Skills")  # due abilità per riga, ognuna: icona, nome, livello, stellina
 	var traits_box: Control = box.get_node("Traits/Icons")  # solo icone: il nome è nel suggerimento
 	box.get_node("Head/Name").text = full_name(c)
+	box.get_node("Sex/Icon").texture = SEX_ICONS[c.sex]
+	box.get_node("Sex/Label").text = SEX_NAMES[c.sex]
+	box.get_node("Hero").visible = c.hero != Hero.NONE
+	box.get_node("Hero").text = "%s, fee %s, %d expedition%s" % [hero_name(c), coins(fee(c)), c.trips, "" if c.trips == 1 else "s"] \
+		if c.hero != Hero.NONE else ""
 	box.get_node("Health").text = health_text(c)
 	for child in needs_grid.get_children() + skills_grid.get_children() + traits_box.get_children():
 		child.free()
@@ -1149,7 +1384,11 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 		var icon := ui_icon(TRAITS_SHEET, Rect2(tile_rect(t, 0)), Vector2(32, 32))
 		icon.tooltip_text = "%s\n%s" % [Trait.keys()[t].capitalize(), TRAIT_INFO[t]]
 		traits_box.add_child(icon)
-	traits_box.get_parent().visible = not c.traits.is_empty()  # col titolo "Traits"
+	for g in c.gifts:  # degli avventurieri
+		var icon := ui_icon(HERO_TRAITS_SHEET, Rect2(tile_rect(g, 0)), Vector2(32, 32))
+		icon.tooltip_text = "%s\n%s" % [Gift.keys()[g].capitalize(), GIFT_INFO[g]]
+		traits_box.add_child(icon)
+	traits_box.get_parent().visible = not (c.traits.is_empty() and c.gifts.is_empty())  # col titolo "Traits"
 	var hours: Control = box.get_node("Routine/Hours")  # una casella per ora, colorata secondo la routine
 	for child in hours.get_children():
 		child.free()
@@ -1183,7 +1422,18 @@ func update_gear(box: Control, c: Colonist) -> void:
 		icon.texture = ICONS[g] if g != null else icon.get_meta("empty")
 		icon.tooltip_text = Slot.keys()[slot].capitalize() if g == null else "%s\n%s%s" % [Res.keys()[g].capitalize(),
 			"Armor %d. " % GEAR[g]["armor"] if GEAR[g].has("armor") else "", GEAR[g]["info"]]
+		if icon.get_script() == null:
+			icon.set_script(TIP)
+		icon.set("make_tip", gear_tip.bind(g) if g != null else Callable())
 	box.get_node("Equipment/Title").text = "Equipment" + ("  (armor %d)" % gear_sum(c, "armor") if gear_sum(c, "armor") > 0 else "")
+
+
+# suggerimento di un pezzo dell'equipaggiamento: tipo e nome, poi protezione ed effetto (come tooltip_text)
+func gear_tip(g: Res) -> Control:
+	var text := rich("%s\n%s%s" % [item_title(g), "Armor %d. " % GEAR[g]["armor"] if GEAR[g].has("armor") else "", GEAR[g]["info"]])
+	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	text.custom_minimum_size.x = 260
+	return text
 
 
 # condizioni di `c` sotto i talenti, solo icone come loro: col mouse sopra nome, effetto e quanto manca. Le icone si
@@ -1257,13 +1507,28 @@ func ui_icon(tex: Texture2D, region: Rect2, size: Vector2) -> TextureRect:
 	return icon
 
 
+# sesso a caso, e secondo il sesso nome (uno che nessuno sulla mappa ha già, se ce n'è) e acconciatura; colori del
+# mantello e dei capelli
+func dress(c: Colonist) -> void:
+	c.sex = Sex.values().pick_random()
+	c.hair_style = HAIR_STYLES[c.sex].pick_random()
+	c.beard = c.sex == Sex.MALE and randf() < BEARD_CHANCE
+	c.cape = CAPE_COLORS.pick_random()
+	c.hair = HAIR_COLORS.pick_random()
+	var taken := people().map(func(o): return o.first_name)
+	var free: Array = FIRST_NAMES[c.sex].filter(func(n): return n not in taken)
+	c.first_name = (free if not free.is_empty() else FIRST_NAMES[c.sex]).pick_random()
+	c.nickname = NICKNAMES.pick_random() if randf() < 0.5 else ""
+	c.last_name = LAST_NAMES.pick_random()
+
+
 func full_name(c: Colonist) -> String:
 	return "%s \"%s\" %s" % [c.first_name, c.nickname, c.last_name] if c.nickname else "%s %s" % [c.first_name, c.last_name]
 
 
 # colono sotto `point` (pixel del mondo); se si sovrappongono, quello col centro più vicino
 func colonist_at(point: Vector2) -> Colonist:
-	var near := colonists.filter(func(c): return c.pos.distance_to(point) < TILE / 2.0)
+	var near := people().filter(func(c): return c.pos.distance_to(point) < TILE / 2.0)
 	near.sort_custom(func(a, b): return a.pos.distance_to(point) < b.pos.distance_to(point))
 	return near[0] if not near.is_empty() else null
 
@@ -1338,7 +1603,7 @@ func describe(cell: Vector2i) -> Array:
 				var part: float = fresh[cell] / SHELF_LIFE[res]
 				about += "\n%s, rots in %.1f days" % [FRESH_WORDS.filter(func(w): return part > w[0] or w[0] == 0.0)[0][1],
 					fresh[cell] / spoil_rate(cell)]
-			return ["%s pile" % Res.keys()[res].capitalize(), about]
+			return ["%s pile" % item_title(res), about]
 	for origin in pieces_at(furniture, cell):
 		return [Build.keys()[furniture[origin][0]].capitalize(), ""]
 	if built.has(cell):
@@ -1379,18 +1644,18 @@ func job_list() -> String:
 		lines.append("Cook meals: %d" % meals_wanted())
 	for r in RECIPES:  # solo quello che manca e che ha una postazione
 		if gear_wanted(r[0]) > 0 and not stations(r[1]).is_empty():
-			lines.append("Make %s: %d" % [Res.keys()[r[0]].capitalize().to_lower(), gear_wanted(r[0])])
+			lines.append("Make %s: %d" % [item_name(r[0]), gear_wanted(r[0])])
 	for plans in [blueprints, furniture_plans]:  # prima le strutture (per casella), poi i mobili (per pezzo)
 		var counts := {}  # "wall (wood)" -> quanti
 		for plan in plans.values():
-			var what := "%s (%s)" % [Build.keys()[plan[0]].to_lower(), Res.keys()[plan[1]].to_lower()]
+			var what := "%s (%s)" % [Build.keys()[plan[0]].capitalize().to_lower(), item_name(plan[1])]
 			counts[what] = counts.get(what, 0) + 1
 		for what in counts:
 			lines.append("Build %s: %d" % [what, counts[what]])
 	for res in Res.values():
 		var piles: Array = items[res].keys().filter(func(cell): return not stockpile.has(cell))
 		if not piles.is_empty() and not stockpile.is_empty():  # senza magazzino nessuno trasporta
-			lines.append("Haul %s: %d piles" % [Res.keys()[res].to_lower(), piles.size()])
+			lines.append("Haul %s: %d pile%s" % [item_name(res), piles.size(), "" if piles.size() == 1 else "s"])
 	return "\n".join(lines) if not lines.is_empty() else "Nothing to do"
 
 
@@ -1400,7 +1665,7 @@ func update_resources() -> void:
 	for res in Res.values():
 		var row: Control = resources_list.get_child(res)
 		row.visible = amounts[res] > 0
-		row.get_child(2).text = str(amounts[res])
+		row.get_child(-1).text = str(amounts[res])  # la quantità, in fondo alla riga
 	$HUD/ResourcesPanel/Box/Empty.visible = amounts.max() == 0
 	resources_panel.reset_size()  # si stringe se una risorsa finisce
 
@@ -1486,6 +1751,7 @@ func generate_map() -> void:
 		var first: Vector2i = MAP_SIZE / 2 + START_ROOMS[0] * 8
 		for res in STASH:  # un mucchio per risorsa lungo la riga di mezzo, il resto si allarga accanto
 			drop(res, first + Vector2i(res - 2, 0), DEBUG_STASH)
+		drop(Res.GOLD, first + Vector2i(0, 1), START_GOLD)
 		rooms.filter(func(r): return r.cells.has(first))[0].kind = RoomKind.WAREHOUSE
 		update_stockpile()
 	bake_ground(noise)
@@ -1561,6 +1827,10 @@ func _process(delta: float) -> void:
 		jobs_list.text = job_list()
 	if resources_panel.visible:
 		update_resources()
+	if $HUD/BoardPanel.visible:
+		fill_board()
+	if $HUD/ChroniclePanel.visible and $HUD/ChroniclePanel/Box/Scroll/Text.get_meta("pages", -1) != chronicle.size():
+		fill_chronicle()
 	if get_viewport().gui_get_hovered_control():  # mouse sull'interfaccia: niente suggerimento
 		object_sheet.hide()
 	else:
@@ -1578,7 +1848,8 @@ func _process(delta: float) -> void:
 		update_routine_row($HUD/ColonistSheet/Box/Routine, shown)
 	var t := fmod(clock, 1.0)
 	var wolves := animals.filter(hostile).size()
-	info_label.text = ("WOLVES: %d    " % wolves if wolves > 0 else "") + "Day %d  %02d:%02d    Order: %s    Speed: %dx  (Space = pause, 1-3)" \
+	info_label.text = ("WOLVES: %d    " % wolves if wolves > 0 else "") \
+		+ ("EXPEDITION: %d    " % expeditions.size() if not expeditions.is_empty() else "") + "Day %d  %02d:%02d    Order: %s    Speed: %dx  (Space = pause, 1-3)" \
 		% [int(clock) + 1, int(t * 24), int(t * 1440) % 60, Order.keys()[order].capitalize(), Engine.time_scale]
 	sky.color = sky_colors.sample(t)
 	queue_redraw()
@@ -1593,8 +1864,14 @@ func _process(delta: float) -> void:
 func tick(delta: float) -> void:
 	clock += delta / DAY_LENGTH
 	spoil(delta / DAY_LENGTH)
-	for c in colonists:
-		update_colonist(c, delta)
+	for c in people():
+		if c.died == 0.0:  # morto durante il giro
+			update_colonist(c, delta)
+	update_guests()
+	update_expeditions()
+	for c in corpses.duplicate():
+		if clock >= c.died + CORPSE_DAYS:
+			corpses.erase(c)
 	for a in animals.duplicate():  # un cacciatore può abbatterne uno durante il giro
 		update_animal(a, delta)
 	if clock >= next_animal:
@@ -1835,6 +2112,8 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			c.work_left -= delta
 			if c.work_left <= 0:
 				end_job(c)
+		Job.TRAVEL:  # avventuriero arrivato alla locanda o al bordo della mappa
+			arrive(c)
 
 
 # La giornata di `c` secondo la sua routine: conta le ore lavorate (la giornata comincia quando si alza, vedi
@@ -1870,11 +2149,7 @@ func may_work(c: Colonist) -> bool:
 # Solo controlli veloci, niente percorsi: se poi non ci arriva, find_job gli ridà un lavoro e riprova all'ora dopo
 func urgent(c: Colonist) -> bool:
 	return (c.needs[Need.FOOD] < NEED_LOW and (MEALS + RAW_FOOD).any(func(r): return not items[r].is_empty())) \
-		or (c.needs[Need.REST] < NEED_LOW and not free_beds().is_empty()) or c.needs[Need.FUN] < NEED_LOW
-
-
-func free_beds() -> Array:
-	return furniture.keys().filter(func(o): return furniture[o][0] == Build.BED and is_free(o))
+		or (c.needs[Need.REST] < NEED_LOW and not free_beds(c).is_empty()) or c.needs[Need.FUN] < NEED_LOW
 
 
 func hour_now() -> int:
@@ -2012,9 +2287,10 @@ func in_bed(c: Colonist) -> bool:
 	return c.job == Job.SLEEP and not pieces_at(furniture, cell_of(c.pos)).filter(func(o): return furniture[o][0] == Build.BED).is_empty()
 
 
-# Splendore della colonia: la somma delle decorazioni finite (SPLENDOR), ovunque stiano.
+# Splendore della colonia: la somma delle decorazioni finite (SPLENDOR), ovunque stiano, e degli avventurieri famosi.
 func colony_splendor() -> int:
-	return furniture.values().map(func(plan): return SPLENDOR.get(plan[0], 0)).reduce(func(a, b): return a + b, 0)
+	return furniture.values().map(func(plan): return SPLENDOR.get(plan[0], 0)).reduce(func(a, b): return a + b, 0) \
+		+ guests.reduce(func(n, g): return n + gift(g, "splendor", 0), 0)  # gli avventurieri famosi
 
 
 # Comfort dove sta il colono: quello della stanza, in proporzione se ha meno di ROOM_SPACE caselle a testa; fuori 0.
@@ -2066,6 +2342,9 @@ func find_job(c: Colonist) -> void:
 	var act: int = activity(c) if routines else Act.WORK
 	if c.needs[Need.REST] < NEED_LOW and go_to_bed(c):
 		return
+	if c.errand != Errand.NONE:  # avventuriero per strada, interrotto: riprende la strada
+		travel(c)
+		return
 	var peckish: bool = act == Act.FREE and c.needs[Need.FOOD] < fx(c, "snack", SNACK)
 	if c.needs[Need.FOOD] < (GLUTTON_HUNGER if Trait.GLUTTON in c.traits else NEED_LOW) or peckish:
 		for res in MEALS + RAW_FOOD:  # prima i pasti, il crudo solo se non ce ne sono
@@ -2080,6 +2359,9 @@ func find_job(c: Colonist) -> void:
 			start_job(c, Job.SLEEP, stay, cell_of(c.pos), 0.0)
 		return
 	if routines and c.needs[Need.FUN] < NEED_LOW:
+		relax(c)
+		return
+	if c.hero != Hero.NONE:  # gli avventurieri non lavorano: aspettano svagandosi
 		relax(c)
 		return
 	if may_work(c):
@@ -2102,7 +2384,7 @@ func find_job(c: Colonist) -> void:
 
 # va a dormire nel letto libero più vicino dove può arrivare; false se non ce n'è
 func go_to_bed(c: Colonist) -> bool:
-	var to_bed := path_to_nearest(c, free_beds())
+	var to_bed := path_to_nearest(c, free_beds(c))
 	if to_bed.is_empty():
 		return false
 	start_job(c, Job.SLEEP, to_bed, to_bed.back(), 0.0)
@@ -2233,6 +2515,9 @@ func gear_sum(c: Colonist, key: String) -> float:
 	var sum := 0.0
 	for g in c.gear.values():
 		sum += GEAR[g].get(key, 0.0)
+	if key == "armor":
+		for k in c.kit:
+			sum += KIT_ARMOR.get(k, 0)
 	return sum
 
 
@@ -2597,7 +2882,7 @@ func startle(a: Animal, by: Colonist) -> void:
 func kill(a: Animal, by: Colonist) -> void:
 	var spot := cell_of(a.pos)
 	animals.erase(a)
-	for o in colonists:
+	for o in people():
 		if o.prey == a:
 			end_job(o)
 	drop(Res.MEAT, spot, BEASTS[a.kind]["meat"])
@@ -2605,15 +2890,18 @@ func kill(a: Animal, by: Colonist) -> void:
 	try_haul(by, Res.MEAT, [spot])
 
 
-# Lupo: insegue il colono più vicino che vede, fuori dalle stanze e in piedi; a portata lo morde. Senza nessuno da
-# inseguire gira come gli altri animali, e dopo WOLF_STAY se ne va. true se il giro di update_animal è finito qui
+# Lupo: insegue il colono (o l'avventuriero) più vicino che vede, fuori dalle stanze e in piedi; se non c'è nessuno
+# in piedi, chi è a terra fuori (vedi exposed). A portata lo morde. Senza nessuno da inseguire gira come gli altri
+# animali, e dopo WOLF_STAY se ne va. true se il giro di update_animal è finito qui
 func update_wolf(a: Animal, delta: float) -> bool:
 	a.bite_left = maxf(a.bite_left - delta, 0.0)
 	a.repath -= delta
-	if not fair_game(a, a.target):
+	var standing := people().filter(func(c): return fair_game(a, c))
+	if not fair_game(a, a.target) and not (standing.is_empty() and exposed(a, a.target)):
 		a.target = null
-		for c in colonists:
-			if fair_game(a, c) and (a.target == null or c.pos.distance_to(a.pos) < a.target.pos.distance_to(a.pos)):
+		var prey: Array = standing if not standing.is_empty() else people().filter(func(c): return exposed(a, c))
+		for c in prey:  # in piedi; se non c'è nessuno, chi è a terra
+			if a.target == null or c.pos.distance_to(a.pos) < a.target.pos.distance_to(a.pos):
 				a.target = c
 		a.path.clear()
 	var t: Colonist = a.target
@@ -2638,22 +2926,30 @@ func update_wolf(a: Animal, delta: float) -> bool:
 
 # il lupo `a` può inseguire `c`: in piedi, fuori dalle stanze, entro WOLF_SIGHT
 func fair_game(a: Animal, c) -> bool:
-	return c != null and c in colonists and not c.downed and room_at(cell_of(c.pos)) == null \
+	return c != null and (c in colonists or c in guests) and not c.downed and room_at(cell_of(c.pos)) == null \
 		and c.pos.distance_to(a.pos) <= WOLF_SIGHT * TILE
 
 
 # Morso: a segno secondo la mischia di chi è morso; il danno lo riduce la protezione. Fa salire lo stress; a 0 punti
-# ferita il colono resta a terra e lascia il lavoro
+# ferita il colono resta a terra e lascia il lavoro, o muore (vedi death_chance). Chi è già a terra non si difende:
+# il morso lo uccide
 func bite(a: Animal, c: Colonist) -> void:
+	if c.downed:
+		a.target = null
+		die(c, "was killed by wolves.")
+		return
 	if randf() >= BITE_HIT - DODGE_PER_LEVEL * c.skills[Skill.MELEE]:
 		return
 	c.hp -= BEASTS[a.kind]["bite"] * armor_factor(c)
 	c.needs[Need.STRESS] = minf(c.needs[Need.STRESS] + HIT_STRESS, NEED_MAX)
 	if c.hp <= 0:
 		c.hp = 0.0
+		a.target = null
+		if deaths and randf() < death_chance(c):
+			die(c, "was killed by wolves.")
+			return
 		c.downed = true
 		quit_job(c)
-		a.target = null
 
 
 # percorso di un animale che non passa dalle stanze: per la ricerca le si riempie come fossero muro
@@ -2681,6 +2977,689 @@ func spawn_pack() -> void:
 			var a := add_animal(Beast.WOLF, near if roams(near) else cell)
 			a.leave_at = clock + WOLF_STAY
 		return
+
+
+# --- Morte ---
+
+# probabilità che il colpo che butta a terra `c` lo uccida: meno con più protezione
+func death_chance(c: Colonist) -> float:
+	return maxf(DEATH_BASE - DEATH_PER_ARMOR * gear_sum(c, "armor"), DEATH_MIN)
+
+
+# `c` muore: lascia a terra quello che porta, l'equipaggiamento e il bottino; il corpo resta CORPSE_DAYS. Se era un
+# colono gli altri prendono il lutto; morti tutti, la colonia è caduta
+func die(c: Colonist, why: String) -> void:
+	quit_job(c)
+	var here := cell_of(c.pos)
+	for g in c.gear.values():
+		drop(g, here, 1)
+	for res in c.loot:
+		drop(res, here, c.loot[res])
+	c.gear.clear()
+	c.loot.clear()
+	c.downed = true
+	c.hp = 0.0
+	c.died = clock
+	corpses.append(c)
+	var was_colonist := c in colonists
+	colonists.erase(c)
+	guests.erase(c)
+	for room in rooms:
+		room.owners.erase(c)
+		room.workers.erase(c)
+	for a in animals:
+		if a.target == c:
+			a.target = null
+	for exp in expeditions.duplicate():  # ingaggiato e morto prima di partire: gli altri partono senza di lui
+		if exp.left_at < 0 and c in exp.party:
+			exp.party.erase(c)
+			if exp.party.is_empty():
+				expeditions.erase(exp)
+			else:
+				leave_if_ready(exp)
+	if was_colonist:
+		for o in colonists:
+			add_cond(o, Cond.MOURNING)
+	if shown == c:
+		sheet_panel.hide()
+	note("Day %d: %s %s" % [int(clock) + 1, full_name(c), why])
+	if was_colonist and colonists.is_empty():
+		fallen = true
+		$HUD/Fallen.show()
+
+
+# il lupo `a` può finire `c`: a terra, fuori dalle stanze, entro WOLF_SIGHT (solo se nessuno è in piedi, vedi update_wolf)
+func exposed(a: Animal, c) -> bool:
+	return deaths and c != null and (c in colonists or c in guests) and c.downed and room_at(cell_of(c.pos)) == null \
+		and c.pos.distance_to(a.pos) <= WOLF_SIGHT * TILE
+
+
+# --- Avventurieri (vedi HEROES) ---
+
+# coloni e avventurieri sulla mappa
+func people() -> Array[Colonist]:
+	var all: Array[Colonist] = colonists.duplicate()
+	all.append_array(guests)
+	return all
+
+
+func is_inn(room: Room) -> bool:
+	return room != null and room.kind == RoomKind.INN
+
+
+# letti liberi per `c`: agli avventurieri quelli della locanda, ai coloni tutti gli altri
+func free_beds(c: Colonist) -> Array:
+	return furniture.keys().filter(func(o): return furniture[o][0] == Build.BED and is_free(o) \
+		and is_inn(room_at(o)) == (c.hero != Hero.NONE))
+
+
+func inn_beds() -> int:
+	return furniture.keys().filter(func(o): return furniture[o][0] == Build.BED and is_inn(room_at(o))).size()
+
+
+# avventuriero `kind` di livello `level`, col suo nome, aspetto, abilità ed equipaggiamento
+func new_hero(kind: Hero, level: int) -> Colonist:
+	var c := Colonist.new()
+	dress(c)
+	var data: Dictionary = HEROES[kind]
+	c.hero = kind
+	c.tunic = data["tunic"]
+	c.cape = data["cape"]
+	c.hood_tint = data.get("hood")
+	c.kit = data["kit"].duplicate()
+	c.skills = Skill.values().map(func(_s): return 0)
+	c.xp = Skill.values().map(func(_s): return 0)
+	c.needs = Need.values().map(func(n): return 0.0 if n == Need.STRESS else NEED_MAX * 0.8)
+	c.trend = c.needs.map(func(_v): return 0.0)
+	c.gifts = [Gift.values().pick_random()]
+	if randf() < HERO_TRAIT_CHANCE:
+		c.traits = [Trait.values().pick_random()]
+	set_level(c, level)
+	return c
+
+
+# livello di `c`: abilità della classe e, dal livello HEAVY_LEVEL, l'armatura pesante
+func set_level(c: Colonist, level: int) -> void:
+	var data: Dictionary = HEROES[c.hero]
+	c.level = level
+	for skill in data["skills"]:
+		c.skills[skill] = mini(data["skills"][skill] * level, SKILL_MAX)
+	c.gear = data["gear"].duplicate()
+	if data.has("heavy") and level >= HEAVY_LEVEL:
+		c.gear[Slot.BODY] = data["heavy"]
+
+
+func fee(c: Colonist) -> int:
+	return roundi((FEE_BASE + FEE_PER_LEVEL * c.level) * gift(c, "fee", 1.0))
+
+
+# effetto `key` dei talenti di `c` (vedi GIFT_FX), `base` se non ce l'ha
+func gift(c: Colonist, key: String, base: Variant) -> Variant:
+	for g in c.gifts:
+		if GIFT_FX[g].has(key):
+			return GIFT_FX[g][key]
+	return base
+
+
+# effetto `key` per tutto il gruppo `party`, se qualcuno ha il talento; se no `base`
+func party_gift(party: Array, key: String, base: Variant) -> Variant:
+	for c in party:
+		var v = gift(c, key, null)
+		if v != null:
+			return v
+	return base
+
+
+func hero_name(c: Colonist) -> String:
+	return "%s, level %d" % [Hero.keys()[c.hero].capitalize(), c.level]
+
+
+func gift_names(c: Colonist) -> String:
+	return ", ".join(c.gifts.map(func(g): return Gift.keys()[g].capitalize()))
+
+
+# caselle del bordo della mappa dove si cammina: da lì arrivano e se ne vanno gli avventurieri
+func border_cells() -> Array:
+	var cells := []
+	for t in MAP_SIZE.x:
+		for cell in [Vector2i(t, 0), Vector2i(t, MAP_SIZE.y - 1), Vector2i(0, t), Vector2i(MAP_SIZE.x - 1, t)]:
+			if roams(cell):
+				cells.append(cell)
+	return cells
+
+
+# Arrivi alla locanda: ogni GUEST_EVERY giorni circa, se c'è un letto della locanda per lui (contando chi è in
+# spedizione); se non c'è, il prossimo arriva GUEST_EVERY dopo che si è liberato. Chi aspetta da GUEST_STAY giorni
+# senza che nessuno lo ingaggi se ne va
+func update_guests() -> void:
+	var away: int = expeditions.reduce(func(n, exp): return n + exp.party.filter(func(g): return g not in guests).size(), 0)
+	if inn_beds() <= guests.size() + away:
+		next_guest = maxf(next_guest, clock + GUEST_EVERY)
+	elif clock >= next_guest:
+		next_guest = clock + GUEST_EVERY + randf_range(-GUEST_JITTER, GUEST_JITTER)
+		var edges := border_cells()
+		if not edges.is_empty():
+			var level := clampi(1 + colony_splendor() / SPLENDOR_PER_LEVEL + randi_range(-1, 1), 1, HERO_LEVEL_MAX)
+			var g := new_hero(Hero.values().slice(1).pick_random(), level)
+			g.pos = center(edges.pick_random())
+			g.errand = Errand.ARRIVE
+			guests.append(g)
+			travel(g)
+	for g in guests:
+		if not g.hired and g.errand == Errand.NONE and clock >= g.stay_until:
+			g.errand = Errand.LEAVE
+			quit_job(g)
+			travel(g)
+
+
+# `c` si avvia dove lo porta la sua commissione: alla locanda, o al bordo della mappa più vicino (in spedizione,
+# dove è uscito il primo del gruppo). Se non ci arriva arriva lo stesso (vedi arrive): via dalla mappa, o resta dov'è
+func travel(c: Colonist) -> void:
+	var goals := []
+	var exp := trip_of(c)
+	if c.errand in [Errand.ARRIVE, Errand.RETURN]:
+		for room in rooms:
+			if is_inn(room):
+				goals.append_array(room.cells.keys().filter(func(k): return not astar.is_point_solid(k)))
+	elif c.errand == Errand.DEPART and exp != null and exp.edge.x >= 0:
+		goals = [exp.edge]
+	else:
+		goals = border_cells()
+	var path := path_to_nearest(c, goals)
+	start_job(c, Job.TRAVEL, path, path.back() if not path.is_empty() else cell_of(c.pos), 0.0)
+
+
+# `c` è arrivato dove andava (Job.TRAVEL): alla locanda aspetta (e di ritorno lascia lì il bottino), al bordo esce
+# dalla mappa: per sempre, o per la spedizione (che parte quando è uscito tutto il gruppo)
+func arrive(c: Colonist) -> void:
+	end_job(c)
+	match c.errand:
+		Errand.ARRIVE:
+			c.stay_until = clock + GUEST_STAY
+		Errand.RETURN:
+			c.stay_until = clock + GUEST_REST
+			c.hired = false
+			for res in c.loot:
+				drop(res, cell_of(c.pos), c.loot[res])
+			c.loot.clear()
+		Errand.LEAVE:
+			guests.erase(c)
+		Errand.DEPART:
+			guests.erase(c)
+			var exp := trip_of(c)
+			if exp != null:
+				if exp.edge.x < 0:
+					exp.edge = cell_of(c.pos)
+				leave_if_ready(exp)
+	c.errand = Errand.NONE
+
+
+# la spedizione di `c` che non è ancora tornata, o null
+func trip_of(c: Colonist) -> Expedition:
+	for exp in expeditions:
+		if c in exp.party:
+			return exp
+	return null
+
+
+# fuori dalla mappa tutto il gruppo: si parte
+func leave_if_ready(exp: Expedition) -> void:
+	if exp.left_at < 0 and exp.party.all(func(g): return g not in guests):
+		depart(exp)
+
+
+func explored(ruin: Ruin) -> bool:
+	return ruin.cleared >= RUINS[ruin.kind]["rooms"]
+
+
+# giorni di viaggio (andata) del gruppo `party` alla rovina: meno con una guida
+func travel_days(ruin: Ruin, party: Array) -> float:
+	return RUINS[ruin.kind]["travel"] * party_gift(party, "travel", 1.0)
+
+
+# giorni per andare alla rovina, esplorare le stanze che restano e tornare
+func trip_days(ruin: Ruin, party: Array) -> float:
+	return 2 * travel_days(ruin, party) + ROOM_DAYS * (RUINS[ruin.kind]["rooms"] - ruin.cleared)
+
+
+# provviste che servono al gruppo `party` per tutto il viaggio: una a testa per giorno (meno, con chi trova da mangiare)
+func provisions(party: Array, ruin: Ruin) -> int:
+	return ceili(party.size() * trip_days(ruin, party) * party_gift(party, "food", 1.0) - 0.001)
+
+
+func food_stored() -> int:
+	return (MEALS + RAW_FOOD).reduce(func(n, r): return n + stored(r), 0)
+
+
+# Manda il gruppo `party` (dalla locanda, al più MAX_PARTY) alla rovina `ruin`: paga dal magazzino la somma delle
+# paghe e prende le provviste che servono, prima i pasti poi il crudo (quelle che ci sono: le altre le pagheranno
+# con la fame). Vanno al bordo della mappa. false se non si può
+func send(party: Array, ruin: Ruin) -> bool:
+	var cost: int = party.reduce(func(n, g): return n + fee(g), 0)
+	if party.is_empty() or party.size() > MAX_PARTY or ruin not in ruins or explored(ruin) or stored(Res.GOLD) < cost \
+			or party.any(func(g): return g.hired or g not in guests):
+		return false
+	take_stored(Res.GOLD, cost)
+	var exp := Expedition.new()
+	exp.ruin = ruin
+	var want := provisions(party, ruin)
+	for res in MEALS + RAW_FOOD:
+		var n := mini(stored(res), want - int(exp.food))
+		take_stored(res, n)
+		exp.food += n
+	for g in party:
+		exp.party.append(g)
+		g.hired = true
+		g.errand = Errand.DEPART
+		quit_job(g)
+		travel(g)
+	expeditions.append(exp)
+	board_pick.clear()
+	note("Day %d: %s hired for the %s, for %s and %d of %d provisions." % [int(clock) + 1,
+		", ".join(party.map(func(g): return "%s (%s)" % [full_name(g), hero_name(g)])), RUINS[ruin.kind]["name"], coins(cost),
+		exp.food, want])
+	return true
+
+
+# toglie `amount` di `res` dai magazzini (un pagamento): da un mucchio dopo l'altro, anche da quelli che qualcuno sta
+# andando a prendere (il trasporto si accorge che il mucchio è calato, vedi Job.HAUL)
+func take_stored(res: Res, amount: int) -> void:
+	for cell in items[res].keys():
+		if amount > 0 and stockpile.has(cell):
+			var n := mini(items[res][cell], amount)
+			add_item(res, cell, -n)
+			amount -= n
+
+
+# Il gruppo esce dalla mappa: com'è andata nella rovina si decide adesso (vedi explore), si saprà al ritorno
+func depart(exp: Expedition) -> void:
+	var travel := travel_days(exp.ruin, exp.party)
+	exp.left_at = clock
+	exp.due = clock + trip_days(exp.ruin, exp.party)
+	var days := explore(exp, travel)
+	exp.back_at = clock + (exp.due - clock) * LOST_AFTER if exp.lost else clock + 2 * travel + days
+
+
+# Esplora la rovina di `exp` dalla prima stanza non ancora ripulita, una ogni ROOM_DAYS (vedi Chamber): scrive il
+# diario, ferisce e uccide, raccoglie bottino e mappe, mangia le provviste (vedi eat_on_trip). L'ultima stanza è il
+# tesoro col suo guardiano: se resta chiuso, la stanza resta da fare. Il gruppo torna indietro finite le stanze, se
+# qualcuno è sotto TURN_BACK, se le provviste non bastano per un'altra stanza e il ritorno, o se una frana chiude la
+# strada. `travel`: giorni di viaggio, ad andare e a tornare. Restituisce i giorni passati nella rovina.
+# I talenti (vedi GIFT_FX) cambiano trappole, mostri, forzieri, cure e soglie
+func explore(exp: Expedition, travel: float) -> float:
+	var data: Dictionary = RUINS[exp.ruin.kind]
+	var danger: int = data["danger"]
+	var days := 0.0
+	var start: float = exp.left_at + travel
+	exp.lines.append(("Day %d: the party reaches the %s. %s" % [int(start) + 1, data["name"], eat_on_trip(exp, travel)]).strip_edges())
+	while exp.ruin.cleared < data["rooms"] and not exp.party.is_empty():
+		var last: bool = exp.ruin.cleared == data["rooms"] - 1
+		var room := "Day %d, room %d: " % [int(start + days) + 1, exp.ruin.cleared + 1]
+		days += ROOM_DAYS
+		var kind: int = Chamber.CHEST if last else pick_chamber()
+		var opened := true
+		if last:
+			room += "the guardian of the treasure. %s " % fight_monsters(exp, MONSTER_POWER * danger * 2)
+		match kind:
+			Chamber.EMPTY:
+				room += "empty."
+			Chamber.TRAP:
+				var picker := best_at(exp.party, Skill.LOCKPICKING)
+				if randf() < TRAP_DISARM + TRAP_PER_LEVEL * picker.skills[Skill.LOCKPICKING] + party_gift(exp.party, "disarm", 0.0):
+					room += "%s disarms a trap." % picker.first_name
+				else:
+					var lured := exp.party.filter(func(c): return gift(c, "lure", false))
+					var victim: Colonist = lured[0] if not lured.is_empty() else exp.party.pick_random()
+					var hurt := roundf(TRAP_HURT * danger * gift(victim, "hurt", 1.0))
+					victim.hp -= hurt
+					room += "a trap hurts %s (-%d)." % [victim.first_name, hurt]
+			Chamber.MONSTERS:
+				if randf() < party_gift(exp.party, "sneak", 0.0):
+					room += "monsters, but the party slips past them."
+				else:
+					room += "monsters! " + fight_monsters(exp, MONSTER_POWER * danger)
+			Chamber.CHEST:
+				var chest := open_chest(exp, data, last)
+				room += chest[0]
+				opened = chest[1]
+			Chamber.COLLAPSE:
+				room += "a collapse blocks the way."
+		exp.lines.append((room + " " + eat_on_trip(exp, ROOM_DAYS)).strip_edges())
+		for c in exp.party.duplicate():  # a 0 punti ferita: muore, o lo riportano gli altri (da solo, nessuno)
+			if c.hp <= 0:
+				var medic := exp.party.any(func(o): return o != c and o.hp > 0 and gift(o, "carry", false))
+				if exp.party.size() == 1 or (not medic and randf() < FALL_DEATH):
+					exp.party.erase(c)
+					c.died = clock
+					exp.lines.append("%s falls and dies." % c.first_name)
+					note("Day %d: %s died in the %s." % [int(start + days) + 1, full_name(c), data["name"]])
+				else:
+					c.hp = CARRIED_HP
+					exp.lines.append("%s falls; the others carry them." % c.first_name)
+		if exp.party.is_empty():
+			exp.lost = true
+			break
+		var heal: float = party_gift(exp.party, "heal", 0.0)
+		for c in exp.party:  # il medico cura tutti dopo ogni stanza
+			c.hp = minf(c.hp + heal, MAX_HP)
+		if kind == Chamber.COLLAPSE:
+			exp.lines.append("The party turns back.")
+			break
+		if not opened and last:
+			exp.lines.append("The treasure stays locked: the party turns back.")
+			break
+		exp.ruin.cleared += 1
+		if explored(exp.ruin):
+			break
+		var weak := exp.party.filter(func(c): return c.hp < gift(c, "turn_back", TURN_BACK))
+		if not weak.is_empty():
+			exp.lines.append("%s is wounded: the party turns back." % weak[0].first_name)
+			break
+		if exp.food < exp.party.size() * (travel + ROOM_DAYS) * party_gift(exp.party, "food", 1.0) - 0.001:
+			exp.lines.append("Provisions are running low: the party turns back.")
+			break
+	if explored(exp.ruin):
+		exp.lines.append("The %s has nothing left to explore." % data["name"])
+	if not exp.lost:  # il ritorno: affamati, ma a casa ci arrivano
+		var hunger := eat_on_trip(exp, travel)
+		if hunger != "":
+			exp.lines.append("On the way home: " + hunger.to_lower())
+		for c in exp.party:
+			c.hp = maxf(c.hp, 1.0)
+	return days
+
+
+# Provviste per `days` giorni di tutto il gruppo; quello che manca lo si paga in punti ferita, HUNGER_HURT al giorno.
+# Il testo per il diario, vuoto se hanno mangiato
+func eat_on_trip(exp: Expedition, days: float) -> String:
+	var need: float = days * exp.party.size() * party_gift(exp.party, "food", 1.0)
+	var eaten := minf(exp.food, need)
+	exp.food -= eaten
+	if eaten >= need - 0.001:
+		return ""
+	var hurt: float = HUNGER_HURT * (need - eaten) / exp.party.size() / party_gift(exp.party, "food", 1.0)
+	for c in exp.party:
+		c.hp -= hurt
+	return "No food left: hunger (-%d each)." % roundi(hurt)
+
+
+func pick_chamber() -> int:
+	var roll := randi_range(1, CHAMBER_ODDS.values().reduce(func(a, b): return a + b, 0))
+	for kind in CHAMBER_ODDS:
+		roll -= CHAMBER_ODDS[kind]
+		if roll <= 0:
+			return kind
+	return Chamber.EMPTY
+
+
+func best_at(party: Array[Colonist], skill: Skill) -> Colonist:
+	var best := party[0]
+	for c in party:
+		if c.skills[skill] > best.skills[skill]:
+			best = c
+	return best
+
+
+# Mostri di forza `power` contro il gruppo: in media ognuno prende MONSTER_HURT x mostri / forza media del gruppo
+# (meno, con un arciere), chi più chi meno secondo "hurt" della classe, meno la sua protezione. Il testo per il diario
+func fight_monsters(exp: Expedition, power: float) -> String:
+	var strength := 0.0
+	var weights := 0.0
+	var cover := 1.0
+	for c in exp.party:
+		strength += c.skills[HEROES[c.hero]["weapon"]] * gift(c, "weapon", 1.0) + gear_sum(c, "armor")
+		weights += HEROES[c.hero]["hurt"]
+		cover = minf(cover, HEROES[c.hero].get("cover", 1.0))
+	var hurt := MONSTER_HURT * power * exp.party.size() / maxf(strength, 1.0) * cover
+	var wounds := PackedStringArray()
+	for c in exp.party:
+		var taken := roundf(hurt * exp.party.size() * HEROES[c.hero]["hurt"] / weights * armor_factor(c) * gift(c, "hurt", 1.0))
+		c.hp -= taken
+		wounds.append("%s -%d" % [c.first_name, taken])
+		c.xp[HEROES[c.hero]["weapon"]] += 1
+	return ", ".join(wounds) + "."
+
+
+# Forziere: chiuso (LOCKED) lo apre solo il migliore a scassinare, se ne sa abbastanza; dentro monete e un oggetto
+# della rovina, di più con la sacca dello scassinatore. Il tesoro (`last`) ha la mappa della rovina dopo; gli altri,
+# a volte, quella di una rovina che non si conosce. [testo per il diario, aperto]
+func open_chest(exp: Expedition, data: Dictionary, last: bool) -> Array:
+	var picker := best_at(exp.party, Skill.LOCKPICKING)
+	if randf() < LOCKED and picker.skills[Skill.LOCKPICKING] < LOCK_PER_DANGER * data["danger"]:
+		return ["a locked chest nobody can open.", false]
+	var haul := 1.0
+	for c in exp.party:
+		haul = maxf(haul, HEROES[c.hero].get("haul", 1.0))
+	var gold := roundi(randi_range(data["gold"][0], data["gold"][1]) * haul * (TREASURE_GOLD if last else 1))
+	exp.loot[Res.GOLD] = exp.loot.get(Res.GOLD, 0) + gold
+	var found := {}  # Res -> quantità in questo forziere
+	for i in 1 + party_gift(exp.party, "finds", 0):  # col fortunato un oggetto in più
+		var find: Array = data["finds"].pick_random()
+		found[find[0]] = found.get(find[0], 0) + roundi(find[1] * haul)
+	for res in found:
+		exp.loot[res] = exp.loot.get(res, 0) + found[res]
+	var text := "a chest: %s, %s" % [coins(gold), ", ".join(found.keys().map(func(r): return amount_text(r, found[r])))]
+	var unknown := RuinKind.values().filter(func(k): return not ruins.any(func(r): return r.kind == k) and k not in exp.maps)
+	var map = null
+	if last and exp.ruin.kind + 1 in unknown:
+		map = exp.ruin.kind + 1
+	elif not unknown.is_empty() and randf() < MAP_CHANCE * party_gift(exp.party, "maps", 1.0):
+		map = unknown.pick_random()
+	if map != null:
+		exp.maps.append(map)
+		text += " and a map to the %s" % RUINS[map]["name"]
+	return [text + ".", true]
+
+
+# Ritorni: a back_at il gruppo rientra dal bordo da cui era uscito e va alla locanda col bottino (meno la quota
+# delle monete, che si tengono); le mappe fanno conoscere le loro rovine; ognuno sale di livello ogni TRIPS_PER_LEVEL
+# spedizioni. Una spedizione persa: solo il diario (le mappe sono perse con loro)
+func update_expeditions() -> void:
+	for exp in expeditions.duplicate():
+		if exp.left_at < 0 or clock < exp.back_at:
+			continue
+		expeditions.erase(exp)
+		var name: String = RUINS[exp.ruin.kind]["name"]
+		if exp.lost:
+			exp.lines.append("Nobody came back from the %s." % name)
+			report("Lost in the %s" % name, exp.lines)
+			continue
+		var gold: int = exp.loot.get(Res.GOLD, 0)
+		var shares: float = exp.party.reduce(func(n, g): return n + gift(g, "share", SHARE), 0.0) / exp.party.size()
+		var kept := floori(gold * shares)  # la quota: ognuno la sua parte (il leale niente)
+		if gold > 0:
+			exp.loot[Res.GOLD] = gold - kept
+		var brought := PackedStringArray()
+		for res in exp.loot:
+			if exp.loot[res] > 0:
+				brought.append(amount_text(res, exp.loot[res]))
+		exp.lines.append("Back home with %s%s." % [", ".join(brought) if not brought.is_empty() else "nothing",
+			"; they keep %s" % coins(kept) if kept > 0 else ""])
+		for kind in exp.maps:
+			if not ruins.any(func(r): return r.kind == kind):
+				var found := Ruin.new()
+				found.kind = kind
+				ruins.append(found)
+				exp.lines.append("New on the notice board: the %s." % RUINS[kind]["name"])
+		ruins.sort_custom(func(a, b): return a.kind < b.kind)
+		for g in exp.party:
+			g.trips += 1
+			if g.trips % gift(g, "trips", TRIPS_PER_LEVEL) == 0 and g.level < HERO_LEVEL_MAX:
+				set_level(g, g.level + 1)
+				exp.lines.append("%s is now level %d." % [g.first_name, g.level])
+			g.pos = center(exp.edge)
+			g.errand = Errand.RETURN
+			guests.append(g)
+			travel(g)
+		exp.party[0].loot = exp.loot  # lo porta il primo, lo lascia alla locanda (vedi arrive)
+		report("Back from the %s" % name, exp.lines)
+
+
+# nome di una risorsa nei testi: "leather armor"; le monete con la loro icona (vedi coins)
+func res_name(res: Res) -> String:
+	return Res.keys()[res].capitalize().to_lower()
+
+
+# `n` monete: il numero e l'icona, per i testi ricchi (RichTextLabel con bbcode: bacheca, diario, cronaca, scheda)
+func coins(n: int) -> String:
+	return "%d %s" % [n, COIN]
+
+
+# quantità di una risorsa in un testo ricco: le monete con l'icona, il resto col suo nome (e l'icona del tipo)
+func amount_text(res: Res, n: int) -> String:
+	return coins(n) if res == Res.GOLD else "%d %s" % [n, item_name(res)]
+
+
+# l'icona del tipo di `res`, per i testi ricchi
+func kind_icon(res: Res) -> String:
+	return "[img=center]%s[/img]" % KIND_ICONS[ITEM_KIND[res]].resource_path
+
+
+# nome di un oggetto nei testi ricchi, minuscolo: l'icona del tipo e il nome ("leather armor"); le monete solo l'icona
+func item_name(res: Res) -> String:
+	return COIN if res == Res.GOLD else "%s %s" % [kind_icon(res), res_name(res)]
+
+
+# nome di un oggetto come titolo: l'icona del tipo e il nome ("Leather Armor")
+func item_title(res: Res) -> String:
+	return "%s %s" % [kind_icon(res), Res.keys()[res].capitalize()]
+
+
+# una riga nella cronaca
+func note(text: String) -> void:
+	chronicle.append(text)
+
+
+# diario di una spedizione: nella cronaca e in una finestra al centro
+func report(title: String, lines: PackedStringArray) -> void:
+	note(title + "\n" + "\n".join(lines))
+	$HUD/ReportPanel/Box/Head/Title.text = title
+	$HUD/ReportPanel/Box/Text.text = "\n".join(lines)
+	$HUD/ReportPanel.show()
+	$HUD/ReportPanel.reset_size()
+
+
+# --- Bacheca ---
+
+func open_board() -> void:
+	board_key = ""
+	fill_board()
+	$HUD/BoardPanel.show()
+
+
+# Finestra della bacheca: oro e provviste nei magazzini, chi aspetta alla locanda (da spuntare per la spedizione, al
+# più MAX_PARTY), le rovine conosciute (ognuna col tasto per mandarci gli spuntati: paghe e provviste), le spedizioni
+# in corso e il titolo dell'ultima pagina della cronaca (tutta col tasto Chronicle). Si rifà solo quando cambia
+# qualcosa, se no i tasti non si premono
+func fill_board() -> void:
+	var waiting := guests.filter(func(g): return not g.hired and g.errand != Errand.LEAVE)
+	for g in board_pick.duplicate():
+		if g not in waiting:
+			board_pick.erase(g)
+	var key := str([stored(Res.GOLD), food_stored(), waiting, board_pick, ruins.map(func(r): return r.cleared),
+		expeditions.map(func(exp): return exp.left_at), chronicle.size()])
+	if key == board_key:
+		return
+	board_key = key
+	var box: Control = $HUD/BoardPanel/Box
+	box.get_node("Gold").text = "%s    %d %s provisions (meals, raw food)" % [coins(stored(Res.GOLD)), food_stored(),
+		"[img=center]%s[/img]" % KIND_ICONS[ItemKind.FOOD].resource_path]
+	var list: Control = box.get_node("Heroes")
+	for child in list.get_children() + box.get_node("Ruins").get_children():
+		child.free()
+	for g in waiting:
+		var row := HBoxContainer.new()
+		var icon := Control.new()
+		icon.custom_minimum_size = Vector2.ONE * TILE * 2
+		icon.set_script(TIP)
+		icon.set("make_tip", colonist_tip.bind(g))
+		icon.tooltip_text = full_name(g)
+		icon.draw.connect(draw_figure.bind(icon, Rect2(Vector2.ZERO, Vector2.ONE * TILE * 2), Rect2(0, 0, TILE, TILE), g))
+		row.add_child(icon)
+		var label := rich("%s\n%s, %s, %s" % [full_name(g), hero_name(g), gift_names(g), coins(fee(g))])
+		label.custom_minimum_size.x = 280
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		row.add_child(label)
+		var pick := CheckBox.new()
+		pick.text = "Pick"
+		pick.focus_mode = Control.FOCUS_NONE
+		pick.button_pressed = g in board_pick
+		pick.disabled = g not in board_pick and board_pick.size() >= MAX_PARTY
+		pick.toggled.connect(toggle_pick.bind(g))
+		row.add_child(pick)
+		list.add_child(row)
+	if waiting.is_empty():
+		var nobody := Label.new()
+		nobody.text = "Nobody is waiting at the inn." if inn_beds() > 0 else "Nobody will come without an inn: a room with a bed, a table and this board."
+		nobody.autowrap_mode = TextServer.AUTOWRAP_WORD
+		list.add_child(nobody)
+	var cost: int = board_pick.reduce(func(n, g): return n + fee(g), 0)
+	for ruin in ruins:
+		var data: Dictionary = RUINS[ruin.kind]
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 16)
+		var label := Label.new()
+		label.text = "%s, danger %d: %s" % [data["name"], data["danger"],
+			"explored" if explored(ruin) else "rooms %d / %d" % [ruin.cleared, data["rooms"]]]
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(label)
+		if not explored(ruin):
+			var food := provisions(board_pick, ruin)
+			if not board_pick.is_empty():  # quanto costa mandarci gli spuntati
+				var price := rich("%s, %d [img=center]%s[/img]" % [coins(cost), food, KIND_ICONS[ItemKind.FOOD].resource_path])
+				price.custom_minimum_size.x = 110
+				price.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+				row.add_child(price)
+			var send_button := Button.new()
+			send_button.text = "Send"
+			send_button.focus_mode = Control.FOCUS_NONE
+			send_button.disabled = board_pick.is_empty() or stored(Res.GOLD) < cost
+			send_button.tooltip_text = "Pick who goes" if board_pick.is_empty() else ("Not enough gold" if stored(Res.GOLD) < cost
+				else ("Only %d of %d provisions: they will go hungry" % [food_stored(), food] if food_stored() < food
+				else "%d days there and back" % ceili(trip_days(ruin, board_pick))))
+			send_button.pressed.connect(func(): send(board_pick.duplicate(), ruin))
+			row.add_child(send_button)
+		box.get_node("Ruins").add_child(row)
+	box.get_node("Away").text = "\n".join(expeditions.map(func(exp): return "%s: %s" % [", ".join(exp.party.map(func(c): return c.first_name)),
+		"on the way out" if exp.left_at < 0 else "at the %s, due back by day %d" % [RUINS[exp.ruin.kind]["name"], int(exp.due) + 1]]))
+	box.get_node("Away").visible = not expeditions.is_empty()
+	box.get_node("Chronicle").text = "Last: " + chronicle[-1].get_slice("\n", 0) if not chronicle.is_empty() else ""  # il resto nella cronaca
+	box.get_node("Chronicle").visible = not chronicle.is_empty()
+	box.get_node("ChronicleButton").text = "Chronicle (%d)" % chronicle.size()
+	$HUD/BoardPanel.reset_size()
+
+
+# Cronaca: tutto quello che è successo (ingaggi, diari delle spedizioni, morti), dal più recente
+func open_chronicle() -> void:
+	fill_chronicle()
+	$HUD/ChroniclePanel.show()
+
+
+func fill_chronicle() -> void:
+	var text: RichTextLabel = $HUD/ChroniclePanel/Box/Scroll/Text
+	var pages := chronicle.duplicate()
+	pages.reverse()
+	text.text = "\n\n".join(pages) if not pages.is_empty() else "Nothing worth telling has happened yet."
+	text.set_meta("pages", chronicle.size())
+
+
+# testo ricco (con le icone delle monete, vedi coins) su una riga, alto quanto serve
+func rich(text: String) -> RichTextLabel:
+	var label := RichTextLabel.new()
+	label.bbcode_enabled = true
+	label.fit_content = true
+	label.scroll_active = false
+	label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	label.text = text
+	return label
+
+
+func toggle_pick(on: bool, g: Colonist) -> void:
+	if on and g not in board_pick and board_pick.size() < MAX_PARTY:
+		board_pick.append(g)
+	elif not on:
+		board_pick.erase(g)
 
 
 # --- Pesca e caccia ---
@@ -2980,7 +3959,7 @@ func closed_cells(c: Colonist, inside := Vector2i(-1, -1)) -> Dictionary:
 # Cambiati proprietari o divieto: chi sta, o andrebbe, dove ora non entra molla il lavoro (e lo rimette giù);
 # chi è dentro esce col prossimo lavoro.
 func recheck_access() -> void:
-	for o in colonists:
+	for o in people():
 		var shut := closed_cells(o)
 		if shut.has(cell_of(o.pos)) or o.path.any(func(k): return shut.has(k)):
 			quit_job(o)
@@ -2989,7 +3968,7 @@ func recheck_access() -> void:
 # Caselle dove gli altri coloni si fermeranno: fine del percorso (o dove sono, se fermi) e il cantiere di chi costruisce.
 func claimed(except: Colonist) -> Dictionary:
 	var cells := {}
-	for o in colonists:
+	for o in people():
 		if o != except:
 			cells[cell_of(o.pos) if o.path.is_empty() else o.path.back()] = true
 			if o.job in [Job.BUILD, Job.FURNISH, Job.COOK, Job.CRAFT]:
@@ -3341,8 +4320,11 @@ func _unhandled_input(event: InputEvent) -> void:
 				var signed := rooms.filter(func(r): return r.sign == cell)
 				if event.pressed and order == Order.NONE:  # senza un'azione scelta il clic non segna niente: apre le schede
 					var picked := colonist_at(get_global_mouse_position())
+					var boards := pieces_at(furniture, cell).filter(func(o): return furniture[o][0] == Build.NOTICE_BOARD)
 					if picked:
 						open_sheet(picked)
+					elif not boards.is_empty():
+						open_board()
 					elif not signed.is_empty():
 						open_room(signed[0])
 					else:
@@ -3466,7 +4448,7 @@ func draw_shadows() -> void:
 			casters.draw_rect(Rect2(Vector2(cell.x, cell.y + 1) * TILE, Vector2(TILE, SHADOW_WALL)), Color.WHITE)
 	for a in animals:  # sulla riga più bassa delle zampe; l'ovale è simmetrico, va bene anche specchiato
 		draw_blob(a.pos + Vector2(0, foot_of(ANIMALS, animal_src(a)) - 1 - TILE / 2.0), BEASTS[a.kind]["shadow"])
-	for c in colonists:
+	for c in people():
 		if c.downed:  # sdraiato (vedi draw_colonist): l'ovale sporge appena sotto il fianco
 			draw_blob(c.pos + Vector2(0, 5), TILE - 2)
 		else:  # i piedi della posa da fermo: l'ovale non balla coi passi e coi colpi
@@ -3518,7 +4500,11 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 
 	# alberi e coloni dall'alto in basso: chi sta più giù copre chi gli sta dietro
 	# ponytail: si affida a `trees` già in ordine di riga; se gli alberi ricrescono, ordinarli o passare a nodi con y_sort
-	var queue: Array = colonists + animals  # anche gli animali
+	for c in corpses:  # sdraiati e smorti, sotto chi è in piedi
+		draw_set_transform(c.pos.round(), PI / 2)
+		draw_figure(self, Rect2(-Vector2.ONE * TILE / 2.0, Vector2.ONE * TILE), Rect2(0, 0, TILE, TILE), c, CORPSE_SHADE)
+		draw_set_transform_matrix(Transform2D.IDENTITY)
+	var queue: Array = people() + animals  # anche gli animali
 	queue.sort_custom(func(a, b): return a.pos.y < b.pos.y)
 	for cell in trees:
 		while not queue.is_empty() and queue[0].pos.y < center(cell).y:
@@ -3541,7 +4527,7 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 	for a in animals:
 		if a.marked:
 			draw_mark(Rect2(a.pos - Vector2(TILE / 2.0, TILE * 1.25), Vector2.ONE * TILE), Order.HUNT)  # sopra la testa
-	for c in colonists:
+	for c in people():
 		if is_working(c):  # barra di avanzamento del lavoro
 			draw_rect(Rect2(c.pos + Vector2(-6, -11), Vector2(12 * (1 - c.work_left / c.work_total), 2)), Color.YELLOW)
 	if order == Order.BUILD and FURNITURE.has(build_kind):  # il prossimo mobile sotto il mouse, rosso se non ci sta
@@ -3680,12 +4666,39 @@ func draw_colonist(c: Colonist) -> void:
 			HORIZONTAL_ALIGNMENT_LEFT, -1, 8, Color("ff5a5a"))
 
 
-# il colono `c` (il fotogramma `src` dei fogli) in `dst` di `canvas`: corpo, poi capelli, maglia e mantello tinti
-func draw_figure(canvas: CanvasItem, dst: Rect2, src: Rect2, c: Colonist) -> void:
-	canvas.draw_texture_rect_region(COLONIST_BASE, dst, src)
-	canvas.draw_texture_rect_region(COLONIST_HAIR, dst, src, c.hair)
-	canvas.draw_texture_rect_region(COLONIST_TUNIC, dst, src, c.tunic)
-	canvas.draw_texture_rect_region(COLONIST_CAPE, dst, src, c.cape)
+# il colono `c` (il fotogramma `src` dei fogli) in `dst` di `canvas`, un livello sull'altro (vedi figure_layers)
+func draw_figure(canvas: CanvasItem, dst: Rect2, src: Rect2, c: Colonist, shade := Color.WHITE) -> void:
+	for layer in figure_layers(c):
+		canvas.draw_texture_rect_region(layer[0], dst, layer_src(src, layer), layer[2] * shade)
+
+
+# Livelli dello sprite di `c`, dal basso: [foglio, voce del foglio (i 96x64 uno sotto l'altro), tinta].
+# Corpo, maglia e mantello; l'armatura sopra la maglia; capelli, acconciatura e barba; il copricapo sopra i capelli;
+# il corredo degli avventurieri; per ultimo quello che ha in mano (a mani vuote, nei lavori, un attrezzo qualunque)
+func figure_layers(c: Colonist) -> Array:
+	var layers := [[COLONIST_BASE, 0, Color.WHITE], [COLONIST_TUNIC, 0, c.tunic], [COLONIST_CAPE, 0, c.cape]]
+	var body = c.gear.get(Slot.BODY)
+	if body != null:
+		layers.append([COLONIST_GEAR, GEAR[body]["look"], GEAR[body].get("tint", Color.WHITE)])
+	layers.append([COLONIST_HAIR, 0, c.hair])
+	if c.hair_style != Hair.SHORT:
+		layers.append([COLONIST_HAIR_STYLES, c.hair_style - 1, c.hair])  # LONG -> 0, BRAID -> 1
+	if c.beard:
+		layers.append([COLONIST_HAIR_STYLES, BEARD, c.hair])
+	var head = c.gear.get(Slot.HEAD)
+	if head != null:
+		var tint: Color = c.hood_tint if c.hood_tint != null and GEAR[head]["look"] == Look.HOOD else GEAR[head].get("tint", Color.WHITE)
+		layers.append([COLONIST_GEAR, GEAR[head]["look"], tint])
+	for k in c.kit:  # corredo degli avventurieri
+		layers.append([COLONIST_GEAR, k, Color.WHITE])
+	var hands = c.gear.get(Slot.HANDS)
+	layers.append([COLONIST_HANDS, GEAR[hands]["look"] if hands != null else Held.TOOL, Color.WHITE])
+	return layers
+
+
+# il fotogramma `src` nella voce del foglio di `layer` (ogni voce: 4 direzioni, alte una casella)
+func layer_src(src: Rect2, layer: Array) -> Rect2:
+	return Rect2(src.position + Vector2(0, layer[1] * 4 * TILE), src.size)
 
 
 func frame_of(c: Colonist) -> int:

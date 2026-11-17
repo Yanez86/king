@@ -65,7 +65,7 @@ NIGHT_LIGHTS = {                 # ...tranne le luci
 
 # file -> caratteri che finiscono in quel livello
 LAYERS = {
-    "colonist_base": "oesSpPblgwWurR",  # w W, u r R: attrezzo (manico, testa)
+    "colonist_base": "oesSpPblg",
     "colonist_hair": "hH",
     "colonist_tunic": "tT",
     "colonist_cape": "kK",
@@ -73,63 +73,187 @@ LAYERS = {
 
 # Ogni blocco: 16 righe, fotogrammi affiancati -> fermo, passo A, passo B, carica, colpo.
 # Carica e colpo: azione generica per ogni lavoro (taglio, scavo, costruzione); nel colpo il busto si abbassa di 1px.
+# Le mani sono vuote: quello che tengono (attrezzo, arma) è un livello a parte, vedi HANDS.
 DOWN = """
-................ ................ ................ ............oooo ................
-.....oooooo..... .....oooooo..... .....oooooo..... .....oooooo.ouro ................
-....ohhhhhho.... ....ohhhhhho.... ....ohhhhhho.... ....ohhhhhhoorRo .....oooooo.....
-...ohhhhhhhho... ...ohhhhhhhho... ...ohhhhhhhho... ...ohhhhhhhhoowo ....ohhhhhho....
-...ohhhhhhhHo... ...ohhhhhhhHo... ...ohhhhhhhHo... ...ohhhhhhhHoowo ...ohhhhhhhho...
-...oHhhhsssHo... ...oHhhhsssHo... ...oHhhhsssHo... ...oHhhhsssHoowo ...ohhhhhhhHo...
-...oHsessesHo... ...oHsessesHo... ...oHsessesHo... ...oHsessesHoowo ...oHhhhsssHo...
+................ ................ ................ ................ ................
+.....oooooo..... .....oooooo..... .....oooooo..... .....oooooo..... ................
+....ohhhhhho.... ....ohhhhhho.... ....ohhhhhho.... ....ohhhhhho.... .....oooooo.....
+...ohhhhhhhho... ...ohhhhhhhho... ...ohhhhhhhho... ...ohhhhhhhho... ....ohhhhhho....
+...ohhhhhhhHo... ...ohhhhhhhHo... ...ohhhhhhhHo... ...ohhhhhhhHo... ...ohhhhhhhho...
+...oHhhhsssHo... ...oHhhhsssHo... ...oHhhhsssHo... ...oHhhhsssHo... ...ohhhhhhhHo...
+...oHsessesHo... ...oHsessesHo... ...oHsessesHo... ...oHsessesHoooo ...oHhhhsssHo...
 ....oSssssSo.... ....oSssssSo.... ....oSssssSo.... ....oSssssSo.oso ...oHsessesHo...
 ..okkkkggkkkko.. ..okkkkggkkkko.. ..okkkkggkkkko.. ..okkkkggkkkkoso ....oSssssSo....
 ..oKtTttttTtKo.. ..oKtTttttTtKo.. ..oKtTttttTtKo.. ..oKtTttttTtKoo. ..okkkkggkkkko..
 ..oKtTttttTtKo.. ..oKtTttttTtKo.. ..oKtTttttTtKo.. ..oKtTttttTtKo.. ..oKtTtsstTtKo..
-..oKsllggllsKo.. ..oKsllggllsKo.. ..oKsllggllsKo.. ..oKtllgglltKo.. ..oKtlowWoltKo..
-..oKottttttoKo.. ..oKottttttoKo.. ..oKottttttoKo.. ..oKottttttoKo.. ..oKotowWotoKo..
-...oopPooPpoo... ...oopPoobboo... ...oobbooPpoo... ...oopPooPpoo... ...ooourrRooo...
-....obboobbo.... ....obbooooo.... ....ooooobbo.... ....obboobbo.... ....oorRRRoo....
-....ooo..ooo.... ....ooo......... .........ooo.... ....ooo..ooo.... .....oooooo.....
+..oKsllggllsKo.. ..oKsllggllsKo.. ..oKsllggllsKo.. ..oKtllgglltKo.. ..oKtllgglltKo..
+..oKottttttoKo.. ..oKottttttoKo.. ..oKottttttoKo.. ..oKottttttoKo.. ..oKottttttoKo..
+...oopPooPpoo... ...oopPoobboo... ...oobbooPpoo... ...oopPooPpoo... ...oopPooPpoo...
+....obboobbo.... ....obbooooo.... ....ooooobbo.... ....obboobbo.... ....obboobbo....
+....ooo..ooo.... ....ooo......... .........ooo.... ....ooo..ooo.... ....ooo..ooo....
 """
 
 UP = """
-................ ................ ................ ............oooo ................
-.....oooooo..... .....oooooo..... .....oooooo..... .....oooooo.ouro ................
-....ohhhhhho.... ....ohhhhhho.... ....ohhhhhho.... ....ohhhhhhoorRo .....oooooo.....
-...ohhhhhhhho... ...ohhhhhhhho... ...ohhhhhhhho... ...ohhhhhhhhoowo ....ohhhhhho....
-...ohhhhhhhho... ...ohhhhhhhho... ...ohhhhhhhho... ...ohhhhhhhhoowo ...ohhhhhhhho...
-...ohhhhhhhHo... ...ohhhhhhhHo... ...ohhhhhhhHo... ...ohhhhhhhHoowo ...ohhhhhhhho...
-...oHhhhhhhHo... ...oHhhhhhhHo... ...oHhhhhhhHo... ...oHhhhhhhHoowo ...ohhhhhhhHo...
+................ ................ ................ ................ ................
+.....oooooo..... .....oooooo..... .....oooooo..... .....oooooo..... ................
+....ohhhhhho.... ....ohhhhhho.... ....ohhhhhho.... ....ohhhhhho.... .....oooooo.....
+...ohhhhhhhho... ...ohhhhhhhho... ...ohhhhhhhho... ...ohhhhhhhho... ....ohhhhhho....
+...ohhhhhhhho... ...ohhhhhhhho... ...ohhhhhhhho... ...ohhhhhhhho... ...ohhhhhhhho...
+...ohhhhhhhHo... ...ohhhhhhhHo... ...ohhhhhhhHo... ...ohhhhhhhHo... ...ohhhhhhhho...
+...oHhhhhhhHo... ...oHhhhhhhHo... ...oHhhhhhhHo... ...oHhhhhhhHoooo ...ohhhhhhhHo...
 ....oHHHHHHo.... ....oHHHHHHo.... ....oHHHHHHo.... ....oHHHHHHo.oso ...oHhhhhhhHo...
 ..okkkkkkkkkko.. ..okkkkkkkkkko.. ..okkkkkkkkkko.. ..okkkkkkkkkkoso ....oHHHHHHo....
-..oKkkkkkkkkKo.. ..oKkkkkkkkkKo.. ..oKkkkkkkkkKo.. ..oKkkkkkkkkKoo. oookkkkkkkkkko..
-..oKkkKkkKkkKo.. ..oKkkKkkKkkKo.. ..oKkkKkkKkkKo.. ..oKkkKkkKkkKo.. ouoKkkkkkkkkKo..
-..oKkkKkkKkkKo.. ..oKkkKkkKkkKo.. ..oKkkKkkKkkKo.. ..oKkkKkkKkkKo.. orwskkKkkKkkKo..
-..oKKkKkkKkKKo.. ..oKKkKkkKkKKo.. ..oKKkKkkKkKKo.. ..oKKkKkkKkKKo.. oRoKKkKkkKkKKo..
-...oopPooPpoo... ...oopPoobboo... ...oobbooPpoo... ...oopPooPpoo... ooooopPooPpoo...
+..oKkkkkkkkkKo.. ..oKkkkkkkkkKo.. ..oKkkkkkkkkKo.. ..oKkkkkkkkkKoo. ..okkkkkkkkkko..
+..oKkkKkkKkkKo.. ..oKkkKkkKkkKo.. ..oKkkKkkKkkKo.. ..oKkkKkkKkkKo.. ..oKkkkkkkkkKo..
+..oKkkKkkKkkKo.. ..oKkkKkkKkkKo.. ..oKkkKkkKkkKo.. ..oKkkKkkKkkKo.. ..oskkKkkKkkKo..
+..oKKkKkkKkKKo.. ..oKKkKkkKkKKo.. ..oKKkKkkKkKKo.. ..oKKkKkkKkKKo.. ..oKKkKkkKkKKo..
+...oopPooPpoo... ...oopPoobboo... ...oobbooPpoo... ...oopPooPpoo... ...oopPooPpoo...
 ....obboobbo.... ....obbooooo.... ....ooooobbo.... ....obboobbo.... ....obboobbo....
 ....ooo..ooo.... ....ooo......... .........ooo.... ....ooo..ooo.... ....ooo..ooo....
 """
 
 LEFT = """
-................ ................ ................ ...........ooooo ................
-.....oooooo..... .....oooooo..... .....oooooo..... .....ooooooourro ................
-....ohhhhhho.... ....ohhhhhho.... ....ohhhhhho.... ....ohhhhhhorRRo .....oooooo.....
-...ohhhhhhhho... ...ohhhhhhhho... ...ohhhhhhhho... ...ohhhhhhhhowoo ....ohhhhhho....
-...ohhhhhhhHo... ...ohhhhhhhHo... ...ohhhhhhhHo... ...ohhhhhhhHowo. ...ohhhhhhhho...
-...ohssshhhHo... ...ohssshhhHo... ...ohssshhhHo... ...ohssshhhHowo. ...ohhhhhhhHo...
-...osessShhHo... ...osessShhHo... ...osessShhHo... ...osessShhHowo. ...ohssshhhHo...
+................ ................ ................ ................ ................
+.....oooooo..... .....oooooo..... .....oooooo..... .....oooooo..... ................
+....ohhhhhho.... ....ohhhhhho.... ....ohhhhhho.... ....ohhhhhho.... .....oooooo.....
+...ohhhhhhhho... ...ohhhhhhhho... ...ohhhhhhhho... ...ohhhhhhhho... ....ohhhhhho....
+...ohhhhhhhHo... ...ohhhhhhhHo... ...ohhhhhhhHo... ...ohhhhhhhHo... ...ohhhhhhhho...
+...ohssshhhHo... ...ohssshhhHo... ...ohssshhhHo... ...ohssshhhHo... ...ohhhhhhhHo...
+...osessShhHo... ...osessShhHo... ...osessShhHo... ...osessShhHooo. ...ohssshhhHo...
 ....ossSsHHo.... ....ossSsHHo.... ....ossSsHHo.... ....ossSsHHooso. ...osessShhHo...
-....ogkkkkkko... ....ogkkkkkko... ....ogkkkkkko... ....ogkkkkkkoso. ooo.ossSsHHo....
-....otTttTkko... ....ottTttkko... ....otttTtkko... ....otTttTkkoo.. ouooogkkkkkko...
-....otTttTkKo... ....ottTttkKo... ....otttTtkKo... ....otTttTkKo... orwwssTttTkKo...
-....oglsslkKo... ....ogllsskKo... ....osslllkKo... ....ogllllkKo... oRooogllllkKo...
-....ottootkKKo.. ....otttookKKo.. ....oootttkKKo.. ....ottootkKKo.. ooo.ottootkKKo..
+....ogkkkkkko... ....ogkkkkkko... ....ogkkkkkko... ....ogkkkkkkoso. ....ossSsHHo....
+....otTttTkko... ....ottTttkko... ....otttTtkko... ....otTttTkkoo.. ....ogkkkkkko...
+....otTttTkKo... ....ottTttkKo... ....otttTtkKo... ....otTttTkKo... ...ossTttTkKo...
+....oglsslkKo... ....ogllsskKo... ....osslllkKo... ....ogllllkKo... ....ogllllkKo...
+....ottootkKKo.. ....otttookKKo.. ....oootttkKKo.. ....ottootkKKo.. ....ottootkKKo..
 .....oppPoooo... ...oppoPPoooo... ...oPPoppoooo... .....oppPoooo... .....oppPoooo...
 ....obbbbo...... ..obbbobbo...... ..obbbobbo...... ....obbbbo...... ....obbbbo......
 ....oooooo...... ..oooooooo...... ..oooooooo...... ....oooooo...... ....oooooo......
 """
 
+
+# ---- Livelli sopra il colono (stesso foglio 96x64 di sheet) ----
+# Ogni disegno è fatto di timbri (colonna, riga, righe) dentro il fotogramma 16x16: "." è trasparente, quello che
+# esce dal fotogramma si taglia. Le righe di un timbro sono separate da spazi o a capo.
+
+# Acconciature, tinte col colore dei capelli (bianco/grigio): si aggiungono alla calotta di capelli di sheet().
+# Per direzione (giù, sinistra, su) il fotogramma da fermo; negli altri si sposta col busto (vedi still_sheet).
+HAIR_STYLES = {
+    "long": {   # lunghi fino alle spalle
+        "down": [(2, 7, ".oH......Ho. ohH......Hho ohH......Hho .oo......oo.")],
+        "left": [(8, 7, "...Ho .hhHo ..hHo ..oo.")],
+        "up": [(3, 7, "ohhhhhhhho ohhhhhhhho oHhhhhhhHo .oHhhhhHo. ..oooooo..")],
+    },
+    "braid": {  # treccia sulla schiena
+        "down": [],
+        "left": [(11, 7, "Hho. ohHo .oho .oHo .oho ..o.")],
+        "up": [(6, 7, ".hh. ohHo oHho ohHo oHho .oo.")],
+    },
+    "beard": {
+        "down": [(5, 6, "H....H HhhhhH ..hH")],
+        "left": [(6, 6, "..H hhH h..")],
+        "up": [],
+    },
+}
+
+# Corredo degli avventurieri: come le acconciature, ma coi suoi colori.
+KIT = {
+    "shield": {  # scudo tondo di legno, bordo e borchia di ferro: sul braccio, dietro la schiena da su
+        "down": [(0, 8, ".oooo. oRwwRo owwuwo owuuwo oRwwRo .oooo.")],
+        "left": [(5, 8, ".oooo. oRwwRo owwuwo owuuwo oRwwRo .oooo.")],
+        "up": [(5, 8, ".oooo. oRwwRo owwuwo owuuwo oRwwRo .oooo.")],
+    },
+    "quiver": {  # faretra sulla spalla destra: da giù se ne vedono le penne
+        "down": [(1, 5, ".o.. oxo. oxo.")],
+        "left": [(12, 4, ".o. oxo oxo owo owo oWo oWo oWo .o.")],
+        "up": [(10, 5, ".o.o. oxoxo owwwo owWWo owWWo owWWo owWWo .ooo.")],
+    },
+    "mask": {  # fazzoletto scuro sul naso e sulla bocca, annodato dietro
+        "down": [(5, 6, "6.66.6 666666")],
+        "left": [(4, 6, "6.666 .6666")],
+        "up": [(4, 6, "66666666")],
+    },
+    "pack": {  # sacco sulla schiena, da giù le cinghie
+        "down": [(4, 8, "l......l l......l l......l")],
+        "left": [(10, 7, "..ooo. .occco .occCo .ocCCo .oCCCo ..ooo.")],
+        "up": [(4, 7, "..oooo.. .occcco. occcccCo occccCCo occcCCCo .oCCCCo. ..oooo..")],
+    },
+}
+
+# In mano. Pose: "down_raise" (carica, anche da su), "down_strike", "left_raise", "left_strike", "up_strike" (colpo);
+# "*_rest": nei fotogrammi senza lavoro (fermo, passo, respiro), per chi lo porta al fianco o sulla schiena.
+# La mano che tiene: carica giù (14, 7), di lato (13, 7); colpo giù (7-8, 10), di lato (4-5, 10), su (3, 11).
+# Senza niente in mano, nei lavori il colono usa un attrezzo qualunque ("tool"). Ordine = colonist_hands.png
+HANDS = {
+    "tool": {
+        "down_raise": [(12, 0, "oooo ouro orRo .owo .owo .owo .owo")],
+        "down_strike": [(5, 11, ".owWo. .owWo. ourrRo orRRRo oooooo")],
+        "left_raise": [(11, 0, "ooooo ourro orRRo .owoo .owo. .owo. .owo.")],
+        "left_strike": [(0, 8, "ooo. ouoo orww oRoo ooo.")],
+        "up_strike": [(0, 9, "ooo ouo orw oRo ooo")],
+    },
+    "pickaxe": {
+        "down_raise": [(10, 0, ".ooooo ouuurr .Roowr ...owo ...owo ...owo ...owo")],
+        "down_strike": [(3, 11, ".o.owWo.o. oR.owWo.Ro oruuuuuuro .oooooooo.")],
+        "left_raise": [(9, 0, ".ooooo. oruuuro oRoowoR .o.owoo ...owo. ...owo. ...owo.")],
+        "left_strike": [(0, 7, "ooo. oRo. ouoo orww ouoo oRo. ooo.")],
+        "up_strike": [(0, 8, "ooo oRo ouo orw ouo oRo ooo")],
+    },
+    "axe": {
+        "down_raise": [(11, 0, ".oooo ouuwo orRwo .oowo ..owo ..owo ..owo")],
+        "down_strike": [(3, 11, "...owWo .ooowWo ouuuwWo orrRooo .ooo...")],
+        "left_raise": [(10, 0, ".oooo ouuwo orRwo .oowo ..owo ..owo ..owo")],
+        "left_strike": [(0, 8, "ooo. ouoo ouww orRo oRo. oo..")],
+        "up_strike": [(0, 9, "ooo ouo ouw oro oRo ooo")],
+    },
+    "sickle": {
+        "down_raise": [(11, 1, ".ooo. ouuro ouowo oroWo .o.wo ...wo")],
+        "down_strike": [(3, 11, "...owWo .o.owWo ouo.oro ourruRo .oooooo")],
+        "left_raise": [(10, 0, ".ooo. ouuro ouowo oroWo .o.wo ...wo ...wo")],
+        "left_strike": [(0, 7, ".oo. oruo ouoo ouww ooo.")],
+        "up_strike": [(0, 8, ".oo oru ouo ouw ooo")],
+    },
+    "sword": {
+        "down_raise": [(13, 0, ".o. ouo ouo ouo ouo oro g<g")],
+        "down_strike": [(5, 11, "og<<go .ouro. .ouro. .ouro. ..oo..")],
+        "left_raise": [(12, 0, ".o. ouo ouo ouo ouo oro g<g")],
+        "left_strike": [(0, 9, "ooog uur< ooog")],
+        "up_strike": [(0, 10, "oog ur< oog")],
+        "down_rest": [(12, 8, ".o. ogo obo g<g obo obo .o.")],
+        "left_rest": [(8, 9, ".o..... obo.... .ogo... ..olo.. ...olo. ....ogo .....o.")],
+        "up_rest": [(1, 8, ".o. ogo obo g<g obo obo .o.")],
+    },
+    "bow": {  # legno chiaro, corda "+"; da fermo sulla schiena
+        "down_raise": [(13, 0, ".o. .Co .+C .+C .+C .+C .+C ... ... .+C .+C .+C .+C .Co .o.")],
+        "down_strike": [(2, 10, ".o........o. oC++++++++Co .oCCCCCCCCo. ..oooooooo..")],
+        "left_raise": [(12, 0, ".o. .Co .+C .+C .+C .+C .+C ... ... .+C .+C .+C .+C .Co .o.")],
+        "left_strike": [(0, 3, "..o. .oCo oC+. oC+. oC+. oC+. oC+. oC+. oC+. oC+. oC+. .oCo ..o.")],
+        "up_strike": [(0, 4, "..o. .oCo oC+. oC+. oC+. oC+. oC+. oC+. oC+. oC+. oC+. .oCo")],
+        "down_rest": [(1, 4, ".o. oCo oCo oCo"), (12, 11, ".o. oCo oCo .o.")],
+        "left_rest": [(11, 4, ".o.. oCo. .+Co .+Co .+Co .+Co .+Co .+Co .+Co .+Co oCo. .o..")],
+        "up_rest": [(4, 6, ".oo.. o+Co. o+oCo o+oCo o+oCo o+oCo o+oCo o+Co. .oo..")],
+    },
+    "dagger": {  # degli scassinatori
+        "down_raise": [(13, 2, ".o. ouo ouo oro g<g")],
+        "down_strike": [(6, 11, "g<<g ouro .oo.")],
+        "left_raise": [(12, 2, ".o. ouo ouo oro g<g")],
+        "left_strike": [(0, 9, ".oog our< .oog")],
+        "up_strike": [(0, 10, ".og ou< .og")],
+        "down_rest": [(12, 10, ".g. obo obo .o.")],
+        "left_rest": [(8, 10, ".g. obo obo .o.")],
+        "up_rest": [(2, 10, ".g. obo obo .o.")],
+    },
+}
+BROW = 5  # riga della fronte nel fotogramma da fermo: sopra, l'elmo; sotto, i capelli restano fuori
+# il cappuccio scende ai lati della faccia e sulle spalle; di lato fa la punta dietro
+HOOD_MANTLE = {
+    "down": [(3, 7, "oK......Ko"), (3, 8, "kkK....Kkk")],
+    "left": [(10, 0, ".o.. .ko. .kKo"), (7, 8, "kkkK")],
+    "up": [(4, 8, "kkkkkkkk")],
+}
+ON_THE_BACK = {"bow"}  # da fermo: si alzano e si abbassano col respiro; il resto sta al fianco
+# copricapi e armature: ricavati dai capelli e dalla tunica di sheet() (vedi helmet, hood, armor)
+GEAR_LAYERS = ["leather_armor", "chainmail", "helmet", "hood", "shield", "quiver", "mask", "pack"]  # = colonist_gear.png
 
 TREES_HEIGHT = 32  # il tronco sta nella sua casella, la chioma sale in quella sopra
 
@@ -235,22 +359,22 @@ MEALS = """
 # piena col cucchiaio), pasto squisito (ciotola con la stella), mangiato al tavolo (tavolo apparecchiato), mangiato
 # crudo (bacca col segno rosso).
 CONDITIONS = """
-................ ..........oo.... .......o........ ................ ......jj....jj..
-.....oooooo..... .........oxo.... ......ogo....... ................ .......jj..jj...
-...ooGGGGGGoo... ........oxo..... ....oogggoo..... ......oooo...... ........jjjj....
-..oGGGGGGGGGGo.. .......oxo...... ....oggggUo..... .....oxxxxo..... .........jj.....
-..oGooGGGGooGo.. ......oxo....... .....ogggo...... ....oxXXXXxo.... ........jjjj....
-.oGGGoGGGGoGGGo. ..oooooxoooooo.. .....ogoUo...... ....oxxxxxxo.... .......jj..jj...
-.oGGGGGGGGGGGGo. .ofF9fLxFf9LfFo. ..oooooooooooo.. .....oooooo..... ......jj.oooojj.
-.oGGGGGGGGGGGGo. .oFfLf9FfFLf9fo. .ofF9fLfFf9LfFo. .oooooooooooooo. ........oyyLLo..
-.oGGGoooooGGGGo. ..owwwwwwwwwwo.. .oFfLf9FfFLf9fo. .owwwwwwwwwwwwo. .......oyLL+jmo.
-.oGGoGGGGGoGGGo. ..owcwwwwwwwWo.. ..owwwwwwwwwwo.. .oWWWWWWWWWWWWo. .......oyL+jJmo.
-..oGGGGGGGGGGo.. ...owwwwwwwWo... ..owcwwwwwwwWo.. ..ow.o....ow.o.. .......oLLjJmmo.
-..oMGGGGGGGGMo.. ....oWWWWWWo.... ...owwwwwwwWo... ..ow.o....ow.o.. .......oLmmmmdo.
-...ooMMMMMMoo... .....oooooo..... ....oWWWWWWo.... ..ow.o....ow.o.. ........oddddo..
-.....oooooo..... ................ .....oooooo..... ..oo.o....oo.o.. .........oooo...
-................ ................ ................ ................ ................
-................ ................ ................ ................ ................
+................ ..........oo.... .......o........ ................ ......jj....jj.. ................
+.....oooooo..... .........oxo.... ......ogo....... ................ .......jj..jj... ................
+...ooGGGGGGoo... ........oxo..... ....oogggoo..... ......oooo...... ........jjjj.... .....oooooo.....
+..oGGGGGGGGGGo.. .......oxo...... ....oggggUo..... .....oxxxxo..... .........jj..... ....oruuuuRo....
+..oGooGGGGooGo.. ......oxo....... .....ogggo...... ....oxXXXXxo.... ........jjjj.... ...oruuouuuRo...
+.oGGGoGGGGoGGGo. ..oooooxoooooo.. .....ogoUo...... ....oxxxxxxo.... .......jj..jj... ...oruooouuRo...
+.oGGGGGGGGGGGGo. .ofF9fLxFf9LfFo. ..oooooooooooo.. .....oooooo..... ......jj.oooojj. ...oruuouuuRo...
+.oGGGGGGGGGGGGo. .oFfLf9FfFLf9fo. .ofF9fLfFf9LfFo. .oooooooooooooo. ........oyyLLo.. ...oruuouuuRo...
+.oGGGoooooGGGGo. ..owwwwwwwwwwo.. .oFfLf9FfFLf9fo. .owwwwwwwwwwwwo. .......oyLL+jmo. ...oruuuuuuRo...
+.oGGoGGGGGoGGGo. ..owcwwwwwwwWo.. ..owwwwwwwwwwo.. .oWWWWWWWWWWWWo. .......oyL+jJmo. ...orrrrrrrRo...
+..oGGGGGGGGGGo.. ...owwwwwwwWo... ..owcwwwwwwwWo.. ..ow.o....ow.o.. .......oLLjJmmo. ..oooooooooooo..
+..oMGGGGGGGGMo.. ....oWWWWWWo.... ...owwwwwwwWo... ..ow.o....ow.o.. .......oLmmmmdo. ..o,^,,,,,^,,o..
+...ooMMMMMMoo... .....oooooo..... ....oWWWWWWo.... ..ow.o....ow.o.. ........oddddo.. ...oooooooooo...
+.....oooooo..... ................ .....oooooo..... ..oo.o....oo.o.. .........oooo... ................
+................ ................ ................ ................ ................ ................
+................ ................ ................ ................ ................ ................
 """
 
 # Piante 16x16 -> erbaccia, cespuglio, cespuglio con le bacche. Si attraversano, ma non ci si costruisce sopra.
@@ -443,6 +567,144 @@ SWORD = """
 .owo..oo........
 owo.............
 oo..............
+"""
+
+# Bacheca degli incarichi 16x16 (locanda): avvisi appuntati su un'asse, su due pali.
+NOTICE_BOARD = """
+................
+.oooooooooooooo.
+.oBBBBBBBBBBBBo.
+.oBwj++wwj++wWo.
+.oBw+++ww+++wWo.
+.oBw+++ww+++wWo.
+.oBwwwwww+++wWo.
+.oBw++jwwwwwwWo.
+.oBw+++wwwwwwWo.
+.oWWWWWWWWWWWWo.
+.oooooooooooooo.
+...owo....owo...
+...owo....owo...
+...oWo....oWo...
+...oozzzzzzoo...
+................
+"""
+
+# Monete d'oro 16x16, come ICONS: due pile.
+GOLD = """
+................
+................
+................
+..oooooo........
+.og88gg<o.......
+.ogggg<<o.......
+.o<<<<<<ooooooo.
+.og<g<g<og88gg<o
+.o<<<<<<ogggg<<o
+.og<g<g<o<<<<<<o
+.o<<<<<<og<g<g<o
+.og<g<g<o<<<<<<o
+.o<<<<<<oooooooo
+.oooooooo.......
+................
+................
+"""
+
+# Pugnale 16x16, come SWORD ma corto, col manico di cuoio (degli scassinatori).
+DAGGER = """
+................
+................
+................
+................
+................
+................
+.............oo.
+...........ouuro
+......oo..ouuro.
+......ogoouuro..
+.......oggrro...
+.......oogoo....
+......oboogo....
+.....obo..oo....
+....obo.........
+....oo..........
+"""
+
+# Cimeli 16x16, dalle rovine: calice d'argento, stendardo antico, busto di pietra, corona su un cuscino.
+# Sono decorazioni (righe in fondo al foglio dei mobili) e oggetti in magazzino (icone)
+CHALICE = """
+................
+....oooooooo....
+...ouxuuuuurro..
+..ouxuuuuuuurRo.
+..ouxuuujuuurRo.
+..ouuuuuuuuurRo.
+...ouuuuuuurRo..
+....oouuurRoo...
+......ourRo.....
+.......oRo......
+.......oro......
+......ouuro.....
+.....ouuurRo....
+....oruuuurRRo..
+....oooooooooo..
+....zzzzzzzzzz..
+"""
+
+OLD_BANNER = """
+..ooo...........
+..ogo...........
+..owoooooooooo..
+..ow//////////o.
+..ow///gg/////o.
+..ow//gggg////o.
+..ow///gg/////o.
+..ow//////////o.
+..ow/}//////}/o.
+..ow//o///o//o..
+..ow/o.o/o.o/o..
+..owo...o...o...
+..ow............
+..ow............
+..oW............
+.zzzz...........
+"""
+
+BUST = """
+................
+.....oooooo.....
+....ouuuuuro....
+....ouRuuRro....
+....ouuuuuro....
+....ouuruurRo...
+.....oruurRo....
+....ooouurRooo..
+..oouuuuuuurRRoo
+..ouuuuuuuurrRRo
+..orrrrrrrrrRRRo
+..oooooooooooooo
+....orrrrrrRio..
+....orrrrrrRio..
+...oooooooooooo.
+...zzzzzzzzzzzz.
+"""
+
+CROWN = """
+................
+................
+..o....o....o...
+.ojo..ogo..o/o..
+.ogoooogooooogo.
+.og8ggggg8gggg<o
+.og8gjgg/gjggg<o
+.og<<<<<<<<<<<<o
+.oooooooooooooo.
+oJjjjjjjjjjjjjJo
+ojjjjjjjjjjjjjjo
+oJjjjjjjjjjjjjJo
+.oJJJJJJJJJJJJo.
+.oooooooooooooo.
+..zzzzzzzzzzzz..
+................
 """
 
 # Banco da lavoro 16x16 (sartoria e archi): un pezzo di pelle e l'ago sul piano.
@@ -1580,17 +1842,113 @@ X...
 # Abilità 8x8, nella scheda del colono (come Skill in main.gd) -> raccogliere, estrarre, tagliare legna, costruire,
 # forgiare, cucire, cucinare, pescare, cacciare, armi da mischia, armi a distanza, ricerca.
 SKILLS = """
-....oLo. .ooooo.. .oo..oo. oooooo.. ........ ......oo .x..x... ........ .ww..ww. .....ooo .oo..... .oooo...
-...oLo.. ouurrRo. ouuooRwo ouurrRo. .ooooooo .....ouo ..x..x.. ..ooo..o .ww..ww. ....oxxo owwo..o. oQQEEo..
-.oo.oo.. .oooowRo ouurRwo. oRRRRRo. orrrrrRo ..j.ouo. oooooooo .oQQQooQ ........ ...oxXXo o.owoox. oQEEEo..
-ojjoojjo ...owooR ourRwoo. oooowoo. .ooorRo. .j.ouo.. oiiiiiio oQeQQQQo w..ww..w o.oxXXo. o..oxxxo oEEEEo..
-ojJoojJo ..owo.oo .oowRo.. ...owo.. ...oRo.. j.ouo... orrrrrRo oQQQQooQ ..wwww.. ogoXXo.. o..owoX. .oooowo.
-.oojjoo. .owo.... ..owo... ...owo.. ..oiiio. .ouo.j.. .orrrRo. .oEEEo.o .wwwwww. .ogXo... o.owo.o. ....owo.
-..ojJo.. owo..... .owo.... ...owo.. .oiiiiio ouo.j... .oRRRRo. ..ooo... .wwwwww. owogo... owwo.... .....owo
-...oo... oo...... owo..... ...ooo.. .ooooooo oo.j.... ..oooo.. ........ ..w..w.. ooo.o... .oo..... ......oo
+....oLo. .ooooo.. .oo..oo. oooooo.. ........ ......oo .x..x... ........ .ww..ww. .....ooo .oo..... .oooo... ....ooo.
+...oLo.. ouurrRo. ouuooRwo ouurrRo. .ooooooo .....ouo ..x..x.. ..ooo..o .ww..ww. ....oxxo owwo..o. oQQEEo.. ...og8go
+.oo.oo.. .oooowRo ouurRwo. oRRRRRo. orrrrrRo ..j.ouo. oooooooo .oQQQooQ ........ ...oxXXo o.owoox. oQEEEo.. ...og.go
+ojjoojjo ...owooR ourRwoo. oooowoo. .ooorRo. .j.ouo.. oiiiiiio oQeQQQQo w..ww..w o.oxXXo. o..oxxxo oEEEEo.. ..oog<o.
+ojJoojJo ..owo.oo .oowRo.. ...owo.. ...oRo.. j.ouo... orrrrrRo oQQQQooQ ..wwww.. ogoXXo.. o..owoX. .oooowo. .ogoo...
+.oojjoo. .owo.... ..owo... ...owo.. ..oiiio. .ouo.j.. .orrrRo. .oEEEo.o .wwwwww. .ogXo... o.owo.o. ....owo. og<go...
+..ojJo.. owo..... .owo.... ...owo.. .oiiiiio ouo.j... .oRRRRo. ..ooo... .wwwwww. owogo... owwo.... .....owo o<o.....
+...oo... oo...... owo..... ...ooo.. .ooooooo oo.j.... ..oooo.. ........ ..w..w.. ooo.o... .oo..... ......oo oo......
+"""
+
+# Talenti degli avventurieri 12x12, nei quadratini come i talenti (vedi badge), nell'ordine di Gift in main.gd:
+# greedy, loyal, reckless, coward, lucky, cartographer, jinxed, berserker, stout, stealthy, medic, forager, pathfinder, keen_eyed, scholar, famous
+HERO_TRAITS_1 = """
+....oooo.... ............ ......o..... .oo.........
+....o<<o.... .oooo..oooo. .....o9o.... .owoooooooo.
+.....oo..... oj+jjoojjjJo .....o99o... .ow++++++++o
+...oggggo... oj+jjjjjjjJo ....o9=9o.o. .ow++++++++o
+..og8ggg<o.. ojjjjjjjjjJo ...o9==99o9o .ow+++++++Uo
+.og8gg<gg<o. ojjjjjjjjJJo ..o99=889o9o .ow++++++UUo
+.og8g<<<g<o. .ojjjjjjjJo. ..o9=8889=9o .owoooooooo.
+.og8gg<gg<o. ..ojjjjjJo.. .o9=88888=9o .owo........
+.oggg<<<g<o. ...ojjjJo... .o9=88888=o. .owo........
+..og<<<<<o.. ....ojJo.... .o9==888=9o. .owo........
+...ooooooo.. .....oo..... ..oo999999o. .oWo........
+............ ............ ....oooooo.. .ooo........
+"""
+
+HERO_TRAITS_2 = """
+............ ............ ............ .ooo....ooo.
+..ooo..ooo.. .oooooooooo. .o.......o.. oujro..orjuo
+.oyLLooyLLo. oUIIIIIIIIUo .oo.....oo.. ouurrooorruo
+.oLLLooLLLo. .oI(IIIjIjo. .o7o...o7o.. ourrRowoRrro
+..ooLLLLoo.. .oII(IIIjIo. .o77ooo77o.. ourRRowoRRro
+..ooLLLLoo.. .oIII(IjIjo. .o7777777o.. .oRRowwoRRo.
+.oyLLooyLLo. .oIIII(IIIo. .o7g777g7o.. ..ooowwooo..
+.oLLLooLLLo. .oI(II(IIIo. .o7g777g7o.. .....owo....
+..ooo..ooo.. .oII((IIIIo. .o7777777o.. .....owo....
+.....om..... oUIIIIIIIIUo ..o77677o... .....owo....
+......om.... .oooooooooo. ...ooooo.... .....oWo....
+.......o.... ............ ............ .....ooo....
+"""
+
+HERO_TRAITS_3 = """
+............ ....oooo.... ............ ............
+..oo.oo.oo.. ...o7777o... .oooooooooo. ...oooooo...
+.oCCoCCoCCo. ..o777777o.. .o++++++++o. ..oj+jjj+jo.
+.oCCoCCoCCo. .o77666677o. .o+++jj+++o. .oj+jjjjjjJo
+..oo.oo.oo.. .o76666667o. .o+++jj+++o. .ojjjj+jjjJo
+...oooooo... .o76g66g67o. .o+jjjjjj+o. .oJJJJJJJJJo
+..oCCCCCCo.. .o76666667o. .o+jjjjjj+o. ..ooo++ooo..
+.oCcCCCCCCo. .o77666677o. .o+++jj+++o. ....o++o....
+.oCcCCCCCCo. .o77777777o. .o+++jj+++o. ....o++o....
+.oCCCCCCCCo. o7777777777o .o++++++++o. ....o+Uo....
+..oCCCCCCo.. o7777777777o .oooooooooo. ...o+++Uo...
+...oooooo... oooooooooooo ............ ...oooooo...
+"""
+
+HERO_TRAITS_4 = """
+............ ............ ............ .....oo.....
+...oooo..... ............ ..oooooooo.. ....o88o....
+...oCCo..... ...oooooo... .ojjjjjjjjo. ....o8go....
+...oCCo..... ..o++++++o.. .ojgggggjjo. ooooo8ggoooo
+...oCCo..... .o++oQQo++o. .ojjjjjjjjo. o8888ggggg<o
+...oCCo..... o+++QEEQ+++o .ojjgggjjjo. .o88gggggg<o
+...oCCCooo.. o+++QEEQ+++o .ojjjjjjjjo. ..ogggggg<o.
+...oCCCCCCo. .o++oQQo++o. .ojjjjjjjjo. ..ogg<<gg<o.
+..oCCCCCCCCo ..o++++++o.. .oJ++++++Jo. .og<<oo<<g<o
+..oWWWWWWWWo ...oooooo... .oJ++++++Jo. .og<o..og<o.
+..oooooooooo ............ ..oooooooo.. og<o....o<<o
+............ ............ ............ ooo......ooo
 """
 
 # Stress 8x8, accanto alla sua barra nella scheda del colono: un fulmine.
+# Tipi di oggetto 8x8 (raddoppiati), davanti al nome di ogni oggetto: materiale (cassa), cibo (mela), strumento
+# (martello), arma (spada), armatura (scudo), cimelio (gemma); per le monete la moneta (COIN)
+ITEM_KINDS = {
+    "material": ['oooooooo', 'ocCCCCwo', 'oCcCCwCo', 'oCCcwCCo', 'oCCwcCCo', 'oCwCCcCo', 'owCCCCco', 'oooooooo'],
+    "food": ['....oo..', '...owo..', '.oooooo.', 'oj+jjjJo', 'ojjjjjJo', 'ojjjjJJo', '.ojJJJo.', '..oooo..'],
+    "tool": ['.ooooo..', 'ouuurRo.', 'orrrRRo.', '.oowoo..', '...owo..', '...owo..', '...owo..', '...ooo..'],
+    "weapon": ['......oo', '.....oxo', '....oxXo', '.o.oxXo.', '.ogoXo..', '..ogo...', '.owogo..', '.oo.oo..'],
+    "armor": ['oooooooo', 'ourrrrRo', 'orjjjjRo', 'orjggjRo', 'orjjjjRo', '.orjjRo.', '..orRo..', '...oo...'],
+    "relic": ['..oooo..', '.o+//Qo.', 'o+////Qo', 'oooooooo', '.o//QQo.', '..o/Qo..', '...oo...', '........'],
+}
+
+# Moneta 8x8 (raddoppiata), dentro i testi al posto della parola "gold": diari, bacheca, scheda.
+COIN = """
+..oooo..
+.og88go.
+og8gg<<o
+o8g<<g<o
+og8<<g<o
+ogg<g<<o
+.o<<<<o.
+..oooo..
+"""
+
+SEX_ICONS = """
+....//// ..???...
+......// .?...?..
+....././ .?...?..
+.////... .?...?..
+/.../... ..???...
+/.../... ...?....
+/.../... .?????..
+.///.... ...?....
+"""  # maschio, femmina (nella scheda)
+
 STRESS_ICON = """
 ....ooo.
 ...ojJo.
@@ -1871,6 +2229,94 @@ def sheet():
             for row in side_by_side(fs + [breath(fs[0])])]
 
 
+def stamp(parts):
+    """Fotogramma 16x16 trasparente coi timbri (colonna, riga, righe) sopra."""
+    grid = [["."] * 16 for _ in range(16)]
+    for x, y, rows in parts:
+        for dy, line in enumerate(rows.split()):
+            for dx, ch in enumerate(line):
+                if ch != "." and 0 <= x + dx < 16 and 0 <= y + dy < 16:
+                    grid[y + dy][x + dx] = ch
+    return ["".join(r) for r in grid]
+
+
+def figure_sheet(down, left, up):
+    """Un livello sopra il colono, foglio 96x64 come sheet(): per direzione i suoi 6 fotogrammi (destra = sinistra specchiata)."""
+    return [row for fs in (down, left, [mirror(f) for f in left], up) for row in side_by_side(fs)]
+
+
+def still_sheet(poses):
+    """Livello che segue il busto: il fotogramma da fermo di ogni direzione, nel colpo e nel respiro si abbassa come il busto."""
+    def six(parts):
+        f = stamp(parts)
+        return [f] * 4 + [breath(f)] * 2
+    return figure_sheet(six(poses["down"]), six(poses["left"]), six(poses["up"]))
+
+
+def hand_sheet(name):
+    """Quello che il colono tiene: in carica e colpo la sua posa, negli altri fotogrammi al fianco o sulla schiena."""
+    poses, back = HANDS[name], name in ON_THE_BACK
+    get = lambda pose: stamp(poses.get(pose, []))
+    def six(rest, strike, raise_=None):
+        f = get(rest)
+        return [f] * 3 + [get(raise_ or "down_raise"), get(strike), breath(f) if back else f]
+    return figure_sheet(six("down_rest", "down_strike"), six("left_rest", "left_strike", "left_raise"),
+                        six("up_rest", "up_strike"))
+
+
+def derived(grid, recolor):
+    """Livello ricavato da sheet(): recolor(carattere, x, y nel fotogramma, colonna del fotogramma, direzione) -> carattere."""
+    return ["".join(recolor(ch, x % 16, y % 16, x // 16, y // 16) for x, ch in enumerate(line))
+            for y, line in enumerate(grid)]
+
+
+def helmet(grid):
+    """Elmo d'acciaio: i capelli fino alla fronte (l'ultima riga fa da bordo, più scura), luce sul colmo; da davanti un nasale."""
+    def recolor(ch, x, y, frame, side):
+        top = BROW + (1 if frame >= 4 else 0)  # nel colpo e nel respiro la testa è 1px più giù
+        if side == 0 and x == 8 and y in (top, top + 1) and ch in "sS":
+            return "R"  # nasale
+        if ch not in "hH" or y > top:
+            return "."
+        if y == top or ch == "H":
+            return "R"
+        return "u" if grid[y - 1 + 16 * side][x + 16 * frame] not in "hH" else "r"  # sul bordo in alto prende luce
+    return derived(grid, recolor)
+
+
+def hood(grid):
+    """Cappuccio, tinto in gioco (bianco/grigio): copre i capelli, più scuro attorno alla faccia, e scende sulle spalle
+    (HOOD_MANTLE)."""
+    def recolor(ch, x, y, frame, side):
+        if ch not in "hH":
+            return "."
+        row, col = y + 16 * side, x + 16 * frame
+        face = any(grid[row + dy][col + dx] in "sSe" for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))
+                   if 0 <= x + dx < 16 and 0 <= y + dy < 16)
+        return "K" if face or ch == "H" else "k"
+    mantle = still_sheet(HOOD_MANTLE)
+    return [''.join(m if m != "." else h for h, m in zip(line, over))
+            for line, over in zip(derived(grid, recolor), mantle)]
+
+
+def armor(grid, kind):
+    """Armatura sopra la tunica: cuoio (marrone con le cuciture) o cotta di maglia (anelli chiari e scuri a scacchi)."""
+    def recolor(ch, x, y, frame, side):
+        if ch not in "tT":
+            return "."
+        if kind == "chainmail":
+            return ("r" if (x + y) % 2 else "R") if ch == "t" else ("R" if (x + y) % 2 else "i")
+        return ("B" if ch == "t" else "w") if (x + y) % 4 else "W"
+    return derived(grid, recolor)
+
+
+def gear_sheets(grid):
+    """colonist_gear.png: un foglio 96x64 per livello di GEAR_LAYERS, uno sotto l'altro."""
+    made = {"leather_armor": armor(grid, "leather"), "chainmail": armor(grid, "chainmail"),
+            "helmet": helmet(grid), "hood": hood(grid)} | {name: still_sheet(KIT[name]) for name in KIT}
+    return [line for name in GEAR_LAYERS for line in made[name]]
+
+
 def rotate(grid):
     """90° in senso orario."""
     return ["".join(row[i] for row in reversed(grid)) for i in range(len(grid[0]))]
@@ -1931,8 +2377,9 @@ def double(grid):
 
 
 def furniture_sheet():
-    """Mobili, foglio 128x480. Righe: letto, tavolo, sedia, abat-jour, fuoco da campo, fornace, incudine, banco da lavoro,
-    poi le decorazioni: aiuola, fioriera, panca, stendardo, lampione, fontana, statua (come Build in main.gd);
+    """Mobili, foglio 128x640. Righe: letto, tavolo, sedia, abat-jour, fuoco da campo, fornace, incudine, banco da lavoro,
+    poi le decorazioni: aiuola, fioriera, panca, stendardo, lampione, fontana, statua; la bacheca; i cimeli: calice,
+    stendardo antico, busto, corona (come Build in main.gd);
     colonne: quarti di giro in senso orario (per fuoco, stendardo e fontana, fotogrammi), ognuno in alto a sinistra nel suo riquadro 32x32."""
     bed, chair, chair_left = art(BED, 32, 16), art(CHAIR, 16, 16), art(CHAIR_LEFT, 16, 16)
     table, lamp, anvil = art(TABLE, 32, 32), art(LAMP, 16, 16), art(ANVIL, 16, 16)
@@ -1952,7 +2399,8 @@ def furniture_sheet():
             frames(BANNER, count=4),
             [art(LANTERN, 16, 16)] * 4,
             frames(FOUNTAIN, height=32, count=4, width=32),
-            [art(STATUE, 32, 32)] * 4]
+            [art(STATUE, 32, 32)] * 4,
+            [art(NOTICE_BOARD, 16, 16)] * 4] + [[art(r, 16, 16)] * 4 for r in (CHALICE, OLD_BANNER, BUST, CROWN)]
     slot = lambda g: [line.ljust(32, ".") for line in g] + ["." * 32] * (32 - len(g))
     return [line for row in rows for line in side_by_side([slot(g) for g in row])]
 
@@ -1999,6 +2447,10 @@ def main():
     out = Path(__file__).resolve().parent.parent / "art"
     out.mkdir(exist_ok=True)
     images = {name: pixels(grid, chars) for name, chars in LAYERS.items()}
+    # sopra il colono, un foglio 96x64 per voce, uno sotto l'altro: acconciature (tinte), equipaggiamento, in mano
+    images["colonist_hair_styles"] = pixels([line for name in HAIR_STYLES for line in still_sheet(HAIR_STYLES[name])])
+    images["colonist_gear"] = pixels(gear_sheets(grid))
+    images["colonist_hands"] = pixels([line for name in HANDS for line in hand_sheet(name)])
     images["trees"] = pixels(trees_sheet())
     images["icon_wood"], images["icon_stone"], images["icon_veg"] = (pixels(f) for f in frames(ICONS))
     images["plants"] = pixels(side_by_side(frames(PLANTS)))
@@ -2015,6 +2467,13 @@ def main():
     for name, f in zip(["hide", "ingot", "sickle", "leather_armor", "leather_hood", "helmet", "chainmail"], frames(ITEMS, count=7)):
         images["icon_" + name] = pixels(f)
     images["icon_sword"] = pixels(art(SWORD, 16, 16))
+    images["icon_dagger"] = pixels(art(DAGGER, 16, 16))
+    images["icon_gold"] = pixels(art(GOLD, 16, 16))
+    images["icon_coin"] = pixels(double(art(COIN, 8, 8)))
+    for name, rows in ITEM_KINDS.items():
+        images["kind_" + name] = pixels(double(rows))
+    for name, block in (("chalice", CHALICE), ("old_banner", OLD_BANNER), ("bust", BUST), ("crown", CROWN)):
+        images["icon_" + name] = pixels(art(block, 16, 16))
     images["animals"] = pixels(art(ANIMALS.replace(" ", ""), 32, 48))
     images["sign"] = pixels(art(SIGN, 16, 16))
     images["structures"] = pixels(structures_sheet())
@@ -2025,7 +2484,7 @@ def main():
     images["rock_coal"] = pixels(art(ROCK_COAL, 16, 16))
     images["icon_iron"], images["icon_coal"] = (pixels(f) for f in frames(ORE_ICONS, count=2))
     images["icon_meal"], images["icon_fine_meal"] = (pixels(f) for f in frames(MEALS, count=2))
-    images["conditions"] = pixels(side_by_side(frames(CONDITIONS, count=5)))
+    images["conditions"] = pixels(side_by_side(frames(CONDITIONS, count=6)))
     images["ground"] = pixels(ground_sheet())
     images["warehouse_day"] = pixels(art(WAREHOUSE, 64, 32))
     images["warehouse_night"] = pixels(art(WAREHOUSE, 64, 32), palette=night_palette())
@@ -2046,12 +2505,15 @@ def main():
     images["icon_game"] = pixels(art(GAME_ICON, 16, 16))
     symbols = [f for block in (TRAITS_1, TRAITS_2, TRAITS_3) for f in frames(block, 12, 5, 12)]
     images["traits"] = pixels(side_by_side([badge(f) for f in symbols]))
+    gifts = [f for block in (HERO_TRAITS_1, HERO_TRAITS_2, HERO_TRAITS_3, HERO_TRAITS_4) for f in frames(block, 12, 4, 12)]
+    images["hero_traits"] = pixels(side_by_side([badge(f) for f in gifts]))
     images["icon_star"] = pixels(art(STAR, 9, 9))
     images["bar_fill"] = pixels(double(art(BAR_FILL, 6, 6)))
     images["bar_back"] = pixels(double(art(BAR_BACK, 6, 6)))
     images["icon_arrow"] = pixels(art(ARROW, 4, 7))
     images["icon_stress"] = pixels(art(STRESS_ICON, 8, 8))
-    images["skills"] = pixels(side_by_side(frames(SKILLS, 8, 12, 8)))
+    images["icon_male"], images["icon_female"] = (pixels(f) for f in frames(SEX_ICONS, 8, 2, 8))
+    images["skills"] = pixels(side_by_side(frames(SKILLS, 8, 13, 8)))
     images["equipment"] = pixels(side_by_side(frames(EQUIPMENT)))
     for name, rows in images.items():
         write_png(out / f"{name}.png", rows)
