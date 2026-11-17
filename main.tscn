@@ -771,6 +771,15 @@ icon = ExtResource("6")
 icon_alignment = 1
 expand_icon = true
 
+[node name="Sex" type="HBoxContainer" parent="HUD/ColonistSheet/Box"]
+
+[node name="Icon" type="TextureRect" parent="HUD/ColonistSheet/Box/Sex"]
+custom_minimum_size = Vector2(16, 16)
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="HUD/ColonistSheet/Box/Sex"]
+
 [node name="Health" type="Label" parent="HUD/ColonistSheet/Box"]
 
 [node name="Needs" type="GridContainer" parent="HUD/ColonistSheet/Box"]

@@ -114,22 +114,25 @@ const GET_UP := 30.0
 # Nelle mani l'attrezzo della sua abilità migliore tra quelle degli attrezzi ("skill"). Armature: "armor" è la protezione,
 # per il combattimento e il freddo che verranno; i bonus li dà solo il pezzo che li ha. Chiavi:
 # "time": {Job: tempo x}, "slow": tempo x per ogni lavoro, "hit": a segno + cacciando, "range": caselle di tiro in più,
-# "outdoor_stress": stress x lavorando fuori dalle stanze
+# "outdoor_stress": stress x lavorando fuori dalle stanze; "look": come si vede addosso (Held in mano, Look sul corpo
+# e in testa), "tint": tinta di quel livello (vedi figure_layers)
 enum Slot { HANDS, BODY, HEAD }  # come HUD/ColonistSheet/Box/Equipment/Slots
+enum Held { TOOL, PICKAXE, AXE, SICKLE, SWORD, BOW, DAGGER }  # righe di colonist_hands; TOOL: a mani vuote, nei lavori
+enum Look { LEATHER_ARMOR, CHAINMAIL, HELMET, HOOD, SHIELD, QUIVER, MASK, PACK }  # righe di colonist_gear
 const GEAR := {
 	Res.PICKAXE: {"slot": Slot.HANDS, "skill": Skill.MINING, "time": {Job.MINE: 0.75}, "damage": 10.0,
-		"info": "Mining 25% faster. Melee damage 10."},
+		"look": Held.PICKAXE, "info": "Mining 25% faster. Melee damage 10."},
 	Res.AXE: {"slot": Slot.HANDS, "skill": Skill.WOODCUTTING, "time": {Job.CHOP: 0.75}, "damage": 12.0,
-		"info": "Woodcutting 25% faster. Melee damage 12."},
+		"look": Held.AXE, "info": "Woodcutting 25% faster. Melee damage 12."},
 	Res.SICKLE: {"slot": Slot.HANDS, "skill": Skill.GATHERING, "time": {Job.HARVEST: 0.75, Job.UPROOT: 0.75}, "damage": 8.0,
-		"info": "Harvesting and uprooting 25% faster. Melee damage 8."},
-	Res.BOW: {"slot": Slot.HANDS, "skill": Skill.HUNTING, "hit": 0.1, "range": 2.0, "shot": 14.0,
+		"look": Held.SICKLE, "info": "Harvesting and uprooting 25% faster. Melee damage 8."},
+	Res.BOW: {"slot": Slot.HANDS, "skill": Skill.HUNTING, "hit": 0.1, "range": 2.0, "shot": 14.0, "look": Held.BOW,
 		"info": "Hunting: +10% to hit, 2 more tiles of range, aims with the better of Hunting and Ranged. Shoots in a fight (damage 14)."},
-	Res.SWORD: {"slot": Slot.HANDS, "skill": Skill.MELEE, "damage": 15.0, "info": "A weapon. Melee damage 15."},
-	Res.LEATHER_ARMOR: {"slot": Slot.BODY, "armor": 2, "outdoor_stress": 0.75, "info": "Light. 25% less stress working outdoors."},
-	Res.LEATHER_HOOD: {"slot": Slot.HEAD, "armor": 1, "hit": 0.05, "info": "Blends in: +5% to hit when hunting."},
-	Res.HELMET: {"slot": Slot.HEAD, "armor": 3, "time": {Job.MINE: 0.9}, "info": "Safe from falling rocks: mining 10% faster."},
-	Res.CHAINMAIL: {"slot": Slot.BODY, "armor": 5, "slow": 1.1, "info": "Heavy: all work 10% slower."},
+	Res.SWORD: {"slot": Slot.HANDS, "skill": Skill.MELEE, "damage": 15.0, "look": Held.SWORD, "info": "A weapon. Melee damage 15."},
+	Res.LEATHER_ARMOR: {"slot": Slot.BODY, "armor": 2, "outdoor_stress": 0.75, "look": Look.LEATHER_ARMOR, "info": "Light. 25% less stress working outdoors."},
+	Res.LEATHER_HOOD: {"slot": Slot.HEAD, "armor": 1, "hit": 0.05, "look": Look.HOOD, "tint": Color("8a5a34"), "info": "Blends in: +5% to hit when hunting."},
+	Res.HELMET: {"slot": Slot.HEAD, "armor": 3, "time": {Job.MINE: 0.9}, "look": Look.HELMET, "info": "Safe from falling rocks: mining 10% faster."},
+	Res.CHAINMAIL: {"slot": Slot.BODY, "armor": 5, "slow": 1.1, "look": Look.CHAINMAIL, "info": "Heavy: all work 10% slower."},
 }
 # Produzione (vedi try_craft): [prodotto, mobile, abilità, ingredienti, secondi a livello 5]. Il mobile dentro una stanza
 # del tipo STATION_ROOM. Si fanno lingotti finché ce ne sono meno di INGOT_STOCK, e i pezzi che mancano perché ogni
@@ -243,11 +246,14 @@ enum Facing { DOWN, LEFT, RIGHT, UP }  # righe del foglio
 enum TreeKind { OAK, PINE, BIRCH }     # colonne del foglio alberi
 const TREE_LOGS := {TreeKind.OAK: 28, TreeKind.PINE: 35, TreeKind.BIRCH: 20}  # tronchi di un albero intero
 
-# fogli 96x64 generati da tools/make_sprites.py
+# fogli 96x64 generati da tools/make_sprites.py; quelli con più voci le hanno una sotto l'altra (vedi figure_layers)
 const COLONIST_BASE := preload("res://art/colonist_base.png")
 const COLONIST_HAIR := preload("res://art/colonist_hair.png")
 const COLONIST_TUNIC := preload("res://art/colonist_tunic.png")
 const COLONIST_CAPE := preload("res://art/colonist_cape.png")
+const COLONIST_HAIR_STYLES := preload("res://art/colonist_hair_styles.png")  # capelli lunghi, treccia, barba
+const COLONIST_GEAR := preload("res://art/colonist_gear.png")    # armature, copricapi, corredo: Look
+const COLONIST_HANDS := preload("res://art/colonist_hands.png")  # quello che tiene in mano: Held
 const WALK_CYCLE := [0, 1, 0, 2]  # colonne del foglio: fermo, passo A, fermo, passo B
 const WORK_CYCLE := [3, 3, 4]     # carica, carica, colpo: per ogni lavoro a tempo (taglio, scavo, costruzione)
 const SWING_TIME := 0.6           # secondi per colpo
@@ -426,12 +432,26 @@ const ARROW := preload("res://art/icon_arrow.png")  # a destra della barra; a si
 const TREND_DOWN := Color("ff6a4a")  # freccia a sinistra accesa: il bisogno scende
 const TREND_UP := Color("9be36a")    # freccia a destra accesa: sale
 const TREND_OFF := Color(1, 1, 1, 0.12)
-const FIRST_NAMES := ["Aldo", "Bertha", "Corrado", "Edda", "Folco", "Gisella", "Ilario", "Matilde", "Odo", "Rosalind", "Ugo", "Wilma"]
+enum Sex { MALE, FEMALE }
+const SEX_NAMES := ["Male", "Female"]
+const SEX_ICONS := {Sex.MALE: preload("res://art/icon_male.png"), Sex.FEMALE: preload("res://art/icon_female.png")}
+const FIRST_NAMES := {
+	Sex.MALE: ["Aldo", "Corrado", "Folco", "Ilario", "Odo", "Ugo", "Bertrand", "Gualtiero"],
+	Sex.FEMALE: ["Bertha", "Edda", "Gisella", "Matilde", "Rosalind", "Wilma", "Adelaide", "Ottavia"],
+}
+# acconciatura: la calotta di colonist_hair ce l'hanno tutti; LONG e BRAID aggiungono la riga omonima di colonist_hair_styles
+enum Hair { SHORT, LONG, BRAID }
+const HAIR_STYLES := {Sex.MALE: [Hair.SHORT], Sex.FEMALE: [Hair.LONG, Hair.BRAID]}
+const BEARD := 2           # riga della barba in colonist_hair_styles
+const BEARD_CHANCE := 0.5  # uomini con la barba
 const NICKNAMES := ["Badger", "Crow", "Lefty", "Moss", "Pebble", "Red", "Stub", "Thistle"]
 const LAST_NAMES := ["Ashdown", "Barrow", "Cooper", "Fenwick", "Hale", "Marsh", "Thatcher", "Woodward"]
 
 
 class Colonist:
+	var sex := Sex.MALE
+	var hair_style := Hair.SHORT
+	var beard := false
 	var first_name := ""
 	var nickname := ""            # facoltativo: non tutti ce l'hanno
 	var last_name := ""
@@ -623,11 +643,7 @@ func _ready() -> void:
 		var c := Colonist.new()
 		c.pos = center(MAP_SIZE / 2 + Vector2i(i - 1, 0))
 		c.tunic = TUNIC_COLORS[i % TUNIC_COLORS.size()]
-		c.cape = CAPE_COLORS.pick_random()
-		c.hair = HAIR_COLORS.pick_random()
-		c.first_name = FIRST_NAMES.pick_random()
-		c.nickname = NICKNAMES.pick_random() if randf() < 0.5 else ""
-		c.last_name = LAST_NAMES.pick_random()
+		dress(c)
 		c.skills = Skill.values().map(func(_s): return 0)
 		c.xp = Skill.values().map(func(_s): return 0)
 		# sfalsati: non dormono tutti insieme; lo stress parte basso
@@ -931,13 +947,15 @@ func colonist_tip(c: Colonist) -> Control:
 	return box
 
 
-# riempie `box` (HUD/ColonistSheet/Box o una sua copia) col colono `c`: nome, salute, bisogni (nome,
+# riempie `box` (HUD/ColonistSheet/Box o una sua copia) col colono `c`: nome, sesso, salute, bisogni (nome,
 # freccia giù, barra, freccia su), abilità (stellina al massimo) e sotto i talenti, col suggerimento
 func fill_sheet(box: Control, c: Colonist) -> void:
 	var needs_grid: Control = box.get_node("Needs")
 	var skills_grid: Control = box.get_node("Skills")  # 4 colonne: icona, nome, livello, stellina
 	var traits_box: Control = box.get_node("Traits/Icons")  # solo icone: il nome è nel suggerimento
 	box.get_node("Head/Name").text = full_name(c)
+	box.get_node("Sex/Icon").texture = SEX_ICONS[c.sex]
+	box.get_node("Sex/Label").text = SEX_NAMES[c.sex]
 	box.get_node("Health").text = health_text(c)
 	for child in needs_grid.get_children() + skills_grid.get_children() + traits_box.get_children():
 		child.free()
@@ -1085,6 +1103,18 @@ func ui_icon(tex: Texture2D, region: Rect2, size: Vector2) -> TextureRect:
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	return icon
+
+
+# sesso a caso, e secondo il sesso nome e acconciatura; colori del mantello e dei capelli
+func dress(c: Colonist) -> void:
+	c.sex = Sex.values().pick_random()
+	c.hair_style = HAIR_STYLES[c.sex].pick_random()
+	c.beard = c.sex == Sex.MALE and randf() < BEARD_CHANCE
+	c.cape = CAPE_COLORS.pick_random()
+	c.hair = HAIR_COLORS.pick_random()
+	c.first_name = FIRST_NAMES[c.sex].pick_random()
+	c.nickname = NICKNAMES.pick_random() if randf() < 0.5 else ""
+	c.last_name = LAST_NAMES.pick_random()
 
 
 func full_name(c: Colonist) -> String:
@@ -3313,13 +3343,15 @@ func draw_shadows() -> void:
 	for c in colonists:
 		var dst := Rect2((c.pos - Vector2.ONE * TILE / 2.0).round(), Vector2.ONE * TILE)
 		var src := Rect2(Vector2(frame_of(c), c.facing) * TILE, Vector2.ONE * TILE)
-		for sheet in [COLONIST_BASE, COLONIST_HAIR, COLONIST_TUNIC, COLONIST_CAPE]:
-			cast(sheet, dst, src)
+		var foot := foot_of(COLONIST_BASE, src)  # tutti i livelli toccano terra dove toccano i piedi
+		for layer in figure_layers(c):
+			cast(layer[0], dst, layer_src(src, layer), foot)
 
 
-# Disegna `src` di `tex` dov'è `dst`, ma coricato a terra da dove tocca terra: ogni pixel d'altezza va di sun_shadow.
-func cast(tex: Texture2D, dst: Rect2, src: Rect2) -> void:
-	var foot := Vector2(dst.get_center().x, dst.position.y + foot_of(tex, src))
+# Disegna `src` di `tex` dov'è `dst`, ma coricato a terra da dove tocca terra (`ground`, in pixel dalla cima di `src`;
+# se manca, dove la sagoma finisce): ogni pixel d'altezza va di sun_shadow.
+func cast(tex: Texture2D, dst: Rect2, src: Rect2, ground := -1) -> void:
+	var foot := Vector2(dst.get_center().x, dst.position.y + (ground if ground >= 0 else foot_of(tex, src)))
 	casters.draw_set_transform_matrix(Transform2D(Vector2.RIGHT, -sun_shadow(), foot) * Transform2D(0.0, -foot))
 	casters.draw_texture_rect_region(tex, dst, src)
 
@@ -3513,12 +3545,36 @@ func draw_colonist(c: Colonist) -> void:
 			HORIZONTAL_ALIGNMENT_LEFT, -1, 8, Color("ff5a5a"))
 
 
-# il colono `c` (il fotogramma `src` dei fogli) in `dst` di `canvas`: corpo, poi capelli, maglia e mantello tinti
+# il colono `c` (il fotogramma `src` dei fogli) in `dst` di `canvas`, un livello sull'altro (vedi figure_layers)
 func draw_figure(canvas: CanvasItem, dst: Rect2, src: Rect2, c: Colonist) -> void:
-	canvas.draw_texture_rect_region(COLONIST_BASE, dst, src)
-	canvas.draw_texture_rect_region(COLONIST_HAIR, dst, src, c.hair)
-	canvas.draw_texture_rect_region(COLONIST_TUNIC, dst, src, c.tunic)
-	canvas.draw_texture_rect_region(COLONIST_CAPE, dst, src, c.cape)
+	for layer in figure_layers(c):
+		canvas.draw_texture_rect_region(layer[0], dst, layer_src(src, layer), layer[2])
+
+
+# Livelli dello sprite di `c`, dal basso: [foglio, voce del foglio (i 96x64 uno sotto l'altro), tinta].
+# Corpo, maglia e mantello; l'armatura sopra la maglia; capelli, acconciatura e barba; il copricapo sopra i capelli;
+# per ultimo quello che ha in mano (a mani vuote, nei lavori, un attrezzo qualunque)
+func figure_layers(c: Colonist) -> Array:
+	var layers := [[COLONIST_BASE, 0, Color.WHITE], [COLONIST_TUNIC, 0, c.tunic], [COLONIST_CAPE, 0, c.cape]]
+	var body = c.gear.get(Slot.BODY)
+	if body != null:
+		layers.append([COLONIST_GEAR, GEAR[body]["look"], GEAR[body].get("tint", Color.WHITE)])
+	layers.append([COLONIST_HAIR, 0, c.hair])
+	if c.hair_style != Hair.SHORT:
+		layers.append([COLONIST_HAIR_STYLES, c.hair_style - 1, c.hair])  # LONG -> 0, BRAID -> 1
+	if c.beard:
+		layers.append([COLONIST_HAIR_STYLES, BEARD, c.hair])
+	var head = c.gear.get(Slot.HEAD)
+	if head != null:
+		layers.append([COLONIST_GEAR, GEAR[head]["look"], GEAR[head].get("tint", Color.WHITE)])
+	var hands = c.gear.get(Slot.HANDS)
+	layers.append([COLONIST_HANDS, GEAR[hands]["look"] if hands != null else Held.TOOL, Color.WHITE])
+	return layers
+
+
+# il fotogramma `src` nella voce del foglio di `layer` (ogni voce: 4 direzioni, alte una casella)
+func layer_src(src: Rect2, layer: Array) -> Rect2:
+	return Rect2(src.position + Vector2(0, layer[1] * 4 * TILE), src.size)
 
 
 func frame_of(c: Colonist) -> int:
