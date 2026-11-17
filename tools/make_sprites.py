@@ -2409,6 +2409,26 @@ oooooooooooooooo
 .zzzzzzzzzzzzzz.
 """
 
+# Fantoccio 16x16: testa di sacco, braccia di legno, corpo di paglia sul palo
+DUMMY = """
+......oooo......
+.....occcCo.....
+.....occcCo.....
+......oooo......
+..oooo*CC*oooo..
+..owwo****owWo..
+..oooo****oooo..
+.....o****o.....
+.....o*CC*o.....
+.....o****o.....
+.....o*CC*o.....
+......oooo......
+.......wW.......
+.......wW.......
+......owWo......
+....zzzzzzzz....
+"""
+
 # Libri 16x16, come ICONS -> quaderno azzurro (sottile, una fascia), tomo rosso (spesso, due fasce, fermaglio),
 # codice di porpora (grande, tre fasce, angoli d'oro e gemma): si riconoscono anche dalla sagoma
 BOOK_ICONS = """
@@ -2556,6 +2576,22 @@ o))))))))))o ..0..00..0.. oRRRoRRRRRRo oCCCCCCCCCCo oUUUUUUUUUUo
 oooooooooooo .....00..... oooooooooooo oooooooooooo .oooooooooo.
 """
 
+# Ricerche del ferro: palizzata (i pali appuntiti), fantoccio
+TECH_SYMBOLS_5 = """
+.o...o...o.. ....oooo....
+oBo.oBo.oBo. ...occcCo...
+oBwooBwooBwo ....oooo....
+oBwWoBwWoBwo oooo*CC*oooo
+oBwWoBwWoBwo owwo****owWo
+oBwWoBwWoBwo oooo****oooo
+oBwWoBwWoBwo ...o*CC*o...
+oBwWoBwWoBwo ...o****o...
+oBwWoBwWoBwo ....oooo....
+oBwWoBwWoBwo .....wW.....
+oBwWoBwWoBwo .....wW.....
+oooooooooooo ....owWo....
+"""
+
 # Leggi 12x12, nei quadratini color pergamena (vedi badge), nell'ordine di Law in main.gd: esenzione, decima, gabella sul
 # bottino, tassa di soggiorno, turni lunghi, giornata corta, riposo festivo, coprifuoco, festa del raccolto. Sulla scheda
 # dei coloni sono anche le condizioni "approva / disapprova"
@@ -2620,6 +2656,23 @@ occcoooooCCo ojjjjjjjjjJo .owwo**owWo.
 .occcccccCo. .ojjjjjjjJo. .owwo**owWo.
 .oCCCCCCCCo. ..ojjjjjJo.. .owwo**owWo.
 ..oooooooo.. ...ojjJJo... .oooooooooo.
+"""
+
+# Leggi della palizzata e del fantoccio: pedaggio (la moneta sul cancello), turno di guardia (la luna e le stelle),
+# milizia (i bastoni incrociati e lo scudo)
+LAW_SYMBOLS_5 = """
+....oooo.... ....oooo.... w..........w
+...o88g<o... ..oo888o.... .w........w.
+...o8g<<o... .o888oo..*.. ..w......w..
+...og<<<o... .o88o....... ...woooow...
+....oooo.... o88o........ ...ojjjjo...
+............ o88o........ ...ojggjo...
+.o..o..o..o. o88o........ ...ojggjo...
+oBooBooBooBo o888o.....*. ...ojjjjo...
+WWWWWWWWWWWW .o888oo..... ...woooow...
+oBwoBwoBwoBw ..oo888ooo.. ..w......w..
+WWWWWWWWWWWW ....ooooo... .w........w.
+oooooooooooo ............ w..........w
 """
 
 # Rami dell'albero del sapere 12x12, nei quadratini: terra (spiga), fuoco (fiamma), pietra (mattoni), ferro (spada e
@@ -2844,14 +2897,55 @@ def wall(top, front, links):
     return ["".join(r) for r in rows]
 
 
+def palisade(links):
+    """Palizzata per i lati collegati `links` (come wall): pali di 4 pixel (bordo, luce, legno, ombra), appuntiti in
+    cima se sopra non continua, chiusi in fondo se sotto non continua, col bordo ai lati liberi."""
+    up, right, down, left = (links >> i & 1 for i in range(4))
+    rows = []
+    for y in range(16):
+        tip = "" if up else {0: ".o..", 1: "oBo.", 2: "oBwo"}.get(y, "")
+        rows.append(list((tip or "oBwW") * 4))
+    if not down:
+        rows[15] = list("o" * 16)
+    if not right:
+        for row in rows:
+            if row[15] != ".":
+                row[15] = "o"
+    return ["".join(r) for r in rows]
+
+
+def gate():
+    """Cancello nella palizzata, di fronte: assi strette appuntite, due traverse scure, il paletto d'oro."""
+    rows = []
+    for y in range(16):
+        row = []
+        for x in range(15):
+            k, i = divmod(x, 3)
+            if y == 0:
+                row.append("o" if i == 1 else ".")
+            elif y == 1:
+                row.append("oBo"[i])
+            elif y in (5, 11):
+                row.append("W" if i else "o")
+            else:
+                row.append("oBw"[i])
+        row.append("o" if y else ".")
+        rows.append(row)
+    rows[8][13] = "g"
+    rows[15] = list("o" * 16)
+    return ["".join(r) for r in rows]
+
+
 def structures_sheet():
-    """Costruzioni, foglio 256x128. Righe: muri di legno, muri di pietra (colonna = lati collegati, vedi wall),
+    """Costruzioni, foglio 256x160. Righe: muri di legno, muri di pietra (colonna = lati collegati, vedi wall),
     pavimenti (legno, pietra, sentiero, strada lastricata), porte (di fronte, di lato), erba che sborda sui pavimenti: lati (prato
-    sopra, a destra, sotto, a sinistra) e angoli (prato in alto a sx, alto a dx, basso a dx, basso a sx), due varianti."""
+    sopra, a destra, sotto, a sinistra) e angoli (prato in alto a sx, alto a dx, basso a dx, basso a sx), due varianti;
+    la palizzata (colonna = lati collegati, vedi palisade), il cancello (di fronte, di lato)."""
     tops, fronts = frames(WALL_TOPS, count=2), frames(WALL_FRONTS, height=10, count=2)
     rows = [[wall(tops[m], fronts[m], links) for links in range(16)] for m in range(2)]
     edges = frames(FLOOR_EDGE, count=4)  # lato, angolo, lato, angolo
     rows += [frames(FLOORS, count=4), frames(DOORS, count=2)] + [turns(e) for e in edges]
+    rows += [[palisade(links) for links in range(16)], [gate(), frames(DOORS, count=2)[1]]]  # cancello di lato: come la porta
     empty = ["." * 16] * 16
     return [line for fs in rows for line in side_by_side(fs + [empty] * (16 - len(fs)))]
 
@@ -2949,7 +3043,7 @@ def banner_drape():
 def furniture_sheet():
     """Mobili, foglio 128x800. Righe: letto, tavolo, sedia, abat-jour, fuoco da campo, fornace, incudine, banco da lavoro,
     filatoio, banco del falegname, poi le decorazioni: aiuola, fioriera, panca, stendardo, lampione, fontana, statua;
-    la bacheca; i cimeli: calice, stendardo antico, busto, corona; scrittoio, libreria, trono (come Build in main.gd);
+    la bacheca; i cimeli: calice, stendardo antico, busto, corona; scrittoio, libreria, trono, fantoccio (come Build in main.gd);
     colonne: quarti di giro in senso orario (per fuoco, stendardo e fontana, fotogrammi), ognuno in alto a sinistra nel suo riquadro 32x32."""
     bed, chair, chair_left = art(BED, 32, 16), art(CHAIR, 16, 16), art(CHAIR_LEFT, 16, 16)
     table, lamp, anvil = art(TABLE, 32, 32), art(LAMP, 16, 16), art(ANVIL, 16, 16)
@@ -2973,7 +3067,8 @@ def furniture_sheet():
             frames(FOUNTAIN, height=32, count=4, width=32),
             [art(STATUE, 32, 32)] * 4,
             [art(NOTICE_BOARD, 16, 16)] * 4] + [[art(r, 16, 16)] * 4 for r in (CHALICE, OLD_BANNER, BUST, CROWN)] \
-        + [[art(DESK, 16, 16), mirror(art(DESK, 16, 16))] * 2, [art(BOOKSHELF, 16, 16)] * 4, [art(THRONE, 16, 16)] * 4]
+        + [[art(DESK, 16, 16), mirror(art(DESK, 16, 16))] * 2, [art(BOOKSHELF, 16, 16)] * 4, [art(THRONE, 16, 16)] * 4,
+           [art(DUMMY, 16, 16)] * 4]
     slot = lambda g: [line.ljust(32, ".") for line in g] + ["." * 32] * (32 - len(g))
     return [line for row in rows for line in side_by_side([slot(g) for g in row])]
 
@@ -3091,9 +3186,9 @@ def main():
     images["icon_notebook"], images["icon_tome"], images["icon_codex"] = (pixels(f) for f in frames(BOOK_ICONS))
     images["icon_study"] = pixels(art(STUDY_ICON, 16, 16))
     images["icon_authority"] = pixels(art(AUTHORITY_ICON, 16, 16))
-    techs = [f for block in (TECH_SYMBOLS_1, TECH_SYMBOLS_2, TECH_SYMBOLS_3) for f in frames(block, 12, 4, 12)] + frames(TECH_SYMBOLS_4, 12, 5, 12)
+    techs = [f for block in (TECH_SYMBOLS_1, TECH_SYMBOLS_2, TECH_SYMBOLS_3) for f in frames(block, 12, 4, 12)] + frames(TECH_SYMBOLS_4, 12, 5, 12) + frames(TECH_SYMBOLS_5, 12, 2, 12)
     images["techs"] = pixels(side_by_side([badge(f) for f in techs]))
-    laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 3, 12)
+    laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 3, 12) + frames(LAW_SYMBOLS_5, 12, 3, 12)
     images["laws"] = pixels(side_by_side([badge(f, "I", "x", "U") for f in laws]))
     branches = [f for block in (BRANCH_SYMBOLS_1, BRANCH_SYMBOLS_2) for f in frames(block, 12, 3, 12)]
     images["branches"] = pixels(side_by_side([badge(f) for f in branches]))

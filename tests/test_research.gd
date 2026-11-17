@@ -384,6 +384,84 @@ func _initialize() -> void:
 	check(dig.lines[1].contains("collapse") and crypt.next == -1, "l'esplorazione trova la stanza vista, poi se ne pesca un'altra")
 	main.ruins.erase(crypt)
 
+	# fantoccio: nel tempo libero ci si allena, +1 esperienza in mischia a colpo
+	var open := func(k: Vector2i) -> bool: return main.can_build(k)
+	var post: Vector2i = free.filter(func(k): return main.SIDES.all(func(d): return open.call(k + d)) and open.call(k))[5]
+	main.furniture[post] = [B.DUMMY, R.WOOD, 0]
+	var trainee = main.colonists[1]
+	main.quit_job(trainee)
+	trainee.pos = main.center(post + Vector2i.LEFT)
+	main.relax(trainee)
+	check(trainee.job == main.Job.RELAX and trainee.target == post and trainee.work_total > 0, "svago al fantoccio, prenotato")
+	var melee: int = trainee.xp[main.Skill.MELEE]
+	for i in 30:
+		main.update_colonist(trainee, 0.1)
+	check(trainee.xp[main.Skill.MELEE] == melee + 1 and main.is_working(trainee), "tre secondi: un colpo, +1 esperienza")
+	main.quit_job(trainee)
+
+	# milizia: la prima ora libera del giorno al fantoccio, e si scappa solo sotto 30
+	main.enacted.clear()
+	main.authority = 1000.0
+	check(main.codify(L.MILITIA) and main.enact(L.MILITIA), "milizia promulgata")
+	main.furniture[free[31]] = [B.CAMPFIRE, R.WOOD, 0]
+	trainee.pos = main.center(free[31] + Vector2i.DOWN)  # accanto al fuoco: senza milizia starebbe lì
+	main.relax(trainee)
+	check(trainee.target == post and trainee.drilled == main.today, "con la milizia al fantoccio, anche col fuoco vicino")
+	main.quit_job(trainee)
+	main.relax(trainee)
+	check(trainee.target != post, "l'ora del giorno è fatta: poi svago dove capita")
+	main.quit_job(trainee)
+	main.furniture.erase(free[31])
+	check(main.flee_hp() == main.MILITIA_FLEE, "con la milizia si scappa solo sotto 30")
+	main.revoke(L.MILITIA)
+	check(main.flee_hp() == main.FLEE_HP, "senza, sotto 40")
+
+	# turno di guardia: veglia un colono (prima i nottambuli) che dorme di giorno; di notte i lupi si vedono da lontano
+	for c in main.colonists:
+		c.traits = []
+	check(main.codify(L.NIGHT_WATCH) and main.enact(L.NIGHT_WATCH), "turno di guardia promulgato")
+	var guard = main.watchman()
+	check(guard != null and guard != main.ruler and main.routine_of(guard)[12] == main.Act.SLEEP
+		and main.routine_of(main.ruler)[12] != main.Act.SLEEP, "la guardia dorme di giorno, il sovrano no")
+	main.ruler.traits = [main.Trait.NIGHT_OWL]
+	check(main.watchman() == main.ruler, "prima i nottambuli")
+	main.ruler.traits = []
+	var far = main.add_animal(main.Beast.WOLF, main.cell_of(guard.pos) + Vector2i(30, 0) if main.roams(main.cell_of(guard.pos) + Vector2i(30, 0)) else main.cell_of(guard.pos) + Vector2i(-30, 0))
+	far.blocked = 0.0
+	main.clock = float(main.today) + 12.0 / 24
+	check(not main.on_watch() and main.nearest_foe(main.ruler) == null, "di giorno nessuna guardia: il lupo lontano non si vede")
+	main.clock = float(main.today) + 23.0 / 24
+	main.quit_job(guard)
+	check(main.on_watch() and main.nearest_foe(main.ruler) == far, "di notte, con la guardia sveglia, sì")
+	main.animals.erase(far)
+	main.revoke(L.NIGHT_WATCH)
+
+	# palizzata e cancello: solidi i pali, il cancello si passa ma non dai lupi; un recinto non è una stanza.
+	# Il pedaggio: chi arriva paga al cancello
+	var yard := Vector2i.ZERO
+	for k in free:
+		if main.cells_in(Rect2i(k, Vector2i(5, 5))).all(func(h): return free.has(h) and main.can_build(h)):
+			yard = k
+			break
+	check(yard != Vector2i.ZERO, "c'è posto per un recinto")
+	var gate_cell: Vector2i = yard + Vector2i(2, 0)
+	var door_cell: Vector2i = yard + Vector2i(2, 4)
+	for k in main.cells_in(Rect2i(yard, Vector2i(5, 5))):
+		if k.x in [yard.x, yard.x + 4] or k.y in [yard.y, yard.y + 4]:
+			main.blueprints[k] = [B.GATE if k == gate_cell else (B.DOOR if k == door_cell else B.PALISADE), R.WOOD]
+			main.build(k)
+	main.update_rooms()
+	check(main.astar.is_point_solid(yard) and not main.astar.is_point_solid(gate_cell), "pali solidi, cancello aperto")
+	check(main.room_at(yard + Vector2i(2, 2)) == null, "il recinto con una porta non è una stanza")
+	var outside: Vector2i = gate_cell + Vector2i.UP
+	check(main.beast_path(outside, yard + Vector2i(2, 2)).is_empty() and not main.astar.get_id_path(outside, yard + Vector2i(2, 2)).is_empty(),
+		"i lupi non entrano dal cancello, i coloni sì")
+	check(main.codify(L.TOLL) and main.enact(L.TOLL), "pedaggio promulgato")
+	var visitor = main.new_hero(main.Hero.ARCHER, 1)
+	visitor.pos = main.center(outside + Vector2i(0, -10))
+	main.pay_toll(visitor)
+	check(main.items[R.GOLD].get(gate_cell, 0) == main.TOLL, "due monete al cancello")
+
 	# una partita vera: niente studiato, lupi dal quinto giorno, un'arma abbandonata sulla mappa
 	main.queue_free()
 	var real = load("res://main.tscn").instantiate()

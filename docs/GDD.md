@@ -616,13 +616,13 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Fontana ✓ | II | 250 | Decorazioni | *fontana* |
   | | Strada lastricata ✓ | I | 60 | — | lastre di pietra (2 a casella): si cammina il 25% più svelti, e i coloni le scelgono |
   | | Ponte | II | 200 | Strada lastricata | si attraversa l'acqua alta, si pesca dal ponte |
-  | Ferro | Palizzata | I | 80 | — | palizzata e cancello: i lupi non passano |
+  | Ferro | Palizzata ✓ | I | 80 | — | palizzata e cancello: i lupi non passano; un recinto non è una stanza |
   | | Torre di guardia | II | 300 | Palizzata | lupi visti a 20 caselle; arciere in torre +2 caselle, +15%; campana |
   | | Balestra | III | 500 | Torre di guardia | danno 22, un tiro ogni 4 s, +15% a segno |
   | | Armatura a piastre | IV | 1200 | Balestra, Cotta di maglia, Acciaio | protezione 7, +15% tempo |
   | | Armi di ferro ✓ | I | 80 | Forgia | *spada, elmo* |
   | | Cotta di maglia ✓ | II | 300 | Armi di ferro | *cotta di maglia* |
-  | | Fantoccio | I | 60 | — | allenamento nel tempo libero: svago e esperienza in mischia |
+  | | Fantoccio ✓ | I | 60 | — | allenamento nel tempo libero: svago e +1 esperienza in mischia a colpo (uno ogni 2,5 s) |
   | | Scudo | II | 250 | Fantoccio | scudo tondo: +3 protezione con spada o pugnale |
   | Strada | Locanda ✓ | I | 40 | — | *bacheca degli incarichi, locanda, ingaggi e spedizioni* |
   | | Locanda rinomata | II | 250 | Locanda | arrivi ogni giorno e mezzo, restano 5 giorni; avviso per la classe |
@@ -683,17 +683,17 @@ Quattro fasce, una per titolo; sei categorie. ✓ = c'è nel gioco.
 | | Gabella sul bottino ✓ | signoria | 40 | Locanda | quota degli avventurieri 20% (non 30); un quarto in meno di arrivi, niente avidi | avventurieri −5 |
 | | Tassa di soggiorno ✓ | signoria | 30 | Locanda | una moneta a notte da chi aspetta alla locanda; resta un giorno in meno | avventurieri −3 |
 | | Taglia ✓ | baronia | 100 | Tasse, dopo Decima | un pezzo su cinque al granaio | tutti −8 |
-| | Pedaggio | baronia | 80 | Palizzata | 2 monete da chi entra dal cancello o dal ponte; un quinto in meno di arrivi | avventurieri −3 |
+| | Pedaggio ✓ | baronia | 80 | Palizzata | 2 monete da chi entra dal cancello o dal ponte (posate al cancello più vicino); un quinto in meno di arrivi | avventurieri −3 |
 | | Granaio aperto ✓ | baronia | 60 | dopo Decima | senza cibo in magazzino si mangia dal granaio; una volta a stagione un pasto a tutti | tutti +4 |
 | | Tributo ✓ | contea | 150 | — | +1 autorità al giorno a colono | tutti −4 |
 | Lavoro | Turni lunghi ✓ | signoria | 40 | Turni | 10 ore di lavoro (il pigro 7, lo stacanovista resta a 12); stress +25% | tutti −5; stacanovista +3; pigro, festaiolo, irrequieto −10 |
 | | Giornata corta ✓ | signoria | 40 | Turni | al più 6 ore; stress −25% | tutti +8; stacanovista −5 |
 | | Riposo festivo ✓ | signoria | 30 | — | ogni settimo giorno si cucina e basta | tutti +6; stacanovista −5; asceta 0 |
 | | Corvée | baronia | 80 | — | 2 ore di tempo libero ai cantieri della corona, che vanno il 25% più svelti | tutti −6; stacanovista 0 |
-| | Turno di guardia | baronia | 80 | Palizzata | un colono veglia di notte (prima i nottambuli): lupi visti al bordo | nottambulo +5; dormiglione −5 |
+| | Turno di guardia ✓ | baronia | 80 | Palizzata | un colono veglia di notte (prima i nottambuli, se no il primo che non è il sovrano, che dorme di giorno): lupi visti al bordo, cioè da tutti e da tutta la mappa | nottambulo +5; dormiglione −5 |
 | | Corporazioni | contea | 150 | — | nelle stanze di lavoro lavorano solo i lavoratori, il 20% più svelti | lavoratori +5; gli altri −2 |
 | Ordine | Coprifuoco ✓ | signoria | 40 | — | dalle 21 tutti a letto: niente sere al fuoco, meno prede per i lupi | tutti −2; festaiolo −10; mattiniero +3 |
-| | Milizia | signoria | 50 | Fantoccio | un'ora al giorno al fantoccio; si scappa sotto 30 punti ferita | tutti −3; iracondo +3 |
+| | Milizia ✓ | signoria | 50 | Fantoccio | un'ora al giorno al fantoccio (la prima di tempo libero); si scappa sotto 30 punti ferita | tutti −3; iracondo +3 |
 | | Pene severe | baronia | 80 | Giustizia | gogna per sfuriate e proteste; sfuriate un terzo meno spesso | tutti −2; iracondo −10 |
 | | Clemenza | baronia | 80 | Giustizia | sfuriate di un'ora; il sovrano ascolta chi protesta | tutti +3; iracondo +5 |
 | | Riserva di caccia | baronia | 100 | — | cervi doppi, solo del sovrano e dei cacciatori; +3 autorità a cervo del sovrano | cacciatori +3; gli altri −3 |
@@ -731,8 +731,8 @@ Laws, le leggi di signoria che usano cose che esistono, consenso sulla scheda; (
 IV, regno, leggi finali, cittadella.
 **Stato**: fatte le fasi 1–4; della 5 i primi nodi. Nel gioco: scrittoio, libreria e trono; stanze Studio e Sala del
 trono; lavori Studiare e Governare; studio e autorità (nelle finestre Knowledge e Laws, tasti K e G, o clic su
-scrittoio e trono; tutte e due scorrono); i tre libri, nei forzieri e nei tesori, col monastero; le 17 ricerche
-segnate ✓ (Statuaria per ora dopo Muratura, finché non c'è Arredo fine); le 12 leggi segnate ✓; il titolo cresce con
+scrittoio e trono; tutte e due scorrono); i tre libri, nei forzieri e nei tesori, col monastero; le 19 ricerche
+segnate ✓ (Statuaria per ora dopo Muratura, finché non c'è Arredo fine); le 15 leggi segnate ✓; il titolo cresce con
 lo splendore (4.3) e dà i sigilli (2–5), le fasce delle leggi e l'autorità di ogni giorno; gli eventi d'autorità del
 4.7.4 tranne l'incoronazione (manca la successione), mai sotto zero. Il granaio è un conto, non una stanza, e niente
 ci marcisce; paga le provviste, poi (Granaio aperto) l'ora senza cibo in magazzino e il pasto di ogni stagione; la

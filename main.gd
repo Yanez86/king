@@ -351,13 +351,16 @@ enum Build { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE
 	NOTICE_BOARD,  # la bacheca degli incarichi, nella locanda (vedi open_board)
 	CHALICE, OLD_BANNER, BUST, CROWN,  # cimeli: decorazioni fatte con l'oggetto trovato nelle rovine (vedi RELICS)
 	DESK, BOOKSHELF, THRONE,  # ricerca: scrittoio e libreria nello studio, trono nella sala del trono (vedi SEAT_ROOM)
-	ROAD }  # strada lastricata: ci si cammina più svelti (vedi ROAD_SPEED)
+	DUMMY,  # il fantoccio: ci si allena nel tempo libero (vedi relax)
+	ROAD,  # strada lastricata: ci si cammina più svelti (vedi ROAD_SPEED)
+	PALISADE, GATE }  # palizzata e cancello: i lupi non passano; non fanno stanze (vedi update_rooms, beast_path)
 # materiale per casella; per i mobili, per pezzo
 const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3,
 	Build.LAMP: 3, Build.CAMPFIRE: 5, Build.FURNACE: 20, Build.ANVIL: 10, Build.WORKBENCH: 15, Build.SPINNING_WHEEL: 10,
 	Build.CARPENTER_BENCH: 15, Build.FLOWER_BED: 3, Build.PLANTER: 5,
 	Build.BENCH: 6, Build.BANNER: 4, Build.LANTERN: 4, Build.FOUNTAIN: 30, Build.STATUE: 40, Build.NOTICE_BOARD: 8,
-	Build.CHALICE: 1, Build.OLD_BANNER: 1, Build.BUST: 1, Build.CROWN: 1, Build.DESK: 10, Build.BOOKSHELF: 12, Build.THRONE: 12, Build.ROAD: 2}
+	Build.CHALICE: 1, Build.OLD_BANNER: 1, Build.BUST: 1, Build.CROWN: 1, Build.DESK: 10, Build.BOOKSHELF: 12, Build.THRONE: 12, Build.ROAD: 2, Build.DUMMY: 6,
+	Build.PALISADE: 4, Build.GATE: 6}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
 const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
 	Build.CAMPFIRE: Vector2i.ONE, Build.FURNACE: Vector2i.ONE, Build.ANVIL: Vector2i.ONE, Build.WORKBENCH: Vector2i.ONE,
@@ -365,10 +368,11 @@ const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Buil
 	Build.FLOWER_BED: Vector2i.ONE, Build.PLANTER: Vector2i.ONE, Build.BENCH: Vector2i(2, 1), Build.BANNER: Vector2i.ONE,
 	Build.LANTERN: Vector2i.ONE, Build.FOUNTAIN: Vector2i(2, 2), Build.STATUE: Vector2i(2, 2), Build.NOTICE_BOARD: Vector2i.ONE,
 	Build.CHALICE: Vector2i.ONE, Build.OLD_BANNER: Vector2i.ONE, Build.BUST: Vector2i.ONE, Build.CROWN: Vector2i.ONE,
-	Build.DESK: Vector2i.ONE, Build.BOOKSHELF: Vector2i.ONE, Build.THRONE: Vector2i.ONE}
+	Build.DESK: Vector2i.ONE, Build.BOOKSHELF: Vector2i.ONE, Build.THRONE: Vector2i.ONE, Build.DUMMY: Vector2i.ONE}
 # mobili animati: secondi per fotogramma; i fotogrammi stanno nelle colonne dei quarti di giro (sono simmetrici)
 const ANIMATED := {Build.CAMPFIRE: 0.15, Build.BANNER: 0.3, Build.FOUNTAIN: 0.2}
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
+const BARRIERS := [Build.WALL, Build.PALISADE]  # solidi: si fanno solo lungo il bordo del riquadro, chiudono la strada
 const PAVING := [Build.FLOOR, Build.PATH, Build.ROAD]  # a terra: si calpestano, ci stanno sopra i mobili, l'erba ci sborda sopra
 # materiale fisso; il resto solo di legno
 # i cimeli: la decorazione si fa con l'oggetto trovato nelle rovine, uno a pezzo
@@ -420,6 +424,8 @@ const BUILD_INFO := {
 	Build.DOOR: "Colonists walk through it. A room needs one to be entered.",
 	Build.PATH: "A trodden earth path with pebbles. Grass grows over its edges.",
 	Build.ROAD: "Stone slabs, fitted tight. Walking on them is 25% faster.",
+	Build.PALISADE: "Sharpened stakes. Wolves cannot get through; it does not make a room.",
+	Build.GATE: "A gate in the palisade: colonists and guests pass, wolves do not.",
 	Build.BED: "A place to sleep. A bedroom needs one, a dormitory two.",
 	Build.TABLE: "Where colonists eat and work.",
 	Build.CHAIR: "Put it at a table, turned to face it.",
@@ -445,6 +451,7 @@ const BUILD_INFO := {
 	Build.DESK: "An open book and a candle. A study needs one: colonists write study here, one at a time.",
 	Build.BOOKSHELF: "Shelves of books. +10% study in the room, up to three.",
 	Build.THRONE: "Where the ruler governs. A throne room needs one: the ruler gathers authority here.",
+	Build.DUMMY: "A straw dummy on a post. In their free time colonists train here: fun, and melee experience.",
 }
 enum Facing { DOWN, LEFT, RIGHT, UP }  # righe del foglio
 enum TreeKind { OAK, PINE, BIRCH }     # colonne del foglio alberi
@@ -740,7 +747,7 @@ const BRANCHES_SHEET := preload("res://art/branches.png")
 # dall'inizio. Gli effetti senza oggetto (passo, viaggi) li guardano le funzioni che li nominano.
 # ponytail: solo i nodi che hanno già qualcosa da sbloccare; gli altri dell'albero del GDD arrivano con le loro cose
 enum Tech { FORGE, TAILORING, HUNTING, INN, MASONRY, DECOR, LANTERNS, IRON_ARMS, BOOKSHELF, CHAINMAIL, FOUNTAIN, STATUARY,
-	CHARCOAL, COLD_STORE, PAVED_ROAD, DRY_RATIONS, CARTOGRAPHY }
+	CHARCOAL, COLD_STORE, PAVED_ROAD, DRY_RATIONS, CARTOGRAPHY, PALISADE, TRAINING_DUMMY }
 const TECHS_SHEET := preload("res://art/techs.png")
 const TECHS := {
 	Tech.FORGE: {"branch": Branch.FIRE, "tier": 1, "cost": 60, "builds": [Build.FURNACE, Build.ANVIL],
@@ -777,6 +784,10 @@ const TECHS := {
 		"info": "At the campfire, hardtack from 2 vegetables: worth 2 provisions on an expedition, and it never spoils."},
 	Tech.CARTOGRAPHY: {"branch": Branch.ROAD, "tier": 1, "cost": 80, "needs": [Tech.INN],
 		"info": "The notice board shows the next room of every ruin. The way to the ruins is 25% shorter."},
+	Tech.PALISADE: {"branch": Branch.IRON, "tier": 1, "cost": 80, "builds": [Build.PALISADE, Build.GATE],
+		"info": "Palisade and gate: wolves cannot get through."},
+	Tech.TRAINING_DUMMY: {"branch": Branch.IRON, "tier": 1, "cost": 60, "builds": [Build.DUMMY],
+		"info": "The training dummy: in their free time colonists train there, for fun and melee experience."},
 }
 const ROAD_SPEED := 1.25    # sulla strada lastricata si va più svelti
 const MAPPED_TRAVEL := 0.75 # con la cartografia, giorni di viaggio x
@@ -791,7 +802,8 @@ const AUTHORITY_DAILY := 1.0
 const SPLENDOR_PER_AUTHORITY := 20
 const ENACT_COST := 10.0
 const REVOKE_WAIT := 3.0    # giorni prima di poter ripromulgare una legge revocata
-enum Law { EXEMPTION, TITHE, LOOT_TAX, LODGING_TAX, LONG_SHIFTS, SHORT_DAY, DAY_OF_REST, CURFEW, HARVEST_FEAST, TALLAGE, TRIBUTE, OPEN_GRANARY }
+enum Law { EXEMPTION, TITHE, LOOT_TAX, LODGING_TAX, LONG_SHIFTS, SHORT_DAY, DAY_OF_REST, CURFEW, HARVEST_FEAST, TALLAGE, TRIBUTE, OPEN_GRANARY,
+	TOLL, NIGHT_WATCH, MILITIA }
 const LAWS_SHEET := preload("res://art/laws.png")  # colonne nell'ordine di Law
 enum LawKind { TREASURY, WORK, ORDER, FEASTS }
 # Leggi: "kind" categoria; "cost" autorità per codificarla; "tier" il titolo che serve (di TITLES, se no la signoria);
@@ -811,6 +823,8 @@ const LAWS := {
 		"info": "Every adventurer waiting at the inn pays a coin a night, and stays a day less."},
 	Law.OPEN_GRANARY: {"kind": LawKind.TREASURY, "tier": 1, "cost": 60, "after": Law.TITHE, "mood": {"all": 4.0},
 		"info": "With no food left in the warehouses, the granary feeds the colony. Every new season, a meal for everyone."},
+	Law.TOLL: {"kind": LawKind.TREASURY, "tier": 1, "cost": 80, "needs": Tech.PALISADE, "mood": {"guests": -3.0},
+		"info": "Every adventurer coming in pays 2 coins at the gate. A fifth fewer come."},
 	Law.TRIBUTE: {"kind": LawKind.TREASURY, "tier": 2, "cost": 150, "mood": {"all": -4.0},
 		"info": "The colonists' loyalty is the crown's: +1 authority a day for each of them."},
 	Law.LONG_SHIFTS: {"kind": LawKind.WORK, "cost": 40, "group": "shifts",
@@ -820,6 +834,11 @@ const LAWS := {
 		"info": "At most 6 hours of work a day. Stress from work -25%."},
 	Law.DAY_OF_REST: {"kind": LawKind.WORK, "cost": 30, "mood": {"all": 6.0, Trait.WORKAHOLIC: -5.0, Trait.ASCETIC: 0.0},
 		"info": "Every seventh day nobody works but the cooks: the rest is free time."},
+	Law.NIGHT_WATCH: {"kind": LawKind.WORK, "tier": 1, "cost": 80, "needs": Tech.PALISADE,
+		"mood": {Trait.NIGHT_OWL: 5.0, Trait.SLEEPYHEAD: -5.0},
+		"info": "A colonist keeps watch at night (a night owl first, or someone who sleeps by day): wolves are seen as soon as they come."},
+	Law.MILITIA: {"kind": LawKind.ORDER, "cost": 50, "needs": Tech.TRAINING_DUMMY, "mood": {"all": -3.0, Trait.HOTHEAD: 3.0},
+		"info": "An hour a day of free time at the training dummy. Colonists flee only under 30 health, not 40."},
 	Law.CURFEW: {"kind": LawKind.ORDER, "cost": 40, "mood": {"all": -2.0, Trait.FUN_LOVING: -10.0, Trait.EARLY_BIRD: 3.0},
 		"info": "From 21 everyone goes to bed: no evenings at the campfire, fewer targets for the wolves."},
 	Law.HARVEST_FEAST: {"kind": LawKind.FEASTS, "cost": 40,
@@ -832,6 +851,10 @@ const LOOT_TAX_WAIT := 4.0 / 3  # con la gabella: giorni tra un arrivo e l'altro
 const REST_EVERY := 7       # riposo festivo: l'ultimo giorno di ogni tanti
 const SEASON_DAYS := 10     # ponytail: finché non ci sono le stagioni, la festa del raccolto è l'ultimo giorno di ogni tanti
 const FEAST_AUTHORITY := 5.0
+const TOLL := 2             # monete del pedaggio, per avventuriero che arriva
+const TOLL_WAIT := 1.25     # col pedaggio: giorni tra un arrivo e l'altro x (un quinto in meno)
+const MILITIA_FLEE := 30.0  # con la milizia si scappa sotto questi punti ferita (se no FLEE_HP)
+const TRAIN_HIT := 2.5      # secondi per colpo al fantoccio: +1 esperienza in mischia
 # Eventi (GDD 4.7.4): autorità data o tolta una volta (mai sotto zero, vedi gain)
 const TREASURE_AUTHORITY := 5.0  # spedizione tornata col tesoro dell'ultima stanza
 const RELIC_AUTHORITY := 3.0     # cimelio posato
@@ -889,6 +912,7 @@ class Colonist:
 	var level := 0                # 1-HERO_LEVEL_MAX
 	var trips := 0                # spedizioni tornate
 	var stay_until := 0.0         # `clock` fino a cui aspetta alla locanda che qualcuno lo ingaggi
+	var drilled := -1             # il giorno dell'ultima ora di milizia al fantoccio (vedi relax)
 	var errand := Errand.NONE     # dove va col Job.TRAVEL (vedi travel)
 	var hired := false            # ingaggiato: va alla rovina, ci è, o ne torna
 	var loot := {}                # Res -> quantità che riporta dalla rovina e lascia alla locanda
@@ -2381,7 +2405,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			sort_by_distance(cells, c.pos)
 			face(c, center(cells[0]) - c.pos)  # verso la casella più vicina: un mobile può prenderne più di una
 			c.work_left = maxf(c.work_left - delta, 0.0)
-			if c.work_left == 0 and (plan[0] != Build.WALL or ready_to_close(c)):
+			if c.work_left == 0 and (plan[0] not in BARRIERS or ready_to_close(c)):
 				if c.job == Job.BUILD:
 					build(c.target)
 				else:
@@ -2487,7 +2511,15 @@ func update_colonist(c: Colonist, delta: float) -> void:
 					produce(meal, here, 1)
 					try_haul(c, meal, [here])  # lo porta subito in magazzino
 		Job.RELAX, Job.TANTRUM:  # arrivato al fuoco, in fondo alla passeggiata o a sbollire: resta lì finché non è ora
+			var before := c.work_left
 			c.work_left -= delta
+			if c.work_total > 0:  # al fantoccio (vedi relax): un colpo ogni TRAIN_HIT, +1 esperienza in mischia
+				if furniture.get(c.target, [-1])[0] != Build.DUMMY:
+					end_job(c)  # fantoccio abbattuto
+					return
+				face(c, center(c.target) - c.pos)
+				if floori((c.work_total - c.work_left) / TRAIN_HIT) > floori((c.work_total - before) / TRAIN_HIT):
+					c.xp[Skill.MELEE] += 1
 			if c.work_left <= 0:
 				end_job(c)
 		Job.TRAVEL:  # avventuriero arrivato alla locanda o al bordo della mappa
@@ -2581,6 +2613,8 @@ func routine_of(c: Colonist) -> Array:
 		for h in changed:
 			letters[h] = changed[h]
 	var shift: int = fx(c, "shift", 0)
+	if c == watchman() and Trait.NIGHT_OWL not in c.traits:  # di guardia: dorme di giorno, come un nottambulo
+		shift = TRAIT_FX[Trait.NIGHT_OWL]["shift"]
 	var overtime: bool = fx(c, "overtime", false)
 	var day := []
 	for h in 24:
@@ -2809,19 +2843,38 @@ func go_to_bed(c: Colonist) -> bool:
 	return true
 
 
-# Svago per `hours` ore: attorno a un fuoco da campo, se ce n'è uno dove può arrivare, se no a passeggio lì vicino.
-# Il divertimento sale (vedi update_needs); finito, find_job decide di nuovo
+# Svago per `hours` ore: attorno a un fuoco da campo o a un fantoccio libero (il più vicino dove può arrivare), se no
+# a passeggio lì vicino. Al fantoccio si allena: colpi, ed esperienza in mischia (vedi Job.RELAX). Con la milizia la
+# prima ora libera del giorno è al fantoccio, se ce n'è uno. Il divertimento sale (vedi update_needs); finito,
+# find_job decide di nuovo
 func relax(c: Colonist, hours := RELAX_HOURS) -> void:
-	var around_fire := []
+	var spots := {}  # casella dove stare -> fantoccio, o la casella stessa (fuoco da campo)
+	var drill := enacted.has(Law.MILITIA) and c.drilled != today
 	for origin in furniture:
-		if furniture[origin][0] == Build.CAMPFIRE:
+		if furniture[origin][0] == Build.CAMPFIRE and not drill:
 			for d in EDGE_SIDES + EDGE_CORNERS:
 				var k: Vector2i = origin + d
 				if astar.is_in_boundsv(k) and not astar.is_point_solid(k) and not stockpile.has(k):
-					around_fire.append(k)
-	var path := path_to_nearest(c, around_fire)
+					spots[k] = k
+		elif furniture[origin][0] == Build.DUMMY and is_free(origin):
+			for d in SIDES:
+				var k: Vector2i = origin + d
+				if astar.is_in_boundsv(k) and not astar.is_point_solid(k) and not stockpile.has(k) and is_free(k):
+					spots[k] = origin
+	var path := path_to_nearest(c, spots.keys())
+	if path.is_empty() and drill:  # niente fantoccio a portata: la milizia aspetta, svago come sempre
+		c.drilled = today
+		relax(c, hours)
+		return
 	if path.is_empty():
 		path = stroll(c, RELAX_REACH)
+	var dummy: Vector2i = spots.get(path.back(), Vector2i(-1, -1)) if not path.is_empty() else Vector2i(-1, -1)
+	if dummy != Vector2i(-1, -1) and dummy != path.back():  # al fantoccio: lo si prenota, e i colpi hanno il loro ritmo
+		start_job(c, Job.RELAX, path, dummy, hours * DAY_LENGTH / 24)
+		c.dest = path.back()
+		if drill:
+			c.drilled = today
+		return
 	start_job(c, Job.RELAX, path, path.back() if not path.is_empty() else cell_of(c.pos), 0.0)
 	c.work_left = hours * DAY_LENGTH / 24
 
@@ -3246,8 +3299,9 @@ func attack_time(c: Colonist) -> float:
 # il lupo più vicino a `c` entro ALERT caselle (tranne quelli che per un po' non si raggiungono, vedi chase)
 func nearest_foe(c: Colonist) -> Animal:
 	var best: Animal = null
+	var sight: float = INF if on_watch() else ALERT * TILE  # di guardia, i lupi si vedono appena entrano
 	for a in animals:
-		if hostile(a) and a.blocked <= clock and a.pos.distance_to(c.pos) <= ALERT * TILE \
+		if hostile(a) and a.blocked <= clock and a.pos.distance_to(c.pos) <= sight \
 				and (best == null or a.pos.distance_squared_to(c.pos) < best.pos.distance_squared_to(c.pos)):
 			best = a
 	return best
@@ -3260,7 +3314,7 @@ func react(c: Colonist) -> bool:
 	var foe := nearest_foe(c)
 	if foe == null:
 		return false
-	if c.hp < FLEE_HP:
+	if c.hp < flee_hp():
 		if room_at(cell_of(c.pos)) != null:
 			if c.job == Job.SLEEP:
 				return false  # dorme al sicuro
@@ -3411,9 +3465,9 @@ func bite(a: Animal, c: Colonist) -> void:
 		quit_job(c)
 
 
-# percorso di un animale che non passa dalle stanze: per la ricerca le si riempie come fossero muro
+# percorso di un animale che non passa dalle stanze né dai cancelli: per la ricerca li si riempie come fossero muro
 func beast_path(from: Vector2i, to: Vector2i) -> Array[Vector2i]:
-	var shut := []
+	var shut := built.keys().filter(func(k): return built[k][0] == Build.GATE)
 	for room in rooms:
 		shut.append_array(room.cells.keys().filter(func(k): return not astar.is_point_solid(k)))
 	for k in shut:
@@ -3424,7 +3478,42 @@ func beast_path(from: Vector2i, to: Vector2i) -> Array[Vector2i]:
 	return path
 
 
-# Un branco di lupi entra da un bordo della mappa, a caso; se ne va dopo WOLF_STAY se non trova nessuno
+# sotto quanti punti ferita si scappa invece di combattere: con la milizia meno
+func flee_hp() -> float:
+	return MILITIA_FLEE if enacted.has(Law.MILITIA) else FLEE_HP
+
+
+# Turno di guardia (legge): veglia di notte un nottambulo, se c'è, se no il primo colono che non è il sovrano (che
+# allora dorme di giorno, vedi routine_of); null senza la legge o senza nessuno
+func watchman() -> Colonist:
+	if not enacted.has(Law.NIGHT_WATCH):
+		return null
+	var awake := colonists.filter(func(o): return not o.downed)
+	for o in awake:
+		if Trait.NIGHT_OWL in o.traits:
+			return o
+	for o in awake:
+		if o != ruler:
+			return o
+	return null
+
+
+# la guardia è sveglia, di notte: i lupi si vedono da tutta la mappa (vedi nearest_foe)
+func on_watch() -> bool:
+	var h := int(fmod(clock, 1.0) * 24)
+	var w := watchman()
+	return w != null and (h >= DARK_FROM or h < DARK_TO) and w.job != Job.SLEEP
+
+
+# Pedaggio (legge): chi arriva paga TOLL monete al cancello più vicino, posate lì; senza cancello niente
+func pay_toll(g: Colonist) -> void:
+	var gates := built.keys().filter(func(k): return built[k][0] == Build.GATE)
+	if enacted.has(Law.TOLL) and not gates.is_empty():
+		sort_by_distance(gates, g.pos)
+		drop(Res.GOLD, gates[0], TOLL)
+
+
+# Un branco di lupi entra da un bordo della mappa, a caso; se ne va dopo WOLF_STAY se non trova nessuno. La guardia lo vede
 func spawn_pack() -> void:
 	for attempt in 50:
 		var t := wild.randi() % MAP_SIZE.x
@@ -3435,6 +3524,8 @@ func spawn_pack() -> void:
 			var near := cell + Vector2i(wild.randi_range(-2, 2), wild.randi_range(-2, 2))
 			var a := add_animal(Beast.WOLF, near if roams(near) else cell)
 			a.leave_at = clock + WOLF_STAY
+		if on_watch():
+			note("Day %d, night: the watch sees wolves coming." % (int(clock) + 1))
 		return
 
 
@@ -3596,7 +3687,8 @@ func update_guests() -> void:
 	if inn_beds() <= guests.size() + away:
 		next_guest = maxf(next_guest, clock + GUEST_EVERY)
 	elif clock >= next_guest:
-		next_guest = clock + (GUEST_EVERY + randf_range(-GUEST_JITTER, GUEST_JITTER)) * (LOOT_TAX_WAIT if enacted.has(Law.LOOT_TAX) else 1.0)
+		next_guest = clock + (GUEST_EVERY + randf_range(-GUEST_JITTER, GUEST_JITTER)) * (LOOT_TAX_WAIT if enacted.has(Law.LOOT_TAX) else 1.0) \
+			* (TOLL_WAIT if enacted.has(Law.TOLL) else 1.0)
 		var edges := border_cells()
 		if not edges.is_empty():
 			var level := clampi(1 + colony_splendor() / SPLENDOR_PER_LEVEL + randi_range(-1, 1), 1, HERO_LEVEL_MAX)
@@ -3604,6 +3696,7 @@ func update_guests() -> void:
 			while enacted.has(Law.LOOT_TAX) and Gift.GREEDY in g.gifts:  # con la gabella gli avidi non vengono
 				g.gifts = [Gift.values().pick_random()]
 			g.pos = center(edges.pick_random())
+			pay_toll(g)
 			g.errand = Errand.ARRIVE
 			guests.append(g)
 			travel(g)
@@ -4828,7 +4921,7 @@ func add_stands(stands: Dictionary, cells: Array, target: Vector2i, sides: Array
 		for side in sides:
 			var s: Vector2i = cell + side
 			if astar.is_in_boundsv(s) and not astar.is_point_solid(s) and not trees.has(s) \
-					and blueprints.get(s, [-1])[0] != Build.WALL and not cells.has(s):
+					and blueprints.get(s, [-1])[0] not in BARRIERS and not cells.has(s):
 				stands[s] = target  # non sopra un albero, né sopra un muro da fare (diventerà solido), né sul lavoro stesso
 
 
@@ -5067,7 +5160,7 @@ func mark(rect: Rect2i) -> void:
 			for x in range(rect.position.x, rect.end.x):
 				for y in range(rect.position.y, rect.end.y):
 					var edge: bool = x in [rect.position.x, rect.end.x - 1] or y in [rect.position.y, rect.end.y - 1]
-					if can_build(Vector2i(x, y), build_kind) and (edge or build_kind != Build.WALL):
+					if can_build(Vector2i(x, y), build_kind) and (edge or build_kind not in BARRIERS):
 						draft[Vector2i(x, y)] = [build_kind, build_res]  # sovrascrive: ripassando si cambia idea
 		Order.ERASE:
 			for x in range(rect.position.x, rect.end.x):
@@ -5075,7 +5168,7 @@ func mark(rect: Rect2i) -> void:
 					erase_plan(Vector2i(x, y))
 		Order.DEMOLISH:  # subito, senza recuperare il materiale
 			for cell in built.keys().filter(func(k): return rect.has_point(k)):
-				if built[cell][0] == Build.WALL:
+				if built[cell][0] in BARRIERS:
 					astar.set_point_solid(cell, false)
 				if built[cell][0] == Build.ROAD:
 					astar.set_point_weight_scale(cell, 1.0)
@@ -5132,7 +5225,7 @@ func build(cell: Vector2i) -> void:
 	blueprints.erase(cell)
 	if built[cell][0] == Build.ROAD:  # la strada si preferisce, come si va più svelti
 		astar.set_point_weight_scale(cell, 1.0 / ROAD_SPEED)
-	if built[cell][0] == Build.WALL:
+	if built[cell][0] in BARRIERS:
 		astar.set_point_solid(cell)
 		# ponytail: se non resta strada il colono lavora da dov'è; annullarne il lavoro se capita spesso
 		for o in colonists:
@@ -5226,8 +5319,9 @@ func update_rooms() -> void:
 				continue
 			var cells := flood(inside, true)
 			seen.merge(cells)
-			if cells.size() >= ROOM_MAX or cells.has(front) or not astar.is_in_boundsv(front) or astar.is_point_solid(front):
-				continue  # aperta sul mondo, o la porta non dà fuori
+			if cells.size() >= ROOM_MAX or cells.has(front) or not astar.is_in_boundsv(front) or astar.is_point_solid(front) \
+					or cells.keys().any(func(k): return SIDES.any(func(d): return built.get(k + d, [-1])[0] == Build.PALISADE)):
+				continue  # aperta sul mondo, la porta non dà fuori, o è un cortile chiuso dalla palizzata
 			var room: Room = old.get(cells.keys().min())
 			if room == null:
 				room = Room.new()
@@ -5366,7 +5460,8 @@ func structure_src(cell: Vector2i, plan: Array, layers: Array) -> Rect2i:
 		Build.FLOOR: return tile_rect(plan[1], 2)
 		Build.PATH: return tile_rect(2, 2)
 		Build.ROAD: return tile_rect(3, 2)
-		_: return tile_rect(1 if links & 5 and not links & 10 else 0, 3)  # porta: di lato se ha muri solo sopra e sotto
+		Build.PALISADE: return tile_rect(links, 8)
+		_: return tile_rect(1 if links & 5 and not links & 10 else 0, 3 if plan[0] == Build.DOOR else 9)  # porta, cancello: di lato se ha muri solo sopra e sotto
 
 
 func draw_flat() -> void:  # sotto le ombre: il terreno lo disegna lo Sprite2D di bake_ground

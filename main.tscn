@@ -1,4 +1,4 @@
-[gd_scene load_steps=68 format=3]
+[gd_scene load_steps=71 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Texture2D" path="res://art/icon_wood.png" id="2"]
@@ -144,6 +144,18 @@ region = Rect2(0, 736, 16, 16)
 [sub_resource type="AtlasTexture" id="ThroneIcon"]
 atlas = ExtResource("8")
 region = Rect2(0, 768, 16, 16)
+
+[sub_resource type="AtlasTexture" id="DummyIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 800, 16, 16)
+
+[sub_resource type="AtlasTexture" id="PalisadeIcon"]
+atlas = ExtResource("5")
+region = Rect2(0, 128, 16, 16)
+
+[sub_resource type="AtlasTexture" id="GateIcon"]
+atlas = ExtResource("5")
+region = Rect2(0, 144, 16, 16)
 
 [sub_resource type="AtlasTexture" id="ChaliceIcon"]
 atlas = ExtResource("8")
@@ -360,6 +372,24 @@ icon = SubResource("DoorIcon")
 icon_alignment = 1
 expand_icon = true
 
+[node name="Palisade" type="Button" parent="HUD/BuildBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("PalisadeIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Gate" type="Button" parent="HUD/BuildBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("GateIcon")
+icon_alignment = 1
+expand_icon = true
+
 [node name="Materials" type="HBoxContainer" parent="HUD/BuildBar/Row"]
 visible = false
 theme_override_constants/separation = 6
@@ -523,6 +553,15 @@ focus_mode = 0
 toggle_mode = true
 button_group = SubResource("Kinds")
 icon = SubResource("ThroneIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Dummy" type="Button" parent="HUD/FurnitureBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("DummyIcon")
 icon_alignment = 1
 expand_icon = true
 
