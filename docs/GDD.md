@@ -605,14 +605,14 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Affumicatoio ✓ | II | 200 | Caccia | al fuoco: carne e pesce affumicati durano quattro volte tanto (scorta 0 dal menu); si mangiano e si cucinano come il crudo |
   | | Dispensa fredda ✓ | I | 100 | — | stanza dispensa, solo per il cibo, che ci va per primo: dura il triplo che fuori (in magazzino il doppio) |
   | Fuoco | Forgia ✓ | I | 60 | — | *fornace, incudine, forgia, lingotto, piccone, ascia, falcetto* |
-  | | Acciaio | II | 300 | Forgia | acciaio (2 lingotti + 2 carbone): attrezzi −40% tempo, spada danno 20 |
+  | | Acciaio ✓ | II | 300 | Forgia | acciaio (2 lingotti + 2 carbone, alla fornace): attrezzi e spade si fanno d'acciaio; attrezzi −40% tempo, spada danno 20 (anche quelli di prima, ritemprati) |
   | | Vetreria | III | 500 | Acciaio | vetro: finestre (+1 comfort), occhiali (studiare e cucire −20%) |
   | | Altoforno | IV | 1100 | Vetreria | lingotti e acciaio tre alla volta, con metà carbone |
   | | Sartoria ✓ | I | 50 | — | *banco da lavoro, laboratorio, armatura e cappuccio di cuoio* |
   | | Telaio | II | 200 | Sartoria | tela: mantello imbottito (freddo), bende |
   | | Carbonaia ✓ | I | 80 | — | alla fornace 5 legna → 2 carbone (scorta 5 dal menu): il carbone non solo dalle vene |
   | Pietra | Muratura ✓ | I | 60 | — | *muri e pavimenti di pietra*; poi il camino |
-  | | Arredo fine | II | 250 | Muratura | letto a baldacchino, tappeto, armadio: la camera signorile del sovrano |
+  | | Arredo fine ✓ | II | 250 | Muratura | letto a baldacchino (un letto, comfort 2), tappeto di pelli, armadio (comfort 1): la camera signorile del sovrano |
   | | Statuaria ✓ | III | 500 | Arredo fine | *statua del re*; poi i memoriali dei caduti (lutto un giorno in meno) |
   | | Palazzo | IV | 1200 | Statuaria | la sala del trono diventa palazzo: udienza +50%, +10 splendore |
   | | Decorazioni ✓ | I | 40 | — | *aiuola, fioriera, panca* |
@@ -635,7 +635,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Armeria di prestito ✓ | II | 250 | Provviste secche | si presta l'equipaggiamento agli avventurieri: armatura, elmo e scudo migliori dei loro, dal magazzino; tornano con loro (morti, persi) |
   | | Cartografia ✓ | I | 80 | Locanda | sulla bacheca la prossima stanza di ogni rovina; viaggio −25% |
   | Sapere | Libreria ✓ | I | 60 | — | libreria: −10% tempo a pagina nella stanza, fino a 3 |
-  | | Scriptorium | II | 250 | Libreria | pergamena e inchiostro: si copiano i quaderni (3 pergamene, 1 inchiostro, 150 studio) |
+  | | Scriptorium ✓ | II | 250 | Libreria | pergamena (1 pelle → 2) e inchiostro (carbone e bacche → 2) al banco da lavoro: allo scrittoio si copiano i quaderni (3 pergamene, 1 inchiostro, 150 studio; quanti tenerne nella finestra Knowledge) |
   | | Astronomia | III | 500 | Scriptorium | sfera armillare: meteo e stagioni un giorno prima |
   | | Biblioteca reale | IV | 1200 | Astronomia | si rilegano i tomi (2 quaderni + 400 studio); +2 autorità al giorno |
   | | Erboristeria | I | 100 | — | erbe medicinali, unguento (+30 punti ferita) |
@@ -736,13 +736,13 @@ IV, regno, leggi finali, cittadella.
 **Stato**: fatte le fasi 1–4; della 5 una parte dei nodi, l'erudito errante e la protesta. Nel gioco: scrittoio,
 libreria e trono; stanze Studio e Sala del trono; lavori Studiare e Governare; studio e autorità (nelle finestre
 Knowledge e Laws, tasti K e G, o clic su scrittoio e trono; tutte e due scorrono); i tre libri, nei forzieri e nei
-tesori, col monastero; le 24 ricerche segnate ✓ (Statuaria per ora dopo Muratura, finché non c'è Arredo fine); le 19
-leggi segnate ✓; il titolo cresce con lo splendore (4.3) e dà i sigilli (2–5), le fasce delle leggi e l'autorità di
-ogni giorno; gli eventi d'autorità del 4.7.4 tranne l'incoronazione (manca la successione), mai sotto zero. Il granaio
-è un conto, non una stanza, e niente ci marcisce; paga le provviste, poi (Granaio aperto) l'ora senza cibo in
-magazzino e il pasto di ogni stagione; la festa del raccolto e il pasto, finché non ci sono le stagioni, sono ogni 10
-giorni. Le spedizioni prendono prima dal granaio, poi le gallette, poi pasti e crudo. Manca il resto, e i contatori di
-studio e autorità nella barra in alto (a 1280 di larghezza non ci stanno).
+tesori, col monastero; le 27 ricerche segnate ✓; le 19 leggi segnate ✓; il titolo cresce con lo splendore (4.3) e dà i
+sigilli (2–5), le fasce delle leggi e l'autorità di ogni giorno; gli eventi d'autorità del 4.7.4 tranne
+l'incoronazione (manca la successione), mai sotto zero. Il granaio è un conto, non una stanza, e niente ci marcisce;
+paga le provviste, poi (Granaio aperto) l'ora senza cibo in magazzino e il pasto di ogni stagione; la festa del
+raccolto e il pasto, finché non ci sono le stagioni, sono ogni 10 giorni. Le spedizioni prendono prima dal granaio,
+poi le gallette, poi pasti e crudo. Manca il resto, e i contatori di studio e autorità nella barra in alto (a 1280 di
+larghezza non ci stanno).
 
 ## 5. Scope
 

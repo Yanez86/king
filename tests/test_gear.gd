@@ -9,6 +9,7 @@ func _initialize() -> void:
 	main.start_rooms = false
 	root.add_child(main)
 	await process_frame
+	main.researched.erase(main.Tech.STEEL)  # qui attrezzi e spade di ferro: l'acciaio è in test_research
 	main.needs_rate = 0.0
 	main.routines = false  # niente orari: la routine è provata in test_jobs
 	main.threats = false  # niente branchi di lupi: le prove del combattimento sono in test_combat

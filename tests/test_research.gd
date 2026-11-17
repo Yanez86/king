@@ -668,6 +668,62 @@ func _initialize() -> void:
 	main.ruins.erase(far_tower)
 	main.get_node("HUD/ReportPanel").hide()
 
+	# acciaio: attrezzi e spade si fanno d'acciaio invece che coi lingotti, e rendono di più
+	var smithy = main.colonists[1]
+	var pick_recipe: Array = main.RECIPES.filter(func(r): return r[0] == R.PICKAXE)[0]
+	main.researched.erase(T.STEEL)
+	smithy.gear = {main.Slot.HANDS: R.SWORD}
+	var iron_sword: float = main.melee_damage(smithy)
+	smithy.gear = {main.Slot.HANDS: R.PICKAXE}
+	var iron_time: float = main.work_factor(smithy, main.Job.MINE)
+	check(main.needs_of(pick_recipe).has(R.INGOT), "senza acciaio il piccone vuole lingotti")
+	main.researched[T.STEEL] = true
+	check(main.needs_of(pick_recipe).has(R.STEEL) and not main.needs_of(pick_recipe).has(R.INGOT), "con l'acciaio vuole acciaio")
+	check(is_equal_approx(main.work_factor(smithy, main.Job.MINE), iron_time / 0.75 * main.STEEL_TIME), "piccone d'acciaio: -40%")
+	smithy.gear = {main.Slot.HANDS: R.SWORD}
+	check(iron_sword == 15.0 and main.melee_damage(smithy) == main.STEEL_SWORD, "spada d'acciaio: 20")
+	smithy.gear = {}
+
+	# scriptorium: la copia di un quaderno allo scrittoio vuole pergamena, inchiostro e 150 di studio
+	var copy: Array = main.RECIPES.filter(func(r): return r[0] == R.NOTEBOOK)[0]
+	check(copy[1] == B.DESK and copy[3] == {R.PARCHMENT: 3, R.INK: 1} and main.STATION_ROOM[B.DESK] == main.RoomKind.STUDY,
+		"la copia: allo scrittoio, 3 pergamene e 1 inchiostro")
+	var scribe_room = main.Room.new()
+	scribe_room.kind = main.RoomKind.STUDY
+	var desk_cell: Vector2i = free.filter(func(k): return main.can_build(k) and main.SIDES.all(func(d): return main.can_build(k + d)))[7]
+	for d in [Vector2i.ZERO] + main.SIDES:
+		scribe_room.cells[desk_cell + d] = true
+	main.rooms.append(scribe_room)
+	main.furniture[desk_cell] = [B.DESK, R.WOOD, 0]
+	main.stockpile = {free[55]: true, free[56]: true}
+	main.add_item(R.PARCHMENT, free[55], 3)
+	main.add_item(R.INK, free[56], 1)
+	main.keep[R.NOTEBOOK] = main.total(R.NOTEBOOK) + 1
+	var scribe = main.colonists[1]
+	main.quit_job(scribe)
+	scribe.pos = main.center(desk_cell + Vector2i.LEFT)
+	main.study = 100.0
+	check(not main.try_craft(scribe), "senza 150 di studio non si copia")
+	main.study = 200.0
+	check(main.try_craft(scribe) and scribe.job == main.Job.CRAFT and main.study == 50.0, "si copia: 150 di studio spesi")
+	main.quit_job(scribe)
+	main.keep.erase(R.NOTEBOOK)
+	main.furniture.erase(desk_cell)
+	main.rooms.erase(scribe_room)
+	main.knowledge_key = ""
+	main.fill_knowledge()
+	check(main.get_node("HUD/KnowledgePanel/Box/Copies").visible, "nella finestra Knowledge quanti quaderni tenere")
+
+	# arredo fine: il baldacchino è un letto (anche per le camere), più comodo; la statuaria viene dopo
+	var chamber = main.Room.new()
+	var bed_cell: Vector2i = free[57]
+	chamber.cells = {bed_cell: true, bed_cell + Vector2i.RIGHT: true}
+	main.furniture[bed_cell] = [B.CANOPY_BED, R.WOOD, 0]
+	check(main.room_meets(chamber, main.RoomKind.BEDROOM) and main.COMFORT[B.CANOPY_BED] == 2 * main.COMFORT[B.BED]
+		and main.free_beds(main.colonists[1]).has(bed_cell), "il baldacchino: un letto, comodo il doppio")
+	main.furniture.erase(bed_cell)
+	check(main.TECHS[T.STATUARY]["needs"] == [T.FINE_FURNITURE], "la statuaria dopo l'arredo fine")
+
 	# una partita vera: niente studiato, lupi dal quinto giorno, un'arma abbandonata sulla mappa
 	main.queue_free()
 	var real = load("res://main.tscn").instantiate()

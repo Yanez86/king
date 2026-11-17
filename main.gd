@@ -34,14 +34,16 @@ const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FUR
 # i cimeli, dalle rovine: si piazzano come decorazioni (vedi RELICS); NOTEBOOK, TOME, CODEX: i libri, dalle rovine, che
 # le ricerche di livello II, III e IV consumano (vedi BOOKS); HARDTACK: gallette, provviste per le spedizioni che non
 # marciscono e non si mangiano a casa (vedi send); SMOKED_MEAT, SMOKED_FISH: affumicati al fuoco, crudi che durano
-# quattro volte tanto; SHIELD: lo scudo tondo, nel suo slot (vedi GEAR)
+# quattro volte tanto; SHIELD: lo scudo tondo, nel suo slot (vedi GEAR); STEEL: acciaio, per attrezzi e spade (vedi
+# steel); PARCHMENT, INK: pergamena e inchiostro, per copiare i quaderni allo scrittoio (vedi COPY_STUDY)
 enum Res { WOOD, STONE, VEG, IRON, COAL, MEAL, FINE_MEAL, MEAT, FISH, HIDE, INGOT, FLAX, BOWSTRING,
 	PICKAXE, AXE, SICKLE, BOW, LEATHER_ARMOR, LEATHER_HOOD, HELMET, CHAINMAIL, SWORD, GOLD, DAGGER,
-	CHALICE, OLD_BANNER, BUST, CROWN, NOTEBOOK, TOME, CODEX, HARDTACK, SMOKED_MEAT, SMOKED_FISH, SHIELD }
+	CHALICE, OLD_BANNER, BUST, CROWN, NOTEBOOK, TOME, CODEX, HARDTACK, SMOKED_MEAT, SMOKED_FISH, SHIELD,
+	STEEL, PARCHMENT, INK }
 const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.IRON: 50, Res.COAL: 50, Res.MEAL: 20, Res.FINE_MEAL: 20,
 	Res.MEAT: 50, Res.FISH: 50, Res.HIDE: 50, Res.INGOT: 50, Res.FLAX: 50, Res.BOWSTRING: 50, Res.PICKAXE: 10, Res.AXE: 10, Res.SICKLE: 10, Res.BOW: 10,
 	Res.LEATHER_ARMOR: 10, Res.LEATHER_HOOD: 10, Res.HELMET: 10, Res.CHAINMAIL: 10, Res.SWORD: 10, Res.GOLD: 100, Res.DAGGER: 10,
-	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5, Res.NOTEBOOK: 10, Res.TOME: 10, Res.CODEX: 10, Res.HARDTACK: 50, Res.SMOKED_MEAT: 50, Res.SMOKED_FISH: 50, Res.SHIELD: 10}  # quantità massima per mucchio (casella)
+	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5, Res.NOTEBOOK: 10, Res.TOME: 10, Res.CODEX: 10, Res.HARDTACK: 50, Res.SMOKED_MEAT: 50, Res.SMOKED_FISH: 50, Res.SHIELD: 10, Res.STEEL: 50, Res.PARCHMENT: 50, Res.INK: 20}  # quantità massima per mucchio (casella)
 const MEALS := [Res.FINE_MEAL, Res.MEAL]  # cotti: chi ha fame li prende in quest'ordine, poi il crudo
 const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT, Res.SMOKED_FISH, Res.SMOKED_MEAT]  # crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti
 const STASH := [Res.WOOD, Res.STONE, Res.VEG, Res.IRON, Res.COAL, Res.FLAX]  # scorta di debug: il resto si produce
@@ -69,6 +71,7 @@ const ITEM_KIND := {
 	Res.CHALICE: ItemKind.RELIC, Res.OLD_BANNER: ItemKind.RELIC, Res.BUST: ItemKind.RELIC, Res.CROWN: ItemKind.RELIC,
 	Res.NOTEBOOK: ItemKind.BOOK, Res.TOME: ItemKind.BOOK, Res.CODEX: ItemKind.BOOK, Res.HARDTACK: ItemKind.FOOD,
 	Res.SMOKED_MEAT: ItemKind.FOOD, Res.SMOKED_FISH: ItemKind.FOOD, Res.SHIELD: ItemKind.ARMOR,
+	Res.STEEL: ItemKind.MATERIAL, Res.PARCHMENT: ItemKind.MATERIAL, Res.INK: ItemKind.MATERIAL,
 }
 # cibo: quanto sazia (vedi eat) e in quanti giorni marcisce a terra fuori (vedi spoil); in magazzino ci mette il doppio.
 # Il crudo sazia meno e può intossicare (vedi poison_chance), i pasti no e danno un bonus (vedi Cond)
@@ -318,13 +321,17 @@ const RECIPES := [
 	[Res.CHAINMAIL, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 6}, 30.0],
 	[Res.SWORD, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 3, Res.WOOD: 1}, 20.0],
 	[Res.SHIELD, Build.ANVIL, Skill.SMITHING, {Res.WOOD: 3, Res.INGOT: 1}, 15.0],
+	[Res.STEEL, Build.FURNACE, Skill.SMITHING, {Res.INGOT: 2, Res.COAL: 2}, 12.0],
+	[Res.PARCHMENT, Build.WORKBENCH, Skill.TAILORING, {Res.HIDE: 1}, 10.0, 2],  # pelle raschiata e tesa
+	[Res.INK, Build.WORKBENCH, Skill.RESEARCH, {Res.COAL: 1, Res.VEG: 1}, 8.0, 2],  # nerofumo e succo di bacche
+	[Res.NOTEBOOK, Build.DESK, Skill.RESEARCH, {Res.PARCHMENT: 3, Res.INK: 1}, 30.0],  # una copia: anche COPY_STUDY
 	[Res.COAL, Build.FURNACE, Skill.SMITHING, {Res.WOOD: 5}, 10.0, 2],  # carbonaia: legna cotta piano, senza aria
 	[Res.HARDTACK, Build.CAMPFIRE, Skill.COOKING, {Res.VEG: 2}, 10.0],  # gallette
 	[Res.SMOKED_MEAT, Build.CAMPFIRE, Skill.COOKING, {Res.MEAT: 1}, 8.0],  # affumicati
 	[Res.SMOKED_FISH, Build.CAMPFIRE, Skill.COOKING, {Res.FISH: 1}, 8.0],
 ]
 const STATION_ROOM := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP,
-	Build.SPINNING_WHEEL: RoomKind.WORKSHOP, Build.CARPENTER_BENCH: RoomKind.CARPENTRY}
+	Build.SPINNING_WHEEL: RoomKind.WORKSHOP, Build.CARPENTER_BENCH: RoomKind.CARPENTRY, Build.DESK: RoomKind.STUDY}
 const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.MEAL: MEALS_PER_COLONIST * COLONIST_COUNT, Res.COAL: 5}  # scorte di partenza, vedi keep
 enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT }  # cosa segna il trascinamento del mouse
 const ORDER_COLORS := [Color.TRANSPARENT, Color.ORANGE, Color("8fd3ff"), Color("9be36a"), Color("e6e2d0"),
@@ -362,6 +369,7 @@ enum Build { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE
 	DESK, BOOKSHELF, THRONE,  # ricerca: scrittoio e libreria nello studio, trono nella sala del trono (vedi SEAT_ROOM)
 	DUMMY,  # il fantoccio: ci si allena nel tempo libero (vedi relax)
 	WATCHTOWER,  # la torre di guardia con la campana: lupi visti da lontano, l'arciere lassù tira meglio (vedi TOWER)
+	CANOPY_BED, RUG, WARDROBE,  # arredo fine: il baldacchino è un letto (vedi BEDS), tappeto e armadio danno comfort
 	ROAD,  # strada lastricata: ci si cammina più svelti (vedi ROAD_SPEED)
 	PALISADE, GATE }  # palizzata e cancello: i lupi non passano; non fanno stanze (vedi update_rooms, beast_path)
 # materiale per casella; per i mobili, per pezzo
@@ -370,6 +378,7 @@ const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1
 	Build.CARPENTER_BENCH: 15, Build.FLOWER_BED: 3, Build.PLANTER: 5,
 	Build.BENCH: 6, Build.BANNER: 4, Build.LANTERN: 4, Build.FOUNTAIN: 30, Build.STATUE: 40, Build.NOTICE_BOARD: 8,
 	Build.CHALICE: 1, Build.OLD_BANNER: 1, Build.BUST: 1, Build.CROWN: 1, Build.DESK: 10, Build.BOOKSHELF: 12, Build.THRONE: 12, Build.ROAD: 2, Build.DUMMY: 6, Build.WATCHTOWER: 20,
+	Build.CANOPY_BED: 20, Build.RUG: 4, Build.WARDROBE: 12,
 	Build.PALISADE: 4, Build.GATE: 6}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
 const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
@@ -379,7 +388,7 @@ const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Buil
 	Build.LANTERN: Vector2i.ONE, Build.FOUNTAIN: Vector2i(2, 2), Build.STATUE: Vector2i(2, 2), Build.NOTICE_BOARD: Vector2i.ONE,
 	Build.CHALICE: Vector2i.ONE, Build.OLD_BANNER: Vector2i.ONE, Build.BUST: Vector2i.ONE, Build.CROWN: Vector2i.ONE,
 	Build.DESK: Vector2i.ONE, Build.BOOKSHELF: Vector2i.ONE, Build.THRONE: Vector2i.ONE, Build.DUMMY: Vector2i.ONE,
-	Build.WATCHTOWER: Vector2i.ONE}
+	Build.WATCHTOWER: Vector2i.ONE, Build.CANOPY_BED: Vector2i(2, 1), Build.RUG: Vector2i(2, 1), Build.WARDROBE: Vector2i.ONE}
 # mobili animati: secondi per fotogramma; i fotogrammi stanno nelle colonne dei quarti di giro (sono simmetrici)
 const ANIMATED := {Build.CAMPFIRE: 0.15, Build.BANNER: 0.3, Build.FOUNTAIN: 0.2}
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
@@ -388,7 +397,7 @@ const PAVING := [Build.FLOOR, Build.PATH, Build.ROAD]  # a terra: si calpestano,
 # materiale fisso; il resto solo di legno
 # i cimeli: la decorazione si fa con l'oggetto trovato nelle rovine, uno a pezzo
 const RELICS := {Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}
-const BUILD_RES := {Build.PATH: Res.STONE, Build.ROAD: Res.STONE, Build.FURNACE: Res.STONE, Build.ANVIL: Res.IRON, Build.PLANTER: Res.STONE, Build.FOUNTAIN: Res.STONE,
+const BUILD_RES := {Build.PATH: Res.STONE, Build.ROAD: Res.STONE, Build.RUG: Res.HIDE, Build.FURNACE: Res.STONE, Build.ANVIL: Res.IRON, Build.PLANTER: Res.STONE, Build.FOUNTAIN: Res.STONE,
 	Build.STATUE: Res.STONE, Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}
 # mobili che servono perché il cartello lasci scegliere il tipo di stanza: tipo -> {mobile: almeno quanti}
 # ponytail: la cucina accetterà anche la stufa, quando ci sarà: allora "uno tra" invece di "tutti"
@@ -409,7 +418,8 @@ const ROOM_COLORS := [Color("e6e2d0"), Color("c9a23b"), Color("3b8fd3"), Color("
 # comfort di una stanza, 0-COMFORT_MAX: lo danno i mobili (per pezzo) e il pavimento (tutto se copre la stanza intera),
 # per il materiale. A metà né bonus né malus; fuori dalle stanze è 0. Vedi room_comfort e comfort_of
 const COMFORT_MAX := 10
-const COMFORT := {Build.FLOOR: 1.0, Build.BED: 1.0, Build.TABLE: 1.0, Build.CHAIR: 0.5, Build.LAMP: 0.5, Build.CAMPFIRE: 0.5,
+const BEDS := [Build.BED, Build.CANOPY_BED]  # ci si dorme; per le camere il baldacchino vale un letto (vedi room_meets)
+const COMFORT := {Build.CANOPY_BED: 2.0, Build.RUG: 1.0, Build.WARDROBE: 1.0, Build.FLOOR: 1.0, Build.BED: 1.0, Build.TABLE: 1.0, Build.CHAIR: 0.5, Build.LAMP: 0.5, Build.CAMPFIRE: 0.5,
 	Build.BENCH: 0.5}
 const COMFORT_MATERIAL := {Res.STONE: 1.5}  # il resto vale 1
 const COMFORT_EFFECT := 0.2  # a comfort 0 un'attività richiede il 20% di tempo in più, al massimo il 20% in meno
@@ -463,6 +473,9 @@ const BUILD_INFO := {
 	Build.BOOKSHELF: "Shelves of books. +10% study in the room, up to three.",
 	Build.THRONE: "Where the ruler governs. A throne room needs one: the ruler gathers authority here.",
 	Build.WATCHTOWER: "A wooden lookout with a bell: wolves are seen 20 tiles away. An archer standing on it shoots 2 tiles farther, +15% to hit.",
+	Build.CANOPY_BED: "A bed fit for a ruler, under a purple canopy. Sleeps like a bed, with twice the comfort.",
+	Build.RUG: "A rug of tanned hides. +1 comfort.",
+	Build.WARDROBE: "An oak wardrobe. +1 comfort.",
 	Build.DUMMY: "A straw dummy on a post. In their free time colonists train here: fun, and melee experience.",
 }
 enum Facing { DOWN, LEFT, RIGHT, UP }  # righe del foglio
@@ -552,6 +565,9 @@ const ICONS := {
 	Res.SMOKED_MEAT: preload("res://art/icon_smoked_meat.png"),
 	Res.SMOKED_FISH: preload("res://art/icon_smoked_fish.png"),
 	Res.SHIELD: preload("res://art/icon_shield.png"),
+	Res.STEEL: preload("res://art/icon_steel.png"),
+	Res.PARCHMENT: preload("res://art/icon_parchment.png"),
+	Res.INK: preload("res://art/icon_ink.png"),
 }
 # 256x128, righe: muri di legno, muri di pietra (colonna = lati collegati, vedi WALL_LINKS), pavimenti (colonna = Res,
 # poi il sentiero), porte (di fronte, di lato), erba sui pavimenti (lati, angoli, due varianti); vedi structure_src e draw_grass_over
@@ -773,7 +789,7 @@ const BRANCHES_SHEET := preload("res://art/branches.png")
 # ponytail: solo i nodi che hanno già qualcosa da sbloccare; gli altri dell'albero del GDD arrivano con le loro cose
 enum Tech { FORGE, TAILORING, HUNTING, INN, MASONRY, DECOR, LANTERNS, IRON_ARMS, BOOKSHELF, CHAINMAIL, FOUNTAIN, STATUARY,
 	CHARCOAL, COLD_STORE, PAVED_ROAD, DRY_RATIONS, CARTOGRAPHY, PALISADE, TRAINING_DUMMY, SMOKEHOUSE, RENOWNED_INN, WATCHTOWER,
-	SHIELD, LENDING_ARMORY }
+	SHIELD, LENDING_ARMORY, STEEL, SCRIPTORIUM, FINE_FURNITURE }
 const TECHS_SHEET := preload("res://art/techs.png")
 const TECHS := {
 	Tech.FORGE: {"branch": Branch.FIRE, "tier": 1, "cost": 60, "builds": [Build.FURNACE, Build.ANVIL],
@@ -798,7 +814,7 @@ const TECHS := {
 		"info": "At the anvil: chainmail."},
 	Tech.FOUNTAIN: {"branch": Branch.STONE, "tier": 2, "cost": 250, "needs": [Tech.DECOR], "builds": [Build.FOUNTAIN],
 		"info": "The fountain, the pride of the square."},
-	Tech.STATUARY: {"branch": Branch.STONE, "tier": 3, "cost": 500, "needs": [Tech.MASONRY], "builds": [Build.STATUE],
+	Tech.STATUARY: {"branch": Branch.STONE, "tier": 3, "cost": 500, "needs": [Tech.FINE_FURNITURE], "builds": [Build.STATUE],
 		"info": "The king in stone, on a gilded plinth."},
 	Tech.CHARCOAL: {"branch": Branch.FIRE, "tier": 1, "cost": 80, "makes": [Res.COAL],
 		"info": "At the furnace, 5 wood make 2 coal: coal not only from the veins."},
@@ -822,6 +838,12 @@ const TECHS := {
 		"info": "At the anvil, the round shield: armor 3 for whoever fights with a sword or a dagger."},
 	Tech.LENDING_ARMORY: {"branch": Branch.ROAD, "tier": 2, "cost": 250, "needs": [Tech.DRY_RATIONS],
 		"info": "Adventurers borrow better armor, helmets and shields from the warehouses for an expedition, and bring them back (unless they die)."},
+	Tech.STEEL: {"branch": Branch.FIRE, "tier": 2, "cost": 300, "needs": [Tech.FORGE], "makes": [Res.STEEL],
+		"info": "At the furnace, steel from 2 ingots and 2 coal. Tools and swords are made of steel: tools 40% faster, swords damage 20."},
+	Tech.SCRIPTORIUM: {"branch": Branch.LORE, "tier": 2, "cost": 250, "needs": [Tech.BOOKSHELF], "makes": [Res.PARCHMENT, Res.INK, Res.NOTEBOOK],
+		"info": "Parchment (from hides) and ink (coal and berries) at the workbench; at the desk notebooks are copied: 3 parchment, 1 ink, 150 study."},
+	Tech.FINE_FURNITURE: {"branch": Branch.STONE, "tier": 2, "cost": 250, "needs": [Tech.MASONRY], "builds": [Build.CANOPY_BED, Build.RUG, Build.WARDROBE],
+		"info": "Canopy bed, rug and wardrobe: the ruler's fine chamber."},
 	Tech.WATCHTOWER: {"branch": Branch.IRON, "tier": 2, "cost": 300, "needs": [Tech.PALISADE], "builds": [Build.WATCHTOWER],
 		"info": "The watchtower and its bell: wolves are seen 20 tiles away. An archer up there shoots 2 tiles farther, +15% to hit."},
 }
@@ -905,6 +927,10 @@ const CLEMENT_HOURS := 1.0  # con la clemenza sfuriate e proteste durano tanto
 const COURT_AUDIENCE := 1.5 # con la corte, autorità dall'udienza x
 const RESERVE_AUTHORITY := 3.0  # riserva di caccia: per ogni cervo abbattuto dal sovrano
 const TRAIN_HIT := 2.5      # secondi per colpo al fantoccio: +1 esperienza in mischia
+const STEEL_GEAR := [Res.PICKAXE, Res.AXE, Res.SICKLE, Res.SWORD]  # con l'acciaio: si fanno d'acciaio, e rendono di più
+const STEEL_TIME := 0.6     # attrezzo d'acciaio: tempo del suo lavoro x (quelli di ferro 0.75)
+const STEEL_SWORD := 20.0   # danno della spada d'acciaio
+const COPY_STUDY := 150.0   # punti studio di una copia di un quaderno allo scrittoio, oltre a pergamena e inchiostro
 const TOWER_SIGHT := 20     # caselle: con una torre di guardia (e la sua campana) i lupi si vedono da qui (se no ALERT)
 const TOWER := {"range": 2.0, "hit": 0.15}  # all'arciere sulla torre, in più (vedi gear_sum)
 const RENOWNED_GUESTS := [1.5, 5.0]  # con la locanda rinomata: giorni tra un arrivo e l'altro, giorni che aspettano
@@ -1702,7 +1728,7 @@ func open_craft(origin: Vector2i) -> void:
 	var list := box.get_node("List")
 	for child in list.get_children():
 		child.free()
-	var rows := RECIPES.filter(func(r): return r[1] == kind and unlocked("makes", r[0])).map(func(r): return [r[0], r[3], "+"])  # [prodotto, ingredienti, tra uno e l'altro]
+	var rows := RECIPES.filter(func(r): return r[1] == kind and unlocked("makes", r[0])).map(func(r): return [r[0], needs_of(r), "+"])  # [prodotto, ingredienti, tra uno e l'altro]
 	if kind == Build.CAMPFIRE:
 		var raw := {}
 		for res in RAW_FOOD:
@@ -2040,8 +2066,8 @@ func describe(cell: Vector2i) -> Array:
 			return ["%s pile" % item_title(res), about]
 	for origin in pieces_at(furniture, cell):
 		var kind: Build = furniture[origin][0]
-		return [Build.keys()[kind].capitalize(), "Click: what to make" if STATION_ROOM.has(kind) else
-			{Build.DESK: "Click: knowledge", Build.THRONE: "Click: laws"}.get(kind, "")]
+		return [Build.keys()[kind].capitalize(), {Build.DESK: "Click: knowledge", Build.THRONE: "Click: laws"}.get(kind,
+			"Click: what to make" if STATION_ROOM.has(kind) else "")]
 	if built.has(cell):
 		return [Build.keys()[built[cell][0]].capitalize(), Res.keys()[built[cell][1]].capitalize()]
 	return []
@@ -2266,7 +2292,7 @@ func _process(delta: float) -> void:
 	tick(delta)
 	stored_label.text = str(Res.values().map(stored).reduce(func(a, b): return a + b, 0))
 	colonists_label.text = str(colonists.size())
-	beds_label.text = str(furniture.values().filter(func(plan): return plan[0] == Build.BED).size())  # solo quelli finiti
+	beds_label.text = str(furniture.values().filter(func(plan): return plan[0] in BEDS).size())  # solo quelli finiti
 	splendor_label.text = str(colony_splendor())
 	confirm.disabled = draft.is_empty() and furniture_draft.is_empty()
 	if jobs_panel.visible:
@@ -2801,7 +2827,7 @@ func sleepwalk(c: Colonist) -> void:
 
 
 func in_bed(c: Colonist) -> bool:
-	return c.job == Job.SLEEP and not pieces_at(furniture, cell_of(c.pos)).filter(func(o): return furniture[o][0] == Build.BED).is_empty()
+	return c.job == Job.SLEEP and not pieces_at(furniture, cell_of(c.pos)).filter(func(o): return furniture[o][0] in BEDS).is_empty()
 
 
 # Splendore della colonia: la somma delle decorazioni finite (SPLENDOR), ovunque stiano, e degli avventurieri famosi.
@@ -2849,7 +2875,8 @@ func room_meets(room: Room, kind: RoomKind) -> bool:
 	if not unlocked("rooms", kind):
 		return false
 	var needs: Dictionary = ROOM_NEEDS.get(kind, {})
-	var inside: Array = furniture.keys().filter(func(o): return room.cells.has(o)).map(func(o): return furniture[o][0])
+	var inside: Array = furniture.keys().filter(func(o): return room.cells.has(o)) \
+		.map(func(o): return Build.BED if furniture[o][0] == Build.CANOPY_BED else furniture[o][0])
 	return needs.keys().all(func(b): return inside.count(b) >= needs[b])
 
 
@@ -3044,7 +3071,7 @@ func skill_time(level: int) -> float:
 func work_factor(c: Colonist, job := Job.NONE) -> float:
 	var f := cond_product(c, 1)
 	for g in c.gear.values():
-		f *= GEAR[g].get("time", {}).get(job, 1.0) * GEAR[g].get("slow", 1.0)
+		f *= (STEEL_TIME if steel(g) and GEAR[g].get("time", {}).has(job) else GEAR[g].get("time", {}).get(job, 1.0)) * GEAR[g].get("slow", 1.0)
 	return f
 
 
@@ -3258,7 +3285,8 @@ func try_craft(c: Colonist) -> bool:
 		var r: Array = RECIPES[i]
 		var free_stations := stations(r[1]).filter(func(st): return is_free(st))  # prima il controllo che costa meno
 		if free_stations.is_empty() or not unlocked("makes", r[0]) or gear_wanted(r[0]) <= 0 \
-				or not r[3].keys().all(func(res): return available(res) >= r[3][res]):
+				or not needs_of(r).keys().all(func(res): return available(res) >= needs_of(r)[res]) \
+				or (r[0] == Res.NOTEBOOK and study < COPY_STUDY):
 			continue
 		var stands := {}  # casella accanto a una postazione libera, nella sua stanza -> postazione
 		for station in free_stations:
@@ -3274,10 +3302,22 @@ func try_craft(c: Colonist) -> bool:
 		start_job(c, Job.CRAFT, [], station, r[4] * skill_time(c.skills[r[2]]) * comfort_time(room_comfort(room_at(station)))
 			* work_factor(c, Job.CRAFT))
 		c.recipe = i
+		if r[0] == Res.NOTEBOOK:  # la copia: lo studio si spende subito (ponytail: perso se la si molla a metà)
+			study -= COPY_STUDY
 		c.dest = path.back()
 		c.path = path  # prima alla postazione, poi da lì a prendere gli ingredienti (vedi craft)
 		return true
 	return false
+
+
+# Ingredienti della ricetta `r`: con l'acciaio attrezzi e spade vogliono acciaio al posto dei lingotti
+func needs_of(r: Array) -> Dictionary:
+	if not (researched.has(Tech.STEEL) and r[0] in STEEL_GEAR and r[3].has(Res.INGOT)):
+		return r[3]
+	var swapped: Dictionary = r[3].duplicate()
+	swapped[Res.STEEL] = swapped[Res.INGOT]
+	swapped.erase(Res.INGOT)
+	return swapped
 
 
 # quanto `res` c'è nei mucchi liberi
@@ -3300,7 +3340,7 @@ func craft(c: Colonist, delta: float) -> void:
 	var here := cell_of(c.pos)
 	if here != c.dest:  # a un mucchio
 		reserved.erase(here)
-		var take := mini(mini(items[c.carry_res].get(here, 0), r[3][c.carry_res] - c.fetched.get(c.carry_res, 0)), CARRY_MAX)
+		var take := mini(mini(items[c.carry_res].get(here, 0), needs_of(r)[c.carry_res] - c.fetched.get(c.carry_res, 0)), CARRY_MAX)
 		if take <= 0:
 			quit_job(c)
 			return
@@ -3312,8 +3352,8 @@ func craft(c: Colonist, delta: float) -> void:
 	if c.carrying > 0:
 		c.fetched[c.carry_res] = c.fetched.get(c.carry_res, 0) + c.carrying
 		c.carrying = 0
-	for res in r[3]:
-		if c.fetched.get(res, 0) < r[3][res]:
+	for res in needs_of(r):
+		if c.fetched.get(res, 0) < needs_of(r)[res]:
 			var to := path_to_nearest(c, items[res].keys().filter(func(cell): return cell != c.dest and is_free(cell)))
 			if to.is_empty():
 				quit_job(c)
@@ -3340,6 +3380,11 @@ func hostile(a: Animal) -> bool:
 	return BEASTS[a.kind].get("hostile", false)
 
 
+# con l'acciaio, attrezzi e spade sono d'acciaio (ponytail: anche quelli fatti prima, come ritemprati)
+func steel(g) -> bool:
+	return g in STEEL_GEAR and researched.has(Tech.STEEL)
+
+
 # in mano un'arma con cui lo scudo serve: spada o pugnale
 func shielded(c: Colonist) -> bool:
 	return c.gear.get(Slot.HANDS) in [Res.SWORD, Res.DAGGER]
@@ -3361,6 +3406,8 @@ func melee_chance(level: int) -> float:
 # danno corpo a corpo: quello dell'attrezzo o dell'arma in mano, se no a mani nude
 func melee_damage(c: Colonist) -> float:
 	var g = c.gear.get(Slot.HANDS)
+	if g == Res.SWORD and steel(g):
+		return STEEL_SWORD
 	return GEAR[g].get("damage", FIST_DAMAGE) if g != null else FIST_DAMAGE
 
 
@@ -3565,6 +3612,11 @@ func flee_hp() -> float:
 	return MILITIA_FLEE if enacted.has(Law.MILITIA) else FLEE_HP
 
 
+# quanti `res` tenere (vedi keep): dal menu delle postazioni, o per i quaderni dalla finestra Knowledge
+func set_keep(value: float, res: Res) -> void:
+	keep[res] = int(value)
+
+
 # L'erudito arriva se c'è una locanda (se no riprova domani) e resta un giorno, poi riparte con quello che non ha venduto
 func update_scholar() -> void:
 	if scholar_until >= 0 and clock >= scholar_until:
@@ -3738,12 +3790,12 @@ func is_inn(room: Room) -> bool:
 
 # letti liberi per `c`: agli avventurieri quelli della locanda, ai coloni tutti gli altri
 func free_beds(c: Colonist) -> Array:
-	return furniture.keys().filter(func(o): return furniture[o][0] == Build.BED and is_free(o) \
+	return furniture.keys().filter(func(o): return furniture[o][0] in BEDS and is_free(o) \
 		and is_inn(room_at(o)) == (c.hero != Hero.NONE))
 
 
 func inn_beds() -> int:
-	return furniture.keys().filter(func(o): return furniture[o][0] == Build.BED and is_inn(room_at(o))).size()
+	return furniture.keys().filter(func(o): return furniture[o][0] in BEDS and is_inn(room_at(o))).size()
 
 
 # avventuriero `kind` di livello `level`, col suo nome, aspetto, abilità ed equipaggiamento
@@ -4811,6 +4863,11 @@ func fill_knowledge() -> void:
 		"   ".join(BOOKS.map(func(b): return "%d [img=center]%s[/img]" % [stored(b), ICONS[b].resource_path]))]
 	box.get_node("Hint").visible = not rooms.any(func(r): return r.kind == RoomKind.STUDY)
 	fill_scholar(box.get_node("Scholar"))
+	var copies: SpinBox = box.get_node("Copies/Keep")  # lo scriptorium: quanti quaderni tenere, copiandoli allo scrittoio
+	box.get_node("Copies").visible = researched.has(Tech.SCRIPTORIUM)
+	if not copies.value_changed.is_connected(set_keep):
+		copies.value_changed.connect(set_keep.bind(Res.NOTEBOOK))
+	copies.set_value_no_signal(keep.get(Res.NOTEBOOK, 0))
 	var grid: GridContainer = box.get_node("Scroll/Tree")
 	for child in grid.get_children():
 		child.free()
