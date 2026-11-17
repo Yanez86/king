@@ -48,7 +48,7 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   - Sempre: stanco va a letto, affamato mangia, annoiato si prende una pausa (controllato a ogni ora).
 - **Abilità** (livelli 0–10, al 10 una stellina; tutti i coloni partono da 0): raccogliere, estrarre, tagliare legna, costruire, forgiare, cucire, cucinare, pescare, cacciare, armi da mischia, armi a distanza, ricerca (lista provvisoria). Velocità e qualità del lavoro; crescono con l'uso.
   Nella raccolta (tagliare, estrarre, raccogliere) 1 punto esperienza a raccolta finita (albero abbattuto, masso scavato, cespuglio spogliato), non a colpo; negli altri lavori +1 per pezzo costruito, lancio, tiro o oggetto fatto. Soglie di livello da definire.
-  Tempo di un lavoro: ×1,5 a livello 0, ×1 a livello 5, ×0,5 a livello 10. Ricerca ancora senza effetto.
+  Tempo di un lavoro: ×1,5 a livello 0, ×1 a livello 5, ×0,5 a livello 10. Ricerca: studiare allo scrittoio (vedi 4.7).
 - **Punti ferita** (0–100): si curano da soli, 30 al giorno (60 dormendo). A 0 il colono resta **a terra** (sdraiato,
   non fa niente) e si cura di 40 al giorno; a 30 si rialza. Sopra la testa, una barretta se è ferito.
 - **Morte**: coloni e avventurieri possono morire.
@@ -234,6 +234,7 @@ sovrano davanti al nome e sul drappo degli stendardi (ombreggiato dalle pieghe c
   | Armatura | scudo | armatura di cuoio, cotta di maglia, cappuccio, elmo |
   | Monete | moneta | oro (nei testi c'è solo la moneta, dopo il numero) |
   | Cimelio | gemma | calice, stendardo antico, busto, corona |
+  | Libro | quaderno | quaderno azzurro, tomo rosso, codice di porpora (vedi 4.7.2) |
 - **Oro**: monete, in magazzino (mucchi da 100). All'inizio 60; poi si trovano nelle rovine (vedi 4.4.4). Servono a pagare
   gli avventurieri. Nei testi (bacheca, scheda, diari, cronaca, finestra Jobs) al posto della parola c'è una monetina
   16×16 dopo il numero. Poi: vene d'oro nella roccia, commercio.
@@ -368,7 +369,7 @@ sovrano davanti al nome e sul drappo degli stendardi (ombreggiato dalle pieghe c
   attrezzo qualunque. Da fermo e camminando la spada sta al fianco e l'arco sulla schiena; gli attrezzi non si vedono.
 
 ### 4.4.3 Combattimento
-- **Lupi**: dal giorno 3 (poi ogni 3 giorni) un branco di 2–3 lupi entra da un bordo della mappa e punta alla colonia.
+- **Lupi**: dal giorno 5 (poi ogni 3 giorni) un branco di 2–3 lupi entra da un bordo della mappa e punta alla colonia.
   Inseguono il colono in piedi più vicino che sta **fuori dalle stanze** (nelle stanze non entrano: i muri proteggono) e lo
   mordono (danno 8, ogni 1,5 s; a segno 70% − 3% per livello di mischia di chi è morso; ogni morso +5 stress).
   Senza nessuno da inseguire, dopo un giorno se ne vanno. Abbattuti lasciano 5 carne e 2 pelli. Nella barra in alto "WOLVES: n".
@@ -443,7 +444,7 @@ racconta il diario al ritorno.
   | Raccoglitore | fungo | il gruppo mangia un terzo in meno |
   | Guida | stivale | il viaggio dura la metà |
   | Occhio di lince | occhio | +30% a disinnescare le trappole |
-  | Studioso | libro | sale di livello dopo ogni spedizione (non ogni 2) |
+  | Studioso | libro | sale di livello dopo ogni spedizione (non ogni 2); il gruppo trova libri il doppio delle volte |
   | Famoso | stella | +5 splendore finché è sulla mappa (alla locanda, o di passaggio) |
 - **Paga, in oro**: all'ingaggio 10 + 5 × livello monete (15–35), prese dal magazzino; al ritorno la **quota**: il 30%
   delle monete trovate. Senza abbastanza oro non si ingaggia. A chi muore non si paga la quota.
@@ -455,9 +456,10 @@ racconta il diario al ritorno.
   | Miniera abbandonata | 2 | 5 | 1 giorno | 20–45 | 10 ferro, 10 carbone, 4 lingotti, un piccone |
   | Cripta | 3 | 6 | 1 giorno | 35–70 | una spada, un elmo, un'armatura di cuoio, 6 lingotti |
   | Forte in rovina | 4 | 8 | 2 giorni | 60–120 | una cotta di maglia, 2 spade, un elmo, 10 lingotti |
+  | Monastero sepolto | 3 | 6 | 1½ giorni | 5–20 | sempre un libro (vedi 4.7.2) |
 
-  All'inizio si conosce solo la torre. Il **tesoro** dell'ultima stanza di ogni rovina ha il triplo delle monete e la
-  **mappa** della rovina dopo (in quest'ordine); a volte (15%) un forziere qualunque ha la mappa di una rovina che non
+  All'inizio si conosce solo la torre. Il **tesoro** dell'ultima stanza di ogni rovina ha il triplo delle monete, i suoi
+  libri (vedi 4.7.2) e la **mappa** della rovina dopo (in quest'ordine: il forte porta al monastero); a volte (15%) un forziere qualunque ha la mappa di una rovina che non
   si conosce ancora. Le mappe le portano a casa: si conoscono al ritorno (e si perdono con una spedizione persa).
   Le stanze ripulite restano ripulite: la spedizione dopo riparte da lì. Finite le stanze, la rovina è esaurita.
 - **Spedizione** (dalla bacheca): si spuntano 1–4 avventurieri tra chi aspetta alla locanda; ogni rovina ha il suo tasto
@@ -520,6 +522,215 @@ racconta il diario al ritorno.
 - Ogni evento è un file di dati (condizioni, peso, effetti, testi localizzati).
 - Lista da definire. Esempi segnaposto: arrivo di un viandante, malattia, incendio, ondata di freddo, raccolto abbondante.
 
+### 4.7 Ricerca: il sapere e le leggi
+Due ricerche. Il **sapere** (le ricerche) si paga in **studio**, che i coloni scrivono allo scrittoio, e in **libri** che
+gli avventurieri riportano dalle rovine. Le **leggi** si pagano in **autorità**, che il sovrano raccoglie sul trono, e
+si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da fuori, la legge viene dal trono.
+
+#### 4.7.1 Lo studio
+- **Scrittoio** (1x1, 10 legna) e nuovo tipo di stanza **Studio** (lavoro): almeno uno scrittoio. Ci sono dall'inizio.
+- Lavoro **Studiare** (abilità ricerca): allo scrittoio il colono scrive pagine, **una pagina un punto studio** e +1
+  esperienza. 2,5 s a pagina a livello 5 (×1,5 a livello 0, ×0,5 a 10), secondo comfort e condizioni: in un turno di
+  8 ore circa 21 punti a livello 0, 32 a livello 5, 64 a livello 10.
+- Studiano prima i **lavoratori** della stanza, che restano seduti fino a fine turno; poi chi non ha altro da fare
+  (una pagina, poi rivaluta).
+- **Luce**: dalle 19 alle 6, senza un abat-jour nella stanza, +50% tempo. Ogni **libreria** nella stanza −10%, fino a 3.
+- Lo studio va in un **mucchio comune**, non a una ricerca precisa: si accumula sempre e si spende quando il re decide.
+- Il sovrano può partire con 3 punti in ricerca (4.3.1): un re studioso è una scelta d'apertura.
+
+#### 4.7.2 I libri
+- Tipo di oggetto **Libro** (icona: il quaderno), mucchi da 10, non marcisce. Una ricerca di livello II, III o IV ne
+  consuma uno. I tre si riconoscono dal colore, dalla sagoma e dalle fasce d'oro sul dorso (una, due, tre):
+
+  | Libro | Livello | Da dove |
+  |---|---|---|
+  | Quaderno azzurro (sottile) | II | torre, miniera, cripta; poi si copia (Scriptorium), l'erudito lo vende a 40 monete |
+  | Tomo rosso (spesso, col fermaglio) | III | cripta, forte, monastero; poi si rilega (Biblioteca reale), raro dall'erudito (120) |
+  | Codice di porpora (grande, con la gemma) | IV | solo dalle rovine profonde: forte, monastero, cittadella |
+
+- **Nelle rovine**: in ogni forziere, il 35% delle volte un libro al posto dell'oggetto (con lo **Studioso** il doppio);
+  il **tesoro** ha sempre i suoi libri, oltre a monete e mappa.
+
+  | Rovina | Libro nel forziere | Nel tesoro |
+  |---|---|---|
+  | Torre diroccata, miniera abbandonata | quaderno | 2 quaderni |
+  | Cripta | quaderno o tomo, metà e metà | 1 tomo |
+  | Forte in rovina | tomo; uno su quattro codice | 1 codice |
+  | Monastero sepolto | sempre: quaderno 50%, tomo 25%, codice 25% | 1 tomo e 1 codice |
+  | Cittadella del Re Dimenticato (dalla ricerca) | tomo o codice | 1 codice e la Corona antica |
+
+- **Monastero sepolto**: rovina nuova, pericolo 3, 6 stanze, un giorno e mezzo di viaggio; forzieri poveri di monete
+  (5–20) e sempre con un libro. La sua mappa è nel tesoro del forte.
+- **Erudito errante** (evento del narratore): se c'è una locanda, ogni 10 giorni circa passa per un giorno; vende 1–2
+  libri o ne compra uno a metà prezzo. È il ponte tra oro e sapere.
+- **Bilancio**: ripulite le rovine si trovano circa 5 quaderni, 3–4 tomi e 2–3 codici; le ricerche ne chiedono 14, 6 e
+  6. I quaderni si copiano, i tomi bastano per metà, i codici per due o tre capolavori: il livello IV è una scelta, a
+  meno di partire per la Cittadella.
+
+#### 4.7.3 Le ricerche
+- Finestra **Knowledge** (tasto in basso, K, o clic su uno scrittoio): lo studio e i libri in magazzino, poi l'albero,
+  una riga per ramo e una colonna per livello. Una ricerca si studia se ci sono quelle prima, i punti e (dal livello II)
+  il libro in magazzino: **Studia** la sblocca subito, consumando punti e libro.
+
+  | Livello | Studio | Libro | Uno studioso a livello 5 |
+  |---|---|---|---|
+  | I | 40–100 | — | 1–3 giorni |
+  | II | 200–300 | quaderno azzurro | 6–9 giorni |
+  | III | 450–500 | tomo rosso | 14–16 giorni |
+  | IV | 1000–1200 | codice di porpora | 31–38 giorni |
+
+  L'albero intero (44 ricerche) vuole circa 14.500 punti: con tre studiosi bravi 95 giorni. Si sceglie, non si finisce.
+- **Dall'inizio**, senza ricerca: muro e pavimento di legno, porta, sentiero, letto, tavolo, sedia, fuoco da campo,
+  stendardo, scrittoio, trono; il pasto; tagliare, scavare, estirpare, raccogliere, pescare, costruire, distruggere, e
+  cacciare con un arco; stanze magazzino, camera, dormitorio, cucina, studio, sala del trono. Tutto il resto, anche
+  quello che c'era già (in corsivo qui sotto), sta in un nodo dell'albero. Materie prime, cibo crudo, monete e cimeli
+  non cambiano.
+- **L'albero**: sei rami, ognuno con una linea maestra dal livello I al IV e due linee corte. ✓ = c'è nel gioco.
+
+  | Ramo | Ricerca | Liv. | Studio | Richiede | Sblocca |
+  |---|---|---|---|---|---|
+  | Terra | Orto | I | 80 | — | zona orto e lavoro Coltivare: rape e cavoli ogni 3 giorni, niente d'inverno |
+  | | Forno di pietra | II | 300 | Orto | forno 2x1: pane (2 vegetali → 3, sazia 60, dura 8 giorni), stufato |
+  | | Apicoltura | III | 450 | Forno di pietra | arnia accanto alle aiuole: miele (non marcisce), cera (candele: si studia di notte) |
+  | | Banchetto reale | IV | 1000 | Apicoltura | il banchetto al forno: +15 felicità per 3 giorni, +20 autorità |
+  | | Caccia ✓ | I | 50 | — | *filatoio, corda d'arco, banco del falegname, falegnameria, arco* |
+  | | Affumicatoio | II | 200 | Caccia | carne e pesce affumicati durano quattro volte tanto |
+  | | Dispensa fredda | I | 100 | — | stanza dispensa: il cibo dura il triplo |
+  | Fuoco | Forgia ✓ | I | 60 | — | *fornace, incudine, forgia, lingotto, piccone, ascia, falcetto* |
+  | | Acciaio | II | 300 | Forgia | acciaio (2 lingotti + 2 carbone): attrezzi −40% tempo, spada danno 20 |
+  | | Vetreria | III | 500 | Acciaio | vetro: finestre (+1 comfort), occhiali (studiare e cucire −20%) |
+  | | Altoforno | IV | 1100 | Vetreria | lingotti e acciaio tre alla volta, con metà carbone |
+  | | Sartoria ✓ | I | 50 | — | *banco da lavoro, laboratorio, armatura e cappuccio di cuoio* |
+  | | Telaio | II | 200 | Sartoria | tela: mantello imbottito (freddo), bende |
+  | | Carbonaia | I | 80 | — | 5 legna → 2 carbone: il carbone non solo dalle vene |
+  | Pietra | Muratura ✓ | I | 60 | — | *muri e pavimenti di pietra*; poi il camino |
+  | | Arredo fine | II | 250 | Muratura | letto a baldacchino, tappeto, armadio: la camera signorile del sovrano |
+  | | Statuaria ✓ | III | 500 | Arredo fine | *statua del re*; poi i memoriali dei caduti (lutto un giorno in meno) |
+  | | Palazzo | IV | 1200 | Statuaria | la sala del trono diventa palazzo: udienza +50%, +10 splendore |
+  | | Decorazioni ✓ | I | 40 | — | *aiuola, fioriera, panca* |
+  | | Fontana ✓ | II | 250 | Decorazioni | *fontana* |
+  | | Strada lastricata | I | 60 | — | lastre di pietra: si cammina il 25% più svelti |
+  | | Ponte | II | 200 | Strada lastricata | si attraversa l'acqua alta, si pesca dal ponte |
+  | Ferro | Palizzata | I | 80 | — | palizzata e cancello: i lupi non passano |
+  | | Torre di guardia | II | 300 | Palizzata | lupi visti a 20 caselle; arciere in torre +2 caselle, +15%; campana |
+  | | Balestra | III | 500 | Torre di guardia | danno 22, un tiro ogni 4 s, +15% a segno |
+  | | Armatura a piastre | IV | 1200 | Balestra, Cotta di maglia, Acciaio | protezione 7, +15% tempo |
+  | | Armi di ferro ✓ | I | 80 | Forgia | *spada, elmo* |
+  | | Cotta di maglia ✓ | II | 300 | Armi di ferro | *cotta di maglia* |
+  | | Fantoccio | I | 60 | — | allenamento nel tempo libero: svago e esperienza in mischia |
+  | | Scudo | II | 250 | Fantoccio | scudo tondo: +3 protezione con spada o pugnale |
+  | Strada | Locanda ✓ | I | 40 | — | *bacheca degli incarichi, locanda, ingaggi e spedizioni* |
+  | | Locanda rinomata | II | 250 | Locanda | arrivi ogni giorno e mezzo, restano 5 giorni; avviso per la classe |
+  | | Compagnia della corona | III | 500 | Locanda rinomata | i coloni partono con gli avventurieri |
+  | | Mappa del Re Dimenticato | IV | 1000 | Compagnia, Cartografia | la Cittadella: pericolo 5, 10 stanze, 3 giorni |
+  | | Provviste secche | I | 80 | — | gallette: valgono 2 provviste, non marciscono |
+  | | Armeria di prestito | II | 250 | Provviste secche | si presta l'equipaggiamento agli avventurieri |
+  | | Cartografia | I | 80 | Locanda | stanze rimaste e la prossima; viaggio −25% |
+  | Sapere | Libreria ✓ | I | 60 | — | libreria: −10% tempo a pagina nella stanza, fino a 3 |
+  | | Scriptorium | II | 250 | Libreria | pergamena e inchiostro: si copiano i quaderni (3 pergamene, 1 inchiostro, 150 studio) |
+  | | Astronomia | III | 500 | Scriptorium | sfera armillare: meteo e stagioni un giorno prima |
+  | | Biblioteca reale | IV | 1200 | Astronomia | si rilegano i tomi (2 quaderni + 400 studio); +2 autorità al giorno |
+  | | Erboristeria | I | 100 | — | erbe medicinali, unguento (+30 punti ferita) |
+  | | Medicina | II | 300 | Erboristeria | infermeria e medico: cura chi è a terra |
+  | | Lanterne ✓ | I | 40 | — | *abat-jour, lampione* |
+
+#### 4.7.4 L'autorità
+- **Trono** (1x1, 12 legna) e nuovo tipo di stanza **Sala del trono** (lavoro: si spunta solo il sovrano). Ci sono
+  dall'inizio.
+- Lavoro **Governare**, solo del sovrano: sul trono tiene udienza, **+1 autorità all'ora** (×1,25 se la sua felicità
+  è almeno 70, ×0,5 se è al più 30). Governa prima se è lavoratore della sala del trono, se no quando non ha altro da
+  fare. Il costo vero è il suo tempo.
+- **Ogni giorno**: +1 per titolo (signoria 1, baronia 2, contea 3, regno 4) e +1 ogni 20 di splendore.
+- **Eventi**: festa del raccolto +5. Poi: incoronazione +20, spedizione tornata col tesoro +5, cimelio posato +3;
+  colono morto −5, ogni colono sotto 20 di felicità −1 al giorno.
+
+#### 4.7.5 Codificare, promulgare, revocare
+- Finestra **Laws** (tasto in basso, G, o clic sul trono): autorità, sigilli, granaio, poi le leggi per categoria.
+- **Codificare** è la ricerca civica: una volta sola, con autorità. Serve il titolo della fascia della legge e a volte
+  una ricerca.
+- **Promulgare** costa 10 autorità e prende un **sigillo**: signoria 2, baronia 3, contea 4, regno 5. La successione ha
+  un posto suo (Primogenitura, in vigore dall'inizio).
+- Le leggi dello stesso **gruppo** si escludono (Tasse, Turni, Giustizia, Accoglienza, Successione, Corona finale):
+  promulgarne una revoca quella in vigore.
+- **Revocare** è gratis, ma per 3 giorni la legge non si ripromulga.
+- **Consenso**: ogni legge in vigore cambia la felicità di chi è in colonia secondo i talenti (agli avventurieri la
+  loro). Sulla scheda sta tra le condizioni, con l'icona della legge (col mouse sopra: approva o disapprova, quanto).
+- **Protesta** (poi): un colono sotto 20 di felicità che disapprova almeno due leggi molla il lavoro per 2 ore e va a
+  lamentarsi nella sala del trono; −5 autorità. Con Pene severe finisce alla gogna; con Clemenza il sovrano lo ascolta.
+
+#### 4.7.6 Le tasse
+I coloni non hanno monete: l'oro viene dalle rovine e va agli avventurieri. Le tasse non lo fanno nascere dal nulla:
+1. **In natura** (Decima, Taglia): una parte di quello che si produce va al **granaio della corona**. Il granaio paga
+   per primo le provviste delle spedizioni; poi le feste, metà paga degli avventurieri in viveri, l'erudito, le carestie
+   (Granaio aperto). È una riserva: più è pieno più la colonia regge, ma intanto quel cibo non lo mangia nessuno.
+2. **In lavoro** (Corvée): ore della routine ai cantieri della corona, una quarta casella colorata.
+3. **Su chi viene da fuori** (Gabella sul bottino, Tassa di soggiorno, Pedaggio): le monete le pagano avventurieri e
+   viandanti; ne arrivano di meno.
+4. **In fedeltà** (Tributo, in contea): la felicità dei coloni diventa autorità.
+
+#### 4.7.7 Il libro delle leggi
+Quattro fasce, una per titolo; sei categorie. ✓ = c'è nel gioco.
+
+| Categoria | Legge | Fascia | Costo | Gruppo, richiede | Effetto | Felicità |
+|---|---|---|---|---|---|---|
+| Tesoro | Esenzione ✓ | signoria | 30 | Tasse | niente decima | tutti +5 |
+| | Decima ✓ | signoria | 40 | Tasse | un pezzo su dieci di quello che si raccoglie, caccia, pesca, cucina e fa va al granaio | tutti −3 |
+| | Gabella sul bottino ✓ | signoria | 40 | Locanda | quota degli avventurieri 20% (non 30); un quarto in meno di arrivi, niente avidi | avventurieri −5 |
+| | Tassa di soggiorno ✓ | signoria | 30 | Locanda | una moneta a notte da chi aspetta alla locanda; resta un giorno in meno | avventurieri −3 |
+| | Taglia | baronia | 100 | Tasse, dopo Decima | un pezzo su cinque al granaio | tutti −8 |
+| | Pedaggio | baronia | 80 | Palizzata | 2 monete da chi entra dal cancello o dal ponte; un quinto in meno di arrivi | avventurieri −3 |
+| | Granaio aperto | baronia | 60 | dopo Decima | senza cibo in magazzino si mangia dal granaio; una volta a stagione un pasto a tutti | tutti +4 |
+| | Tributo | contea | 150 | — | +1 autorità al giorno a colono | tutti −4 |
+| Lavoro | Turni lunghi ✓ | signoria | 40 | Turni | 10 ore di lavoro (il pigro 7, lo stacanovista resta a 12); stress +25% | tutti −5; stacanovista +3; pigro, festaiolo, irrequieto −10 |
+| | Giornata corta ✓ | signoria | 40 | Turni | al più 6 ore; stress −25% | tutti +8; stacanovista −5 |
+| | Riposo festivo ✓ | signoria | 30 | — | ogni settimo giorno si cucina e basta | tutti +6; stacanovista −5; asceta 0 |
+| | Corvée | baronia | 80 | — | 2 ore di tempo libero ai cantieri della corona, che vanno il 25% più svelti | tutti −6; stacanovista 0 |
+| | Turno di guardia | baronia | 80 | Palizzata | un colono veglia di notte (prima i nottambuli): lupi visti al bordo | nottambulo +5; dormiglione −5 |
+| | Corporazioni | contea | 150 | — | nelle stanze di lavoro lavorano solo i lavoratori, il 20% più svelti | lavoratori +5; gli altri −2 |
+| Ordine | Coprifuoco ✓ | signoria | 40 | — | dalle 21 tutti a letto: niente sere al fuoco, meno prede per i lupi | tutti −2; festaiolo −10; mattiniero +3 |
+| | Milizia | signoria | 50 | Fantoccio | un'ora al giorno al fantoccio; si scappa sotto 30 punti ferita | tutti −3; iracondo +3 |
+| | Pene severe | baronia | 80 | Giustizia | gogna per sfuriate e proteste; sfuriate un terzo meno spesso | tutti −2; iracondo −10 |
+| | Clemenza | baronia | 80 | Giustizia | sfuriate di un'ora; il sovrano ascolta chi protesta | tutti +3; iracondo +5 |
+| | Riserva di caccia | baronia | 100 | — | cervi doppi, solo del sovrano e dei cacciatori; +3 autorità a cervo del sovrano | cacciatori +3; gli altri −3 |
+| | Legge marziale | contea | 150 | — | con nemici in vista nessuno scappa sopra 20 punti ferita; +10% a segno | tutti −5 |
+| Popolo | Porte chiuse | signoria | 30 | Accoglienza | nessuno chiede di restare | tutti +5 |
+| | Porte aperte | signoria | 40 | Accoglienza | un avventuriero chiede di restare dopo 2 spedizioni, i viandanti il doppio; forestieri per 10 giorni | forestieri −5 |
+| | Giuramento | baronia | 80 | — | chi arriva giura davanti al trono (10 autorità): non è forestiero | nuovi coloni +5 |
+| | Padrinato | baronia | 100 | — | un padrino: +50% esperienza per 10 giorni lavorandogli vicino | padrino e figlioccio +3 |
+| | Matrimoni misti | contea | 150 | — | coloni e avventurieri si sposano; l'avventuriero resta come colono | avventurieri +5 |
+| | Scuola | contea | 180 | Scriptorium | un'ora allo scrittoio per figli e forestieri; i figli crescono con 3 punti abilità in più | figli e forestieri +3 |
+| | Carta delle libertà | regno | 300 | Corona finale | leggi del Popolo ×1,5; Taglia, Corvée, Coprifuoco e Pene severe non si promulgano più | tutti +10 |
+| Corona | Primogenitura | dall'inizio | — | Successione | regna il primo figlio | — |
+| | Corte | baronia | 100 | — | il sovrano non lavora più: udienza +50%, il suo sguardo a 12 caselle | sovrano +5 |
+| | Guardia del corpo | baronia | 80 | Scudo | una guardia segue il sovrano; finché è in piedi il sovrano a terra non viene finito | la guardia +3 |
+| | Successione elettiva | contea | 150 | Successione | la colonia sceglie l'erede tra coniuge e figli; lutto regale 4 giorni | tutti +2 |
+| | Assolutismo | regno | 300 | Corona finale | le leggi non danno più né approvazione né disapprovazione; udienza +100% | — |
+| Feste | Festa del raccolto ✓ | signoria | 40 | — | l'ultimo giorno della stagione è festa (si cucina e basta); poi +10 felicità per 3 giorni, +5 autorità | — |
+| | Funerali | signoria | 30 | cimitero | due ore di funerale: lutto di 2 giorni, −10 | — |
+| | Torneo | baronia | 100 | Fantoccio | gare a stagione; quel giorno gli avventurieri arrivano di un livello in più | tutti +3; iracondo +5 |
+| | Cronista di corte | baronia | 80 | Scriptorium | +1 autorità per spedizione raccontata, epiteti più ricchi | il cronista +3 |
+| | Mecenatismo | contea | 150 | — | decorazioni +25% splendore (Mecenate +50%); 2 monete al giorno agli artisti | tutti +2 |
+| | Calendario delle feste | contea | 180 | Astronomia | feste annunciate (+3 nei due giorni prima), ×1,5, un giorno in più a stagione | festaiolo +5 |
+
+#### 4.7.8 All'inizio della partita
+- I lupi arrivano dal giorno 5 (vedi 4.4.3).
+- Su ogni mappa c'è sempre un'**arma abbandonata**: a caso tra spada, ascia e arco, a 15–25 caselle dalla radura, sul
+  prato. Si raccoglie come ogni oggetto a terra e la prende chi la sa usare. Con l'arco si caccia già (l'ordine Caccia c'è
+  sempre, serve un arco); la ricerca Caccia serve a farne altri. Poi: i resti del bivacco accanto.
+
+**Ordine di lavoro** (4.7): (1) scrittoio, studio, Studiare, mucchio di studio, finestra Knowledge coi nodi di livello I
+che raccolgono quello che c'è già, lupi dal giorno 5, arma abbandonata; (2) libri nei forzieri e nei tesori, Studioso,
+monastero, livello II e III di quello che c'è già (cotta, fontana, statua); (3) trono, Governare, autorità, finestra
+Laws, le leggi di signoria che usano cose che esistono, consenso sulla scheda; (4) granaio e decima, titolo che cresce
+(4.3, fase 6) con sigilli e fasce; (5) il resto dell'albero un nodo alla volta, erudito errante, protesta; (6) livello
+IV, regno, leggi finali, cittadella.
+**Stato**: fatte le fasi 1–3 e della 4 la decima. Nel gioco: scrittoio, libreria e trono; stanze Studio e Sala del trono;
+lavori Studiare e Governare; studio e autorità (nelle finestre Knowledge e Laws, tasti K e G, o clic su scrittoio e
+trono); i tre libri, nei forzieri e nei tesori, col monastero; le 12 ricerche segnate ✓ (Statuaria per ora dopo
+Muratura, finché non c'è Arredo fine); le 9 leggi segnate ✓, con 2 sigilli (il titolo non cresce ancora). Il granaio è
+un conto, non una stanza, e niente ci marcisce; la festa del raccolto, finché non ci sono le stagioni, è ogni 10 giorni.
+Manca il resto, e i contatori di studio e autorità nella barra in alto (a 1280 di larghezza non ci stanno).
+
 ## 5. Scope
 
 ### MVP (primo traguardo giocabile)
@@ -533,6 +744,7 @@ una stagione invernale, salvataggio locale, inglese + italiano.
 4. Salvataggio cloud
 5. Umore, relazioni, più talenti
 6. Avventurieri e rovine (vedi 4.4.4)
+7. Ricerca: il sapere e le leggi (vedi 4.7)
 
 ### Fuori scope (per ora)
 Combattimento tattico (oggi i coloni si difendono da soli, vedi 4.4.3), livelli verticali, commercio/diplomazia, mod.
