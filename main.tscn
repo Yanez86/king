@@ -1,4 +1,4 @@
-[gd_scene load_steps=39 format=3]
+[gd_scene load_steps=40 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Texture2D" path="res://art/icon_wood.png" id="2"]
@@ -24,6 +24,7 @@
 [ext_resource type="Texture2D" path="res://art/icon_resources.png" id="resources_icon"]
 [ext_resource type="Texture2D" path="res://art/icon_select.png" id="select_icon"]
 [ext_resource type="Texture2D" path="res://art/sign.png" id="sign_icon"]
+[ext_resource type="Texture2D" path="res://art/icon_keybindings.png" id="keybindings_icon"]
 
 [sub_resource type="AtlasTexture" id="HandsSlot"]
 atlas = ExtResource("equipment")
@@ -932,16 +933,19 @@ expand_icon = true
 theme_override_constants/separation = 12
 
 [node name="Tabs" type="VBoxContainer" parent="HUD/Options/Window/Box/Body"]
-custom_minimum_size = Vector2(150, 0)
 theme_override_constants/separation = 6
 
 [node name="Keybindings" type="Button" parent="HUD/Options/Window/Box/Body/Tabs"]
-custom_minimum_size = Vector2(0, 36)
+custom_minimum_size = Vector2(40, 40)
+size_flags_horizontal = 0
 focus_mode = 0
+tooltip_text = "Keybindings"
 toggle_mode = true
 button_pressed = true
 button_group = SubResource("OptionTabs")
-text = "Keybindings"
+icon = ExtResource("keybindings_icon")
+icon_alignment = 1
+expand_icon = true
 
 [node name="Space" type="Control" parent="HUD/Options/Window/Box/Body/Tabs"]
 size_flags_vertical = 3
