@@ -664,8 +664,8 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
 - **Consenso**: ogni legge in vigore cambia la felicità di chi è in colonia secondo i talenti (agli avventurieri la
   loro). Sulla scheda sta tra le condizioni, con l'icona della legge (col mouse sopra: approva o disapprova, quanto).
 - **Protesta** ✓: un colono sotto 20 di felicità che disapprova almeno due leggi molla il lavoro per 2 ore e va a
-  lamentarsi nella sala del trono (senza, lì attorno); −5 autorità; una volta al giorno al più, il sovrano no. Poi: con
-  Pene severe finisce alla gogna; con Clemenza il sovrano lo ascolta.
+  lamentarsi nella sala del trono (senza, lì attorno); −5 autorità; una volta al giorno al più, il sovrano no. Con
+  Pene severe finisce alla gogna; con Clemenza il sovrano lo ascolta (vedi 4.7.7).
 
 #### 4.7.6 Le tasse
 I coloni non hanno monete: l'oro viene dalle rovine e va agli avventurieri. Le tasse non lo fanno nascere dal nulla:
@@ -698,9 +698,9 @@ Quattro fasce, una per titolo; sei categorie. ✓ = c'è nel gioco.
 | | Corporazioni | contea | 150 | — | nelle stanze di lavoro lavorano solo i lavoratori, il 20% più svelti | lavoratori +5; gli altri −2 |
 | Ordine | Coprifuoco ✓ | signoria | 40 | — | dalle 21 tutti a letto: niente sere al fuoco, meno prede per i lupi | tutti −2; festaiolo −10; mattiniero +3 |
 | | Milizia ✓ | signoria | 50 | Fantoccio | un'ora al giorno al fantoccio (la prima di tempo libero); si scappa sotto 30 punti ferita | tutti −3; iracondo +3 |
-| | Pene severe | baronia | 80 | Giustizia | gogna per sfuriate e proteste; sfuriate un terzo meno spesso | tutti −2; iracondo −10 |
-| | Clemenza | baronia | 80 | Giustizia | sfuriate di un'ora; il sovrano ascolta chi protesta | tutti +3; iracondo +5 |
-| | Riserva di caccia | baronia | 100 | — | cervi doppi, solo del sovrano e dei cacciatori; +3 autorità a cervo del sovrano | cacciatori +3; gli altri −3 |
+| | Pene severe ✓ | baronia | 80 | Giustizia | gogna per sfuriate e proteste (−10 felicità per un giorno; la protesta non toglie autorità); sfuriate un terzo meno spesso (l'iracondo si stressa un terzo meno) | tutti −2; iracondo −10 |
+| | Clemenza ✓ | baronia | 80 | Giustizia | sfuriate di un'ora; il sovrano ascolta chi protesta (un'ora, +10 felicità per mezza giornata, niente autorità persa) | tutti +3; iracondo +5 |
+| | Riserva di caccia ✓ | baronia | 100 | — | cervi doppi, solo del sovrano e dei cacciatori (chi ha l'arco); +3 autorità a cervo del sovrano | cacciatori +3; gli altri −3 |
 | | Legge marziale | contea | 150 | — | con nemici in vista nessuno scappa sopra 20 punti ferita; +10% a segno | tutti −5 |
 | Popolo | Porte chiuse | signoria | 30 | Accoglienza | nessuno chiede di restare | tutti +5 |
 | | Porte aperte | signoria | 40 | Accoglienza | un avventuriero chiede di restare dopo 2 spedizioni, i viandanti il doppio; forestieri per 10 giorni | forestieri −5 |
@@ -710,7 +710,7 @@ Quattro fasce, una per titolo; sei categorie. ✓ = c'è nel gioco.
 | | Scuola | contea | 180 | Scriptorium | un'ora allo scrittoio per figli e forestieri; i figli crescono con 3 punti abilità in più | figli e forestieri +3 |
 | | Carta delle libertà | regno | 300 | Corona finale | leggi del Popolo ×1,5; Taglia, Corvée, Coprifuoco e Pene severe non si promulgano più | tutti +10 |
 | Corona | Primogenitura | dall'inizio | — | Successione | regna il primo figlio | — |
-| | Corte | baronia | 100 | — | il sovrano non lavora più: udienza +50%, il suo sguardo a 12 caselle | sovrano +5 |
+| | Corte ✓ | baronia | 100 | — | il sovrano non lavora più: udienza +50%, il suo sguardo a 12 caselle (quando ci sarà lo sguardo, 4.3) | sovrano +5 |
 | | Guardia del corpo | baronia | 80 | Scudo | una guardia segue il sovrano; finché è in piedi il sovrano a terra non viene finito | la guardia +3 |
 | | Successione elettiva | contea | 150 | Successione | la colonia sceglie l'erede tra coniuge e figli; lutto regale 4 giorni | tutti +2 |
 | | Assolutismo | regno | 300 | Corona finale | le leggi non danno più né approvazione né disapprovazione; udienza +100% | — |
@@ -736,7 +736,7 @@ IV, regno, leggi finali, cittadella.
 **Stato**: fatte le fasi 1–4; della 5 una parte dei nodi, l'erudito errante e la protesta. Nel gioco: scrittoio,
 libreria e trono; stanze Studio e Sala del trono; lavori Studiare e Governare; studio e autorità (nelle finestre
 Knowledge e Laws, tasti K e G, o clic su scrittoio e trono; tutte e due scorrono); i tre libri, nei forzieri e nei
-tesori, col monastero; le 24 ricerche segnate ✓ (Statuaria per ora dopo Muratura, finché non c'è Arredo fine); le 15
+tesori, col monastero; le 24 ricerche segnate ✓ (Statuaria per ora dopo Muratura, finché non c'è Arredo fine); le 19
 leggi segnate ✓; il titolo cresce con lo splendore (4.3) e dà i sigilli (2–5), le fasce delle leggi e l'autorità di
 ogni giorno; gli eventi d'autorità del 4.7.4 tranne l'incoronazione (manca la successione), mai sotto zero. Il granaio
 è un conto, non una stanza, e niente ci marcisce; paga le provviste, poi (Granaio aperto) l'ora senza cibo in

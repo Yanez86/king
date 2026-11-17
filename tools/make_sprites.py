@@ -2748,6 +2748,23 @@ WWWWWWWWWWWW ....ooooo... .w........w.
 oooooooooooo ............ w..........w
 """
 
+# Giustizia, caccia e corte: pene severe (la gogna), clemenza (il sovrano ascolta), riserva di caccia (il cervo), corte
+# (la corona sul cuscino). Gogna e ascolto sono anche le condizioni di chi ci passa (vedi conditions)
+LAW_SYMBOLS_6 = """
+............ ..oooooooo.. .o.o....o.o. ............
+.....oo..... .oxxxxxxxxo. .owo....owo. .o...oo...o.
+.....wW..... oxxgxgxgxxXo ..owo..owo.. o8o.o88o.o8o
+oooooooooooo oxxgggggxxXo ...owoowo... ogooogggoogo
+occcccccccCo oxxg8g8gxxXo ....owwo.... oggggggggg<o
+ocoocoocooCo oxxgggggxxXo ...ocCCco... ogjgg8ggjg<o
+ocoocoocooCo .oxxxxxxxXo. ..occccCCo.. og<<<<<<<<<o
+oCCCCCCCCCCo ..ooxooooo.. ..ococcoCo.. oooooooooooo
+oooooooooooo ...oxo...... ...occcCo... .oJjjjjjjJo.
+.....wW..... ...oo....... ...occcCo... .oJJJJJJJJo.
+.....wW..... ............ ....oCCo.... .oooooooooo.
+....owWo.... ............ .....oo..... ............
+"""
+
 # Rami dell'albero del sapere 12x12, nei quadratini: terra (spiga), fuoco (fiamma), pietra (mattoni), ferro (spada e
 # scudo), strada (rosa dei venti), sapere (lucerna)
 
@@ -3233,7 +3250,9 @@ def main():
     images["icon_iron"], images["icon_coal"] = (pixels(f) for f in frames(ORE_ICONS, count=2))
     images["icon_meal"], images["icon_fine_meal"] = (pixels(f) for f in frames(MEALS, count=2))
     feast = ["." * 16] * 2 + [".." + line + ".." for line in art(FEAST_SYMBOL, 12, 12)] + ["." * 16] * 2
-    images["conditions"] = pixels(side_by_side(frames(CONDITIONS, count=6) + [feast]))
+    pad12 = lambda f: ["." * 16] * 2 + [".." + line + ".." for line in f] + ["." * 16] * 2  # simbolo 12x12 in 16x16
+    pillory, heard = frames(LAW_SYMBOLS_6, 12, 4, 12)[:2]
+    images["conditions"] = pixels(side_by_side(frames(CONDITIONS, count=6) + [feast, pad12(pillory), pad12(heard)]))
     images["ground"] = pixels(ground_sheet())
     images["warehouse_day"] = pixels(art(WAREHOUSE, 64, 32))
     images["warehouse_night"] = pixels(art(WAREHOUSE, 64, 32), palette=night_palette())
@@ -3265,7 +3284,7 @@ def main():
     images["icon_authority"] = pixels(art(AUTHORITY_ICON, 16, 16))
     techs = [f for block in (TECH_SYMBOLS_1, TECH_SYMBOLS_2, TECH_SYMBOLS_3) for f in frames(block, 12, 4, 12)] + frames(TECH_SYMBOLS_4, 12, 5, 12) + frames(TECH_SYMBOLS_5, 12, 2, 12) + frames(TECH_SYMBOLS_6, 12, 3, 12) + frames(TECH_SYMBOLS_7, 12, 2, 12)
     images["techs"] = pixels(side_by_side([badge(f) for f in techs]))
-    laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 3, 12) + frames(LAW_SYMBOLS_5, 12, 3, 12)
+    laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 3, 12) + frames(LAW_SYMBOLS_5, 12, 3, 12) + frames(LAW_SYMBOLS_6, 12, 4, 12)
     images["laws"] = pixels(side_by_side([badge(f, "I", "x", "U") for f in laws]))
     branches = [f for block in (BRANCH_SYMBOLS_1, BRANCH_SYMBOLS_2) for f in frames(block, 12, 3, 12)]
     images["branches"] = pixels(side_by_side([badge(f) for f in branches]))

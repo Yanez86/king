@@ -610,7 +610,7 @@ const TRAIT_INFO := {  # suggerimento col mouse sopra il talento: com'è, poi co
 }
 # condizioni: effetti a tempo, con un'icona 16x16 nella scheda (colonne di CONDITIONS_SHEET nell'ordine di Cond).
 # Dati: [giorni, tempo di lavoro x, stress da lavoro x, felicità +, descrizione]. Vedi add_cond, work_factor, update_needs
-enum Cond { POISONED, WELL_FED, FEASTED, AT_TABLE, ATE_RAW, MOURNING, FESTIVE }
+enum Cond { POISONED, WELL_FED, FEASTED, AT_TABLE, ATE_RAW, MOURNING, FESTIVE, PILLORIED, HEARD }
 const CONDITIONS_SHEET := preload("res://art/conditions.png")
 const COND_INFO := {
 	Cond.POISONED: [1.0, 1.5, 1.0, -20.0, "Ate raw food that was going bad. Works slowly."],
@@ -620,6 +620,8 @@ const COND_INFO := {
 	Cond.ATE_RAW: [0.5, 1.0, 1.0, -10.0, "A glutton forced to eat raw food."],
 	Cond.MOURNING: [3.0, 1.0, 1.25, -15.0, "A fellow colonist has died."],
 	Cond.FESTIVE: [3.0, 1.0, 1.0, 10.0, "Celebrated the harvest feast."],
+	Cond.PILLORIED: [1.0, 1.0, 1.0, -10.0, "Put in the stocks for a tantrum or a protest."],
+	Cond.HEARD: [0.5, 1.0, 1.0, 10.0, "The ruler listened to their complaint."],
 }
 const GLUTTON_MOOD := 2.0  # il goloso: tanta felicità in più (o in meno) da quello che mangia
 const FOOD_CONDS := [Cond.WELL_FED, Cond.FEASTED, Cond.AT_TABLE, Cond.ATE_RAW]
@@ -837,13 +839,15 @@ const SPLENDOR_PER_AUTHORITY := 20
 const ENACT_COST := 10.0
 const REVOKE_WAIT := 3.0    # giorni prima di poter ripromulgare una legge revocata
 enum Law { EXEMPTION, TITHE, LOOT_TAX, LODGING_TAX, LONG_SHIFTS, SHORT_DAY, DAY_OF_REST, CURFEW, HARVEST_FEAST, TALLAGE, TRIBUTE, OPEN_GRANARY,
-	TOLL, NIGHT_WATCH, MILITIA }
+	TOLL, NIGHT_WATCH, MILITIA,
+	HARSH_PUNISHMENT, CLEMENCY, HUNTING_RESERVE, COURT }
 const LAWS_SHEET := preload("res://art/laws.png")  # colonne nell'ordine di Law
-enum LawKind { TREASURY, WORK, ORDER, FEASTS }
+enum LawKind { TREASURY, WORK, ORDER, CROWN, FEASTS }
 # Leggi: "kind" categoria; "cost" autorità per codificarla; "tier" il titolo che serve (di TITLES, se no la signoria);
 # "group" in vigore una sola dello stesso gruppo; "needs" la ricerca che serve; "after" la legge da codificare prima.
 # "mood": felicità di chi è in colonia finché è in vigore (vedi law_mood): "all" a tutti i coloni, un Trait al posto di
-# "all" a chi ce l'ha, "guests" agli avventurieri. Le altre cose le fanno le funzioni che le nominano.
+# "all" a chi ce l'ha, "guests" agli avventurieri, "ruler" al sovrano, "hunters" a chi ha l'arco (vedi law_mood_of).
+# Le altre cose le fanno le funzioni che le nominano.
 # ponytail: solo le leggi che usano cose che ci sono già; le altre del GDD arrivano coi loro sistemi
 const LAWS := {
 	Law.EXEMPTION: {"kind": LawKind.TREASURY, "cost": 30, "group": "taxes", "mood": {"all": 5.0}, "info": "No tithe: the granary stays empty."},
@@ -873,6 +877,14 @@ const LAWS := {
 		"info": "A colonist keeps watch at night (a night owl first, or someone who sleeps by day): wolves are seen as soon as they come."},
 	Law.MILITIA: {"kind": LawKind.ORDER, "cost": 50, "needs": Tech.TRAINING_DUMMY, "mood": {"all": -3.0, Trait.HOTHEAD: 3.0},
 		"info": "An hour a day of free time at the training dummy. Colonists flee only under 30 health, not 40."},
+	Law.HARSH_PUNISHMENT: {"kind": LawKind.ORDER, "tier": 1, "cost": 80, "group": "justice", "mood": {"all": -2.0, Trait.HOTHEAD: -10.0},
+		"info": "Tantrums and protests end in the stocks (-10 happiness for a day), and protests cost no authority. Hotheads, afraid, storm off a third less often."},
+	Law.CLEMENCY: {"kind": LawKind.ORDER, "tier": 1, "cost": 80, "group": "justice", "mood": {"all": 3.0, Trait.HOTHEAD: 5.0},
+		"info": "Tantrums last an hour. The ruler listens to whoever protests: an hour, no authority lost, +10 happiness for half a day."},
+	Law.HUNTING_RESERVE: {"kind": LawKind.ORDER, "tier": 1, "cost": 100, "mood": {"all": -3.0, "hunters": 3.0},
+		"info": "Twice as many deer, hunted only by the ruler and by those who carry a bow. +3 authority for every deer the ruler takes."},
+	Law.COURT: {"kind": LawKind.CROWN, "tier": 1, "cost": 100, "mood": {"ruler": 5.0},
+		"info": "The ruler no longer works: only governs, and audiences give 50% more authority."},
 	Law.CURFEW: {"kind": LawKind.ORDER, "cost": 40, "mood": {"all": -2.0, Trait.FUN_LOVING: -10.0, Trait.EARLY_BIRD: 3.0},
 		"info": "From 21 everyone goes to bed: no evenings at the campfire, fewer targets for the wolves."},
 	Law.HARVEST_FEAST: {"kind": LawKind.FEASTS, "cost": 40,
@@ -888,6 +900,10 @@ const FEAST_AUTHORITY := 5.0
 const TOLL := 2             # monete del pedaggio, per avventuriero che arriva
 const TOLL_WAIT := 1.25     # col pedaggio: giorni tra un arrivo e l'altro x (un quinto in meno)
 const MILITIA_FLEE := 30.0  # con la milizia si scappa sotto questi punti ferita (se no FLEE_HP)
+const HARSH_STRESS := 2.0 / 3  # con le pene severe, stress dal lavoro x per l'iracondo: sfuriate un terzo meno spesso
+const CLEMENT_HOURS := 1.0  # con la clemenza sfuriate e proteste durano tanto
+const COURT_AUDIENCE := 1.5 # con la corte, autorità dall'udienza x
+const RESERVE_AUTHORITY := 3.0  # riserva di caccia: per ogni cervo abbattuto dal sovrano
 const TRAIN_HIT := 2.5      # secondi per colpo al fantoccio: +1 esperienza in mischia
 const TOWER_SIGHT := 20     # caselle: con una torre di guardia (e la sua campana) i lupi si vedono da qui (se no ALERT)
 const TOWER := {"range": 2.0, "hit": 0.15}  # all'arciere sulla torre, in più (vedi gear_sum)
@@ -2328,6 +2344,8 @@ func tick(delta: float) -> void:
 		next_animal = clock + ANIMAL_RESPAWN
 		if animals.size() < ANIMALS_MAX:
 			var prey := BEASTS.keys().filter(func(k): return not BEASTS[k].get("hostile", false))
+			if enacted.has(Law.HUNTING_RESERVE):  # riserva di caccia: cervi doppi
+				prey.append(Beast.DEER)
 			spawn_animal(prey[wild.randi() % prey.size()])
 	if threats and clock >= next_pack:
 		next_pack = clock + WOLF_EVERY
@@ -2738,7 +2756,8 @@ func update_needs(c: Colonist, delta: float) -> void:
 	if fx(c, "fun", 1.0) == 0:  # non gli serve: sempre a posto
 		c.needs[Need.FUN] = NEED_MAX
 	if c.job not in [Job.NONE, Job.SLEEP, Job.EAT, Job.RELAX, Job.TANTRUM, Job.PROTEST]:  # lavori, ma anche combattere e scappare
-		c.needs[Need.STRESS] += STRESS_WORK * fx(c, "stress", 1.0) * cond_product(c, 2) * outdoor_stress(c) * shift_stress() * day
+		c.needs[Need.STRESS] += STRESS_WORK * fx(c, "stress", 1.0) * cond_product(c, 2) * outdoor_stress(c) * shift_stress() * day \
+			* (HARSH_STRESS if enacted.has(Law.HARSH_PUNISHMENT) and Trait.HOTHEAD in c.traits else 1.0)
 	else:
 		c.needs[Need.STRESS] -= STRESS_RELIEF * (TANTRUM_VENT if c.job == Job.TANTRUM else 1.0) * day
 	var mood: float = (c.needs[Need.FOOD] + c.needs[Need.REST] + c.needs[Need.FUN] + c.needs[Need.COMFORT]
@@ -2763,7 +2782,9 @@ func tantrum(c: Colonist) -> void:
 	quit_job(c)
 	var path := stroll(c, TANTRUM_REACH)
 	start_job(c, Job.TANTRUM, path, path.back() if not path.is_empty() else cell_of(c.pos), 0.0)
-	c.work_left = TANTRUM_HOURS * DAY_LENGTH / 24
+	c.work_left = (CLEMENT_HOURS if enacted.has(Law.CLEMENCY) else TANTRUM_HOURS) * DAY_LENGTH / 24
+	if enacted.has(Law.HARSH_PUNISHMENT):
+		add_cond(c, Cond.PILLORIED)
 
 
 # Il sonnambulo si alza dormendo, cammina fino a una casella lì vicino e ci continua a dormire (per terra):
@@ -2955,6 +2976,8 @@ func stroll(c: Colonist, reach: int) -> Array[Vector2i]:
 # l'equipaggiamento, cucinare, forgiare e cucire, tagliare, scavare, estirpare, raccogliere, pescare, cacciare,
 # costruire, trasportare. false se non ce n'è
 func find_work(c: Colonist) -> bool:
+	if c == ruler and enacted.has(Law.COURT):  # a corte il sovrano governa e basta
+		return try_equip(c) or try_seat(c, Build.THRONE, false)
 	if routines and holiday():  # riposo festivo, festa del raccolto: si cucina e basta
 		return try_equip(c) or try_cook(c)
 	if try_equip(c) or try_seat(c, Build.THRONE, true) or try_seat(c, Build.DESK, true) or try_cook(c) or try_craft(c) \
@@ -3457,6 +3480,8 @@ func kill(a: Animal, by: Colonist) -> void:
 			end_job(o)
 	produce(Res.MEAT, spot, BEASTS[a.kind]["meat"])
 	produce(Res.HIDE, spot, BEASTS[a.kind]["hide"])  # accanto: un mucchio per risorsa
+	if a.kind == Beast.DEER and by == ruler and enacted.has(Law.HUNTING_RESERVE):
+		gain(RESERVE_AUTHORITY)
 	try_haul(by, Res.MEAT, [spot])
 
 
@@ -4479,11 +4504,12 @@ func page_time(c: Colonist, room: Room) -> float:
 # autorità di un'ora d'udienza del sovrano `c`: di più se è sereno, di meno se è cupo (vedi RULER_MOODS)
 func govern_rate(c: Colonist) -> float:
 	var happy: float = c.needs[Need.HAPPINESS]
+	var rate := AUTHORITY_PER_HOUR * (COURT_AUDIENCE if enacted.has(Law.COURT) else 1.0)
 	if happy >= RULER_MOODS[0][0]:
-		return AUTHORITY_PER_HOUR * RULER_MOODS[0][1]
+		return rate * RULER_MOODS[0][1]
 	if happy <= RULER_MOODS[1][0]:
-		return AUTHORITY_PER_HOUR * RULER_MOODS[1][1]
-	return AUTHORITY_PER_HOUR
+		return rate * RULER_MOODS[1][1]
+	return rate
 
 
 # --- Ricerca: le leggi ---
@@ -4502,6 +4528,10 @@ func law_mood_of(c: Colonist, law: Law) -> float:
 	var mood: Dictionary = LAWS[law].get("mood", {})
 	if c.hero != Hero.NONE:
 		return mood.get("guests", 0.0)
+	if c == ruler and mood.has("ruler"):
+		return mood["ruler"]
+	if has_bow(c) and mood.has("hunters"):
+		return mood["hunters"]
 	for t in c.traits:
 		if mood.has(t):
 			return mood[t]
@@ -4573,7 +4603,8 @@ func new_hour() -> void:
 
 
 # `c` molla tutto e va nella sala del trono più vicina (se non ce n'è, lì attorno) a lamentarsi delle leggi che non gli
-# piacciono, per PROTEST_HOURS; nella cronaca. ponytail: con Pene severe e Clemenza (gogna, udienza) quando ci saranno
+# piacciono, per PROTEST_HOURS; nella cronaca. Costa autorità, se non c'è una legge della giustizia: con le pene severe
+# finisce alla gogna, con la clemenza il sovrano lo ascolta (e dura meno)
 func protest(c: Colonist) -> void:
 	quit_job(c)
 	c.protested = today
@@ -4585,10 +4616,18 @@ func protest(c: Colonist) -> void:
 	if path.is_empty():
 		path = stroll(c, TANTRUM_REACH)
 	start_job(c, Job.PROTEST, path, path.back() if not path.is_empty() else cell_of(c.pos), 0.0)
-	c.work_left = PROTEST_HOURS * DAY_LENGTH / 24
-	gain(PROTEST_AUTHORITY)
-	note("Day %d: %s protests in the throne room against %s." % [int(clock) + 1, full_name(c),
-		" and ".join(enacted.filter(func(law): return law_mood_of(c, law) < 0).map(law_name))])
+	c.work_left = (CLEMENT_HOURS if enacted.has(Law.CLEMENCY) else PROTEST_HOURS) * DAY_LENGTH / 24
+	var how := ""
+	if enacted.has(Law.HARSH_PUNISHMENT):  # alla gogna: niente autorità persa, ma un giorno di umiliazione
+		add_cond(c, Cond.PILLORIED)
+		how = ": into the stocks"
+	elif enacted.has(Law.CLEMENCY):  # il sovrano lo ascolta
+		add_cond(c, Cond.HEARD)
+		how = ": the ruler listens"
+	else:
+		gain(PROTEST_AUTHORITY)
+	note("Day %d: %s protests in the throne room against %s%s." % [int(clock) + 1, full_name(c),
+		" and ".join(enacted.filter(func(law): return law_mood_of(c, law) < 0).map(law_name)), how])
 
 
 # Armeria di prestito: per la spedizione `g` prende dal magazzino l'armatura e l'elmo che proteggono più dei suoi, e lo
@@ -4750,7 +4789,8 @@ func revoke(law: Law) -> void:
 # suggerimento di una legge: cosa fa, a chi piace e a chi no, cosa serve
 func law_tip(law: Law) -> String:
 	var mood: Dictionary = LAWS[law].get("mood", {})
-	var who := mood.keys().map(func(k): return "%s %s" % [{"all": "everyone", "guests": "adventurers"}.get(k,
+	var who := mood.keys().map(func(k): return "%s %s" % [{"all": "everyone", "guests": "adventurers", "ruler": "the ruler",
+		"hunters": "bow carriers"}.get(k,
 		Trait.keys()[k].capitalize().to_lower() if k is int else ""), signed(mood[k])])
 	return LAWS[law]["info"] + ("\nHappiness: " + ", ".join(who) if not who.is_empty() else "") \
 		+ ("\nNeeds a %s" % TITLES[LAWS[law]["tier"]]["realm"].to_lower() if LAWS[law].get("tier", 0) > 0 else "") \
@@ -4950,7 +4990,8 @@ func hit_chance(level: int, tiles: float) -> float:
 # non è a tiro (vedi track_prey), poi tira (vedi Job.HUNT). Senza arco va a prenderne uno, se ce n'è uno libero, e posa
 # quello che aveva in mano. false se non c'è niente da cacciare, nessun arco o non ci si arriva.
 func try_hunt(c: Colonist) -> bool:
-	var prey := animals.filter(func(a): return a.marked and a.hunter == null and a.blocked <= clock)
+	var prey := animals.filter(func(a): return a.marked and a.hunter == null and a.blocked <= clock \
+		and not (a.kind == Beast.DEER and enacted.has(Law.HUNTING_RESERVE) and c != ruler and not has_bow(c)))  # riserva
 	if prey.is_empty():
 		return false
 	if not has_bow(c):

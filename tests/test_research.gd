@@ -519,6 +519,81 @@ func _initialize() -> void:
 	main.enacted.clear()
 	grumpy.needs[main.Need.HAPPINESS] = 50.0
 
+	# pene severe: gogna per proteste e sfuriate, e niente autorità persa; l'iracondo si stressa meno
+	main.authority = 500.0
+	check(main.codify(L.HARSH_PUNISHMENT) and main.enact(L.HARSH_PUNISHMENT), "pene severe promulgate")
+	grumpy.needs[main.Need.HAPPINESS] = 10.0
+	grumpy.protested = -1
+	main.enacted.append_array([L.LONG_SHIFTS, L.CURFEW])
+	var power2: float = main.authority
+	main.new_hour()
+	check(grumpy.job == main.Job.PROTEST and grumpy.conds.has(main.Cond.PILLORIED) and main.authority == power2
+		and main.chronicle[-1].ends_with("into the stocks."), "alla gogna, niente autorità persa")
+	main.quit_job(grumpy)
+	grumpy.conds.clear()
+	main.tantrum(grumpy)
+	check(grumpy.conds.has(main.Cond.PILLORIED) and is_equal_approx(grumpy.work_left, main.TANTRUM_HOURS * main.DAY_LENGTH / 24),
+		"sfuriata: gogna, due ore")
+	main.quit_job(grumpy)
+	grumpy.traits = [main.Trait.HOTHEAD]
+	grumpy.job = main.Job.CHOP
+	grumpy.needs[main.Need.STRESS] = 0.0
+	main.needs_rate = 1.0
+	main.update_needs(grumpy, 1.0)
+	var harsh_stress: float = grumpy.needs[main.Need.STRESS]
+	main.revoke(L.HARSH_PUNISHMENT)
+	grumpy.needs[main.Need.STRESS] = 0.0
+	main.update_needs(grumpy, 1.0)
+	check(is_equal_approx(harsh_stress, grumpy.needs[main.Need.STRESS] * main.HARSH_STRESS), "con le pene severe l'iracondo si stressa un terzo meno")
+	main.needs_rate = 0.0
+	grumpy.job = main.Job.NONE
+	grumpy.traits = []
+
+	# clemenza: sfuriate di un'ora; chi protesta il sovrano lo ascolta (un'ora, felice, niente autorità persa)
+	main.clock += main.REVOKE_WAIT
+	check(main.codify(L.CLEMENCY) and main.enact(L.CLEMENCY), "clemenza promulgata")
+	grumpy.conds.clear()
+	grumpy.protested = -1
+	grumpy.needs[main.Need.HAPPINESS] = 10.0
+	power2 = main.authority
+	main.today = int(main.clock)
+	main.new_hour()
+	check(grumpy.job == main.Job.PROTEST and grumpy.conds.has(main.Cond.HEARD) and main.authority == power2
+		and is_equal_approx(grumpy.work_left, main.CLEMENT_HOURS * main.DAY_LENGTH / 24), "il sovrano ascolta: un'ora, +10")
+	main.quit_job(grumpy)
+	main.tantrum(grumpy)
+	check(is_equal_approx(grumpy.work_left, main.CLEMENT_HOURS * main.DAY_LENGTH / 24) and not grumpy.conds.has(main.Cond.PILLORIED),
+		"sfuriata di un'ora, senza gogna")
+	main.quit_job(grumpy)
+	check(main.rival(L.HARSH_PUNISHMENT) == L.CLEMENCY, "giustizia: le pene severe prenderebbero il posto della clemenza")
+	main.enacted.clear()
+	grumpy.needs[main.Need.HAPPINESS] = 50.0
+
+	# corte: il sovrano governa e basta, con un'udienza più ricca
+	check(main.codify(L.COURT) and main.enact(L.COURT), "corte promulgata")
+	main.quit_job(main.ruler)
+	main.ruler.needs[main.Need.HAPPINESS] = 50.0
+	check(not main.find_work(main.ruler) and is_equal_approx(main.govern_rate(main.ruler), main.AUTHORITY_PER_HOUR * main.COURT_AUDIENCE),
+		"senza trono non lavora; l'udienza vale una volta e mezza")
+	check(main.law_mood_of(main.ruler, L.COURT) == 5.0 and main.law_mood_of(grumpy, L.COURT) == 0.0, "piace al sovrano")
+	main.enacted.clear()
+
+	# riserva di caccia: i cervi solo al sovrano e a chi ha l'arco; un cervo del sovrano, +3 autorità
+	check(main.codify(L.HUNTING_RESERVE) and main.enact(L.HUNTING_RESERVE), "riserva di caccia promulgata")
+	var stag = main.add_animal(main.Beast.DEER, free[60])
+	stag.marked = true
+	grumpy.gear = {}
+	main.quit_job(grumpy)
+	check(not main.try_hunt(grumpy) and grumpy.job != main.Job.HUNT and grumpy.job != main.Job.EQUIP, "senza arco il cervo non si tocca")
+	check(main.law_mood_of(grumpy, L.HUNTING_RESERVE) == -3.0, "e non gli piace")
+	grumpy.gear = {main.Slot.HANDS: R.BOW}
+	check(main.law_mood_of(grumpy, L.HUNTING_RESERVE) == 3.0, "a chi ha l'arco sì")
+	grumpy.gear = {}
+	power2 = main.authority
+	main.kill(stag, main.ruler)
+	check(main.authority == power2 + main.RESERVE_AUTHORITY, "un cervo del sovrano: +3")
+	main.enacted.clear()
+
 	# affumicatoio: al fuoco, carne e pesce che durano quattro volte tanto; si mangiano e si cucinano come il crudo
 	check(main.SHELF_LIFE[R.SMOKED_MEAT] == 4 * main.SHELF_LIFE[R.MEAT] and main.SHELF_LIFE[R.SMOKED_FISH] == 4 * main.SHELF_LIFE[R.FISH]
 		and R.SMOKED_MEAT in main.RAW_FOOD and main.tech_for("makes", R.SMOKED_FISH) == T.SMOKEHOUSE, "affumicati: quattro volte tanto")
