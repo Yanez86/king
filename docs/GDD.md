@@ -282,9 +282,27 @@ racconta il diario al ritorno.
   Arciere: cappuccio (verde), armatura di cuoio, arco e faretra sulla schiena (da davanti spuntano le penne).
   Scassinatore: cappuccio scuro, fazzoletto sul naso e sulla bocca, sacco sulla schiena, pugnale alla cintura; maglia e
   mantello scuri.
-- **Talenti** (uno a testa, a caso, con la sua icona): Avido (+25% di paga), Leale (niente quota del bottino),
-  Temerario (torna indietro solo sotto 20 punti ferita), Codardo (torna sotto 60), Fortunato (+1 oggetto per forziere).
-  In più, a volte, uno dei talenti dei coloni che cambiano bisogni e routine.
+- **Talenti**: uno a testa, a caso, con la sua icona 16×16 (nella scheda accanto a quelli dei coloni, il nome anche
+  sulla bacheca). In più, tre volte su dieci, uno dei talenti dei coloni (bisogni e routine).
+
+  | Talento | Icona | Effetto |
+  |---|---|---|
+  | Avido | sacco di monete | paga +25% |
+  | Leale | cuore | non prende la quota delle monete |
+  | Temerario | fiamma | il gruppo torna per lui solo sotto 20 punti ferita (non 40) |
+  | Codardo | bandiera bianca | il gruppo torna appena lui scende sotto 60 |
+  | Fortunato | quadrifoglio | un oggetto in più in ogni forziere del gruppo |
+  | Cartografo | mappa | il gruppo trova mappe tre volte più spesso |
+  | Iettato | gatto nero | ogni trappola colpisce lui; paga −25% |
+  | Berserker | ascia insanguinata | la sua arma conta doppio nella forza del gruppo, ma prende il 50% di ferite in più |
+  | Robusto | zampa d'orso | un terzo di ferite in meno (mostri e trappole) |
+  | Furtivo | figura incappucciata | il gruppo evita i mostri una volta su quattro (non il guardiano) |
+  | Medico | croce rossa | dopo ogni stanza tutti +6 punti ferita; chi cade non muore mai, lo riportano a casa (se non è solo) |
+  | Raccoglitore | fungo | il gruppo mangia un terzo in meno |
+  | Guida | stivale | il viaggio dura la metà |
+  | Occhio di lince | occhio | +30% a disinnescare le trappole |
+  | Studioso | libro | sale di livello dopo ogni spedizione (non ogni 2) |
+  | Famoso | stella | +5 splendore finché è sulla mappa (alla locanda, o di passaggio) |
 - **Paga, in oro**: all'ingaggio 10 + 5 × livello monete (15–35), prese dal magazzino; al ritorno la **quota**: il 30%
   delle monete trovate. Senza abbastanza oro non si ingaggia. A chi muore non si paga la quota.
 - **Rovine**: fuori dalla mappa, in un elenco sulla bacheca; si raggiungono a piedi.
@@ -334,13 +352,13 @@ racconta il diario al ritorno.
 - **Ordine di lavoro**: (1) locanda e bacheca, oro, un avventuriero alla volta, solo la torre, bottino in risorse che
   esistono già; (2) classi, talenti, gruppi, provviste, diario; (3) altre rovine, mappe, cimeli, effetto dello splendore;
   (4) il resto.
-- **Stato**: fatte le fasi 1 e 2 tranne i talenti, e della 3 le rovine con le mappe e l'effetto dello splendore.
+- **Stato**: fatte le fasi 1 e 2, e della 3 le rovine con le mappe e l'effetto dello splendore.
   Simulazioni (500 spedizioni per caso, provviste piene, rovina intatta): alla torre non muore nessuno, ma mandarci
   gente di livello alto costa più di quello che rende; nelle rovine profonde chi va da solo non torna una volta su
   cinque, un gruppo di livello 1 al forte perde in media un uomo ogni 9 spedizioni e torna presto; un gruppo del livello
   giusto ci guadagna (cripta, tre di livello 3: 147 monete a casa per 75 di paghe; forte, quattro di livello 5: 268
-  per 140). Mancano: talenti degli avventurieri, cimeli, la cronaca intera (sulla bacheca solo l'ultima pagina), il resto
-  di "Poi".
+  per 140); coi talenti a caso i numeri restano questi, più o meno. Mancano: cimeli, la cronaca intera (sulla bacheca
+  solo l'ultima pagina), il resto di "Poi".
 
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100.

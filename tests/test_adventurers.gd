@@ -63,6 +63,8 @@ func _initialize() -> void:
 	check(start.x in [0, main.MAP_SIZE.x - 1] or start.y in [0, main.MAP_SIZE.y - 1], "dal bordo della mappa")
 	check(g.hero != main.Hero.NONE and g.level >= 1 and g.level <= 2 and g.errand == main.Errand.ARRIVE and g.job == main.Job.TRAVEL,
 		"un %s di livello %d, in cammino" % [main.Hero.keys()[g.hero], g.level])
+	check(g.gifts.size() == 1, "un talento da avventuriero")
+	plain(g)  # qui niente talenti: i conti delle prove restano esatti
 	var data: Dictionary = main.HEROES[g.hero]
 	check(g.gear.get(main.Slot.HANDS) == data["gear"][main.Slot.HANDS] and g.kit == data["kit"], "porta l'equipaggiamento della classe")
 	for skill in data["skills"]:
@@ -90,7 +92,7 @@ func _initialize() -> void:
 	check(not main.send([g], tower) or main.fee(g) <= 12, "ingaggio rifiutato")
 	main.add_item(R.GOLD, store, 50)
 	var gold_before: int = main.stored(R.GOLD)
-	check(main.provisions(1, tower) == 3, "provviste: un giorno a testa, andata, 3 stanze e ritorno")
+	check(main.provisions([g], tower) == 3, "provviste: un giorno a testa, andata, 3 stanze e ritorno")
 	check(main.send([g], tower), "ingaggiato")
 	check(main.stored(R.GOLD) == gold_before - main.fee(g) and g.hired and g.errand == main.Errand.DEPART, "pagato, va al bordo")
 	check(main.stored(R.MEAL) == 0 and main.expeditions[0].food == 3.0 and main.board_pick.is_empty(), "si porta i pasti")
@@ -122,11 +124,12 @@ func _initialize() -> void:
 		check(g not in main.guests, "andato via")
 
 	# in gruppo: si parte quando sono usciti tutti, dallo stesso bordo
-	var duo := [main.new_hero(main.Hero.WARRIOR, 1), main.new_hero(main.Hero.ARCHER, 1)]
+	var duo := [plain(main.new_hero(main.Hero.WARRIOR, 1)), plain(main.new_hero(main.Hero.ARCHER, 1))]
 	for h in duo:
 		h.pos = main.center(mid + Vector2i(-1 + duo.find(h) * 2, 0))
 		main.guests.append(h)
 	main.add_item(R.GOLD, store, 60)
+	tower.cleared = 0  # la prima spedizione può averla finita
 	check(main.send(duo, tower), "due insieme")
 	var pair = main.expeditions[-1]
 	check(pair.food == 0.0, "senza provviste: patiranno la fame")
@@ -140,10 +143,10 @@ func _initialize() -> void:
 	main.expeditions.erase(pair)
 
 	# nella rovina, per conto suo: il guardiano ferisce di più chi regge di meno
-	var warrior = main.new_hero(main.Hero.WARRIOR, 1)
-	var burglar = main.new_hero(main.Hero.BURGLAR, 1)
+	var warrior = plain(main.new_hero(main.Hero.WARRIOR, 1))
+	var burglar = plain(main.new_hero(main.Hero.BURGLAR, 1))
 	check(main.gear_sum(warrior, "armor") == 8, "guerriero: cuoio, elmo e scudo")
-	check(main.new_hero(main.Hero.WARRIOR, main.HEAVY_LEVEL).gear[main.Slot.BODY] == R.CHAINMAIL, "da livello 3 la cotta")
+	check(plain(main.new_hero(main.Hero.WARRIOR, main.HEAVY_LEVEL)).gear[main.Slot.BODY] == R.CHAINMAIL, "da livello 3 la cotta")
 	for c in [warrior, burglar]:
 		var e = main.Expedition.new()
 		e.party.append(c)
@@ -159,7 +162,7 @@ func _initialize() -> void:
 			check(e.loot[R.GOLD] >= 15 and e.loot[R.GOLD] <= 38, "lo scassinatore apre tutto, +50%")
 	check(opened > 20 and opened < 80, "il guerriero apre circa metà dei forzieri (%d su 100)" % opened)
 	# da solo e senza forze, il guardiano lo uccide: spedizione persa
-	var doomed = main.new_hero(main.Hero.ARCHER, 1)
+	var doomed = plain(main.new_hero(main.Hero.ARCHER, 1))
 	doomed.hp = 1.0
 	var ruin = main.Ruin.new()
 	ruin.cleared = main.RUINS[ruin.kind]["rooms"] - 1
@@ -170,6 +173,9 @@ func _initialize() -> void:
 	check(e2.lost and e2.party.is_empty() and is_equal_approx(e2.back_at - main.clock, (e2.due - main.clock) * main.LOST_AFTER),
 		"nessuno torna: la si dà per persa al doppio del tempo")
 	# il tesoro dell'ultima stanza ha la mappa della rovina dopo; se resta chiuso, la stanza resta da fare
+	for r in main.ruins.duplicate():  # la prima spedizione può aver già trovato la mappa della miniera
+		if r.kind != main.RuinKind.TOWER:
+			main.ruins.erase(r)
 	var treasure = main.Expedition.new()
 	treasure.party.append(burglar)
 	treasure.ruin = tower
@@ -179,7 +185,7 @@ func _initialize() -> void:
 		var r = main.Ruin.new()
 		r.cleared = main.RUINS[r.kind]["rooms"] - 1
 		var e = main.Expedition.new()
-		e.party.append(main.new_hero(main.Hero.WARRIOR, 5))
+		e.party.append(plain(main.new_hero(main.Hero.WARRIOR, 5)))
 		e.ruin = r
 		e.food = 10.0
 		main.depart(e)
@@ -192,7 +198,7 @@ func _initialize() -> void:
 	for i in 60:
 		var r = main.Ruin.new()
 		var e = main.Expedition.new()
-		e.party.append(main.new_hero(main.Hero.WARRIOR, 5))
+		e.party.append(plain(main.new_hero(main.Hero.WARRIOR, 5)))
 		e.ruin = r
 		e.food = main.RUINS[r.kind]["travel"] + main.ROOM_DAYS
 		main.depart(e)
@@ -202,7 +208,7 @@ func _initialize() -> void:
 	check(short, "provviste agli sgoccioli: si torna")
 	# al ritorno le mappe fanno conoscere le rovine, in ordine
 	var mapped = main.Expedition.new()
-	mapped.party.append(main.new_hero(main.Hero.BURGLAR, 1))
+	mapped.party.append(plain(main.new_hero(main.Hero.BURGLAR, 1)))
 	mapped.ruin = tower
 	mapped.maps = [main.RuinKind.MINE]
 	mapped.left_at = main.clock
@@ -216,7 +222,7 @@ func _initialize() -> void:
 	main.guests.erase(mapped.party[0])
 
 	# livelli: ogni 2 spedizioni tornate
-	var vet = main.new_hero(main.Hero.ARCHER, 1)
+	var vet = plain(main.new_hero(main.Hero.ARCHER, 1))
 	vet.trips = 1
 	var e3 = main.Expedition.new()
 	e3.party.append(vet)
@@ -228,6 +234,74 @@ func _initialize() -> void:
 	main.update_expeditions()
 	check(vet.trips == 2 and vet.level == 2 and vet.skills[main.Skill.RANGED] == 4, "sale di livello")
 	main.guests.erase(vet)
+
+	# talenti degli avventurieri: 16, con le loro icone e i loro effetti
+	var G = main.Gift
+	check(G.size() == 16 and main.HERO_TRAITS_SHEET.get_width() == 16 * 16 and main.GIFT_INFO.size() == 16, "16 talenti con l'icona")
+	var greedy = plain(main.new_hero(main.Hero.ARCHER, 2))
+	greedy.gifts = [G.GREEDY]
+	var jinxed = plain(main.new_hero(main.Hero.ARCHER, 2))
+	jinxed.gifts = [G.JINXED]
+	check(main.fee(greedy) == 25 and main.fee(jinxed) == 15, "l'avido chiede di più, l'iettato di meno")
+	var forager = plain(main.new_hero(main.Hero.ARCHER, 1))
+	forager.gifts = [G.FORAGER]
+	var guide = plain(main.new_hero(main.Hero.ARCHER, 1))
+	guide.gifts = [G.PATHFINDER]
+	var fresh_tower = main.Ruin.new()
+	check(main.provisions([forager], fresh_tower) == 2 and main.provisions([guide], fresh_tower) == 2
+		and main.trip_days(fresh_tower, [guide]) == 2.0, "chi trova cibo e la guida: meno provviste, viaggio più corto")
+	var famous = plain(main.new_hero(main.Hero.ARCHER, 1))
+	famous.gifts = [G.FAMOUS]
+	var shine: int = main.colony_splendor()
+	main.guests.append(famous)
+	check(main.colony_splendor() == shine + 5, "il famoso dà splendore finché è qui")
+	main.guests.erase(famous)
+	# il codardo fa tornare il gruppo appena è ferito; il leale non prende la quota
+	var coward = plain(main.new_hero(main.Hero.WARRIOR, 5))
+	coward.gifts = [G.COWARD]
+	coward.hp = 59.0
+	var scared = main.Expedition.new()
+	scared.party.append(coward)
+	scared.ruin = main.Ruin.new()
+	scared.food = 10.0
+	main.depart(scared)
+	check(scared.ruin.cleared <= 1 and ("is wounded" in "\n".join(scared.lines) or "collapse" in "\n".join(scared.lines)),
+		"il codardo torna dopo la prima stanza")
+	var loyal = plain(main.new_hero(main.Hero.WARRIOR, 1))
+	loyal.gifts = [G.LOYAL]
+	var paid = plain(main.new_hero(main.Hero.ARCHER, 1))
+	var shared = main.Expedition.new()
+	shared.party.append_array([loyal, paid])
+	shared.ruin = main.Ruin.new()
+	shared.loot = {R.GOLD: 100}
+	shared.left_at = main.clock
+	shared.back_at = main.clock
+	shared.edge = start
+	main.expeditions.append(shared)
+	main.update_expeditions()
+	check(loyal.loot[R.GOLD] == 85, "il leale non prende la sua parte: il gruppo tiene il 15%")
+	main.guests.erase(loyal)
+	main.guests.erase(paid)
+	# il furtivo a volte evita i mostri, il medico cura, la stanza la dice il diario
+	var sneaky = plain(main.new_hero(main.Hero.BURGLAR, 1))
+	sneaky.gifts = [G.STEALTHY, G.MEDIC]
+	check(main.party_gift([sneaky], "sneak", 0.0) == 0.25 and main.party_gift([sneaky], "heal", 0.0) == 6.0, "furtivo e medico")
+	# il berserker picchia il doppio ma prende più ferite
+	var calm = plain(main.new_hero(main.Hero.WARRIOR, 1))
+	var mad = plain(main.new_hero(main.Hero.WARRIOR, 1))
+	mad.gifts = [G.BERSERKER]
+	for h in [calm, mad]:
+		var e = main.Expedition.new()
+		e.party.append(h)
+		main.fight_monsters(e, main.MONSTER_POWER * 4)
+	check(mad.hp < calm.hp, "il berserker sanguina di più")
+	# nella scheda le icone dei talenti, col nome nel suggerimento
+	main.guests.append(sneaky)
+	main.open_sheet(sneaky)
+	var icons: Array = main.get_node("HUD/ColonistSheet/Box/Traits/Icons").get_children()
+	check(icons.size() == 2 and icons[0].tooltip_text.begins_with("Stealthy\n"), "talenti nella scheda")
+	main.guests.erase(sneaky)
+	main.sheet_panel.hide()
 
 	# morte: la protezione abbassa la probabilità di morire; a terra, il morso uccide
 	check(is_equal_approx(main.death_chance(colonist), main.DEATH_BASE) or not colonist.gear.is_empty(), "senza protezione 25%")
@@ -259,6 +333,13 @@ func _initialize() -> void:
 	check(main.colonists.is_empty() and main.fallen and main.get_node("HUD/Fallen").visible, "morti tutti: la colonia è caduta")
 	print("OK: avventurieri, torre e morte (la prima spedizione è %s)" % ("persa" if lost else "tornata"))
 	quit()
+
+
+# niente talenti: per le prove che contano i punti ferita e le monete
+func plain(h):
+	h.gifts = []
+	h.traits = []
+	return h
 
 
 # stanza 5x5 di legno attorno a `mid`, porta in basso

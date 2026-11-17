@@ -1731,6 +1731,68 @@ ojJoojJo ..owo.oo .oowRo.. ...owo.. ...oRo.. j.ouo... orrrrrRo oQQQQooQ ..wwww..
 ...oo... oo...... owo..... ...ooo.. .ooooooo oo.j.... ..oooo.. ........ ..w..w.. ooo.o... .oo..... ......oo oo......
 """
 
+# Talenti degli avventurieri 12x12, nei quadratini come i talenti (vedi badge), nell'ordine di Gift in main.gd:
+# greedy, loyal, reckless, coward, lucky, cartographer, jinxed, berserker, stout, stealthy, medic, forager, pathfinder, keen_eyed, scholar, famous
+HERO_TRAITS_1 = """
+....oooo.... ............ ......o..... .oo.........
+....o<<o.... .oooo..oooo. .....o9o.... .owoooooooo.
+.....oo..... oj+jjoojjjJo .....o99o... .ow++++++++o
+...oggggo... oj+jjjjjjjJo ....o9=9o.o. .ow++++++++o
+..og8ggg<o.. ojjjjjjjjjJo ...o9==99o9o .ow+++++++Uo
+.og8gg<gg<o. ojjjjjjjjJJo ..o99=889o9o .ow++++++UUo
+.og8g<<<g<o. .ojjjjjjjJo. ..o9=8889=9o .owoooooooo.
+.og8gg<gg<o. ..ojjjjjJo.. .o9=88888=9o .owo........
+.oggg<<<g<o. ...ojjjJo... .o9=88888=o. .owo........
+..og<<<<<o.. ....ojJo.... .o9==888=9o. .owo........
+...ooooooo.. .....oo..... ..oo999999o. .oWo........
+............ ............ ....oooooo.. .ooo........
+"""
+
+HERO_TRAITS_2 = """
+............ ............ ............ .ooo....ooo.
+..ooo..ooo.. .oooooooooo. .o.......o.. oujro..orjuo
+.oyLLooyLLo. oUIIIIIIIIUo .oo.....oo.. ouurrooorruo
+.oLLLooLLLo. .oI(IIIjIjo. .o7o...o7o.. ourrRowoRrro
+..ooLLLLoo.. .oII(IIIjIo. .o77ooo77o.. ourRRowoRRro
+..ooLLLLoo.. .oIII(IjIjo. .o7777777o.. .oRRowwoRRo.
+.oyLLooyLLo. .oIIII(IIIo. .o7g777g7o.. ..ooowwooo..
+.oLLLooLLLo. .oI(II(IIIo. .o7g777g7o.. .....owo....
+..ooo..ooo.. .oII((IIIIo. .o7777777o.. .....owo....
+.....om..... oUIIIIIIIIUo ..o77677o... .....owo....
+......om.... .oooooooooo. ...ooooo.... .....oWo....
+.......o.... ............ ............ .....ooo....
+"""
+
+HERO_TRAITS_3 = """
+............ ....oooo.... ............ ............
+..oo.oo.oo.. ...o7777o... .oooooooooo. ...oooooo...
+.oCCoCCoCCo. ..o777777o.. .o++++++++o. ..oj+jjj+jo.
+.oCCoCCoCCo. .o77666677o. .o+++jj+++o. .oj+jjjjjjJo
+..oo.oo.oo.. .o76666667o. .o+++jj+++o. .ojjjj+jjjJo
+...oooooo... .o76g66g67o. .o+jjjjjj+o. .oJJJJJJJJJo
+..oCCCCCCo.. .o76666667o. .o+jjjjjj+o. ..ooo++ooo..
+.oCcCCCCCCo. .o77666677o. .o+++jj+++o. ....o++o....
+.oCcCCCCCCo. .o77777777o. .o+++jj+++o. ....o++o....
+.oCCCCCCCCo. o7777777777o .o++++++++o. ....o+Uo....
+..oCCCCCCo.. o7777777777o .oooooooooo. ...o+++Uo...
+...oooooo... oooooooooooo ............ ...oooooo...
+"""
+
+HERO_TRAITS_4 = """
+............ ............ ............ .....oo.....
+...oooo..... ............ ..oooooooo.. ....o88o....
+...oCCo..... ...oooooo... .ojjjjjjjjo. ....o8go....
+...oCCo..... ..o++++++o.. .ojgggggjjo. ooooo8ggoooo
+...oCCo..... .o++oQQo++o. .ojjjjjjjjo. o8888ggggg<o
+...oCCo..... o+++QEEQ+++o .ojjgggjjjo. .o88gggggg<o
+...oCCCooo.. o+++QEEQ+++o .ojjjjjjjjo. ..ogggggg<o.
+...oCCCCCCo. .o++oQQo++o. .ojjjjjjjjo. ..ogg<<gg<o.
+..oCCCCCCCCo ..o++++++o.. .oJ++++++Jo. .og<<oo<<g<o
+..oWWWWWWWWo ...oooooo... .oJ++++++Jo. .og<o..og<o.
+..oooooooooo ............ ..oooooooo.. og<o....o<<o
+............ ............ ............ ooo......ooo
+"""
+
 # Stress 8x8, accanto alla sua barra nella scheda del colono: un fulmine.
 SEX_ICONS = """
 ....//// ..???...
@@ -2291,6 +2353,8 @@ def main():
     images["icon_options"] = pixels(art(OPTIONS_ICON, 16, 16))
     symbols = [f for block in (TRAITS_1, TRAITS_2, TRAITS_3) for f in frames(block, 12, 5, 12)]
     images["traits"] = pixels(side_by_side([badge(f) for f in symbols]))
+    gifts = [f for block in (HERO_TRAITS_1, HERO_TRAITS_2, HERO_TRAITS_3, HERO_TRAITS_4) for f in frames(block, 12, 4, 12)]
+    images["hero_traits"] = pixels(side_by_side([badge(f) for f in gifts]))
     images["icon_star"] = pixels(art(STAR, 9, 9))
     images["bar_fill"] = pixels(double(art(BAR_FILL, 6, 6)))
     images["bar_back"] = pixels(double(art(BAR_BACK, 6, 6)))

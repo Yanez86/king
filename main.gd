@@ -136,6 +136,53 @@ const HEROES := {
 		"kit": [Look.MASK, Look.PACK], "gear": {Slot.HANDS: Res.DAGGER, Slot.BODY: Res.LEATHER_ARMOR, Slot.HEAD: Res.LEATHER_HOOD},
 		"hood": Color("4a4858"), "tunic": Color("3a3848"), "cape": Color("2a2833")},
 }
+# Talenti degli avventurieri: uno a testa (vedi new_hero), con la sua icona (colonne di HERO_TRAITS_SHEET).
+# Effetti (vedi gift, party_gift): "fee" paga x; "share" quota delle monete; "turn_back" punti ferita sotto cui fa
+# tornare il gruppo; "weapon" la sua arma x nella forza del gruppo; "hurt" ferite x (mostri e trappole); "trips"
+# spedizioni per salire di livello; "splendor" splendore della colonia mentre è sulla mappa. Del gruppo, se c'è lui:
+# "finds" oggetti in più per forziere; "maps" probabilità delle mappe x; "lure" le trappole colpiscono lui; "sneak"
+# probabilità di evitare i mostri; "heal" punti ferita a testa dopo ogni stanza; "carry" chi cade non muore mai (se
+# non è solo); "food" provviste x; "travel" giorni di viaggio x; "disarm" + a disinnescare le trappole
+enum Gift { GREEDY, LOYAL, RECKLESS, COWARD, LUCKY, CARTOGRAPHER, JINXED, BERSERKER, STOUT, STEALTHY, MEDIC, FORAGER,
+	PATHFINDER, KEEN_EYED, SCHOLAR, FAMOUS }
+const HERO_TRAITS_SHEET := preload("res://art/hero_traits.png")  # 16x16, colonne nell'ordine di Gift
+const GIFT_FX := {
+	Gift.GREEDY: {"fee": 1.25},
+	Gift.LOYAL: {"share": 0.0},
+	Gift.RECKLESS: {"turn_back": 20.0},
+	Gift.COWARD: {"turn_back": 60.0},
+	Gift.LUCKY: {"finds": 1},
+	Gift.CARTOGRAPHER: {"maps": 3.0},
+	Gift.JINXED: {"lure": true, "fee": 0.75},
+	Gift.BERSERKER: {"weapon": 2.0, "hurt": 1.5},
+	Gift.STOUT: {"hurt": 2.0 / 3},
+	Gift.STEALTHY: {"sneak": 0.25},
+	Gift.MEDIC: {"heal": 6.0, "carry": true},
+	Gift.FORAGER: {"food": 2.0 / 3},
+	Gift.PATHFINDER: {"travel": 0.5},
+	Gift.KEEN_EYED: {"disarm": 0.3},
+	Gift.SCHOLAR: {"trips": 1},
+	Gift.FAMOUS: {"splendor": 5},
+}
+const GIFT_INFO := {
+	Gift.GREEDY: "Always wants more.\nAsks 25% more to be hired.",
+	Gift.LOYAL: "Fights for the glory of the realm.\nKeeps no share of the gold.",
+	Gift.RECKLESS: "Never knows when to stop.\nThe party turns back for them only under 20 health.",
+	Gift.COWARD: "Lives to fight another day.\nThe party turns back when they drop under 60 health.",
+	Gift.LUCKY: "Born under a good star.\nOne more item in every chest the party opens.",
+	Gift.CARTOGRAPHER: "Draws every corridor.\nThe party finds maps three times as often.",
+	Gift.JINXED: "Bad things happen around them.\nEvery trap hits them. Asks 25% less.",
+	Gift.BERSERKER: "Fights like a storm.\nTheir weapon counts double, but they take 50% more wounds.",
+	Gift.STOUT: "Hard as an old oak.\nTakes a third fewer wounds.",
+	Gift.STEALTHY: "Moves without a sound.\nThe party slips past monsters one time in four.",
+	Gift.MEDIC: "Knows herbs and bandages.\nAfter each room everyone heals 6; whoever falls is carried home.",
+	Gift.FORAGER: "Finds food anywhere.\nThe party eats a third less.",
+	Gift.PATHFINDER: "Knows every shortcut.\nThe journey takes half the time.",
+	Gift.KEEN_EYED: "Nothing escapes their eyes.\n+30% to disarm traps.",
+	Gift.SCHOLAR: "Learns from everything.\nGoes up a level after every expedition.",
+	Gift.FAMOUS: "Their name is sung in every tavern.\n+5 colony splendor while they are here.",
+}
+const HERO_TRAIT_CHANCE := 0.3  # avventurieri con anche un talento dei coloni (bisogni e routine)
 const HEAVY_LEVEL := 3      # il guerriero ha la cotta di maglia da questo livello
 const HERO_LEVEL_MAX := 5
 const SPLENDOR_PER_LEVEL := 10  # chi arriva: livello 1, +1 ogni tanti punti di splendore, ±1 a caso
@@ -581,6 +628,7 @@ class Colonist:
 	var loot := {}                # Res -> quantità che riporta dalla rovina e lascia alla locanda
 	var kit := []                 # Look del corredo: scudo, faretra, maschera, sacca
 	var hood_tint = null          # Color del cappuccio, se non è di cuoio
+	var gifts := []               # Gift: i talenti da avventuriero
 
 
 # Animale selvatico: gira da solo per la mappa, fuori dalle stanze (vedi update_animal); si caccia (vedi try_hunt).
@@ -1123,7 +1171,11 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 		var icon := ui_icon(TRAITS_SHEET, Rect2(tile_rect(t, 0)), Vector2(32, 32))
 		icon.tooltip_text = "%s\n%s" % [Trait.keys()[t].capitalize(), TRAIT_INFO[t]]
 		traits_box.add_child(icon)
-	traits_box.get_parent().visible = not c.traits.is_empty()  # col titolo "Traits"
+	for g in c.gifts:  # degli avventurieri
+		var icon := ui_icon(HERO_TRAITS_SHEET, Rect2(tile_rect(g, 0)), Vector2(32, 32))
+		icon.tooltip_text = "%s\n%s" % [Gift.keys()[g].capitalize(), GIFT_INFO[g]]
+		traits_box.add_child(icon)
+	traits_box.get_parent().visible = not (c.traits.is_empty() and c.gifts.is_empty())  # col titolo "Traits"
 	var hours: Control = box.get_node("Routine/Hours")  # una casella per ora, colorata secondo la routine
 	for child in hours.get_children():
 		child.free()
@@ -2009,9 +2061,10 @@ func in_bed(c: Colonist) -> bool:
 	return c.job == Job.SLEEP and not pieces_at(furniture, cell_of(c.pos)).filter(func(o): return furniture[o][0] == Build.BED).is_empty()
 
 
-# Splendore della colonia: la somma delle decorazioni finite (SPLENDOR), ovunque stiano.
+# Splendore della colonia: la somma delle decorazioni finite (SPLENDOR), ovunque stiano, e degli avventurieri famosi.
 func colony_splendor() -> int:
-	return furniture.values().map(func(plan): return SPLENDOR.get(plan[0], 0)).reduce(func(a, b): return a + b, 0)
+	return furniture.values().map(func(plan): return SPLENDOR.get(plan[0], 0)).reduce(func(a, b): return a + b, 0) \
+		+ guests.reduce(func(n, g): return n + gift(g, "splendor", 0), 0)  # gli avventurieri famosi
 
 
 # Comfort dove sta il colono: quello della stanza, in proporzione se ha meno di ROOM_SPACE caselle a testa; fuori 0.
@@ -2792,6 +2845,9 @@ func new_hero(kind: Hero, level: int) -> Colonist:
 	c.xp = Skill.values().map(func(_s): return 0)
 	c.needs = Need.values().map(func(n): return 0.0 if n == Need.STRESS else NEED_MAX * 0.8)
 	c.trend = c.needs.map(func(_v): return 0.0)
+	c.gifts = [Gift.values().pick_random()]
+	if randf() < HERO_TRAIT_CHANCE:
+		c.traits = [Trait.values().pick_random()]
 	set_level(c, level)
 	return c
 
@@ -2808,11 +2864,32 @@ func set_level(c: Colonist, level: int) -> void:
 
 
 func fee(c: Colonist) -> int:
-	return FEE_BASE + FEE_PER_LEVEL * c.level
+	return roundi((FEE_BASE + FEE_PER_LEVEL * c.level) * gift(c, "fee", 1.0))
+
+
+# effetto `key` dei talenti di `c` (vedi GIFT_FX), `base` se non ce l'ha
+func gift(c: Colonist, key: String, base: Variant) -> Variant:
+	for g in c.gifts:
+		if GIFT_FX[g].has(key):
+			return GIFT_FX[g][key]
+	return base
+
+
+# effetto `key` per tutto il gruppo `party`, se qualcuno ha il talento; se no `base`
+func party_gift(party: Array, key: String, base: Variant) -> Variant:
+	for c in party:
+		var v = gift(c, key, null)
+		if v != null:
+			return v
+	return base
 
 
 func hero_name(c: Colonist) -> String:
 	return "%s, level %d" % [Hero.keys()[c.hero].capitalize(), c.level]
+
+
+func gift_names(c: Colonist) -> String:
+	return ", ".join(c.gifts.map(func(g): return Gift.keys()[g].capitalize()))
 
 
 # caselle del bordo della mappa dove si cammina: da lì arrivano e se ne vanno gli avventurieri
@@ -2909,15 +2986,19 @@ func explored(ruin: Ruin) -> bool:
 	return ruin.cleared >= RUINS[ruin.kind]["rooms"]
 
 
+# giorni di viaggio (andata) del gruppo `party` alla rovina: meno con una guida
+func travel_days(ruin: Ruin, party: Array) -> float:
+	return RUINS[ruin.kind]["travel"] * party_gift(party, "travel", 1.0)
+
+
 # giorni per andare alla rovina, esplorare le stanze che restano e tornare
-func trip_days(ruin: Ruin) -> float:
-	var data: Dictionary = RUINS[ruin.kind]
-	return 2 * data["travel"] + ROOM_DAYS * (data["rooms"] - ruin.cleared)
+func trip_days(ruin: Ruin, party: Array) -> float:
+	return 2 * travel_days(ruin, party) + ROOM_DAYS * (RUINS[ruin.kind]["rooms"] - ruin.cleared)
 
 
-# provviste che servono a un gruppo di `size` per tutto il viaggio: una a testa per giorno
-func provisions(size: int, ruin: Ruin) -> int:
-	return ceili(size * trip_days(ruin))
+# provviste che servono al gruppo `party` per tutto il viaggio: una a testa per giorno (meno, con chi trova da mangiare)
+func provisions(party: Array, ruin: Ruin) -> int:
+	return ceili(party.size() * trip_days(ruin, party) * party_gift(party, "food", 1.0) - 0.001)
 
 
 func food_stored() -> int:
@@ -2935,7 +3016,7 @@ func send(party: Array, ruin: Ruin) -> bool:
 	take_stored(Res.GOLD, cost)
 	var exp := Expedition.new()
 	exp.ruin = ruin
-	var want := provisions(party.size(), ruin)
+	var want := provisions(party, ruin)
 	for res in MEALS + RAW_FOOD:
 		var n := mini(stored(res), want - int(exp.food))
 		take_stored(res, n)
@@ -2966,24 +3047,25 @@ func take_stored(res: Res, amount: int) -> void:
 
 # Il gruppo esce dalla mappa: com'è andata nella rovina si decide adesso (vedi explore), si saprà al ritorno
 func depart(exp: Expedition) -> void:
-	var data: Dictionary = RUINS[exp.ruin.kind]
+	var travel := travel_days(exp.ruin, exp.party)
 	exp.left_at = clock
-	exp.due = clock + trip_days(exp.ruin)
-	var days := explore(exp)
-	exp.back_at = clock + (exp.due - clock) * LOST_AFTER if exp.lost else clock + 2 * data["travel"] + days
+	exp.due = clock + trip_days(exp.ruin, exp.party)
+	var days := explore(exp, travel)
+	exp.back_at = clock + (exp.due - clock) * LOST_AFTER if exp.lost else clock + 2 * travel + days
 
 
 # Esplora la rovina di `exp` dalla prima stanza non ancora ripulita, una ogni ROOM_DAYS (vedi Chamber): scrive il
 # diario, ferisce e uccide, raccoglie bottino e mappe, mangia le provviste (vedi eat_on_trip). L'ultima stanza è il
 # tesoro col suo guardiano: se resta chiuso, la stanza resta da fare. Il gruppo torna indietro finite le stanze, se
 # qualcuno è sotto TURN_BACK, se le provviste non bastano per un'altra stanza e il ritorno, o se una frana chiude la
-# strada. Restituisce i giorni passati nella rovina
-func explore(exp: Expedition) -> float:
+# strada. `travel`: giorni di viaggio, ad andare e a tornare. Restituisce i giorni passati nella rovina.
+# I talenti (vedi GIFT_FX) cambiano trappole, mostri, forzieri, cure e soglie
+func explore(exp: Expedition, travel: float) -> float:
 	var data: Dictionary = RUINS[exp.ruin.kind]
 	var danger: int = data["danger"]
 	var days := 0.0
-	var start: float = exp.left_at + data["travel"]
-	exp.lines.append("Day %d: the party reaches the %s. %s" % [int(start) + 1, data["name"], eat_on_trip(exp, data["travel"])])
+	var start: float = exp.left_at + travel
+	exp.lines.append(("Day %d: the party reaches the %s. %s" % [int(start) + 1, data["name"], eat_on_trip(exp, travel)]).strip_edges())
 	while exp.ruin.cleared < data["rooms"] and not exp.party.is_empty():
 		var last: bool = exp.ruin.cleared == data["rooms"] - 1
 		var room := "Day %d, room %d: " % [int(start + days) + 1, exp.ruin.cleared + 1]
@@ -2997,14 +3079,19 @@ func explore(exp: Expedition) -> float:
 				room += "empty."
 			Chamber.TRAP:
 				var picker := best_at(exp.party, Skill.LOCKPICKING)
-				if randf() < TRAP_DISARM + TRAP_PER_LEVEL * picker.skills[Skill.LOCKPICKING]:
+				if randf() < TRAP_DISARM + TRAP_PER_LEVEL * picker.skills[Skill.LOCKPICKING] + party_gift(exp.party, "disarm", 0.0):
 					room += "%s disarms a trap." % picker.first_name
 				else:
-					var victim: Colonist = exp.party.pick_random()
-					victim.hp -= TRAP_HURT * danger
-					room += "a trap hurts %s (-%d)." % [victim.first_name, TRAP_HURT * danger]
+					var lured := exp.party.filter(func(c): return gift(c, "lure", false))
+					var victim: Colonist = lured[0] if not lured.is_empty() else exp.party.pick_random()
+					var hurt := roundf(TRAP_HURT * danger * gift(victim, "hurt", 1.0))
+					victim.hp -= hurt
+					room += "a trap hurts %s (-%d)." % [victim.first_name, hurt]
 			Chamber.MONSTERS:
-				room += "monsters! " + fight_monsters(exp, MONSTER_POWER * danger)
+				if randf() < party_gift(exp.party, "sneak", 0.0):
+					room += "monsters, but the party slips past them."
+				else:
+					room += "monsters! " + fight_monsters(exp, MONSTER_POWER * danger)
 			Chamber.CHEST:
 				var chest := open_chest(exp, data, last)
 				room += chest[0]
@@ -3014,7 +3101,8 @@ func explore(exp: Expedition) -> float:
 		exp.lines.append((room + " " + eat_on_trip(exp, ROOM_DAYS)).strip_edges())
 		for c in exp.party.duplicate():  # a 0 punti ferita: muore, o lo riportano gli altri (da solo, nessuno)
 			if c.hp <= 0:
-				if exp.party.size() == 1 or randf() < FALL_DEATH:
+				var medic := exp.party.any(func(o): return o != c and o.hp > 0 and gift(o, "carry", false))
+				if exp.party.size() == 1 or (not medic and randf() < FALL_DEATH):
 					exp.party.erase(c)
 					c.died = clock
 					exp.lines.append("%s falls and dies." % c.first_name)
@@ -3025,6 +3113,9 @@ func explore(exp: Expedition) -> float:
 		if exp.party.is_empty():
 			exp.lost = true
 			break
+		var heal: float = party_gift(exp.party, "heal", 0.0)
+		for c in exp.party:  # il medico cura tutti dopo ogni stanza
+			c.hp = minf(c.hp + heal, MAX_HP)
 		if kind == Chamber.COLLAPSE:
 			exp.lines.append("The party turns back.")
 			break
@@ -3034,16 +3125,17 @@ func explore(exp: Expedition) -> float:
 		exp.ruin.cleared += 1
 		if explored(exp.ruin):
 			break
-		if exp.party.any(func(c): return c.hp < TURN_BACK):
-			exp.lines.append("Wounded, the party turns back.")
+		var weak := exp.party.filter(func(c): return c.hp < gift(c, "turn_back", TURN_BACK))
+		if not weak.is_empty():
+			exp.lines.append("%s is wounded: the party turns back." % weak[0].first_name)
 			break
-		if exp.food < exp.party.size() * (data["travel"] + ROOM_DAYS) - 0.001:
+		if exp.food < exp.party.size() * (travel + ROOM_DAYS) * party_gift(exp.party, "food", 1.0) - 0.001:
 			exp.lines.append("Provisions are running low: the party turns back.")
 			break
 	if explored(exp.ruin):
 		exp.lines.append("The %s has nothing left to explore." % data["name"])
 	if not exp.lost:  # il ritorno: affamati, ma a casa ci arrivano
-		var hunger := eat_on_trip(exp, data["travel"])
+		var hunger := eat_on_trip(exp, travel)
 		if hunger != "":
 			exp.lines.append("On the way home: " + hunger.to_lower())
 		for c in exp.party:
@@ -3054,12 +3146,12 @@ func explore(exp: Expedition) -> float:
 # Provviste per `days` giorni di tutto il gruppo; quello che manca lo si paga in punti ferita, HUNGER_HURT al giorno.
 # Il testo per il diario, vuoto se hanno mangiato
 func eat_on_trip(exp: Expedition, days: float) -> String:
-	var need := days * exp.party.size()
+	var need: float = days * exp.party.size() * party_gift(exp.party, "food", 1.0)
 	var eaten := minf(exp.food, need)
 	exp.food -= eaten
 	if eaten >= need - 0.001:
 		return ""
-	var hurt := HUNGER_HURT * (need - eaten) / exp.party.size()
+	var hurt: float = HUNGER_HURT * (need - eaten) / exp.party.size() / party_gift(exp.party, "food", 1.0)
 	for c in exp.party:
 		c.hp -= hurt
 	return "No food left: hunger (-%d each)." % roundi(hurt)
@@ -3089,13 +3181,13 @@ func fight_monsters(exp: Expedition, power: float) -> String:
 	var weights := 0.0
 	var cover := 1.0
 	for c in exp.party:
-		strength += c.skills[HEROES[c.hero]["weapon"]] + gear_sum(c, "armor")
+		strength += c.skills[HEROES[c.hero]["weapon"]] * gift(c, "weapon", 1.0) + gear_sum(c, "armor")
 		weights += HEROES[c.hero]["hurt"]
 		cover = minf(cover, HEROES[c.hero].get("cover", 1.0))
 	var hurt := MONSTER_HURT * power * exp.party.size() / maxf(strength, 1.0) * cover
 	var wounds := PackedStringArray()
 	for c in exp.party:
-		var taken := roundf(hurt * exp.party.size() * HEROES[c.hero]["hurt"] / weights * armor_factor(c))
+		var taken := roundf(hurt * exp.party.size() * HEROES[c.hero]["hurt"] / weights * armor_factor(c) * gift(c, "hurt", 1.0))
 		c.hp -= taken
 		wounds.append("%s -%d" % [c.first_name, taken])
 		c.xp[HEROES[c.hero]["weapon"]] += 1
@@ -3113,16 +3205,19 @@ func open_chest(exp: Expedition, data: Dictionary, last: bool) -> Array:
 	for c in exp.party:
 		haul = maxf(haul, HEROES[c.hero].get("haul", 1.0))
 	var gold := roundi(randi_range(data["gold"][0], data["gold"][1]) * haul * (TREASURE_GOLD if last else 1))
-	var find: Array = data["finds"].pick_random()
-	var amount := roundi(find[1] * haul)
 	exp.loot[Res.GOLD] = exp.loot.get(Res.GOLD, 0) + gold
-	exp.loot[find[0]] = exp.loot.get(find[0], 0) + amount
-	var text := "a chest: %d gold, %d %s" % [gold, amount, Res.keys()[find[0]].to_lower()]
+	var found := PackedStringArray()
+	for i in 1 + party_gift(exp.party, "finds", 0):  # col fortunato un oggetto in più
+		var find: Array = data["finds"].pick_random()
+		var amount := roundi(find[1] * haul)
+		exp.loot[find[0]] = exp.loot.get(find[0], 0) + amount
+		found.append("%d %s" % [amount, Res.keys()[find[0]].to_lower()])
+	var text := "a chest: %d gold, %s" % [gold, ", ".join(found)]
 	var unknown := RuinKind.values().filter(func(k): return not ruins.any(func(r): return r.kind == k) and k not in exp.maps)
 	var map = null
 	if last and exp.ruin.kind + 1 in unknown:
 		map = exp.ruin.kind + 1
-	elif not unknown.is_empty() and randf() < MAP_CHANCE:
+	elif not unknown.is_empty() and randf() < MAP_CHANCE * party_gift(exp.party, "maps", 1.0):
 		map = unknown.pick_random()
 	if map != null:
 		exp.maps.append(map)
@@ -3144,7 +3239,8 @@ func update_expeditions() -> void:
 			report("Lost in the %s" % name, exp.lines)
 			continue
 		var gold: int = exp.loot.get(Res.GOLD, 0)
-		var kept := floori(gold * SHARE)
+		var shares: float = exp.party.reduce(func(n, g): return n + gift(g, "share", SHARE), 0.0) / exp.party.size()
+		var kept := floori(gold * shares)  # la quota: ognuno la sua parte (il leale niente)
 		if gold > 0:
 			exp.loot[Res.GOLD] = gold - kept
 		var brought := PackedStringArray()
@@ -3162,7 +3258,7 @@ func update_expeditions() -> void:
 		ruins.sort_custom(func(a, b): return a.kind < b.kind)
 		for g in exp.party:
 			g.trips += 1
-			if g.trips % TRIPS_PER_LEVEL == 0 and g.level < HERO_LEVEL_MAX:
+			if g.trips % gift(g, "trips", TRIPS_PER_LEVEL) == 0 and g.level < HERO_LEVEL_MAX:
 				set_level(g, g.level + 1)
 				exp.lines.append("%s is now level %d." % [g.first_name, g.level])
 			g.pos = center(exp.edge)
@@ -3223,7 +3319,7 @@ func fill_board() -> void:
 		icon.draw.connect(draw_figure.bind(icon, Rect2(Vector2.ZERO, Vector2.ONE * TILE * 2), Rect2(0, 0, TILE, TILE), g))
 		row.add_child(icon)
 		var label := Label.new()
-		label.text = "%s\n%s, %d gold" % [full_name(g), hero_name(g), fee(g)]
+		label.text = "%s\n%s, %s, %d gold" % [full_name(g), hero_name(g), gift_names(g), fee(g)]
 		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(label)
 		var pick := CheckBox.new()
@@ -3249,14 +3345,14 @@ func fill_board() -> void:
 		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(label)
 		if not explored(ruin):
-			var food := provisions(maxi(board_pick.size(), 1), ruin)
+			var food := provisions(board_pick, ruin)
 			var send_button := Button.new()
 			send_button.text = "Send: %d gold, %d food" % [cost, food] if not board_pick.is_empty() else "Send"
 			send_button.focus_mode = Control.FOCUS_NONE
 			send_button.disabled = board_pick.is_empty() or stored(Res.GOLD) < cost
 			send_button.tooltip_text = "Pick who goes" if board_pick.is_empty() else ("Not enough gold" if stored(Res.GOLD) < cost
 				else ("Only %d of %d provisions: they will go hungry" % [food_stored(), food] if food_stored() < food
-				else "%d days there and back" % ceili(trip_days(ruin))))
+				else "%d days there and back" % ceili(trip_days(ruin, board_pick))))
 			send_button.pressed.connect(func(): send(board_pick.duplicate(), ruin))
 			row.add_child(send_button)
 		box.get_node("Ruins").add_child(row)
