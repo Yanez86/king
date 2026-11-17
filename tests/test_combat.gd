@@ -11,6 +11,7 @@ func _initialize() -> void:
 	await process_frame
 	main.needs_rate = 0.0
 	main.routines = false  # niente orari: la routine è provata in test_jobs
+	main.deaths = false  # nessuno muore: qui si prova lo stare a terra; la morte è in test_adventurers
 	main.animals.clear()
 	var mid: Vector2i = main.MAP_SIZE / 2
 	var area := Rect2i(mid - Vector2i(10, 10), Vector2i(20, 20))

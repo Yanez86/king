@@ -258,14 +258,16 @@ a esplorare **rovine fuori dalla mappa**. Non si controllano: si sceglie chi, do
 racconta il diario al ritorno.
 
 - **Locanda**: nuovo tipo di stanza, categoria servizio. Mobili: almeno 1 letto, 1 tavolo e la **bacheca degli incarichi**
-  (mobile nuovo, 8 legna). Tanti letti, tanti avventurieri in attesa.
+  (mobile nuovo, 8 legna; cliccata apre la finestra degli ingaggi). Tanti letti, tanti avventurieri in attesa.
+  I letti della locanda sono solo degli avventurieri, e gli avventurieri dormono solo lì (se no per terra).
 - **Arrivi**: con una locanda e un letto libero, ogni 2 giorni circa (±½) arriva un avventuriero da un bordo della mappa,
   va alla locanda e resta 3 giorni; se nessuno lo ingaggia, se ne va. Livello: 1 + 1 ogni 10 punti di **splendore**
   (±1 a caso, da 1 a 5); da 20 punti di splendore, una volta su quattro ne arrivano due insieme.
 - **In colonia** non lavorano e non hanno priorità: mangiano dal magazzino, dormono nei letti della locanda, si svagano
-  come i coloni. Se arrivano i lupi combattono con le regole di 4.4.3, e possono morire.
+  come i coloni (nelle ore di lavoro anche). Se arrivano i lupi combattono con le regole di 4.4.3, e possono morire.
 - **Scheda** come quella dei coloni (nome, sesso, punti ferita, talenti, equipaggiamento), più classe, livello, paga e
-  spedizioni fatte. Le abilità sono solo quelle della classe, a 2 × livello.
+  spedizioni fatte. Le abilità sono solo quelle della classe, a 2 × livello (lo scassinatore anche armi da mischia, a
+  1 × livello).
 - **Classi**:
 
   | Classe | Abilità | Porta | Nella rovina |
@@ -289,7 +291,7 @@ racconta il diario al ritorno.
 
   | Rovina | Pericolo | Stanze | Viaggio (andata) | Bottino |
   |---|---|---|---|---|
-  | Torre diroccata | 1 | 3 | ½ giorno | 10–30 monete, legna, pietra, ferro |
+  | Torre diroccata | 1 | 3 | ½ giorno | 10–25 monete a forziere, e 10 legna, 10 pietra o 5 ferro |
   | Miniera abbandonata | 2 | 5 | 1 giorno | 20–50 monete, ferro, carbone, lingotti, piccone |
   | Cripta | 3 | 6 | 1 giorno | 40–90 monete, armi, armature, cimeli |
   | Forte in rovina | 4 | 8 | 2 giorni | 60–150 monete, cotta di maglia, spade, cimeli, mappe |
@@ -302,7 +304,7 @@ racconta il diario al ritorno.
 - **Nella rovina** (calcolato, non si vede): una stanza ogni ½ giorno, a caso tra vuota (25%), trappola (20%), mostri (35%),
   forziere (15%) e crollo (5%: si torna indietro). L'ultima stanza è un forziere col suo guardiano (mostri, forza doppia).
   - Mostri: forza 5 × pericolo; forza del gruppo = somma dei livelli d'arma + protezione. Il gruppo perde
-    30 × forza dei mostri / forza del gruppo punti ferita, divisi fra i membri secondo la classe, meno la protezione
+    20 × forza dei mostri / forza del gruppo punti ferita, divisi fra i membri secondo la classe, meno la protezione
     (−6% a punto, come in 4.4.3).
   - Trappola: la disinnesca il migliore a scassinare, con probabilità 20% + 8% per livello; se no 15 × pericolo danni a uno a caso.
   - Forziere: monete e oggetti della rovina; una volta su due è chiuso e si apre solo con scassinare almeno 2 × pericolo.
@@ -324,6 +326,11 @@ racconta il diario al ritorno.
 - **Ordine di lavoro**: (1) locanda e bacheca, oro, un avventuriero alla volta, solo la torre, bottino in risorse che
   esistono già; (2) classi, talenti, gruppi, provviste, diario; (3) altre rovine, mappe, cimeli, effetto dello splendore;
   (4) il resto.
+- **Stato**: fatta la fase 1, con in più le classi (aspetto, equipaggiamento, ruolo nella rovina), il diario (una
+  finestra al ritorno; nella bacheca l'ultima pagina della cronaca) e il livello secondo lo splendore. Alla torre
+  (pericolo 1) da soli non muore quasi nessuno: guerriero e arciere riportano meno monete di quanto costano (ma legna,
+  pietra, ferro), lo scassinatore ci guadagna. Mancano: gruppi (ora uno alla volta), provviste, talenti degli
+  avventurieri, le altre rovine e le mappe, i cimeli, la cronaca intera. Finita la torre, per ora non c'è altro da esplorare.
 
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100.

@@ -204,7 +204,7 @@ func _initialize() -> void:
 	main._process(0.0)
 	check(slots[main.Slot.HANDS].tooltip_text == "Hands" and slots[main.Slot.HANDS].texture is AtlasTexture, "slot vuoto: la sagoma")
 	check(main.Res.values().all(func(r): return main.ICONS.has(r) and main.STACK_MAX.has(r) and main.items.has(r)), "ogni risorsa ha icona e mucchio")
-	check(main.Skill.values().size() == 12 and main.SKILLS_SHEET.get_width() == 12 * 8, "un'icona per abilità")
+	check(main.SKILLS_SHEET.get_width() == main.Skill.size() * 8, "un'icona per abilità")
 
 	print("OK: forgia, sartoria ed equipaggiamento")
 	quit()
