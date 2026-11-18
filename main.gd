@@ -3809,9 +3809,10 @@ func bite(a: Animal, c: Colonist) -> void:
 		quit_job(c)
 
 
-# percorso di un animale che non passa dalle stanze né dai cancelli: per la ricerca li si riempie come fossero muro
+# percorso di un animale che non passa dalle stanze, dai cancelli né dalle porte (anche quella di un recinto, che non è
+# una stanza): per la ricerca li si riempie come fossero muro
 func beast_path(from: Vector2i, to: Vector2i) -> Array[Vector2i]:
-	var shut := built.keys().filter(func(k): return built[k][0] == Build.GATE)
+	var shut := built.keys().filter(func(k): return built[k][0] in [Build.GATE, Build.DOOR])
 	for room in rooms:
 		shut.append_array(room.cells.keys().filter(func(k): return not astar.is_point_solid(k)))
 	for k in shut:
