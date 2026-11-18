@@ -38,12 +38,13 @@ A key works like a click on its button (press it again to close).
 [cell]Select[/cell][cell]Q[/cell][cell]Build[/cell][cell]B[/cell]
 [cell]Destroy[/cell][cell]X[/cell][cell]Mine[/cell][cell]M[/cell]
 [cell]Chop[/cell][cell]C[/cell][cell]Uproot[/cell][cell]U[/cell]
-[cell]Harvest[/cell][cell]H[/cell][cell]Fish[/cell][cell]F[/cell]
-[cell]Hunt[/cell][cell]T[/cell][cell]Jobs[/cell][cell]J[/cell]
-[cell]Resources[/cell][cell]I[/cell][cell]Knowledge[/cell][cell]K[/cell]
-[cell]Laws[/cell][cell]G[/cell][cell]Rooms lens[/cell][cell]L[/cell]
-[cell]Heat lens[/cell][cell]N[/cell][cell]Cut ice[/cell][cell]Y[/cell]
-[cell]Roofs[/cell][cell]V[/cell][cell]Wiki[/cell][cell]F1[/cell]
+[cell]Harvest[/cell][cell]H[/cell][cell]Garden[/cell][cell]P[/cell]
+[cell]Fish[/cell][cell]F[/cell][cell]Hunt[/cell][cell]T[/cell]
+[cell]Jobs[/cell][cell]J[/cell][cell]Resources[/cell][cell]I[/cell]
+[cell]Knowledge[/cell][cell]K[/cell][cell]Laws[/cell][cell]G[/cell]
+[cell]Rooms lens[/cell][cell]L[/cell][cell]Heat lens[/cell][cell]N[/cell]
+[cell]Cut ice[/cell][cell]Y[/cell][cell]Roofs[/cell][cell]V[/cell]
+[cell]Wiki[/cell][cell]F1[/cell][cell][/cell][cell][/cell]
 [/table]
 • Jobs: the work waiting, in the order colonists take it. Resources: what is in your warehouses.
 
@@ -92,7 +93,7 @@ A job takes 1.5 times as long at level 0, the normal time at level 5 and half at
 
 [color=#e8c34a]What each skill does[/color]
 [table=2]
-[cell]Gathering[/cell][cell]picking bushes and flax[/cell]
+[cell]Gathering[/cell][cell]picking bushes and flax, the garden[/cell]
 [cell]Mining[/cell][cell]mining boulders[/cell]
 [cell]Woodcutting[/cell][cell]chopping trees[/cell]
 [cell]Construction[/cell][cell]building: 2 s a tile or a piece[/cell]
@@ -330,6 +331,12 @@ Weeds, bushes and flax go in 1.5 s. Clear them before building there.
 [color=#e8c34a]Harvest (H)[/color] [img=center]res://art/icon_veg.png[/img] [img=center]res://art/icon_flax.png[/img]
 Bushes and flax. A ripe bush has 5 berries (vegetables), flowering flax 5 flax, picked one every 5 s. They grow back in 2 days and the mark stays: they are picked every time. Marking Uproot removes the Harvest mark, and the other way round.
 
+[color=#e8c34a]Garden (P)[/color] [img=center]res://art/icon_veg.png[/img]
+• After the Garden research. Drag over open grass, outside rooms, to make garden plots: weeds and bushes have to go first, and nothing can be built on a plot. Turnips and cabbages grow in alternate rows.
+• A colonist sows a plot in 4 s (Gathering, like every job time) and harvests it 20 days later: 10 vegetables. Then it is sown again.
+• A plot is sown only if it ripens before winter: from 20 days before winter nothing more is sown. On the first day of winter the frost takes whatever is still in the fields.
+• Destroy (X) removes plots.
+
 [color=#e8c34a]Fish (F)[/color] [img=center]res://art/icon_fish.png[/img]
 Mark water tiles. The fisher stands beside them (in shallow water too) and casts every 10 s: a fish 30% of the time, +6% for every Fishing level. A spot has 4 fish, then it's empty for a day; the mark stays.
 
@@ -504,6 +511,7 @@ Books come only from ruins (see Ruins & Expeditions). There is no tier IV resear
 What you haven't researched has no build button, and its recipes don't show at the stations. From the start you have wooden walls and floors, doors, paths, beds, tables, chairs, campfires, banners, desks, thrones, relics and meals.
 
 [color=#e8c34a]The tree[/color]
+• [color=#d9c48a]Garden[/color] (Land I, 80): garden plots, turnips and cabbages in 20 days.
 • [color=#d9c48a]Hunting[/color] (Land I, 50): spinning wheel and carpenter bench; bowstrings and bows; hides on the walls and door curtains.
 • [color=#d9c48a]Icehouse[/color] (Land II, 250 and a notebook, after Cold store): the icehouse, the ice pit, cutting ice.
 • [color=#d9c48a]Forge[/color] (Fire I, 60): furnace and anvil; ingots, pickaxe, axe, sickle.

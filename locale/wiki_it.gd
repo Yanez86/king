@@ -37,12 +37,13 @@ Un tasto fa come un clic sul suo pulsante (premilo di nuovo per chiudere).
 [cell]Seleziona[/cell][cell]Q[/cell][cell]Costruisci[/cell][cell]B[/cell]
 [cell]Distruggi[/cell][cell]X[/cell][cell]Scava[/cell][cell]M[/cell]
 [cell]Taglia[/cell][cell]C[/cell][cell]Estirpa[/cell][cell]U[/cell]
-[cell]Raccogli[/cell][cell]H[/cell][cell]Pesca[/cell][cell]F[/cell]
-[cell]Caccia[/cell][cell]T[/cell][cell]Lavori[/cell][cell]J[/cell]
-[cell]Risorse[/cell][cell]I[/cell][cell]Conoscenza[/cell][cell]K[/cell]
-[cell]Leggi[/cell][cell]G[/cell][cell]Vista stanze[/cell][cell]L[/cell]
-[cell]Vista calore[/cell][cell]N[/cell][cell]Tagliare il ghiaccio[/cell][cell]Y[/cell]
-[cell]Tetti[/cell][cell]V[/cell][cell]Wiki[/cell][cell]F1[/cell]
+[cell]Raccogli[/cell][cell]H[/cell][cell]Orto[/cell][cell]P[/cell]
+[cell]Pesca[/cell][cell]F[/cell][cell]Caccia[/cell][cell]T[/cell]
+[cell]Lavori[/cell][cell]J[/cell][cell]Risorse[/cell][cell]I[/cell]
+[cell]Conoscenza[/cell][cell]K[/cell][cell]Leggi[/cell][cell]G[/cell]
+[cell]Vista stanze[/cell][cell]L[/cell][cell]Vista calore[/cell][cell]N[/cell]
+[cell]Tagliare il ghiaccio[/cell][cell]Y[/cell][cell]Tetti[/cell][cell]V[/cell]
+[cell]Wiki[/cell][cell]F1[/cell][cell][/cell][cell][/cell]
 [/table]
 • Lavori: il lavoro in attesa, nell'ordine in cui lo prendono i coloni. Risorse: cosa c'è nei magazzini.
 
@@ -91,7 +92,7 @@ Un lavoro dura 1,5 volte tanto a livello 0, il tempo normale a livello 5 e la me
 
 [color=#e8c34a]Cosa fa ogni abilità[/color]
 [table=2]
-[cell]Raccogliere[/cell][cell]raccolta da cespugli e lino[/cell]
+[cell]Raccogliere[/cell][cell]raccolta da cespugli e lino, l'orto[/cell]
 [cell]Estrarre[/cell][cell]scavare i massi[/cell]
 [cell]Tagliare legna[/cell][cell]abbattere gli alberi[/cell]
 [cell]Costruire[/cell][cell]costruzione: 2 s a casella o a pezzo[/cell]
@@ -329,6 +330,12 @@ Erbacce, cespugli e lino se ne vanno in 1,5 s. Toglili prima di costruirci sopra
 [color=#e8c34a]Raccogli (H)[/color] [img=center]res://art/icon_veg.png[/img] [img=center]res://art/icon_flax.png[/img]
 Cespugli e lino. Un cespuglio maturo ha 5 bacche (vegetali), il lino in fiore 5 lino, colti uno ogni 5 s. Ricrescono in 2 giorni e il segno resta: si raccolgono ogni volta. Segnare Estirpa toglie il segno di Raccogli, e viceversa.
 
+[color=#e8c34a]Orto (P)[/color] [img=center]res://art/icon_veg.png[/img]
+• Dopo la ricerca Orto. Trascina sul prato libero, fuori dalle stanze, per fare le caselle dell'orto: prima vanno tolte erbacce e cespugli, e sull'orto non si costruisce. Rape e cavoli crescono a file alterne.
+• Un colono semina una casella in 4 s (Raccogliere, come ogni tempo di lavoro) e la raccoglie 20 giorni dopo: 10 vegetali. Poi la risemina.
+• Si semina solo se il raccolto matura prima dell'inverno: dai 20 giorni prima dell'inverno non si semina più. Il primo giorno d'inverno il gelo si prende quello che è ancora nei campi.
+• Distruggi (X) toglie l'orto.
+
 [color=#e8c34a]Pesca (F)[/color] [img=center]res://art/icon_fish.png[/img]
 Segna caselle d'acqua. Il pescatore si mette accanto (anche nell'acqua bassa) e lancia ogni 10 s: un pesce il 30% delle volte, +6% per ogni livello di Pescare. Un punto di pesca ha 4 pesci, poi è vuoto per un giorno; il segno resta.
 
@@ -503,6 +510,7 @@ I libri vengono solo dalle rovine (vedi Rovine e spedizioni). Non ci sono ancora
 Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette non compaiono alle postazioni. Dall'inizio hai muri e pavimenti di legno, porte, sentieri, letti, tavoli, sedie, fuochi da campo, stendardi, scrittoi, troni, cimeli e pasti.
 
 [color=#e8c34a]L'albero[/color]
+• [color=#d9c48a]Orto[/color] (Terra I, 80): le caselle dell'orto, rape e cavoli in 20 giorni.
 • [color=#d9c48a]Caccia[/color] (Terra I, 50): filatoio e banco del falegname; corde d'arco e archi; pelli alle pareti e portiere.
 • [color=#d9c48a]Ghiacciaia[/color] (Terra II, 250 e un quaderno, dopo Dispensa fredda): la ghiacciaia, la fossa del ghiaccio, il taglio del ghiaccio.
 • [color=#d9c48a]Forgia[/color] (Fuoco I, 60): fornace e incudine; lingotti, piccone, ascia, falcetto.

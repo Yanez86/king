@@ -8,6 +8,12 @@ const ORE_VEIN := 0.35      # soglia del rumore delle vene: più alta, meno mine
 const UPROOT_TIME := 1.5    # secondi per estirpare un'erbaccia o un cespuglio
 const BERRIES_PER_BUSH := 5 # bacche (vegetali) su un cespuglio maturo
 const BERRY_REGROW := 2.0   # giorni prima che il cespuglio rifaccia le bacche
+# Orto (Tech.GARDEN): caselle di prato segnate con "Garden" (vedi garden). Il contadino (abilità raccogliere) semina, e
+# GROW_DAYS giorni dopo raccoglie CROP_YIELD vegetali; rape e cavoli a file alterne (vedi crop_of). Si semina solo se
+# il raccolto matura prima dell'inverno; il primo giorno d'inverno il gelo si prende quello che è rimasto nei campi
+const GROW_DAYS := 20.0
+const CROP_YIELD := 10
+const FARM_TIME := 4.0      # secondi per seminare o raccogliere una casella, a livello 5 (vedi skill_time)
 const CARRY_MAX := 10       # quantità massima trasportata per viaggio, di una risorsa sola
 const BUILD_TIME := 2.0     # secondi per costruire una casella
 const LOOK_AGAIN := 0.5     # secondi tra una ricerca di lavoro e l'altra, per chi non ne trova
@@ -22,9 +28,9 @@ const SIDES := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 const TREE_SIDES := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  # da sopra la chioma coprirebbe chi taglia
 
 enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE,
-	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE, DOUSE }
+	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE, DOUSE, FARM }
 const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FURNISH, Job.HARVEST, Job.COOK, Job.FISH,
-	Job.HUNT, Job.CRAFT, Job.STUDY, Job.GOVERN, Job.REPAIR, Job.CUT_ICE]  # contano come ore di lavoro
+	Job.HUNT, Job.CRAFT, Job.STUDY, Job.GOVERN, Job.REPAIR, Job.CUT_ICE, Job.FARM]  # contano come ore di lavoro
 # VEG: vegetali, dalle bacche dei cespugli; IRON, COAL: dai massi con le vene; MEAL, FINE_MEAL: pasti, dalla cucina;
 # MEAT, HIDE: carne e pelle, dagli animali cacciati; FISH: pesce, dai punti di pesca; INGOT: lingotti, dalla fornace;
 # FLAX: lino, dai fiori (vedi flax); BOWSTRING: corda d'arco, dal filatoio;
@@ -333,16 +339,16 @@ const SMOKE_TIME := 0.75     # affumicare al fuoco da campo, dove il fumo resta:
 const STATION_ROOM := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.HEARTH: RoomKind.KITCHEN, Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP,
 	Build.SPINNING_WHEEL: RoomKind.WORKSHOP, Build.CARPENTER_BENCH: RoomKind.CARPENTRY, Build.DESK: RoomKind.STUDY}
 const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.COAL: 5}  # scorte di partenza, vedi keep; i pasti MEALS_PER_COLONIST a testa
-enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT, ICE }  # cosa segna il trascinamento del mouse
+enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT, ICE, GARDEN }  # cosa segna il trascinamento del mouse
 const ORDER_COLORS := [Color.TRANSPARENT, Color.ORANGE, Color("8fd3ff"), Color("9be36a"), Color("e6e2d0"),
-	Color("ff5a5a"), Color("c83030"), Color("d84a6a"), Color("6ab0e0"), Color("c87a3a"), Color("bfe6f2")]  # selezione e segni, per Order
+	Color("ff5a5a"), Color("c83030"), Color("d84a6a"), Color("6ab0e0"), Color("c87a3a"), Color("bfe6f2"), Color("c8a46a")]  # selezione e segni, per Order
 # tasti in HUD/Tools/Row dopo Build, uno alla volta (ButtonGroup "Orders"): vedi toggle_order
 const ORDER_TOOLS := {Order.DEMOLISH: "Destroy", Order.MINE: "Mine", Order.CHOP: "Chop", Order.UPROOT: "Uproot",
-	Order.HARVEST: "Harvest", Order.FISH: "Fish", Order.HUNT: "Hunt", Order.ICE: "Ice"}
+	Order.HARVEST: "Harvest", Order.GARDEN: "Garden", Order.FISH: "Fish", Order.HUNT: "Hunt", Order.ICE: "Ice"}
 const ORDER_ICONS := {Order.CHOP: preload("res://art/icon_chop.png"), Order.MINE: preload("res://art/icon_mine.png"),
 	Order.UPROOT: preload("res://art/icon_uproot.png"), Order.HARVEST: preload("res://art/icon_harvest.png"),
 	Order.FISH: preload("res://art/icon_fishing.png"), Order.HUNT: preload("res://art/icon_hunting.png"),
-	Order.ICE: preload("res://art/icon_ice.png")}  # le stesse dei tasti: piccole e velate sopra ciò che è segnato
+	Order.ICE: preload("res://art/icon_ice.png"), Order.GARDEN: preload("res://art/icon_garden.png")}  # le stesse dei tasti: piccole e velate sopra ciò che è segnato
 enum RoomKind { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE, WORKSHOP, CARPENTRY, INN, STUDY, THRONE_ROOM, PANTRY, ICEHOUSE }  # tipo di stanza, scelto dal cartello
 # categoria del tipo: lavoro (niente proprietari, gli si assegnano dei lavoratori), residenza (può avere dei proprietari),
 # servizio (comune a tutti, con uno scopo preciso: magazzino, locanda). Senza tipo: nessuna, né proprietari né lavoratori
@@ -495,7 +501,7 @@ const ROOM_SPACE := 6        # caselle a testa: chi ne ha meno (stanza piena di 
 # menù delle opzioni (Esc o ingranaggio), tab Keybindings: tasti di partenza dei comandi della barra in basso, per
 # nome del pulsante in HUD/Tools/Row (quelli che non ci sono partono senza). Cambiati, si salvano: vedi bind_key
 const DEFAULT_KEYS := {"Select": KEY_Q, "Build": KEY_B, "Destroy": KEY_X, "Mine": KEY_M, "Chop": KEY_C, "Uproot": KEY_U,
-	"Harvest": KEY_H, "Fish": KEY_F, "Hunt": KEY_T, "Ice": KEY_Y, "Jobs": KEY_J, "Resources": KEY_I, "Knowledge": KEY_K, "Laws": KEY_G,
+	"Harvest": KEY_H, "Garden": KEY_P, "Fish": KEY_F, "Hunt": KEY_T, "Ice": KEY_Y, "Jobs": KEY_J, "Resources": KEY_I, "Knowledge": KEY_K, "Laws": KEY_G,
 	"RoomsLens": KEY_L, "HeatLens": KEY_N, "Roofs": KEY_V, "Wiki": KEY_F1}
 const SPEEDS := {"Pause": 0.0, "Play": 1.0, "Fast": 2.0, "Fastest": 3.0}  # pulsanti in alto a destra, come Space e 1-3
 # tab Video delle opzioni: misure della finestra, solo quelle che stanno nello schermo (la prima sempre)
@@ -517,7 +523,7 @@ const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today"
 	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
 	"fallen", "animals", "arrows", "next_animal", "next_pack", "guests", "next_guest", "ruins", "expeditions",
 	"chronicle", "chronicle_days", "board_pick", "study", "researched", "authority", "codified", "enacted", "revoked",
-	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "wear", "plastered", "burning",
+	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "wear", "plastered", "burning",
 	"fire_noted", "storm_noted", "delivered"]
 const TOAST_TIME := 2000    # millisecondi: "Saved" in alto, poi sparisce (vedi show_toast)
 const AUTOSAVE_HOUR := 6    # all'alba, quando i coloni si alzano: il salvataggio di ogni giorno
@@ -593,6 +599,8 @@ const BREATH_TIME := 2.0          # secondi per respiro
 const LOOK_TIME := 3.0            # secondi, in media, tra un'occhiata e l'altra di chi è fermo
 const TREES := preload("res://art/trees.png")  # 16x32 ciascuno: la chioma sale nella casella sopra
 const PLANTS := preload("res://art/plants.png")  # 16x16: erbaccia, cespuglio, cespuglio con le bacche, lino, lino in fiore
+const CROPS := preload("res://art/crops.png")  # 16x16: terra lavorata, poi per Crop germoglio, pianta, matura (vedi draw_garden)
+enum Crop { TURNIP, CABBAGE }
 const BOULDERS := {  # massi: dimensione in caselle -> sprite, dal più grande (ordine usato in generate_map)
 	Vector2i(2, 2): preload("res://art/rock_2x2.png"),
 	Vector2i(2, 1): preload("res://art/rock_2x1.png"),
@@ -937,7 +945,7 @@ const BRANCHES_SHEET := preload("res://art/branches.png")
 # ponytail: solo i nodi che hanno già qualcosa da sbloccare; gli altri dell'albero del GDD arrivano con le loro cose
 enum Tech { FORGE, TAILORING, HUNTING, INN, MASONRY, DECOR, LANTERNS, IRON_ARMS, BOOKSHELF, CHAINMAIL, FOUNTAIN, STATUARY,
 	ASTRONOMY, CHARCOAL, COLD_STORE, PAVED_ROAD, DRY_RATIONS, CARTOGRAPHY, PALISADE, TRAINING_DUMMY, SMOKEHOUSE, RENOWNED_INN,
-	WATCHTOWER, SHIELD, LENDING_ARMORY, STEEL, SCRIPTORIUM, FINE_FURNITURE, PALACE, LOOM, TILED_STOVE, ICEHOUSE }
+	WATCHTOWER, SHIELD, LENDING_ARMORY, STEEL, SCRIPTORIUM, FINE_FURNITURE, PALACE, LOOM, TILED_STOVE, ICEHOUSE, GARDEN }
 const TECHS_SHEET := preload("res://art/techs.png")
 const TECHS := {
 	Tech.FORGE: {"branch": Branch.FIRE, "tier": 1, "cost": 60, "builds": [Build.FURNACE, Build.ANVIL],
@@ -999,6 +1007,8 @@ const TECHS := {
 		"info": "The throne room becomes a palace: audiences give 50% more authority, +10 splendor."},
 	Tech.ICEHOUSE: {"branch": Branch.LAND, "tier": 2, "cost": 250, "needs": [Tech.COLD_STORE], "rooms": [RoomKind.ICEHOUSE],
 		"builds": [Build.ICE_PIT], "info": "The icehouse: stone walls, a pit of ice cut from the frozen water in winter. While the ice lasts, food barely spoils."},
+	Tech.GARDEN: {"branch": Branch.LAND, "tier": 1, "cost": 80, "orders": [Order.GARDEN],
+		"info": "The garden: mark plots on open grass. Colonists sow turnips and cabbages and harvest them 20 days later. Nothing grows in winter."},
 	Tech.LOOM: {"branch": Branch.FIRE, "tier": 2, "cost": 200, "needs": [Tech.TAILORING], "builds": [Build.TAPESTRY],
 		"info": "Woven linen: tapestries for the walls, warmth and splendor."},
 	Tech.TILED_STOVE: {"branch": Branch.FIRE, "tier": 2, "cost": 300, "needs": [Tech.CHARCOAL, Tech.MASONRY], "builds": [Build.TILED_STOVE],
@@ -1249,6 +1259,7 @@ var uproot_marks := {}      # cella -> true: erbacce e cespugli da estirpare
 var harvest_marks := {}     # cella -> true: cespugli da cui raccogliere le bacche, ogni volta che maturano
 var fish_marks := {}        # cella d'acqua -> true: punti di pesca
 var ice_marks := {}         # cella d'acqua -> true: dove si taglia il ghiaccio, quando gela
+var garden := {}            # casella dell'orto -> `clock` della semina, o -1 se è da seminare (vedi GROW_DAYS)
 var fish_spots := {}        # cella d'acqua -> `clock` da cui ci sono di nuovo pesci (se manca, ci sono)
 var animals: Array[Animal] = []
 var arrows: Array[Arrow] = []  # in volo, vedi shoot
@@ -2668,6 +2679,8 @@ func job_list() -> String:
 		lines.append(tr("Uproot plants: %d") % uproot_marks.size())
 	if not harvest_ready().is_empty():
 		lines.append(tr("Harvest bushes: %d") % harvest_ready().size())
+	if not farm_ready().is_empty():
+		lines.append(tr_n("Tend the garden: %d plot", "Tend the garden: %d plots", farm_ready().size()) % farm_ready().size())
 	if not fishable().is_empty():
 		lines.append(tr("Fish spots: %d") % fishable().size())
 	if not ice_ready().is_empty():
@@ -3041,6 +3054,24 @@ func update_colonist(c: Colonist, delta: float) -> void:
 					fish_spots[c.target] = clock + FISH_REGROW
 			end_job(c)
 			try_haul(c, res, [here])  # porta subito via quello che ha prodotto
+		Job.FARM:  # accanto alla casella dell'orto (target): raccoglie quello che è maturo, o semina
+			face(c, center(c.target) - c.pos)
+			c.work_left -= delta
+			if c.work_left > 0:
+				return
+			var sown: float = garden.get(c.target, -1.0)
+			if sown >= 0 and clock - sown >= GROW_DAYS:
+				var here := cell_of(c.pos)
+				produce(Res.VEG, here, CROP_YIELD)
+				garden[c.target] = -1.0
+				c.xp[Skill.GATHERING] += 1
+				end_job(c)
+				try_haul(c, Res.VEG, [here])  # porta subito via il raccolto
+				return
+			if garden.has(c.target) and sown < 0 and sowing_season():
+				garden[c.target] = clock
+				c.xp[Skill.GATHERING] += 1
+			end_job(c)
 		Job.UPROOT:
 			face(c, center(c.target) - c.pos)
 			c.work_left -= delta
@@ -3603,6 +3634,28 @@ func ice_space() -> int:
 	return room_left - (total(Res.ICE) - pits.keys().reduce(func(n, k): return n + items[Res.ICE].get(k, 0), 0))
 
 
+# caselle dell'orto dove c'è da fare: mature da raccogliere, o vuote da seminare se si è in tempo (sowing_season)
+func farm_ready() -> Array:
+	var sow := sowing_season()
+	return garden.keys().filter(func(k): return (garden[k] < 0 and sow) or (garden[k] >= 0 and clock - garden[k] >= GROW_DAYS))
+
+
+# si semina se il raccolto matura prima dell'inverno: fuori dall'inverno, e almeno GROW_DAYS giorni prima del suo inizio
+func sowing_season() -> bool:
+	var winter := today - posmod(today, YEAR_DAYS) + 1 + WINTER * SEASON_DAYS  # il primo giorno d'inverno di quest'anno
+	return season(today) != WINTER and winter - clock >= GROW_DAYS
+
+
+# sul prato libero, fuori dalle stanze: ci si può fare l'orto
+func can_plant(cell: Vector2i) -> bool:
+	return not garden.has(cell) and can_build(cell, Build.WALL) and ground_of(cell) == Ground.GRASS and not roofed.has(cell)
+
+
+# rape e cavoli a file alterne
+func crop_of(cell: Vector2i) -> Crop:
+	return Crop.TURNIP if posmod(cell.y, 2) == 0 else Crop.CABBAGE
+
+
 # acqua segnata dove tagliare il ghiaccio: solo se è gelata e se nelle fosse c'è posto
 func ice_ready() -> Array:
 	if not atmosphere.frozen or ice_space() <= 0:
@@ -3906,6 +3959,7 @@ func find_work(c: Colonist) -> bool:
 			or try_work(c, Job.MINE, mine_marks.keys(), SIDES, gather_time(c, Job.MINE)) \
 			or try_work(c, Job.UPROOT, uproot_marks.keys(), SIDES, UPROOT_TIME * work_factor(c, Job.UPROOT)) \
 			or try_work(c, Job.HARVEST, harvest_ready(), SIDES, gather_time(c, Job.HARVEST)) \
+			or try_work(c, Job.FARM, farm_ready(), SIDES, FARM_TIME * skill_time(c.skills[Skill.GATHERING]) * work_factor(c, Job.FARM)) \
 			or try_work(c, Job.FISH, fishable(), SIDES, gather_time(c, Job.FISH)) or try_hunt(c) \
 			or try_work(c, Job.CUT_ICE, ice_ready(), SIDES, gather_time(c, Job.CUT_ICE)):
 		return true
@@ -5398,6 +5452,7 @@ func refresh_unlocks() -> void:
 		bar.get_node("Row/" + Build.keys()[kind].capitalize()).visible = unlocked("builds", kind)
 	$HUD/BuildBar/Row/Materials/Stone.visible = unlocked("materials", Res.STONE)
 	$HUD/Tools/Row/Ice.visible = unlocked("rooms", RoomKind.ICEHOUSE)  # col tasto del ghiaccio, la ghiacciaia
+	$HUD/Tools/Row/Garden.visible = unlocked("orders", Order.GARDEN)
 
 
 # la ricerca che sblocca `value` nella lista `key` di TECHS ("builds", "makes", "materials"); -1 se c'è dall'inizio
@@ -5576,13 +5631,19 @@ func holiday() -> bool:
 
 # All'alba di ogni giorno (a mezzanotte): la tassa di soggiorno di chi aspetta alla locanda, una moneta lì dov'è;
 # chi è scontento toglie autorità. D'inverno niente raccolti: i cespugli perdono bacche e fiori di lino e li rifanno
-# BERRY_REGROW giorni dopo Capodanno. Finito un giorno di festa del calendario: la felicità e l'autorità della festa del
+# BERRY_REGROW giorni dopo Capodanno, nell'orto il gelo si prende quello che c'era. Finito un giorno di festa del calendario: la felicità e l'autorità della festa del
 # raccolto; col granaio aperto un pasto a tutti, un pezzo del granaio a testa finché ce n'è
 func new_day() -> void:
 	if season(today) == WINTER:
 		var spring: float = today - posmod(today, YEAR_DAYS) + YEAR_DAYS + BERRY_REGROW
 		for cell in bushes:
 			bushes[cell] = maxf(bushes[cell], spring)
+		var frozen := garden.keys().filter(func(k): return garden[k] >= 0)
+		for cell in frozen:  # il gelo si prende quello che è rimasto nei campi
+			garden[cell] = -1.0
+		if not frozen.is_empty():
+			note(tr_n("%s: the frost took %d plot of the garden.", "%s: the frost took %d plots of the garden.", frozen.size())
+				% [date(today), frozen.size()])
 	if enacted.has(Law.LODGING_TAX):
 		for g in guests:
 			if not g.hired and g.errand == Errand.NONE:
@@ -6498,6 +6559,10 @@ func mark(rect: Rect2i) -> void:
 			for cell in water:
 				if rect.has_point(cell):
 					ice_marks[cell] = true
+		Order.GARDEN:  # sul prato libero, fuori dalle stanze; le piante prima si estirpano
+			for cell in cells_in(rect):
+				if can_plant(cell):
+					garden[cell] = -1.0
 		Order.HUNT:  # una casella di margine: si muovono
 			for a in animals:
 				if rect.grow(1).has_point(cell_of(a.pos)):
@@ -6517,7 +6582,10 @@ func mark(rect: Rect2i) -> void:
 			for x in range(rect.position.x, rect.end.x):
 				for y in range(rect.position.y, rect.end.y):
 					erase_plan(Vector2i(x, y))
-		Order.DEMOLISH:  # subito, senza recuperare il materiale
+		Order.DEMOLISH:  # subito, senza recuperare il materiale; anche l'orto, con quello che ci cresce
+			for cell in garden.keys().filter(func(k): return rect.has_point(k)):
+				garden.erase(cell)
+				drop_job(cell, Job.FARM)
 			for cell in built.keys().filter(func(k): return rect.has_point(k)):
 				if built[cell][0] in BARRIERS:
 					astar.set_point_solid(cell, false)
@@ -6576,7 +6644,8 @@ func can_build(cell: Vector2i, kind := Build.FLOOR) -> bool:
 	if kind == Build.PLASTER:  # sopra un muro di legno già fatto, non ancora intonacato
 		return built.get(cell, [-1, -1]) == [Build.WALL, Res.WOOD] and not plastered.has(cell) and not blueprints.has(cell)
 	if not (astar.is_in_boundsv(cell) and not astar.is_point_solid(cell) and not water.has(cell) and not trees.has(cell) \
-			and not bushes.has(cell) and not weeds.has(cell) and items.values().all(func(ground): return not ground.has(cell))):
+			and not bushes.has(cell) and not weeds.has(cell) and not garden.has(cell) \
+			and items.values().all(func(ground): return not ground.has(cell))):
 		return false
 	var furnished := [furniture, furniture_plans, furniture_draft].any(func(l): return not pieces_at(l, cell).is_empty())
 	if FURNITURE.has(kind):
@@ -7091,6 +7160,7 @@ func structure_src(cell: Vector2i, plan: Array, layers: Array) -> Rect2i:
 func draw_flat() -> void:  # sotto le ombre: il terreno lo disegna lo Sprite2D di bake_ground
 	for cell in weeds:  # basse: niente ombra
 		flat.draw_texture_rect_region(PLANTS, tile_rect(cell.x, cell.y), tile_rect(0, 0))
+	draw_garden()
 	for cell in built:
 		if built[cell][0] in PAVING:
 			flat.draw_texture_rect_region(STRUCTURES, tile_rect(cell.x, cell.y), structure_src(cell, built[cell], [built]))
@@ -7115,6 +7185,17 @@ func draw_flat() -> void:  # sotto le ombre: il terreno lo disegna lo Sprite2D d
 		for cell in items[res]:
 			var side: float = 8.0 + 8.0 * mini(items[res][cell], STACK_MAX[res]) / STACK_MAX[res]
 			flat.draw_texture_rect(ICONS[res], Rect2(center(cell) - Vector2.ONE * side / 2, Vector2.ONE * side), false)
+
+
+# L'orto: la terra lavorata, e quello che ci cresce: germoglio nel primo terzo, poi la pianta, poi matura
+func draw_garden() -> void:
+	for cell in garden:
+		var r := Rect2(tile_rect(cell.x, cell.y))
+		flat.draw_texture_rect_region(CROPS, r, tile_rect(0, 0))
+		if garden[cell] >= 0:
+			var grown: float = (clock - garden[cell]) / GROW_DAYS
+			var stage := 2 if grown >= 1.0 else (1 if grown >= 1.0 / 3.0 else 0)
+			flat.draw_texture_rect_region(CROPS, r, tile_rect(1 + crop_of(cell) * 3 + stage, 0))
 
 
 # L'erba dei prati vicini sborda sul pavimento in `cell`, così non finisce di netto: lati, e angoli se nessun lato

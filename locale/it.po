@@ -2874,6 +2874,22 @@ msgstr "Una fossa di pietra foderata di paglia, per i blocchi di ghiaccio. Serve
 msgid "The icehouse: stone walls, a pit of ice cut from the frozen water in winter. While the ice lasts, food barely spoils."
 msgstr "La ghiacciaia: muri di pietra, una fossa di ghiaccio tagliato d'inverno dall'acqua gelata. Finché il ghiaccio dura, il cibo quasi non marcisce."
 
+msgid "Garden"
+msgstr "Orto"
+
+msgid "The garden: mark plots on open grass. Colonists sow turnips and cabbages and harvest them 20 days later. Nothing grows in winter."
+msgstr "L'orto: segna delle caselle sul prato libero. I coloni seminano rape e cavoli e li raccolgono 20 giorni dopo. D'inverno non cresce niente."
+
+msgid "Tend the garden: %d plot"
+msgid_plural "Tend the garden: %d plots"
+msgstr[0] "Curare l'orto: %d casella"
+msgstr[1] "Curare l'orto: %d caselle"
+
+msgid "%s: the frost took %d plot of the garden."
+msgid_plural "%s: the frost took %d plots of the garden."
+msgstr[0] "%s: il gelo si è preso %d casella dell'orto."
+msgstr[1] "%s: il gelo si è preso %d caselle dell'orto."
+
 msgctxt "item"
 msgid "Ice"
 msgstr "Ghiaccio"

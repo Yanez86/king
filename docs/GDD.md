@@ -336,6 +336,14 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
   - **Lino**: ciuffi coi fiori azzurri sparsi nei prati (circa 1 casella su 100). Si segna e si raccoglie come i cespugli
     (abilità raccogliere): in fiore dà 5 lino, poi rifiorisce in 2 giorni. Non si mangia: si fila in corde d'arco.
   Un colono mangia circa 2 vegetali al giorno se cucinati, 2,6 crudi; un cespuglio ne dà 2,5: 1–2 cespugli a testa.
+- **Coltivare** (ricerca Orto, tasto "Garden", P): si trascina sul prato libero, fuori dalle stanze, e le caselle
+  diventano orto (terra lavorata); erbacce e cespugli si estirpano prima, sull'orto non si costruisce, Distruggi lo
+  toglie. Rape e cavoli a file alterne. Il contadino (abilità raccogliere) semina una casella in 4 s a livello 5 e
+  20 giorni dopo la raccoglie: 10 vegetali, che cadono ai suoi piedi e porta in magazzino; poi risemina. +1 punto
+  esperienza per semina e per raccolto. Si semina solo se il raccolto matura prima dell'inverno (dai 20 giorni prima
+  non si semina più); il primo giorno d'inverno il gelo si prende quello che è rimasto nei campi (lo dice la cronaca).
+  Una casella dà mezzo vegetale al giorno: 4 caselle a testa, fuori dall'inverno; l'inverno si passa con le scorte.
+  Numeri da tarare.
 
 ### 4.4.2 Forgia, sartoria ed equipaggiamento
 - **Stanze**: forgia (fornace e incudine), laboratorio (banco da lavoro, 15 legna; ci lavora anche il filatoio, 10 legna),
@@ -781,7 +789,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
 
   | Ramo | Ricerca | Liv. | Studio | Richiede | Sblocca |
   |---|---|---|---|---|---|
-  | Terra | Orto | I | 80 | — | zona orto e lavoro Coltivare: rape e cavoli ogni 3 giorni, niente d'inverno |
+  | Terra | Orto ✓ | I | 80 | — | zona orto e lavoro Coltivare: rape e cavoli in 20 giorni, niente d'inverno |
   | | Forno di pietra | II | 300 | Orto | forno 2x1: pane (2 vegetali → 3, sazia 60, dura 8 giorni), stufato |
   | | Apicoltura | III | 450 | Forno di pietra | arnia accanto alle aiuole: miele (non marcisce), cera (candele: si studia di notte) |
   | | Banchetto reale | IV | 1000 | Apicoltura | il banchetto al forno: +15 felicità per 3 giorni, +20 autorità |
@@ -925,7 +933,7 @@ IV, regno, leggi finali, cittadella.
 **Stato**: fatte le fasi 1–4; della 5 una parte dei nodi, l'erudito errante e la protesta. Nel gioco: scrittoio,
 libreria e trono; stanze Studio e Sala del trono; lavori Studiare e Governare; studio e autorità (nelle finestre
 Knowledge e Laws, tasti K e G, o clic su scrittoio e trono; tutte e due scorrono); i tre libri, nei forzieri e nei
-tesori, col monastero; le 29 ricerche segnate ✓; le 19 leggi segnate ✓; il titolo cresce con lo splendore (4.3) e dà i
+tesori, col monastero; le 30 ricerche segnate ✓; le 19 leggi segnate ✓; il titolo cresce con lo splendore (4.3) e dà i
 sigilli (2–5), le fasce delle leggi e l'autorità di ogni giorno; gli eventi d'autorità del 4.7.4 tranne
 l'incoronazione (manca la successione), mai sotto zero. Il granaio è un conto, non una stanza, e niente ci marcisce;
 paga le provviste, poi (Granaio aperto) l'ora senza cibo in magazzino e il pasto di ogni stagione; la festa del

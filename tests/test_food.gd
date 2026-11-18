@@ -1,5 +1,5 @@
 # Esegui: godot --headless --path . -s tests/test_food.gd
-# Cibo: freschezza e marcio, intossicazione, cucina, pasti e loro bonus, pesca e caccia
+# Cibo: freschezza e marcio, intossicazione, cucina, pasti e loro bonus, pesca e caccia, l'orto
 extends SceneTree
 
 
@@ -384,6 +384,70 @@ func _initialize() -> void:
 	for name in ["Fish", "Hunt"]:
 		var b: Button = main.get_node("HUD/Tools/Row/" + name)
 		check(b.icon != null and b.button_group == main.order_group, "tasto %s nel gruppo delle azioni" % name)
+
+	# orto: col tasto Garden si segna il prato libero; il contadino semina, GROW_DAYS giorni dopo raccoglie CROP_YIELD
+	# vegetali e risemina. Si semina solo se si fa in tempo prima dell'inverno; il primo giorno d'inverno il gelo si
+	# prende quello che è nei campi
+	var garden_button: Button = main.get_node("HUD/Tools/Row/Garden")
+	check(garden_button.visible and garden_button.button_group == main.order_group, "tasto Garden nel gruppo delle azioni")
+	main.researched.erase(main.Tech.GARDEN)
+	main.refresh_unlocks()
+	check(not garden_button.visible, "senza la ricerca Orto niente tasto")
+	main.researched[main.Tech.GARDEN] = true
+	main.refresh_unlocks()
+	var year_start: int = int(main.clock) - posmod(int(main.clock), main.YEAR_DAYS) + main.YEAR_DAYS
+	main.clock = year_start + 5.5  # primavera, a mezzogiorno
+	main.tick(0.0)
+	var plot := Vector2i(-1, -1)
+	for k in main.cells_in(area):
+		if main.can_plant(k) and main.can_plant(k + Vector2i.RIGHT) and main.can_plant(k + Vector2i.DOWN):
+			plot = k
+			break
+	check(plot.x >= 0, "c'è prato libero per l'orto")
+	var field := Rect2i(plot, Vector2i(2, 1))
+	main.order = main.Order.GARDEN
+	main.mark(field)
+	main.order = main.Order.NONE
+	check(main.garden.size() == 2 and main.garden.values().all(func(t): return t < 0), "due caselle d'orto, da seminare")
+	check(not main.can_build(plot) and not main.can_plant(plot), "sull'orto non si costruisce")
+	check(main.crop_of(plot) != main.crop_of(plot + Vector2i.DOWN), "rape e cavoli a file alterne")
+	check(main.farm_ready().size() == 2, "in primavera si semina")
+	var farmer = main.colonists[0]
+	var gathering: int = farmer.xp[main.Skill.GATHERING]
+	for c in main.colonists:
+		c.pos = main.center(plot + Vector2i(0, 1))
+	for i in 2000:
+		main.tick(0.05)
+		if main.garden.values().all(func(t): return t >= 0):
+			break
+	check(main.garden.values().all(func(t): return t >= 0 and main.clock - t < 1.0), "seminato")
+	check(main.colonists.any(func(c): return c.xp[main.Skill.GATHERING] > 0) and main.farm_ready().is_empty(), "esperienza; poi si aspetta")
+	for k in main.garden:  # GROW_DAYS dopo: maturo
+		main.garden[k] = main.clock - main.GROW_DAYS
+	var veg_before: int = main.total(V)
+	for i in 3000:
+		main.tick(0.05)
+		if main.total(V) >= veg_before + 2 * main.CROP_YIELD:
+			break
+	check(main.total(V) >= veg_before + 2 * main.CROP_YIELD, "raccolti %d vegetali a casella" % main.CROP_YIELD)
+	for i in 2000:  # e si risemina
+		main.tick(0.05)
+		if main.garden.values().all(func(t): return t >= 0):
+			break
+	check(main.garden.values().all(func(t): return t >= 0 and main.clock - t < main.GROW_DAYS), "e risemina")
+	var winter_starts: int = year_start + 1 + main.WINTER * main.SEASON_DAYS
+	main.clock = winter_starts - main.GROW_DAYS + 0.5  # non si fa più in tempo
+	main.tick(0.0)
+	main.garden[plot] = -1.0
+	check(not main.sowing_season() and not main.farm_ready().has(plot), "troppo vicino all'inverno: non si semina")
+	main.clock = winter_starts  # mezzanotte del primo giorno d'inverno
+	main.tick(0.0)
+	check(main.garden.values().all(func(t): return t < 0), "il gelo si prende quello che c'era")
+	check(Array(main.chronicle).any(func(line): return "frost took 1 plot of" in line), "e la cronaca lo dice")
+	main.order = main.Order.DEMOLISH
+	main.mark(field)
+	main.order = main.Order.NONE
+	check(main.garden.is_empty() and main.can_plant(plot), "Destroy toglie l'orto")
 
 	# inverno: i cespugli perdono le bacche e le rifanno dopo Capodanno; al fresco il cibo marcisce più piano, sotto lo
 	# zero per niente (gela)
