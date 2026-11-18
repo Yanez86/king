@@ -126,7 +126,7 @@ pre i { color: #8fb87a; }
 <body>
 <nav>
 <h1>King</h1>
-<small>Mechanics · commit b90cea0 · 2026-11-18 · <a class="lang" href="index.html">Italiano</a></small>
+<small>Mechanics · commit 1d5fae0 · 2026-11-18 · <a class="lang" href="index.html">Italiano</a></small>
 <h2>Wiki</h2>
 <a href="#basics"><i class="sp s78" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Basics</a><a href="#controls"><i class="sp s79" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Controls</a><a href="#colonists"><i class="sp s80" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Colonists</a><a href="#skills"><i class="sp s75" style="width:16px;height:16px;background-position:-144px 0px;background-size:208px 16px"></i> Skills</a><a href="#traits"><i class="sp s69" style="width:16px;height:16px;background-position:0px 0px;background-size:240px 16px"></i> Traits</a><a href="#conditions"><i class="sp s70" style="width:16px;height:16px;background-position:-16px 0px;background-size:144px 16px"></i> Conditions</a><a href="#the-ruler-house"><i class="sp s27" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> The Ruler &amp; House</a><a href="#building"><i class="sp s56" style="width:15px;height:15px;background-position:0px 0px;background-size:15px 15px"></i> Building</a><a href="#rooms"><i class="sp s66" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Rooms</a><a href="#roofs-heat"><i class="sp s67" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Roofs &amp; Heat</a><a href="#food-cooking"><i class="sp s5" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Food &amp; Cooking</a><a href="#gathering"><i class="sp s59" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Gathering</a><a href="#crafting-equipment"><i class="sp s10" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Crafting &amp; Equipment</a><a href="#combat-wolves"><i class="sp s77" style="width:16px;height:16px;background-position:0px -32px;background-size:32px 48px"></i> Combat &amp; Wolves</a><a href="#splendor"><i class="sp s54" style="width:16px;height:16px;background-position:0px -416px;background-size:128px 1152px"></i> Splendor</a><a href="#adventurers"><i class="sp s23" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Adventurers</a><a href="#ruins-expeditions"><i class="sp s24" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Ruins &amp; Expeditions</a><a href="#knowledge"><i class="sp s63" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Knowledge</a><a href="#laws"><i class="sp s64" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Laws</a><h2>Development</h2><a href="#todo"><i class="sp s36" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Still to develop</a><h2>Numbers</h2><a href="#main-gd">main.gd</a><a href="#atmosphere-gd">atmosphere.gd</a>
 </nav>
@@ -136,8 +136,8 @@ pre i { color: #8fb87a; }
 <p>King is a medieval colony sim. You are the ruler of a small lordship, but you never move anyone by hand: you mark trees to chop and boulders to mine, plan buildings, choose what the workshops make and pass laws. Colonists pick their jobs by themselves, following their needs and their daily routine.</p>
 <h3>The start </h3>
 <ul>
-<li>Three colonists stand in a clearing. The first is your ruler, made on the new-game page.</li>
-<li>Around the clearing are three small wooden rooms. The north one is a warehouse, with some supplies and 60 <i class="sp s44" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i>.</li>
+<li>Your ruler, made on the new-game page, and three colonists stand in a clearing. Nothing is built yet: no rooms, no warehouse.</li>
+<li>Next to them, 60 <i class="sp s44" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> lie on the grass: build a warehouse and haulers carry them in (you can only spend what is in a warehouse).</li>
 <li>An abandoned weapon (a sword, an axe or a bow) lies in the grass 15–25 tiles from the clearing.</li>
 <li>From day 5 wolves come (see Combat &amp; Wolves).</li>
 <li>If every colonist dies, the colony has fallen.</li>
@@ -177,8 +177,15 @@ pre i { color: #8fb87a; }
 </ul>
 <h3>Options </h3>
 <ul>
-<li>System: language, quit the game. Video: window size and fullscreen (also the screen button at the top right).</li>
+<li>System: language, load another colony, back to the main menu, quit the game. Video: window size and fullscreen (also the screen button at the top right).</li>
 <li>Keybindings: click a command's key, then press the new one. Esc cancels, Delete or Backspace leaves it without a key, Reset restores the defaults. Space, 1-3, E, R and Esc can't be taken. Your keys are saved.</li>
+</ul>
+<h3>Saving </h3>
+<ul>
+<li>The game saves by itself: when the colony is founded, at every dawn (6:00), and when you go back to the main menu, quit or close the window. "Saved" shows at the top. There is no saving by hand: a colony is one story.</li>
+<li>Every colony keeps its last 3 saves; if the newest one is damaged, the one before is used.</li>
+<li>On the title screen, Continue picks up the colony you played last and Colonies lists them all, with the realm, the date, the ruler and the colonists. Load game in the options does the same during a game (this colony is saved first); Delete removes a colony with all its saves and asks twice.</li>
+<li>A loaded colony starts paused: Space to go on. A fallen colony is not saved: Continue takes you back to its last dawn.</li>
 </ul></section><section id="colonists"><h2><i class="sp s80" style="width:32px;height:32px;background-position:0px 0px;background-size:32px 32px"></i> Colonists</h2><p>Click a colonist for their sheet: health, needs (the arrows show which way each one is going), skills, traits, conditions, equipment and the 24 hours of their routine.</p>
 <h3>Needs </h3>
 <p>All of them go from 0 to 100.</p>
@@ -333,7 +340,7 @@ pre i { color: #8fb87a; }
 <h3>Cooking </h3>
 <ul>
 <li>At a campfire or a hearth inside a kitchen. The cook takes 2 raw foods from one pile (vegetables, fish or meat), cooks for 8 s and carries the meal to a warehouse.</li>
-<li>Click the campfire: Keep N meals (6 at the start). Cooks cook while there are fewer meals than that, counting those on the ground, in warehouses and in hand.</li>
+<li>Click the campfire: Keep N meals (8 at the start, 2 a head). Cooks cook while there are fewer meals than that, counting those on the ground, in warehouses and in hand.</li>
 <li>Burnt, and the food is lost: 6% for every Cooking level below 6, plus 3% for every point of kitchen comfort below 5 (minus above). At level 0 in a kitchen of comfort 5: 36%.</li>
 <li><i class="sp s6" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Fine meal: 5% for every level above 5, plus 2% for every point of comfort above 5 (minus below): 25% at level 10.</li>
 <li>The time also depends on the kitchen's comfort and the cook's conditions.</li>
@@ -356,7 +363,7 @@ pre i { color: #8fb87a; }
 </ul>
 <table><tr><td><span style="color:#d9c48a">Animal</span></td><td><span style="color:#d9c48a">Health</span></td><td><span style="color:#d9c48a">Meat, hide</span></td><td><span style="color:#d9c48a">Speed</span></td></tr><tr><td><i class="sp s77" style="width:16px;height:16px;background-position:0px 0px;background-size:32px 48px"></i> Rabbit</td><td>10</td><td>3, 1</td><td>2 tiles/s</td></tr><tr><td><i class="sp s77" style="width:16px;height:16px;background-position:0px -16px;background-size:32px 48px"></i> Deer</td><td>20</td><td>10, 3</td><td>1.5 tiles/s</td></tr><tr><td><i class="sp s77" style="width:16px;height:16px;background-position:0px -32px;background-size:32px 48px"></i> Wolf</td><td>30</td><td>5, 2</td><td>3 tiles/s</td></tr></table>
 <p>Animals roam outside rooms and water, born more than 15 tiles from the clearing: 6 rabbits and 3 deer at first, then a new one every half day while there are fewer than 12. A marked wolf, shot at, attacks the hunter.</p></section><section id="crafting-equipment"><h2><i class="sp s10" style="width:32px;height:32px;background-position:0px 0px;background-size:32px 32px"></i> Crafting &amp; Equipment</h2><h3>Workstations </h3>
-<p>Click a station for its menu: one row for every recipe you know, with its ingredients and Keep N. Things get made while there are fewer than N around (on the ground, in warehouses, in hand, being made); Keep counts for every station of the kind. Equipment is also made for the colonists with an empty slot, and a bow when animals are marked and nobody has one. At the start: Keep 10 ingots, 2 bowstrings, 6 meals, 0 of the rest.</p>
+<p>Click a station for its menu: one row for every recipe you know, with its ingredients and Keep N. Things get made while there are fewer than N around (on the ground, in warehouses, in hand, being made); Keep counts for every station of the kind. Equipment is also made for the colonists with an empty slot, and a bow when animals are marked and nobody has one. At the start: Keep 10 ingots, 2 bowstrings, 8 meals, 0 of the rest.</p>
 <p>The crafter brings the ingredients one by one, then works. The time depends on skill, room comfort and conditions; an item may be ruined, losing the ingredients, as often as a meal burns.</p>
 <table><tr><td><span style="color:#d9c48a">Item</span></td><td><span style="color:#d9c48a">Station</span></td><td><span style="color:#d9c48a">Needs</span></td><td><span style="color:#d9c48a">Time</span></td></tr><tr><td><i class="sp s10" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Ingot</td><td><i class="sp s54" style="width:16px;height:16px;background-position:0px -160px;background-size:128px 1152px"></i> furnace</td><td>1 iron, 1 coal</td><td>6 s</td></tr><tr><td><i class="sp s12" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Bowstring</td><td><i class="sp s54" style="width:16px;height:16px;background-position:0px -256px;background-size:128px 1152px"></i> spinning wheel</td><td>2 flax</td><td>8 s</td></tr><tr><td><i class="sp s17" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Leather armor</td><td><i class="sp s54" style="width:16px;height:16px;background-position:0px -224px;background-size:128px 1152px"></i> workbench</td><td>4 hide</td><td>20 s</td></tr><tr><td><i class="sp s18" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Leather hood</td><td><i class="sp s54" style="width:16px;height:16px;background-position:0px -224px;background-size:128px 1152px"></i> workbench</td><td>2 hide</td><td>12 s</td></tr><tr><td><i class="sp s16" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Bow</td><td><i class="sp s54" style="width:16px;height:16px;background-position:0px -288px;background-size:128px 1152px"></i> carpenter bench</td><td>3 wood, 1 bowstring</td><td>15 s</td></tr><tr><td><i class="sp s13" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Pickaxe</td><td><i class="sp s54" style="width:16px;height:16px;background-position:0px -192px;background-size:128px 1152px"></i> anvil</td><td>2 ingots, 2 wood</td><td>15 s</td></tr><tr><td><i class="sp s14" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Axe</td><td><i class="sp s54" style="width:16px;height:16px;background-position:0px -192px;background-size:128px 1152px"></i> anvil</td><td>2 ingots, 2 wood</td><td>15 s</td></tr><tr><td><i class="sp s15" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Sickle</td><td><i class="sp s54" style="width:16px;height:16px;background-position:0px -192px;background-size:128px 1152px"></i> anvil</td><td>1 ingot, 1 wood</td><td>10 s</td></tr><tr><td><i class="sp s19" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Helmet</td><td><i class="sp s54" style="width:16px;height:16px;background-position:0px -192px;background-size:128px 1152px"></i> anvil</td><td>3 ingots</td><td>20 s</td></tr><tr><td><i class="sp s20" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Chainmail</td><td><i class="sp s54" style="width:16px;height:16px;background-position:0px -192px;background-size:128px 1152px"></i> anvil</td><td>6 ingots</td><td>30 s</td></tr><tr><td><i class="sp s21" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Sword</td><td><i class="sp s54" style="width:16px;height:16px;background-position:0px -192px;background-size:128px 1152px"></i> anvil</td><td>3 ingots, 1 wood</td><td>20 s</td></tr></table>
 <p>Skill: Smithing at furnace and anvil, Tailoring at spinning wheel and workbench, Ranged at the carpenter bench.</p>
@@ -546,10 +553,9 @@ const <b id="c-CARRY_MAX">CARRY_MAX</b> := 10       <i># quantità massima trasp
 const <b id="c-BUILD_TIME">BUILD_TIME</b> := 2.0     <i># secondi per costruire una casella</i>
 const <b id="c-LOOK_AGAIN">LOOK_AGAIN</b> := 0.5     <i># secondi tra una ricerca di lavoro e l'altra, per chi non ne trova</i>
 const <b id="c-RETRY_AFTER">RETRY_AFTER</b> := 10.0   <i># secondi di gioco prima di riprovare a raggiungere una casella irraggiungibile</i>
-const <b id="c-COLONIST_COUNT">COLONIST_COUNT</b> := 3
+const <b id="c-COLONIST_COUNT">COLONIST_COUNT</b> := 3   <i># coloni all'inizio, oltre al sovrano: nella radura, senza niente di costruito</i>
+const <b id="c-TEST_PEOPLE">TEST_PEOPLE</b> := 3      <i># nei test (game_start false): il sovrano e due coloni, quelli su cui sono fatte le prove</i>
 const <b id="c-ROOM_MAX">ROOM_MAX</b> := 400       <i># caselle: una zona chiusa più grande non è una stanza, è il mondo fuori</i>
-const <b id="c-START_ROOMS">START_ROOMS</b> := [Vector2i.UP, Vector2i.LEFT, Vector2i.RIGHT]  <i># stanze 5x5 già murate attorno alla radura, porta verso fuori</i>
-const <b id="c-DEBUG_STASH">DEBUG_STASH</b> := 100    <i># debug: quanto di ogni risorsa c'è all'inizio nella prima stanza, che fa da magazzino</i>
 const <b id="c-SIDES">SIDES</b> := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 const <b id="c-TREE_SIDES">TREE_SIDES</b> := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  <i># da sopra la chioma coprirebbe chi taglia</i></pre>
 <pre>enum <b id="c-Job">Job</b> { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE,
@@ -576,8 +582,7 @@ const <b id="c-STACK_MAX">STACK_MAX</b> := {Res.WOOD: 100, Res.STONE: 50, Res.VE
 	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5, Res.NOTEBOOK: 10, Res.TOME: 10, Res.CODEX: 10, Res.HARDTACK: 50, Res.SMOKED_MEAT: 50, Res.SMOKED_FISH: 50, Res.SHIELD: 10, Res.STEEL: 50, Res.PARCHMENT: 50, Res.INK: 20, Res.ICE: 50}  <i># quantità massima per mucchio (casella)</i>
 const <b id="c-MEALS">MEALS</b> := [Res.FINE_MEAL, Res.MEAL]  <i># cotti: chi ha fame li prende in quest'ordine, poi il crudo</i>
 const <b id="c-RAW_FOOD">RAW_FOOD</b> := [Res.VEG, Res.FISH, Res.MEAT, Res.SMOKED_FISH, Res.SMOKED_MEAT]  <i># crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti</i>
-const <b id="c-STASH">STASH</b> := [Res.WOOD, Res.STONE, Res.VEG, Res.IRON, Res.COAL, Res.FLAX]  <i># scorta di debug: il resto si produce</i>
-const <b id="c-START_GOLD">START_GOLD</b> := 60      <i># monete nel magazzino all'inizio</i>
+const <b id="c-START_GOLD">START_GOLD</b> := 60      <i># monete all'inizio, a terra nella radura: le si spende quando sono in un magazzino</i>
 const <b id="c-COIN">COIN</b> := "[img=center]res://art/icon_coin.png[/img]"  <i># una moneta 16x16 nei testi ricchi (vedi coins)</i></pre>
 <pre><i># Tipo di ogni oggetto: la sua icona 16x16 (art/kind_*.png, per le monete la moneta) sta davanti al nome, ovunque</i>
 <i># (vedi item_name, item_title, kind_icon)</i>
@@ -855,7 +860,7 @@ const <b id="c-SMOKED">SMOKED</b> := [Res.SMOKED_MEAT, Res.SMOKED_FISH]
 const <b id="c-SMOKE_TIME">SMOKE_TIME</b> := 0.75     <i># affumicare al fuoco da campo, dove il fumo resta: tempo x (al focolare va su per la canna)</i>
 const <b id="c-STATION_ROOM">STATION_ROOM</b> := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.HEARTH: RoomKind.KITCHEN, Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP,
 	Build.SPINNING_WHEEL: RoomKind.WORKSHOP, Build.CARPENTER_BENCH: RoomKind.CARPENTRY, Build.DESK: RoomKind.STUDY}
-const <b id="c-STOCK">STOCK</b> := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.MEAL: MEALS_PER_COLONIST * COLONIST_COUNT, Res.COAL: 5}  <i># scorte di partenza, vedi keep</i>
+const <b id="c-STOCK">STOCK</b> := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.COAL: 5}  <i># scorte di partenza, vedi keep; i pasti MEALS_PER_COLONIST a testa</i>
 enum <b id="c-Order">Order</b> { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT, ICE }  <i># cosa segna il trascinamento del mouse</i></pre>
 <pre><i># tasti in HUD/Tools/Row dopo Build, uno alla volta (ButtonGroup "Orders"): vedi toggle_order</i>
 const <b id="c-ORDER_TOOLS">ORDER_TOOLS</b> := {Order.DEMOLISH: "Destroy", Order.MINE: "Mine", Order.CHOP: "Chop", Order.UPROOT: "Uproot",
@@ -1010,7 +1015,19 @@ const <b id="c-SPEEDS">SPEEDS</b> := {"Pause": 0.0, "Play": 1.0, "Fast": 2.0, "F
 const <b id="c-RESOLUTIONS">RESOLUTIONS</b> := [Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440)]</pre>
 <pre><i># tab System delle opzioni: lingue, col nome nella loro lingua; i testi tradotti sono in locale/&lt;lingua&gt;.po (vedi named)</i>
 const <b id="c-LANGUAGES">LANGUAGES</b> := {"en": "English", "it": "Italiano"}
-const <b id="c-FIXED_KEYS">FIXED_KEYS</b> := [KEY_SPACE, KEY_1, KEY_2, KEY_3, KEY_E, KEY_R, KEY_ESCAPE]  <i># velocità, giro dei mobili, menù</i>
+const <b id="c-FIXED_KEYS">FIXED_KEYS</b> := [KEY_SPACE, KEY_1, KEY_2, KEY_3, KEY_E, KEY_R, KEY_ESCAPE]  <i># velocità, giro dei mobili, menù</i></pre>
+<pre><i># le variabili della partita che si salvano, così come sono (gli oggetti dentro li impacchetta SAVES.Packer); il resto</i>
+<i># si rifà da queste (vedi restore) o è interfaccia. Una variabile nuova dello stato del gioco va aggiunta qui</i>
+const <b id="c-SAVED">SAVED</b> := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today", "hour", "rocks", "boulders", "ores", "water",
+	"trees", "stock", "bushes", "flax", "weeds", "chop_marks", "mine_marks", "uproot_marks", "harvest_marks", "fish_marks",
+	"fish_spots", "items", "fresh", "draft", "blueprints", "built", "furniture_draft", "furniture_plans", "furniture",
+	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
+	"fallen", "animals", "arrows", "next_animal", "next_pack", "guests", "next_guest", "ruins", "expeditions",
+	"chronicle", "chronicle_days", "board_pick", "study", "researched", "authority", "codified", "enacted", "revoked",
+	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "wear", "plastered", "burning",
+	"fire_noted", "storm_noted"]
+const <b id="c-TOAST_TIME">TOAST_TIME</b> := 2000    <i># millisecondi: "Saved" in alto, poi sparisce (vedi show_toast)</i>
+const <b id="c-AUTOSAVE_HOUR">AUTOSAVE_HOUR</b> := 6    <i># all'alba, quando i coloni si alzano: il salvataggio di ogni giorno</i>
 const <b id="c-MODIFIER_KEYS">MODIFIER_KEYS</b> := [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]  <i># da soli non sono un tasto</i>
 const <b id="c-BUILD_INFO">BUILD_INFO</b> := {
 	Build.WALL: "Blocks the way. Walls with a door around an area make a room.",
@@ -1525,7 +1542,9 @@ const <b id="c-OVERCAST">OVERCAST</b> := {Weather.CLEAR: 0.0, Weather.RAIN: 0.7,
 const <b id="c-SNOW_HOURS">SNOW_HOURS</b> := 4.0                       <i># ore di neve perché copra tutto</i>
 const <b id="c-MELT_HOURS">MELT_HOURS</b> := 120.0                     <i># ore per grado sopra lo 0 perché si sciolga tutta: a 10 gradi 12 ore</i>
 const <b id="c-WET_HOURS">WET_HOURS</b> := 2.0                        <i># ore di pioggia perché le pozzanghere siano piene</i>
-const <b id="c-DRY_HOURS">DRY_HOURS</b> := 8.0                        <i># ore perché si asciughino</i></pre></section>
+const <b id="c-DRY_HOURS">DRY_HOURS</b> := 8.0                        <i># ore perché si asciughino</i></pre>
+<pre><i># quello che si salva con la partita (vedi saved): il resto si rifà da sé</i>
+const <b id="c-SAVED">SAVED</b> := ["weather", "forecast", "plan", "weather_strength", "waves", "waves_until", "ice", "frozen", "snow", "wet"]</pre></section>
 </main>
 </body>
 </html>
