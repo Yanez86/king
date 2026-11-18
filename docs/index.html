@@ -1,0 +1,1281 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>King — Meccaniche</title>
+<style>
+:root { --bg: #1f1a24; --panel: #2a2431; --line: #3d3547; --text: #e6e2d0; --muted: #a39d8f; --gold: #e8c34a; --sub: #d9c48a; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.55 system-ui, sans-serif; }
+nav { position: fixed; inset: 0 auto 0 0; width: 230px; overflow-y: auto; padding: 20px 16px; background: var(--panel); border-right: 1px solid var(--line); }
+nav h1 { margin: 0 0 4px; font-size: 20px; color: var(--gold); }
+nav h2 { margin: 20px 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+nav small { color: var(--muted); }
+nav a { display: block; padding: 3px 0; color: var(--text); text-decoration: none; }
+nav a:hover { color: var(--gold); }
+main { margin-left: 230px; padding: 24px 40px 80px; max-width: 1100px; }
+section { padding-top: 8px; border-bottom: 1px solid var(--line); padding-bottom: 24px; }
+section > h2 { font-size: 28px; color: var(--gold); margin: 24px 0 8px; }
+h3 { color: var(--gold); margin: 22px 0 6px; font-size: 19px; }
+h4 { color: var(--sub); margin: 16px 0 4px; font-size: 16px; }
+p, li { max-width: 75ch; }
+ul { padding-left: 22px; margin: 6px 0; }
+li { margin: 3px 0; }
+.ic { width: 16px; height: 16px; image-rendering: pixelated; vertical-align: -2px; }
+table { display: block; overflow-x: auto; border-collapse: collapse; margin: 8px 0; }
+td { border: 1px solid var(--line); padding: 3px 10px; }
+pre { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; white-space: pre-wrap; overflow-wrap: anywhere; font: 13px/1.5 ui-monospace, Menlo, monospace; }
+pre b { color: var(--gold); }
+pre i { color: #8fb87a; }
+:target { scroll-margin-top: 12px; }
+@media (max-width: 800px) {
+  nav { position: static; width: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+  nav a { display: inline-block; margin-right: 12px; }
+  main { margin: 0; padding: 16px; }
+}
+</style>
+</head>
+<body>
+<nav>
+<h1>King</h1>
+<small>Meccaniche · commit 8a3cb0a · 2026-11-18</small>
+<h2>Wiki</h2>
+<a href="#basics">Basics</a><a href="#controls">Controls</a><a href="#colonists">Colonists</a><a href="#skills">Skills</a><a href="#traits">Traits</a><a href="#conditions">Conditions</a><a href="#the-ruler-house">The Ruler &amp; House</a><a href="#building">Building</a><a href="#rooms">Rooms</a><a href="#food-cooking">Food &amp; Cooking</a><a href="#gathering">Gathering</a><a href="#crafting-equipment">Crafting &amp; Equipment</a><a href="#combat-wolves">Combat &amp; Wolves</a><a href="#splendor">Splendor</a><a href="#adventurers">Adventurers</a><a href="#ruins-expeditions">Ruins &amp; Expeditions</a><a href="#knowledge">Knowledge</a><a href="#laws">Laws</a><h2>Numeri</h2><a href="#main-gd">main.gd</a><a href="#atmosphere-gd">atmosphere.gd</a>
+</nav>
+<main>
+<p><small style="color:var(--muted)">Testo: la wiki in gioco (<code>wiki.gd</code>). Numeri: le costanti di
+<code>main.gd</code> e <code>atmosphere.gd</code> come sono nel codice. Dove non coincidono, vale il codice.
+Generata da <code>tools/make_wiki.py</code>.</small></p>
+<section id="basics"><h2>Basics</h2><h3>Your lordship </h3>
+<p>King is a medieval colony sim. You are the ruler of a small lordship, but you never move anyone by hand: you mark trees to chop and boulders to mine, plan buildings, choose what the workshops make and pass laws. Colonists pick their jobs by themselves, following their needs and their daily routine.</p>
+<h3>The start </h3>
+<ul>
+<li>Three colonists stand in a clearing. The first is your ruler, made on the new-game page.</li>
+<li>Around the clearing are three small wooden rooms. The north one is a warehouse, with some supplies and 60 <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAW0lEQVR4nGNgQAPyUir/8WF09RiAbANgCl4c9gLj/88WoGCYOE6DyDYAl0YYH4ZXVOmhYLhBVDMAXSO6BnRx6huA7oWBMwBdIcmxQLIB6OkBXSFBjVQzYMByIwCmbstkokgC9AAAAABJRU5ErkJggg==" alt="">.</li>
+<li>An abandoned weapon (a sword, an axe or a bow) lies in the grass 15–25 tiles from the clearing.</li>
+<li>From day 5 wolves come (see Combat &amp; Wolves).</li>
+<li>If every colonist dies, the colony has fallen.</li>
+</ul>
+<h3>Time </h3>
+<ul>
+<li>The season, the date and the hour are in the top bar. The game starts at 8:00 on Crown Day, Year 1; a day lasts 4 minutes at normal speed, an hour 10 seconds.</li>
+<li>The year has 365 days: Crown Day (New Year), then four seasons of three 30-day months, each closed by a feast day outside the months. Spring: Thaw, Sowing, Blossom, then the Flower Feast. Summer: Highsun, Haying, Ripening, then the Sickle Feast. Autumn: Reaping, Leaffall, Mists, then the Hearth Feast. Winter: Frost, Deepsnow, Longnight, then the Candle Feast.</li>
+<li>Night lasts from 18:00 to 6:00: lamps and lanterns light up.</li>
+<li>The speed buttons at the top right: pause, 1x, 2x, 3x. Or the keys: Space pauses (and from pause goes back to 1x), 1, 2 and 3 set the speed. The options menu pauses the game too.</li>
+<li>Times in this wiki are seconds at 1x, for a worker of skill level 5 (see Skills).</li>
+</ul>
+<h3>Top bar </h3>
+<p>Your arms and the name of your realm (click: the ruler's sheet), the items in your warehouses, colonists, beds and splendor; then WOLVES and EXPEDITION when there are any, the season, the date, the hour and the order you are giving.</p></section><section id="controls"><h2>Controls</h2><h3>Camera </h3>
+<ul>
+<li>Drag with the right mouse button to move the view; the mouse wheel zooms.</li>
+<li>On a trackpad, two fingers move the view and a pinch zooms.</li>
+</ul>
+<h3>Mouse </h3>
+<ul>
+<li>With Select (the arrow), a left click opens things: a colonist's sheet, a room's sign, a workstation's menu, the notice board, a desk (Knowledge) or a throne (Laws). A click elsewhere closes the sheet.</li>
+<li>With an order chosen (Build, Destroy, Mine...), drag a rectangle with the left button to mark the area.</li>
+<li>The box at the bottom right tells what is under the mouse: logs left in a tree, how fresh a pile of food is, and so on.</li>
+<li>Windows can be dragged around; the X closes them.</li>
+</ul>
+<h3>Bottom bar </h3>
+<p>A key works like a click on its button (press it again to close).</p>
+<table><tr><td>Select</td><td>Q</td><td>Build</td><td>B</td></tr><tr><td>Destroy</td><td>X</td><td>Mine</td><td>M</td></tr><tr><td>Chop</td><td>C</td><td>Uproot</td><td>U</td></tr><tr><td>Harvest</td><td>H</td><td>Fish</td><td>F</td></tr><tr><td>Hunt</td><td>T</td><td>Jobs</td><td>J</td></tr><tr><td>Resources</td><td>I</td><td>Knowledge</td><td>K</td></tr><tr><td>Laws</td><td>G</td><td>Rooms lens</td><td>L</td></tr><tr><td>Wiki</td><td>F1</td><td></td><td></td></tr></table>
+<ul>
+<li>Jobs: the work waiting, in the order colonists take it. Resources: what is in your warehouses.</li>
+</ul>
+<h3>Fixed keys </h3>
+<ul>
+<li>Space: pause; 1, 2, 3: speed.</li>
+<li>E and R: turn the next piece of furniture left or right.</li>
+<li>Esc: the options (also the gear at the top right).</li>
+</ul>
+<h3>Options </h3>
+<ul>
+<li>System: language, quit the game. Video: window size and fullscreen (also the screen button at the top right).</li>
+<li>Keybindings: click a command's key, then press the new one. Esc cancels, Delete or Backspace leaves it without a key, Reset restores the defaults. Space, 1-3, E, R and Esc can't be taken. Your keys are saved.</li>
+</ul></section><section id="colonists"><h2>Colonists</h2><p>Click a colonist for their sheet: health, needs (the arrows show which way each one is going), skills, traits, conditions, equipment and the 24 hours of their routine.</p>
+<h3>Needs </h3>
+<p>All of them go from 0 to 100.</p>
+<ul>
+<li>Food: -90 a day. Under 30 they go and eat (see Food &amp; Cooking).</li>
+<li>Rest: -100 a day awake. Under 30 they look for a free bed; at 10 they drop everything and sleep where they stand. 8 hours of sleep fill it, at comfort 5.</li>
+<li>Fun: -120 a day awake. Under 30 they take a break, even in work hours: an hour by a campfire, or a stroll nearby.</li>
+<li>Comfort: while asleep it moves toward the comfort of where they lie (see Rooms); outdoors that is 0.</li>
+<li>Stress: +30 a day while working (fighting and fleeing too), +5 for every wolf bite; -60 a day asleep, eating, relaxing or idle. 100 is the limit.</li>
+<li>Happiness: drifts toward the average of food, rest, fun, comfort and calm (100 minus stress), plus or minus conditions and laws. The ruler's happiness sets how much authority they gather.</li>
+</ul>
+<h3>Routine </h3>
+<p>Every hour is sleep, work or free time. The usual day: sleep 22–6, breakfast at 6, work 7–12 and 13–18 with lunch between, a free evening, and at most 8 hours of work. Traits and laws change it.</p>
+<ul>
+<li>Sleep hours: to bed, or on the ground if no bed is free. They stay down even when rested, then get up with at least 80 rest.</li>
+<li>Work hours: they take jobs. When the shift or their hours are over, they stop as soon as their hands are free. Every hour they also stop for an urgent need: hunger (if there is food), tiredness (if a bed is free), boredom.</li>
+<li>Free time: a snack if food is under 60, then they relax.</li>
+<li>There are no priorities to set: jobs go in this order, the nearest first. Pick up equipment; the ruler to the throne and the study's workers to their desks, if you ticked them; cook, craft, chop, mine, uproot, harvest, fish, hunt, build, furnish, haul. With nothing left, the ruler governs and the others study.</li>
+</ul>
+<h3>Health </h3>
+<ul>
+<li>0–100, healing 30 a day (60 asleep). A bar over the head shows the wounded.</li>
+<li>At 0 a colonist is downed: on the ground, doing nothing, healing 40 a day. At 30 they stand up.</li>
+<li>The dead stay on the ground for a day; their gear drops beside them and the others mourn for 3 days.</li>
+</ul></section><section id="skills"><h2>Skills</h2><p>Thirteen skills, with levels from 0 to 10 (a star at 10). Colonists start at 0; your ruler gets 12 points on the new-game page.</p>
+<h3>Speed </h3>
+<p>A job takes 1.5 times as long at level 0, the normal time at level 5 and half at level 10 (1.4 at level 1, 1.3 at level 2...). Most work also depends on conditions, and sleep, cooking, crafting and study on room comfort.</p>
+<h3>What each skill does </h3>
+<table><tr><td>Gathering</td><td>picking bushes and flax</td></tr><tr><td>Mining</td><td>mining boulders</td></tr><tr><td>Woodcutting</td><td>chopping trees</td></tr><tr><td>Construction</td><td>building: 2 s a tile or a piece</td></tr><tr><td>Smithing</td><td>at the furnace and the anvil</td></tr><tr><td>Tailoring</td><td>spinning wheel and workbench</td></tr><tr><td>Cooking</td><td>meals: speed, burnt, fine</td></tr><tr><td>Fishing</td><td>casting and catching</td></tr><tr><td>Hunting</td><td>aiming and hitting game</td></tr><tr><td>Melee</td><td>blows in a fight; dodging bites</td></tr><tr><td>Ranged</td><td>bow shots; making bows</td></tr><tr><td>Research</td><td>writing pages of study</td></tr><tr><td>Lockpicking</td><td>adventurers only: traps, locks</td></tr></table>
+<p>With a bow a hunter aims with the better of Hunting and Ranged. At a workstation a low level ruins more items, at the campfire it burns more meals.</p>
+<h3>Experience </h3>
+<p>+1 XP (hover the level to see it) for every tree felled, boulder mined or bush picked clean, every cast, piece built, meal cooked, item made, page written, shot or blow. A hunting shot counts for Hunting and Ranged. For now experience is only counted: levels don't rise with it yet.</p></section><section id="traits"><h2>Traits</h2><p>Colonists have 0–2 traits, never two that clash. Hover a trait in the sheet for its effect.</p>
+<table><tr><td><span style="color:#d9c48a">Trait</span></td><td><span style="color:#d9c48a">Effect</span></td><td><span style="color:#d9c48a">Ruler</span></td></tr><tr><td>Glutton</td><td>hunger +50%, eats at 50</td><td>+2</td></tr><tr><td>Sleepwalker</td><td>wanders off asleep</td><td>+2</td></tr><tr><td>Hothead</td><td>work stress +50%, tantrums</td><td>+2</td></tr><tr><td>Lazy</td><td>works 6 hours at most</td><td>+2</td></tr><tr><td>Workaholic</td><td>up to 12 hours, free time too</td><td>-2</td></tr><tr><td>Early bird</td><td>2 hours earlier: sleeps 20–4</td><td>0</td></tr><tr><td>Night owl</td><td>sleeps 10–18, works at night</td><td>0</td></tr><tr><td>Sleepyhead</td><td>sleeps 10 hours, until 8</td><td>+2</td></tr><tr><td>Tireless</td><td>sleeps 0–6, tires 25% slower</td><td>-2</td></tr><tr><td>Fun-loving</td><td>bored twice as fast, stops at 17</td><td>+2</td></tr><tr><td>Ascetic</td><td>never needs fun</td><td>-2</td></tr><tr><td>Small appetite</td><td>hunger -40%, never snacks</td><td>-2</td></tr><tr><td>Easygoing</td><td>half the stress from work</td><td>-2</td></tr><tr><td>Napper</td><td>naps 13–14, to bed at 23</td><td>0</td></tr><tr><td>Restless</td><td>an hour off after 2 of work</td><td>+2</td></tr></table>
+<p>Ruler: the skill points the trait gives (+2) or costs (-2) on the new-game page.</p>
+<h3>More </h3>
+<ul>
+<li>Glutton: in free time snacks under 85 food, feels the food conditions twice as much and hates raw food (Ate raw).</li>
+<li>Sleepwalker: every hour of sleep, 1 chance in 10 of walking a few tiles and sleeping there, on the ground.</li>
+<li>Hothead: at 90 stress storms off for two hours, while the stress falls four times as fast.</li>
+<li>Workaholic: also gets bored half as fast.</li>
+</ul>
+<h3>Never together </h3>
+<p>Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleepyhead and Tireless, Fun-loving and Ascetic, Hothead and Easygoing.</p></section><section id="conditions"><h2>Conditions</h2><p>Effects that last a while, shown as icons under the traits in the sheet (hover: what they do and the hours left).</p>
+<table><tr><td><span style="color:#d9c48a">Condition</span></td><td><span style="color:#d9c48a">Lasts</span></td><td><span style="color:#d9c48a">Work</span></td><td><span style="color:#d9c48a">Happiness</span></td></tr><tr><td>Poisoned</td><td>1 day</td><td>50% slower</td><td>-20</td></tr><tr><td>Well fed</td><td>½ day</td><td>10% faster</td><td>+5</td></tr><tr><td>Feasted</td><td>½ day</td><td>20% faster</td><td>+10</td></tr><tr><td>At table</td><td>½ day</td><td>–</td><td>+5</td></tr><tr><td>Ate raw</td><td>½ day</td><td>–</td><td>-10</td></tr><tr><td>Mourning</td><td>3 days</td><td>–</td><td>-15</td></tr><tr><td>Festive</td><td>3 days</td><td>–</td><td>+10</td></tr></table>
+<ul>
+<li>Poisoned: from raw food, more likely the closer it is to rotting.</li>
+<li>Well fed: after a meal; stress from work -25%. Feasted: after a fine meal; stress from work -50%. A new meal replaces the condition of the last one.</li>
+<li>At table: ate sitting on a chair beside a table.</li>
+<li>Ate raw: a glutton who had to eat raw food. A glutton feels Well fed, Feasted, At table and Ate raw twice as much.</li>
+<li>Mourning: a colonist has died; stress from work +25%.</li>
+<li>Festive: after a feast day, with the Harvest feast law (see Laws).</li>
+</ul>
+<p>The laws in force that a colonist likes or dislikes show here too, with their icon.</p></section><section id="the-ruler-house"><h2>The Ruler &amp; House</h2><h3>New game </h3>
+<p>Two pages come before the map.</p>
+<ul>
+<li>Your House: the house name (your ruler's surname), the colony's name and the coat of arms: shape, division, field and second field, ordinary and charge, each with its tincture. The dice roll a name or a whole coat of arms.</li>
+<li>Your Ruler: name, an optional nickname, sex, hair and its color, a beard (men only), tunic and cape (they follow the first two tinctures of the arms until you pick them), up to 2 traits that don't clash, and 12 skill points, at most 3 in one skill (no Lockpicking).</li>
+<li>Traits move points: flaws give 2 (Glutton, Sleepwalker, Hothead, Lazy, Sleepyhead, Fun-loving, Restless), virtues cost 2 (Workaholic, Tireless, Ascetic, Small appetite, Easygoing); Early bird, Night owl and Napper are free.</li>
+</ul>
+<p>The other two colonists come at random: skills at 0, 0–2 traits.</p>
+<h3>In the game <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAfklEQVR4nGNgGDRAXkrlP7liYMEbXlb/kSVB7BeHvTDEqroe/McwBFkxMsYmhs1guAH/ny0A0+gYm/iKKj2EIegGgLwDUwhyMroYTgNAgqRgFAPIwXDNs7QgsUAKBukBGwKLQnIw3ACKXIDsDVIwRjogOxCRDEkgBePIUqQDAN3QUMfoFlTWAAAAAElFTkSuQmCC" alt=""></h3>
+<ul>
+<li>The ruler is the first colonist and lives like the others: needs, routine, work, fights. They can die.</li>
+<li>Title: Lord or Lady. The top bar shows "Lordship of" your colony, beside your arms: click it for the ruler's sheet. Banners fly your arms.</li>
+<li>Only the ruler governs: on a throne, in a throne room, they gather authority for the laws (see Laws). A happy ruler (70 or more) gathers 25% more, a gloomy one (30 or less) half.</li>
+<li>For now the title stays a Lordship: +1 authority a day and 2 seals for the laws.</li>
+<li>There is no heir yet: if the ruler dies, nobody can sit on the throne.</li>
+</ul></section><section id="building"><h2>Building</h2><h3>How to build <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZklEQVR4nGNgoBWQl1L5j4xJ1lwVYgLHwRbyxBsC03xtbR4KJtoQZANWVLmC8cAZQJIX0EMdpAEZ440VXKGOjHHGCiEnE/QSoUAjGKhUNYAsL8DCAVuoIwcyPnms0UgomgkmKGIBAEoZKaB0W1aHAAAAAElFTkSuQmCC" alt=""> <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAdUlEQVR4nGNgGL5AXkrlPzomSfOFCzfAeNbMZWCcl1NDnEHYNMMMgGGchsA0I2tE10yyAeiavTwi8BtASDNOA9BDHJdmrAagBxzMn9g0YsQEPn+juwrdArz+RnYquiUo8vj8i2wAuuEoYYEt2aIHFEVJGx8AAFXqIWL9vANOAAAAAElFTkSuQmCC" alt=""></h3>
+<ul>
+<li>Press Build, pick Structures or Furniture, then a piece: hover its button for the cost and the comfort or splendor it gives.</li>
+<li>Walls and floors are made of wood or stone (stone after the Masonry research). Doors, furniture and decorations have their own material.</li>
+<li>Drag on the map: the plan shows in blue. Walls go only along the border of the rectangle, so one drag outlines a room; floors, paths and doors fill it. Drawing over your unconfirmed plan replaces it: that is how to put a door into a wall you are planning.</li>
+<li>Furniture goes one piece at a time, where you let go of the button. E and R (or the arrows in the bar) turn it; the preview is red where it doesn't fit.</li>
+<li>Press Build in the middle of the bottom to confirm: only then do colonists start. The red X erases cells from the plan, even confirmed ones. Closing Build without confirming throws the plan away.</li>
+<li>The builder fetches the material from a pile (on the ground or in a warehouse) and needs 2 s a tile or a piece.</li>
+<li>Destroy (X): drag over structures and furniture to pull them down at once. The material is lost.</li>
+<li>Pieces you haven't researched yet have no button.</li>
+</ul>
+<h3>Where </h3>
+<p>Not on water, trees, rock, bushes or weeds (uproot them first), nor on items lying on the ground. Furniture stands on bare ground, floors and paths, never on other furniture; walls and doors never on furniture.</p>
+<h3>Structures </h3>
+<table><tr><td>Wall</td><td>5 wood or stone a tile</td><td>blocks the way</td></tr><tr><td>Floor</td><td>2 wood or stone a tile</td><td>room comfort</td></tr><tr><td>Door</td><td>5 wood</td><td>rooms need one</td></tr><tr><td>Path</td><td>1 stone a tile</td><td>trodden earth</td></tr></table>
+<h3>Furniture </h3>
+<table><tr><td><span style="color:#d9c48a">Piece</span></td><td><span style="color:#d9c48a">Cost</span></td><td><span style="color:#d9c48a">Research</span></td></tr><tr><td>Bed (2x1)</td><td>10 wood</td><td>–</td></tr><tr><td>Table (2x2)</td><td>10 wood</td><td>–</td></tr><tr><td>Chair</td><td>3 wood</td><td>–</td></tr><tr><td>Campfire</td><td>5 wood</td><td>–</td></tr><tr><td>Desk</td><td>10 wood</td><td>–</td></tr><tr><td>Throne</td><td>12 wood</td><td>–</td></tr><tr><td>Lamp</td><td>3 wood</td><td>Lanterns</td></tr><tr><td>Furnace</td><td>20 stone</td><td>Forge</td></tr><tr><td>Anvil</td><td>10 iron</td><td>Forge</td></tr><tr><td>Workbench</td><td>15 wood</td><td>Tailoring</td></tr><tr><td>Spinning wheel</td><td>10 wood</td><td>Hunting</td></tr><tr><td>Carpenter bench</td><td>15 wood</td><td>Hunting</td></tr><tr><td>Notice board</td><td>8 wood</td><td>Inn</td></tr><tr><td>Bookshelf</td><td>12 wood</td><td>Bookshelf</td></tr></table>
+<p>Decorations: see Splendor.</p></section><section id="rooms"><h2>Rooms</h2><p>A room is an area closed by walls (rock and deep water count too) with at least one door to the outside, smaller than 400 tiles. Once it's finished a sign appears on the wall by the door: click it to name the room, see its comfort, choose its type, ban it and tick its owners or workers.</p>
+<h3>Types </h3>
+<p>The list shows only the types whose furniture is inside. Take that furniture away and the room loses its type, with its owners or workers.</p>
+<table><tr><td><span style="color:#d9c48a">Type</span></td><td><span style="color:#d9c48a">Needs</span></td><td><span style="color:#d9c48a">Kind</span></td></tr><tr><td>Warehouse</td><td>nothing</td><td>service</td></tr><tr><td>Bedroom</td><td>1 bed</td><td>residence</td></tr><tr><td>Dormitory</td><td>2 beds</td><td>residence</td></tr><tr><td>Kitchen</td><td>campfire</td><td>work</td></tr><tr><td>Forge</td><td>furnace, anvil</td><td>work</td></tr><tr><td>Workshop</td><td>workbench</td><td>work</td></tr><tr><td>Carpentry</td><td>carpenter bench</td><td>work</td></tr><tr><td>Inn</td><td>bed, table, notice board</td><td>service</td></tr><tr><td>Study</td><td>desk</td><td>work</td></tr><tr><td>Throne room</td><td>throne</td><td>work</td></tr></table>
+<ul>
+<li>Residence: it can have owners. One with owners is closed to everyone else, even just to walk through.</li>
+<li>Work: it can have workers. For now they matter in a study (they study before any other job) and in a throne room (only the ruler).</li>
+<li>Service: shared by all.</li>
+<li>Banned: nobody goes in, not even the owners.</li>
+<li>Workstations work only inside their room: the campfire in a kitchen, furnace and anvil in a forge, workbench and spinning wheel in a workshop, the carpenter bench in a carpentry.</li>
+<li>Colonists sleep in any bed but those of an inn, which are for adventurers.</li>
+</ul>
+<h3>Warehouses </h3>
+<p>Haulers carry loose items into warehouses, 10 at a time; with no warehouse nobody hauls. Only what is in a warehouse counts as stored: the top bar, Resources, the coins you pay, the books for research. A tile holds one kind of item: 100 wood or coins, 50 of most materials and raw food, 20 meals, 10 tools, weapons, armor or books, 5 relics. Food rots half as fast inside.</p>
+<h3>Comfort </h3>
+<p>0–10, shown on the sign. Bed and table +1; chair, lamp, campfire and bench +0.5; a floor +1 if it paves the whole room (half the room, half a point); stone counts 1.5 times. Outdoors it is 0.</p>
+<p>At 5 nothing changes. Below, sleep, cooking, crafting and study take longer (20% at 0); above, less (20% at 10). Low comfort also burns meals and ruins items more often. With fewer than 6 tiles for each person in the room, comfort drops in proportion.</p>
+<h3>Rooms lens </h3>
+<p>The Rooms lens (L) tints every room with the color of its type and shows its owners or workers: hover them for their sheet.</p></section><section id="food-cooking"><h2>Food &amp; Cooking</h2><h3>Eating </h3>
+<ul>
+<li>Hungry colonists (under 30 food; the glutton at 50) take the nearest food: fine meals first, then meals, raw food only when there are none (vegetables, then fish, then meat). In free time they also snack under 60.</li>
+<li>If a chair beside a table is free within 20 tiles, they carry the food there and eat sitting: +5 happiness (At table).</li>
+</ul>
+<h3>Food </h3>
+<table><tr><td><span style="color:#d9c48a">Food</span></td><td><span style="color:#d9c48a">Fills</span></td><td><span style="color:#d9c48a">Lasts</span></td><td><span style="color:#d9c48a">Poison</span></td></tr><tr><td><img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZUlEQVR4nGNgGDJAXkrlPwiTrTlqigMYk2wIsmaLbGPiDQApDLaQR9FIku0wA8jyN0jTs0cX/t/wsgJjsvwN00yxAbO0SPA7LKBwYYKa0f1NUlhg8zdJYYHN3ySHBTb/Eh0G5AIAQxWOQ1zM/RwAAAAASUVORK5CYII=" alt=""> Vegetables</td><td>35</td><td>3 days</td><td>5–40%</td></tr><tr><td><img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZElEQVR4nGNgGAVEAXkplf8wjFcBLvELF27AMYY6kEBeTg0YwySxaUQ3BG4QzIBZM5fBDUHWDBIHYXQDUFyDbAghjOEdXC6AeQufYSgGYAsDmDg6xgh0QrGAUyOp6YBkjUMDAACTY9iSpRM+wwAAAABJRU5ErkJggg==" alt=""> Fish</td><td>30</td><td>1.5 days</td><td>10–50%</td></tr><tr><td><img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAa0lEQVR4nGNgGNRAXkrlPzImWeMNLysUTJRB2DQi41laeAxB1vxi+zScBuA0BGYASDNFBuBzPtkGIGsmGA4gBWRpRjcEGyYqPYAUvXhyA4zRExNRtsM0r1gyi/QUSLFmkEaSNcMMIDnTAAEAIxvq60eQ4T4AAAAASUVORK5CYII=" alt=""> Meat</td><td>40</td><td>2 days</td><td>15–60%</td></tr><tr><td><img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAdklEQVR4nGNgoAV48eTGf2LEaGfIwLuALCAvpfKfFIyheWmA/v8Tmfb/Py2wArOjpjjAxUA0SBxZDMUQEAemEKYIpAEmBqKRxUE0VldUhZgQhTE0IxtwbW0eXs3BFvLYDSDGFXg1IxsCUogNE9RMKEqJ0kx3AAApgcAK+0cSPAAAAABJRU5ErkJggg==" alt=""> Meal</td><td>100</td><td>3 days</td><td>–</td></tr><tr><td><img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAgElEQVR4nGNgIAG8OOz1nzxJqDwMkyZJLRcMASAvpfKfFIyheWmA/v8Tmfb/Py2wArOjpjjAxUA0SBxZDMUQEAemEKYIpAEmBqKRxUE0VldUhZiAMXK0ImOYPIZmZAOurc2DK8SGgy3ksRuA7gqSNSMbAlKIDRPUTChKidJMdwAAOTzGLCkVlccAAAAASUVORK5CYII=" alt=""> Fine meal</td><td>100</td><td>3 days</td><td>–</td></tr></table>
+<ul>
+<li>Lasts: on the ground outdoors; in a warehouse twice as long. Then the pile rots away. Piles that mix take the average freshness. Hover a pile: Fresh, Stale or Almost rotten, and the days left.</li>
+<li>Raw food may leave you Poisoned: the lower chance when it's fresh, the higher when it's almost rotten.</li>
+<li>A meal makes you Well fed, a fine meal Feasted (see Conditions).</li>
+</ul>
+<h3>Cooking </h3>
+<ul>
+<li>At a campfire inside a kitchen. The cook takes 2 raw foods from one pile (vegetables, fish or meat), cooks for 8 s and carries the meal to a warehouse.</li>
+<li>Click the campfire: Keep N meals (6 at the start). Cooks cook while there are fewer meals than that, counting those on the ground, in warehouses and in hand.</li>
+<li>Burnt, and the food is lost: 6% for every Cooking level below 6, plus 3% for every point of kitchen comfort below 5 (minus above). At level 0 in a kitchen of comfort 5: 36%.</li>
+<li>Fine meal: 5% for every level above 5, plus 2% for every point of comfort above 5 (minus below): 25% at level 10.</li>
+<li>The time also depends on the kitchen's comfort and the cook's conditions.</li>
+</ul></section><section id="gathering"><h2>Gathering</h2><p>Mark what to take with the orders of the bottom bar, dragging a rectangle; marked things carry a faint icon. What is gathered falls at the worker's feet, and when the job is done they carry it to a warehouse.</p>
+<h3>Chop (C) <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZklEQVR4nGNgoBWQl1L5j4xJ1lwVYgLHwRbyxBsC03xtbR4KJtoQZANWVLmC8cAZQJIX0EMdpAEZ440VXKGOjHHGCiEnE/QSoUAjGKhUNYAsL8DCAVuoIwcyPnms0UgomgkmKGIBAEoZKaB0W1aHAAAAAElFTkSuQmCC" alt=""></h3>
+<p>Trees: oak 28 wood, pine 35, birch 20. A stroke every 10 s gives 5.</p>
+<h3>Mine (M) <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAdUlEQVR4nGNgGL5AXkrlPzomSfOFCzfAeNbMZWCcl1NDnEHYNMMMgGGchsA0I2tE10yyAeiavTwi8BtASDNOA9BDHJdmrAagBxzMn9g0YsQEPn+juwrdArz+RnYquiUo8vj8i2wAuuEoYYEt2aIHFEVJGx8AAFXqIWL9vANOAAAAAElFTkSuQmCC" alt=""></h3>
+<p>Boulders of 1x1, 2x1 or 2x2 tiles, 5 stone a tile. A stroke every 15 s gives 5. Iron and coal veins are 1x1 boulders (hover: "Iron vein", "Coal vein") that give 5 iron or 5 coal instead of stone.</p>
+<h3>Uproot (U) </h3>
+<p>Weeds, bushes and flax go in 1.5 s. Clear them before building there.</p>
+<h3>Harvest (H) <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZUlEQVR4nGNgGDJAXkrlPwiTrTlqigMYk2wIsmaLbGPiDQApDLaQR9FIku0wA8jyN0jTs0cX/t/wsgJjsvwN00yxAbO0SPA7LKBwYYKa0f1NUlhg8zdJYYHN3ySHBTb/Eh0G5AIAQxWOQ1zM/RwAAAAASUVORK5CYII=" alt=""> <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAeklEQVR4nGNgoCaQl1L5T4wYTs1VXQ/+I2vAJYZT84vzWXAN+MTwGoLPBdgMRTGkfp0rhgHYxHC6AmYINjY2C3ACmEZ8hpFkAEmaQQDkzBdPbsAx0WkB2YAVS2aBNYNokgzA5XyivIEt0IgOSGxRRogNB7BkSi6fIgAAZmmqztxjJYkAAAAASUVORK5CYII=" alt=""></h3>
+<p>Bushes and flax. A ripe bush has 5 berries (vegetables), flowering flax 5 flax, picked one every 5 s. They grow back in 2 days and the mark stays: they are picked every time. Marking Uproot removes the Harvest mark, and the other way round.</p>
+<h3>Fish (F) <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZElEQVR4nGNgGAVEAXkplf8wjFcBLvELF27AMYY6kEBeTg0YwySxaUQ3BG4QzIBZM5fBDUHWDBIHYXQDUFyDbAghjOEdXC6AeQufYSgGYAsDmDg6xgh0QrGAUyOp6YBkjUMDAACTY9iSpRM+wwAAAABJRU5ErkJggg==" alt=""></h3>
+<p>Mark water tiles. The fisher stands beside them (in shallow water too) and casts every 10 s: a fish 30% of the time, +6% for every Fishing level. A spot has 4 fish, then it's empty for a day; the mark stays.</p>
+<h3>Hunt (T) <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAa0lEQVR4nGNgGNRAXkrlPzImWeMNLysUTJRB2DQi41laeAxB1vxi+zScBuA0BGYASDNFBuBzPtkGIGsmGA4gBWRpRjcEGyYqPYAUvXhyA4zRExNRtsM0r1gyi/QUSLFmkEaSNcMMIDnTAAEAIxvq60eQ4T4AAAAASUVORK5CYII=" alt=""> <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAYklEQVR4nGNgoAaQl1L5D8Jkqwdxrq3NA2OYJC6MrA7DVJgkPryiyhW7a9ENACnEZQjJtuMyDG4QsgH4bMbrFXyuQDeUqDCgyHZivEG084kKRKp6gVBKxJoaSc0L5OqhDQAAsC6AoCGvExQAAAAASUVORK5CYII=" alt=""></h3>
+<ul>
+<li>Drag over animals to mark them. Hunting needs a bow: a hunter without one fetches a free bow and puts down what they held. If there is none, a bow gets made, once you can make them (Jobs says "needs a bow").</li>
+<li>The hunter shoots from up to 8 tiles, aiming 4 s a shot. To hit: 30%, +5% a level, -5% for every tile of distance; then +10% for the bow and +5% for a leather hood.</li>
+<li>An arrow does 14 damage. Hit or missed, the animal runs 8 tiles away at double speed, and the hunter follows. Killed, it leaves meat and hide.</li>
+</ul>
+<table><tr><td><span style="color:#d9c48a">Animal</span></td><td><span style="color:#d9c48a">Health</span></td><td><span style="color:#d9c48a">Meat, hide</span></td><td><span style="color:#d9c48a">Speed</span></td></tr><tr><td>Rabbit</td><td>10</td><td>3, 1</td><td>2 tiles/s</td></tr><tr><td>Deer</td><td>20</td><td>10, 3</td><td>1.5 tiles/s</td></tr><tr><td>Wolf</td><td>30</td><td>5, 2</td><td>3 tiles/s</td></tr></table>
+<p>Animals roam outside rooms and water, born more than 15 tiles from the clearing: 6 rabbits and 3 deer at first, then a new one every half day while there are fewer than 12. A marked wolf, shot at, attacks the hunter.</p></section><section id="crafting-equipment"><h2>Crafting &amp; Equipment</h2><h3>Workstations </h3>
+<p>Click a station for its menu: one row for every recipe you know, with its ingredients and Keep N. Things get made while there are fewer than N around (on the ground, in warehouses, in hand, being made); Keep counts for every station of the kind. Equipment is also made for the colonists with an empty slot, and a bow when animals are marked and nobody has one. At the start: Keep 10 ingots, 2 bowstrings, 6 meals, 0 of the rest.</p>
+<p>The crafter brings the ingredients one by one, then works. The time depends on skill, room comfort and conditions; an item may be ruined, losing the ingredients, as often as a meal burns.</p>
+<table><tr><td><span style="color:#d9c48a">Item</span></td><td><span style="color:#d9c48a">Station</span></td><td><span style="color:#d9c48a">Needs</span></td><td><span style="color:#d9c48a">Time</span></td></tr><tr><td>Ingot</td><td>furnace</td><td>1 iron, 1 coal</td><td>6 s</td></tr><tr><td>Bowstring</td><td>spinning wheel</td><td>2 flax</td><td>8 s</td></tr><tr><td>Leather armor</td><td>workbench</td><td>4 hide</td><td>20 s</td></tr><tr><td>Leather hood</td><td>workbench</td><td>2 hide</td><td>12 s</td></tr><tr><td>Bow</td><td>carpenter bench</td><td>3 wood, 1 bowstring</td><td>15 s</td></tr><tr><td>Pickaxe</td><td>anvil</td><td>2 ingots, 2 wood</td><td>15 s</td></tr><tr><td>Axe</td><td>anvil</td><td>2 ingots, 2 wood</td><td>15 s</td></tr><tr><td>Sickle</td><td>anvil</td><td>1 ingot, 1 wood</td><td>10 s</td></tr><tr><td>Helmet</td><td>anvil</td><td>3 ingots</td><td>20 s</td></tr><tr><td>Chainmail</td><td>anvil</td><td>6 ingots</td><td>30 s</td></tr><tr><td>Sword</td><td>anvil</td><td>3 ingots, 1 wood</td><td>20 s</td></tr></table>
+<p>Skill: Smithing at furnace and anvil, Tailoring at spinning wheel and workbench, Ranged at the carpenter bench.</p>
+<h3>Equipment </h3>
+<p>Three slots: hands, body, head. A colonist with an empty slot fetches a piece by themselves, before any other job. In their hands they want the tool of their best skill among Mining, Woodcutting, Gathering, Hunting and Melee. Nobody trades a piece for a better one; only a hunter swaps for a bow.</p>
+<table><tr><td><span style="color:#d9c48a">Piece</span></td><td><span style="color:#d9c48a">Slot</span></td><td><span style="color:#d9c48a">Armor</span></td><td><span style="color:#d9c48a">Effect</span></td></tr><tr><td>Pickaxe</td><td>hands</td><td>–</td><td>mining 25% faster</td></tr><tr><td>Axe</td><td>hands</td><td>–</td><td>chopping 25% faster</td></tr><tr><td>Sickle</td><td>hands</td><td>–</td><td>picking, uprooting 25% faster</td></tr><tr><td>Bow</td><td>hands</td><td>–</td><td>to hunt; shoots in a fight</td></tr><tr><td>Sword</td><td>hands</td><td>–</td><td>melee damage 15</td></tr><tr><td>Leather armor</td><td>body</td><td>2</td><td>-25% stress outdoors</td></tr><tr><td>Chainmail</td><td>body</td><td>5</td><td>all work 10% slower</td></tr><tr><td>Leather hood</td><td>head</td><td>1</td><td>+5% to hit with a bow</td></tr><tr><td>Helmet</td><td>head</td><td>3</td><td>mining 10% faster</td></tr></table>
+<p>Tools hit too: pickaxe 10, axe 12, sickle 8, bare hands 5. Armor: see Combat &amp; Wolves.</p></section><section id="combat-wolves"><h2>Combat &amp; Wolves</h2><h3>Wolves </h3>
+<ul>
+<li>The first pack comes on day 5, then one every 3 days: 2–3 wolves from a map edge. They smell the colony from 70 tiles away. The top bar shows WOLVES while they are around.</li>
+<li>They chase the nearest colonist or adventurer standing outside the rooms: walls protect, wolves never come in. With nobody standing outside, they go for whoever lies downed outdoors.</li>
+<li>A bite every 1.5 s does 8 damage and lands 70% of the time, -3% for every Melee level of the victim. Every bite also gives +5 stress.</li>
+<li>A pack with nobody to chase leaves after a day.</li>
+</ul>
+<h3>Fighting back </h3>
+<ul>
+<li>A colonist with a wolf within 12 tiles drops everything and fights the nearest one. Under 40 health they run instead to the nearest room they can enter and wait there; with no room in reach, they fight.</li>
+<li>Melee: a blow every 1.5 s, landing 50% of the time, +5% for every Melee level above 5 (less below). The damage is that of what they hold: sword 15, axe 12, pickaxe 10, dagger 10, sickle 8, bare hands 5.</li>
+<li>Bow: a shot every 2 s from up to 8 tiles, aimed like a hunter's but with Ranged only; 14 damage. Hit or missed, the wolf turns on the shooter.</li>
+<li>Armor: -6% damage for every point, at most -80%. Chainmail and helmet (8 points) take off 48%.</li>
+<li>A dead wolf leaves 5 meat and 2 hide.</li>
+</ul>
+<h3>Downed and dead </h3>
+<ul>
+<li>At 0 health a colonist falls. The bite that downs them kills 25% of the time, -3% for every point of armor (at least 5%).</li>
+<li>Downed, they heal 40 a day and stand up at 30. A wolf that finds them outdoors, with nobody else standing, kills them with the first bite.</li>
+<li>The dead drop their gear; the body stays a day. The other colonists mourn for 3 days (Mourning). If every colonist dies, the colony has fallen.</li>
+</ul></section><section id="splendor"><h2>Splendor</h2><p>Splendor is the sum of every finished decoration on the map, inside rooms or out, plus 5 for every famous adventurer around. The total is in the top bar.</p>
+<p>For now it does two things:</p>
+<ul>
+<li>Adventurers arrive stronger: level 1, +1 for every 10 splendor, ±1 at random (from 1 to 5).</li>
+<li>+1 authority a day for every 20 splendor.</li>
+</ul>
+<table><tr><td><span style="color:#d9c48a">Decoration</span></td><td><span style="color:#d9c48a">Splendor</span></td><td><span style="color:#d9c48a">Cost</span></td><td><span style="color:#d9c48a">Research</span></td></tr><tr><td>Flower bed</td><td>1</td><td>3 wood</td><td>Decor</td></tr><tr><td>Planter</td><td>1</td><td>5 stone</td><td>Decor</td></tr><tr><td>Bench</td><td>1</td><td>6 wood</td><td>Decor</td></tr><tr><td>Lantern</td><td>1</td><td>4 wood</td><td>Lanterns</td></tr><tr><td>Banner</td><td>2</td><td>4 wood</td><td>–</td></tr><tr><td>Fountain</td><td>6</td><td>30 stone</td><td>Fountain</td></tr><tr><td>Statue</td><td>8</td><td>40 stone</td><td>Statuary</td></tr><tr><td>Chalice</td><td>3</td><td>the relic</td><td>–</td></tr><tr><td>Old banner</td><td>4</td><td>the relic</td><td>–</td></tr><tr><td>Bust</td><td>5</td><td>the relic</td><td>–</td></tr><tr><td>Crown</td><td>6</td><td>the relic</td><td>–</td></tr></table>
+<ul>
+<li>The bench (2x1) also gives +0.5 room comfort. The lantern lights the roads at night. The banner flies the arms of your house. Fountain and statue take 2x2 tiles.</li>
+<li>Relics are found only by adventurers, in ruins. They come home as items: build them from the furniture bar, one relic for each piece.</li>
+</ul></section><section id="adventurers"><h2>Adventurers</h2><h3>The inn </h3>
+<ul>
+<li>The Inn research unlocks the notice board. A room with a bed, a table and a notice board can become an inn.</li>
+<li>Every inn bed lets one adventurer stay. Inn beds are theirs only, and they sleep nowhere else: with no inn bed free, on the ground.</li>
+</ul>
+<h3>Arrivals </h3>
+<ul>
+<li>About every 2 days (±½) one comes in from the map edge, if an inn bed is free (the beds of those away count as taken).</li>
+<li>Level: 1, +1 for every 10 splendor, ±1 at random, from 1 to 5.</li>
+<li>They wait 3 days to be hired, then leave. Back from an expedition they rest 2 days, and can be hired again.</li>
+<li>They don't work: they eat your food, relax, and fight wolves like colonists (they can die). Click one for their sheet: class, level, fee, expeditions.</li>
+</ul>
+<h3>Classes </h3>
+<ul>
+<li>Warrior: Melee 2 a level. Sword, shield (+3 armor), leather armor (chainmail from level 3), helmet. In ruins takes a double share of the wounds.</li>
+<li>Archer: Ranged 2 a level. Bow, quiver, leather armor and hood. Shoots first: the whole party takes 25% fewer wounds; takes half a share.</li>
+<li>Burglar: Lockpicking 2 a level, Melee 1 a level. Dagger, mask, sack, leather armor and hood. Disarms traps and opens locked chests; the sack brings home 50% more.</li>
+</ul>
+<h3>Pay <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAW0lEQVR4nGNgQAPyUir/8WF09RiAbANgCl4c9gLj/88WoGCYOE6DyDYAl0YYH4ZXVOmhYLhBVDMAXSO6BnRx6huA7oWBMwBdIcmxQLIB6OkBXSFBjVQzYMByIwCmbstkokgC9AAAAABJRU5ErkJggg==" alt=""></h3>
+<p>Hiring costs 10 coins, +5 a level (15–35), paid from your warehouses when you send them. Back home they keep 30% of the coins they found. +1 level every 2 expeditions back, up to 5.</p>
+<h3>Their traits </h3>
+<p>One each, and 3 times in 10 also a colonist trait.</p>
+<table><tr><td>Greedy</td><td>asks 25% more</td></tr><tr><td>Loyal</td><td>keeps no share of the coins</td></tr><tr><td>Reckless</td><td>party turns back for them under 20</td></tr><tr><td>Coward</td><td>party turns back when under 60</td></tr><tr><td>Lucky</td><td>one more item in every chest</td></tr><tr><td>Cartographer</td><td>finds maps 3 times as often</td></tr><tr><td>Jinxed</td><td>every trap hits them; asks 25% less</td></tr><tr><td>Berserker</td><td>weapon counts double; +50% wounds</td></tr><tr><td>Stout</td><td>a third fewer wounds</td></tr><tr><td>Stealthy</td><td>slips past monsters 1 time in 4</td></tr><tr><td>Medic</td><td>+6 health to all after each room</td></tr><tr><td>Forager</td><td>the party eats a third less</td></tr><tr><td>Pathfinder</td><td>the journey takes half the time</td></tr><tr><td>Keen-eyed</td><td>+30% to disarm traps</td></tr><tr><td>Scholar</td><td>a level every trip; books twice as often</td></tr><tr><td>Famous</td><td>+5 splendor while on the map</td></tr></table>
+<p>With a medic standing, whoever falls is carried home. Stealth doesn't work on the guardian of the treasure.</p></section><section id="ruins-expeditions"><h2>Ruins &amp; Expeditions</h2><h3>The notice board </h3>
+<p>Click it: the coins and provisions in store, who waits at the inn (Pick up to 4), the ruins you know, the expeditions away and the last page of the chronicle. Every ruin has its Send button, with the fees and provisions it takes; hover it for the days of the trip.</p>
+<h3>Expeditions </h3>
+<ul>
+<li>Provisions: one a head for every day of the trip (there, ½ day for every room left, back), first from the crown's granary, then from warehouses, meals before raw food. Short of them, the party leaves anyway and goes hungry: -20 health a day each.</li>
+<li>They walk to the map edge and leave together; the top bar shows EXPEDITION. You read how it went in their diary when they're back (and in the Chronicle, with hirings and deaths).</li>
+<li>In the ruin, a room every ½ day: empty (25%), a trap (20%), monsters (35%), a chest (15%) or a collapse (5%: they turn back).</li>
+<li>Monsters: strength 5 for every point of danger. The weaker the party (weapon skill plus armor of each), the deeper the wounds; then each one's armor softens them.</li>
+<li>Traps: the best lockpicker disarms one 20% of the time, +8% a level; if not, someone takes 15 damage for every point of danger.</li>
+<li>Chests: coins and one of the ruin's items, or 35% of the time a book. Half are locked, and open only for Lockpicking of at least 2 for every point of danger.</li>
+<li>The last room is the treasure, with its guardian (double strength): three times the coins, its books and the map of the next ruin. If it stays locked, that room is left for next time.</li>
+<li>They turn back when someone drops under 40 health, when the provisions won't cover another room and the way home, or after a collapse.</li>
+<li>At 0 health one dies half the time; otherwise the others carry them home with 5 health (alone, they die). If all fall the expedition is lost: you'll know at twice the time it should have taken.</li>
+<li>Home again, they go to the inn and leave the loot there for your haulers, minus their share of the coins.</li>
+<li>Cleared rooms stay cleared: the next party starts from there. A ruin with no rooms left is explored.</li>
+</ul>
+<h3>Ruins </h3>
+<p>At first you know only the tower. Every treasure holds the map of the next ruin, and any chest may (15%) hold the map of one you don't know yet. Travel is one way.</p>
+<table><tr><td><span style="color:#d9c48a">Ruin</span></td><td><span style="color:#d9c48a">Danger</span></td><td><span style="color:#d9c48a">Rooms</span></td><td><span style="color:#d9c48a">Travel</span></td></tr><tr><td>Ruined tower</td><td>1</td><td>3</td><td>½ day</td></tr><tr><td>Abandoned mine</td><td>2</td><td>5</td><td>1 day</td></tr><tr><td>Crypt</td><td>3</td><td>6</td><td>1 day</td></tr><tr><td>Ruined fort</td><td>4</td><td>8</td><td>2 days</td></tr><tr><td>Buried monastery</td><td>3</td><td>6</td><td>1½ days</td></tr></table>
+<p>Coins in a chest, its item, its book, and the treasure's books:</p>
+<ul>
+<li>Tower: 10–25; 10 wood, 10 stone or 5 iron; notebooks; 2 notebooks.</li>
+<li>Mine: 20–45; 10 iron, 10 coal, 4 ingots or a pickaxe; notebooks; 2 notebooks.</li>
+<li>Crypt: 35–70; a sword, a helmet, leather armor, 6 ingots, the chalice or the bust; notebooks or tomes; a tome.</li>
+<li>Fort: 60–120; chainmail, 2 swords, a helmet, 10 ingots, the old banner or the crown; tomes, 1 in 4 a codex; a codex.</li>
+<li>Monastery: 5–20; always a book: half notebooks, a quarter tomes, a quarter codices; a tome and a codex.</li>
+</ul></section><section id="knowledge"><h2>Knowledge</h2><h3>Study <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAfklEQVR4nGNgGAggL6XyH4TJ1vziyQ1UA2Am4sPImlcsmYVpwItrC7DiI6sLiDcgL6cGBSMbgFMzsS4gygB029ENwKqZ1DDAHTVEhAHO+CfGBXlZDf+9PCL+mxraEg4DZAOQNcMwhiH4XEC0ASCnYsMgOZAGdExyUsaVvCkGAFGoaATTjpVpAAAAAElFTkSuQmCC" alt=""></h3>
+<ul>
+<li>A room with a desk can become a study; the desk needs no research. One colonist at a desk writes pages: every page is +1 study for the colony's shared pool and +1 Research XP.</li>
+<li>A page takes 2.5 s, more or less with room comfort and conditions. From 19:00 to 6:00, without a lamp in the room, it takes 50% longer; every bookshelf in the room takes off 10% (up to 3).</li>
+<li>The study's workers study before any other job and stay at the desk all their shift. The others write a page only when there is nothing else to do.</li>
+</ul>
+<h3>The Knowledge window </h3>
+<p>Press K or click a desk: your study and the books in your warehouses, then the tree, a row for every branch and a column for every tier. Hover a research for what it unlocks and what is missing; click it to research it at once. It spends the study and, from tier II, a book from a warehouse:</p>
+<ul>
+<li>Tier II: a notebook <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAASElEQVR4nGNgGF5AXkrlPzEYrwFZsx78N3GLAtPo+MWTG6QZoB+zAQUPEQNeHPb6v6JKbyh7YeANAGnGhVcsmUXYAIqSMjkAAKib/oAVi9QvAAAAAElFTkSuQmCC" alt="">. Tier III: a tome <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAWUlEQVR4nGNgGDRAXkrlPykYqwE3vKz+z9KC0Njwiyc3/q9YMouGBrw47PV/RZXeALoAmwEg8QsXbqBgkg2YNXMZHOfl1Iy4QCTJAJBmfBikGa8BFOUFcgEACARPE47aINQAAAAASUVORK5CYII=" alt="">. Tier IV: a codex <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAgElEQVR4nGNgoAaQl1L5Tw5GMWBF2p7/VTZ9/18c9gJjEB8Zw8RfPLnxf8WSWfgNANHYMF4DwLZW6eHUDDeEkAuoagDM30QZgO4FEP/Zowv/b3hZoRhCtAtAmkCaZ2mpoBpMihdAGtEDdgjEAtkJCVkRNq/AxEGasRpAUWaiBAAAf9a4DEl5H6EAAAAASUVORK5CYII=" alt="">.</li>
+</ul>
+<p>Books come only from ruins (see Ruins &amp; Expeditions). There is no tier IV research yet.</p>
+<p>What you haven't researched has no build button, and its recipes don't show at the stations. From the start you have wooden walls and floors, doors, paths, beds, tables, chairs, campfires, banners, desks, thrones, relics and meals.</p>
+<h3>The tree </h3>
+<ul>
+<li><span style="color:#d9c48a">Hunting</span> (Land I, 50): spinning wheel and carpenter bench; bowstrings and bows.</li>
+<li><span style="color:#d9c48a">Forge</span> (Fire I, 60): furnace and anvil; ingots, pickaxe, axe, sickle.</li>
+<li><span style="color:#d9c48a">Tailoring</span> (Fire I, 50): workbench; leather armor and hood.</li>
+<li><span style="color:#d9c48a">Masonry</span> (Stone I, 60): stone walls and floors.</li>
+<li><span style="color:#d9c48a">Decor</span> (Stone I, 40): flower bed, planter, bench.</li>
+<li><span style="color:#d9c48a">Fountain</span> (Stone II, 250 and a notebook, after Decor): the fountain.</li>
+<li><span style="color:#d9c48a">Statuary</span> (Stone III, 500 and a tome, after Masonry): the statue.</li>
+<li><span style="color:#d9c48a">Iron arms</span> (Iron I, 80, after Forge): sword and helmet.</li>
+<li><span style="color:#d9c48a">Chainmail</span> (Iron II, 300 and a notebook, after Iron arms): chainmail.</li>
+<li><span style="color:#d9c48a">Inn</span> (Road I, 40): the notice board; the laws Loot tax and Lodging tax.</li>
+<li><span style="color:#d9c48a">Bookshelf</span> (Lore I, 60): the bookshelf.</li>
+<li><span style="color:#d9c48a">Lanterns</span> (Lore I, 40): lamp and lantern.</li>
+</ul></section><section id="laws"><h2>Laws</h2><h3>Authority <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAe0lEQVR4nGNgoAWQl1L5jw0TrfGGlxVWjNcgfBqxGYRX84vDXnAamQ2Tn6WF5hJsBmDDWA3A5nRsmldU6aEYgNcQkGJsmGgv4MMYtpNiCE7N6OkAphAdk5SgsmY9gGuAsQlqRNasH7MBrgmbGNGaiZHDCANcCkjKWMQCADU2OBPvsVUBAAAAAElFTkSuQmCC" alt=""></h3>
+<ul>
+<li>Only the ruler gathers it, holding audience on a throne in a throne room: +1 an hour, 25% more with happiness 70 or more, half with 30 or less. It counts as work.</li>
+<li>The ruler goes to the throne first if you tick them as the throne room's worker; otherwise only when there is nothing else to do.</li>
+<li>Every day +1 for the title (Lordship) and +1 for every 20 splendor; +5 for every harvest feast.</li>
+</ul>
+<h3>The Laws window </h3>
+<p>Press G or click the throne: authority, seals, the crown's granary, then the laws by kind. Hover a law for what it does and who likes it.</p>
+<ul>
+<li>Codify a law once, paying its cost in authority. Then Enact it: 10 authority and a free seal. A Lordship has 2 seals.</li>
+<li>Laws of the same group (taxes, shifts) exclude each other: enacting one replaces the other.</li>
+<li>Revoking is free, but the law can't be enacted again for 3 days.</li>
+<li>Every law in force changes the happiness of the colonists (some traits feel it differently) or of the adventurers. It shows among the conditions in the sheet.</li>
+<li>The crown's granary is filled by the Tithe, and nothing in it rots. Expedition provisions come from it first.</li>
+</ul>
+<h4>Treasury </h4>
+<ul>
+<li>Exemption (30, taxes): no tithe, the granary stays empty. Everyone +5.</li>
+<li>Tithe (40, taxes): one piece in ten of all that is gathered, fished, hunted, cooked and made goes to the granary. Everyone -3.</li>
+<li>Loot tax (40, Inn research): adventurers keep 20% of the coins, not 30%; a quarter fewer come, and never the greedy. Adventurers -5.</li>
+<li>Lodging tax (30, Inn research): every adventurer waiting at the inn leaves a coin a night, and waits a day less. Adventurers -3.</li>
+</ul>
+<h4>Work </h4>
+<ul>
+<li>Long shifts (40, shifts): up to 10 hours of work a day (the lazy 7, the workaholic still 12); stress from work +25%. Everyone -5, workaholic +3; lazy, fun-loving and restless -10.</li>
+<li>Short day (40, shifts): at most 6 hours of work; stress from work -25%. Everyone +8, workaholic -5.</li>
+<li>Day of rest (30): on days 7, 14, 21... nobody works but the cooks. Everyone +6, workaholic -5, ascetic 0.</li>
+</ul>
+<h4>Order </h4>
+<ul>
+<li>Curfew (40): from 21:00 free time becomes sleep. Everyone -2, fun-loving -10, early bird +3.</li>
+</ul>
+<h4>Feasts </h4>
+<ul>
+<li>Harvest feast (40): on the five feast days of the calendar (see Time) nobody works but the cooks. The next day every colonist is Festive (+10 happiness for 3 days) and you get 5 authority.</li>
+</ul></section><section id="main-gd"><h2>Numeri: main.gd</h2><pre>const <b id="c-MAP_SIZE">MAP_SIZE</b> := Vector2i(100, 100)
+const <b id="c-TILE">TILE</b> := 16            <i># pixel per tile</i>
+const <b id="c-SPEED">SPEED</b> := 4.0          <i># tile al secondo</i>
+const <b id="c-STONE_PER_CELL">STONE_PER_CELL</b> := 5   <i># pietra (o ferro, carbone) in un masso, per casella (un 2x2 ne ha 20): vedi full_stock</i>
+const <b id="c-ORE_VEIN">ORE_VEIN</b> := 0.35      <i># soglia del rumore delle vene: più alta, meno minerale nella roccia (vedi generate_map)</i>
+const <b id="c-UPROOT_TIME">UPROOT_TIME</b> := 1.5    <i># secondi per estirpare un'erbaccia o un cespuglio</i>
+const <b id="c-BERRIES_PER_BUSH">BERRIES_PER_BUSH</b> := 5 <i># bacche (vegetali) su un cespuglio maturo</i>
+const <b id="c-BERRY_REGROW">BERRY_REGROW</b> := 2.0   <i># giorni prima che il cespuglio rifaccia le bacche</i>
+const <b id="c-CARRY_MAX">CARRY_MAX</b> := 10       <i># quantità massima trasportata per viaggio, di una risorsa sola</i>
+const <b id="c-BUILD_TIME">BUILD_TIME</b> := 2.0     <i># secondi per costruire una casella</i>
+const <b id="c-LOOK_AGAIN">LOOK_AGAIN</b> := 0.5     <i># secondi tra una ricerca di lavoro e l'altra, per chi non ne trova</i>
+const <b id="c-RETRY_AFTER">RETRY_AFTER</b> := 10.0   <i># secondi di gioco prima di riprovare a raggiungere una casella irraggiungibile</i>
+const <b id="c-COLONIST_COUNT">COLONIST_COUNT</b> := 3
+const <b id="c-ROOM_MAX">ROOM_MAX</b> := 400       <i># caselle: una zona chiusa più grande non è una stanza, è il mondo fuori</i>
+const <b id="c-START_ROOMS">START_ROOMS</b> := [Vector2i.UP, Vector2i.LEFT, Vector2i.RIGHT]  <i># stanze 5x5 già murate attorno alla radura, porta verso fuori</i>
+const <b id="c-DEBUG_STASH">DEBUG_STASH</b> := 100    <i># debug: quanto di ogni risorsa c'è all'inizio nella prima stanza, che fa da magazzino</i>
+const <b id="c-SIDES">SIDES</b> := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
+const <b id="c-TREE_SIDES">TREE_SIDES</b> := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  <i># da sopra la chioma coprirebbe chi taglia</i></pre>
+<pre>enum <b id="c-Job">Job</b> { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE,
+	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST }
+const <b id="c-WORK_JOBS">WORK_JOBS</b> := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FURNISH, Job.HARVEST, Job.COOK, Job.FISH,
+	Job.HUNT, Job.CRAFT, Job.STUDY, Job.GOVERN]  <i># contano come ore di lavoro</i></pre>
+<pre><i># VEG: vegetali, dalle bacche dei cespugli; IRON, COAL: dai massi con le vene; MEAL, FINE_MEAL: pasti, dalla cucina;</i>
+<i># MEAT, HIDE: carne e pelle, dagli animali cacciati; FISH: pesce, dai punti di pesca; INGOT: lingotti, dalla fornace;</i>
+<i># FLAX: lino, dai fiori (vedi flax); BOWSTRING: corda d'arco, dal filatoio;</i>
+<i># da PICKAXE in poi: equipaggiamento (vedi GEAR), dalla forgia e dai banchi (vedi RECIPES); GOLD: monete, per</i>
+<i># ingaggiare gli avventurieri (vedi send); DAGGER: il pugnale degli scassinatori, non si fabbrica; da CHALICE in poi</i>
+<i># i cimeli, dalle rovine: si piazzano come decorazioni (vedi RELICS); NOTEBOOK, TOME, CODEX: i libri, dalle rovine, che</i>
+<i># le ricerche di livello II, III e IV consumano (vedi BOOKS); HARDTACK: gallette, provviste per le spedizioni che non</i>
+<i># marciscono e non si mangiano a casa (vedi send); SMOKED_MEAT, SMOKED_FISH: affumicati al fuoco, crudi che durano</i>
+<i># quattro volte tanto; SHIELD: lo scudo tondo, nel suo slot (vedi GEAR); STEEL: acciaio, per attrezzi e spade (vedi</i>
+<i># steel); PARCHMENT, INK: pergamena e inchiostro, per copiare i quaderni allo scrittoio (vedi COPY_STUDY)</i>
+enum <b id="c-Res">Res</b> { WOOD, STONE, VEG, IRON, COAL, MEAL, FINE_MEAL, MEAT, FISH, HIDE, INGOT, FLAX, BOWSTRING,
+	PICKAXE, AXE, SICKLE, BOW, LEATHER_ARMOR, LEATHER_HOOD, HELMET, CHAINMAIL, SWORD, GOLD, DAGGER,
+	CHALICE, OLD_BANNER, BUST, CROWN, NOTEBOOK, TOME, CODEX, HARDTACK, SMOKED_MEAT, SMOKED_FISH, SHIELD,
+	STEEL, PARCHMENT, INK }
+const <b id="c-STACK_MAX">STACK_MAX</b> := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.IRON: 50, Res.COAL: 50, Res.MEAL: 20, Res.FINE_MEAL: 20,
+	Res.MEAT: 50, Res.FISH: 50, Res.HIDE: 50, Res.INGOT: 50, Res.FLAX: 50, Res.BOWSTRING: 50, Res.PICKAXE: 10, Res.AXE: 10, Res.SICKLE: 10, Res.BOW: 10,
+	Res.LEATHER_ARMOR: 10, Res.LEATHER_HOOD: 10, Res.HELMET: 10, Res.CHAINMAIL: 10, Res.SWORD: 10, Res.GOLD: 100, Res.DAGGER: 10,
+	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5, Res.NOTEBOOK: 10, Res.TOME: 10, Res.CODEX: 10, Res.HARDTACK: 50, Res.SMOKED_MEAT: 50, Res.SMOKED_FISH: 50, Res.SHIELD: 10, Res.STEEL: 50, Res.PARCHMENT: 50, Res.INK: 20}  <i># quantità massima per mucchio (casella)</i>
+const <b id="c-MEALS">MEALS</b> := [Res.FINE_MEAL, Res.MEAL]  <i># cotti: chi ha fame li prende in quest'ordine, poi il crudo</i>
+const <b id="c-RAW_FOOD">RAW_FOOD</b> := [Res.VEG, Res.FISH, Res.MEAT, Res.SMOKED_FISH, Res.SMOKED_MEAT]  <i># crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti</i>
+const <b id="c-STASH">STASH</b> := [Res.WOOD, Res.STONE, Res.VEG, Res.IRON, Res.COAL, Res.FLAX]  <i># scorta di debug: il resto si produce</i>
+const <b id="c-START_GOLD">START_GOLD</b> := 60      <i># monete nel magazzino all'inizio</i>
+const <b id="c-COIN">COIN</b> := "[img=center]res://art/icon_coin.png[/img]"  <i># una moneta 16x16 nei testi ricchi (vedi coins)</i></pre>
+<pre><i># Tipo di ogni oggetto: la sua icona 16x16 (art/kind_*.png, per le monete la moneta) sta davanti al nome, ovunque</i>
+<i># (vedi item_name, item_title, kind_icon)</i>
+enum <b id="c-ItemKind">ItemKind</b> { MATERIAL, FOOD, TOOL, WEAPON, ARMOR, COINS, RELIC, BOOK }
+const <b id="c-KIND_NAMES">KIND_NAMES</b> := ["Material", "Food", "Tool", "Weapon", "Armor", "Coins", "Relic", "Book"]
+const <b id="c-ITEM_KIND">ITEM_KIND</b> := {
+	Res.WOOD: ItemKind.MATERIAL, Res.STONE: ItemKind.MATERIAL, Res.IRON: ItemKind.MATERIAL, Res.COAL: ItemKind.MATERIAL,
+	Res.HIDE: ItemKind.MATERIAL, Res.INGOT: ItemKind.MATERIAL, Res.FLAX: ItemKind.MATERIAL,
+	Res.BOWSTRING: ItemKind.MATERIAL,
+	Res.VEG: ItemKind.FOOD, Res.MEAL: ItemKind.FOOD, Res.FINE_MEAL: ItemKind.FOOD, Res.MEAT: ItemKind.FOOD, Res.FISH: ItemKind.FOOD,
+	Res.PICKAXE: ItemKind.TOOL, Res.AXE: ItemKind.TOOL, Res.SICKLE: ItemKind.TOOL,
+	Res.BOW: ItemKind.WEAPON, Res.SWORD: ItemKind.WEAPON, Res.DAGGER: ItemKind.WEAPON,
+	Res.LEATHER_ARMOR: ItemKind.ARMOR, Res.LEATHER_HOOD: ItemKind.ARMOR, Res.HELMET: ItemKind.ARMOR, Res.CHAINMAIL: ItemKind.ARMOR,
+	Res.GOLD: ItemKind.COINS,
+	Res.CHALICE: ItemKind.RELIC, Res.OLD_BANNER: ItemKind.RELIC, Res.BUST: ItemKind.RELIC, Res.CROWN: ItemKind.RELIC,
+	Res.NOTEBOOK: ItemKind.BOOK, Res.TOME: ItemKind.BOOK, Res.CODEX: ItemKind.BOOK, Res.HARDTACK: ItemKind.FOOD,
+	Res.SMOKED_MEAT: ItemKind.FOOD, Res.SMOKED_FISH: ItemKind.FOOD, Res.SHIELD: ItemKind.ARMOR,
+	Res.STEEL: ItemKind.MATERIAL, Res.PARCHMENT: ItemKind.MATERIAL, Res.INK: ItemKind.MATERIAL,
+}</pre>
+<pre><i># cibo: quanto sazia (vedi eat) e in quanti giorni marcisce a terra fuori (vedi spoil); in magazzino ci mette il doppio.</i>
+<i># Il crudo sazia meno e può intossicare (vedi poison_chance), i pasti no e danno un bonus (vedi Cond)</i>
+const <b id="c-FOOD">FOOD</b> := {Res.VEG: 35.0, Res.FISH: 30.0, Res.MEAT: 40.0, Res.MEAL: 100.0, Res.FINE_MEAL: 100.0,
+	Res.SMOKED_FISH: 30.0, Res.SMOKED_MEAT: 40.0}
+const <b id="c-SHELF_LIFE">SHELF_LIFE</b> := {Res.VEG: 3.0, Res.FISH: 1.5, Res.MEAT: 2.0, Res.MEAL: 3.0, Res.FINE_MEAL: 3.0,
+	Res.SMOKED_FISH: 6.0, Res.SMOKED_MEAT: 8.0}  <i># affumicati: quattro volte il fresco</i>
+const <b id="c-SPOIL_STORED">SPOIL_STORED</b> := 0.5   <i># in magazzino il cibo marcisce a metà velocità</i>
+const <b id="c-SPOIL_PANTRY">SPOIL_PANTRY</b> := 1.0 / 3  <i># in dispensa a un terzo: dura il triplo che fuori</i></pre>
+<pre><i># probabilità di intossicarsi mangiando crudo: [appena preso, quasi marcio], in mezzo in proporzione</i>
+const <b id="c-POISON">POISON</b> := {Res.VEG: [0.05, 0.4], Res.FISH: [0.1, 0.5], Res.MEAT: [0.15, 0.6], Res.SMOKED_FISH: [0.05, 0.5],
+	Res.SMOKED_MEAT: [0.05, 0.6]}
+const <b id="c-FRESH_WORDS">FRESH_WORDS</b> := [[0.5, "Fresh"], [0.2, "Stale"], [0.0, "Almost rotten"]]  <i># sopra quale parte della durata, nel suggerimento</i></pre>
+<pre><i># cucinare (vedi try_cook): 2 crudi dello stesso mucchio (vegetali, pesce o carne) -&gt; 1 pasto al fuoco da campo di una</i>
+<i># cucina, finché in giro ci sono meno pasti di quanti chiede il menu del fuoco (all'inizio MEALS_PER_COLONIST a testa)</i>
+const <b id="c-COOK_RAW">COOK_RAW</b> := 2
+const <b id="c-COOK_TIME">COOK_TIME</b> := 8.0      <i># secondi a livello 5, come gather_time; anche secondo il comfort della cucina (vedi comfort_time)</i>
+const <b id="c-MEALS_PER_COLONIST">MEALS_PER_COLONIST</b> := 2
+const <b id="c-BURN_PER_LEVEL">BURN_PER_LEVEL</b> := 0.06   <i># bruciato: per livello sotto il 6 (30% a livello 1)...</i>
+const <b id="c-BURN_PER_COMFORT">BURN_PER_COMFORT</b> := 0.03 <i># ...e per punto di comfort della cucina sotto 5 (sopra lo abbassa)</i>
+const <b id="c-FINE_PER_LEVEL">FINE_PER_LEVEL</b> := 0.05   <i># squisito: per livello sopra il 5 (25% a livello 10)...</i>
+const <b id="c-FINE_PER_COMFORT">FINE_PER_COMFORT</b> := 0.02 <i># ...e per punto di comfort della cucina sopra 5</i>
+const <b id="c-SEAT_RANGE">SEAT_RANGE</b> := 20      <i># caselle: chi ha preso da mangiare va a una sedia accanto a un tavolo, se ce n'è una entro qui</i></pre>
+<pre><i># pesca (vedi Job.FISH in GATHER): da una casella accanto all'acqua segnata con "Fish"; ogni lancio prende un pesce con</i>
+<i># probabilità catch_chance. Finiti i pesci di un punto, tornano dopo FISH_REGROW giorni (vedi fish_spots)</i>
+const <b id="c-FISH_PER_SPOT">FISH_PER_SPOT</b> := 4
+const <b id="c-FISH_REGROW">FISH_REGROW</b> := 1.0
+const <b id="c-CATCH_BASE">CATCH_BASE</b> := 0.3     <i># + CATCH_PER_LEVEL per livello: 36% a livello 1, 90% a livello 10</i>
+const <b id="c-CATCH_PER_LEVEL">CATCH_PER_LEVEL</b> := 0.06</pre>
+<pre><i># caccia (vedi try_hunt): animali che girano per la mappa; quelli segnati con "Hunt" li insegue un cacciatore con l'arco,</i>
+<i># che tira da al più HUNT_RANGE caselle. Ogni tiro: AIM_TIME a livello 5, colpisce con probabilità hit_chance; la freccia</i>
+<i># vola (vedi shoot) e, arrivata, l'animale scappa</i>
+enum <b id="c-Beast">Beast</b> { RABBIT, DEER, WOLF }  <i># righe di ANIMALS</i></pre>
+<pre><i># "hp": danni per abbatterlo; "speed": caselle al secondo; "start": quanti all'inizio; i lupi ("hostile") arrivano in</i>
+<i># branco (vedi spawn_pack) e mordono ("bite": danno); "shadow": larghezza in pixel dell'ovale d'ombra sotto le zampe</i>
+const <b id="c-BEASTS">BEASTS</b> := {
+	Beast.RABBIT: {"hp": 10, "meat": 3, "hide": 1, "speed": 2.0, "start": 6, "shadow": 10},
+	Beast.DEER: {"hp": 20, "meat": 10, "hide": 3, "speed": 1.5, "start": 3, "shadow": 12},
+	Beast.WOLF: {"hp": 30, "meat": 5, "hide": 2, "speed": 3.0, "start": 0, "hostile": true, "bite": 8.0, "shadow": 12},
+}
+const <b id="c-ANIMALS_MAX">ANIMALS_MAX</b> := 12     <i># sotto questo numero ogni ANIMAL_RESPAWN giorni ne arriva uno nuovo, lontano dalla radura</i>
+const <b id="c-ANIMAL_RESPAWN">ANIMAL_RESPAWN</b> := 0.5
+const <b id="c-WILD_RADIUS">WILD_RADIUS</b> := 15     <i># caselle dal centro della mappa (la radura) dove non nascono animali</i>
+const <b id="c-WANDER">WANDER</b> := 5           <i># caselle: quanto lontano gira un animale ogni volta</i>
+const <b id="c-WANDER_REST">WANDER_REST</b> := [2.0, 8.0]  <i># secondi fermo tra un giro e l'altro</i>
+const <b id="c-FLEE">FLEE</b> := 8             <i># caselle: quanto scappa un animale preso di mira</i>
+const <b id="c-FLEE_SPEED">FLEE_SPEED</b> := 2.0     <i># scappando corre più veloce</i>
+const <b id="c-HUNT_RANGE">HUNT_RANGE</b> := 6.0     <i># caselle</i>
+const <b id="c-AIM_TIME">AIM_TIME</b> := 4.0       <i># secondi per tiro a livello 5 (vedi skill_time)</i>
+const <b id="c-HIT_BASE">HIT_BASE</b> := 0.3       <i># + HIT_PER_LEVEL per livello, - HIT_PER_TILE per casella di distanza</i>
+const <b id="c-HIT_PER_LEVEL">HIT_PER_LEVEL</b> := 0.05
+const <b id="c-HIT_PER_TILE">HIT_PER_TILE</b> := 0.05
+const <b id="c-ARROW_SPEED">ARROW_SPEED</b> := 20.0   <i># caselle al secondo</i>
+const <b id="c-ARROW_ARC">ARROW_ARC</b> := 0.1      <i># altezza della parabola, per pixel di tiro</i></pre>
+<pre><i># combattimento (vedi react, Job.FIGHT, update_wolf): i lupi arrivano in branco dal bordo della mappa e inseguono i coloni</i>
+<i># fuori dalle stanze; chi sta bene combatte, chi è ferito scappa al chiuso. A 0 punti ferita si resta a terra, o si</i>
+<i># muore (vedi die): coi lupi, con le probabilità di DEATH_BASE; a terra, il primo morso uccide</i>
+const <b id="c-WOLF_FIRST">WOLF_FIRST</b> := 4.0     <i># giorno del primo branco, contato da 0 (il quinto; vedi threats)</i>
+const <b id="c-WOLF_EVERY">WOLF_EVERY</b> := 3.0     <i># giorni tra un branco e l'altro</i>
+const <b id="c-PACK">PACK</b> := [2, 3]        <i># lupi per branco, da-a</i>
+const <b id="c-WOLF_STAY">WOLF_STAY</b> := 1.0      <i># giorni: poi, se non inseguono nessuno, se ne vanno</i>
+const <b id="c-WOLF_SIGHT">WOLF_SIGHT</b> := 70      <i># caselle: fiutano la colonia da tutta la mappa; chi è più lontano non lo trovano</i>
+const <b id="c-BITE_RANGE">BITE_RANGE</b> := 1.2     <i># caselle</i>
+const <b id="c-BITE_TIME">BITE_TIME</b> := 1.5      <i># secondi tra un morso e l'altro</i>
+const <b id="c-BITE_HIT">BITE_HIT</b> := 0.7       <i># - DODGE_PER_LEVEL per livello di mischia di chi è morso</i>
+const <b id="c-DODGE_PER_LEVEL">DODGE_PER_LEVEL</b> := 0.03
+const <b id="c-ALERT">ALERT</b> := 12           <i># caselle: un colono con un lupo così vicino lascia tutto e combatte (o scappa)</i>
+const <b id="c-FLEE_HP">FLEE_HP</b> := 40.0       <i># sotto, scappa in una stanza invece di combattere</i>
+const <b id="c-MELEE_RANGE">MELEE_RANGE</b> := 1.2    <i># caselle</i>
+const <b id="c-MELEE_TIME">MELEE_TIME</b> := 1.5     <i># secondi per colpo a livello 5</i>
+const <b id="c-SHOOT_TIME">SHOOT_TIME</b> := 2.0     <i># secondi per tiro con l'arco a livello 5</i>
+const <b id="c-MELEE_BASE">MELEE_BASE</b> := 0.5     <i># a segno + MELEE_PER_LEVEL per livello sopra il 5</i>
+const <b id="c-MELEE_PER_LEVEL">MELEE_PER_LEVEL</b> := 0.05
+const <b id="c-FIST_DAMAGE">FIST_DAMAGE</b> := 5.0    <i># senza niente in mano; se no "damage" di GEAR</i>
+const <b id="c-ARMOR_BLOCK">ARMOR_BLOCK</b> := 0.06   <i># danno -6% per punto di protezione, al massimo ARMOR_MAX</i>
+const <b id="c-ARMOR_MAX">ARMOR_MAX</b> := 0.8
+const <b id="c-HIT_STRESS">HIT_STRESS</b> := 5.0     <i># stress per ogni morso preso</i>
+const <b id="c-HP_REGEN">HP_REGEN</b> := 30.0      <i># punti ferita al giorno; il doppio dormendo</i>
+const <b id="c-DOWNED_REGEN">DOWNED_REGEN</b> := 40.0  <i># a terra si rialza a GET_UP</i>
+const <b id="c-GET_UP">GET_UP</b> := 30.0
+const <b id="c-DEATH_BASE">DEATH_BASE</b> := 0.25    <i># il colpo che butta a terra uccide con questa probabilità, meno DEATH_PER_ARMOR per punto</i>
+const <b id="c-DEATH_PER_ARMOR">DEATH_PER_ARMOR</b> := 0.03  <i># di protezione, ma almeno DEATH_MIN</i>
+const <b id="c-DEATH_MIN">DEATH_MIN</b> := 0.05
+const <b id="c-CORPSE_DAYS">CORPSE_DAYS</b> := 1.0    <i># il corpo resta a terra un giorno, poi sparisce (vedi corpses)</i></pre>
+<pre><i># --- Avventurieri (vedi GDD 4.4.4): arrivano alla locanda, si ingaggiano con l'oro alla bacheca, esplorano le rovine ---</i>
+enum <b id="c-Hero">Hero</b> { NONE, WARRIOR, ARCHER, BURGLAR }  <i># classe; NONE: un colono</i></pre>
+<pre><i># dove va un avventuriero col Job.TRAVEL: alla locanda, via per sempre, al bordo per partire, alla locanda di ritorno</i>
+enum <b id="c-Errand">Errand</b> { NONE, ARRIVE, LEAVE, DEPART, RETURN }</pre>
+<pre><i># "skills": abilità -&gt; livello per livello dell'avventuriero; "weapon": l'abilità con cui combatte nella rovina; "gear" e</i>
+<i># "kit" quello che porta ("heavy": l'armatura da HEAVY_LEVEL); "hurt": quanti colpi prende nella rovina, rispetto agli</i>
+<i># altri del gruppo; "cover": i danni al gruppo, se c'è lui (tira per primo); "haul": il bottino, se c'è lui (la sacca)</i>
+const <b id="c-HEROES">HEROES</b> := {
+	Hero.WARRIOR: {"skills": {Skill.MELEE: 2}, "weapon": Skill.MELEE, "hurt": 2.0, "kit": [Look.SHIELD],
+		"gear": {Slot.HANDS: Res.SWORD, Slot.BODY: Res.LEATHER_ARMOR, Slot.HEAD: Res.HELMET}, "heavy": Res.CHAINMAIL,
+		"tunic": Color("8a2a2a"), "cape": Color("6e2f2f")},
+	Hero.ARCHER: {"skills": {Skill.RANGED: 2}, "weapon": Skill.RANGED, "hurt": 0.5, "cover": 0.75, "kit": [Look.QUIVER],
+		"gear": {Slot.HANDS: Res.BOW, Slot.BODY: Res.LEATHER_ARMOR, Slot.HEAD: Res.LEATHER_HOOD}, "hood": Color("6f8a4a"),
+		"tunic": Color("4f6b30"), "cape": Color("3b4a2a")},
+	Hero.BURGLAR: {"skills": {Skill.LOCKPICKING: 2, Skill.MELEE: 1}, "weapon": Skill.MELEE, "hurt": 1.0, "haul": 1.5,
+		"kit": [Look.MASK, Look.PACK], "gear": {Slot.HANDS: Res.DAGGER, Slot.BODY: Res.LEATHER_ARMOR, Slot.HEAD: Res.LEATHER_HOOD},
+		"hood": Color("4a4858"), "tunic": Color("3a3848"), "cape": Color("2a2833")},
+}</pre>
+<pre><i># Talenti degli avventurieri: uno a testa (vedi new_hero), con la sua icona (colonne di HERO_TRAITS_SHEET).</i>
+<i># Effetti (vedi gift, party_gift): "fee" paga x; "share" quota delle monete; "turn_back" punti ferita sotto cui fa</i>
+<i># tornare il gruppo; "weapon" la sua arma x nella forza del gruppo; "hurt" ferite x (mostri e trappole); "trips"</i>
+<i># spedizioni per salire di livello; "splendor" splendore della colonia mentre è sulla mappa. Del gruppo, se c'è lui:</i>
+<i># "finds" oggetti in più per forziere; "maps" probabilità delle mappe x; "lure" le trappole colpiscono lui; "sneak"</i>
+<i># probabilità di evitare i mostri; "heal" punti ferita a testa dopo ogni stanza; "carry" chi cade non muore mai (se</i>
+<i># non è solo); "food" provviste x; "travel" giorni di viaggio x; "disarm" + a disinnescare le trappole</i>
+enum <b id="c-Gift">Gift</b> { GREEDY, LOYAL, RECKLESS, COWARD, LUCKY, CARTOGRAPHER, JINXED, BERSERKER, STOUT, STEALTHY, MEDIC, FORAGER,
+	PATHFINDER, KEEN_EYED, SCHOLAR, FAMOUS }
+const <b id="c-GIFT_FX">GIFT_FX</b> := {
+	Gift.GREEDY: {"fee": 1.25},
+	Gift.LOYAL: {"share": 0.0},
+	Gift.RECKLESS: {"turn_back": 20.0},
+	Gift.COWARD: {"turn_back": 60.0},
+	Gift.LUCKY: {"finds": 1},
+	Gift.CARTOGRAPHER: {"maps": 3.0},
+	Gift.JINXED: {"lure": true, "fee": 0.75},
+	Gift.BERSERKER: {"weapon": 2.0, "hurt": 1.5},
+	Gift.STOUT: {"hurt": 2.0 / 3},
+	Gift.STEALTHY: {"sneak": 0.25},
+	Gift.MEDIC: {"heal": 6.0, "carry": true},
+	Gift.FORAGER: {"food": 2.0 / 3},
+	Gift.PATHFINDER: {"travel": 0.5},
+	Gift.KEEN_EYED: {"disarm": 0.3},
+	Gift.SCHOLAR: {"trips": 1, "books": 2.0},
+	Gift.FAMOUS: {"splendor": 5},
+}
+const <b id="c-GIFT_INFO">GIFT_INFO</b> := {
+	Gift.GREEDY: "Always wants more.\nAsks 25% more to be hired.",
+	Gift.LOYAL: "Fights for the glory of the realm.\nKeeps no share of the gold.",
+	Gift.RECKLESS: "Never knows when to stop.\nThe party turns back for them only under 20 health.",
+	Gift.COWARD: "Lives to fight another day.\nThe party turns back when they drop under 60 health.",
+	Gift.LUCKY: "Born under a good star.\nOne more item in every chest the party opens.",
+	Gift.CARTOGRAPHER: "Draws every corridor.\nThe party finds maps three times as often.",
+	Gift.JINXED: "Bad things happen around them.\nEvery trap hits them. Asks 25% less.",
+	Gift.BERSERKER: "Fights like a storm.\nTheir weapon counts double, but they take 50% more wounds.",
+	Gift.STOUT: "Hard as an old oak.\nTakes a third fewer wounds.",
+	Gift.STEALTHY: "Moves without a sound.\nThe party slips past monsters one time in four.",
+	Gift.MEDIC: "Knows herbs and bandages.\nAfter each room everyone heals 6; whoever falls is carried home.",
+	Gift.FORAGER: "Finds food anywhere.\nThe party eats a third less.",
+	Gift.PATHFINDER: "Knows every shortcut.\nThe journey takes half the time.",
+	Gift.KEEN_EYED: "Nothing escapes their eyes.\n+30% to disarm traps.",
+	Gift.SCHOLAR: "Learns from everything.\nGoes up a level after every expedition. The party finds books twice as often.",
+	Gift.FAMOUS: "Their name is sung in every tavern.\n+5 colony splendor while they are here.",
+}
+const <b id="c-HERO_TRAIT_CHANCE">HERO_TRAIT_CHANCE</b> := 0.3  <i># avventurieri con anche un talento dei coloni (bisogni e routine)</i>
+const <b id="c-HEAVY_LEVEL">HEAVY_LEVEL</b> := 3      <i># il guerriero ha la cotta di maglia da questo livello</i>
+const <b id="c-HERO_LEVEL_MAX">HERO_LEVEL_MAX</b> := 5
+const <b id="c-SPLENDOR_PER_LEVEL">SPLENDOR_PER_LEVEL</b> := 10  <i># chi arriva: livello 1, +1 ogni tanti punti di splendore, ±1 a caso</i>
+const <b id="c-GUEST_EVERY">GUEST_EVERY</b> := 2.0    <i># giorni tra un arrivo e l'altro (±GUEST_JITTER), se alla locanda c'è un letto libero</i>
+const <b id="c-GUEST_JITTER">GUEST_JITTER</b> := 0.5
+const <b id="c-GUEST_STAY">GUEST_STAY</b> := 3.0     <i># giorni alla locanda: poi, se nessuno l'ha ingaggiato, se ne va</i>
+const <b id="c-GUEST_REST">GUEST_REST</b> := 2.0     <i># giorni alla locanda dopo una spedizione, prima di andarsene</i>
+const <b id="c-FEE_BASE">FEE_BASE</b> := 10        <i># monete d'ingaggio: FEE_BASE + FEE_PER_LEVEL per livello</i>
+const <b id="c-FEE_PER_LEVEL">FEE_PER_LEVEL</b> := 5
+const <b id="c-SHARE">SHARE</b> := 0.3          <i># al ritorno si tiene questa parte delle monete trovate</i>
+const <b id="c-TRIPS_PER_LEVEL">TRIPS_PER_LEVEL</b> := 2  <i># spedizioni tornate per salire di un livello</i></pre>
+<pre><i># Rovine, fuori dalla mappa: "danger" pericolo, "rooms" stanze, "travel" giorni di viaggio (andata), "gold" monete per</i>
+<i># forziere (da-a), "finds" un oggetto per forziere, a caso tra questi [risorsa, quantità]; "books" il libro che c'è al</i>
+<i># posto dell'oggetto, una volta su BOOK_CHANCE (sempre, con "always"), a caso tra questi; "treasure" i libri che ci sono</i>
+<i># in più nel tesoro. In quest'ordine: all'inizio si conosce la prima, il tesoro di ognuna ha la mappa della successiva</i>
+<i># (e a volte un forziere qualunque, MAP_CHANCE)</i>
+enum <b id="c-RuinKind">RuinKind</b> { TOWER, MINE, CRYPT, FORT, MONASTERY }
+const <b id="c-RUINS">RUINS</b> := {
+	RuinKind.TOWER: {"name": "Ruined tower", "danger": 1, "rooms": 3, "travel": 0.5, "gold": [10, 25],
+		"finds": [[Res.WOOD, 10], [Res.STONE, 10], [Res.IRON, 5]], "books": [Res.NOTEBOOK], "treasure": [Res.NOTEBOOK, Res.NOTEBOOK]},
+	RuinKind.MINE: {"name": "Abandoned mine", "danger": 2, "rooms": 5, "travel": 1.0, "gold": [20, 45],
+		"finds": [[Res.IRON, 10], [Res.COAL, 10], [Res.INGOT, 4], [Res.PICKAXE, 1]], "books": [Res.NOTEBOOK],
+		"treasure": [Res.NOTEBOOK, Res.NOTEBOOK]},
+	RuinKind.CRYPT: {"name": "Crypt", "danger": 3, "rooms": 6, "travel": 1.0, "gold": [35, 70],
+		"finds": [[Res.SWORD, 1], [Res.HELMET, 1], [Res.LEATHER_ARMOR, 1], [Res.INGOT, 6], [Res.CHALICE, 1], [Res.BUST, 1]],
+		"books": [Res.NOTEBOOK, Res.TOME], "treasure": [Res.TOME]},
+	RuinKind.FORT: {"name": "Ruined fort", "danger": 4, "rooms": 8, "travel": 2.0, "gold": [60, 120],
+		"finds": [[Res.CHAINMAIL, 1], [Res.SWORD, 2], [Res.HELMET, 1], [Res.INGOT, 10], [Res.OLD_BANNER, 1], [Res.CROWN, 1]],
+		"books": [Res.TOME, Res.TOME, Res.TOME, Res.CODEX], "treasure": [Res.CODEX]},
+	RuinKind.MONASTERY: {"name": "Buried monastery", "danger": 3, "rooms": 6, "travel": 1.5, "gold": [5, 20],
+		"finds": [], "books": [Res.NOTEBOOK, Res.NOTEBOOK, Res.TOME, Res.CODEX], "always": true, "treasure": [Res.TOME, Res.CODEX]},
+}
+const <b id="c-BOOK_CHANCE">BOOK_CHANCE</b> := 0.35   <i># un libro al posto dell'oggetto del forziere (lo studioso del gruppo la raddoppia)</i>
+const <b id="c-MAP_CHANCE">MAP_CHANCE</b> := 0.15    <i># in un forziere qualunque, la mappa di una rovina che ancora non si conosce</i>
+const <b id="c-TREASURE_GOLD">TREASURE_GOLD</b> := 3    <i># il tesoro dell'ultima stanza: monete di tanti forzieri</i>
+const <b id="c-MAX_PARTY">MAX_PARTY</b> := 4        <i># avventurieri per spedizione</i>
+const <b id="c-HUNGER_HURT">HUNGER_HURT</b> := 20.0   <i># punti ferita al giorno, a testa, senza provviste</i>
+enum <b id="c-Chamber">Chamber</b> { EMPTY, TRAP, MONSTERS, CHEST, COLLAPSE }  <i># cosa c'è in una stanza della rovina (vedi explore)</i>
+const <b id="c-CHAMBER_NAMES">CHAMBER_NAMES</b> := ["an empty room", "a trap", "monsters", "a chest", "a collapse"]  <i># per Chamber, sulla bacheca</i>
+const <b id="c-CHAMBER_ODDS">CHAMBER_ODDS</b> := {Chamber.EMPTY: 25, Chamber.TRAP: 20, Chamber.MONSTERS: 35, Chamber.CHEST: 15, Chamber.COLLAPSE: 5}
+const <b id="c-ROOM_DAYS">ROOM_DAYS</b> := 0.5      <i># giorni per stanza</i>
+const <b id="c-MONSTER_POWER">MONSTER_POWER</b> := 5.0  <i># forza dei mostri per punto di pericolo; il guardiano dell'ultima stanza il doppio</i>
+const <b id="c-MONSTER_HURT">MONSTER_HURT</b> := 20.0  <i># danni a testa: questo x forza dei mostri / forza media del gruppo, poi la protezione</i>
+const <b id="c-TRAP_DISARM">TRAP_DISARM</b> := 0.2    <i># + TRAP_PER_LEVEL per livello di scassinare del migliore</i>
+const <b id="c-TRAP_PER_LEVEL">TRAP_PER_LEVEL</b> := 0.08
+const <b id="c-TRAP_HURT">TRAP_HURT</b> := 15.0     <i># danni per punto di pericolo, a uno a caso, se non la disinnesca nessuno</i>
+const <b id="c-LOCKED">LOCKED</b> := 0.5         <i># forzieri chiusi: li apre solo chi ha scassinare almeno LOCK_PER_DANGER per punto di pericolo</i>
+const <b id="c-LOCK_PER_DANGER">LOCK_PER_DANGER</b> := 2
+const <b id="c-TURN_BACK">TURN_BACK</b> := 40.0     <i># punti ferita sotto cui il gruppo torna indietro</i>
+const <b id="c-FALL_DEATH">FALL_DEATH</b> := 0.5     <i># a 0 punti ferita nella rovina si muore una volta su due; se no lo riportano gli altri</i>
+const <b id="c-CARRIED_HP">CARRIED_HP</b> := 5.0     <i># chi è riportato a casa</i>
+const <b id="c-LOST_AFTER">LOST_AFTER</b> := 2.0     <i># una spedizione da cui non torna nessuno la si dà per persa al doppio del tempo previsto</i></pre>
+<pre><i># Equipaggiamento: un pezzo per slot (vedi Colonist.gear), messo da sé col primo che trova in magazzino (vedi try_equip).</i>
+<i># Nelle mani l'attrezzo della sua abilità migliore tra quelle degli attrezzi ("skill"). Armature: "armor" è la protezione,</i>
+<i># per il combattimento e il freddo che verranno; i bonus li dà solo il pezzo che li ha. Chiavi:</i>
+<i># "time": {Job: tempo x}, "slow": tempo x per ogni lavoro, "hit": a segno + cacciando, "range": caselle di tiro in più,</i>
+<i># "outdoor_stress": stress x lavorando fuori dalle stanze; "look": come si vede addosso (Held in mano, Look sul corpo</i>
+<i># e in testa), "tint": tinta di quel livello (vedi figure_layers)</i>
+enum <b id="c-Slot">Slot</b> { HANDS, BODY, HEAD, SHIELD }  <i># come HUD/ColonistSheet/Box/Equipment/Slots</i>
+enum <b id="c-Held">Held</b> { TOOL, PICKAXE, AXE, SICKLE, SWORD, BOW, DAGGER }  <i># righe di colonist_hands; TOOL: a mani vuote, nei lavori</i>
+enum <b id="c-Look">Look</b> { LEATHER_ARMOR, CHAINMAIL, HELMET, HOOD, SHIELD, QUIVER, MASK, PACK }  <i># righe di colonist_gear</i>
+const <b id="c-GEAR">GEAR</b> := {
+	Res.PICKAXE: {"slot": Slot.HANDS, "skill": Skill.MINING, "time": {Job.MINE: 0.75}, "damage": 10.0,
+		"look": Held.PICKAXE, "info": "Mining 25% faster. Melee damage 10."},
+	Res.AXE: {"slot": Slot.HANDS, "skill": Skill.WOODCUTTING, "time": {Job.CHOP: 0.75}, "damage": 12.0,
+		"look": Held.AXE, "info": "Woodcutting 25% faster. Melee damage 12."},
+	Res.SICKLE: {"slot": Slot.HANDS, "skill": Skill.GATHERING, "time": {Job.HARVEST: 0.75, Job.UPROOT: 0.75}, "damage": 8.0,
+		"look": Held.SICKLE, "info": "Harvesting and uprooting 25% faster. Melee damage 8."},
+	Res.BOW: {"slot": Slot.HANDS, "skill": Skill.HUNTING, "hit": 0.1, "range": 2.0, "shot": 14.0, "look": Held.BOW,
+		"info": "Needed to hunt. Aims with the better of Hunting and Ranged, +10% to hit, 2 more tiles of range. Shoots in a fight (damage 14)."},
+	Res.SWORD: {"slot": Slot.HANDS, "skill": Skill.MELEE, "damage": 15.0, "look": Held.SWORD, "info": "A weapon. Melee damage 15."},
+	Res.LEATHER_ARMOR: {"slot": Slot.BODY, "armor": 2, "outdoor_stress": 0.75, "look": Look.LEATHER_ARMOR, "info": "Light. 25% less stress working outdoors."},
+	Res.LEATHER_HOOD: {"slot": Slot.HEAD, "armor": 1, "hit": 0.05, "look": Look.HOOD, "tint": Color("8a5a34"), "info": "Blends in: +5% to hit when hunting."},
+	Res.HELMET: {"slot": Slot.HEAD, "armor": 3, "time": {Job.MINE: 0.9}, "look": Look.HELMET, "info": "Safe from falling rocks: mining 10% faster."},
+	Res.CHAINMAIL: {"slot": Slot.BODY, "armor": 5, "slow": 1.1, "look": Look.CHAINMAIL, "info": "Heavy: all work 10% slower."},
+	Res.SHIELD: {"slot": Slot.SHIELD, "armor": 3, "look": Look.SHIELD, "info": "Round, iron-rimmed: armor 3, only with a sword or a dagger."},
+	Res.DAGGER: {"slot": Slot.HANDS, "skill": Skill.LOCKPICKING, "damage": 10.0, "look": Held.DAGGER,
+		"info": "A burglar's knife. Melee damage 10."},
+}
+const <b id="c-KIT_ARMOR">KIT_ARMOR</b> := {Look.SHIELD: 3}  <i># protezione del corredo degli avventurieri (vedi gear_sum)</i></pre>
+<pre><i># Produzione (vedi try_craft): [prodotto, mobile, abilità, ingredienti, secondi a livello 5, pezzi (se no 1)]. Il mobile dentro una stanza</i>
+<i># del tipo STATION_ROOM. Si fa ogni prodotto finché ce ne sono meno di quanti chiede il menu della postazione (vedi keep,</i>
+<i># open_craft), e i pezzi che mancano perché ogni colono abbia pieni i suoi slot (vedi gear_wanted); per uno slot, il</i>
+<i># primo in elenco di cui ci sono gli ingredienti.</i>
+<i># Come in cucina: tempo e rischio di rovinarlo (ingredienti persi, vedi burn_chance) secondo livello e comfort</i>
+const <b id="c-RECIPES">RECIPES</b> := [
+	[Res.INGOT, Build.FURNACE, Skill.SMITHING, {Res.IRON: 1, Res.COAL: 1}, 6.0],
+	[Res.BOWSTRING, Build.SPINNING_WHEEL, Skill.TAILORING, {Res.FLAX: 2}, 8.0],  <i># filare il lino: lavoro da sarto</i>
+	[Res.LEATHER_ARMOR, Build.WORKBENCH, Skill.TAILORING, {Res.HIDE: 4}, 20.0],
+	[Res.LEATHER_HOOD, Build.WORKBENCH, Skill.TAILORING, {Res.HIDE: 2}, 12.0],
+	[Res.BOW, Build.CARPENTER_BENCH, Skill.RANGED, {Res.WOOD: 3, Res.BOWSTRING: 1}, 15.0],  <i># l'arco lo fa chi lo sa usare</i>
+	[Res.PICKAXE, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 2, Res.WOOD: 2}, 15.0],
+	[Res.AXE, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 2, Res.WOOD: 2}, 15.0],
+	[Res.SICKLE, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 1, Res.WOOD: 1}, 10.0],
+	[Res.HELMET, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 3}, 20.0],
+	[Res.CHAINMAIL, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 6}, 30.0],
+	[Res.SWORD, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 3, Res.WOOD: 1}, 20.0],
+	[Res.SHIELD, Build.ANVIL, Skill.SMITHING, {Res.WOOD: 3, Res.INGOT: 1}, 15.0],
+	[Res.STEEL, Build.FURNACE, Skill.SMITHING, {Res.INGOT: 2, Res.COAL: 2}, 12.0],
+	[Res.PARCHMENT, Build.WORKBENCH, Skill.TAILORING, {Res.HIDE: 1}, 10.0, 2],  <i># pelle raschiata e tesa</i>
+	[Res.INK, Build.WORKBENCH, Skill.RESEARCH, {Res.COAL: 1, Res.VEG: 1}, 8.0, 2],  <i># nerofumo e succo di bacche</i>
+	[Res.NOTEBOOK, Build.DESK, Skill.RESEARCH, {Res.PARCHMENT: 3, Res.INK: 1}, 30.0],  <i># una copia: anche COPY_STUDY</i>
+	[Res.COAL, Build.FURNACE, Skill.SMITHING, {Res.WOOD: 5}, 10.0, 2],  <i># carbonaia: legna cotta piano, senza aria</i>
+	[Res.HARDTACK, Build.CAMPFIRE, Skill.COOKING, {Res.VEG: 2}, 10.0],  <i># gallette</i>
+	[Res.SMOKED_MEAT, Build.CAMPFIRE, Skill.COOKING, {Res.MEAT: 1}, 8.0],  <i># affumicati</i>
+	[Res.SMOKED_FISH, Build.CAMPFIRE, Skill.COOKING, {Res.FISH: 1}, 8.0],
+]
+const <b id="c-STATION_ROOM">STATION_ROOM</b> := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP,
+	Build.SPINNING_WHEEL: RoomKind.WORKSHOP, Build.CARPENTER_BENCH: RoomKind.CARPENTRY, Build.DESK: RoomKind.STUDY}
+const <b id="c-STOCK">STOCK</b> := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.MEAL: MEALS_PER_COLONIST * COLONIST_COUNT, Res.COAL: 5}  <i># scorte di partenza, vedi keep</i>
+enum <b id="c-Order">Order</b> { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT }  <i># cosa segna il trascinamento del mouse</i></pre>
+<pre><i># tasti in HUD/Tools/Row dopo Build, uno alla volta (ButtonGroup "Orders"): vedi toggle_order</i>
+const <b id="c-ORDER_TOOLS">ORDER_TOOLS</b> := {Order.DEMOLISH: "Destroy", Order.MINE: "Mine", Order.CHOP: "Chop", Order.UPROOT: "Uproot",
+	Order.HARVEST: "Harvest", Order.FISH: "Fish", Order.HUNT: "Hunt"}
+enum <b id="c-RoomKind">RoomKind</b> { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE, WORKSHOP, CARPENTRY, INN, STUDY, THRONE_ROOM, PANTRY }  <i># tipo di stanza, scelto dal cartello</i></pre>
+<pre><i># categoria del tipo: lavoro (niente proprietari, gli si assegnano dei lavoratori), residenza (può avere dei proprietari),</i>
+<i># servizio (comune a tutti, con uno scopo preciso: magazzino, locanda). Senza tipo: nessuna, né proprietari né lavoratori</i>
+enum <b id="c-RoomClass">RoomClass</b> { NONE, WORK, RESIDENCE, SERVICE }
+const <b id="c-ROOM_CLASS">ROOM_CLASS</b> := {
+	RoomKind.WAREHOUSE: RoomClass.SERVICE,
+	RoomKind.BEDROOM: RoomClass.RESIDENCE,
+	RoomKind.DORMITORY: RoomClass.RESIDENCE,
+	RoomKind.KITCHEN: RoomClass.WORK,
+	RoomKind.FORGE: RoomClass.WORK,
+	RoomKind.WORKSHOP: RoomClass.WORK,
+	RoomKind.CARPENTRY: RoomClass.WORK,
+	RoomKind.INN: RoomClass.SERVICE,
+	RoomKind.STUDY: RoomClass.WORK,
+	RoomKind.THRONE_ROOM: RoomClass.WORK,  <i># un solo lavoratore possibile: il sovrano (vedi fill_people)</i>
+	RoomKind.PANTRY: RoomClass.SERVICE,  <i># un magazzino solo per il cibo, che ci dura di più (vedi spoil_rate)</i>
+}</pre>
+<pre><i># titolo della lista di coloni da spuntare nel popup del cartello, per RoomClass (le altre non ce l'hanno)</i>
+const <b id="c-ROOM_PEOPLE">ROOM_PEOPLE</b> := {RoomClass.WORK: "Workers", RoomClass.RESIDENCE: "Owners"}
+enum <b id="c-Build">Build</b> { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE, ANVIL, WORKBENCH,  <i># porta e mobili si attraversano</i>
+	SPINNING_WHEEL, CARPENTER_BENCH,
+	FLOWER_BED, PLANTER, BENCH, BANNER, LANTERN, FOUNTAIN, STATUE,  <i># decorazioni: vedi SPLENDOR</i>
+	NOTICE_BOARD,  <i># la bacheca degli incarichi, nella locanda (vedi open_board)</i>
+	CHALICE, OLD_BANNER, BUST, CROWN,  <i># cimeli: decorazioni fatte con l'oggetto trovato nelle rovine (vedi RELICS)</i>
+	DESK, BOOKSHELF, THRONE,  <i># ricerca: scrittoio e libreria nello studio, trono nella sala del trono (vedi SEAT_ROOM)</i>
+	DUMMY,  <i># il fantoccio: ci si allena nel tempo libero (vedi relax)</i>
+	WATCHTOWER,  <i># la torre di guardia con la campana: lupi visti da lontano, l'arciere lassù tira meglio (vedi TOWER)</i>
+	CANOPY_BED, RUG, WARDROBE,  <i># arredo fine: il baldacchino è un letto (vedi BEDS), tappeto e armadio danno comfort</i>
+	ROAD,  <i># strada lastricata: ci si cammina più svelti (vedi ROAD_SPEED)</i>
+	PALISADE, GATE }  <i># palizzata e cancello: i lupi non passano; non fanno stanze (vedi update_rooms, beast_path)</i></pre>
+<pre><i># materiale per casella; per i mobili, per pezzo</i>
+const <b id="c-BUILD_COST">BUILD_COST</b> := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3,
+	Build.LAMP: 3, Build.CAMPFIRE: 5, Build.FURNACE: 20, Build.ANVIL: 10, Build.WORKBENCH: 15, Build.SPINNING_WHEEL: 10,
+	Build.CARPENTER_BENCH: 15, Build.FLOWER_BED: 3, Build.PLANTER: 5,
+	Build.BENCH: 6, Build.BANNER: 4, Build.LANTERN: 4, Build.FOUNTAIN: 30, Build.STATUE: 40, Build.NOTICE_BOARD: 8,
+	Build.CHALICE: 1, Build.OLD_BANNER: 1, Build.BUST: 1, Build.CROWN: 1, Build.DESK: 10, Build.BOOKSHELF: 12, Build.THRONE: 12, Build.ROAD: 2, Build.DUMMY: 6, Build.WATCHTOWER: 20,
+	Build.CANOPY_BED: 20, Build.RUG: 4, Build.WARDROBE: 12,
+	Build.PALISADE: 4, Build.GATE: 6}</pre>
+<pre><i># caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)</i>
+const <b id="c-FURNITURE">FURNITURE</b> := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
+	Build.CAMPFIRE: Vector2i.ONE, Build.FURNACE: Vector2i.ONE, Build.ANVIL: Vector2i.ONE, Build.WORKBENCH: Vector2i.ONE,
+	Build.SPINNING_WHEEL: Vector2i.ONE, Build.CARPENTER_BENCH: Vector2i.ONE,
+	Build.FLOWER_BED: Vector2i.ONE, Build.PLANTER: Vector2i.ONE, Build.BENCH: Vector2i(2, 1), Build.BANNER: Vector2i.ONE,
+	Build.LANTERN: Vector2i.ONE, Build.FOUNTAIN: Vector2i(2, 2), Build.STATUE: Vector2i(2, 2), Build.NOTICE_BOARD: Vector2i.ONE,
+	Build.CHALICE: Vector2i.ONE, Build.OLD_BANNER: Vector2i.ONE, Build.BUST: Vector2i.ONE, Build.CROWN: Vector2i.ONE,
+	Build.DESK: Vector2i.ONE, Build.BOOKSHELF: Vector2i.ONE, Build.THRONE: Vector2i.ONE, Build.DUMMY: Vector2i.ONE,
+	Build.WATCHTOWER: Vector2i.ONE, Build.CANOPY_BED: Vector2i(2, 1), Build.RUG: Vector2i(2, 1), Build.WARDROBE: Vector2i.ONE}</pre>
+<pre><i># mobili animati: secondi per fotogramma; i fotogrammi stanno nelle colonne dei quarti di giro (sono simmetrici)</i>
+const <b id="c-ANIMATED">ANIMATED</b> := {Build.CAMPFIRE: 0.15, Build.BANNER: 0.3, Build.FOUNTAIN: 0.2}
+const <b id="c-ANY_MATERIAL">ANY_MATERIAL</b> := [Build.WALL, Build.FLOOR]  <i># di legno o di pietra</i>
+const <b id="c-BARRIERS">BARRIERS</b> := [Build.WALL, Build.PALISADE]  <i># solidi: si fanno solo lungo il bordo del riquadro, chiudono la strada</i>
+const <b id="c-PAVING">PAVING</b> := [Build.FLOOR, Build.PATH, Build.ROAD]  <i># a terra: si calpestano, ci stanno sopra i mobili, l'erba ci sborda sopra</i></pre>
+<pre><i># materiale fisso; il resto solo di legno</i>
+<i># i cimeli: la decorazione si fa con l'oggetto trovato nelle rovine, uno a pezzo</i>
+const <b id="c-RELICS">RELICS</b> := {Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}
+const <b id="c-BUILD_RES">BUILD_RES</b> := {Build.PATH: Res.STONE, Build.ROAD: Res.STONE, Build.RUG: Res.HIDE, Build.FURNACE: Res.STONE, Build.ANVIL: Res.IRON, Build.PLANTER: Res.STONE, Build.FOUNTAIN: Res.STONE,
+	Build.STATUE: Res.STONE, Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}</pre>
+<pre><i># mobili che servono perché il cartello lasci scegliere il tipo di stanza: tipo -&gt; {mobile: almeno quanti}</i>
+<i># ponytail: la cucina accetterà anche la stufa, quando ci sarà: allora "uno tra" invece di "tutti"</i>
+const <b id="c-ROOM_NEEDS">ROOM_NEEDS</b> := {
+	RoomKind.BEDROOM: {Build.BED: 1},
+	RoomKind.DORMITORY: {Build.BED: 2},
+	RoomKind.KITCHEN: {Build.CAMPFIRE: 1},
+	RoomKind.FORGE: {Build.FURNACE: 1, Build.ANVIL: 1},
+	RoomKind.WORKSHOP: {Build.WORKBENCH: 1},
+	RoomKind.CARPENTRY: {Build.CARPENTER_BENCH: 1},
+	RoomKind.INN: {Build.BED: 1, Build.TABLE: 1, Build.NOTICE_BOARD: 1},
+	RoomKind.STUDY: {Build.DESK: 1},
+	RoomKind.THRONE_ROOM: {Build.THRONE: 1},
+}</pre>
+<pre><i># comfort di una stanza, 0-COMFORT_MAX: lo danno i mobili (per pezzo) e il pavimento (tutto se copre la stanza intera),</i>
+<i># per il materiale. A metà né bonus né malus; fuori dalle stanze è 0. Vedi room_comfort e comfort_of</i>
+const <b id="c-COMFORT_MAX">COMFORT_MAX</b> := 10
+const <b id="c-BEDS">BEDS</b> := [Build.BED, Build.CANOPY_BED]  <i># ci si dorme; per le camere il baldacchino vale un letto (vedi room_meets)</i>
+const <b id="c-COMFORT">COMFORT</b> := {Build.CANOPY_BED: 2.0, Build.RUG: 1.0, Build.WARDROBE: 1.0, Build.FLOOR: 1.0, Build.BED: 1.0, Build.TABLE: 1.0, Build.CHAIR: 0.5, Build.LAMP: 0.5, Build.CAMPFIRE: 0.5,
+	Build.BENCH: 0.5}
+const <b id="c-COMFORT_MATERIAL">COMFORT_MATERIAL</b> := {Res.STONE: 1.5}  <i># il resto vale 1</i>
+const <b id="c-COMFORT_EFFECT">COMFORT_EFFECT</b> := 0.2  <i># a comfort 0 un'attività richiede il 20% di tempo in più, al massimo il 20% in meno</i></pre>
+<pre><i># Freddo e pioggia tolgono comfort, anche sotto lo 0 (vedi weather_comfort): -1 ogni COLD_STEP gradi sotto COLD_FROM;</i>
+<i># fuori, sotto la pioggia, fino a -WET_COMFORT. Sotto un tetto la temperatura va a metà strada (INSULATION) verso</i>
+<i># ROOM_TEMP e non piove; ogni fuoco da campo della stanza la alza di FIRE_HEAT; ogni punto di protezione addosso vale un</i>
+<i># grado. Da svegli il comfort cala di DISCOMFORT_DROP al giorno per ogni punto tolto; risale solo dormendo</i>
+const <b id="c-COLD_FROM">COLD_FROM</b> := 12.0
+const <b id="c-COLD_STEP">COLD_STEP</b> := 4.0
+const <b id="c-WET_COMFORT">WET_COMFORT</b> := 2.0
+const <b id="c-ROOM_TEMP">ROOM_TEMP</b> := 15.0
+const <b id="c-INSULATION">INSULATION</b> := 0.5
+const <b id="c-FIRE_HEAT">FIRE_HEAT</b> := 8.0       <i># ponytail: uguale in ogni stanza; secondo le caselle da scaldare se le stanze si fanno grandi</i>
+const <b id="c-DISCOMFORT_DROP">DISCOMFORT_DROP</b> := 24.0  <i># uno all'ora per punto</i></pre>
+<pre><i># splendore della colonia: lo danno le decorazioni finite, dentro e fuori dalle stanze (vedi colony_splendor).</i>
+<i># ponytail: per ora solo il totale in alto; poi terrà felici i coloni e sbloccherà cose (strade, feste: vedi GDD)</i>
+const <b id="c-SPLENDOR">SPLENDOR</b> := {Build.FLOWER_BED: 1, Build.PLANTER: 1, Build.BENCH: 1, Build.BANNER: 2, Build.LANTERN: 1,
+	Build.FOUNTAIN: 6, Build.STATUE: 8, Build.CHALICE: 3, Build.OLD_BANNER: 4, Build.BUST: 5, Build.CROWN: 6}
+const <b id="c-ROOM_SPACE">ROOM_SPACE</b> := 6        <i># caselle a testa: chi ne ha meno (stanza piena di gente) ha il comfort in proporzione</i></pre>
+<pre><i># suggerimento dei pulsanti di costruzione (vedi build_tip): sotto nome e costo il comfort, poi la descrizione colorata</i>
+<i># menù delle opzioni (Esc o ingranaggio), tab Keybindings: tasti di partenza dei comandi della barra in basso, per</i>
+<i># nome del pulsante in HUD/Tools/Row (quelli che non ci sono partono senza). Cambiati, si salvano: vedi bind_key</i>
+const <b id="c-DEFAULT_KEYS">DEFAULT_KEYS</b> := {"Select": KEY_Q, "Build": KEY_B, "Destroy": KEY_X, "Mine": KEY_M, "Chop": KEY_C, "Uproot": KEY_U,
+	"Harvest": KEY_H, "Fish": KEY_F, "Hunt": KEY_T, "Jobs": KEY_J, "Resources": KEY_I, "Knowledge": KEY_K, "Laws": KEY_G,
+	"RoomsLens": KEY_L, "Roofs": KEY_V, "Wiki": KEY_F1}
+const <b id="c-SPEEDS">SPEEDS</b> := {"Pause": 0.0, "Play": 1.0, "Fast": 2.0, "Fastest": 3.0}  <i># pulsanti in alto a destra, come Space e 1-3</i></pre>
+<pre><i># tab Video delle opzioni: misure della finestra, solo quelle che stanno nello schermo (la prima sempre)</i>
+const <b id="c-RESOLUTIONS">RESOLUTIONS</b> := [Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440)]</pre>
+<pre><i># tab System delle opzioni: lingue, col nome nella loro lingua; i testi tradotti sono in locale/translations.csv</i>
+const <b id="c-LANGUAGES">LANGUAGES</b> := {"en": "English", "it": "Italiano"}
+const <b id="c-FIXED_KEYS">FIXED_KEYS</b> := [KEY_SPACE, KEY_1, KEY_2, KEY_3, KEY_E, KEY_R, KEY_ESCAPE]  <i># velocità, giro dei mobili, menù</i>
+const <b id="c-MODIFIER_KEYS">MODIFIER_KEYS</b> := [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]  <i># da soli non sono un tasto</i>
+const <b id="c-BUILD_INFO">BUILD_INFO</b> := {
+	Build.WALL: "Blocks the way. Walls with a door around an area make a room.",
+	Build.FLOOR: "Paves the ground. Furniture can stand on it.",
+	Build.DOOR: "Colonists walk through it. A room needs one to be entered.",
+	Build.PATH: "A trodden earth path with pebbles. Grass grows over its edges.",
+	Build.ROAD: "Stone slabs, fitted tight. Walking on them is 25% faster.",
+	Build.PALISADE: "Sharpened stakes. Wolves cannot get through; it does not make a room.",
+	Build.GATE: "A gate in the palisade: colonists and guests pass, wolves do not.",
+	Build.BED: "A place to sleep. A bedroom needs one, a dormitory two.",
+	Build.TABLE: "Where colonists eat and work.",
+	Build.CHAIR: "Put it at a table, turned to face it.",
+	Build.LAMP: "Lights up at night.",
+	Build.CAMPFIRE: "A wood fire inside a ring of stones. Burns day and night and warms the room. A kitchen needs one.",
+	Build.FURNACE: "A stone furnace. A forge needs one, and an anvil. Smelts iron and coal into ingots.",
+	Build.ANVIL: "An iron anvil on a stump. A forge needs one, and a furnace. Tools and metal armor are made here.",
+	Build.WORKBENCH: "A sturdy bench. A workshop needs one. Leather armor is made here.",
+	Build.SPINNING_WHEEL: "Spins flax into bowstrings. Works in a workshop.",
+	Build.CARPENTER_BENCH: "A bench with a vise and a saw. A carpentry needs one. Bows are made here.",
+	Build.FLOWER_BED: "A wooden box of soil and flowers.",
+	Build.PLANTER: "A stone urn overflowing with flowers.",
+	Build.BENCH: "A wooden bench to rest along the roads.",
+	Build.BANNER: "The banner of your house, waving in the wind.",
+	Build.LANTERN: "A lantern on a post. Lights up the roads at night.",
+	Build.FOUNTAIN: "A stone basin with a jet of water. The pride of the square.",
+	Build.STATUE: "The king in stone, hands on his sword, on a gilded plinth.",
+	Build.NOTICE_BOARD: "Notices pinned to a board. An inn needs one, a bed and a table. Click it to hire adventurers.",
+	Build.CHALICE: "A silver chalice set with a ruby, from a forgotten altar. Only adventurers find these, in ruins.",
+	Build.OLD_BANNER: "A torn banner of a fallen house. Only adventurers find these, in ruins.",
+	Build.BUST: "The stone face of a king nobody remembers. Only adventurers find these, in ruins.",
+	Build.CROWN: "A jeweled crown on a velvet cushion. Only adventurers find these, in ruins.",
+	Build.DESK: "An open book and a candle. A study needs one: colonists write study here, one at a time.",
+	Build.BOOKSHELF: "Shelves of books. +10% study in the room, up to three.",
+	Build.THRONE: "Where the ruler governs. A throne room needs one: the ruler gathers authority here.",
+	Build.WATCHTOWER: "A wooden lookout with a bell: wolves are seen 20 tiles away. An archer standing on it shoots 2 tiles farther, +15% to hit.",
+	Build.CANOPY_BED: "A bed fit for a ruler, under a purple canopy. Sleeps like a bed, with twice the comfort.",
+	Build.RUG: "A rug of tanned hides. +1 comfort.",
+	Build.WARDROBE: "An oak wardrobe. +1 comfort.",
+	Build.DUMMY: "A straw dummy on a post. In their free time colonists train here: fun, and melee experience.",
+}
+enum <b id="c-Facing">Facing</b> { DOWN, LEFT, RIGHT, UP }  <i># righe del foglio</i>
+enum <b id="c-TreeKind">TreeKind</b> { OAK, PINE, BIRCH }     <i># colonne del foglio alberi</i>
+const <b id="c-TREE_LOGS">TREE_LOGS</b> := {TreeKind.OAK: 28, TreeKind.PINE: 35, TreeKind.BIRCH: 20}  <i># tronchi di un albero intero</i></pre>
+<pre><i># fogli 128x64 generati da tools/make_sprites.py; quelli con più voci le hanno una sotto l'altra (vedi figure_layers)</i>
+const <b id="c-WALK_CYCLE">WALK_CYCLE</b> := [0, 1, 0, 2]  <i># colonne del foglio: fermo, passo A, fermo, passo B</i>
+const <b id="c-WORK_CYCLE">WORK_CYCLE</b> := [3, 3, 4]     <i># carica, carica, colpo: per ogni lavoro a tempo (taglio, scavo, costruzione)</i>
+const <b id="c-BOW_LOOSE">BOW_LOOSE</b> := 6              <i># arco con la corda lenta: appena scoccato, poi lo tende (BOW_DRAW) fino al tiro</i>
+const <b id="c-BOW_DRAW">BOW_DRAW</b> := 7
+const <b id="c-BOW_LOOSE_PART">BOW_LOOSE_PART</b> := 0.25      <i># parte del tempo di mira con la corda ancora lenta</i>
+const <b id="c-SWING_TIME">SWING_TIME</b> := 0.6           <i># secondi per colpo</i>
+const <b id="c-IDLE_CYCLE">IDLE_CYCLE</b> := [0, 0, 5]     <i># fermo, fermo, respiro: chi non ha niente da fare</i>
+const <b id="c-BREATH_TIME">BREATH_TIME</b> := 2.0          <i># secondi per respiro</i>
+const <b id="c-LOOK_TIME">LOOK_TIME</b> := 3.0            <i># secondi, in media, tra un'occhiata e l'altra di chi è fermo</i></pre>
+<pre><i># 128x544, righe: mobili nell'ordine di Build; colonne: quarti di giro in senso orario, ognuno in un riquadro 32x32</i>
+const <b id="c-DAY_LENGTH">DAY_LENGTH</b> := 240.0   <i># secondi per giorno a velocità 1x</i></pre>
+<pre><i># Calendario: l'anno si apre col Capodanno (NEW_YEAR), poi quattro stagioni di 3 mesi da MONTH_DAYS giorni, ognuna</i>
+<i># chiusa da un giorno di festa fuori dai mesi (FEASTS): 1 + 4 × 91 = 365 giorni. Il giorno 0 di `clock` è il Capodanno</i>
+<i># dell'anno 1 (vedi date, season, feast)</i>
+const <b id="c-MONTH_DAYS">MONTH_DAYS</b> := 30
+const <b id="c-SEASON_DAYS">SEASON_DAYS</b> := 3 * MONTH_DAYS + 1
+const <b id="c-YEAR_DAYS">YEAR_DAYS</b> := 1 + 4 * SEASON_DAYS
+const <b id="c-SEASONS">SEASONS</b> := ["Spring", "Summer", "Autumn", "Winter"]
+const <b id="c-WINTER">WINTER</b> := 3  <i># in SEASONS: niente bacche né lino (vedi new_day)</i>
+const <b id="c-MONTHS">MONTHS</b> := ["Thaw", "Sowing", "Blossom", "Highsun", "Haying", "Ripening", "Reaping", "Leaffall", "Mists",
+	"Frost", "Deepsnow", "Longnight"]
+const <b id="c-NEW_YEAR">NEW_YEAR</b> := "Crown Day"
+const <b id="c-FEASTS">FEASTS</b> := ["Flower Feast", "Sickle Feast", "Hearth Feast", "Candle Feast"]  <i># a fine primavera, estate, autunno, inverno</i></pre>
+<pre><i># Ombre col sole sempre a picco: ognuna sta sotto chi la fa e non si muove con l'ora. Mobili, alberi, rocce e cespugli</i>
+<i># ce l'hanno disegnata nello sprite (la "z" di tools/make_sprites.py); a coloni, animali e muri la aggiunge draw_shadows.</i>
+const <b id="c-SHADOW_WIDTH">SHADOW_WIDTH</b> := 10    <i># pixel: ovale sotto i piedi dei coloni (gli animali hanno il loro in BEASTS)</i>
+const <b id="c-SHADOW_WALL">SHADOW_WALL</b> := 2      <i># righe d'ombra sotto muri e porte, dove sotto non c'è un altro muro</i>
+const <b id="c-WALL_FRONT">WALL_FRONT</b> := 10      <i># pixel: la facciata in fondo allo sprite del muro (vedi wall in tools/make_sprites.py)</i></pre>
+<pre><i># righe di GROUND: 4 varianti per terreno, poi i bordi che un terreno disegna su quello vicino; gli angoli 3 righe più giù</i>
+enum <b id="c-Ground">Ground</b> { GRASS, STONY_GRASS, GRAVEL, SHALLOW, DEEP, GRASS_EDGE, SHORE, SHALLOW_EDGE }
+const <b id="c-EDGE_SIDES">EDGE_SIDES</b> := [Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]          <i># colonne dei lati in GROUND</i>
+const <b id="c-EDGE_CORNERS">EDGE_CORNERS</b> := [Vector2i(-1, -1), Vector2i(1, -1), Vector2i(1, 1), Vector2i(-1, 1)]  <i># colonne degli angoli</i>
+const <b id="c-SHALLOW_COST">SHALLOW_COST</b> := 3.0  <i># i coloni guadano l'acqua bassa solo se il giro all'asciutto è molto più lungo</i></pre>
+<pre><i># 256x128, righe: muri di legno, muri di pietra (colonna = lati collegati, vedi WALL_LINKS), pavimenti (colonna = Res,</i>
+<i># poi il sentiero), porte (di fronte, di lato), erba sui pavimenti (lati, angoli, due varianti); vedi structure_src e draw_grass_over</i>
+const <b id="c-WALL_LINKS">WALL_LINKS</b> := [Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]  <i># bit 1, 2, 4, 8 della colonna dei muri</i></pre>
+<pre><i># scheda del colono, vedi open_sheet</i>
+enum <b id="c-Skill">Skill</b> { GATHERING, MINING, WOODCUTTING, CONSTRUCTION, SMITHING, TAILORING, COOKING, FISHING, HUNTING, MELEE, RANGED, RESEARCH,
+	LOCKPICKING }  <i># scassinare: per ora solo gli scassinatori (vedi HEROES)</i>
+const <b id="c-SKILL_MAX">SKILL_MAX</b> := 10       <i># livelli 0-10 (si parte da 0): al massimo, nella scheda, compare la stellina</i></pre>
+<pre><i># raccolta: [abilità, secondi per colpo a livello 5 (vedi gather_time), quantità per colpo, risorsa]; i massi con la</i>
+<i># vena danno il minerale (vedi ores). 1 punto esperienza nell'abilità a raccolta finita (albero abbattuto, masso</i>
+<i># scavato, cespuglio spogliato), non a colpo</i>
+const <b id="c-GATHER">GATHER</b> := {
+	Job.CHOP: [Skill.WOODCUTTING, 10.0, 5, Res.WOOD],
+	Job.MINE: [Skill.MINING, 15.0, 5, Res.STONE],
+	Job.HARVEST: [Skill.GATHERING, 5.0, 1, Res.VEG],  <i># solo i cespugli segnati con "Harvest" (vedi harvest_marks)</i>
+	Job.FISH: [Skill.FISHING, 10.0, 1, Res.FISH],      <i># un lancio; il pesce solo con catch_chance (vedi fish_marks)</i>
+}
+const <b id="c-MAX_HP">MAX_HP</b> := 100</pre>
+<pre><i># Routine: ogni ora del giorno, da mezzanotte, è sonno (S), lavoro (W) o tempo libero (F), vedi routine_of.</i>
+<i># Base: dorme 22-6, colazione alle 6, lavora 7-12 e 13-18 con il pranzo in mezzo, la sera è libera.</i>
+<i># Nelle ore di lavoro si lavora al più WORK_HOURS ore (per giornata, da quando ci si alza): poi è tempo libero</i>
+enum <b id="c-Act">Act</b> { SLEEP, WORK, FREE }
+const <b id="c-ROUTINE">ROUTINE</b> := "SSSSSSFWWWWWFWWWWWFFFFSS"
+const <b id="c-ROUTINE_LETTERS">ROUTINE_LETTERS</b> := "SWF"  <i># nell'ordine di Act</i>
+const <b id="c-ROUTINE_NAMES">ROUTINE_NAMES</b> := ["Sleep", "Work", "Free time"]
+const <b id="c-WORK_HOURS">WORK_HOURS</b> := 8.0
+const <b id="c-RELAX_HOURS">RELAX_HOURS</b> := 1.0     <i># una pausa (al fuoco da campo o a passeggio), poi si rivaluta: vedi relax</i>
+const <b id="c-RELAX_REACH">RELAX_REACH</b> := 6       <i># caselle: quanto lontano va a passeggiare</i>
+const <b id="c-SNACK">SNACK</b> := 60.0          <i># nel tempo libero mangia già sotto questa soglia di cibo: ai pasti</i>
+const <b id="c-RISE">RISE</b> := 80.0           <i># finite le ore di sonno si alza con almeno questo riposo (la pennichella non dura ore)</i></pre>
+<pre><i># talenti: cambiano la routine e i ritmi dei bisogni (vedi TRAIT_FX); colonne di TRAITS_SHEET, 16x16 ciascuno</i>
+enum <b id="c-Trait">Trait</b> { GLUTTON, SLEEPWALKER, HOTHEAD, LAZY, WORKAHOLIC, EARLY_BIRD, NIGHT_OWL, SLEEPYHEAD, TIRELESS, FUN_LOVING,
+	ASCETIC, SMALL_APPETITE, EASYGOING, NAPPER, RESTLESS }
+const <b id="c-TRAIT_INFO">TRAIT_INFO</b> := {  <i># suggerimento col mouse sopra il talento: com'è, poi cosa cambia</i>
+	Trait.GLUTTON: "Always thinking about the next meal.\nGets hungry 50% faster, eats at half hunger and snacks in free time.\nDouble joy from meals, hates raw food.",
+	Trait.SLEEPWALKER: "Sometimes wanders off in their sleep.\nMay get up at night and sleep wherever they end up.",
+	Trait.HOTHEAD: "Loses their temper easily.\nStress from work +50%. At 90 storms off for two hours.",
+	Trait.LAZY: "Would rather be anywhere else.\nWorks at most 6 hours a day.",
+	Trait.WORKAHOLIC: "Lives for the job.\nWorks up to 12 hours a day, free time too. Gets bored half as fast.",
+	Trait.EARLY_BIRD: "Up before the rooster.\nWhole day two hours earlier: sleeps 20-4.",
+	Trait.NIGHT_OWL: "Comes alive after dark.\nSleeps by day (10-18), works by night.",
+	Trait.SLEEPYHEAD: "Hard to get out of bed.\nNeeds 10 hours of sleep: sleeps until 8.",
+	Trait.TIRELESS: "Six hours of sleep are plenty.\nSleeps 0-6, gets tired 25% slower.",
+	Trait.FUN_LOVING: "Work can wait, fun can't.\nGets bored twice as fast. Stops work at 17.",
+	Trait.ASCETIC: "Wants nothing but the essentials.\nNever needs fun.",
+	Trait.SMALL_APPETITE: "Eats like a sparrow.\nGets hungry 40% slower, never snacks.",
+	Trait.EASYGOING: "Nothing ruffles them.\nHalf the stress from work.",
+	Trait.NAPPER: "A nap after lunch, every day.\nSleeps 13-14, goes to bed at 23.",
+	Trait.RESTLESS: "Can't keep at one thing for long.\nAfter 2 hours of work in a row, takes an hour off.",
+}</pre>
+<pre><i># condizioni: effetti a tempo, con un'icona 16x16 nella scheda (colonne di CONDITIONS_SHEET nell'ordine di Cond).</i>
+<i># Dati: [giorni, tempo di lavoro x, stress da lavoro x, felicità +, descrizione]. Vedi add_cond, work_factor, update_needs</i>
+enum <b id="c-Cond">Cond</b> { POISONED, WELL_FED, FEASTED, AT_TABLE, ATE_RAW, MOURNING, FESTIVE, PILLORIED, HEARD }
+const <b id="c-COND_INFO">COND_INFO</b> := {
+	Cond.POISONED: [1.0, 1.5, 1.0, -20.0, "Ate raw food that was going bad. Works slowly."],
+	Cond.WELL_FED: [0.5, 0.9, 0.75, 5.0, "Had a cooked meal. Works faster, less stress."],
+	Cond.FEASTED: [0.5, 0.8, 0.5, 10.0, "Had a fine meal. Works much faster, much less stress."],
+	Cond.AT_TABLE: [0.5, 1.0, 1.0, 5.0, "Ate sitting at a table."],
+	Cond.ATE_RAW: [0.5, 1.0, 1.0, -10.0, "A glutton forced to eat raw food."],
+	Cond.MOURNING: [3.0, 1.0, 1.25, -15.0, "A fellow colonist has died."],
+	Cond.FESTIVE: [3.0, 1.0, 1.0, 10.0, "Celebrated a feast."],
+	Cond.PILLORIED: [1.0, 1.0, 1.0, -10.0, "Put in the stocks for a tantrum or a protest."],
+	Cond.HEARD: [0.5, 1.0, 1.0, 10.0, "The ruler listened to their complaint."],
+}
+const <b id="c-GLUTTON_MOOD">GLUTTON_MOOD</b> := 2.0  <i># il goloso: tanta felicità in più (o in meno) da quello che mangia</i>
+const <b id="c-FOOD_CONDS">FOOD_CONDS</b> := [Cond.WELL_FED, Cond.FEASTED, Cond.AT_TABLE, Cond.ATE_RAW]</pre>
+<pre><i># Effetti dei talenti, vedi fx. "hours": ore della routine base cambiate (prima di spostarla); "shift": ore di cui si</i>
+<i># sposta tutta la giornata; "overtime": lavora anche nel tempo libero; "work": ore di lavoro al giorno.</i>
+<i># Ritmi, si moltiplicano tra talenti: "food" fame, "rest" stanchezza, "fun" noia, "stress" stress dal lavoro,</i>
+<i># "sleep" ore di sonno per riposarsi del tutto. "snack": soglia di cibo per mangiare nel tempo libero (0: mai);</i>
+<i># "tantrum": stress a cui si arrabbia e se ne va (vedi tantrum); "sleepwalk": probabilità all'ora di alzarsi nel sonno;</i>
+<i># "streak": ore di lavoro di fila prima di una pausa</i>
+const <b id="c-TRAIT_FX">TRAIT_FX</b> := {
+	Trait.GLUTTON: {"food": 1.5, "snack": 85.0},
+	Trait.SLEEPWALKER: {"sleepwalk": 0.1},
+	Trait.HOTHEAD: {"stress": 1.5, "tantrum": 90.0},
+	Trait.LAZY: {"work": 6.0},
+	Trait.WORKAHOLIC: {"work": 12.0, "overtime": true, "fun": 0.5},
+	Trait.EARLY_BIRD: {"shift": -2},
+	Trait.NIGHT_OWL: {"shift": 12},
+	Trait.SLEEPYHEAD: {"hours": {6: "S", 7: "S"}, "sleep": 10.0 / 8},
+	Trait.TIRELESS: {"hours": {22: "F", 23: "F"}, "sleep": 6.0 / 8, "rest": 0.75},
+	Trait.FUN_LOVING: {"hours": {17: "F"}, "fun": 2.0},
+	Trait.ASCETIC: {"fun": 0.0},
+	Trait.SMALL_APPETITE: {"food": 0.6, "snack": 0.0},
+	Trait.EASYGOING: {"stress": 0.5},
+	Trait.NAPPER: {"hours": {13: "S", 22: "F"}},
+	Trait.RESTLESS: {"streak": 2.0},
+}
+const <b id="c-FX_RATES">FX_RATES</b> := ["food", "rest", "fun", "stress", "sleep"]  <i># questi si moltiplicano; gli altri vale l'ultimo talento</i>
+const <b id="c-TRAIT_CLASH">TRAIT_CLASH</b> := [  <i># mai insieme nello stesso colono</i>
+	[Trait.GLUTTON, Trait.SMALL_APPETITE], [Trait.LAZY, Trait.WORKAHOLIC], [Trait.EARLY_BIRD, Trait.NIGHT_OWL],
+	[Trait.SLEEPYHEAD, Trait.TIRELESS], [Trait.FUN_LOVING, Trait.ASCETIC], [Trait.HOTHEAD, Trait.EASYGOING],
+]</pre>
+<pre><i># punti abilità che un talento costa al sovrano, nella creazione: i pregi costano, i difetti ne danno; gli altri niente</i>
+const <b id="c-TRAIT_COST">TRAIT_COST</b> := {Trait.WORKAHOLIC: 2, Trait.TIRELESS: 2, Trait.EASYGOING: 2, Trait.ASCETIC: 2, Trait.SMALL_APPETITE: 2,
+	Trait.LAZY: -2, Trait.HOTHEAD: -2, Trait.SLEEPYHEAD: -2, Trait.RESTLESS: -2, Trait.SLEEPWALKER: -2, Trait.GLUTTON: -2,
+	Trait.FUN_LOVING: -2}
+const <b id="c-TANTRUM_HOURS">TANTRUM_HOURS</b> := 2.0   <i># quanto dura la sfuriata dell'iracondo; intanto lo stress scende TANTRUM_VENT volte più in fretta</i>
+const <b id="c-TANTRUM_VENT">TANTRUM_VENT</b> := 4.0
+const <b id="c-TANTRUM_REACH">TANTRUM_REACH</b> := 8     <i># caselle: quanto lontano va a sbollire</i>
+const <b id="c-SLEEPWALK_REACH">SLEEPWALK_REACH</b> := 5   <i># caselle: quanto lontano va il sonnambulo</i></pre>
+<pre><i># bisogni, barre 0-NEED_MAX nella scheda: 100 = sazio, riposato, divertito, comodo, felice; lo stress al contrario,</i>
+<i># 100 = al limite. Ritmi "al giorno" di gioco</i>
+enum <b id="c-Need">Need</b> { FOOD, REST, FUN, COMFORT, HAPPINESS, STRESS }
+const <b id="c-NEED_MAX">NEED_MAX</b> := 100.0
+const <b id="c-NEED_LOW">NEED_LOW</b> := 30.0      <i># affamato: va a mangiare dei vegetali; stanco: cerca un letto libero</i>
+const <b id="c-EXHAUSTED">EXHAUSTED</b> := 10.0     <i># stremato: lascia il lavoro e dorme dove si trova</i>
+const <b id="c-FOOD_DROP">FOOD_DROP</b> := 90.0     <i># al giorno</i>
+const <b id="c-REST_DROP">REST_DROP</b> := 100.0    <i># al giorno, da sveglio</i>
+const <b id="c-SLEEP_TIME">SLEEP_TIME</b> := 8.0 / 24  <i># giorni di sonno per riposarsi del tutto, a comfort medio (vedi comfort_time)</i>
+const <b id="c-STRESS_WORK">STRESS_WORK</b> := 30.0   <i># al giorno, lavorando: sale</i>
+const <b id="c-STRESS_RELIEF">STRESS_RELIEF</b> := 60.0 <i># al giorno, dormendo, mangiando o senza niente da fare: scende</i>
+const <b id="c-GLUTTON_HUNGER">GLUTTON_HUNGER</b> := 50.0  <i># il goloso va a mangiare già qui, invece che sotto NEED_LOW</i>
+const <b id="c-FUN_DROP">FUN_DROP</b> := 120.0     <i># al giorno, da sveglio e senza svago: scende</i>
+const <b id="c-FUN_GAIN">FUN_GAIN</b> := 300.0     <i># al giorno, svagandosi (vedi relax): sale</i>
+const <b id="c-MOOD_SPEED">MOOD_SPEED</b> := 50.0    <i># al giorno: la felicità va verso la media di cibo, riposo, divertimento, comfort e calma</i></pre>
+<pre><i># barra: stremato, basso, a posto; tingono BAR_FILL, grigia (85%) nel mezzo e bianca sopra: lì risultano più chiari</i>
+enum <b id="c-Sex">Sex</b> { MALE, FEMALE }
+const <b id="c-SEX_NAMES">SEX_NAMES</b> := ["Male", "Female"]
+const <b id="c-FIRST_NAMES">FIRST_NAMES</b> := {
+	Sex.MALE: ["Aldo", "Corrado", "Folco", "Ilario", "Odo", "Ugo", "Bertrand", "Gualtiero"],
+	Sex.FEMALE: ["Bertha", "Edda", "Gisella", "Matilde", "Rosalind", "Wilma", "Adelaide", "Ottavia"],
+}</pre>
+<pre><i># acconciatura: la calotta di colonist_hair ce l'hanno tutti; LONG e BRAID aggiungono la riga omonima di colonist_hair_styles</i>
+enum <b id="c-Hair">Hair</b> { SHORT, LONG, BRAID }
+const <b id="c-HAIR_STYLES">HAIR_STYLES</b> := {Sex.MALE: [Hair.SHORT], Sex.FEMALE: [Hair.LONG, Hair.BRAID]}
+const <b id="c-BEARD">BEARD</b> := 2           <i># riga della barba in colonist_hair_styles</i>
+const <b id="c-BEARD_CHANCE">BEARD_CHANCE</b> := 0.5  <i># uomini con la barba</i>
+const <b id="c-NICKNAMES">NICKNAMES</b> := ["Badger", "Crow", "Lefty", "Moss", "Pebble", "Red", "Stub", "Thistle"]
+const <b id="c-LAST_NAMES">LAST_NAMES</b> := ["Ashdown", "Barrow", "Cooper", "Fenwick", "Hale", "Marsh", "Thatcher", "Woodward"]</pre>
+<pre><i># Il sovrano (GDD 4.3): il primo colono, lo crea il giocatore (vedi creation.gd) coi RULER_POINTS punti abilità, al</i>
+<i># massimo RULER_SKILL_CAP per abilità. Senza (nei test) è uno a caso</i>
+const <b id="c-COLONY_NAMES">COLONY_NAMES</b> := ["Valbruna", "Ashford", "Roccalta", "Greywater", "Montalto", "Fernhill", "Pietrabianca", "Oakmere"]
+const <b id="c-RULER_POINTS">RULER_POINTS</b> := 12
+const <b id="c-RULER_SKILL_CAP">RULER_SKILL_CAP</b> := 3
+const <b id="c-RULER_TRAITS">RULER_TRAITS</b> := 2     <i># talenti che si scelgono al massimo, mai due in contrasto (vedi TRAIT_CLASH)</i></pre>
+<pre><i># Titolo (GDD 4.3), indice di TITLES: signoria, baronia, contea, regno. È della casata e cresce, mai cala, quando lo</i>
+<i># splendore della colonia arriva a "splendor" (vedi tick, rise): cambiano il nome del reame, il titolo del sovrano (per</i>
+<i># Sex), la corona sullo stemma (vedi arms_texture), i sigilli delle leggi e l'autorità di ogni giorno (AUTHORITY_DAILY</i>
+<i># a titolo). Le leggi di una fascia ("tier" in LAWS) si codificano da quel titolo in su.</i>
+<i># ponytail: soglie provvisorie, e solo lo splendore: anche il numero di coloni quando la colonia potrà crescere</i>
+const <b id="c-TITLES">TITLES</b> := [
+	{"realm": "Lordship", "ruler": ["Lord", "Lady"], "splendor": 0, "seals": 2},
+	{"realm": "Barony", "ruler": ["Baron", "Baroness"], "splendor": 15, "seals": 3},
+	{"realm": "County", "ruler": ["Count", "Countess"], "splendor": 35, "seals": 4},
+	{"realm": "Kingdom", "ruler": ["King", "Queen"], "splendor": 60, "seals": 5},
+]
+const <b id="c-CROWN_IMG">CROWN_IMG</b> := "[img=center]res://art/icon_crown.png[/img]"</pre>
+<pre><i># Stemma della casata (GDD 4.3.2): {"shape", "division", "field", "field2", "ordinary", "ordinary_tincture", "charge",</i>
+<i># "charge_tincture"}: indici di queste liste (pezza e figura: 0 nessuna; gli smalti di Tincture). Lo compongono</i>
+<i># arms_texture (scudo 16x16) e banner_texture (il drappo dello stendardo): partizioni e pezze sono formule (vedi</i>
+<i># divided, on_ordinary), così vanno bene a ogni misura; forme e figure stanno in ARMS_SHEET</i>
+enum <b id="c-Tincture">Tincture</b> { OR, ARGENT, GULES, AZURE, VERT, SABLE, PURPURE }  <i># oro, argento (metalli); rosso, azzurro, verde, nero, porpora</i>
+const <b id="c-METALS">METALS</b> := [Tincture.OR, Tincture.ARGENT]
+enum <b id="c-Shape">Shape</b> { HEATER, SAMNITE, ROUND, LOZENGE }  <i># francese antico, sannitico, tondo, a losanga</i>
+enum <b id="c-Division">Division</b> { PLAIN, PALE, FESS, BEND, BEND_SINISTER, QUARTERLY, SALTIRE }  <i># pieno, partito, troncato, trinciato, tagliato, inquartato, in decusse</i>
+enum <b id="c-Ordinary">Ordinary</b> { NONE, CHIEF, BASE, PALE, FESS, BEND, CROSS, SALTIRE, CHEVRON, BORDURE }  <i># capo, campagna, palo, fascia, banda, croce, decusse, scaglione, bordura</i>
+enum <b id="c-Charge">Charge</b> { NONE, STAR, CRESCENT, FLEUR, ROSE, TOWER, CROWN, SWORD, KEY, TREE, EAGLE }</pre>
+<pre><i># passano dal centro, sotto la figura 8x8 che è più larga: col dado, niente figura</i>
+const <b id="c-CENTRAL">CENTRAL</b> := [Ordinary.PALE, Ordinary.FESS, Ordinary.BEND, Ordinary.CROSS, Ordinary.SALTIRE, Ordinary.CHEVRON]</pre>
+<pre><i># 80x35: forme 16x16 (bordo scuro, campo chiaro) in alto; figure 8x8 (per lo scudo) sotto; figure 5x5 (stendardo); in</i>
+<i># fondo le corone dei titoli</i>
+const <b id="c-ARMS_CROWN_Y">ARMS_CROWN_Y</b> := 29    <i># in ARMS_SHEET le corone 16x6 dei titoli (baronia, contea, regno), sotto le figure</i>
+const <b id="c-CROWN_RISE">CROWN_RISE</b> := 5       <i># di quanto la corona alza lo stemma: la sua ultima riga sta sul bordo dello scudo</i>
+const <b id="c-BANNER_SHADE">BANNER_SHADE</b> := 0.75  <i># la piega in ombra del drappo</i></pre>
+<pre><i># --- Ricerca (GDD 4.7): il sapere (le ricerche) e le leggi ---</i>
+<i># Studio: allo scrittoio di una stanza Studio si scrivono pagine, una ogni PAGE_TIME a livello 5 di ricerca (vedi</i>
+<i># skill_time, comfort_time): ognuna +1 punto nel mucchio comune dello studio e +1 esperienza. Di notte (DARK_FROM-DARK_TO)</i>
+<i># senza un abat-jour nella stanza ci vuole NIGHT_STUDY volte tanto; ogni libreria nella stanza toglie SHELF_BONUS</i>
+<i># (al più SHELVES_MAX). Studiano prima i lavoratori della stanza, poi chi non ha altro da fare (vedi find_work)</i>
+const <b id="c-PAGE_TIME">PAGE_TIME</b> := 2.5
+const <b id="c-DARK_FROM">DARK_FROM</b> := 19
+const <b id="c-DARK_TO">DARK_TO</b> := 6
+const <b id="c-NIGHT_STUDY">NIGHT_STUDY</b> := 1.5
+const <b id="c-SHELF_BONUS">SHELF_BONUS</b> := 0.1
+const <b id="c-SHELVES_MAX">SHELVES_MAX</b> := 3
+const <b id="c-SEAT_ROOM">SEAT_ROOM</b> := {Build.DESK: RoomKind.STUDY, Build.THRONE: RoomKind.THRONE_ROOM}  <i># dove si studia e si governa</i>
+const <b id="c-BOOKS">BOOKS</b> := [Res.NOTEBOOK, Res.TOME, Res.CODEX]  <i># il libro che consuma una ricerca di livello II, III, IV</i></pre>
+<pre><i># Erudito errante (GDD 4.7.2): con una locanda, ogni SCHOLAR_EVERY giorni (± SCHOLAR_JITTER) passa per un giorno; vende</i>
+<i># 1-2 libri (quaderni, a volte un tomo; mai codici) a BOOK_PRICE e ne compra uno a metà prezzo. Si tratta nella</i>
+<i># finestra Knowledge (vedi fill_knowledge). ponytail: un evento, non una figura che arriva alla locanda; e paga solo in</i>
+<i># monete (il GDD vuole anche il granaio)</i>
+const <b id="c-SCHOLAR_EVERY">SCHOLAR_EVERY</b> := 10.0
+const <b id="c-SCHOLAR_JITTER">SCHOLAR_JITTER</b> := 2.0
+const <b id="c-SCHOLAR_TOME">SCHOLAR_TOME</b> := 0.25  <i># per ogni libro in vendita, la volta che è un tomo</i>
+const <b id="c-BOOK_PRICE">BOOK_PRICE</b> := {Res.NOTEBOOK: 40, Res.TOME: 120, Res.CODEX: 300}
+enum <b id="c-Branch">Branch</b> { LAND, FIRE, STONE, IRON, ROAD, LORE }  <i># rami dell'albero, colonne di BRANCHES_SHEET</i></pre>
+<pre><i># Ricerche (colonne di TECHS_SHEET nell'ordine di Tech): "tier" livello 1-4, dal 2 costa anche un libro (BOOKS);</i>
+<i># "cost" punti studio; "needs" le ricerche che vengono prima. Sbloccano mobili ("builds"), ricette (i prodotti in</i>
+<i># "makes"), materiali da costruzione ("materials") e tipi di stanza ("rooms"). Quello che nessuna ricerca nomina c'è</i>
+<i># dall'inizio. Gli effetti senza oggetto (passo, viaggi) li guardano le funzioni che li nominano.</i>
+<i># ponytail: solo i nodi che hanno già qualcosa da sbloccare; gli altri dell'albero del GDD arrivano con le loro cose</i>
+enum <b id="c-Tech">Tech</b> { FORGE, TAILORING, HUNTING, INN, MASONRY, DECOR, LANTERNS, IRON_ARMS, BOOKSHELF, CHAINMAIL, FOUNTAIN, STATUARY,
+	ASTRONOMY, CHARCOAL, COLD_STORE, PAVED_ROAD, DRY_RATIONS, CARTOGRAPHY, PALISADE, TRAINING_DUMMY, SMOKEHOUSE, RENOWNED_INN,
+	WATCHTOWER, SHIELD, LENDING_ARMORY, STEEL, SCRIPTORIUM, FINE_FURNITURE, PALACE }
+const <b id="c-TECHS">TECHS</b> := {
+	Tech.FORGE: {"branch": Branch.FIRE, "tier": 1, "cost": 60, "builds": [Build.FURNACE, Build.ANVIL],
+		"makes": [Res.INGOT, Res.PICKAXE, Res.AXE, Res.SICKLE], "info": "Furnace, anvil and the forge: ingots and the first tools."},
+	Tech.TAILORING: {"branch": Branch.FIRE, "tier": 1, "cost": 50, "builds": [Build.WORKBENCH],
+		"makes": [Res.LEATHER_ARMOR, Res.LEATHER_HOOD], "info": "The workbench and the workshop: leather armor and hoods."},
+	Tech.HUNTING: {"branch": Branch.LAND, "tier": 1, "cost": 50, "builds": [Build.SPINNING_WHEEL, Build.CARPENTER_BENCH],
+		"makes": [Res.BOWSTRING, Res.BOW], "info": "Spinning wheel, carpenter bench and carpentry: bowstrings and bows."},
+	Tech.INN: {"branch": Branch.ROAD, "tier": 1, "cost": 40, "builds": [Build.NOTICE_BOARD],
+		"info": "The notice board and the inn: adventurers come and go to the ruins. Books come from there."},
+	Tech.MASONRY: {"branch": Branch.STONE, "tier": 1, "cost": 60, "materials": [Res.STONE],
+		"info": "Stone walls and floors: more comfort."},
+	Tech.DECOR: {"branch": Branch.STONE, "tier": 1, "cost": 40, "builds": [Build.FLOWER_BED, Build.PLANTER, Build.BENCH],
+		"info": "Flower bed, planter and bench: the first splendor."},
+	Tech.LANTERNS: {"branch": Branch.LORE, "tier": 1, "cost": 40, "builds": [Build.LAMP, Build.LANTERN],
+		"info": "Lamp and lantern: light at night. In the dark, study takes half as long again."},
+	Tech.IRON_ARMS: {"branch": Branch.IRON, "tier": 1, "cost": 80, "needs": [Tech.FORGE], "makes": [Res.SWORD, Res.HELMET],
+		"info": "At the anvil: sword and helmet."},
+	Tech.BOOKSHELF: {"branch": Branch.LORE, "tier": 1, "cost": 60, "builds": [Build.BOOKSHELF],
+		"info": "Bookshelves: +10% study in the room, up to three."},
+	Tech.CHAINMAIL: {"branch": Branch.IRON, "tier": 2, "cost": 300, "needs": [Tech.IRON_ARMS], "makes": [Res.CHAINMAIL],
+		"info": "At the anvil: chainmail."},
+	Tech.FOUNTAIN: {"branch": Branch.STONE, "tier": 2, "cost": 250, "needs": [Tech.DECOR], "builds": [Build.FOUNTAIN],
+		"info": "The fountain, the pride of the square."},
+	Tech.STATUARY: {"branch": Branch.STONE, "tier": 3, "cost": 500, "needs": [Tech.FINE_FURNITURE], "builds": [Build.STATUE],
+		"info": "The king in stone, on a gilded plinth."},
+	Tech.ASTRONOMY: {"branch": Branch.LORE, "tier": 3, "cost": 500, "needs": [Tech.SCRIPTORIUM],
+		"info": "Reading the sky: the weather forecast reaches one more day."},
+	Tech.CHARCOAL: {"branch": Branch.FIRE, "tier": 1, "cost": 80, "makes": [Res.COAL],
+		"info": "At the furnace, 5 wood make 2 coal: coal not only from the veins."},
+	Tech.COLD_STORE: {"branch": Branch.LAND, "tier": 1, "cost": 100, "rooms": [RoomKind.PANTRY],
+		"info": "The pantry, a cool room only for food: it keeps three times as long as outside (twice in a warehouse)."},
+	Tech.PAVED_ROAD: {"branch": Branch.STONE, "tier": 1, "cost": 60, "builds": [Build.ROAD],
+		"info": "Stone slabs: walking on them is 25% faster, and colonists choose them."},
+	Tech.DRY_RATIONS: {"branch": Branch.ROAD, "tier": 1, "cost": 80, "makes": [Res.HARDTACK],
+		"info": "At the campfire, hardtack from 2 vegetables: worth 2 provisions on an expedition, and it never spoils."},
+	Tech.CARTOGRAPHY: {"branch": Branch.ROAD, "tier": 1, "cost": 80, "needs": [Tech.INN],
+		"info": "The notice board shows the next room of every ruin. The way to the ruins is 25% shorter."},
+	Tech.PALISADE: {"branch": Branch.IRON, "tier": 1, "cost": 80, "builds": [Build.PALISADE, Build.GATE],
+		"info": "Palisade and gate: wolves cannot get through."},
+	Tech.TRAINING_DUMMY: {"branch": Branch.IRON, "tier": 1, "cost": 60, "builds": [Build.DUMMY],
+		"info": "The training dummy: in their free time colonists train there, for fun and melee experience."},
+	Tech.SMOKEHOUSE: {"branch": Branch.LAND, "tier": 2, "cost": 200, "needs": [Tech.HUNTING],
+		"makes": [Res.SMOKED_MEAT, Res.SMOKED_FISH], "info": "At the campfire, smoked meat and fish: they keep four times as long."},
+	Tech.RENOWNED_INN: {"branch": Branch.ROAD, "tier": 2, "cost": 250, "needs": [Tech.INN],
+		"info": "Adventurers come every day and a half and wait 5 days. On the notice board, ask for a class: the next one is that."},
+	Tech.SHIELD: {"branch": Branch.IRON, "tier": 2, "cost": 250, "needs": [Tech.TRAINING_DUMMY], "makes": [Res.SHIELD],
+		"info": "At the anvil, the round shield: armor 3 for whoever fights with a sword or a dagger."},
+	Tech.LENDING_ARMORY: {"branch": Branch.ROAD, "tier": 2, "cost": 250, "needs": [Tech.DRY_RATIONS],
+		"info": "Adventurers borrow better armor, helmets and shields from the warehouses for an expedition, and bring them back (unless they die)."},
+	Tech.STEEL: {"branch": Branch.FIRE, "tier": 2, "cost": 300, "needs": [Tech.FORGE], "makes": [Res.STEEL],
+		"info": "At the furnace, steel from 2 ingots and 2 coal. Tools and swords are made of steel: tools 40% faster, swords damage 20."},
+	Tech.SCRIPTORIUM: {"branch": Branch.LORE, "tier": 2, "cost": 250, "needs": [Tech.BOOKSHELF], "makes": [Res.PARCHMENT, Res.INK, Res.NOTEBOOK],
+		"info": "Parchment (from hides) and ink (coal and berries) at the workbench; at the desk notebooks are copied: 3 parchment, 1 ink, 150 study."},
+	Tech.FINE_FURNITURE: {"branch": Branch.STONE, "tier": 2, "cost": 250, "needs": [Tech.MASONRY], "builds": [Build.CANOPY_BED, Build.RUG, Build.WARDROBE],
+		"info": "Canopy bed, rug and wardrobe: the ruler's fine chamber."},
+	Tech.PALACE: {"branch": Branch.STONE, "tier": 4, "cost": 1200, "needs": [Tech.STATUARY],
+		"info": "The throne room becomes a palace: audiences give 50% more authority, +10 splendor."},
+	Tech.WATCHTOWER: {"branch": Branch.IRON, "tier": 2, "cost": 300, "needs": [Tech.PALISADE], "builds": [Build.WATCHTOWER],
+		"info": "The watchtower and its bell: wolves are seen 20 tiles away. An archer up there shoots 2 tiles farther, +15% to hit."},
+}
+const <b id="c-ROAD_SPEED">ROAD_SPEED</b> := 1.25    <i># sulla strada lastricata si va più svelti</i>
+const <b id="c-MAPPED_TRAVEL">MAPPED_TRAVEL</b> := 0.75 <i># con la cartografia, giorni di viaggio x</i>
+const <b id="c-HARDTACK_FOOD">HARDTACK_FOOD</b> := 2    <i># provviste che vale una galletta</i></pre>
+<pre><i># Autorità: il sovrano la raccoglie governando dal trono (Job.GOVERN, in una sala del trono), AUTHORITY_PER_HOUR all'ora,</i>
+<i># di più se è sereno e di meno se è cupo (RULER_MOODS: da quanta felicità, quanto); in più ogni giorno AUTHORITY_DAILY</i>
+<i># per titolo (signoria 1, regno 4) e uno ogni SPLENDOR_PER_AUTHORITY di splendore. Si spende per codificare le leggi,</i>
+<i># una volta, e per promulgarle (ENACT_COST) su un sigillo libero: tante leggi in vigore insieme quanti i "seals" del titolo</i>
+const <b id="c-AUTHORITY_PER_HOUR">AUTHORITY_PER_HOUR</b> := 1.0
+const <b id="c-RULER_MOODS">RULER_MOODS</b> := [[70.0, 1.25], [30.0, 0.5]]  <i># sopra la prima soglia governa meglio, sotto la seconda peggio</i>
+const <b id="c-AUTHORITY_DAILY">AUTHORITY_DAILY</b> := 1.0
+const <b id="c-SPLENDOR_PER_AUTHORITY">SPLENDOR_PER_AUTHORITY</b> := 20
+const <b id="c-ENACT_COST">ENACT_COST</b> := 10.0
+const <b id="c-REVOKE_WAIT">REVOKE_WAIT</b> := 3.0    <i># giorni prima di poter ripromulgare una legge revocata</i>
+enum <b id="c-Law">Law</b> { EXEMPTION, TITHE, LOOT_TAX, LODGING_TAX, LONG_SHIFTS, SHORT_DAY, DAY_OF_REST, CURFEW, HARVEST_FEAST, TALLAGE, TRIBUTE, OPEN_GRANARY,
+	TOLL, NIGHT_WATCH, MILITIA,
+	HARSH_PUNISHMENT, CLEMENCY, HUNTING_RESERVE, COURT }
+enum <b id="c-LawKind">LawKind</b> { TREASURY, WORK, ORDER, CROWN, FEASTS }</pre>
+<pre><i># Leggi: "kind" categoria; "cost" autorità per codificarla; "tier" il titolo che serve (di TITLES, se no la signoria);</i>
+<i># "group" in vigore una sola dello stesso gruppo; "needs" la ricerca che serve; "after" la legge da codificare prima.</i>
+<i># "mood": felicità di chi è in colonia finché è in vigore (vedi law_mood): "all" a tutti i coloni, un Trait al posto di</i>
+<i># "all" a chi ce l'ha, "guests" agli avventurieri, "ruler" al sovrano, "hunters" a chi ha l'arco (vedi law_mood_of).</i>
+<i># Le altre cose le fanno le funzioni che le nominano.</i>
+<i># ponytail: solo le leggi che usano cose che ci sono già; le altre del GDD arrivano coi loro sistemi</i>
+const <b id="c-LAWS">LAWS</b> := {
+	Law.EXEMPTION: {"kind": LawKind.TREASURY, "cost": 30, "group": "taxes", "mood": {"all": 5.0}, "info": "No tithe: the granary stays empty."},
+	Law.TITHE: {"kind": LawKind.TREASURY, "cost": 40, "group": "taxes", "mood": {"all": -3.0},
+		"info": "One piece in ten of what is gathered, hunted, fished, cooked and made goes to the crown's granary."},
+	Law.TALLAGE: {"kind": LawKind.TREASURY, "tier": 1, "cost": 100, "group": "taxes", "after": Law.TITHE, "mood": {"all": -8.0},
+		"info": "One piece in five of what is gathered, hunted, fished, cooked and made goes to the crown's granary."},
+	Law.LOOT_TAX: {"kind": LawKind.TREASURY, "cost": 40, "needs": Tech.INN, "mood": {"guests": -5.0},
+		"info": "Adventurers keep 20% of the gold they find, not 30%. A quarter fewer come, and the greedy stay away."},
+	Law.LODGING_TAX: {"kind": LawKind.TREASURY, "cost": 30, "needs": Tech.INN, "mood": {"guests": -3.0},
+		"info": "Every adventurer waiting at the inn pays a coin a night, and stays a day less."},
+	Law.OPEN_GRANARY: {"kind": LawKind.TREASURY, "tier": 1, "cost": 60, "after": Law.TITHE, "mood": {"all": 4.0},
+		"info": "With no food left in the warehouses, the granary feeds the colony. Every new season, a meal for everyone."},
+	Law.TOLL: {"kind": LawKind.TREASURY, "tier": 1, "cost": 80, "needs": Tech.PALISADE, "mood": {"guests": -3.0},
+		"info": "Every adventurer coming in pays 2 coins at the gate. A fifth fewer come."},
+	Law.TRIBUTE: {"kind": LawKind.TREASURY, "tier": 2, "cost": 150, "mood": {"all": -4.0},
+		"info": "The colonists' loyalty is the crown's: +1 authority a day for each of them."},
+	Law.LONG_SHIFTS: {"kind": LawKind.WORK, "cost": 40, "group": "shifts",
+		"mood": {"all": -5.0, Trait.WORKAHOLIC: 3.0, Trait.LAZY: -10.0, Trait.FUN_LOVING: -10.0, Trait.RESTLESS: -10.0},
+		"info": "Up to 10 hours of work a day (the lazy 7). Stress from work +25%."},
+	Law.SHORT_DAY: {"kind": LawKind.WORK, "cost": 40, "group": "shifts", "mood": {"all": 8.0, Trait.WORKAHOLIC: -5.0},
+		"info": "At most 6 hours of work a day. Stress from work -25%."},
+	Law.DAY_OF_REST: {"kind": LawKind.WORK, "cost": 30, "mood": {"all": 6.0, Trait.WORKAHOLIC: -5.0, Trait.ASCETIC: 0.0},
+		"info": "Every seventh day nobody works but the cooks: the rest is free time."},
+	Law.NIGHT_WATCH: {"kind": LawKind.WORK, "tier": 1, "cost": 80, "needs": Tech.PALISADE,
+		"mood": {Trait.NIGHT_OWL: 5.0, Trait.SLEEPYHEAD: -5.0},
+		"info": "A colonist keeps watch at night (a night owl first, or someone who sleeps by day): wolves are seen as soon as they come."},
+	Law.MILITIA: {"kind": LawKind.ORDER, "cost": 50, "needs": Tech.TRAINING_DUMMY, "mood": {"all": -3.0, Trait.HOTHEAD: 3.0},
+		"info": "An hour a day of free time at the training dummy. Colonists flee only under 30 health, not 40."},
+	Law.HARSH_PUNISHMENT: {"kind": LawKind.ORDER, "tier": 1, "cost": 80, "group": "justice", "mood": {"all": -2.0, Trait.HOTHEAD: -10.0},
+		"info": "Tantrums and protests end in the stocks (-10 happiness for a day), and protests cost no authority. Hotheads, afraid, storm off a third less often."},
+	Law.CLEMENCY: {"kind": LawKind.ORDER, "tier": 1, "cost": 80, "group": "justice", "mood": {"all": 3.0, Trait.HOTHEAD: 5.0},
+		"info": "Tantrums last an hour. The ruler listens to whoever protests: an hour, no authority lost, +10 happiness for half a day."},
+	Law.HUNTING_RESERVE: {"kind": LawKind.ORDER, "tier": 1, "cost": 100, "mood": {"all": -3.0, "hunters": 3.0},
+		"info": "Twice as many deer, hunted only by the ruler and by those who carry a bow. +3 authority for every deer the ruler takes."},
+	Law.COURT: {"kind": LawKind.CROWN, "tier": 1, "cost": 100, "mood": {"ruler": 5.0},
+		"info": "The ruler no longer works: only governs, and audiences give 50% more authority."},
+	Law.CURFEW: {"kind": LawKind.ORDER, "cost": 40, "mood": {"all": -2.0, Trait.FUN_LOVING: -10.0, Trait.EARLY_BIRD: 3.0},
+		"info": "From 21 everyone goes to bed: no evenings at the campfire, fewer targets for the wolves."},
+	Law.HARVEST_FEAST: {"kind": LawKind.FEASTS, "cost": 40,
+		"info": "The five feast days of the calendar are holidays: nobody works but the cooks. Then +10 happiness for 3 days, +5 authority."},
+}
+const <b id="c-SHIFTS">SHIFTS</b> := {Law.LONG_SHIFTS: [10.0, 1.25], Law.SHORT_DAY: [6.0, 0.75]}  <i># ore di lavoro al giorno, stress da lavoro x</i>
+const <b id="c-TAXES">TAXES</b> := {Law.TITHE: 0.1, Law.TALLAGE: 0.2}  <i># parte di quello che si produce che va al granaio della corona (vedi produce)</i>
+const <b id="c-LOOT_SHARE">LOOT_SHARE</b> := 0.2     <i># quota delle monete degli avventurieri con la gabella sul bottino (se no SHARE)</i>
+const <b id="c-LOOT_TAX_WAIT">LOOT_TAX_WAIT</b> := 4.0 / 3  <i># con la gabella: giorni tra un arrivo e l'altro x</i>
+const <b id="c-REST_EVERY">REST_EVERY</b> := 7       <i># riposo festivo: l'ultimo giorno di ogni tanti</i>
+const <b id="c-FEAST_AUTHORITY">FEAST_AUTHORITY</b> := 5.0
+const <b id="c-TOLL">TOLL</b> := 2             <i># monete del pedaggio, per avventuriero che arriva</i>
+const <b id="c-TOLL_WAIT">TOLL_WAIT</b> := 1.25     <i># col pedaggio: giorni tra un arrivo e l'altro x (un quinto in meno)</i>
+const <b id="c-MILITIA_FLEE">MILITIA_FLEE</b> := 30.0  <i># con la milizia si scappa sotto questi punti ferita (se no FLEE_HP)</i>
+const <b id="c-HARSH_STRESS">HARSH_STRESS</b> := 2.0 / 3  <i># con le pene severe, stress dal lavoro x per l'iracondo: sfuriate un terzo meno spesso</i>
+const <b id="c-CLEMENT_HOURS">CLEMENT_HOURS</b> := 1.0  <i># con la clemenza sfuriate e proteste durano tanto</i>
+const <b id="c-COURT_AUDIENCE">COURT_AUDIENCE</b> := 1.5 <i># con la corte, autorità dall'udienza x</i>
+const <b id="c-PALACE">PALACE</b> := [1.5, 10]   <i># col palazzo (e una sala del trono): autorità dall'udienza x, splendore in più</i>
+const <b id="c-RESERVE_AUTHORITY">RESERVE_AUTHORITY</b> := 3.0  <i># riserva di caccia: per ogni cervo abbattuto dal sovrano</i>
+const <b id="c-TRAIN_HIT">TRAIN_HIT</b> := 2.5      <i># secondi per colpo al fantoccio: +1 esperienza in mischia</i>
+const <b id="c-STEEL_GEAR">STEEL_GEAR</b> := [Res.PICKAXE, Res.AXE, Res.SICKLE, Res.SWORD]  <i># con l'acciaio: si fanno d'acciaio, e rendono di più</i>
+const <b id="c-STEEL_TIME">STEEL_TIME</b> := 0.6     <i># attrezzo d'acciaio: tempo del suo lavoro x (quelli di ferro 0.75)</i>
+const <b id="c-STEEL_SWORD">STEEL_SWORD</b> := 20.0   <i># danno della spada d'acciaio</i>
+const <b id="c-COPY_STUDY">COPY_STUDY</b> := 150.0   <i># punti studio di una copia di un quaderno allo scrittoio, oltre a pergamena e inchiostro</i>
+const <b id="c-TOWER_SIGHT">TOWER_SIGHT</b> := 20     <i># caselle: con una torre di guardia (e la sua campana) i lupi si vedono da qui (se no ALERT)</i>
+const <b id="c-TOWER">TOWER</b> := {"range": 2.0, "hit": 0.15}  <i># all'arciere sulla torre, in più (vedi gear_sum)</i>
+const <b id="c-RENOWNED_GUESTS">RENOWNED_GUESTS</b> := [1.5, 5.0]  <i># con la locanda rinomata: giorni tra un arrivo e l'altro, giorni che aspettano</i></pre>
+<pre><i># Eventi (GDD 4.7.4): autorità data o tolta una volta (mai sotto zero, vedi gain)</i>
+const <b id="c-TREASURE_AUTHORITY">TREASURE_AUTHORITY</b> := 5.0  <i># spedizione tornata col tesoro dell'ultima stanza</i>
+const <b id="c-RELIC_AUTHORITY">RELIC_AUTHORITY</b> := 3.0     <i># cimelio posato</i>
+const <b id="c-DEATH_AUTHORITY">DEATH_AUTHORITY</b> := -5.0    <i># colono morto</i>
+const <b id="c-UNHAPPY">UNHAPPY</b> := 20.0            <i># all'alba, -1 autorità per ogni colono sotto questa felicità</i></pre>
+<pre><i># Protesta (GDD 4.7.5): un colono sotto UNHAPPY di felicità che disapprova almeno PROTEST_LAWS leggi in vigore molla</i>
+<i># il lavoro e va a lamentarsi nella sala del trono per PROTEST_HOURS; una volta al giorno al più. Toglie autorità</i>
+const <b id="c-PROTEST_LAWS">PROTEST_LAWS</b> := 2
+const <b id="c-PROTEST_HOURS">PROTEST_HOURS</b> := 2.0
+const <b id="c-PROTEST_AUTHORITY">PROTEST_AUTHORITY</b> := -5.0</pre>
+<pre><i># All'inizio, su ogni mappa, un'arma abbandonata accanto ai resti di un bivacco, tra FOUND_WEAPON_REACH caselle dalla radura</i>
+const <b id="c-FOUND_WEAPONS">FOUND_WEAPONS</b> := [Res.SWORD, Res.AXE, Res.BOW]
+const <b id="c-FOUND_WEAPON_REACH">FOUND_WEAPON_REACH</b> := [15, 25]</pre></section><section id="atmosphere-gd"><h2>Numeri: atmosphere.gd</h2><pre>enum <b id="c-Weather">Weather</b> { CLEAR, RAIN, SNOW, FOG, STORM }</pre>
+<pre>const <b id="c-WIND">WIND</b> := Vector2(0.004, 0.0015)          <i># deriva delle nuvole: mappe di rumore al secondo di gioco</i></pre>
+<pre><i># il prossimo tempo, a caso tra questi: sereno quasi metà delle volte. Col freddo (media del giorno sotto SNOW_BELOW)</i>
+<i># pioggia e temporale vengono giù come neve: d'inverno, e a volte all'inizio della primavera</i>
+const <b id="c-FORECAST">FORECAST</b> := [Weather.CLEAR, Weather.CLEAR, Weather.CLEAR, Weather.CLEAR, Weather.RAIN, Weather.RAIN, Weather.RAIN,
+	Weather.FOG, Weather.FOG, Weather.STORM]
+const <b id="c-SNOW_BELOW">SNOW_BELOW</b> := 3.0</pre>
+<pre><i># temperatura fuori (vedi temperature): la media del giorno va da YEAR_MEAN + YEAR_SWING a metà estate a YEAR_MEAN -</i>
+<i># YEAR_SWING a metà inverno, senza salti tra le stagioni (main.SEASONS); a mezzogiorno DAY_SWING gradi in più, a</i>
+<i># mezzanotte in meno; più o meno secondo il tempo. Toglie comfort, con la pioggia: vedi main.weather_comfort</i>
+const <b id="c-YEAR_MEAN">YEAR_MEAN</b> := 11.0                       <i># estate 23 gradi, inverno -1, all'inizio della primavera 2</i>
+const <b id="c-YEAR_SWING">YEAR_SWING</b> := 12.0
+const <b id="c-DAY_SWING">DAY_SWING</b> := 5.0
+const <b id="c-WEATHER_TEMP">WEATHER_TEMP</b> := {Weather.CLEAR: 0.0, Weather.RAIN: -3.0, Weather.SNOW: -2.0, Weather.FOG: -2.0, Weather.STORM: -5.0}</pre>
+<pre><i># ondata di freddo: quando la media del giorno è sotto COLD_WAVE_BELOW (da metà autunno al disgelo), ogni giorno con</i>
+<i># probabilità COLD_WAVE_CHANCE arriva e per COLD_WAVE_DAYS giorni fa COLD_WAVE gradi in meno (mezza giornata per arrivare</i>
+<i># e per andarsene, vedi cold_wave); lo dicono la cronaca e la barra in alto</i>
+const <b id="c-COLD_WAVE">COLD_WAVE</b> := 10.0
+const <b id="c-COLD_WAVE_BELOW">COLD_WAVE_BELOW</b> := 8.0
+const <b id="c-COLD_WAVE_CHANCE">COLD_WAVE_CHANCE</b> := 0.03
+const <b id="c-COLD_WAVE_DAYS">COLD_WAVE_DAYS</b> := Vector2(2, 4)
+const <b id="c-PLAN_DAYS">PLAN_DAYS</b> := 2.5                        <i># il tempo è deciso fin qui in anticipo: le previsioni lo leggono (vedi plan)</i></pre>
+<pre><i># acqua: sotto lo zero gela, tanto più in fretta quanto fa freddo (a -5 gradi in un giorno), sopra sgela allo stesso</i>
+<i># modo; piena regge (vedi main.freeze_water: ci si cammina, non si pesca) e torna acqua quando è sciolta fino a THIN_ICE</i>
+const <b id="c-FREEZE_HOURS">FREEZE_HOURS</b> := 120.0                   <i># ore per grado sotto lo zero</i>
+const <b id="c-THIN_ICE">THIN_ICE</b> := 0.5
+const <b id="c-WEATHER_HOURS">WEATHER_HOURS</b> := Vector2(6, 20)         <i># quanto dura un tempo, in ore di gioco</i>
+const <b id="c-WEATHER_FADE">WEATHER_FADE</b> := 8.0                     <i># secondi di gioco per comparire o sparire</i></pre>
+<pre><i># quanto si copre il cielo: 0 nuvole sparse, 1 tutto coperto</i>
+const <b id="c-OVERCAST">OVERCAST</b> := {Weather.CLEAR: 0.0, Weather.RAIN: 0.7, Weather.SNOW: 0.5, Weather.FOG: 0.3, Weather.STORM: 1.0}
+const <b id="c-SNOW_HOURS">SNOW_HOURS</b> := 4.0                       <i># ore di neve perché copra tutto</i>
+const <b id="c-MELT_HOURS">MELT_HOURS</b> := 120.0                     <i># ore per grado sopra lo 0 perché si sciolga tutta: a 10 gradi 12 ore</i>
+const <b id="c-WET_HOURS">WET_HOURS</b> := 2.0                        <i># ore di pioggia perché le pozzanghere siano piene</i>
+const <b id="c-DRY_HOURS">DRY_HOURS</b> := 8.0                        <i># ore perché si asciughino</i></pre></section>
+</main>
+</body>
+</html>

@@ -52,3 +52,6 @@
 ## Versionamento
 - Git + GitHub (`Yanez86/king`).
 - Git LFS se gli asset binari crescono molto (non necessario ora).
+- Wiki delle meccaniche su GitHub Pages (https://yanez86.github.io/king/, da `main` → `/docs`): `python3 tools/make_wiki.py`
+  rigenera `docs/index.html` dalla wiki in gioco (`wiki.gd`) e dalle costanti di `main.gd` e `atmosphere.gd`. Va rifatta
+  e committata quando cambiano.
