@@ -23,9 +23,9 @@ const SIDES := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 const TREE_SIDES := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  # da sopra la chioma coprirebbe chi taglia
 
 enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE,
-	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST }
+	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR }
 const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FURNISH, Job.HARVEST, Job.COOK, Job.FISH,
-	Job.HUNT, Job.CRAFT, Job.STUDY, Job.GOVERN]  # contano come ore di lavoro
+	Job.HUNT, Job.CRAFT, Job.STUDY, Job.GOVERN, Job.REPAIR]  # contano come ore di lavoro
 # VEG: vegetali, dalle bacche dei cespugli; IRON, COAL: dai massi con le vene; MEAL, FINE_MEAL: pasti, dalla cucina;
 # MEAT, HIDE: carne e pelle, dagli animali cacciati; FISH: pesce, dai punti di pesca; INGOT: lingotti, dalla fornace;
 # FLAX: lino, dai fiori (vedi flax); BOWSTRING: corda d'arco, dal filatoio;
@@ -558,6 +558,23 @@ const CHIMNEYS := preload("res://art/chimneys.png")  # 32x16: comignolo di pietr
 enum Chimney { NONE = -1, STONE, VENT }  # colonne di CHIMNEYS
 const OUTLINE := Color("1f1a24")             # contorno, come la "o" degli sprite
 const ROOF_TINT := 0.08      # differenza di luce, al massimo, tra un tetto e l'altro
+const ROOF_WEAR := preload("res://art/roof_wear.png")  # 48x16: licheni, tegole smosse e muschio, buco (vedi wear)
+# Usura dei tetti, per casella (vedi wear_roofs): da LICHEN i licheni, da WORN tegole smosse e muschio (e la si
+# ripara), da 1 un buco: lì il tetto non c'è più. Senza temporali una casella arriva al buco in ROOF_LIFE giorni, più o
+# meno (ROOF_SPREAD) secondo la casella; un'ora di temporale strappa un tetto con probabilità STORM_TEAR, in 1-3
+# caselle, STORM_DAMAGE di usura ciascuna; la neve oltre SNOW_LOAD sui tetti di almeno SNOW_LOAD_AREA caselle che non
+# la sciolgono (roof_snow) ne sfonda una con probabilità SNOW_LOAD_HIT all'ora. Le scandole si consumano il doppio
+const LICHEN := 0.25
+const WORN := 0.5
+const ROOF_LIFE := {Res.STONE: 730.0, Res.WOOD: 365.0}
+const ROOF_SPREAD := 0.5
+const STORM_TEAR := 0.15
+const STORM_DAMAGE := [0.4, 1.0]
+const SNOW_LOAD := 0.7
+const SNOW_LOAD_AREA := 30
+const SNOW_LOAD_HIT := 0.02
+const REPAIR_TIME := 3.0     # secondi per casella a livello 5 (Job.REPAIR)
+const REPAIR_COST := 1       # legna per le scandole, pietra per i coppi
 const ROOF_MELT := 10.0      # gradi di calore che passa il tetto e ci sciolgono tutta la neve (vedi roof_snow)
 const CHIMNEY_SNOW := 0.3    # attorno ai comignoli resta questa parte della neve
 const WET_ROOF := 0.25       # quanto scurisce il tetto bagnato (atmosphere.wet)
@@ -1190,6 +1207,9 @@ var pantry := {}            # cella -> true: le caselle di stockpile nelle dispe
 var rooms: Array[Room] = []  # stanze finite, vedi update_rooms
 var roofed := {}            # casella sotto un tetto (stanze coi loro muri e porte) -> il suo Roof; vedi update_roofs
 var roofs: Array[Roof] = []  # i tetti, uno per rettangolo di stanza (vedi rectangles)
+var wear := {}              # casella di tetto -> usura, da 0 (vedi WORN; da 1 un buco)
+var roof_stamp := 0         # cambia quando si apre o si chiude un buco: atmosphere rifà la maschera della neve
+var storm_noted := {}       # stanza -> giorno in cui la cronaca ha detto del temporale che ne ha strappato il tetto
 var roofs_shown := true     # il pulsante Roofs li toglie, per guardare dentro
 var atmosphere := preload("res://atmosphere.gd").new()  # luci, fuochi, nuvole, meteo; neve e pozzanghere a terra
 var forecast_strip = preload("res://forecast.gd").new()  # in alto accanto alla data: il meteo di adesso e le previsioni
@@ -2365,6 +2385,8 @@ func job_list() -> String:
 	for r in RECIPES:  # solo quello che manca, che si sa fare e che ha una postazione
 		if unlocked("makes", r[0]) and gear_wanted(r[0]) > 0 and not stations(r[1]).is_empty():
 			lines.append(tr("Make %s: %d") % [item_name(r[0]), gear_wanted(r[0])])
+	if not roof_repairs().is_empty():
+		lines.append(tr("Repair roofs: %d") % roof_repairs().size())
 	for plans in [blueprints, furniture_plans]:  # prima le strutture (per casella), poi i mobili (per pezzo)
 		var counts := {}  # "wall (wood)" -> quanti
 		for plan in plans.values():
@@ -2771,6 +2793,31 @@ func update_colonist(c: Colonist, delta: float) -> void:
 					plans.erase(c.target)
 					if RELICS.has(plan[0]):
 						gain(RELIC_AUTHORITY)
+				c.carrying = 0
+				c.xp[Skill.CONSTRUCTION] += 1
+				end_job(c)
+		Job.REPAIR:  # come BUILD: al mucchio prende il materiale (carry_res), poi accanto alla casella (target) la ripara
+			if wear.get(c.target, 0.0) < WORN or not roofed.has(c.target):
+				quit_job(c)  # già riparata, o la stanza non c'è più
+				return
+			if c.carrying == 0:
+				var here := cell_of(c.pos)
+				if items[c.carry_res].get(here, 0) < REPAIR_COST:
+					end_job(c)
+					return
+				add_item(c.carry_res, here, -REPAIR_COST)
+				reserved.erase(here)
+				c.carrying = REPAIR_COST
+				c.path = path_of(c, here, c.dest)
+				if c.path.is_empty():
+					quit_job(c)
+				return
+			face(c, center(c.target) - c.pos)
+			c.work_left = maxf(c.work_left - delta, 0.0)
+			if c.work_left == 0:
+				if holed(c.target):
+					roof_stamp += 1
+				wear.erase(c.target)
 				c.carrying = 0
 				c.xp[Skill.CONSTRUCTION] += 1
 				end_job(c)
@@ -3266,9 +3313,9 @@ func role(kind: int) -> int:
 	return ROLE.get(kind, kind)
 
 
-# dentro una stanza o sotto il suo tetto (muri e porte)
+# dentro una stanza o sotto il suo tetto (muri e porte), dove il tetto non ha un buco
 func sheltered(cell: Vector2i) -> bool:
-	return roofed.has(cell) or room_at(cell) != null
+	return (roofed.has(cell) or room_at(cell) != null) and not holed(cell)
 
 
 # 0-COMFORT_MAX: i mobili dentro la stanza, per pezzo, e il pavimento, per la parte di stanza che copre; per materiale
@@ -3454,10 +3501,41 @@ func find_work(c: Colonist) -> bool:
 			reserved[to_source.back()] = c  # intanto nessun altro prende da quel mucchio
 			return true
 
+	if try_repair(c):
+		return true
 	for res in Res.values():
 		if try_haul(c, res, items[res].keys().filter(func(cell): return not stockpile.has(cell) and is_free(cell))):
 			return true
 	return try_seat(c, Build.THRONE, false) or try_seat(c, Build.DESK, false)  # niente da fare: governa, studia
+
+
+# Riparare un tetto: la casella consumata (da WORN) più vicina, con un mucchio del suo materiale (legna per le
+# scandole, pietra per i coppi): come costruire, prima al mucchio e poi accanto alla casella. false se non si può
+func try_repair(c: Colonist) -> bool:
+	var damaged := roof_repairs().filter(func(k): return is_free(k))
+	if damaged.is_empty():
+		return false
+	var stands := {}
+	for cell in damaged:
+		add_stands(stands, [cell], cell, SIDES)
+	var path := path_to_nearest(c, stands.keys())
+	if path.is_empty():
+		return false
+	var target: Vector2i = stands[path.back()]
+	var res: Res = roofed[target].material
+	var to_source := path_to_nearest(c, items[res].keys().filter(func(k): return items[res][k] >= REPAIR_COST and is_free(k)))
+	if to_source.is_empty():
+		return false
+	start_job(c, Job.REPAIR, to_source, target, REPAIR_TIME * skill_time(c.skills[Skill.CONSTRUCTION]) * work_factor(c, Job.REPAIR))
+	c.dest = path.back()
+	c.carry_res = res
+	reserved[to_source.back()] = c
+	return true
+
+
+# caselle di tetto da riparare: tegole smosse o buchi
+func roof_repairs() -> Array:
+	return wear.keys().filter(func(k): return wear[k] >= WORN and roofed.has(k))
 
 
 # Lavoro a tempo `job` (tagliare, scavare, estirpare, raccogliere) sul bersaglio libero più vicino tra `targets`,
@@ -5102,6 +5180,7 @@ func new_day() -> void:
 # posa in magazzino dove ci sta (vedi dest_cells; pieno, resta nel granaio) e si mangia come gli altri.
 # ponytail: un'ora di attesa al più; un giorno di scorta alla volta
 func new_hour() -> void:
+	wear_roofs()
 	for c in colonists:
 		if c != ruler and c.needs[Need.HAPPINESS] < UNHAPPY and c.protested != today and not c.downed \
 				and c.job not in [Job.SLEEP, Job.FIGHT, Job.FLEE, Job.TANTRUM, Job.PROTEST] \
@@ -5827,7 +5906,7 @@ func claimed(except: Colonist) -> Dictionary:
 	for o in people():
 		if o != except:
 			cells[cell_of(o.pos) if o.path.is_empty() else o.path.back()] = true
-			if o.job in [Job.BUILD, Job.FURNISH, Job.COOK, Job.CRAFT, Job.STUDY, Job.GOVERN]:
+			if o.job in [Job.BUILD, Job.FURNISH, Job.COOK, Job.CRAFT, Job.STUDY, Job.GOVERN, Job.REPAIR]:
 				cells[o.dest] = true
 	return cells
 
@@ -5891,6 +5970,8 @@ func spoil(days: float) -> void:
 # dispensa; il fuoco la scalda
 func spoil_rate(cell: Vector2i, memo := {}) -> float:
 	var warm := maxf(temperature_at(cell, memo), 0.0) / ROOM_TEMP
+	if holed(cell):  # sotto un buco nel tetto come fuori
+		return warm
 	return (SPOIL_PANTRY if pantry.has(cell) else (SPOIL_STORED if stockpile.has(cell) else 1.0)) * warm
 
 
@@ -6184,6 +6265,43 @@ func update_roofs() -> void:
 	made.sort_custom(func(a, b): return a.rect.position.y < b.rect.position.y)  # sopra il muro in comune quello più a sud
 	roofs = made
 	roofed = cover
+	for k in wear.keys():  # stanza abbattuta: la sua usura se ne va col tetto
+		if not cover.has(k):
+			wear.erase(k)
+
+
+# Un'ora di usura dei tetti (vedi LICHEN): il tempo, i temporali, la neve pesante. Un temporale che strappa un tetto
+# finisce nella cronaca, una volta al giorno per stanza
+func wear_roofs() -> void:
+	var holes := holes_count()
+	for cell in roofed:
+		var spread := 1.0 - ROOF_SPREAD + ROOF_SPREAD * 2.0 * (absi(hash(cell)) % 100) / 100.0
+		wear[cell] = wear.get(cell, 0.0) + spread / ROOF_LIFE[roofed[cell].material] / 24.0
+	for roof in roofs:
+		var tear := 0
+		if atmosphere.climate and atmosphere.weather == atmosphere.Weather.STORM \
+				and randf() < STORM_TEAR * atmosphere.weather_strength:
+			tear = randi_range(1, 3)
+		elif atmosphere.climate and atmosphere.snow > SNOW_LOAD and roof.rect.get_area() >= SNOW_LOAD_AREA \
+				and roof_snow(roof) > 0.5 and randf() < SNOW_LOAD_HIT:
+			tear = 1
+		for i in tear:
+			var cell := roof.rect.position + Vector2i(randi() % roof.rect.size.x, randi() % roof.rect.size.y)
+			wear[cell] = wear.get(cell, 0.0) + randf_range(STORM_DAMAGE[0], STORM_DAMAGE[1]) * (2.0 if roof.material == Res.WOOD else 1.0)
+		if tear > 0 and atmosphere.weather == atmosphere.Weather.STORM and storm_noted.get(roof.room) != today:
+			storm_noted[roof.room] = today
+			note(tr("%s: the storm tore tiles off the roof of %s.") % [date(today), roof.room.name])
+	if holes_count() != holes:
+		roof_stamp += 1
+
+
+func holes_count() -> int:
+	return wear.keys().filter(func(k): return wear[k] >= 1.0).size()
+
+
+# in `cell` il tetto ha un buco: ci piove e nevica dentro, fa i gradi di fuori
+func holed(cell: Vector2i) -> bool:
+	return wear.get(cell, 0.0) >= 1.0
 
 
 # Le caselle `cells` in rettangoli: dall'alto a sinistra, ognuno largo quanto la sua prima riga e giù finché le righe
@@ -6621,6 +6739,10 @@ func draw_roofs() -> void:
 			var white := snow * (CHIMNEY_SNOW if warm.has(cell) else 1.0)
 			if white > 0:
 				draw_texture_rect_region(ROOF, r, Rect2(Vector2(TILE, row * TILE), r.size), Color(1, 1, 1, white))
+			var worn: float = wear.get(cell, 0.0)
+			if worn >= LICHEN:  # licheni, tegole smosse, il buco
+				var stage := 2 if worn >= 1.0 else (1 if worn >= WORN else 0)
+				draw_texture_rect_region(ROOF_WEAR, r, Rect2(Vector2(stage * TILE, 0), r.size))
 			if wet > 0:
 				draw_rect(r, Color(OUTLINE, WET_ROOF * wet * (1.0 - white)))
 			if roof.vertical:  # la falda a est in ombra

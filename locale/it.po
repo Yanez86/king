@@ -2737,3 +2737,9 @@ msgstr "In tutto: %d °C"
 
 msgid "Heat lens"
 msgstr "Vista calore"
+
+msgid "%s: the storm tore tiles off the roof of %s."
+msgstr "%s: il temporale ha strappato le tegole dal tetto di %s."
+
+msgid "Repair roofs: %d"
+msgstr "Riparare tetti: %d"

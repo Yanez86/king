@@ -132,6 +132,7 @@ var ground_fx := ShaderMaterial.new()
 var uncovered := ImageTexture.new()
 var uncovered_for := {}           # il main.roofed con cui è fatta `uncovered`: quando cambia, si rifà
 var uncovered_ice := false        # e se l'acqua era gelata (sul ghiaccio la neve si posa)
+var uncovered_stamp := 0          # e main.roof_stamp: i buchi nei tetti
 
 
 func _ready() -> void:
@@ -260,7 +261,7 @@ func _process(delta: float) -> void:
 	clouds.set_shader_parameter("tint", Color(CLOUD, (0.3 + 0.15 * cover) * (1.0 - night)))
 	mist.set_shader_parameter("drift", WIND * seconds * 0.5)
 	mist.set_shader_parameter("tint", Color(MIST, 0.55 * weather_strength if weather == Weather.FOG else 0.0))
-	if not is_same(main.roofed, uncovered_for) or frozen != uncovered_ice:
+	if not is_same(main.roofed, uncovered_for) or frozen != uncovered_ice or main.roof_stamp != uncovered_stamp:
 		update_uncovered()
 	ground_fx.set_shader_parameter("snow", snow)
 	ground_fx.set_shader_parameter("wet", wet)
@@ -436,13 +437,14 @@ func darkness() -> float:
 	return clampf(0.5 - main.sun_height() * 4.0, 0.0, 1.0)
 
 
-# dove neve e pozzanghere restano: non sotto i tetti, non sull'acqua se non è gelata
+# dove neve e pozzanghere restano: non sotto i tetti (tranne dove hanno un buco), non sull'acqua se non è gelata
 func update_uncovered() -> void:
 	uncovered_for = main.roofed
 	uncovered_ice = frozen
+	uncovered_stamp = main.roof_stamp
 	var img := Image.create_empty(main.MAP_SIZE.x, main.MAP_SIZE.y, false, Image.FORMAT_L8)
 	img.fill(Color.WHITE)
-	for cell in main.roofed.keys() + ([] if frozen else main.water.keys()):
+	for cell in main.roofed.keys().filter(func(k): return not main.holed(k)) + ([] if frozen else main.water.keys()):
 		img.set_pixelv(cell, Color.BLACK)
 	uncovered.set_image(img)
 

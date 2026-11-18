@@ -207,6 +207,49 @@ func _initialize() -> void:
 	main.order = main.Order.NONE
 	main.furniture.erase(hearth)
 
+	# usura dei tetti: tegole smosse da riparare, i buchi lasciano entrare il tempo di fuori
+	var spot := Vector2i(13, 12)
+	var stamp: int = main.roof_stamp
+	main.wear[spot] = 1.0 - 0.00001  # un'ora d'usura e si apre
+	main.wear_roofs()
+	check(main.roof_stamp != stamp, "si apre un buco: la neve e le pozzanghere ci entrano")
+	check(main.holed(spot) and not main.sheltered(spot) and main.temperature_at(spot) == sky.temperature(),
+		"sotto il buco si sta come fuori")
+	check(main.spoil_rate(spot) == main.spoil_rate(Vector2i(4, 4)), "e il cibo ci marcisce come fuori")
+	check(main.roof_repairs().has(spot) and main.job_list().contains("Repair roofs: 1"), "il buco è un lavoro: riparare")
+	var mason = main.colonists[1]
+	mason.pos = main.center(Vector2i(13, 16))
+	for c in main.colonists:
+		if c != mason:
+			c.pos = main.center(Vector2i(2, 2))
+			c.downed = true  # fermi: lavora solo lui
+	main.drop(R.WOOD, Vector2i(14, 17), 3)
+	var xp: int = mason.xp[main.Skill.CONSTRUCTION]
+	for i in 600:
+		main.tick(0.05)
+		if not main.wear.has(spot):
+			break
+	check(not main.wear.has(spot) and main.items[R.WOOD].get(Vector2i(14, 17), 0) == 2 and mason.xp[main.Skill.CONSTRUCTION] == xp + 1,
+		"riparato con una legna (scandole): l'esperienza da costruttore")
+	check(main.sheltered(spot), "di nuovo al coperto")
+	for c in main.colonists:
+		c.downed = false
+	main.items[R.WOOD].clear()
+	# il temporale strappa i tetti e la cronaca lo dice
+	sky.weather = sky.Weather.STORM
+	sky.weather_strength = 1.0
+	var notes: int = main.chronicle.size()
+	for i in 50:
+		main.wear_roofs()
+	check(main.wear.values().any(func(w): return w >= main.STORM_DAMAGE[0]), "il temporale strappa delle caselle")
+	check(main.chronicle.size() > notes and main.chronicle[main.chronicle.size() - 1].contains("the storm tore tiles off the roof"),
+		"nella cronaca, una volta al giorno per stanza")
+	check(main.chronicle.size() - notes <= main.rooms.size(), "non a ogni ora")
+	sky.weather = sky.Weather.CLEAR
+	sky.weather_strength = 0.0
+	main.wear.clear()
+	main.roof_stamp += 1
+
 	# il suggerimento del pulsante dice quanto scalda
 	var tip: Control = main.build_tip(B.HEARTH)
 	var texts: Array = tip.get_children().filter(func(n): return n is Label).map(func(l): return l.text)
