@@ -1,6 +1,7 @@
-# Il meteo in alto, accanto alla data (vedi main.forecast_strip): icona e gradi di adesso, le icone delle prossime quattro
-# fasce di sei ore e quelle degli avvisi (ondata di freddo, gelata, acqua gelata, temporale). Cliccata apre il pannello
-# delle previsioni: 24 ore, un giorno in più con la ricerca Astronomia. Legge tutto da main.atmosphere.
+# Il meteo in alto, accanto alla data (vedi main.forecast_strip): icona e gradi di adesso e le icone delle prossime
+# quattro fasce di sei ore, dentro un tamburo che sembra girare (ombre a scalini ai lati, vedi drum_shade); fuori, a
+# destra, quelle degli avvisi (ondata di freddo, gelata, acqua gelata, temporale). Cliccata apre il pannello delle
+# previsioni: 24 ore, un giorno in più con la ricerca Astronomia. Legge tutto da main.atmosphere.
 extends HBoxContainer
 
 enum Icon { SUN, MOON, RAIN, SNOW, FOG, STORM, COLD, FROST, ICE }  # colonne di SHEET
@@ -9,6 +10,11 @@ const CLOSE := preload("res://art/icon_cancel.png")
 const NAMES := ["Clear", "Rain", "Snow", "Fog", "Storm"]  # per atmosphere.Weather
 const SLOT := 0.25         # una fascia: sei ore, in giorni come main.clock
 const ICON_SIZE := Vector2(24, 24)
+const DRUM := Color("3a3448")            # il fondo del tamburo
+const DRUM_SHADE := 0.85      # ombra sul bordo del tamburo: cala a scalini verso il centro (vedi drum_shade)
+const DRUM_TURN := 0.42        # la parte di tamburo, per lato, che gira via (in ombra)
+const DRUM_RIBS := 13          # tacche sul bordo in alto e in basso, sempre più fitte verso i lati
+const DRUM_PAD := 2                      # pixel liberi ai lati, dentro il tamburo
 
 var main
 var now_icon: TextureRect
@@ -28,15 +34,37 @@ func _ready() -> void:
 		frames[i].region = Rect2(i * 16, 0, 16, 16)
 	mouse_filter = MOUSE_FILTER_STOP
 	add_theme_constant_override("separation", 2)
+	var wheel := PanelContainer.new()  # il tamburo: fondo e bordo, le icone, sopra le ombre ai lati
+	wheel.mouse_filter = MOUSE_FILTER_PASS
+	var style := StyleBoxFlat.new()
+	style.bg_color = DRUM
+	style.border_color = main.OUTLINE
+	style.set_border_width_all(2)
+	wheel.add_theme_stylebox_override("panel", style)
+	var drum := HBoxContainer.new()
+	drum.mouse_filter = MOUSE_FILTER_PASS
+	drum.add_theme_constant_override("separation", 1)
+	drum.add_child(gap())
 	now_icon = icon(Icon.SUN)
-	add_child(now_icon)
-	add_child(now_temp)
+	drum.add_child(now_icon)
+	drum.add_child(now_temp)
 	var then := Label.new()
-	then.text = " >"
-	add_child(then)
+	then.text = ">"
+	then.custom_minimum_size.x = 10  # centrata tra i gradi e le previsioni
+	then.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	drum.add_child(then)
 	for i in 4:
 		next_icons.append(icon(Icon.SUN))
-		add_child(next_icons[-1])
+		drum.add_child(next_icons[-1])
+	drum.add_child(gap())
+	wheel.add_child(drum)
+	var shade := TextureRect.new()
+	shade.texture = drum_shade()
+	shade.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	shade.stretch_mode = TextureRect.STRETCH_SCALE
+	shade.mouse_filter = MOUSE_FILTER_IGNORE
+	wheel.add_child(shade)
+	add_child(wheel)
 	for i in 4:
 		alert_icons.append(icon(Icon.COLD))
 		add_child(alert_icons[-1])
@@ -180,6 +208,37 @@ func day_word(at: float) -> String:
 
 func when(at: float) -> String:
 	return "%s %02d:00" % [main.date(int(at)), int(fposmod(at, 1.0) * 24)]
+
+
+# spazio vuoto ai lati, dentro il tamburo: le prime e le ultime colonne sono in ombra
+func gap() -> Control:
+	var c := Control.new()
+	c.custom_minimum_size = Vector2(DRUM_PAD, 0)
+	c.mouse_filter = MOUSE_FILTER_IGNORE
+	return c
+
+
+# Le ombre del tamburo, da stendere sopra le icone: a scalini verso i due lati (la ruota che si allontana); sul bordo in
+# alto un filo di luce e in basso uno d'ombra, con le tacche di una ruota zigrinata, a passo uguale sul tamburo e quindi
+# sempre più fitte verso i lati. Piccola: allargata, i pixel restano netti
+func drum_shade() -> ImageTexture:
+	const W := 80
+	var ribs := {}
+	for k in range(-(DRUM_RIBS / 2), DRUM_RIBS / 2 + 1):
+		ribs[clampi(int((0.5 + 0.5 * sin(k * PI / (DRUM_RIBS + 1))) * W), 0, W - 1)] = true
+	var img := Image.create_empty(W, 12, false, Image.FORMAT_RGBA8)
+	for x in W:
+		var side := absf(x + 0.5 - W / 2.0) / (W / 2.0)  # 0 al centro, 1 sul bordo
+		var turn := clampf((side - (1.0 - DRUM_TURN)) / DRUM_TURN, 0.0, 1.0)  # quanto è girata via
+		var dark := snappedf(DRUM_SHADE * pow(turn, 1.2), 0.1)  # a scalini, come i pixel
+		for y in 12:
+			var c := Color(0, 0, 0, dark)
+			if y == 0:  # il filo di luce in cima, che si spegne sui lati
+				c = Color(0, 0, 0, 0.45) if ribs.has(x) else Color(1, 1, 1, 0.22 * (1.0 - turn))
+			elif y == 11:
+				c = Color(0, 0, 0, 0.6 if ribs.has(x) else maxf(dark, 0.3))
+			img.set_pixel(x, y, c)
+	return ImageTexture.create_from_image(img)
 
 
 func frame(i: int) -> AtlasTexture:
