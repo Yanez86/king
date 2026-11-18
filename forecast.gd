@@ -82,7 +82,7 @@ func _process(_delta: float) -> void:
 		alert_icons[i].visible = i < warnings.size()
 		if i < warnings.size():
 			alert_icons[i].texture = frame(warnings[i][0])
-	var tip := "Weather: click for the forecast"
+	var tip := tr("Weather: click for the forecast")
 	for w in warnings:
 		tip += "\n" + w[1]
 	if tooltip_text != tip:
@@ -138,9 +138,9 @@ func alerts() -> Array:
 	var hours := roundi(horizon() * 24)
 	for w in sky.waves:
 		if w[0] <= main.clock and main.clock < w[1]:
-			out.append([Icon.COLD, "Cold wave until %s" % when(w[1])])
+			out.append([Icon.COLD, tr("Cold wave until %s") % when(w[1])])
 		elif w[0] > main.clock and w[0] < main.clock + horizon():
-			out.append([Icon.COLD, "Cold wave in %d h" % ceili((w[0] - main.clock) * 24)])
+			out.append([Icon.COLD, tr("Cold wave in %d h") % ceili((w[0] - main.clock) * 24)])
 	var temps := range(hours + 1).map(func(h): return sky.temperature() if h == 0 else sky.forecast_temperature(main.clock + h / 24.0))
 	var first := -1  # la prima ora sotto lo zero
 	for h in temps.size():
@@ -148,17 +148,17 @@ func alerts() -> Array:
 			first = h
 			break
 	if first == 0:
-		out.append([Icon.FROST, "Frost: below zero now, down to %d°C" % roundi(temps.min())])
+		out.append([Icon.FROST, tr("Frost: below zero now, down to %d°C") % roundi(temps.min())])
 	elif first > 0:
-		out.append([Icon.FROST, "Frost in %d h, down to %d°C" % [first, roundi(temps.min())]])
+		out.append([Icon.FROST, tr("Frost in %d h, down to %d°C") % [first, roundi(temps.min())]])
 	if sky.frozen:
-		out.append([Icon.ICE, "Water frozen: walkable, no fishing" if sky.ice >= 1.0 or sky.temperature() <= 0
-			else "Ice thawing: it still holds"])
+		out.append([Icon.ICE, tr("Water frozen: walkable, no fishing") if sky.ice >= 1.0 or sky.temperature() <= 0
+			else tr("Ice thawing: it still holds")])
 	elif sky.ice > 0:
-		out.append([Icon.ICE, "Ice forming on the water" if sky.temperature() < 0 else "Thin ice melting"])
+		out.append([Icon.ICE, tr("Ice forming on the water") if sky.temperature() < 0 else tr("Thin ice melting")])
 	var storm := range(hours + 1).filter(func(h): return sky.weather_at(main.clock + h / 24.0) == sky.Weather.STORM)
 	if not storm.is_empty():
-		out.append([Icon.STORM, "Storm now" if storm[0] == 0 else "Storm in %d h" % storm[0]])
+		out.append([Icon.STORM, tr("Storm now") if storm[0] == 0 else tr("Storm in %d h") % storm[0]])
 	return out
 
 
@@ -175,7 +175,7 @@ func icon_for(w: int, at: float) -> int:
 
 
 func day_word(at: float) -> String:
-	return ["Today", "Tomorrow", "In 2 days"][clampi(int(at) - int(main.clock), 0, 2)]
+	return tr(["Today", "Tomorrow", "In 2 days"][clampi(int(at) - int(main.clock), 0, 2)])
 
 
 func when(at: float) -> String:

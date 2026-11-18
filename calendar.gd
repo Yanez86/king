@@ -67,7 +67,7 @@ func _process(_delta: float) -> void:
 func show_page() -> void:
 	shown = [int(main.clock), main.chronicle.size()]
 	var month := page % 12
-	title.text = "%s, %s, Year %d" % [main.MONTHS[month], main.SEASONS[month / 3], page / 12 + 1]
+	title.text = tr("%s, %s, Year %d") % [tr(main.MONTHS[month]), tr(main.SEASONS[month / 3]), page / 12 + 1]
 	for child in grid.get_children():
 		grid.remove_child(child)
 		child.queue_free()
@@ -106,19 +106,19 @@ func events(day: int) -> Array:
 	var today := int(main.clock)
 	if main.feast(day):
 		var d: int = posmod(day, main.YEAR_DAYS) - 1
-		out.append([Mark.CROWN, main.NEW_YEAR] if d < 0 else [Mark.FEAST, main.FEASTS[d / main.SEASON_DAYS]])
+		out.append([Mark.CROWN, tr(main.NEW_YEAR)] if d < 0 else [Mark.FEAST, tr(main.FEASTS[d / main.SEASON_DAYS])])
 	if day >= today and main.enacted.has(main.Law.DAY_OF_REST) and day % main.REST_EVERY == main.REST_EVERY - 1:
-		out.append([Mark.REST, "Day of rest"])
+		out.append([Mark.REST, tr("Day of rest")])
 	for i in mini(main.chronicle.size(), main.chronicle_days.size()):
 		if main.chronicle_days[i] == day:
 			out.append([Mark.CHRONICLE, main.chronicle[i].get_slice("\n", 0).trim_prefix(main.date(day) + ": ")])
 	if day >= today:
 		for exp in main.expeditions:
 			if exp.left_at >= 0 and int(exp.due) == day:
-				out.append([Mark.DUE, "Expedition due back from the %s" % main.RUINS[exp.ruin.kind]["name"]])
+				out.append([Mark.DUE, tr("Expedition due back from the %s") % tr(main.RUINS[exp.ruin.kind]["name"])])
 		for law in main.revoked:
 			if main.revoked[law] > main.clock and int(main.revoked[law]) == day:
-				out.append([Mark.DUE, "%s can be enacted again" % main.law_name(law)])
+				out.append([Mark.DUE, tr("%s can be enacted again") % main.law_name(law)])
 	return out
 
 

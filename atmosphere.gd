@@ -299,7 +299,7 @@ func update_weather(delta: float) -> void:
 		for w in waves:  # arriva un'ondata: lo dice la cronaca
 			if w[0] <= main.clock and not w[2]:
 				w[2] = true
-				main.note("%s: a cold wave. Keep the fires burning." % main.date(int(main.clock)))
+				main.note(tr("%s: a cold wave. Keep the fires burning.") % main.date(int(main.clock)))
 	weather_strength = move_toward(weather_strength, 1.0 if weather == forecast else 0.0, delta / WEATHER_FADE)
 	if weather != forecast and weather_strength == 0.0:
 		weather = forecast
