@@ -270,6 +270,7 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
   (8 ore a comfort 5) e per cucinare, dove cambia anche la probabilità di bruciare il pasto o farlo squisito.
   Sotto le 6 caselle a testa il comfort cala in proporzione.
 - **Tetti**: ogni stanza finita ha il suo, da sé, sopra la stanza e i suoi muri; un pulsante (V) li toglie per guardare dentro.
+  Chi passa dietro un edificio si vede da un buco nel tetto; chi è dentro resta coperto, tranne il colono scelto.
   Materiale, forma, degrado e comignoli: vedi 4.4.5.
 - **Freddo e pioggia** tolgono comfort, anche sotto lo 0: −1 ogni 4 °C sotto i 12 °C; fuori, sotto la pioggia, −2.
   La temperatura fuori la danno le stagioni (vedi 4.5), ±5 °C tra mezzanotte e mezzogiorno, e il tempo: pioggia −3,
@@ -540,13 +541,22 @@ racconta il diario al ritorno.
 Deciso il 2026-11-18. I tetti cambiano aspetto col materiale e si consumano; i fuochi scaldano anche attraverso i muri
 di legno, la pietra isola; il caldo e il freddo decidono quanto dura il cibo, fino alla ghiacciaia. Numeri da tarare.
 
-- **Materiale del tetto**: segue i muri dell'edificio. Muri di legno → scandole (sprite nuovo); muri di pietra → i coppi
-  di oggi, che diventano il segno della Muratura. Muri misti: decide la maggioranza dei muri dell'edificio (le porte
-  contano come legno). Un tetto è tutto dello stesso materiale.
-- **Forma**: un tetto per edificio, non uno solo per tutte le stanze che si toccano: tra due edifici accostati un
-  compluvio. Il colmo corre lungo il lato lungo; in un edificio più alto che largo è verticale e in facciata si vede il
-  timpano. Le stanze a L si spezzano in rettangoli, ognuno col suo colmo: il colmo non fa più gli scalini. Una leggera
-  differenza di tinta tra un tetto e l'altro.
+- **Materiale del tetto** ✓: segue i muri dell'edificio. Muri di legno → scandole; muri di pietra → coppi, il segno della
+  Muratura. Muri misti: decide la maggioranza dei muri dell'edificio (le porte contano come legno). Un tetto è tutto
+  dello stesso materiale. Tetti e facciate non sono sprite: roofs.gd li calcola dal rettangolo, con la proiezione del
+  gioco (un punto alto z sta z pixel più su), coi coppi di toni diversi e qualche ciuffo di muschio.
+- **Forma** ✓: le caselle coperte si spezzano in rettangoli, il più grande per primo (le stanze a L ne fanno due), e ogni
+  rettangolo ha il suo tetto a due falde. Il colmo corre lungo il lato lungo: negli edifici più larghi che profondi da
+  est a ovest, la falda dietro appena visibile, e un timpano sopra la porta se l'edificio è largo almeno 7 caselle e
+  profondo 4; negli altri da nord a sud, col timpano in facciata. Il tetto ha un'altezza vera: sale sopra la stanza
+  e copre fino a tre caselle dietro.
+- **Facciata** ✓: coi tetti il muro in fondo è alto 24 pixel invece di 10 (sale sulla casella sopra, che è sotto il
+  tetto): graticcio di travi e intonaco su uno zoccolo di pietra sul legno, pietra a corsi sulla pietra, una finestra
+  ogni due caselle, porte ad arco; i timpani a graticcio coi puntoni a V, o di pietra. Coi tetti tolti (V) i muri
+  restano gli sprite di sempre.
+- **Chi sta dietro** ✓: attorno a coloni, avventurieri e animali che un tetto copre da davanti, un buco rotondo nel tetto
+  col bordo a scacchi; chi è dentro una stanza resta coperto, tranne il colono scelto (con la scheda aperta). Gli
+  edifici si disegnano in ordine di riga con alberi e coloni: chi passa davanti a una facciata la copre.
 - **Neve e pioggia sui tetti**: la neve si scioglie secondo la temperatura della stanza sotto, prima sui tetti delle
   stanze calde e attorno ai comignoli: si vede a colpo d'occhio dove si sta al caldo. Sotto la pioggia il tetto è più
   scuro e gocciola dalla gronda; col gelo, ghiaccioli.
@@ -629,17 +639,18 @@ di legno, la pietra isola; il caldo e il freddo decidono quanto dura il cibo, fi
   probabilità) o da un fulmine nel temporale su un tetto di scandole. Si allarga alle caselle di scandole accanto, anche
   di un altro edificio; i coppi non bruciano. I coloni fanno la catena dei secchi dall'acqua più vicina; le caselle
   bruciate restano buchi da riparare.
-- Poi: tetti trasparenti sotto il mouse o sopra la stanza del colono scelto (oltre al pulsante V); di notte la luce
-  delle stanze dalle finestre e dagli abbaini (Vetreria); tetti di rango per sala del trono e palazzo (torrette,
-  stendardo coi colori della casata); banderuola che segna il vento; nidi di cicogna sui comignoli in primavera; un
-  terzo tipo di muro (incannucciato) col tetto di paglia; la pioggia dai buchi che rovina i libri dello studio.
+- Poi: il buco nel tetto anche sotto il mouse; tra due edifici accostati un vero compluvio (oggi il tetto più in basso
+  copre l'altro); una leggera differenza di tinta tra un tetto e l'altro; di notte la luce delle stanze dalle finestre
+  e dagli abbaini (Vetreria); tetti di rango per sala del trono e palazzo (torrette, stendardo coi colori della
+  casata); banderuola che segna il vento; nidi di cicogna sui comignoli in primavera; un terzo tipo di muro
+  (incannucciato) col tetto di paglia; la pioggia dai buchi che rovina i libri dello studio.
 - **Ordine di lavoro** (4.4.5): (1) focolare, comignoli e fumo, fornace che scalda, calore attraverso i muri di legno,
   pietra e roccia che isolano, stanze senza gente più fredde, affumicati più svelti al fuoco da campo; (2) lente del
   calore; (3) tetti: uno per edificio, colmo sul lato lungo, scandole e coppi dai muri, neve che si scioglie sulle
   stanze calde, tetto bagnato; (4) degrado per casella e Riparare; (5) isolamento: pelli alle pareti, portiera, intonaco,
   letto a baldacchino che scalda, poi arazzo e stufa a olle con le loro ricerche; (6) conservazione: caldo che fa
   marcire, cantine nella roccia, fontana che rinfresca, ghiacciaia; (7) incendio.
-- **Stato**: ancora niente.
+- **Stato**: della fase 3 fatti forma e materiale dei tetti, la facciata e il buco nel tetto; il resto ancora niente.
 
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100.

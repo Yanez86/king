@@ -123,9 +123,19 @@ func _initialize() -> void:
 	check(r.door == entrance and r.sign in [entrance + across, entrance - across] and main.built[r.sign][0] == main.Build.WALL,
 		"cartello sul muro accanto alla porta")
 	check(r.cells.size() == 6 and r.cells.has(room.position + Vector2i(2, 1)), "dentro ci sono le 3x2 caselle")
-	check(main.roofed.size() == room.size.x * room.size.y and main.roofed.has(room.position)
-		and main.roofed[entrance] == ((room.position.y + room.end.y) * main.TILE - main.WALL_FRONT) / 2,
-		"tetto su stanza, muri e porta; colmo a metà tra cima e gronda (che lascia la facciata)")
+	check(main.roofed.size() == room.size.x * room.size.y and main.roofed.has(room.position) and main.roofed.has(entrance)
+		and main.roofs.size() == 1 and main.roofs[0]["rect"] == room and main.roofs[0]["base"] == room.end.y * main.TILE,
+		"un tetto su stanza, muri e porta, con la facciata sul muro in fondo")
+	var someone = main.colonists[0]  # chi passa dietro la casa si vede da un buco nel tetto; dentro solo il colono scelto
+	var was: Vector2 = someone.pos
+	someone.pos = main.center(Vector2i(room.position.x + 2, room.position.y - 1))
+	check(main.roof_holes([someone]).has(0), "dietro la casa si vede da un buco nel tetto")
+	someone.pos = main.center(room.position + Vector2i(1, 1))
+	check(main.roof_holes([someone]).is_empty(), "dentro la casa non si vede")
+	main.open_sheet(someone)
+	check(main.roof_holes([someone]).has(0), "dentro la casa si vede se è il colono scelto")
+	main.sheet_panel.hide()
+	someone.pos = was
 	check(r.name == "Structure1" and r.kind == main.RoomKind.NONE, "nome e tipo di default")
 
 	# fase 3: dal cartello diventa un magazzino, e i coloni ci portano la legna

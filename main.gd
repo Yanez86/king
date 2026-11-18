@@ -529,7 +529,7 @@ const FURNITURE_SHEET := preload("res://art/furniture.png")
 const FURNITURE_NIGHT := preload("res://art/furniture_night.png")  # abat-jour e lampioni accesi
 const FURNITURE_GLOW := preload("res://art/furniture_glow.png")    # solo le luci accese, per `lights`
 const SIGN := preload("res://art/sign.png")  # sul muro accanto alla porta d'ingresso di una stanza finita
-const ROOF := preload("res://art/roof.png")  # 32x16: tegole, poi le stesse innevate (vedi draw_roofs)
+const ROOFS := preload("res://roofs.gd")  # tetti con la loro facciata, calcolati per ogni edificio: vedi update_roofs
 const OUTLINE := Color("1f1a24")             # contorno, come la "o" degli sprite
 const DAY_LENGTH := 240.0   # secondi per giorno a velocità 1x
 # Calendario: l'anno si apre col Capodanno (NEW_YEAR), poi quattro stagioni di 3 mesi da MONTH_DAYS giorni, ognuna
@@ -553,7 +553,6 @@ const SKY := {0.0: NIGHT, 0.21: NIGHT, 0.25: Color(1.0, 0.7, 0.6), 0.31: Color.W
 const SHADOW := Color("1f1a2460")  # come la "z" degli sprite, così tutte le ombre hanno lo stesso colore
 const SHADOW_WIDTH := 10    # pixel: ovale sotto i piedi dei coloni (gli animali hanno il loro in BEASTS)
 const SHADOW_WALL := 2      # righe d'ombra sotto muri e porte, dove sotto non c'è un altro muro
-const WALL_FRONT := 10      # pixel: la facciata in fondo allo sprite del muro (vedi wall in tools/make_sprites.py)
 const GROUND := preload("res://art/ground.png")  # terreno 64x176, righe = Ground
 const WATER_SHADER := preload("res://water.gdshader")  # anima l'acqua sul terreno
 # righe di GROUND: 4 varianti per terreno, poi i bordi che un terreno disegna su quello vicino; gli angoli 3 righe più giù
@@ -1145,7 +1144,11 @@ var fresh := {}             # cella -> giorni (a terra fuori) prima che il mucch
 var stockpile := {}         # cella -> true: dentro le stanze di tipo magazzino o dispensa, vedi update_stockpile
 var pantry := {}            # cella -> true: le caselle di stockpile nelle dispense, solo per il cibo
 var rooms: Array[Room] = []  # stanze finite, vedi update_rooms
-var roofed := {}            # casella sotto un tetto (stanze coi loro muri e porte) -> riga in pixel del colmo; vedi update_rooms
+var roofed := {}            # casella sotto un tetto (stanze coi loro muri e porte) -> true; vedi update_roofs
+var roofs: Array = []       # i tetti con la facciata, dall'alto in basso: {rect, origin, base, image, snowy, ...} (roofs.gd)
+var made_roofs := {}        # i dati di un tetto -> il tetto già fatto: a ogni muro nuovo si rifanno solo quelli cambiati
+var hole_masks: Array[Image] = [ROOFS.hole_mask(0), ROOFS.hole_mask(1)]  # i buchi nei tetti, vedi cut_holes
+var hole_clear := Image.create_empty(ROOFS.HOLE_DITHER * 2, ROOFS.HOLE_DITHER * 2, false, Image.FORMAT_RGBA8)
 var roofs_shown := true     # il pulsante Roofs li toglie, per guardare dentro
 var atmosphere := preload("res://atmosphere.gd").new()  # luci, fuochi, nuvole, meteo; neve e pozzanghere a terra
 var forecast_strip = preload("res://forecast.gd").new()  # in alto accanto alla data: il meteo di adesso e le previsioni
@@ -5956,11 +5959,12 @@ func update_rooms() -> void:
 	update_stockpile()
 
 
-# Tetti da soli, come le stanze: sopra ogni stanza e i muri e le porte che la toccano, anche di sbieco. Il colmo sta a
-# metà di ogni colonna di tetto (fino alla gronda, che lascia scoperta la facciata del muro in fondo): sopra la falda
-# al sole, sotto quella in ombra (vedi draw_roofs).
+# Tetti da soli, come le stanze: sopra ogni stanza e i muri e le porte che la toccano, anche di sbieco. Le caselle
+# coperte si spezzano in rettangoli, il più grande per primo (un edificio a L ne fa due), e ogni rettangolo ha il suo
+# tetto con la facciata, fatto da roofs.gd: scandole sui muri di legno, coppi su quelli di pietra. Quelli che non
+# cambiano non si rifanno.
 func update_roofs() -> void:
-	var covered := {}
+	var covered := {}  # nuovo ogni volta: atmosphere.gd se ne accorge e rifà la maschera della neve
 	for room in rooms:
 		for cell in room.cells:
 			for dx in [-1, 0, 1]:
@@ -5968,22 +5972,92 @@ func update_roofs() -> void:
 					var k: Vector2i = cell + Vector2i(dx, dy)
 					if room.cells.has(k) or built.get(k, [Build.FLOOR])[0] not in PAVING:
 						covered[k] = true
-	var ridges := {}  # nuovo ogni volta: atmosphere.gd se ne accorge e rifà la maschera della neve
-	for cell in covered:
-		var top: Vector2i = cell
-		while covered.has(top + Vector2i.UP):
-			top += Vector2i.UP
-		var bottom: Vector2i = cell
-		while covered.has(bottom + Vector2i.DOWN):
-			bottom += Vector2i.DOWN
-		ridges[cell] = (top.y * TILE + eave_y(bottom)) / 2
-	roofed = ridges
+	roofed = covered
+	var made := {}
+	roofs = []
+	for rect in split_rects(covered):
+		var front := []  # la fila in fondo, quella che fa la facciata
+		for x in range(rect.position.x, rect.end.x):
+			var plan: Array = built.get(Vector2i(x, rect.end.y - 1), [Build.FLOOR])
+			if plan[0] == Build.DOOR:
+				front.append(ROOFS.Front.DOOR)
+			elif plan[0] == Build.WALL:
+				front.append(ROOFS.Front.STONE if plan[1] == Res.STONE else ROOFS.Front.WOOD)
+			else:
+				front.append(ROOFS.Front.NONE)
+		var stone := 0  # muri di pietra contro muri di legno e porte
+		for x in range(rect.position.x, rect.end.x):
+			for y in range(rect.position.y, rect.end.y):
+				var plan: Array = built.get(Vector2i(x, y), [Build.FLOOR])
+				if plan[0] == Build.WALL and plan[1] == Res.STONE:
+					stone += 1
+				elif plan[0] in [Build.WALL, Build.DOOR]:
+					stone -= 1
+		var sign_col := -1
+		for room in rooms:
+			if room.sign.y == rect.end.y - 1 and room.sign.x >= rect.position.x and room.sign.x < rect.end.x:
+				sign_col = room.sign.x - rect.position.x
+		var roof_mat: int = ROOFS.Mat.COPPI if stone > 0 else ROOFS.Mat.SHINGLE
+		var key := str([rect, front, sign_col, roof_mat])
+		var roof: Dictionary = made_roofs.get(key, {})
+		if roof.is_empty():
+			roof = ROOFS.new().bake(rect, front, sign_col, roof_mat)
+			roof["tex"] = ImageTexture.create_from_image(roof["image"])
+			roof["snow_tex"] = ImageTexture.create_from_image(roof["snowy"])
+			roof["cut"] = ""
+		made[key] = roof
+		roofs.append(roof)
+	made_roofs = made
+	roofs.sort_custom(func(a, b): return a["base"] < b["base"])
 
 
-# riga in pixel della gronda del tetto che finisce in `cell`: sopra un muro (o una porta) se ne vede la facciata
-func eave_y(cell: Vector2i) -> int:
-	return (cell.y + 1) * TILE - (WALL_FRONT if built.get(cell, [Build.FLOOR])[0] not in PAVING else 0)
+# Le caselle `cells` spezzate in rettangoli, il più grande per primo, pezzo connesso per pezzo connesso
+func split_rects(cells: Dictionary) -> Array[Rect2i]:
+	var out: Array[Rect2i] = []
+	var left := cells.duplicate()
+	while not left.is_empty():
+		var part := {}
+		var todo: Array = [left.keys()[0]]
+		while not todo.is_empty():
+			var cell: Vector2i = todo.pop_back()
+			if part.has(cell) or not left.has(cell):
+				continue
+			part[cell] = true
+			for side in SIDES:
+				todo.append(cell + side)
+		while not part.is_empty():
+			var best := biggest_rect(part)
+			out.append(best)
+			for x in range(best.position.x, best.end.x):
+				for y in range(best.position.y, best.end.y):
+					part.erase(Vector2i(x, y))
+					left.erase(Vector2i(x, y))
+	return out
 
+
+# Il rettangolo più grande tutto dentro `cells`: riga per riga, le colonne di caselle piene che finiscono lì sono un
+# istogramma, e il rettangolo più grande dell'istogramma si trova con una pila
+func biggest_rect(cells: Dictionary) -> Rect2i:
+	var first: Vector2i = cells.keys()[0]
+	var box := Rect2i(first, Vector2i.ONE)
+	for cell: Vector2i in cells:
+		box = box.merge(Rect2i(cell, Vector2i.ONE))
+	var best := Rect2i()
+	var heights := PackedInt32Array()
+	heights.resize(box.size.x + 1)  # l'ultima resta 0: svuota la pila a fine riga
+	heights.fill(0)
+	for y in range(box.position.y, box.end.y):
+		for i in box.size.x:
+			heights[i] = heights[i] + 1 if cells.has(Vector2i(box.position.x + i, y)) else 0
+		var stack: Array[int] = []
+		for i in box.size.x + 1:
+			while not stack.is_empty() and heights[stack[-1]] >= heights[i]:
+				var tall: int = heights[stack.pop_back()]
+				var from: int = stack[-1] + 1 if not stack.is_empty() else 0
+				if tall * (i - from) > best.get_area():
+					best = Rect2i(box.position.x + from, y - tall + 1, i - from, tall)
+			stack.append(i)
+	return best
 
 func update_stockpile() -> void:
 	stockpile.clear()
@@ -6218,7 +6292,7 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 	for room in rooms:  # cartelli: si cliccano per nome e tipo della stanza
 		draw_texture(SIGN, Vector2(room.sign) * TILE)
 
-	# alberi e coloni dall'alto in basso: chi sta più giù copre chi gli sta dietro
+	# alberi, coloni e tetti dall'alto in basso: chi sta più giù copre chi gli sta dietro
 	# ponytail: si affida a `trees` già in ordine di riga; se gli alberi ricrescono, ordinarli o passare a nodi con y_sort
 	for c in corpses:  # sdraiati e smorti, sotto chi è in piedi
 		draw_set_transform(c.pos.round(), PI / 2)
@@ -6226,17 +6300,35 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 		draw_set_transform_matrix(Transform2D.IDENTITY)
 	var queue: Array = people() + animals  # anche gli animali
 	queue.sort_custom(func(a, b): return a.pos.y < b.pos.y)
+	var houses: Array = roofs if roofs_shown else []
+	var holes := roof_holes(queue) if roofs_shown else {}
+	var next := [0, 0]  # il prossimo da disegnare in `queue` e in `houses`
 	for cell in trees:
-		while not queue.is_empty() and queue[0].pos.y < center(cell).y:
-			draw_creature(queue.pop_front())
+		draw_upto(center(cell).y, queue, houses, holes, next)
 		draw_texture_rect_region(TREES, Rect2(Vector2(cell.x, cell.y - 1) * TILE, Vector2(1, 2) * TILE),
 			Rect2(Vector2(trees[cell], 0) * TILE, Vector2(1, 2) * TILE))
-	for c in queue:
-		draw_creature(c)
+	draw_upto(INF, queue, houses, holes, next)
 	for arrow in arrows:  # sopra tutto: volano
 		draw_arrow(arrow)
-	if roofs_shown:
-		draw_roofs()
+	if roofs_shown:  # di nuovo i cartelli: restano sopra i tetti e si cliccano
+		for room in rooms:
+			draw_texture(SIGN, Vector2(room.sign) * TILE)
+
+
+# Coloni, animali e tetti (con la facciata) più in alto di `limit`, dall'alto in basso: un tetto copre chi gli sta
+# dietro, chi gli passa davanti copre lui. `next` dice a che punto si è in `queue` e in `houses`, e va avanti.
+func draw_upto(limit: float, queue: Array, houses: Array, holes: Dictionary, next: Array) -> void:
+	while true:
+		var who: float = queue[next[0]].pos.y if next[0] < queue.size() else INF
+		var house: float = houses[next[1]]["base"] if next[1] < houses.size() else INF
+		if minf(who, house) >= limit:
+			return
+		if house <= who:  # chi sta proprio sul piede della facciata le passa davanti
+			draw_house(next[1], holes.get(next[1], []))
+			next[1] += 1
+		else:
+			draw_creature(queue[next[0]])
+			next[0] += 1
 
 	for cell in chop_marks:
 		draw_mark(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE), Order.CHOP)
@@ -6304,36 +6396,56 @@ func draw_lights() -> void:
 		draw_pieces(lights_canvas, FURNITURE_GLOW, lit)
 
 
-# Tetti (vedi update_roofs): coprono chi sta dentro. Tegole, innevate quanto la neve a terra; la falda sotto il colmo
-# un po' in ombra, una riga di luce sul colmo, il contorno sui bordi; sotto la gronda la facciata del muro, con l'ombra
-# del tetto. Poi di nuovo i cartelli: restano sopra e si cliccano.
-func draw_roofs() -> void:
-	var snow: float = atmosphere.snow
-	for cell in roofed:
-		var eave := not roofed.has(cell + Vector2i.DOWN)
-		var r := Rect2(tile_rect(cell.x, cell.y))
-		if eave:  # sotto la gronda si vede la facciata del muro
-			r.size.y = eave_y(cell) - r.position.y
-		draw_texture_rect_region(ROOF, r, Rect2(Vector2.ZERO, r.size))
-		if snow > 0:
-			draw_texture_rect_region(ROOF, r, Rect2(Vector2(TILE, 0), r.size), Color(1, 1, 1, snow))
-		var ridge: float = roofed[cell]
-		if ridge < r.end.y:
-			var from := maxf(r.position.y, ridge)
-			draw_rect(Rect2(r.position.x, from, TILE, r.end.y - from), Color(OUTLINE, 0.22))
-		if ridge - 1 >= r.position.y and ridge - 1 < r.end.y:
-			draw_rect(Rect2(r.position.x, ridge - 1, TILE, 1), Color(1, 1, 1, 0.3))
-		if not roofed.has(cell + Vector2i.UP):
-			draw_rect(Rect2(r.position, Vector2(TILE, 1)), OUTLINE)
-		if not roofed.has(cell + Vector2i.LEFT):
-			draw_rect(Rect2(r.position, Vector2(1, r.size.y)), OUTLINE)
-		if not roofed.has(cell + Vector2i.RIGHT):
-			draw_rect(Rect2(r.end.x - 1, r.position.y, 1, r.size.y), OUTLINE)
-		if eave:
-			draw_rect(Rect2(r.position.x, r.end.y - 1, TILE, 1), OUTLINE)
-			draw_rect(Rect2(r.position.x, r.end.y, TILE, 3), SHADOW)
-	for room in rooms:
-		draw_texture(SIGN, Vector2(room.sign) * TILE)
+# Tetto `i` di `roofs` con la sua facciata, coi buchi `cut` (vedi roof_holes), innevato quanto la neve a terra
+func draw_house(i: int, cut: Array) -> void:
+	var roof: Dictionary = roofs[i]
+	var key := str(cut)
+	if key != roof["cut"]:  # i buchi sono cambiati: si rifanno le texture
+		roof["cut"] = key
+		roof["tex"].update(cut_holes(roof["image"], cut, roof["origin"]))
+		roof["snow_tex"].update(cut_holes(roof["snowy"], cut, roof["origin"]))
+	draw_texture(roof["tex"], Vector2(roof["origin"]))
+	if atmosphere.snow > 0:
+		draw_texture(roof["snow_tex"], Vector2(roof["origin"]), Color(1, 1, 1, atmosphere.snow))
+
+
+# Buchi nei tetti: attorno a chi sta dietro un edificio (coloni, avventurieri, animali), e attorno al colono scelto
+# anche se è dentro; gli altri dentro restano coperti. Indice in `roofs` -> centri dei buchi, in pixel.
+func roof_holes(queue: Array) -> Dictionary:
+	var holes := {}
+	var chosen: Colonist = shown if sheet_panel.visible else null
+	for c in queue:
+		if c != chosen and roofed.has(cell_of(c.pos)):
+			continue
+		var at := Vector2i((c.pos + Vector2(0, 1)).round())  # il centro della figura
+		for i in roofs.size():
+			if roofs[i]["base"] > c.pos.y and roof_covers(roofs[i], at):
+				if not holes.has(i):
+					holes[i] = []
+				holes[i].append(at)
+	return holes
+
+
+# il tetto `roof` copre la figura col centro in `at`?
+func roof_covers(roof: Dictionary, at: Vector2i) -> bool:
+	var img: Image = roof["image"]
+	for d in [Vector2i.ZERO, Vector2i(0, -5), Vector2i(0, 5), Vector2i(-4, 0), Vector2i(4, 0)]:
+		var p: Vector2i = at + d - roof["origin"]
+		if p.x >= 0 and p.y >= 0 and p.x < img.get_width() and p.y < img.get_height() and img.get_pixelv(p).a > 0.5:
+			return true
+	return false
+
+
+# una copia di `src` (che sta nel mondo da `origin`) coi buchi attorno ai punti `cut`
+func cut_holes(src: Image, cut: Array, origin: Vector2i) -> Image:
+	if cut.is_empty():
+		return src
+	var img := Image.new()
+	img.copy_from(src)
+	var r: int = ROOFS.HOLE_DITHER
+	for at: Vector2i in cut:
+		img.blit_rect_mask(hole_clear, hole_masks[posmod(at.x + at.y, 2)], Rect2i(0, 0, r * 2, r * 2), at - Vector2i(r, r) - origin)
+	return img
 
 
 func draw_lens() -> void:

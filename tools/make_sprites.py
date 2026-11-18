@@ -965,28 +965,6 @@ oFFoFFFFFoFFFFo
 .oo.ooooo.oooo.
 """
 
-# Tetto 16x16, si ripete sopra le stanze coi loro muri (draw_roofs in main.gd): file di coppi sfalsati, la testa al sole
-# e il canale in ombra.
-ROOF = """
-FFFDFFfDFFFDFFfD
-FFfDFFfDFFfDFFfD
-FFfDFFfDFFfDFFfD
-FFfDfDDDFFfDfDDD
-FFfDFFFDFFfDFFFD
-FFfDFFfDFFfDFFfD
-FFfDFFfDFFfDFFfD
-fDDDFFfDfDDDFFfD
-FFFDFFfDFFFDFFfD
-FFfDFFfDFFfDFFfD
-FFfDFFfDFFfDFFfD
-FFfDfDDDFFfDfDDD
-FFfDFFFDFFfDFFFD
-FFfDFFfDFFfDFFfD
-FFfDFFfDFFfDFFfD
-fDDDFFfDfDDDFFfD
-"""
-SNOWY_ROOF = {"F": "h", "f": "u", "D": "X"}  # le stesse tegole sotto la neve: bianco, ombra, giunti grigi
-
 # Cartello 16x16 appeso al muro accanto alla porta di una stanza finita: cliccandolo si cambiano nome e tipo.
 SIGN = """
 ................
@@ -3560,8 +3538,6 @@ def main():
     images["icon_wiki"] = pixels(art(WIKI_ICON, 16, 16))
     images["icon_roofs"] = pixels(art(ROOFS_ICON, 16, 16))
     images["weather"] = pixels(side_by_side(frames(WEATHER_ICONS, count=9)))
-    roof = art(ROOF, 16, 16)
-    images["roof"] = pixels(side_by_side([roof, ["".join(SNOWY_ROOF.get(ch, ch) for ch in line) for line in roof]]))
     symbols = [f for block in (TRAITS_1, TRAITS_2, TRAITS_3) for f in frames(block, 12, 5, 12)]
     images["traits"] = pixels(side_by_side([badge(f) for f in symbols]))
     gifts = [f for block in (HERO_TRAITS_1, HERO_TRAITS_2, HERO_TRAITS_3, HERO_TRAITS_4) for f in frames(block, 12, 4, 12)]
