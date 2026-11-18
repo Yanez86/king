@@ -294,6 +294,88 @@ func _initialize() -> void:
 		and main.tech_for("builds", B.WALL_HIDES) == main.Tech.HUNTING and main.tech_for("builds", B.PLASTER) == main.Tech.MASONRY,
 		"le ricerche: telaio, stufa a olle, caccia, muratura")
 
+	# la ghiacciaia: una stanza di pietra con la fossa del ghiaccio, senza fuochi
+	clear(Rect2i(8, 18, 12, 9))
+	wall_room(Rect2i(10, 20, 7, 6), Vector2i(12, 25), R.STONE)
+	main.update_rooms()
+	var ice_room = main.room_at(Vector2i(12, 22))
+	check(not main.room_meets(ice_room, main.RoomKind.ICEHOUSE), "senza la fossa non è una ghiacciaia")
+	var pit := Vector2i(11, 21)
+	main.furniture[pit] = [B.ICE_PIT, R.STONE, 0]
+	check(main.room_meets(ice_room, main.RoomKind.ICEHOUSE), "di pietra, con la fossa: può esserlo")
+	main.furniture[Vector2i(15, 23)] = [B.CAMPFIRE, R.WOOD, 0]
+	check(not main.room_meets(ice_room, main.RoomKind.ICEHOUSE), "con un fuoco dentro no")
+	main.furniture.erase(Vector2i(15, 23))
+	main.built[Vector2i(16, 22)] = [B.WALL, R.WOOD]
+	check(not main.room_meets(ice_room, main.RoomKind.ICEHOUSE), "con un muro di legno no")
+	main.built[Vector2i(16, 22)] = [B.WALL, R.STONE]
+	ice_room.kind = main.RoomKind.ICEHOUSE
+	main.update_stockpile()
+	var pits: Dictionary = main.pit_cells()
+	check(pits.size() == 4 and main.dest_cells(R.ICE).all(func(k): return pits.has(k)) and main.dest_cells(R.ICE).size() == 4,
+		"il ghiaccio va solo nelle fosse")
+	check(main.dest_cells(R.VEG).has(Vector2i(14, 22)) and not main.dest_cells(R.VEG).has(pit), "il cibo nel resto della stanza")
+	main.clock = floorf(1 + 1.5 * main.SEASON_DAYS) + 0.5  # mezzogiorno, a metà estate
+	var dry: float = main.temperature_at(Vector2i(14, 22))
+	main.items[R.ICE][pit] = 20
+	var iced: float = main.temperature_at(Vector2i(14, 22))
+	check(is_equal_approx(iced, lerpf(sky.temperature(), main.ICE_TEMP, main.insulation(ice_room))) and iced < dry,
+		"col ghiaccio la stanza va verso 0 °C")
+	check(main.spoil_rate(Vector2i(14, 22)) < main.spoil_rate(Vector2i(4, 4)) / 6.0, "il cibo ci marcisce molto più piano che fuori")
+	for i in 24:
+		main.melt_ice()
+	var melted: int = 20 - main.room_ice(ice_room)
+	check(melted > 0 and melted < 20, "d'estate il ghiaccio si scioglie piano (%d blocchi in un giorno)" % melted)
+	main.wear[Vector2i(13, 22)] = 1.5
+	var before: int = main.room_ice(ice_room)
+	for i in 24:
+		main.melt_ice()
+	check(before - main.room_ice(ice_room) > melted, "con un buco nel tetto si scioglie prima")
+	main.wear.clear()
+
+	# tagliare il ghiaccio: sull'acqua gelata segnata, finché nelle fosse c'è posto
+	var hole: Vector2i = main.water.keys()[0]
+	main.order = main.Order.ICE
+	main.mark(Rect2i(hole, Vector2i.ONE))
+	main.order = main.Order.NONE
+	check(main.ice_marks.has(hole) and main.ice_ready().is_empty(), "segnata, ma l'acqua non è gelata")
+	sky.frozen = true
+	main.freeze_water(true)
+	check(main.ice_ready() == [hole] and main.job_list().contains("Cut ice: 1 spots"), "gelata: si taglia")
+	main.items[R.ICE][pit] = main.STACK_MAX[R.ICE]
+	for k in pits:
+		main.items[R.ICE][k] = main.STACK_MAX[R.ICE]
+	check(main.ice_ready().is_empty(), "le fosse sono piene: niente taglio")
+	for k in pits:
+		main.items[R.ICE].erase(k)
+	var cutter = main.colonists[0]
+	cutter.pos = main.center(hole)
+	for c in main.colonists:
+		c.downed = c != cutter
+	for i in 3000:
+		main.tick(0.05)
+		if main.total(R.ICE) > 0 and cutter.job == main.Job.HAUL:
+			break
+	check(main.total(R.ICE) > 0, "il ghiaccio tagliato")
+	for i in 6000:
+		main.tick(0.05)
+		if main.room_ice(ice_room) > 0:
+			break
+	check(main.room_ice(ice_room) > 0, "portato nella fossa della ghiacciaia")
+	for c in main.colonists:
+		c.downed = false
+	sky.frozen = false
+	main.freeze_water(false)
+	main.ice_marks.clear()
+
+	# d'estate la fontana rinfresca la sua stanza
+	main.furniture[Vector2i(13, 21)] = [B.FOUNTAIN, R.STONE, 0]
+	ice_room.kind = main.RoomKind.NONE
+	main.update_stockpile()
+	check(main.heat_sources(ice_room).any(func(src): return src[1] == -main.FOUNTAIN_COOL), "la fontana: −3 °C quando fa caldo")
+	check(main.heat_lines(ice_room).has("Fountain: −3 °C"), "e il cartello lo dice")
+	main.furniture.erase(Vector2i(13, 21))
+
 	# il suggerimento del pulsante dice quanto scalda
 	var tip: Control = main.build_tip(B.HEARTH)
 	var texts: Array = tip.get_children().filter(func(n): return n is Label).map(func(l): return l.text)

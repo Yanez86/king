@@ -23,9 +23,9 @@ const SIDES := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 const TREE_SIDES := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  # da sopra la chioma coprirebbe chi taglia
 
 enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE,
-	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR }
+	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE }
 const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FURNISH, Job.HARVEST, Job.COOK, Job.FISH,
-	Job.HUNT, Job.CRAFT, Job.STUDY, Job.GOVERN, Job.REPAIR]  # contano come ore di lavoro
+	Job.HUNT, Job.CRAFT, Job.STUDY, Job.GOVERN, Job.REPAIR, Job.CUT_ICE]  # contano come ore di lavoro
 # VEG: vegetali, dalle bacche dei cespugli; IRON, COAL: dai massi con le vene; MEAL, FINE_MEAL: pasti, dalla cucina;
 # MEAT, HIDE: carne e pelle, dagli animali cacciati; FISH: pesce, dai punti di pesca; INGOT: lingotti, dalla fornace;
 # FLAX: lino, dai fiori (vedi flax); BOWSTRING: corda d'arco, dal filatoio;
@@ -39,11 +39,11 @@ const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FUR
 enum Res { WOOD, STONE, VEG, IRON, COAL, MEAL, FINE_MEAL, MEAT, FISH, HIDE, INGOT, FLAX, BOWSTRING,
 	PICKAXE, AXE, SICKLE, BOW, LEATHER_ARMOR, LEATHER_HOOD, HELMET, CHAINMAIL, SWORD, GOLD, DAGGER,
 	CHALICE, OLD_BANNER, BUST, CROWN, NOTEBOOK, TOME, CODEX, HARDTACK, SMOKED_MEAT, SMOKED_FISH, SHIELD,
-	STEEL, PARCHMENT, INK }
+	STEEL, PARCHMENT, INK, ICE }  # ICE: blocchi tagliati dall'acqua gelata, per la ghiacciaia (vedi Order.ICE)
 const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.IRON: 50, Res.COAL: 50, Res.MEAL: 20, Res.FINE_MEAL: 20,
 	Res.MEAT: 50, Res.FISH: 50, Res.HIDE: 50, Res.INGOT: 50, Res.FLAX: 50, Res.BOWSTRING: 50, Res.PICKAXE: 10, Res.AXE: 10, Res.SICKLE: 10, Res.BOW: 10,
 	Res.LEATHER_ARMOR: 10, Res.LEATHER_HOOD: 10, Res.HELMET: 10, Res.CHAINMAIL: 10, Res.SWORD: 10, Res.GOLD: 100, Res.DAGGER: 10,
-	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5, Res.NOTEBOOK: 10, Res.TOME: 10, Res.CODEX: 10, Res.HARDTACK: 50, Res.SMOKED_MEAT: 50, Res.SMOKED_FISH: 50, Res.SHIELD: 10, Res.STEEL: 50, Res.PARCHMENT: 50, Res.INK: 20}  # quantità massima per mucchio (casella)
+	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5, Res.NOTEBOOK: 10, Res.TOME: 10, Res.CODEX: 10, Res.HARDTACK: 50, Res.SMOKED_MEAT: 50, Res.SMOKED_FISH: 50, Res.SHIELD: 10, Res.STEEL: 50, Res.PARCHMENT: 50, Res.INK: 20, Res.ICE: 50}  # quantità massima per mucchio (casella)
 const MEALS := [Res.FINE_MEAL, Res.MEAL]  # cotti: chi ha fame li prende in quest'ordine, poi il crudo
 const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT, Res.SMOKED_FISH, Res.SMOKED_MEAT]  # crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti
 const STASH := [Res.WOOD, Res.STONE, Res.VEG, Res.IRON, Res.COAL, Res.FLAX]  # scorta di debug: il resto si produce
@@ -71,7 +71,7 @@ const ITEM_KIND := {
 	Res.CHALICE: ItemKind.RELIC, Res.OLD_BANNER: ItemKind.RELIC, Res.BUST: ItemKind.RELIC, Res.CROWN: ItemKind.RELIC,
 	Res.NOTEBOOK: ItemKind.BOOK, Res.TOME: ItemKind.BOOK, Res.CODEX: ItemKind.BOOK, Res.HARDTACK: ItemKind.FOOD,
 	Res.SMOKED_MEAT: ItemKind.FOOD, Res.SMOKED_FISH: ItemKind.FOOD, Res.SHIELD: ItemKind.ARMOR,
-	Res.STEEL: ItemKind.MATERIAL, Res.PARCHMENT: ItemKind.MATERIAL, Res.INK: ItemKind.MATERIAL,
+	Res.STEEL: ItemKind.MATERIAL, Res.PARCHMENT: ItemKind.MATERIAL, Res.INK: ItemKind.MATERIAL, Res.ICE: ItemKind.MATERIAL,
 }
 # cibo: quanto sazia (vedi eat) e in quanti giorni marcisce a terra fuori (vedi spoil); in magazzino ci mette il doppio.
 # Il crudo sazia meno e può intossicare (vedi poison_chance), i pasti no e danno un bonus (vedi Cond)
@@ -335,16 +335,17 @@ const SMOKE_TIME := 0.75     # affumicare al fuoco da campo, dove il fumo resta:
 const STATION_ROOM := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.HEARTH: RoomKind.KITCHEN, Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP,
 	Build.SPINNING_WHEEL: RoomKind.WORKSHOP, Build.CARPENTER_BENCH: RoomKind.CARPENTRY, Build.DESK: RoomKind.STUDY}
 const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.MEAL: MEALS_PER_COLONIST * COLONIST_COUNT, Res.COAL: 5}  # scorte di partenza, vedi keep
-enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT }  # cosa segna il trascinamento del mouse
+enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT, ICE }  # cosa segna il trascinamento del mouse
 const ORDER_COLORS := [Color.TRANSPARENT, Color.ORANGE, Color("8fd3ff"), Color("9be36a"), Color("e6e2d0"),
-	Color("ff5a5a"), Color("c83030"), Color("d84a6a"), Color("6ab0e0"), Color("c87a3a")]  # selezione e segni, per Order
+	Color("ff5a5a"), Color("c83030"), Color("d84a6a"), Color("6ab0e0"), Color("c87a3a"), Color("bfe6f2")]  # selezione e segni, per Order
 # tasti in HUD/Tools/Row dopo Build, uno alla volta (ButtonGroup "Orders"): vedi toggle_order
 const ORDER_TOOLS := {Order.DEMOLISH: "Destroy", Order.MINE: "Mine", Order.CHOP: "Chop", Order.UPROOT: "Uproot",
-	Order.HARVEST: "Harvest", Order.FISH: "Fish", Order.HUNT: "Hunt"}
+	Order.HARVEST: "Harvest", Order.FISH: "Fish", Order.HUNT: "Hunt", Order.ICE: "Ice"}
 const ORDER_ICONS := {Order.CHOP: preload("res://art/icon_chop.png"), Order.MINE: preload("res://art/icon_mine.png"),
 	Order.UPROOT: preload("res://art/icon_uproot.png"), Order.HARVEST: preload("res://art/icon_harvest.png"),
-	Order.FISH: preload("res://art/icon_fishing.png"), Order.HUNT: preload("res://art/icon_hunting.png")}  # le stesse dei tasti: piccole e velate sopra ciò che è segnato
-enum RoomKind { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE, WORKSHOP, CARPENTRY, INN, STUDY, THRONE_ROOM, PANTRY }  # tipo di stanza, scelto dal cartello
+	Order.FISH: preload("res://art/icon_fishing.png"), Order.HUNT: preload("res://art/icon_hunting.png"),
+	Order.ICE: preload("res://art/icon_ice.png")}  # le stesse dei tasti: piccole e velate sopra ciò che è segnato
+enum RoomKind { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE, WORKSHOP, CARPENTRY, INN, STUDY, THRONE_ROOM, PANTRY, ICEHOUSE }  # tipo di stanza, scelto dal cartello
 # categoria del tipo: lavoro (niente proprietari, gli si assegnano dei lavoratori), residenza (può avere dei proprietari),
 # servizio (comune a tutti, con uno scopo preciso: magazzino, locanda). Senza tipo: nessuna, né proprietari né lavoratori
 enum RoomClass { NONE, WORK, RESIDENCE, SERVICE }
@@ -360,6 +361,7 @@ const ROOM_CLASS := {
 	RoomKind.STUDY: RoomClass.WORK,
 	RoomKind.THRONE_ROOM: RoomClass.WORK,  # un solo lavoratore possibile: il sovrano (vedi fill_people)
 	RoomKind.PANTRY: RoomClass.SERVICE,  # un magazzino solo per il cibo, che ci dura di più (vedi spoil_rate)
+	RoomKind.ICEHOUSE: RoomClass.SERVICE,  # una dispensa di pietra col ghiaccio: col freddo il cibo non marcisce (vedi room_base)
 }
 # titolo della lista di coloni da spuntare nel popup del cartello, per RoomClass (le altre non ce l'hanno)
 const ROOM_PEOPLE := {RoomClass.WORK: "Workers", RoomClass.RESIDENCE: "Owners"}
@@ -374,6 +376,7 @@ enum Build { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE
 	CANOPY_BED, RUG, WARDROBE,  # arredo fine: il baldacchino è un letto (vedi BEDS), tappeto e armadio danno comfort
 	HEARTH,  # il focolare di pietra contro un muro: fa quello che fa il fuoco da campo (vedi ROLE), scalda di più (HEAT)
 	WALL_HIDES, DOOR_CURTAIN, TAPESTRY, TILED_STOVE,  # isolano la stanza (INSULATES); la stufa a olle scalda due stanze
+	ICE_PIT,  # la fossa del ghiaccio, nella ghiacciaia: ci si portano i blocchi (vedi dest_cells)
 	ROAD,  # strada lastricata: ci si cammina più svelti (vedi ROAD_SPEED)
 	PALISADE, GATE,  # palizzata e cancello: i lupi non passano; non fanno stanze (vedi update_rooms, beast_path)
 	PLASTER }  # intonaco su un muro di legno già fatto: isola di più (PLASTER_INSULATION), diventa bianco (vedi plastered)
@@ -384,7 +387,7 @@ const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1
 	Build.BENCH: 6, Build.BANNER: 4, Build.LANTERN: 4, Build.FOUNTAIN: 30, Build.STATUE: 40, Build.NOTICE_BOARD: 8,
 	Build.CHALICE: 1, Build.OLD_BANNER: 1, Build.BUST: 1, Build.CROWN: 1, Build.DESK: 10, Build.BOOKSHELF: 12, Build.THRONE: 12, Build.ROAD: 2, Build.DUMMY: 6, Build.WATCHTOWER: 20,
 	Build.CANOPY_BED: 20, Build.RUG: 4, Build.WARDROBE: 12, Build.HEARTH: 15,
-	Build.WALL_HIDES: 2, Build.DOOR_CURTAIN: 2, Build.TAPESTRY: 4, Build.TILED_STOVE: 20,
+	Build.WALL_HIDES: 2, Build.DOOR_CURTAIN: 2, Build.TAPESTRY: 4, Build.TILED_STOVE: 20, Build.ICE_PIT: 20,
 	Build.PALISADE: 4, Build.GATE: 6, Build.PLASTER: 1}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
 const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
@@ -396,7 +399,7 @@ const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Buil
 	Build.DESK: Vector2i.ONE, Build.BOOKSHELF: Vector2i.ONE, Build.THRONE: Vector2i.ONE, Build.DUMMY: Vector2i.ONE,
 	Build.WATCHTOWER: Vector2i.ONE, Build.CANOPY_BED: Vector2i(2, 1), Build.RUG: Vector2i(2, 1), Build.WARDROBE: Vector2i.ONE,
 	Build.HEARTH: Vector2i.ONE, Build.WALL_HIDES: Vector2i.ONE, Build.DOOR_CURTAIN: Vector2i.ONE, Build.TAPESTRY: Vector2i.ONE,
-	Build.TILED_STOVE: Vector2i.ONE}
+	Build.TILED_STOVE: Vector2i.ONE, Build.ICE_PIT: Vector2i(2, 2)}
 # mobili animati: secondi per fotogramma; i fotogrammi stanno nelle colonne dei quarti di giro (sono simmetrici)
 const ANIMATED := {Build.CAMPFIRE: 0.15, Build.BANNER: 0.3, Build.FOUNTAIN: 0.2}
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
@@ -406,7 +409,8 @@ const PAVING := [Build.FLOOR, Build.PATH, Build.ROAD]  # a terra: si calpestano,
 # i cimeli: la decorazione si fa con l'oggetto trovato nelle rovine, uno a pezzo
 const RELICS := {Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}
 const BUILD_RES := {Build.PATH: Res.STONE, Build.ROAD: Res.STONE, Build.RUG: Res.HIDE, Build.FURNACE: Res.STONE, Build.HEARTH: Res.STONE,
-	Build.WALL_HIDES: Res.HIDE, Build.DOOR_CURTAIN: Res.HIDE, Build.TAPESTRY: Res.FLAX, Build.TILED_STOVE: Res.STONE, Build.PLASTER: Res.STONE, Build.ANVIL: Res.IRON, Build.PLANTER: Res.STONE, Build.FOUNTAIN: Res.STONE,
+	Build.WALL_HIDES: Res.HIDE, Build.DOOR_CURTAIN: Res.HIDE, Build.TAPESTRY: Res.FLAX, Build.TILED_STOVE: Res.STONE, Build.PLASTER: Res.STONE,
+	Build.ICE_PIT: Res.STONE, Build.ANVIL: Res.IRON, Build.PLANTER: Res.STONE, Build.FOUNTAIN: Res.STONE,
 	Build.STATUE: Res.STONE, Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}
 # mobili che servono perché il cartello lasci scegliere il tipo di stanza: tipo -> {mobile: almeno quanti}
 # ponytail: la cucina accetterà anche la stufa, quando ci sarà: allora "uno tra" invece di "tutti"
@@ -420,10 +424,11 @@ const ROOM_NEEDS := {
 	RoomKind.INN: {Build.BED: 1, Build.TABLE: 1, Build.NOTICE_BOARD: 1},
 	RoomKind.STUDY: {Build.DESK: 1},
 	RoomKind.THRONE_ROOM: {Build.THRONE: 1},
+	RoomKind.ICEHOUSE: {Build.ICE_PIT: 1},  # e solo muri di pietra o roccia, nessun fuoco (vedi room_meets)
 }
 # lente delle stanze (tasto col cartello in basso): le stanze finite velate col colore del loro tipo, per RoomKind
 const ROOM_COLORS := [Color("e6e2d0"), Color("c9a23b"), Color("3b8fd3"), Color("8a5ad3"), Color("e0703a"), Color("d33b3b"),
-	Color("3bb08a"), Color("9be36a"), Color("d38a3b"), Color("6a9ae0"), Color("c48ad8"), Color("8fd8e8")]
+	Color("3bb08a"), Color("9be36a"), Color("d38a3b"), Color("6a9ae0"), Color("c48ad8"), Color("8fd8e8"), Color("dff2fa")]
 # comfort di una stanza, 0-COMFORT_MAX: lo danno i mobili (per pezzo) e il pavimento (tutto se copre la stanza intera),
 # per il materiale. A metà né bonus né malus; fuori dalle stanze è 0. Vedi room_comfort e comfort_of
 const COMFORT_MAX := 10
@@ -445,7 +450,7 @@ const COLD_STEP := 4.0
 const WET_COMFORT := 2.0
 const ROOM_TEMP := 15.0
 const STORE_TEMP := 5.0      # magazzino e dispensa: senza gente, vanno verso il fresco (vedi STORES)
-const STORES := [RoomKind.WAREHOUSE, RoomKind.PANTRY]
+const STORES := [RoomKind.WAREHOUSE, RoomKind.PANTRY, RoomKind.ICEHOUSE]
 const WALL_INSULATION := {Res.WOOD: 0.5, Res.STONE: 0.7}  # per materiale; le porte contano come legno
 const ROCK_INSULATION := 0.85  # la roccia della mappa che chiude una stanza: la cantina
 const INSULATION_MAX := 0.9
@@ -464,6 +469,17 @@ const AGAINST := {Build.HEARTH: [Build.WALL], Build.WALL_HIDES: [Build.WALL], Bu
 const INSULATES := {Build.WALL_HIDES: [0.05, 3], Build.DOOR_CURTAIN: [0.1, 1], Build.TAPESTRY: [0.05, 3]}
 const PLASTER_INSULATION := 0.6
 const BED_WARMTH := {Build.CANOPY_BED: 4.0}
+# Ghiacciaia (RoomKind.ICEHOUSE): finché nella fossa c'è ghiaccio la stanza va verso ICE_TEMP; il ghiaccio si scioglie,
+# ogni giorno, di ICE_MELT blocchi per ogni grado sopra lo zero fuori che passa i muri (1 - isolamento), più ICE_HOLE_MELT
+# per ogni buco nel tetto. Si taglia sull'acqua gelata segnata con "Ice", ICE_PER_SPOT blocchi a punto prima di cambiare
+const ICE_TEMP := 0.0
+const ICE_MELT := 0.4
+const ICE_HOLE_MELT := 1.0
+const ICE_PER_SPOT := 10
+const COLD_WALLS := [Res.STONE]  # la ghiacciaia vuole muri così (o la roccia)
+# la fontana in una stanza toglie FOUNTAIN_COOL gradi quando fuori ce ne sono più di FOUNTAIN_FROM
+const FOUNTAIN_COOL := 3.0
+const FOUNTAIN_FROM := 20.0
 const DISCOMFORT_DROP := 24.0  # uno all'ora per punto
 # splendore della colonia: lo danno le decorazioni finite, dentro e fuori dalle stanze (vedi colony_splendor).
 # ponytail: per ora solo il totale in alto; poi terrà felici i coloni e sbloccherà cose (strade, feste: vedi GDD)
@@ -480,7 +496,7 @@ const ROOM_SPACE := 6        # caselle a testa: chi ne ha meno (stanza piena di 
 # menù delle opzioni (Esc o ingranaggio), tab Keybindings: tasti di partenza dei comandi della barra in basso, per
 # nome del pulsante in HUD/Tools/Row (quelli che non ci sono partono senza). Cambiati, si salvano: vedi bind_key
 const DEFAULT_KEYS := {"Select": KEY_Q, "Build": KEY_B, "Destroy": KEY_X, "Mine": KEY_M, "Chop": KEY_C, "Uproot": KEY_U,
-	"Harvest": KEY_H, "Fish": KEY_F, "Hunt": KEY_T, "Jobs": KEY_J, "Resources": KEY_I, "Knowledge": KEY_K, "Laws": KEY_G,
+	"Harvest": KEY_H, "Fish": KEY_F, "Hunt": KEY_T, "Ice": KEY_Y, "Jobs": KEY_J, "Resources": KEY_I, "Knowledge": KEY_K, "Laws": KEY_G,
 	"RoomsLens": KEY_L, "HeatLens": KEY_N, "Roofs": KEY_V, "Wiki": KEY_F1}
 const SPEEDS := {"Pause": 0.0, "Play": 1.0, "Fast": 2.0, "Fastest": 3.0}  # pulsanti in alto a destra, come Space e 1-3
 # tab Video delle opzioni: misure della finestra, solo quelle che stanno nello schermo (la prima sempre)
@@ -511,6 +527,7 @@ const BUILD_INFO := {
 	Build.TAPESTRY: "Purple linen with a golden lozenge: warmth and splendor. Hang it against a wall.",
 	Build.TILED_STOVE: "Glazed green tiles around a slow fire, against a wall: it warms its room and the one behind the wall all the same, through stone too.",
 	Build.PLASTER: "Lime plaster over a wooden wall: it keeps the heat in better, and turns the wall white.",
+	Build.ICE_PIT: "A stone pit lined with straw, for blocks of ice. An icehouse needs one, stone walls and no fire: while it holds ice, the room tends to 0 °C.",
 	Build.HEARTH: "A stone fireplace with a chimney, set against a wall. Cooks and warms like a campfire, more. Half its heat goes through a wooden wall at its back, none through stone.",
 	Build.ANVIL: "An iron anvil on a stump. A forge needs one, and a furnace. Tools and metal armor are made here.",
 	Build.WORKBENCH: "A sturdy bench. A workshop needs one. Leather armor is made here.",
@@ -669,6 +686,7 @@ const ICONS := {
 	Res.STEEL: preload("res://art/icon_steel.png"),
 	Res.PARCHMENT: preload("res://art/icon_parchment.png"),
 	Res.INK: preload("res://art/icon_ink.png"),
+	Res.ICE: preload("res://art/icon_ice_block.png"),
 }
 # 256x128, righe: muri di legno, muri di pietra (colonna = lati collegati, vedi WALL_LINKS), pavimenti (colonna = Res,
 # poi il sentiero), porte (di fronte, di lato), erba sui pavimenti (lati, angoli, due varianti); vedi structure_src e draw_grass_over
@@ -688,6 +706,7 @@ const GATHER := {
 	Job.MINE: [Skill.MINING, 15.0, 5, Res.STONE],
 	Job.HARVEST: [Skill.GATHERING, 5.0, 1, Res.VEG],  # solo i cespugli segnati con "Harvest" (vedi harvest_marks)
 	Job.FISH: [Skill.FISHING, 10.0, 1, Res.FISH],      # un lancio; il pesce solo con catch_chance (vedi fish_marks)
+	Job.CUT_ICE: [Skill.MINING, 8.0, 2, Res.ICE],      # sull'acqua gelata segnata con "Ice" (vedi ice_marks)
 }
 const STAR := preload("res://art/icon_star.png")
 const SKILLS_SHEET := preload("res://art/skills.png")  # icone 8x8, colonne nell'ordine di Skill
@@ -891,7 +910,7 @@ const BRANCHES_SHEET := preload("res://art/branches.png")
 # ponytail: solo i nodi che hanno già qualcosa da sbloccare; gli altri dell'albero del GDD arrivano con le loro cose
 enum Tech { FORGE, TAILORING, HUNTING, INN, MASONRY, DECOR, LANTERNS, IRON_ARMS, BOOKSHELF, CHAINMAIL, FOUNTAIN, STATUARY,
 	ASTRONOMY, CHARCOAL, COLD_STORE, PAVED_ROAD, DRY_RATIONS, CARTOGRAPHY, PALISADE, TRAINING_DUMMY, SMOKEHOUSE, RENOWNED_INN,
-	WATCHTOWER, SHIELD, LENDING_ARMORY, STEEL, SCRIPTORIUM, FINE_FURNITURE, PALACE, LOOM, TILED_STOVE }
+	WATCHTOWER, SHIELD, LENDING_ARMORY, STEEL, SCRIPTORIUM, FINE_FURNITURE, PALACE, LOOM, TILED_STOVE, ICEHOUSE }
 const TECHS_SHEET := preload("res://art/techs.png")
 const TECHS := {
 	Tech.FORGE: {"branch": Branch.FIRE, "tier": 1, "cost": 60, "builds": [Build.FURNACE, Build.ANVIL],
@@ -951,6 +970,8 @@ const TECHS := {
 		"info": "Canopy bed, rug and wardrobe: the ruler's fine chamber."},
 	Tech.PALACE: {"branch": Branch.STONE, "tier": 4, "cost": 1200, "needs": [Tech.STATUARY],
 		"info": "The throne room becomes a palace: audiences give 50% more authority, +10 splendor."},
+	Tech.ICEHOUSE: {"branch": Branch.LAND, "tier": 2, "cost": 250, "needs": [Tech.COLD_STORE], "rooms": [RoomKind.ICEHOUSE],
+		"builds": [Build.ICE_PIT], "info": "The icehouse: stone walls, a pit of ice cut from the frozen water in winter. While the ice lasts, food barely spoils."},
 	Tech.LOOM: {"branch": Branch.FIRE, "tier": 2, "cost": 200, "needs": [Tech.TAILORING], "builds": [Build.TAPESTRY],
 		"info": "Woven linen: tapestries for the walls, warmth and splendor."},
 	Tech.TILED_STOVE: {"branch": Branch.FIRE, "tier": 2, "cost": 300, "needs": [Tech.CHARCOAL, Tech.MASONRY], "builds": [Build.TILED_STOVE],
@@ -1159,6 +1180,7 @@ class Room:
 	var workers: Array[Colonist] = [] # stanze di lavoro: chi ci lavora, scelti allo stesso modo; l'ingresso resta libero
 	# ponytail: i lavoratori non cambiano ancora niente; con cucina e forgia solo loro ne faranno i lavori
 	var banned := false               # nessuno ci entra, nemmeno i proprietari
+	var thaw := 0.0                   # ghiacciaia: il ghiaccio sciolto che non fa ancora un blocco (vedi melt_ice)
 
 
 
@@ -1188,6 +1210,7 @@ var mine_marks := {}        # cella d'origine -> true: massi da scavare
 var uproot_marks := {}      # cella -> true: erbacce e cespugli da estirpare
 var harvest_marks := {}     # cella -> true: cespugli da cui raccogliere le bacche, ogni volta che maturano
 var fish_marks := {}        # cella d'acqua -> true: punti di pesca
+var ice_marks := {}         # cella d'acqua -> true: dove si taglia il ghiaccio, quando gela
 var fish_spots := {}        # cella d'acqua -> `clock` da cui ci sono di nuovo pesci (se manca, ci sono)
 var animals: Array[Animal] = []
 var arrows: Array[Arrow] = []  # in volo, vedi shoot
@@ -2341,6 +2364,8 @@ func describe(cell: Vector2i) -> Array:
 			if a.marked:
 				lines.append(tr("Marked: hunt"))
 			return [named(Beast, a.kind), "\n".join(lines)]
+	if ice_marks.has(cell):
+		return [tr("Ice cutting spot"), tr("Frozen: cut ice") if atmosphere.frozen else tr("Not frozen yet")]
 	if fish_marks.has(cell) and atmosphere.frozen:
 		return [tr("Fishing spot"), tr("Frozen: no fishing until it thaws")]
 	if fish_marks.has(cell):
@@ -2409,6 +2434,8 @@ func job_list() -> String:
 		lines.append(tr("Harvest bushes: %d") % harvest_ready().size())
 	if not fishable().is_empty():
 		lines.append(tr("Fish spots: %d") % fishable().size())
+	if not ice_ready().is_empty():
+		lines.append(tr("Cut ice: %d spots") % ice_ready().size())
 	var hunted := animals.filter(func(a): return a.marked)
 	if not hunted.is_empty():
 		lines.append(tr("Hunt animals: %d%s") % [hunted.size(), "" if colonists.any(has_bow) or available(Res.BOW) > 0 else tr(" (needs a bow)")])
@@ -2728,7 +2755,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 				c.look_again = LOOK_AGAIN
 		return
 	match c.job:
-		Job.CHOP, Job.MINE, Job.HARVEST, Job.FISH:  # raccolta, vedi GATHER: un colpo ogni gather_time, il raccolto cade ai piedi
+		Job.CHOP, Job.MINE, Job.HARVEST, Job.FISH, Job.CUT_ICE:  # raccolta, vedi GATHER: un colpo ogni gather_time, il raccolto cade ai piedi
 			var cells := work_cells(c.job, c.target)
 			sort_by_distance(cells, c.pos)
 			face(c, center(cells[0]) - c.pos)  # verso il bersaglio, così il colpo va a segno
@@ -3249,7 +3276,64 @@ func cold_malus(t: float) -> int:
 
 # la temperatura verso cui va la stanza: ROOM_TEMP dove si vive, STORE_TEMP nei magazzini e nelle dispense
 func room_base(room: Room) -> float:
+	if room.kind == RoomKind.ICEHOUSE and room_ice(room) > 0:
+		return ICE_TEMP
 	return STORE_TEMP if room.kind in STORES else ROOM_TEMP
+
+
+# blocchi di ghiaccio nelle fosse della stanza
+func room_ice(room: Room) -> int:
+	var sum := 0
+	for cell in pit_cells():
+		if room.cells.has(cell):
+			sum += items[Res.ICE].get(cell, 0)
+	return sum
+
+
+# caselle delle fosse del ghiaccio dentro le ghiacciaie: solo lì va il ghiaccio (vedi dest_cells)
+func pit_cells() -> Dictionary:
+	var cells := {}
+	for origin in furniture:
+		if furniture[origin][0] == Build.ICE_PIT and room_at(origin) != null and room_at(origin).kind == RoomKind.ICEHOUSE:
+			for k in cells_in(piece_rect(origin, furniture[origin])):
+				cells[k] = true
+	return cells
+
+
+# Un'ora della ghiacciaia: il ghiaccio si scioglie col caldo che entra (vedi ICE_MELT) e dai buchi nel tetto
+func melt_ice() -> void:
+	var pits := pit_cells()
+	for room in rooms:
+		if room.kind != RoomKind.ICEHOUSE:
+			continue
+		var piles := pits.keys().filter(func(k): return room.cells.has(k) and items[Res.ICE].has(k))
+		if piles.is_empty():
+			room.thaw = 0.0
+			continue
+		var outside: float = atmosphere.temperature() if atmosphere.climate else ROOM_TEMP
+		var holes := room.cells.keys().filter(holed).size()
+		room.thaw += (maxf(outside, 0.0) * (1.0 - insulation(room)) * ICE_MELT + holes * ICE_HOLE_MELT) / 24.0
+		while room.thaw >= 1.0 and not piles.is_empty():
+			add_item(Res.ICE, piles[0], -1)
+			room.thaw -= 1.0
+			if not items[Res.ICE].has(piles[0]):
+				piles.pop_front()
+
+
+# posto libero nelle fosse, meno il ghiaccio già tagliato che aspetta di esserci portato
+func ice_space() -> int:
+	var room_left := 0
+	var pits := pit_cells()
+	for k in pits:
+		room_left += STACK_MAX[Res.ICE] - items[Res.ICE].get(k, 0)
+	return room_left - (total(Res.ICE) - pits.keys().reduce(func(n, k): return n + items[Res.ICE].get(k, 0), 0))
+
+
+# acqua segnata dove tagliare il ghiaccio: solo se è gelata e se nelle fosse c'è posto
+func ice_ready() -> Array:
+	if not atmosphere.frozen or ice_space() <= 0:
+		return []
+	return ice_marks.keys()
 
 
 # Quanto isola la stanza, 0..INSULATION_MAX: la media di quello che la chiude, casella per casella (muri per materiale,
@@ -3301,6 +3385,10 @@ func heat_sources(room: Room) -> Array:
 			out.append([origin, HEAT[kind]])
 		elif THROUGH.has(kind) and heat_through(origin) == room:
 			out.append([origin, HEAT[kind] * THROUGH[kind]])
+	if atmosphere.climate and atmosphere.temperature() > FOUNTAIN_FROM:  # d'estate la fontana rinfresca
+		for origin in furniture:
+			if furniture[origin][0] == Build.FOUNTAIN and room.cells.has(origin):
+				out.append([origin, -FOUNTAIN_COOL])
 	return out
 
 
@@ -3350,10 +3438,19 @@ func heat_lines(room: Room) -> Array:
 	for source in heat_sources(room):
 		var from := room_at(source[0])
 		var name := named(Build, furniture[source[0]][0])
-		lines.append(("%s: +%s °C" % [name if from == room or from == null else tr("%s of %s") % [name, from.name],
-			str(snappedf(source[1], 0.5)).trim_suffix(".0")]))
+		lines.append(("%s: %s%s °C" % [name if from == room or from == null else tr("%s of %s") % [name, from.name],
+			"+" if source[1] >= 0 else "−", str(snappedf(absf(source[1]), 0.5)).trim_suffix(".0")]))
 	lines.append(tr("Total: %d °C") % roundi(room_temperature(room)))
 	return lines
+
+
+# la stanza può tenere il ghiaccio: chiusa solo da muri di pietra (COLD_WALLS), roccia e porte, senza fuochi dentro
+func cold_room(room: Room) -> bool:
+	for k in room_walls(room):
+		var b: Array = built.get(k, [-1, -1])
+		if b[0] == Build.WALL and b[1] not in COLD_WALLS:
+			return false
+	return not furniture.keys().any(func(o): return HEAT.has(furniture[o][0]) and room.cells.has(o))
 
 
 # il tipo che il mobile fa le veci di (ROLE), o se stesso
@@ -3392,6 +3489,8 @@ func comfort_time(comfort: int) -> float:
 # vogliono una ricerca ("rooms" in TECHS)
 func room_meets(room: Room, kind: RoomKind) -> bool:
 	if not unlocked("rooms", kind):
+		return false
+	if kind == RoomKind.ICEHOUSE and not cold_room(room):
 		return false
 	var needs: Dictionary = ROOM_NEEDS.get(kind, {})
 	var inside: Array = furniture.keys().filter(func(o): return room.cells.has(o)) \
@@ -3531,7 +3630,8 @@ func find_work(c: Colonist) -> bool:
 			or try_work(c, Job.MINE, mine_marks.keys(), SIDES, gather_time(c, Job.MINE)) \
 			or try_work(c, Job.UPROOT, uproot_marks.keys(), SIDES, UPROOT_TIME * work_factor(c, Job.UPROOT)) \
 			or try_work(c, Job.HARVEST, harvest_ready(), SIDES, gather_time(c, Job.HARVEST)) \
-			or try_work(c, Job.FISH, fishable(), SIDES, gather_time(c, Job.FISH)) or try_hunt(c):
+			or try_work(c, Job.FISH, fishable(), SIDES, gather_time(c, Job.FISH)) or try_hunt(c) \
+			or try_work(c, Job.CUT_ICE, ice_ready(), SIDES, gather_time(c, Job.CUT_ICE)):
 		return true
 
 	for job in [Job.BUILD, Job.FURNISH]:  # prima le strutture, poi i mobili
@@ -5019,6 +5119,7 @@ func refresh_unlocks() -> void:
 		var bar := furniture_bar if FURNITURE.has(kind) else build_bar
 		bar.get_node("Row/" + Build.keys()[kind].capitalize()).visible = unlocked("builds", kind)
 	$HUD/BuildBar/Row/Materials/Stone.visible = unlocked("materials", Res.STONE)
+	$HUD/Tools/Row/Ice.visible = unlocked("rooms", RoomKind.ICEHOUSE)  # col tasto del ghiaccio, la ghiacciaia
 
 
 # la ricerca che sblocca `value` nella lista `key` di TECHS ("builds", "makes", "materials"); -1 se c'è dall'inizio
@@ -5229,6 +5330,7 @@ func new_day() -> void:
 # ponytail: un'ora di attesa al più; un giorno di scorta alla volta
 func new_hour() -> void:
 	wear_roofs()
+	melt_ice()
 	for c in colonists:
 		if c != ruler and c.needs[Need.HAPPINESS] < UNHAPPY and c.protested != today and not c.downed \
 				and c.job not in [Job.SLEEP, Job.FIGHT, Job.FLEE, Job.TANTRUM, Job.PROTEST] \
@@ -5801,7 +5903,7 @@ func full_stock(target: Vector2i) -> int:
 	if boulders.has(target):
 		return STONE_PER_CELL * boulder_cells(target).size()
 	if water.has(target):
-		return FISH_PER_SPOT
+		return ICE_PER_SPOT if atmosphere.frozen else FISH_PER_SPOT
 	return BERRIES_PER_BUSH
 
 
@@ -5969,8 +6071,11 @@ func is_free(cell: Vector2i) -> bool:
 
 # celle di magazzino che possono ricevere `res`: libere, vuote o con la stessa risorsa non piena
 func dest_cells(res: Res) -> Array:
+	var pits := pit_cells()
 	return stockpile.keys().filter(func(cell):
-		if pantry.has(cell) and not SHELF_LIFE.has(res):  # in dispensa solo quello che marcisce
+		if (res == Res.ICE) != pits.has(cell):  # il ghiaccio solo nelle fosse, e nelle fosse solo lui
+			return false
+		if pantry.has(cell) and not SHELF_LIFE.has(res) and res != Res.ICE:  # in dispensa solo quello che marcisce
 			return false
 		for other in items:
 			if other != res and items[other].has(cell):
@@ -6090,6 +6195,10 @@ func mark(rect: Rect2i) -> void:
 			for cell in water:
 				if rect.has_point(cell):
 					fish_marks[cell] = true
+		Order.ICE:
+			for cell in water:
+				if rect.has_point(cell):
+					ice_marks[cell] = true
 		Order.HUNT:  # una casella di margine: si muovono
 			for a in animals:
 				if rect.grow(1).has_point(cell_of(a.pos)):
@@ -6422,9 +6531,9 @@ func update_stockpile() -> void:
 	stockpile.clear()
 	pantry.clear()
 	for room in rooms:
-		if room.kind in [RoomKind.WAREHOUSE, RoomKind.PANTRY]:
+		if room.kind in [RoomKind.WAREHOUSE, RoomKind.PANTRY, RoomKind.ICEHOUSE]:
 			stockpile.merge(room.cells)
-		if room.kind == RoomKind.PANTRY:
+		if room.kind in [RoomKind.PANTRY, RoomKind.ICEHOUSE]:  # la ghiacciaia è una dispensa
 			pantry.merge(room.cells)
 
 
@@ -6693,6 +6802,8 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 		draw_mark(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE), Order.HARVEST)
 	for cell in fish_marks:
 		draw_mark(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE), Order.FISH)
+	for cell in ice_marks:
+		draw_mark(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE), Order.ICE)
 	for a in animals:
 		if a.marked:
 			draw_mark(Rect2(a.pos - Vector2(TILE / 2.0, TILE * 1.25), Vector2.ONE * TILE), Order.HUNT)  # sopra la testa

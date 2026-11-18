@@ -2919,6 +2919,53 @@ TILED_STOVE = """
 ................
 """
 
+# Blocco di ghiaccio 16x16 (l'oggetto), tagliato dall'acqua gelata (vedi Order.ICE in main.gd); l'icona del tasto è lo
+# stesso blocco con la sega
+ICE_BLOCK = """
+................
+................
+.....ooooooo....
+....ohhhhhhuo...
+...ohhhhhhuQo...
+..ooooooooQQo...
+..o000000oQQo...
+..o0h0000oQQo...
+..o0000h0oQQo...
+..o000000oQQo...
+..o0h0000oQo....
+..o000000oo.....
+..ooooooooo.....
+...zzzzzzzz.....
+................
+................
+"""
+ICE_SAW = {(3, 12): "o", (4, 11): "o", (5, 10): "o", (6, 9): "o", (2, 13): "w", (1, 14): "w", (0, 15): "W"}
+
+
+def ice_pit():
+    """Fossa del ghiaccio 32x32 (2x2): un bordo di pietra e uno di paglia, vuota in mezzo: dentro si vedono i blocchi
+    (i mucchi di ghiaccio sotto il mobile, vedi draw_flat in main.gd). Uguale girata."""
+    rows = []
+    for y in range(32):
+        row = []
+        for x in range(32):
+            d = min(x, y, 31 - x, 30 - y)  # l'ultima riga è l'ombra
+            if y == 31:
+                row.append("z" if 1 <= x <= 30 else ".")
+            elif d == 0:
+                row.append("o")
+            elif d <= 2:
+                row.append("urR"[(x + y) % 3] if d == 1 else "R")
+            elif d == 3:
+                row.append("o")
+            elif d <= 5:
+                row.append("cC"[(x * 3 + y) % 2])
+            else:
+                row.append(".")
+        rows.append("".join(row))
+    return rows
+
+
 # Sopra i tetti (vedi draw_roofs in main.gd), 16x16 ciascuno: il comignolo di pietra di focolari e fornaci, lo
 # sfiatatoio di legno sopra un fuoco da campo sotto un tetto. Il fumo esce dalla cima.
 CHIMNEYS = """
@@ -3630,9 +3677,9 @@ def banner_drape():
 
 
 def furniture_sheet():
-    """Mobili, foglio 128x1120. Righe: letto, tavolo, sedia, abat-jour, fuoco da campo, fornace, incudine, banco da lavoro,
+    """Mobili, foglio 128x1152. Righe: letto, tavolo, sedia, abat-jour, fuoco da campo, fornace, incudine, banco da lavoro,
     filatoio, banco del falegname, poi le decorazioni: aiuola, fioriera, panca, stendardo, lampione, fontana, statua;
-    la bacheca; i cimeli: calice, stendardo antico, busto, corona; scrittoio, libreria, trono, fantoccio, torre di guardia, baldacchino, tappeto, armadio, focolare, pelli alle pareti, portiera, arazzo, stufa a olle (come Build in main.gd);
+    la bacheca; i cimeli: calice, stendardo antico, busto, corona; scrittoio, libreria, trono, fantoccio, torre di guardia, baldacchino, tappeto, armadio, focolare, pelli alle pareti, portiera, arazzo, stufa a olle, fossa del ghiaccio (come Build in main.gd);
     colonne: quarti di giro in senso orario (per fuoco, stendardo e fontana, fotogrammi), ognuno in alto a sinistra nel suo riquadro 32x32."""
     bed, chair, chair_left = art(BED, 32, 16), art(CHAIR, 16, 16), art(CHAIR_LEFT, 16, 16)
     table, lamp, anvil = art(TABLE, 32, 32), art(LAMP, 16, 16), art(ANVIL, 16, 16)
@@ -3667,7 +3714,7 @@ def furniture_sheet():
            (lambda h: [h[0], h[1], h[2], mirror(h[1])])(frames(WALL_HIDES)),
            (lambda h, c: [c[0], h[1], c[1], mirror(h[1])])(frames(WALL_HIDES), frames(DOOR_CURTAIN, count=2)),
            (lambda h: [h[0], h[1], h[2], mirror(h[1])])(frames(TAPESTRY)),
-           [art(TILED_STOVE, 16, 16)] * 4]
+           [art(TILED_STOVE, 16, 16)] * 4, [ice_pit()] * 4]
     slot = lambda g: [line.ljust(32, ".") for line in g] + ["." * 32] * (32 - len(g))
     return [line for row in rows for line in side_by_side([slot(g) for g in row])]
 
@@ -3798,6 +3845,9 @@ def main():
     images["roof"] = pixels(roof_sheet())
     images["roof_wear"] = pixels(side_by_side(frames(ROOF_WEAR)))
     images["chimneys"] = pixels(side_by_side(frames(CHIMNEYS, count=2)))
+    block = art(ICE_BLOCK, 16, 16)
+    images["icon_ice_block"] = pixels(block)
+    images["icon_ice"] = pixels(["".join(ICE_SAW.get((x, y), ch) for x, ch in enumerate(line)) for y, line in enumerate(block)])
     symbols = [f for block in (TRAITS_1, TRAITS_2, TRAITS_3) for f in frames(block, 12, 5, 12)]
     images["traits"] = pixels(side_by_side([badge(f) for f in symbols]))
     gifts = [f for block in (HERO_TRAITS_1, HERO_TRAITS_2, HERO_TRAITS_3, HERO_TRAITS_4) for f in frames(block, 12, 4, 12)]
@@ -3810,7 +3860,7 @@ def main():
     techs += frames(TECH_ASTRONOMY, 12, 1, 12)  # come Tech in main.gd: astronomia, poi le altre
     techs += frames(TECH_SYMBOLS_4, 12, 5, 12) + frames(TECH_SYMBOLS_5, 12, 2, 12) + frames(TECH_SYMBOLS_6, 12, 3, 12) \
         + frames(TECH_SYMBOLS_7, 12, 2, 12) + frames(TECH_SYMBOLS_8, 12, 3, 12) + frames(TECH_SYMBOLS_9, 12, 1, 12) \
-        + frames(TECH_SYMBOLS_10, 12, 3, 12)[:2]
+        + frames(TECH_SYMBOLS_10, 12, 3, 12)
     images["techs"] = pixels(side_by_side([badge(f) for f in techs]))
     laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 3, 12) + frames(LAW_SYMBOLS_5, 12, 3, 12) + frames(LAW_SYMBOLS_6, 12, 4, 12)
     images["laws"] = pixels(side_by_side([badge(f, "I", "x", "U") for f in laws]))

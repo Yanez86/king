@@ -2788,3 +2788,37 @@ msgstr "Lino tessuto: arazzi per le pareti, calore e splendore."
 
 msgid "The tiled stove, against a wall: +10 °C to its room and to the one behind, through stone too."
 msgstr "La stufa a olle, contro un muro: +10 °C alla sua stanza e a quella dietro, anche attraverso la pietra."
+
+msgid "Ice Pit"
+msgstr "Fossa del ghiaccio"
+
+msgid "Icehouse"
+msgstr "Ghiacciaia"
+
+msgid "Ice cutting spot"
+msgstr "Taglio del ghiaccio"
+
+msgid "Frozen: cut ice"
+msgstr "Gelata: si taglia il ghiaccio"
+
+msgid "Not frozen yet"
+msgstr "Non è ancora gelata"
+
+msgid "Cut ice: %d spots"
+msgstr "Tagliare ghiaccio: %d punti"
+
+msgid "Ice"
+msgstr "Ghiaccio"
+
+msgid "Cut ice"
+msgstr "Tagliare il ghiaccio"
+
+msgid "A stone pit lined with straw, for blocks of ice. An icehouse needs one, stone walls and no fire: while it holds ice, the room tends to 0 °C."
+msgstr "Una fossa di pietra foderata di paglia, per i blocchi di ghiaccio. Serve per una ghiacciaia, coi muri di pietra e nessun fuoco: finché c'è ghiaccio, la stanza va verso 0 °C."
+
+msgid "The icehouse: stone walls, a pit of ice cut from the frozen water in winter. While the ice lasts, food barely spoils."
+msgstr "La ghiacciaia: muri di pietra, una fossa di ghiaccio tagliato d'inverno dall'acqua gelata. Finché il ghiaccio dura, il cibo quasi non marcisce."
+
+msgctxt "item"
+msgid "Ice"
+msgstr "Ghiaccio"

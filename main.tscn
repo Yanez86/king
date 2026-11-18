@@ -1,4 +1,4 @@
-[gd_scene load_steps=85 format=3]
+[gd_scene load_steps=87 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Texture2D" path="res://art/icon_wood.png" id="2"]
@@ -17,6 +17,7 @@
 [ext_resource type="Texture2D" path="res://art/icon_harvest.png" id="harvest_icon"]
 [ext_resource type="Texture2D" path="res://art/icon_fishing.png" id="fishing_icon"]
 [ext_resource type="Texture2D" path="res://art/icon_hunting.png" id="hunting_icon"]
+[ext_resource type="Texture2D" path="res://art/icon_ice.png" id="ice_icon"]
 [ext_resource type="Texture2D" path="res://art/frame_wood.png" id="11"]
 [ext_resource type="Texture2D" path="res://art/icon_study.png" id="study_icon"]
 [ext_resource type="Texture2D" path="res://art/icon_authority.png" id="authority_icon"]
@@ -193,6 +194,10 @@ region = Rect2(0, 1056, 16, 16)
 [sub_resource type="AtlasTexture" id="TiledStoveIcon"]
 atlas = ExtResource("8")
 region = Rect2(0, 1088, 16, 16)
+
+[sub_resource type="AtlasTexture" id="IcePitIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 1120, 32, 32)
 
 [sub_resource type="AtlasTexture" id="PlasterIcon"]
 atlas = ExtResource("5")
@@ -631,6 +636,15 @@ icon = SubResource("TiledStoveIcon")
 icon_alignment = 1
 expand_icon = true
 
+[node name="Ice Pit" type="Button" parent="HUD/FurnitureBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("IcePitIcon")
+icon_alignment = 1
+expand_icon = true
+
 [node name="Furnace" type="Button" parent="HUD/FurnitureBar/Row"]
 custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
@@ -999,6 +1013,16 @@ tooltip_text = "Hunt"
 toggle_mode = true
 button_group = SubResource("Orders")
 icon = ExtResource("hunting_icon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Ice" type="Button" parent="HUD/Tools/Row"]
+custom_minimum_size = Vector2(38, 38)
+focus_mode = 0
+tooltip_text = "Cut ice"
+toggle_mode = true
+button_group = SubResource("Orders")
+icon = ExtResource("ice_icon")
 icon_alignment = 1
 expand_icon = true
 
