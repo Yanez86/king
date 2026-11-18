@@ -1478,7 +1478,7 @@ var lights_canvas := Node2D.new()
 @onready var build_bar: Control = $HUD/BuildBar  # sopra le categorie: quella scelta
 @onready var furniture_bar: Control = $HUD/FurnitureBar
 @onready var materials: Control = $HUD/BuildBar/Row/Materials
-@onready var actions: Control = $HUD/Actions  # in basso al centro: "Build" e la X rossa
+@onready var actions: Control = $HUD/Actions  # in alto al centro, sotto la barra: "Build" e la X rossa
 @onready var confirm: Button = $HUD/Actions/Confirm
 @onready var erase: Button = $HUD/Actions/Erase
 @onready var material_group: ButtonGroup = $HUD/BuildBar/Row/Materials/Wood.button_group
@@ -1734,7 +1734,7 @@ func _ready() -> void:
 	if not state.is_empty():
 		resume(state)
 	else:
-		autosave(true)  # appena fondata: compare subito tra le colonie del titolo
+		autosave()  # appena fondata, il primo giorno (l'alba è già passata): compare subito tra le colonie del titolo
 
 
 # Partita nuova: il sovrano (come l'ha fatto il giocatore nella pagina della nuova partita, vedi setup) e gli altri

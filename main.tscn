@@ -897,21 +897,20 @@ expand_icon = true
 
 [node name="Actions" type="HBoxContainer" parent="HUD"]
 visible = false
-anchors_preset = 7
+anchors_preset = 5
 anchor_left = 0.5
-anchor_top = 1.0
 anchor_right = 0.5
-anchor_bottom = 1.0
-offset_top = -48.0
-offset_bottom = -8.0
+offset_top = 64.0
+offset_bottom = 104.0
 grow_horizontal = 2
-grow_vertical = 0
 theme_override_constants/separation = 6
 
 [node name="Confirm" type="Button" parent="HUD/Actions"]
 custom_minimum_size = Vector2(120, 40)
 focus_mode = 0
 text = "Build"
+icon = ExtResource("4")
+expand_icon = true
 
 [node name="Erase" type="Button" parent="HUD/Actions"]
 custom_minimum_size = Vector2(40, 40)
