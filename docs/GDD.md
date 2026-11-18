@@ -595,14 +595,18 @@ di legno, la pietra isola; il caldo e il freddo decidono quanto dura il cibo, fi
   | Letto a baldacchino (c'è già) | Arredo fine ✓ | — | le tende: chi ci dorme ha 4 °C in più |
 
   Le pelli servono già per armature, cappucci, tappeti e pergamena: isolare le contende, e la caccia vale di più.
-- **Stanze senza gente** (da confermare, vedi 6): magazzino e dispensa vanno verso 5 °C invece che 15. Oggi d'inverno un
-  magazzino è più caldo di fuori e il cibo ci marcisce prima; con la pietra che isola, una dispensa di pietra sarebbe
-  ancora peggio. Così la pietra le tiene fresche d'estate e fredde d'inverno.
-- **Il caldo fa marcire** (da confermare, vedi 6): sopra i 15 °C il cibo marcisce più in fretta, il doppio a 30 °C.
-  L'estate diventa la stagione difficile per il cibo, come l'inverno per il freddo; senza questo, rinfrescare non serve.
+- **Stanze senza gente**: magazzino e dispensa vanno verso 5 °C invece che 15. Oggi d'inverno un magazzino è più caldo
+  di fuori e il cibo ci marcisce prima; con la pietra che isola, una dispensa di pietra sarebbe ancora peggio. Così la
+  pietra le tiene fresche d'estate e fredde d'inverno.
+  Da tenere d'occhio: quanto dura il cibo in un magazzino e in una dispensa, di legno e di pietra, d'estate e d'inverno,
+  rispetto a oggi. Se conservare diventa troppo facile, o legno e pietra non fanno differenza, si cambiano i 5 °C.
+- **Il caldo fa marcire**: sopra i 15 °C il cibo marcisce più in fretta, il doppio a 30 °C. L'estate diventa la
+  stagione difficile per il cibo, come l'inverno per il freddo; per questo rinfrescare serve.
+- **Niente malus per il caldo**: il caldo non toglie comfort, la stagione ostile resta l'inverno. Rinfrescare serve al
+  cibo, non ai coloni; la forgia d'estate resta una stanza come le altre.
 - **Rinfrescare**: come nel Medioevo, muri spessi di pietra (sopra); stanze chiuse dalla roccia della mappa, le cantine
   (la roccia isola all'85%); la fontana in una stanza toglie 3 °C quando fuori fa più di 20 °C; l'intonaco bianco.
-  Poi: l'ombra degli alberi accanto ai muri, le imposte con le finestre (Vetreria), un malus del caldo d'estate (vedi 6).
+  Poi: l'ombra degli alberi accanto ai muri, le imposte con le finestre (Vetreria).
 - **Ghiacciaia** (ricerca Ghiacciaia): come le neviere e le ghiacciaie di pietra, in parte interrate, riempite d'inverno
   e buone fino all'estate. Stanza di servizio come la dispensa, solo per il cibo; muri solo di pietra o roccia, nessun
   fuoco. Dentro la fossa del ghiaccio (2×2: il ghiaccio sotto la paglia).
@@ -919,9 +923,3 @@ Combattimento tattico (oggi i coloni si difendono da soli, vedi 4.4.3), livelli 
 - Condizione di sconfitta oltre alla fine della dinastia?
 - Lista degli eventi.
 - Nome definitivo del gioco.
-- Tetti, calore e conservazione (4.4.5):
-  - Magazzino e dispensa vanno verso 5 °C invece che 15? Consigliato: con la pietra che isola, se no le dispense di
-    pietra conservano peggio.
-  - Sopra i 15 °C il cibo marcisce più in fretta (il doppio a 30 °C)? Consigliato: se no rinfrescare non serve.
-  - Un malus di comfort per il caldo d'estate (la forgia d'estate diventa una stanza da gestire)? Meglio aspettare:
-    la stagione ostile è l'inverno.
