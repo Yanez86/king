@@ -330,7 +330,9 @@ const RECIPES := [
 	[Res.SMOKED_MEAT, Build.CAMPFIRE, Skill.COOKING, {Res.MEAT: 1}, 8.0],  # affumicati
 	[Res.SMOKED_FISH, Build.CAMPFIRE, Skill.COOKING, {Res.FISH: 1}, 8.0],
 ]
-const STATION_ROOM := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP,
+const SMOKED := [Res.SMOKED_MEAT, Res.SMOKED_FISH]
+const SMOKE_TIME := 0.75     # affumicare al fuoco da campo, dove il fumo resta: tempo x (al focolare va su per la canna)
+const STATION_ROOM := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.HEARTH: RoomKind.KITCHEN, Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP,
 	Build.SPINNING_WHEEL: RoomKind.WORKSHOP, Build.CARPENTER_BENCH: RoomKind.CARPENTRY, Build.DESK: RoomKind.STUDY}
 const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.MEAL: MEALS_PER_COLONIST * COLONIST_COUNT, Res.COAL: 5}  # scorte di partenza, vedi keep
 enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT }  # cosa segna il trascinamento del mouse
@@ -370,6 +372,7 @@ enum Build { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE
 	DUMMY,  # il fantoccio: ci si allena nel tempo libero (vedi relax)
 	WATCHTOWER,  # la torre di guardia con la campana: lupi visti da lontano, l'arciere lassù tira meglio (vedi TOWER)
 	CANOPY_BED, RUG, WARDROBE,  # arredo fine: il baldacchino è un letto (vedi BEDS), tappeto e armadio danno comfort
+	HEARTH,  # il focolare di pietra contro un muro: fa quello che fa il fuoco da campo (vedi ROLE), scalda di più (HEAT)
 	ROAD,  # strada lastricata: ci si cammina più svelti (vedi ROAD_SPEED)
 	PALISADE, GATE }  # palizzata e cancello: i lupi non passano; non fanno stanze (vedi update_rooms, beast_path)
 # materiale per casella; per i mobili, per pezzo
@@ -378,7 +381,7 @@ const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1
 	Build.CARPENTER_BENCH: 15, Build.FLOWER_BED: 3, Build.PLANTER: 5,
 	Build.BENCH: 6, Build.BANNER: 4, Build.LANTERN: 4, Build.FOUNTAIN: 30, Build.STATUE: 40, Build.NOTICE_BOARD: 8,
 	Build.CHALICE: 1, Build.OLD_BANNER: 1, Build.BUST: 1, Build.CROWN: 1, Build.DESK: 10, Build.BOOKSHELF: 12, Build.THRONE: 12, Build.ROAD: 2, Build.DUMMY: 6, Build.WATCHTOWER: 20,
-	Build.CANOPY_BED: 20, Build.RUG: 4, Build.WARDROBE: 12,
+	Build.CANOPY_BED: 20, Build.RUG: 4, Build.WARDROBE: 12, Build.HEARTH: 15,
 	Build.PALISADE: 4, Build.GATE: 6}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
 const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
@@ -388,7 +391,8 @@ const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Buil
 	Build.LANTERN: Vector2i.ONE, Build.FOUNTAIN: Vector2i(2, 2), Build.STATUE: Vector2i(2, 2), Build.NOTICE_BOARD: Vector2i.ONE,
 	Build.CHALICE: Vector2i.ONE, Build.OLD_BANNER: Vector2i.ONE, Build.BUST: Vector2i.ONE, Build.CROWN: Vector2i.ONE,
 	Build.DESK: Vector2i.ONE, Build.BOOKSHELF: Vector2i.ONE, Build.THRONE: Vector2i.ONE, Build.DUMMY: Vector2i.ONE,
-	Build.WATCHTOWER: Vector2i.ONE, Build.CANOPY_BED: Vector2i(2, 1), Build.RUG: Vector2i(2, 1), Build.WARDROBE: Vector2i.ONE}
+	Build.WATCHTOWER: Vector2i.ONE, Build.CANOPY_BED: Vector2i(2, 1), Build.RUG: Vector2i(2, 1), Build.WARDROBE: Vector2i.ONE,
+	Build.HEARTH: Vector2i.ONE}
 # mobili animati: secondi per fotogramma; i fotogrammi stanno nelle colonne dei quarti di giro (sono simmetrici)
 const ANIMATED := {Build.CAMPFIRE: 0.15, Build.BANNER: 0.3, Build.FOUNTAIN: 0.2}
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
@@ -397,7 +401,7 @@ const PAVING := [Build.FLOOR, Build.PATH, Build.ROAD]  # a terra: si calpestano,
 # materiale fisso; il resto solo di legno
 # i cimeli: la decorazione si fa con l'oggetto trovato nelle rovine, uno a pezzo
 const RELICS := {Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}
-const BUILD_RES := {Build.PATH: Res.STONE, Build.ROAD: Res.STONE, Build.RUG: Res.HIDE, Build.FURNACE: Res.STONE, Build.ANVIL: Res.IRON, Build.PLANTER: Res.STONE, Build.FOUNTAIN: Res.STONE,
+const BUILD_RES := {Build.PATH: Res.STONE, Build.ROAD: Res.STONE, Build.RUG: Res.HIDE, Build.FURNACE: Res.STONE, Build.HEARTH: Res.STONE, Build.ANVIL: Res.IRON, Build.PLANTER: Res.STONE, Build.FOUNTAIN: Res.STONE,
 	Build.STATUE: Res.STONE, Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}
 # mobili che servono perché il cartello lasci scegliere il tipo di stanza: tipo -> {mobile: almeno quanti}
 # ponytail: la cucina accetterà anche la stufa, quando ci sarà: allora "uno tra" invece di "tutti"
@@ -419,26 +423,41 @@ const ROOM_COLORS := [Color("e6e2d0"), Color("c9a23b"), Color("3b8fd3"), Color("
 # per il materiale. A metà né bonus né malus; fuori dalle stanze è 0. Vedi room_comfort e comfort_of
 const COMFORT_MAX := 10
 const BEDS := [Build.BED, Build.CANOPY_BED]  # ci si dorme; per le camere il baldacchino vale un letto (vedi room_meets)
-const COMFORT := {Build.CANOPY_BED: 2.0, Build.RUG: 1.0, Build.WARDROBE: 1.0, Build.FLOOR: 1.0, Build.BED: 1.0, Build.TABLE: 1.0, Build.CHAIR: 0.5, Build.LAMP: 0.5, Build.CAMPFIRE: 0.5,
+# mobili che fanno le veci di un altro: per i tipi di stanza (ROOM_NEEDS), le ricette (RECIPES) e lo svago attorno al fuoco
+const ROLE := {Build.CANOPY_BED: Build.BED, Build.HEARTH: Build.CAMPFIRE}
+const COMFORT := {Build.CANOPY_BED: 2.0, Build.RUG: 1.0, Build.WARDROBE: 1.0, Build.FLOOR: 1.0, Build.BED: 1.0, Build.TABLE: 1.0, Build.CHAIR: 0.5, Build.LAMP: 0.5, Build.CAMPFIRE: 0.5, Build.HEARTH: 0.5,
 	Build.BENCH: 0.5}
 const COMFORT_MATERIAL := {Res.STONE: 1.5}  # il resto vale 1
 const COMFORT_EFFECT := 0.2  # a comfort 0 un'attività richiede il 20% di tempo in più, al massimo il 20% in meno
 # Freddo e pioggia tolgono comfort, anche sotto lo 0 (vedi weather_comfort): -1 ogni COLD_STEP gradi sotto COLD_FROM;
-# fuori, sotto la pioggia, fino a -WET_COMFORT. Sotto un tetto la temperatura va a metà strada (INSULATION) verso
-# ROOM_TEMP e non piove; ogni fuoco da campo della stanza la alza di FIRE_HEAT; ogni punto di protezione addosso vale un
-# grado. Da svegli il comfort cala di DISCOMFORT_DROP al giorno per ogni punto tolto; risale solo dormendo
+# fuori, sotto la pioggia, fino a -WET_COMFORT. Sotto un tetto non piove e la temperatura va verso quella della stanza
+# (ROOM_TEMP; STORE_TEMP dove non vive nessuno) di quanto isolano i muri (WALL_INSULATION, in media); ogni fuoco della
+# stanza la alza di HEAT, e focolare e fornace ne passano THROUGH_WALL alla stanza dietro il muro di legno che hanno
+# alle spalle (vedi temperature_at). Ogni punto di protezione addosso vale un grado. Da svegli il comfort cala di
+# DISCOMFORT_DROP al giorno per ogni punto tolto; risale solo dormendo. Il caldo non toglie comfort
 const COLD_FROM := 12.0
 const COLD_STEP := 4.0
 const WET_COMFORT := 2.0
 const ROOM_TEMP := 15.0
-const INSULATION := 0.5
-const FIRE_HEAT := 8.0       # ponytail: uguale in ogni stanza; secondo le caselle da scaldare se le stanze si fanno grandi
+const STORE_TEMP := 5.0      # magazzino e dispensa: senza gente, vanno verso il fresco (vedi STORES)
+const STORES := [RoomKind.WAREHOUSE, RoomKind.PANTRY]
+const WALL_INSULATION := {Res.WOOD: 0.5, Res.STONE: 0.7}  # per materiale; le porte contano come legno
+const ROCK_INSULATION := 0.85  # la roccia della mappa che chiude una stanza: la cantina
+const INSULATION_MAX := 0.9
+const FIRE_HEAT := 8.0       # il fuoco da campo
+# gradi in più nella stanza del fuoco; ponytail: uguale in ogni stanza, secondo le caselle se le stanze si fanno grandi
+const HEAT := {Build.CAMPFIRE: FIRE_HEAT, Build.HEARTH: 12.0, Build.FURNACE: 15.0}
+const THROUGH_WALL := 0.5    # parte del calore di focolare e fornace che passa il muro di legno alle loro spalle
+const PASSES_HEAT := [Build.HEARTH, Build.FURNACE]
+const BACKS := [Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]  # le spalle di un mobile, per quarto di giro
+const AGAINST := {Build.HEARTH: [Build.WALL]}  # mobili da addossare: quello che vogliono alle spalle (vedi backed)
 const DISCOMFORT_DROP := 24.0  # uno all'ora per punto
 # splendore della colonia: lo danno le decorazioni finite, dentro e fuori dalle stanze (vedi colony_splendor).
 # ponytail: per ora solo il totale in alto; poi terrà felici i coloni e sbloccherà cose (strade, feste: vedi GDD)
 const SPLENDOR := {Build.FLOWER_BED: 1, Build.PLANTER: 1, Build.BENCH: 1, Build.BANNER: 2, Build.LANTERN: 1,
 	Build.FOUNTAIN: 6, Build.STATUE: 8, Build.CHALICE: 3, Build.OLD_BANNER: 4, Build.BUST: 5, Build.CROWN: 6}
 const SPLENDOR_COLOR := Color("e8c34a")
+const HEAT_COLOR := Color("f2a03a")
 const ROOM_SPACE := 6        # caselle a testa: chi ne ha meno (stanza piena di gente) ha il comfort in proporzione
 # suggerimento dei pulsanti di costruzione (vedi build_tip): sotto nome e costo il comfort, poi la descrizione colorata
 # menù delle opzioni (Esc o ingranaggio), tab Keybindings: tasti di partenza dei comandi della barra in basso, per
@@ -468,8 +487,9 @@ const BUILD_INFO := {
 	Build.TABLE: "Where colonists eat and work.",
 	Build.CHAIR: "Put it at a table, turned to face it.",
 	Build.LAMP: "Lights up at night.",
-	Build.CAMPFIRE: "A wood fire inside a ring of stones. Burns day and night and warms the room. A kitchen needs one.",
-	Build.FURNACE: "A stone furnace. A forge needs one, and an anvil. Smelts iron and coal into ingots.",
+	Build.CAMPFIRE: "A wood fire inside a ring of stones. Burns day and night and warms the room. A kitchen needs one, or a hearth. Smoking is faster here.",
+	Build.FURNACE: "A stone furnace. A forge needs one, and an anvil. Smelts iron and coal into ingots. Half its heat goes through a wooden wall at its back.",
+	Build.HEARTH: "A stone fireplace with a chimney, set against a wall. Cooks and warms like a campfire, more. Half its heat goes through a wooden wall at its back, none through stone.",
 	Build.ANVIL: "An iron anvil on a stump. A forge needs one, and a furnace. Tools and metal armor are made here.",
 	Build.WORKBENCH: "A sturdy bench. A workshop needs one. Leather armor is made here.",
 	Build.SPINNING_WHEEL: "Spins flax into bowstrings. Works in a workshop.",
@@ -530,6 +550,8 @@ const FURNITURE_NIGHT := preload("res://art/furniture_night.png")  # abat-jour e
 const FURNITURE_GLOW := preload("res://art/furniture_glow.png")    # solo le luci accese, per `lights`
 const SIGN := preload("res://art/sign.png")  # sul muro accanto alla porta d'ingresso di una stanza finita
 const ROOF := preload("res://art/roof.png")  # 32x16: tegole, poi le stesse innevate (vedi draw_roofs)
+const CHIMNEYS := preload("res://art/chimneys.png")  # 32x16: comignolo di pietra, sfiatatoio di legno (vedi chimney_of)
+enum Chimney { NONE = -1, STONE, VENT }  # colonne di CHIMNEYS
 const OUTLINE := Color("1f1a24")             # contorno, come la "o" degli sprite
 const DAY_LENGTH := 240.0   # secondi per giorno a velocità 1x
 # Calendario: l'anno si apre col Capodanno (NEW_YEAR), poi quattro stagioni di 3 mesi da MONTH_DAYS giorni, ognuna
@@ -832,8 +854,8 @@ const TECHS := {
 		"makes": [Res.BOWSTRING, Res.BOW], "info": "Spinning wheel, carpenter bench and carpentry: bowstrings and bows."},
 	Tech.INN: {"branch": Branch.ROAD, "tier": 1, "cost": 40, "builds": [Build.NOTICE_BOARD],
 		"info": "The notice board and the inn: adventurers come and go to the ruins. Books come from there."},
-	Tech.MASONRY: {"branch": Branch.STONE, "tier": 1, "cost": 60, "materials": [Res.STONE],
-		"info": "Stone walls and floors: more comfort."},
+	Tech.MASONRY: {"branch": Branch.STONE, "tier": 1, "cost": 60, "materials": [Res.STONE], "builds": [Build.HEARTH],
+		"info": "Stone walls and floors: more comfort, and they keep the heat in. The hearth, with its chimney."},
 	Tech.DECOR: {"branch": Branch.STONE, "tier": 1, "cost": 40, "builds": [Build.FLOWER_BED, Build.PLANTER, Build.BENCH],
 		"info": "Flower bed, planter and bench: the first splendor."},
 	Tech.LANTERNS: {"branch": Branch.LORE, "tier": 1, "cost": 40, "builds": [Build.LAMP, Build.LANTERN],
@@ -1741,6 +1763,13 @@ func build_tip(kind: Build) -> Control:
 			bonus.text += tr(" paving it all, x%s in stone") % COMFORT_MATERIAL[Res.STONE]
 		bonus.add_theme_color_override("font_color", TREND_UP)
 		box.add_child(bonus)
+	if HEAT.has(kind):
+		var heat := Label.new()
+		heat.text = tr("+%d °C in the room") % HEAT[kind]
+		if kind in PASSES_HEAT:
+			heat.text += tr(", +%s °C behind a wooden wall") % str(HEAT[kind] * THROUGH_WALL).trim_suffix(".0")
+		heat.add_theme_color_override("font_color", HEAT_COLOR)
+		box.add_child(heat)
 	if SPLENDOR.has(kind):
 		var splendor := Label.new()
 		splendor.text = tr("+%d colony splendor") % SPLENDOR[kind]
@@ -1822,6 +1851,7 @@ func fill_people() -> void:
 func refresh_room() -> void:
 	$HUD/RoomPopup/Box/Comfort.text = tr("Comfort: %d / %d    %d°C") \
 		% [room_comfort(editing), COMFORT_MAX, roundi(temperature_at(editing.cells.keys()[0]))]
+	$HUD/RoomPopup/Box/Comfort.tooltip_text = "\n".join(heat_lines(editing))
 	var kinds := RoomKind.values().filter(func(k): return room_meets(editing, k))
 	if kinds != range(room_kind.item_count).map(room_kind.get_item_id):
 		room_kind.clear()
@@ -1857,9 +1887,9 @@ func people_of(room: Room) -> Array[Colonist]:
 # e quanti tenerne (vedi keep). Al fuoco i pasti, da 2 crudi uguali qualsiasi. Fuori dalla sua stanza lo dice: lì non si lavora
 func open_craft(origin: Vector2i) -> void:
 	crafting = origin
-	var kind: Build = furniture[origin][0]
+	var kind: Build = role(furniture[origin][0])  # il focolare fa le ricette del fuoco da campo
 	var box: Control = $HUD/CraftPopup/Box
-	box.get_node("Head/Title").text = named(Build, kind)
+	box.get_node("Head/Title").text = named(Build, furniture[origin][0])
 	box.get_node("Room").text = tr("Works only in a %s") % named(RoomKind, STATION_ROOM[kind]).to_lower()
 	box.get_node("Room").visible = not stations(kind).has(origin)
 	var list := box.get_node("List")
@@ -2770,7 +2800,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 		Job.FLEE:  # arrivato al riparo (vedi react)
 			end_job(c)
 		Job.COOK:  # come BUILD: al mucchio prende il crudo (carry_res), poi al fuoco da campo (target) lo cucina stando in dest
-			if furniture.get(c.target, [-1])[0] != Build.CAMPFIRE or not kitchen_fires().has(c.target):
+			if role(furniture.get(c.target, [-1])[0]) != Build.CAMPFIRE or not kitchen_fires().has(c.target):
 				quit_job(c)  # fuoco abbattuto, o la stanza non è più una cucina: rimette giù il crudo
 				return
 			if c.carrying == 0:
@@ -3057,18 +3087,124 @@ func weather_comfort(cell: Vector2i, warmth := 0.0) -> int:
 	return -(cold + wet)
 
 
-# Gradi in `cell`: fuori come dice il tempo (vedi atmosphere.temperature); sotto un tetto a metà strada verso ROOM_TEMP,
-# più FIRE_HEAT per ogni fuoco da campo della stanza: il focolare scalda
-func temperature_at(cell: Vector2i) -> float:
+# Gradi in `cell`: fuori come dice il tempo (vedi atmosphere.temperature). Sotto un tetto verso la temperatura della
+# stanza (room_base) di quanto isolano i muri (insulation), più il calore dei fuochi (heat_sources). Senza clima (nelle
+# prove) sempre ROOM_TEMP. `memo` (stanza -> gradi) risparmia i conti a chi chiede tante caselle insieme
+func temperature_at(cell: Vector2i, memo := {}) -> float:
 	var t: float = atmosphere.temperature()
+	if not atmosphere.climate:
+		return ROOM_TEMP
 	if not sheltered(cell):
 		return t
-	t = lerpf(t, ROOM_TEMP, INSULATION)
 	var room := room_at(cell)
-	for origin in furniture:
-		if room != null and room.cells.has(origin) and furniture[origin][0] == Build.CAMPFIRE:
-			t += FIRE_HEAT
+	if room == null:  # un muro o una porta sotto il tetto
+		return lerpf(t, ROOM_TEMP, WALL_INSULATION[Res.WOOD])
+	if memo.has(room):
+		return memo[room]
+	t = lerpf(t, room_base(room), insulation(room))
+	for source in heat_sources(room):
+		t += source[1]
+	memo[room] = t
 	return t
+
+
+# la temperatura verso cui va la stanza: ROOM_TEMP dove si vive, STORE_TEMP nei magazzini e nelle dispense
+func room_base(room: Room) -> float:
+	return STORE_TEMP if room.kind in STORES else ROOM_TEMP
+
+
+# Quanto isola la stanza, 0..INSULATION_MAX: la media di quello che la chiude, casella per casella (muri per materiale,
+# porte come legno, roccia). Una stanza fatta solo di dati, senza muri attorno, come il legno
+func insulation(room: Room) -> float:
+	var walls := room_walls(room)
+	if walls.is_empty():
+		return WALL_INSULATION[Res.WOOD]
+	var sum := 0.0
+	for k in walls:
+		sum += walls[k]
+	return minf(sum / walls.size(), INSULATION_MAX)
+
+
+# caselle attorno alla stanza (di lato) che la chiudono -> quanto isolano
+func room_walls(room: Room) -> Dictionary:
+	var walls := {}
+	for cell in room.cells:
+		for side in SIDES:
+			var k: Vector2i = cell + side
+			if room.cells.has(k) or walls.has(k):
+				continue
+			var b: Array = built.get(k, [-1, -1])
+			if b[0] == Build.WALL:
+				walls[k] = WALL_INSULATION[b[1]]
+			elif b[0] == Build.DOOR:
+				walls[k] = WALL_INSULATION[Res.WOOD]
+			elif rocks.has(k):
+				walls[k] = ROCK_INSULATION
+	return walls
+
+
+# I fuochi che scaldano la stanza: [mobile, gradi], quelli dentro per intero, quelli dietro un muro (vedi heat_through)
+# per THROUGH_WALL
+func heat_sources(room: Room) -> Array:
+	var out := []
+	for origin in furniture:
+		var kind: int = furniture[origin][0]
+		if not HEAT.has(kind):
+			continue
+		if room.cells.has(origin):
+			out.append([origin, HEAT[kind]])
+		elif kind in PASSES_HEAT and heat_through(origin) == room:
+			out.append([origin, HEAT[kind] * THROUGH_WALL])
+	return out
+
+
+# La stanza dall'altra parte del muro di legno alle spalle del fuoco in `origin` (vedi BACKS), che ne prende una parte
+# del calore; null se dietro non c'è un muro di legno con una stanza diversa oltre
+func heat_through(origin: Vector2i) -> Room:
+	var back := back_of(furniture[origin])
+	var wall: Array = built.get(origin + back, [-1, -1])
+	if wall[0] != Build.WALL or wall[1] != Res.WOOD:
+		return null
+	var other := room_at(origin + back * 2)
+	return other if other != room_at(origin) else null
+
+
+# la direzione delle spalle del mobile `plan` (girato di plan[2] quarti)
+func back_of(plan: Array) -> Vector2i:
+	return BACKS[plan[2] if plan.size() > 2 else 0]
+
+
+# il mobile `plan` in `origin` ha alle spalle quello che vuole (AGAINST), costruito o in progetto? Gli altri sempre
+func backed(origin: Vector2i, plan: Array) -> bool:
+	if not AGAINST.has(plan[0]):
+		return true
+	var behind: Vector2i = origin + back_of(plan)
+	return [built, blueprints, draft].any(func(l): return l.get(behind, [-1])[0] in AGAINST[plan[0]])
+
+
+# il mobile `plan` sta in `origin`: caselle libere (can_build) e, se va addossato, quello che vuole alle spalle
+func piece_fits(origin: Vector2i, plan: Array) -> bool:
+	return cells_in(piece_rect(origin, plan)).all(func(k): return can_build(k, plan[0])) and backed(origin, plan)
+
+
+# Il conto dei gradi della stanza, una riga per voce: fuori, i muri, i fuochi (quelli di un'altra stanza col suo nome),
+# il totale. Per il cartello e la lente del calore
+func heat_lines(room: Room) -> Array:
+	var outside: float = atmosphere.temperature() if atmosphere.climate else ROOM_TEMP
+	var lines := [tr("Outside: %d °C") % roundi(outside),
+		tr("Walls keep %d%% toward %d °C") % [roundi(insulation(room) * 100), roundi(room_base(room))]]
+	for source in heat_sources(room):
+		var from := room_at(source[0])
+		var name := named(Build, furniture[source[0]][0])
+		lines.append(("%s: +%s °C" % [name if from == room or from == null else tr("%s of %s") % [name, from.name],
+			str(snappedf(source[1], 0.5)).trim_suffix(".0")]))
+	lines.append(tr("Total: %d °C") % roundi(temperature_at(room.cells.keys()[0])))
+	return lines
+
+
+# il tipo che il mobile fa le veci di (ROLE), o se stesso
+func role(kind: int) -> int:
+	return ROLE.get(kind, kind)
 
 
 # dentro una stanza o sotto il suo tetto (muri e porte)
@@ -3105,7 +3241,7 @@ func room_meets(room: Room, kind: RoomKind) -> bool:
 		return false
 	var needs: Dictionary = ROOM_NEEDS.get(kind, {})
 	var inside: Array = furniture.keys().filter(func(o): return room.cells.has(o)) \
-		.map(func(o): return Build.BED if furniture[o][0] == Build.CANOPY_BED else furniture[o][0])
+		.map(func(o): return role(furniture[o][0]))
 	return needs.keys().all(func(b): return inside.count(b) >= needs[b])
 
 
@@ -3170,7 +3306,7 @@ func go_to_bed(c: Colonist) -> bool:
 	return true
 
 
-# Svago per `hours` ore: attorno a un fuoco da campo o a un fantoccio libero (il più vicino dove può arrivare), se no
+# Svago per `hours` ore: attorno a un fuoco da campo (o a un focolare) o a un fantoccio libero (il più vicino dove può arrivare), se no
 # a passeggio lì vicino. Al fantoccio si allena: colpi, ed esperienza in mischia (vedi Job.RELAX). Con la milizia la
 # prima ora libera del giorno è al fantoccio, se ce n'è uno. Il divertimento sale (vedi update_needs); finito,
 # find_job decide di nuovo
@@ -3178,7 +3314,7 @@ func relax(c: Colonist, hours := RELAX_HOURS) -> void:
 	var spots := {}  # casella dove stare -> fantoccio, o la casella stessa (fuoco da campo)
 	var drill := enacted.has(Law.MILITIA) and c.drilled != today
 	for origin in furniture:
-		if furniture[origin][0] == Build.CAMPFIRE and not drill:
+		if role(furniture[origin][0]) == Build.CAMPFIRE and not drill:
 			for d in EDGE_SIDES + EDGE_CORNERS:
 				var k: Vector2i = origin + d
 				if astar.is_in_boundsv(k) and not astar.is_point_solid(k) and not stockpile.has(k):
@@ -3378,7 +3514,7 @@ func seats() -> Array:
 		and tables.any(func(t): return SIDES.any(func(s): return t.has(o + s))))
 
 
-# fuochi da campo dentro le stanze di tipo cucina
+# fuochi da campo e focolari dentro le stanze di tipo cucina
 func kitchen_fires() -> Array:
 	return stations(Build.CAMPFIRE)
 
@@ -3512,9 +3648,10 @@ func gear_wanted(res: Res) -> int:
 	return maxi(maxi(want, spare), chosen - total(res) - making.call(res))
 
 
-# mobili `kind` (fornace, incudine, banco) dentro una stanza del tipo giusto (STATION_ROOM)
+# mobili `kind` (fornace, incudine, banco; per il fuoco da campo anche il focolare, vedi ROLE) dentro una stanza del
+# tipo giusto (STATION_ROOM)
 func stations(kind: Build) -> Array:
-	return furniture.keys().filter(func(o): return furniture[o][0] == kind \
+	return furniture.keys().filter(func(o): return role(furniture[o][0]) == kind \
 		and room_at(o) != null and room_at(o).kind == STATION_ROOM[kind])
 
 
@@ -3540,7 +3677,7 @@ func try_craft(c: Colonist) -> bool:
 			continue
 		var station: Vector2i = stands[path.back()]
 		start_job(c, Job.CRAFT, [], station, r[4] * skill_time(c.skills[r[2]]) * comfort_time(room_comfort(room_at(station)))
-			* work_factor(c, Job.CRAFT))
+			* work_factor(c, Job.CRAFT) * (SMOKE_TIME if r[0] in SMOKED and furniture[station][0] == Build.CAMPFIRE else 1.0))
 		c.recipe = i
 		if r[0] == Res.NOTEBOOK:  # la copia: lo studio si spende subito (ponytail: perso se la si molla a metà)
 			study -= COPY_STUDY
@@ -5681,19 +5818,21 @@ func pick_up(c: Colonist, res: Res, cell: Vector2i, amount: int) -> void:
 # e sparisce. Chi ci stava andando lo trova vuoto e lascia perdere.
 # ponytail: quello in mano non invecchia (lo si tiene poco); il marcio non lascia niente: se serve un mucchio da buttare
 func spoil(days: float) -> void:
+	var memo := {}  # stanza -> gradi: tanti mucchi nella stessa stanza
 	for cell in fresh.keys():
-		fresh[cell] -= days * spoil_rate(cell)
+		fresh[cell] -= days * spoil_rate(cell, memo)
 		if fresh[cell] <= 0:
 			for res in SHELF_LIFE:
 				items[res].erase(cell)
 			fresh.erase(cell)
 
 
-# quanto in fretta marcisce il cibo in `cell`: a metà in magazzino; sotto ROOM_TEMP gradi più piano, in proporzione,
-# e sotto lo zero per niente (gela). Un magazzino freddo è una dispensa; il fuoco da campo la scalda
-func spoil_rate(cell: Vector2i) -> float:
-	var cold := clampf(temperature_at(cell) / ROOM_TEMP, 0.0, 1.0)
-	return (SPOIL_PANTRY if pantry.has(cell) else (SPOIL_STORED if stockpile.has(cell) else 1.0)) * cold
+# quanto in fretta marcisce il cibo in `cell`: a metà in magazzino; in proporzione ai gradi, al ritmo pieno a ROOM_TEMP
+# (il doppio al doppio dei gradi: il caldo fa marcire), sotto lo zero per niente (gela). Un magazzino freddo è una
+# dispensa; il fuoco la scalda
+func spoil_rate(cell: Vector2i, memo := {}) -> float:
+	var warm := maxf(temperature_at(cell, memo), 0.0) / ROOM_TEMP
+	return (SPOIL_PANTRY if pantry.has(cell) else (SPOIL_STORED if stockpile.has(cell) else 1.0)) * warm
 
 
 # Posa a terra `amount` di `res` su `cell`; oltre STACK_MAX il resto va sulle caselle più vicine dove ci sta
@@ -5770,7 +5909,7 @@ func mark(rect: Rect2i) -> void:
 		Order.BUILD:  # nel progetto; i muri solo sul bordo del rettangolo: trascinando si disegna una stanza
 			if FURNITURE.has(build_kind):  # un mobile per volta, girato di build_turn, dall'angolo del rettangolo
 				var plan := [build_kind, build_res, build_turn]
-				if cells_in(piece_rect(rect.position, plan)).all(func(k): return can_build(k, build_kind)):
+				if piece_fits(rect.position, plan):
 					furniture_draft[rect.position] = plan
 				return
 			for x in range(rect.position.x, rect.end.x):
@@ -6257,7 +6396,7 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 	if order == Order.BUILD and FURNITURE.has(build_kind):  # il prossimo mobile sotto il mouse, rosso se non ci sta
 		var at := cell_of(get_global_mouse_position())
 		var plan := [build_kind, build_res, build_turn]
-		var fits := cells_in(piece_rect(at, plan)).all(func(k): return can_build(k, build_kind))
+		var fits := piece_fits(at, plan)
 		draw_pieces(self, FURNITURE_SHEET, {at: plan}, Color(1, 1, 1, 0.6) if fits else Color(1, 0.3, 0.3, 0.6))
 	if drag_start != null:
 		var r := selection_rect()
@@ -6304,6 +6443,35 @@ func draw_lights() -> void:
 		draw_pieces(lights_canvas, FURNITURE_GLOW, lit)
 
 
+# Dove esce il fumo del fuoco in `origin`: [casella, Chimney]. Focolare e fornace col comignolo di pietra sul muro alle
+# loro spalle (se no sopra di loro); il fuoco da campo da uno sfiatatoio sopra di lui. Senza tetto lì, niente comignolo
+func chimney_of(origin: Vector2i) -> Array:
+	var plan: Array = furniture[origin]
+	var cell := origin
+	if plan[0] != Build.CAMPFIRE and built.get(origin + back_of(plan), [-1])[0] == Build.WALL:
+		cell = origin + back_of(plan)
+	if not roofed.has(cell):
+		return [cell, Chimney.NONE]
+	return [cell, Chimney.VENT if plan[0] == Build.CAMPFIRE else Chimney.STONE]
+
+
+# il punto da cui sale il fumo del fuoco in `origin`: la cima del comignolo, lo sfiatatoio, o il fuoco all'aperto
+func smoke_at(origin: Vector2i) -> Vector2:
+	var chimney := chimney_of(origin)
+	if chimney[1] == Chimney.NONE or not roofs_shown:
+		return center(origin) + Vector2(0, -6)
+	return Vector2(chimney[0] * TILE) + (Vector2(8, -3) if chimney[1] == Chimney.STONE else Vector2(8, 3))
+
+
+# quanto si usa il fuoco in `origin`: 0 acceso e basta, 1 ci si cucina o si forgia, 2 si affumica (vedi atmosphere)
+func fire_use(origin: Vector2i) -> int:
+	var use := 0
+	for c in colonists:
+		if c.target == origin and c.job in [Job.COOK, Job.CRAFT] and cell_of(c.pos) == c.dest:
+			use = 2 if c.job == Job.CRAFT and RECIPES[c.recipe][0] in SMOKED else maxi(use, 1)
+	return use
+
+
 # Tetti (vedi update_roofs): coprono chi sta dentro. Tegole, innevate quanto la neve a terra; la falda sotto il colmo
 # un po' in ombra, una riga di luce sul colmo, il contorno sui bordi; sotto la gronda la facciata del muro, con l'ombra
 # del tetto. Poi di nuovo i cartelli: restano sopra e si cliccano.
@@ -6332,6 +6500,12 @@ func draw_roofs() -> void:
 		if eave:
 			draw_rect(Rect2(r.position.x, r.end.y - 1, TILE, 1), OUTLINE)
 			draw_rect(Rect2(r.position.x, r.end.y, TILE, 3), SHADOW)
+	for origin in furniture:  # sopra le tegole i comignoli
+		if HEAT.has(furniture[origin][0]):
+			var chimney := chimney_of(origin)
+			if chimney[1] != Chimney.NONE:
+				draw_texture_rect_region(CHIMNEYS, Rect2(Vector2(chimney[0] * TILE) + Vector2(0, -6), Vector2.ONE * TILE),
+					Rect2(chimney[1] * TILE, 0, TILE, TILE))
 	for room in rooms:
 		draw_texture(SIGN, Vector2(room.sign) * TILE)
 

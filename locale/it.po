@@ -638,11 +638,11 @@ msgstr "Mettila accanto a un tavolo, rivolta verso il tavolo."
 msgid "Lights up at night."
 msgstr "Fa luce di notte."
 
-msgid "A wood fire inside a ring of stones. Burns day and night and warms the room. A kitchen needs one."
-msgstr "Un fuoco di legna in un cerchio di pietre. Arde giorno e notte e scalda la stanza. Serve per una cucina."
+msgid "A wood fire inside a ring of stones. Burns day and night and warms the room. A kitchen needs one, or a hearth. Smoking is faster here."
+msgstr "Un fuoco di legna in un cerchio di pietre. Arde giorno e notte e scalda la stanza. Serve per una cucina, o un focolare. Qui si affumica più in fretta."
 
-msgid "A stone furnace. A forge needs one, and an anvil. Smelts iron and coal into ingots."
-msgstr "Una fornace di pietra. Serve per una forgia, insieme a un'incudine. Fonde ferro e carbone in lingotti."
+msgid "A stone furnace. A forge needs one, and an anvil. Smelts iron and coal into ingots. Half its heat goes through a wooden wall at its back."
+msgstr "Una fornace di pietra. Serve per una forgia, insieme a un'incudine. Fonde ferro e carbone in lingotti. Metà del suo calore passa il muro di legno che ha alle spalle."
 
 msgid "An iron anvil on a stump. A forge needs one, and a furnace. Tools and metal armor are made here."
 msgstr "Un'incudine di ferro su un ceppo. Serve per una forgia, insieme a una fornace. Qui si fanno attrezzi e armature di metallo."
@@ -991,8 +991,8 @@ msgstr "Filatoio, banco del falegname e falegnameria: corde d'arco e archi."
 msgid "The notice board and the inn: adventurers come and go to the ruins. Books come from there."
 msgstr "La bacheca e la locanda: gli avventurieri vanno e vengono dalle rovine. Da lì arrivano i libri."
 
-msgid "Stone walls and floors: more comfort."
-msgstr "Muri e pavimenti di pietra: più comfort."
+msgid "Stone walls and floors: more comfort, and they keep the heat in. The hearth, with its chimney."
+msgstr "Muri e pavimenti di pietra: più comfort, e tengono il caldo. Il focolare, col suo comignolo."
 
 msgid "Flower bed, planter and bench: the first splendor."
 msgstr "Aiuola, fioriera e panca: il primo splendore."
@@ -2713,3 +2713,24 @@ msgstr "Pergamena"
 
 msgid "Ink"
 msgstr "Inchiostro"
+
+msgid "A stone fireplace with a chimney, set against a wall. Cooks and warms like a campfire, more. Half its heat goes through a wooden wall at its back, none through stone."
+msgstr "Un camino di pietra con la canna fumaria, addossato a un muro. Cucina e scalda come un fuoco da campo, di più. Metà del suo calore passa il muro di legno che ha alle spalle, la pietra no."
+
+msgid "Hearth"
+msgstr "Focolare"
+
+msgid "+%d °C in the room"
+msgstr "+%d °C nella stanza"
+
+msgid ", +%s °C behind a wooden wall"
+msgstr ", +%s °C dietro un muro di legno"
+
+msgid "Outside: %d °C"
+msgstr "Fuori: %d °C"
+
+msgid "Walls keep %d%% toward %d °C"
+msgstr "I muri tengono al %d%% verso %d °C"
+
+msgid "Total: %d °C"
+msgstr "In tutto: %d °C"

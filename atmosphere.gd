@@ -9,6 +9,9 @@ enum Weather { CLEAR, RAIN, SNOW, FOG, STORM }
 
 const WARM := Color(1.0, 0.62, 0.28)          # luce di lampade e fuochi
 const SMOKE := Color(0.62, 0.6, 0.66)
+const FORGE_SMOKE := Color(0.36, 0.34, 0.4)   # la fornace fa un fumo scuro
+const SMOKING_SMOKE := Color(0.5, 0.48, 0.5)  # quello dell'affumicatura, più fitto
+const IDLE_SMOKE := 0.45                      # fuoco che nessuno usa: fumo più rado (vedi main.fire_use)
 const CLOUD := Color(0.12, 0.1, 0.2)          # ombra delle nuvole, come SHADOW
 const MIST := Color(0.78, 0.8, 0.86)          # nebbia
 const WIND := Vector2(0.004, 0.0015)          # deriva delle nuvole: mappe di rumore al secondo di gioco
@@ -99,7 +102,8 @@ var reach := {}                   # mobile che fa luce -> raggio dell'alone in p
 var glow := Node2D.new()          # nel livello delle luci, che la notte non scurisce: si somma a quello che c'è sotto
 var env := Environment.new()
 var halo := GradientTexture2D.new()
-var fires := {}                   # cella del fuoco da campo -> [braci, fumo]
+var fires := {}                   # cella del fuoco (main.HEAT) -> [fumo, braci se fa fiamma]
+var flames := []                  # i fuochi con le braci: fuoco da campo e focolare (la fornace è chiusa)
 var fireflies := CPUParticles2D.new()
 var clouds := ShaderMaterial.new()
 var map_rect: Rect2
@@ -131,7 +135,8 @@ var uncovered_ice := false        # e se l'acqua era gelata (sul ghiaccio la nev
 
 
 func _ready() -> void:
-	reach = {main.Build.LAMP: 26.0, main.Build.LANTERN: 34.0, main.Build.CAMPFIRE: 48.0}
+	reach = {main.Build.LAMP: 26.0, main.Build.LANTERN: 34.0, main.Build.CAMPFIRE: 48.0, main.Build.HEARTH: 36.0}
+	flames = [main.Build.CAMPFIRE, main.Build.HEARTH]
 	map_rect = Rect2(Vector2.ZERO, Vector2(main.MAP_SIZE * main.TILE))
 	plan = [[main.clock, main.clock + 0.25, Weather.CLEAR]]  # la partita comincia col sereno
 	waves_until = int(main.clock)                              # e senza ondate di freddo il primo giorno
@@ -264,14 +269,25 @@ func _process(delta: float) -> void:
 	fireflies.emitting = night > 0.6 and weather == Weather.CLEAR and temperature() > 12.0  # le notti calde
 	fireflies.position = main.camera.position
 	fireflies.emission_rect_extents = get_viewport_rect().size / main.camera.zoom / 2
-	for cell in fires.keys():  # fuochi spenti o abbattuti
-		if main.furniture.get(cell, [-1])[0] != main.Build.CAMPFIRE:
+	for cell in fires.keys():  # fuochi spenti o abbattuti (o un mobile diverso al suo posto)
+		var kind: int = main.furniture.get(cell, [-1])[0]
+		if not main.HEAT.has(kind) or (fires[cell].size() > 1) != (kind in flames):
 			for p in fires[cell]:
 				p.queue_free()
 			fires.erase(cell)
 	for cell in main.furniture:
-		if main.furniture[cell][0] == main.Build.CAMPFIRE and not fires.has(cell):
-			fires[cell] = light_fire(main.center(cell))
+		var kind: int = main.furniture[cell][0]
+		if main.HEAT.has(kind) and not fires.has(cell):
+			fires[cell] = light_fire(main.center(cell), kind in flames)
+		if fires.has(cell):  # il fumo esce dal comignolo (o dallo sfiatatoio), le braci sotto un tetto non si vedono
+			var smoke: CPUParticles2D = fires[cell][0]
+			var use: int = main.fire_use(cell)
+			smoke.position = main.smoke_at(cell)
+			smoke.color = SMOKING_SMOKE if use == 2 else (FORGE_SMOKE if kind == main.Build.FURNACE else SMOKE)
+			smoke.modulate.a = IDLE_SMOKE if use == 0 else 1.0
+			smoke.scale_amount_max = 7.0 if use == 2 else 5.0
+			if fires[cell].size() > 1:
+				fires[cell][1].visible = not (main.roofs_shown and main.roofed.has(cell))
 	glow.queue_redraw()
 
 
@@ -449,8 +465,12 @@ func draw_halos() -> void:
 			Color(WARM, night))
 
 
-# braci che salgono (luminose, nel livello delle luci) e fumo che sale e piega col vento (si scurisce di notte)
-func light_fire(at: Vector2) -> Array:
+# fumo che sale e piega col vento (si scurisce di notte) e, se `flames`, braci che salgono (luminose, nel livello delle
+# luci): [fumo, braci]
+func light_fire(at: Vector2, flames := true) -> Array:
+	var smoke := make_smoke(at)
+	if not flames:
+		return [smoke]
 	var embers := CPUParticles2D.new()
 	embers.position = at + Vector2(0, -3)
 	embers.amount = 8
@@ -466,6 +486,10 @@ func light_fire(at: Vector2) -> Array:
 	embers.color_ramp = ramp([Color(1, 0.95, 0.6), Color(1, 0.5, 0.15), Color(0.9, 0.25, 0.1, 0)])
 	embers.material = glow.material
 	glow.add_child(embers)
+	return [smoke, embers]
+
+
+func make_smoke(at: Vector2) -> CPUParticles2D:
 	var smoke := CPUParticles2D.new()
 	smoke.position = at + Vector2(0, -6)
 	smoke.amount = 12
@@ -486,7 +510,7 @@ func light_fire(at: Vector2) -> Array:
 	smoke.color = SMOKE
 	smoke.color_ramp = ramp([Color(1, 1, 1, 0), Color(1, 1, 1, 0.6), Color(1, 1, 1, 0)], [0.0, 0.15, 1.0])
 	add_child(smoke)
-	return [embers, smoke]
+	return smoke
 
 
 # gradiente coi colori `colors`, alle posizioni `offsets` (se mancano, a distanza uguale)

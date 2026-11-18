@@ -400,7 +400,7 @@ func _initialize() -> void:
 	check(main.ripe_bushes().has(corner), "in primavera le bacche tornano")
 	check(main.spoil_rate(corner) > 0.0 and main.spoil_rate(corner) < 1.0, "al fresco marcisce più piano")
 	main.clock = new_year + 1 + 1.5 * main.SEASON_DAYS  # mezzogiorno, a metà estate
-	check(main.spoil_rate(corner) == 1.0, "al caldo al ritmo pieno")
+	check(main.spoil_rate(corner) > 1.0, "al caldo più in fretta: sopra ROOM_TEMP il caldo fa marcire")
 	main.atmosphere.climate = false
 
 	print("OK: %d pasti cucinati, %d intossicati su 1000 crudi quasi marci" % [meals, poisoned])
