@@ -1,5 +1,6 @@
 # Wiki del gioco: una pagina per argomento, [titolo, testo ricco (BBCode di RichTextLabel)]. La apre il tasto Wiki
-# della barra in basso; i numeri vengono da main.gd: se cambiano là, vanno cambiati qui.
+# della barra in basso; i numeri vengono da main.gd: se cambiano là, vanno cambiati qui e nelle traduzioni.
+# Traduzioni: locale/wiki_<lingua>.gd (per ora wiki_it.gd), con le stesse pagine nello stesso ordine (vedi pages).
 const PAGES := [
 	["Basics", """[color=#e8c34a]Your lordship[/color]
 King is a medieval colony sim. You are the ruler of a small lordship, but you never move anyone by hand: you mark trees to chop and boulders to mine, plan buildings, choose what the workshops make and pass laws. Colonists pick their jobs by themselves, following their needs and their daily routine.
@@ -493,3 +494,9 @@ Press G or click the throne: authority, seals, the crown's granary, then the law
 [color=#d9c48a]Feasts[/color]
 • Harvest feast (40): on the five feast days of the calendar (see Time) nobody works but the cooks. The next day every colonist is Festive (+10 happiness for 3 days) and you get 5 authority."""],
 ]
+
+
+# le pagine nella lingua del gioco: locale/wiki_<lingua>.gd se c'è, se no queste (in inglese)
+static func pages() -> Array:
+	var path := "res://locale/wiki_%s.gd" % TranslationServer.get_locale().get_slice("_", 0)
+	return load(path).PAGES if ResourceLoader.exists(path) else PAGES

@@ -449,9 +449,9 @@ const DEFAULT_KEYS := {"Select": KEY_Q, "Build": KEY_B, "Destroy": KEY_X, "Mine"
 const SPEEDS := {"Pause": 0.0, "Play": 1.0, "Fast": 2.0, "Fastest": 3.0}  # pulsanti in alto a destra, come Space e 1-3
 # tab Video delle opzioni: misure della finestra, solo quelle che stanno nello schermo (la prima sempre)
 const RESOLUTIONS := [Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440)]
-# tab System delle opzioni: lingue, col nome nella loro lingua; i testi tradotti sono in locale/translations.csv
+# tab System delle opzioni: lingue, col nome nella loro lingua; i testi tradotti sono in locale/<lingua>.po (vedi named)
 const LANGUAGES := {"en": "English", "it": "Italiano"}
-const WIKI := preload("res://wiki.gd")  # pagine della finestra Wiki: [titolo, testo ricco]
+const WIKI := preload("res://wiki.gd")  # pagine della finestra Wiki: [titolo, testo ricco], tradotte (vedi WIKI.pages)
 const FIXED_KEYS := [KEY_SPACE, KEY_1, KEY_2, KEY_3, KEY_E, KEY_R, KEY_ESCAPE]  # velocità, giro dei mobili, menù
 const MODIFIER_KEYS := [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]  # da soli non sono un tasto
 const TIP := preload("res://tip_button.gd")  # suggerimento fatto di Control: pulsanti di costruzione, figurine
@@ -1376,11 +1376,8 @@ func _ready() -> void:
 	jobs_panel.hidden.connect($HUD/Tools/Row/Jobs.set_pressed_no_signal.bind(false))  # chiusa con la X: tasto su
 	resources_panel.hidden.connect($HUD/Tools/Row/Resources.set_pressed_no_signal.bind(false))
 	var topics: ItemList = $HUD/WikiPanel/Box/Body/Topics
-	for page in WIKI.PAGES:
-		topics.add_item(page[0])
-	topics.item_selected.connect(func(i): $HUD/WikiPanel/Box/Body/Text.text = WIKI.PAGES[i][1])
-	topics.select(0)
-	topics.item_selected.emit(0)
+	topics.item_selected.connect(func(i): $HUD/WikiPanel/Box/Body/Text.text = WIKI.pages()[i][1])
+	fill_wiki()
 	$HUD/Tools/Row/Wiki.toggled.connect($HUD/WikiPanel.set_visible)
 	$HUD/WikiPanel.hidden.connect($HUD/Tools/Row/Wiki.set_pressed_no_signal.bind(false))
 	for name in ["Knowledge", "Laws"]:  # le finestre della ricerca, al centro: si rifanno aprendole (vedi fill_knowledge)
@@ -1404,7 +1401,7 @@ func _ready() -> void:
 		kind.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		kind.tooltip_text = KIND_NAMES[ITEM_KIND[res]]
 		row.add_child(kind)
-		for text in [Res.keys()[res].capitalize(), ""]:  # nome, quantità
+		for text in [named(Res, res, "item"), ""]:  # nome, quantità
 			var label := Label.new()
 			label.text = text
 			label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1556,7 +1553,7 @@ func save_keys() -> void:
 func show_keys() -> void:
 	for name in hotkeys:
 		var key: Key = hotkeys[name]
-		hotbar.get_node(NodePath(name)).tooltip_text = tool_names[name] + ("" if key == KEY_NONE else " (%s)" % OS.get_keycode_string(key))
+		hotbar.get_node(NodePath(name)).tooltip_text = tr(tool_names[name]) + ("" if key == KEY_NONE else " (%s)" % OS.get_keycode_string(key))
 		var button: Button = key_list.get_node(NodePath(name))
 		button.text = "Press a key" if name == rebinding else "-" if key == KEY_NONE else OS.get_keycode_string(key)
 		button.set_pressed_no_signal(name == rebinding)
@@ -1610,15 +1607,41 @@ func set_fullscreen(on: bool) -> void:
 	video.get_node("Resolution/Sizes").disabled = on  # il cambio di modo può arrivare dopo: non rileggerlo
 
 
-# tab System: i testi con una traduzione cambiano subito; la scelta resta per la prossima volta (la rilegge title.gd)
+# tab System: i testi con una traduzione cambiano subito (quelli composti nel codice al prossimo aggiornamento: le
+# finestre che si rifanno solo se cambia qualcosa si rifanno ora); la scelta resta per la prossima volta (la rilegge
+# title.gd)
 func set_language(code: String) -> void:
 	TranslationServer.set_locale(code)
+	board_key = ""
+	knowledge_key = ""
+	laws_key = ""
+	fill_wiki()
+	show_title()  # il nome del reame in alto
 	if settings_file == "":
 		return
 	var config := ConfigFile.new()
 	config.load(settings_file)  # tiene le altre sezioni
 	config.set_value("game", "language", code)
 	config.save(settings_file)
+
+
+# finestra Wiki: gli argomenti nella lingua del gioco, aperta sulla pagina che si stava leggendo (all'inizio la prima)
+func fill_wiki() -> void:
+	var topics: ItemList = $HUD/WikiPanel/Box/Body/Topics
+	var page := maxi(0, topics.get_selected_items()[0] if topics.is_anything_selected() else 0)
+	topics.clear()
+	for p in WIKI.pages():
+		topics.add_item(p[0])
+	topics.select(page)
+	topics.item_selected.emit(page)
+
+
+# nome da mostrare per il valore di un enum, tradotto (locale/<lingua>.po): Res.LEATHER_ARMOR -> "Leather Armor",
+# in italiano "Armatura di cuoio". `context` separa le parole uguali con sensi diversi: "item" per gli oggetti (Res:
+# Fish è il pesce, non il pescare), "skill" per le abilità, "branch" per i rami della ricerca, "division" per le
+# partizioni dello stemma, "heraldry" per pezze e figure
+static func named(names: Dictionary, value: int, context := "") -> String:
+	return String(TranslationServer.translate(names.keys()[value].capitalize(), context))
 
 
 # tab Video: la finestra prende la misura scelta e si rimette al centro dello schermo
@@ -1696,7 +1719,7 @@ func build_tip(kind: Build) -> Control:
 	var head := HBoxContainer.new()
 	head.add_theme_constant_override("separation", 24)
 	var title := Label.new()
-	title.text = Build.keys()[kind].capitalize()
+	title.text = named(Build, kind)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	var costs := VBoxContainer.new()
@@ -1704,7 +1727,7 @@ func build_tip(kind: Build) -> Control:
 		var row := HBoxContainer.new()
 		row.alignment = BoxContainer.ALIGNMENT_END
 		var amount := Label.new()
-		amount.text = "%s%d%s" % ["or " if res == Res.STONE and kind in ANY_MATERIAL else "", BUILD_COST[kind], "" if FURNITURE.has(kind) else "/tile"]
+		amount.text = "%s%d%s" % [tr("or ") if res == Res.STONE and kind in ANY_MATERIAL else "", BUILD_COST[kind], "" if FURNITURE.has(kind) else tr("/tile")]
 		row.add_child(amount)
 		row.add_child(ui_icon(ICONS[res], Rect2(), Vector2(16, 16)))
 		costs.add_child(row)
@@ -1713,14 +1736,14 @@ func build_tip(kind: Build) -> Control:
 	box.add_child(head)
 	if COMFORT.has(kind):  # chi non dà comfort salta la sezione
 		var bonus := Label.new()
-		bonus.text = "+%s room comfort" % str(COMFORT[kind]).trim_suffix(".0")
+		bonus.text = tr("+%s room comfort") % str(COMFORT[kind]).trim_suffix(".0")
 		if kind == Build.FLOOR:
-			bonus.text += " paving it all, x%s in stone" % COMFORT_MATERIAL[Res.STONE]
+			bonus.text += tr(" paving it all, x%s in stone") % COMFORT_MATERIAL[Res.STONE]
 		bonus.add_theme_color_override("font_color", TREND_UP)
 		box.add_child(bonus)
 	if SPLENDOR.has(kind):
 		var splendor := Label.new()
-		splendor.text = "+%d colony splendor" % SPLENDOR[kind]
+		splendor.text = tr("+%d colony splendor") % SPLENDOR[kind]
 		splendor.add_theme_color_override("font_color", SPLENDOR_COLOR)
 		box.add_child(splendor)
 	box.add_child(HSeparator.new())
@@ -1797,13 +1820,13 @@ func fill_people() -> void:
 # comfort della stanza nel popup, e nella tendina solo i tipi di cui ci sono i mobili (vedi ROOM_NEEDS): l'id della
 # voce è il RoomKind. La si rifà solo quando cambiano, se no si chiuderebbe mentre la si guarda
 func refresh_room() -> void:
-	$HUD/RoomPopup/Box/Comfort.text = "Comfort: %d / %d    %d°C" \
+	$HUD/RoomPopup/Box/Comfort.text = tr("Comfort: %d / %d    %d°C") \
 		% [room_comfort(editing), COMFORT_MAX, roundi(temperature_at(editing.cells.keys()[0]))]
 	var kinds := RoomKind.values().filter(func(k): return room_meets(editing, k))
 	if kinds != range(room_kind.item_count).map(room_kind.get_item_id):
 		room_kind.clear()
 		for kind in kinds:
-			room_kind.add_item(RoomKind.keys()[kind].capitalize(), kind)
+			room_kind.add_item(named(RoomKind, kind), kind)
 	room_kind.select(room_kind.get_item_index(editing.kind))
 
 
@@ -1836,8 +1859,8 @@ func open_craft(origin: Vector2i) -> void:
 	crafting = origin
 	var kind: Build = furniture[origin][0]
 	var box: Control = $HUD/CraftPopup/Box
-	box.get_node("Head/Title").text = Build.keys()[kind].capitalize()
-	box.get_node("Room").text = "Works only in a %s" % RoomKind.keys()[STATION_ROOM[kind]].capitalize().to_lower()
+	box.get_node("Head/Title").text = named(Build, kind)
+	box.get_node("Room").text = tr("Works only in a %s") % named(RoomKind, STATION_ROOM[kind]).to_lower()
 	box.get_node("Room").visible = not stations(kind).has(origin)
 	var list := box.get_node("List")
 	for child in list.get_children():
@@ -1852,7 +1875,7 @@ func open_craft(origin: Vector2i) -> void:
 		var row := HBoxContainer.new()
 		row.add_child(ui_icon(ICONS[r[0]], Rect2(), Vector2(32, 32)))
 		var label := Label.new()
-		label.text = Res.keys()[r[0]].capitalize()
+		label.text = named(Res, r[0], "item")
 		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		label.custom_minimum_size.x = 110
 		label.tooltip_text = GEAR[r[0]]["info"] if GEAR.has(r[0]) else ""
@@ -1868,10 +1891,10 @@ func open_craft(origin: Vector2i) -> void:
 			row.add_child(amount)
 			row.add_child(ui_icon(ICONS[res], Rect2(), Vector2(16, 16)))
 		var count := SpinBox.new()
-		count.prefix = "Keep"
+		count.prefix = tr("Keep")  # il prefisso non si traduce da sé
 		count.custom_minimum_size.x = 100  # se no taglia la scritta
 		count.value = keep.get(r[0], 0)
-		count.tooltip_text = "Made until there are this many" + (", besides what colonists need to wear" if GEAR.has(r[0]) else "")
+		count.tooltip_text = tr("Made until there are this many") + (tr(", besides what colonists need to wear") if GEAR.has(r[0]) else "")
 		count.value_changed.connect(func(v): keep[r[0]] = int(v))
 		row.add_child(count)
 		list.add_child(row)
@@ -1907,15 +1930,15 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 	box.get_node("Sex/Label").text = SEX_NAMES[c.sex]
 	box.get_node("Head/Arms").visible = c == ruler  # lo stemma lo mette show_title
 	box.get_node("Hero").visible = c.hero != Hero.NONE or c == ruler
-	box.get_node("Hero").text = "%s, fee %s, %d expedition%s" % [hero_name(c), coins(fee(c)), c.trips, "" if c.trips == 1 else "s"] \
-		if c.hero != Hero.NONE else ("%s %s of %s" % [CROWN_IMG, TITLES[rank]["ruler"][c.sex], realm] if c == ruler else "")
+	box.get_node("Hero").text = tr_n("%s, fee %s, %d expedition", "%s, fee %s, %d expeditions", c.trips) % [hero_name(c), coins(fee(c)), c.trips] \
+		if c.hero != Hero.NONE else (tr("%s %s of %s") % [CROWN_IMG, tr(TITLES[rank]["ruler"][c.sex]), realm] if c == ruler else "")
 	box.get_node("Health").text = health_text(c)
 	for child in needs_grid.get_children() + skills_grid.get_children() + traits_box.get_children():
 		child.free()
 	var back := bar_style(BAR_BACK)
 	for n in Need.values():  # i valori li aggiorna update_need_bars
 		var label := Label.new()
-		label.text = Need.keys()[n].capitalize()
+		label.text = named(Need, n)
 		var bar := ProgressBar.new()
 		bar.max_value = NEED_MAX
 		bar.step = 0.0  # se no arrotonda a scatti di 1
@@ -1936,23 +1959,23 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 			needs_grid.add_child(node)
 	for s in Skill.values():
 		var skill := Label.new()
-		skill.text = Skill.keys()[s].capitalize()
+		skill.text = named(Skill, s, "skill")
 		skill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		var level := Label.new()
 		level.text = str(c.skills[s])
 		level.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		level.tooltip_text = "%d XP" % c.xp[s]
+		level.tooltip_text = tr("%d XP") % c.xp[s]
 		level.mouse_filter = Control.MOUSE_FILTER_PASS  # se no il suggerimento non compare
 		var star := ui_icon(STAR if c.skills[s] == SKILL_MAX else null, Rect2(), Vector2(18, 18))  # vuota, tiene la colonna
 		for node in [ui_icon(SKILLS_SHEET, Rect2(s * 8, 0, 8, 8), Vector2(16, 16)), skill, level, star]:
 			skills_grid.add_child(node)
 	for t in c.traits:
 		var icon := ui_icon(TRAITS_SHEET, Rect2(tile_rect(t, 0)), Vector2(32, 32))
-		icon.tooltip_text = "%s\n%s" % [Trait.keys()[t].capitalize(), TRAIT_INFO[t]]
+		icon.tooltip_text = "%s\n%s" % [named(Trait, t), tr(TRAIT_INFO[t])]
 		traits_box.add_child(icon)
 	for g in c.gifts:  # degli avventurieri
 		var icon := ui_icon(HERO_TRAITS_SHEET, Rect2(tile_rect(g, 0)), Vector2(32, 32))
-		icon.tooltip_text = "%s\n%s" % [Gift.keys()[g].capitalize(), GIFT_INFO[g]]
+		icon.tooltip_text = "%s\n%s" % [named(Gift, g), tr(GIFT_INFO[g])]
 		traits_box.add_child(icon)
 	traits_box.get_parent().visible = not (c.traits.is_empty() and c.gifts.is_empty())  # col titolo "Traits"
 	var hours: Control = box.get_node("Routine/Hours")  # una casella per ora, colorata secondo la routine
@@ -1973,7 +1996,7 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 
 
 func health_text(c: Colonist) -> String:
-	return "Health: %d / %d%s" % [ceili(c.hp), MAX_HP, "  (downed)" if c.downed else ""]
+	return tr("Health: %d / %d%s") % [ceili(c.hp), MAX_HP, tr("  (downed)") if c.downed else ""]
 
 
 # slot dell'equipaggiamento: l'icona del pezzo, col mouse sopra nome, protezione ed effetto; vuoto, la sagoma dello slot.
@@ -1997,12 +2020,12 @@ func update_gear(box: Control, c: Colonist) -> void:
 		var g = c.gear.get(slot)
 		var choice := gear_choice(c, slot)
 		icon.texture = ICONS[g] if g != null else icon.get_meta("empty")
-		icon.tooltip_text = (Slot.keys()[slot].capitalize() if g == null else "%s\n%s%s" % [Res.keys()[g].capitalize(),
-			"Armor %d. " % GEAR[g]["armor"] if GEAR[g].has("armor") else "", GEAR[g]["info"]]) + choice
+		icon.tooltip_text = (named(Slot, slot) if g == null else "%s\n%s%s" % [named(Res, g, "item"),
+			tr("Armor %d. ") % GEAR[g]["armor"] if GEAR[g].has("armor") else "", tr(GEAR[g]["info"])]) + choice
 		if icon.get_script() == null:
 			icon.set_script(TIP)
 		icon.set("make_tip", gear_tip.bind(g, choice) if g != null else Callable())
-	box.get_node("Equipment/Title").text = "Equipment" + ("  (armor %d)" % gear_sum(c, "armor") if gear_sum(c, "armor") > 0 else "")
+	box.get_node("Equipment/Title").text = tr("Equipment") + (tr("  (armor %d)") % gear_sum(c, "armor") if gear_sum(c, "armor") > 0 else "")
 
 
 # riga del suggerimento dello slot sulla scelta: automatico, o cosa ha scelto il giocatore e se non ce l'ha ancora addosso.
@@ -2011,9 +2034,9 @@ func gear_choice(c: Colonist, slot: Slot) -> String:
 	if c.hero != Hero.NONE:
 		return ""
 	if not c.loadout.has(slot):
-		return "\nAuto. Click to choose."
+		return tr("\nAuto. Click to choose.")
 	var g = c.loadout[slot]
-	return "\nChosen: %s%s. Click to change." % ["nothing" if g == null else res_name(g), "" if c.gear.get(slot) == g else " (on the way)"]
+	return tr("\nChosen: %s%s. Click to change.") % [tr("nothing") if g == null else res_name(g), "" if c.gear.get(slot) == g else tr(" (on the way)")]
 
 
 # Menu dello slot `slot` di `shown`: Auto (lo sceglie da sé, vedi fits), Empty (niente) e i pezzi che ci vanno, con
@@ -2028,7 +2051,7 @@ func open_gear_menu(slot: Slot) -> void:
 	gear_menu.add_separator()
 	for g in GEAR:
 		if GEAR[g]["slot"] == slot:
-			gear_menu.add_icon_radio_check_item(ICONS[g], "%s  x%d" % [Res.keys()[g].capitalize(), available(g)], 2 + g)
+			gear_menu.add_icon_radio_check_item(ICONS[g], "%s  x%d" % [named(Res, g, "item"), available(g)], 2 + g)
 			var i := gear_menu.get_item_index(2 + g)
 			gear_menu.set_item_checked(i, shown.loadout.get(slot) == g)
 			gear_menu.set_item_tooltip(i, GEAR[g]["info"])
@@ -2045,7 +2068,7 @@ func choose_gear(id: int) -> void:
 
 # suggerimento di un pezzo dell'equipaggiamento: tipo e nome, poi protezione ed effetto (come tooltip_text), poi `choice`
 func gear_tip(g: Res, choice := "") -> Control:
-	var text := rich("%s\n%s%s%s" % [item_title(g), "Armor %d. " % GEAR[g]["armor"] if GEAR[g].has("armor") else "", GEAR[g]["info"], choice])
+	var text := rich("%s\n%s%s%s" % [item_title(g), tr("Armor %d. ") % GEAR[g]["armor"] if GEAR[g].has("armor") else "", tr(GEAR[g]["info"]), choice])
 	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	text.custom_minimum_size.x = 260
 	return text
@@ -2070,12 +2093,12 @@ func update_conds(box: Control, c: Colonist) -> void:
 		for icon in icons.get_children():
 			icon.mouse_filter = Control.MOUSE_FILTER_PASS
 	for i in now.size():
-		icons.get_child(i).tooltip_text = "%s\n%s\n%d h left" % [Cond.keys()[now[i]].capitalize(), COND_INFO[now[i]][4],
+		icons.get_child(i).tooltip_text = tr("%s\n%s\n%d h left") % [named(Cond, now[i]), tr(COND_INFO[now[i]][4]),
 			ceili((c.conds[now[i]] - clock) * 24)]
 	for i in laws.size():
 		var mood := law_mood_of(c, laws[i])
-		icons.get_child(now.size() + i).tooltip_text = "%s: %s\n%s happiness while it is in force" % [
-			"Approves" if mood > 0 else "Disapproves", law_name(laws[i]), signed(mood)]
+		icons.get_child(now.size() + i).tooltip_text = tr("%s: %s\n%s happiness while it is in force") % [
+			tr("Approves") if mood > 0 else tr("Disapproves"), law_name(laws[i]), signed(mood)]
 	icons.get_parent().visible = not (now.is_empty() and laws.is_empty())  # col titolo "Conditions"
 
 
@@ -2088,8 +2111,8 @@ func update_routine_row(row: Control, c: Colonist) -> void:
 		var cell: ColorRect = row.get_node("Hours").get_child(h)
 		cell.color = ROUTINE_COLORS[day[h]]
 		cell.modulate.a = 1.0 if h == now else 0.45
-		cell.tooltip_text = "%02d:00  %s" % [h, ROUTINE_NAMES[day[h]]]
-	row.get_node("Worked").text = "Worked today: %.1f / %s h" % [c.worked, str(work_hours(c)).trim_suffix(".0")]
+		cell.tooltip_text = "%02d:00  %s" % [h, tr(ROUTINE_NAMES[day[h]])]
+	row.get_node("Worked").text = tr("Worked today: %.1f / %s h") % [c.worked, str(work_hours(c)).trim_suffix(".0")]
 
 
 # barre dei bisogni di `c` nella griglia `needs_grid` della scheda: rossa da stremato, arancio sotto NEED_LOW, verde
@@ -2145,7 +2168,7 @@ static func dress(c: Colonist, taken := []) -> void:
 
 
 func full_name(c: Colonist) -> String:
-	return "%s \"%s\" %s" % [c.first_name, c.nickname, c.last_name] if c.nickname else "%s %s" % [c.first_name, c.last_name]
+	return "%s \"%s\" %s" % [c.first_name, tr(c.nickname), c.last_name] if c.nickname else "%s %s" % [c.first_name, c.last_name]
 
 
 # colono sotto `point` (pixel del mondo); se si sovrappongono, quello col centro più vicino
@@ -2192,50 +2215,51 @@ func describe(cell: Vector2i) -> Array:
 		if cell_of(a.pos) == cell:
 			var lines := PackedStringArray()
 			if hostile(a):
-				lines.append("Hostile")
+				lines.append(tr("Hostile"))
 			if a.damage > 0:
-				lines.append("Health: %d / %d" % [BEASTS[a.kind]["hp"] - a.damage, BEASTS[a.kind]["hp"]])
+				lines.append(tr("Health: %d / %d") % [BEASTS[a.kind]["hp"] - a.damage, BEASTS[a.kind]["hp"]])
 			if a.marked:
-				lines.append("Marked: hunt")
-			return [Beast.keys()[a.kind].capitalize(), "\n".join(lines)]
+				lines.append(tr("Marked: hunt"))
+			return [named(Beast, a.kind), "\n".join(lines)]
 	if fish_marks.has(cell) and atmosphere.frozen:
-		return ["Fishing spot", "Frozen: no fishing until it thaws"]
+		return [tr("Fishing spot"), tr("Frozen: no fishing until it thaws")]
 	if fish_marks.has(cell):
-		return ["Fishing spot", "Fish: %d / %d" % [stock.get(cell, FISH_PER_SPOT), FISH_PER_SPOT] if fish_spots.get(cell, 0.0) <= clock
-			else "Fish back in %.1f days" % (fish_spots[cell] - clock)]
+		return [tr("Fishing spot"), tr("Fish: %d / %d") % [stock.get(cell, FISH_PER_SPOT), FISH_PER_SPOT] if fish_spots.get(cell, 0.0) <= clock
+			else tr("Fish back in %.1f days") % (fish_spots[cell] - clock)]
 	for t in [cell, cell + Vector2i.DOWN]:
 		if trees.has(t):
-			return [TreeKind.keys()[trees[t]].capitalize(), "Logs left: %d / %d%s" % [stock.get(t, full_stock(t)), full_stock(t),
-				"\nMarked: chop" if chop_marks.has(t) else ""]]
+			return [named(TreeKind, trees[t]), tr("Logs left: %d / %d%s") % [stock.get(t, full_stock(t)), full_stock(t),
+				tr("\nMarked: chop") if chop_marks.has(t) else ""]]
 	for origin in boulders:
 		if Rect2i(origin, boulders[origin]).has_point(cell):
 			var res: Res = ores.get(origin, Res.STONE)
-			return ["Boulder" if res == Res.STONE else "%s vein" % Res.keys()[res].capitalize(), "%s left: %d / %d%s" % [
-				Res.keys()[res].capitalize(), stock.get(origin, full_stock(origin)), full_stock(origin),
-				"\nMarked: mine" if mine_marks.has(origin) else ""]]
-	var uproot := "\nMarked: uproot" if uproot_marks.has(cell) else ("\nMarked: harvest" if harvest_marks.has(cell) else "")
+			# la vena tutta da tradurre ("Iron vein", "Coal vein"): in italiano il nome va minuscolo, in inglese no
+			return [tr("Boulder") if res == Res.STONE else tr("%s vein" % Res.keys()[res].capitalize()), tr("%s left: %d / %d%s") % [
+				named(Res, res, "item"), stock.get(origin, full_stock(origin)), full_stock(origin),
+				tr("\nMarked: mine") if mine_marks.has(origin) else ""]]
+	var uproot := tr("\nMarked: uproot") if uproot_marks.has(cell) else (tr("\nMarked: harvest") if harvest_marks.has(cell) else "")
 	if bushes.has(cell):
 		var ripe: bool = bushes[cell] <= clock
-		var crop := "Flax" if flax.has(cell) else "Berries"
-		return ["Flax" if flax.has(cell) else "Bush", ("%s: %d / %d" % [crop, stock.get(cell, BERRIES_PER_BUSH), BERRIES_PER_BUSH]
-			if ripe else "%s in %.1f days" % [crop, bushes[cell] - clock]) + uproot]
+		var crop := tr("Flax") if flax.has(cell) else tr("Berries")
+		return [tr("Flax") if flax.has(cell) else tr("Bush"), ("%s: %d / %d" % [crop, stock.get(cell, BERRIES_PER_BUSH), BERRIES_PER_BUSH]
+			if ripe else tr("%s in %.1f days") % [crop, bushes[cell] - clock]) + uproot]
 	if weeds.has(cell):
-		return ["Weed", uproot.strip_edges()]
+		return [tr("Weed"), uproot.strip_edges()]
 	for res in items:
 		if items[res].has(cell):
 			var about := "%d / %d" % [items[res][cell], STACK_MAX[res]]
 			if fresh.has(cell):  # cibo: quanto è fresco e quando marcisce, dove si trova adesso
 				var part: float = fresh[cell] / SHELF_LIFE[res]
 				var rate := spoil_rate(cell)
-				about += "\n%s, %s" % [FRESH_WORDS.filter(func(w): return part > w[0] or w[0] == 0.0)[0][1],
-					"frozen: it keeps" if rate == 0 else "rots in %.1f days" % (fresh[cell] / rate)]
-			return ["%s pile" % item_title(res), about]
+				about += "\n%s, %s" % [tr(FRESH_WORDS.filter(func(w): return part > w[0] or w[0] == 0.0)[0][1]),
+					tr("frozen: it keeps") if rate == 0 else tr("rots in %.1f days") % (fresh[cell] / rate)]
+			return [tr("%s pile") % item_title(res), about]
 	for origin in pieces_at(furniture, cell):
 		var kind: Build = furniture[origin][0]
-		return [Build.keys()[kind].capitalize(), {Build.DESK: "Click: knowledge", Build.THRONE: "Click: laws"}.get(kind,
-			"Click: what to make" if STATION_ROOM.has(kind) else "")]
+		return [named(Build, kind), {Build.DESK: tr("Click: knowledge"), Build.THRONE: tr("Click: laws")}.get(kind,
+			tr("Click: what to make") if STATION_ROOM.has(kind) else "")]
 	if built.has(cell):
-		return [Build.keys()[built[cell][0]].capitalize(), Res.keys()[built[cell][1]].capitalize()]
+		return [named(Build, built[cell][0]), named(Res, built[cell][1], "item")]
 	return []
 
 
@@ -2256,35 +2280,35 @@ func confirm_build() -> void:
 func job_list() -> String:
 	var lines := PackedStringArray()
 	if not chop_marks.is_empty():
-		lines.append("Chop trees: %d" % chop_marks.size())
+		lines.append(tr("Chop trees: %d") % chop_marks.size())
 	if not mine_marks.is_empty():
-		lines.append("Mine boulders: %d" % mine_marks.size())
+		lines.append(tr("Mine boulders: %d") % mine_marks.size())
 	if not uproot_marks.is_empty():
-		lines.append("Uproot plants: %d" % uproot_marks.size())
+		lines.append(tr("Uproot plants: %d") % uproot_marks.size())
 	if not harvest_ready().is_empty():
-		lines.append("Harvest bushes: %d" % harvest_ready().size())
+		lines.append(tr("Harvest bushes: %d") % harvest_ready().size())
 	if not fishable().is_empty():
-		lines.append("Fish spots: %d" % fishable().size())
+		lines.append(tr("Fish spots: %d") % fishable().size())
 	var hunted := animals.filter(func(a): return a.marked)
 	if not hunted.is_empty():
-		lines.append("Hunt animals: %d%s" % [hunted.size(), "" if colonists.any(has_bow) or available(Res.BOW) > 0 else " (needs a bow)"])
+		lines.append(tr("Hunt animals: %d%s") % [hunted.size(), "" if colonists.any(has_bow) or available(Res.BOW) > 0 else tr(" (needs a bow)")])
 	if meals_wanted() > 0 and not kitchen_fires().is_empty():
-		lines.append("Cook meals: %d" % meals_wanted())
+		lines.append(tr("Cook meals: %d") % meals_wanted())
 	for r in RECIPES:  # solo quello che manca, che si sa fare e che ha una postazione
 		if unlocked("makes", r[0]) and gear_wanted(r[0]) > 0 and not stations(r[1]).is_empty():
-			lines.append("Make %s: %d" % [item_name(r[0]), gear_wanted(r[0])])
+			lines.append(tr("Make %s: %d") % [item_name(r[0]), gear_wanted(r[0])])
 	for plans in [blueprints, furniture_plans]:  # prima le strutture (per casella), poi i mobili (per pezzo)
 		var counts := {}  # "wall (wood)" -> quanti
 		for plan in plans.values():
-			var what := "%s (%s)" % [Build.keys()[plan[0]].capitalize().to_lower(), item_name(plan[1])]
+			var what := "%s (%s)" % [named(Build, plan[0]).to_lower(), item_name(plan[1])]
 			counts[what] = counts.get(what, 0) + 1
 		for what in counts:
-			lines.append("Build %s: %d" % [what, counts[what]])
+			lines.append(tr("Build %s: %d") % [what, counts[what]])
 	for res in Res.values():
 		var piles: Array = items[res].keys().filter(func(cell): return not stockpile.has(cell))
 		if not piles.is_empty() and not stockpile.is_empty():  # senza magazzino nessuno trasporta
-			lines.append("Haul %s: %d pile%s" % [item_name(res), piles.size(), "" if piles.size() == 1 else "s"])
-	return "\n".join(lines) if not lines.is_empty() else "Nothing to do"
+			lines.append(tr_n("Haul %s: %d pile", "Haul %s: %d piles", piles.size()) % [item_name(res), piles.size()])
+	return "\n".join(lines) if not lines.is_empty() else tr("Nothing to do")
 
 
 # finestra "Resources": quanto c'è in tutti i magazzini insieme, solo le risorse presenti
@@ -2293,6 +2317,7 @@ func update_resources() -> void:
 	for res in Res.values():
 		var row: Control = resources_list.get_child(res)
 		row.visible = amounts[res] > 0
+		row.get_child(-2).text = named(Res, res, "item")  # il nome, nella lingua di adesso
 		row.get_child(-1).text = str(amounts[res])  # la quantità, in fondo alla riga
 	$HUD/ResourcesPanel/Box/Empty.visible = amounts.max() == 0
 	resources_panel.reset_size()  # si stringe se una risorsa finisce
@@ -2494,9 +2519,9 @@ func _process(delta: float) -> void:
 		get_node("HUD/TopBar/Row/" + name).set_pressed_no_signal(Engine.time_scale == SPEEDS[name])
 	var t := fmod(clock, 1.0)
 	var wolves := animals.filter(hostile).size()
-	info_label.text = ("WOLVES: %d    " % wolves if wolves > 0 else "") \
-		+ ("EXPEDITION: %d    " % expeditions.size() if not expeditions.is_empty() else "") + "%s, %s  %02d:%02d    Order: %s" \
-		% [SEASONS[season(int(clock))], date(int(clock)), int(t * 24), int(t * 1440) % 60, Order.keys()[order].capitalize()]
+	info_label.text = (tr("WOLVES: %d    ") % wolves if wolves > 0 else "") \
+		+ (tr("EXPEDITION: %d    ") % expeditions.size() if not expeditions.is_empty() else "") + tr("%s, %s  %02d:%02d    Order: %s") \
+		% [tr(SEASONS[season(int(clock))]), date(int(clock)), int(t * 24), int(t * 1440) % 60, named(Order, order)]
 	sky.color = sky_colors.sample(t)
 	queue_redraw()
 	flat.queue_redraw()
@@ -3793,7 +3818,7 @@ func fair_game(a: Animal, c) -> bool:
 func bite(a: Animal, c: Colonist) -> void:
 	if c.downed:
 		a.target = null
-		die(c, "was killed by wolves.")
+		die(c, tr("was killed by wolves."))
 		return
 	if randf() >= BITE_HIT - DODGE_PER_LEVEL * c.skills[Skill.MELEE]:
 		return
@@ -3803,7 +3828,7 @@ func bite(a: Animal, c: Colonist) -> void:
 		c.hp = 0.0
 		a.target = null
 		if deaths and randf() < death_chance(c):
-			die(c, "was killed by wolves.")
+			die(c, tr("was killed by wolves."))
 			return
 		c.downed = true
 		quit_job(c)
@@ -3851,8 +3876,8 @@ func update_scholar() -> void:
 	for i in randi_range(1, 2):
 		scholar_books.append(Res.TOME if randf() < SCHOLAR_TOME else Res.NOTEBOOK)
 	knowledge_key = ""
-	note("Day %d: a wandering scholar stops at the inn, with %s to sell (see Knowledge)." % [int(clock) + 1,
-		", ".join(scholar_books.map(func(b): return "a " + res_name(b)))])
+	note(tr("Day %d: a wandering scholar stops at the inn, with %s to sell (see Knowledge).") % [int(clock) + 1,
+		", ".join(scholar_books.map(func(b): return tr("a %s", "book") % res_name(b)))])
 
 
 # compra dall'erudito il libro `i` della sua lista: monete dal magazzino, il libro in magazzino. false se non si può
@@ -3931,7 +3956,7 @@ func spawn_pack() -> void:
 			var a := add_animal(Beast.WOLF, near if roams(near) else cell)
 			a.leave_at = clock + WOLF_STAY
 		if on_watch():
-			note("Day %d, night: the watch sees wolves coming." % (int(clock) + 1))
+			note(tr("Day %d, night: the watch sees wolves coming.") % (int(clock) + 1))
 		return
 
 
@@ -4068,11 +4093,11 @@ func party_gift(party: Array, key: String, base: Variant) -> Variant:
 
 
 func hero_name(c: Colonist) -> String:
-	return "%s, level %d" % [Hero.keys()[c.hero].capitalize(), c.level]
+	return tr("%s, level %d") % [named(Hero, c.hero), c.level]
 
 
 func gift_names(c: Colonist) -> String:
-	return ", ".join(c.gifts.map(func(g): return Gift.keys()[g].capitalize()))
+	return ", ".join(c.gifts.map(func(g): return named(Gift, g)))
 
 
 # caselle del bordo della mappa dove si cammina: da lì arrivano e se ne vanno gli avventurieri
@@ -4224,9 +4249,9 @@ func send(party: Array, ruin: Ruin) -> bool:
 		travel(g)
 	expeditions.append(exp)
 	board_pick.clear()
-	note("%s: %s hired for the %s, for %s and %d of %d provisions." % [date(int(clock)),
-		", ".join(party.map(func(g): return "%s (%s)" % [full_name(g), hero_name(g)])), RUINS[ruin.kind]["name"], coins(cost),
-		exp.food, want] + (" The armory lends: %s." % ", ".join(loans) if not loans.is_empty() else ""))
+	note(tr("%s: %s hired for the %s, for %s and %d of %d provisions.") % [date(int(clock)),
+		", ".join(party.map(func(g): return "%s (%s)" % [full_name(g), hero_name(g)])), tr(RUINS[ruin.kind]["name"]), coins(cost),
+		exp.food, want] + (tr(" The armory lends: %s.") % ", ".join(loans) if not loans.is_empty() else ""))
 	return true
 
 
@@ -4260,40 +4285,40 @@ func explore(exp: Expedition, travel: float) -> float:
 	var danger: int = data["danger"]
 	var days := 0.0
 	var start: float = exp.left_at + travel
-	exp.lines.append(("%s: the party reaches the %s. %s" % [date(int(start)), data["name"], eat_on_trip(exp, travel)]).strip_edges())
+	exp.lines.append((tr("%s: the party reaches the %s. %s") % [date(int(start)), tr(data["name"]), eat_on_trip(exp, travel)]).strip_edges())
 	while exp.ruin.cleared < data["rooms"] and not exp.party.is_empty():
 		var last: bool = exp.ruin.cleared == data["rooms"] - 1
-		var room := "%s, room %d: " % [date(int(start + days)), exp.ruin.cleared + 1]
+		var room := tr("%s, room %d: ") % [date(int(start + days)), exp.ruin.cleared + 1]
 		days += ROOM_DAYS
 		var kind: int = Chamber.CHEST if last else next_chamber(exp.ruin)
 		exp.ruin.next = -1
 		var opened := true
 		if last:
-			room += "the guardian of the treasure. %s " % fight_monsters(exp, MONSTER_POWER * danger * 2)
+			room += tr("the guardian of the treasure. %s ") % fight_monsters(exp, MONSTER_POWER * danger * 2)
 		match kind:
 			Chamber.EMPTY:
-				room += "empty."
+				room += tr("empty.")
 			Chamber.TRAP:
 				var picker := best_at(exp.party, Skill.LOCKPICKING)
 				if randf() < TRAP_DISARM + TRAP_PER_LEVEL * picker.skills[Skill.LOCKPICKING] + party_gift(exp.party, "disarm", 0.0):
-					room += "%s disarms a trap." % picker.first_name
+					room += tr("%s disarms a trap.") % picker.first_name
 				else:
 					var lured := exp.party.filter(func(c): return gift(c, "lure", false))
 					var victim: Colonist = lured[0] if not lured.is_empty() else exp.party.pick_random()
 					var hurt := roundf(TRAP_HURT * danger * gift(victim, "hurt", 1.0))
 					victim.hp -= hurt
-					room += "a trap hurts %s (-%d)." % [victim.first_name, hurt]
+					room += tr("a trap hurts %s (-%d).") % [victim.first_name, hurt]
 			Chamber.MONSTERS:
 				if randf() < party_gift(exp.party, "sneak", 0.0):
-					room += "monsters, but the party slips past them."
+					room += tr("monsters, but the party slips past them.")
 				else:
-					room += "monsters! " + fight_monsters(exp, MONSTER_POWER * danger)
+					room += tr("monsters! ") + fight_monsters(exp, MONSTER_POWER * danger)
 			Chamber.CHEST:
 				var chest := open_chest(exp, data, last)
 				room += chest[0]
 				opened = chest[1]
 			Chamber.COLLAPSE:
-				room += "a collapse blocks the way."
+				room += tr("a collapse blocks the way.")
 		exp.lines.append((room + " " + eat_on_trip(exp, ROOM_DAYS)).strip_edges())
 		for c in exp.party.duplicate():  # a 0 punti ferita: muore, o lo riportano gli altri (da solo, nessuno)
 			if c.hp <= 0:
@@ -4301,11 +4326,11 @@ func explore(exp: Expedition, travel: float) -> float:
 				if exp.party.size() == 1 or (not medic and randf() < FALL_DEATH):
 					exp.party.erase(c)
 					c.died = clock
-					exp.lines.append("%s falls and dies." % c.first_name)
-					note("%s: %s died in the %s." % [date(int(start + days)), full_name(c), data["name"]], int(start + days))
+					exp.lines.append(tr("%s falls and dies.") % c.first_name)
+					note(tr("%s: %s died in the %s.") % [date(int(start + days)), full_name(c), tr(data["name"])], int(start + days))
 				else:
 					c.hp = CARRIED_HP
-					exp.lines.append("%s falls; the others carry them." % c.first_name)
+					exp.lines.append(tr("%s falls; the others carry them.") % c.first_name)
 		if exp.party.is_empty():
 			exp.lost = true
 			break
@@ -4313,10 +4338,10 @@ func explore(exp: Expedition, travel: float) -> float:
 		for c in exp.party:  # il medico cura tutti dopo ogni stanza
 			c.hp = minf(c.hp + heal, MAX_HP)
 		if kind == Chamber.COLLAPSE:
-			exp.lines.append("The party turns back.")
+			exp.lines.append(tr("The party turns back."))
 			break
 		if not opened and last:
-			exp.lines.append("The treasure stays locked: the party turns back.")
+			exp.lines.append(tr("The treasure stays locked: the party turns back."))
 			break
 		exp.ruin.cleared += 1
 		exp.treasure = last
@@ -4324,17 +4349,17 @@ func explore(exp: Expedition, travel: float) -> float:
 			break
 		var weak := exp.party.filter(func(c): return c.hp < gift(c, "turn_back", TURN_BACK))
 		if not weak.is_empty():
-			exp.lines.append("%s is wounded: the party turns back." % weak[0].first_name)
+			exp.lines.append(tr("%s is wounded: the party turns back.") % weak[0].first_name)
 			break
 		if exp.food < exp.party.size() * (travel + ROOM_DAYS) * party_gift(exp.party, "food", 1.0) - 0.001:
-			exp.lines.append("Provisions are running low: the party turns back.")
+			exp.lines.append(tr("Provisions are running low: the party turns back."))
 			break
 	if explored(exp.ruin):
-		exp.lines.append("The %s has nothing left to explore." % data["name"])
+		exp.lines.append(tr("The %s has nothing left to explore.") % tr(data["name"]))
 	if not exp.lost:  # il ritorno: affamati, ma a casa ci arrivano
 		var hunger := eat_on_trip(exp, travel)
 		if hunger != "":
-			exp.lines.append("On the way home: " + hunger.to_lower())
+			exp.lines.append(tr("On the way home: ") + hunger.to_lower())
 		for c in exp.party:
 			c.hp = maxf(c.hp, 1.0)
 	return days
@@ -4351,7 +4376,7 @@ func eat_on_trip(exp: Expedition, days: float) -> String:
 	var hurt: float = HUNGER_HURT * (need - eaten) / exp.party.size() / party_gift(exp.party, "food", 1.0)
 	for c in exp.party:
 		c.hp -= hurt
-	return "No food left: hunger (-%d each)." % roundi(hurt)
+	return tr("No food left: hunger (-%d each).") % roundi(hurt)
 
 
 # la prossima stanza di `ruin`: pescata la prima volta che la si guarda (la cartografia la mostra sulla bacheca), poi
@@ -4405,7 +4430,7 @@ func fight_monsters(exp: Expedition, power: float) -> String:
 func open_chest(exp: Expedition, data: Dictionary, last: bool) -> Array:
 	var picker := best_at(exp.party, Skill.LOCKPICKING)
 	if randf() < LOCKED and picker.skills[Skill.LOCKPICKING] < LOCK_PER_DANGER * data["danger"]:
-		return ["a locked chest nobody can open.", false]
+		return [tr("a locked chest nobody can open."), false]
 	var haul := 1.0
 	for c in exp.party:
 		haul = maxf(haul, HEROES[c.hero].get("haul", 1.0))
@@ -4424,7 +4449,7 @@ func open_chest(exp: Expedition, data: Dictionary, last: bool) -> Array:
 			found[book] = found.get(book, 0) + 1
 	for res in found:
 		exp.loot[res] = exp.loot.get(res, 0) + found[res]
-	var text := "a chest: %s, %s" % [coins(gold), ", ".join(found.keys().map(func(r): return amount_text(r, found[r])))]
+	var text := tr("a chest: %s, %s") % [coins(gold), ", ".join(found.keys().map(func(r): return amount_text(r, found[r])))]
 	var unknown := RuinKind.values().filter(func(k): return not ruins.any(func(r): return r.kind == k) and k not in exp.maps)
 	var map = null
 	if last and exp.ruin.kind + 1 in unknown:
@@ -4433,7 +4458,7 @@ func open_chest(exp: Expedition, data: Dictionary, last: bool) -> Array:
 		map = unknown.pick_random()
 	if map != null:
 		exp.maps.append(map)
-		text += " and a map to the %s" % RUINS[map]["name"]
+		text += tr(" and a map to the %s") % tr(RUINS[map]["name"])
 	return [text + ".", true]
 
 
@@ -4445,10 +4470,10 @@ func update_expeditions() -> void:
 		if exp.left_at < 0 or clock < exp.back_at:
 			continue
 		expeditions.erase(exp)
-		var name: String = RUINS[exp.ruin.kind]["name"]
+		var name: String = tr(RUINS[exp.ruin.kind]["name"])
 		if exp.lost:
-			exp.lines.append("Nobody came back from the %s." % name)
-			report("Lost in the %s" % name, exp.lines)
+			exp.lines.append(tr("Nobody came back from the %s.") % name)
+			report(tr("Lost in the %s") % name, exp.lines)
 			continue
 		var gold: int = exp.loot.get(Res.GOLD, 0)
 		var share := LOOT_SHARE if enacted.has(Law.LOOT_TAX) else SHARE
@@ -4460,36 +4485,36 @@ func update_expeditions() -> void:
 		for res in exp.loot:
 			if exp.loot[res] > 0:
 				brought.append(amount_text(res, exp.loot[res]))
-		exp.lines.append("Back home with %s%s." % [", ".join(brought) if not brought.is_empty() else "nothing",
-			"; they keep %s" % coins(kept) if kept > 0 else ""])
+		exp.lines.append(tr("Back home with %s%s.") % [", ".join(brought) if not brought.is_empty() else tr("nothing", "loot"),
+			tr("; they keep %s") % coins(kept) if kept > 0 else ""])
 		for kind in exp.maps:
 			if not ruins.any(func(r): return r.kind == kind):
 				var found := Ruin.new()
 				found.kind = kind
 				ruins.append(found)
-				exp.lines.append("New on the notice board: the %s." % RUINS[kind]["name"])
+				exp.lines.append(tr("New on the notice board: the %s.") % tr(RUINS[kind]["name"]))
 		ruins.sort_custom(func(a, b): return a.kind < b.kind)
 		for g in exp.party:
 			g.trips += 1
 			if g.trips % gift(g, "trips", TRIPS_PER_LEVEL) == 0 and g.level < HERO_LEVEL_MAX:
 				set_level(g, g.level + 1)
-				exp.lines.append("%s is now level %d." % [g.first_name, g.level])
+				exp.lines.append(tr("%s is now level %d.") % [g.first_name, g.level])
 			g.pos = center(exp.edge)
 			g.errand = Errand.RETURN
 			guests.append(g)
 			travel(g)
 		if exp.treasure:
 			gain(TREASURE_AUTHORITY)
-			exp.lines.append("The treasure of the %s: %s authority for the crown." % [name, signed(TREASURE_AUTHORITY)])
+			exp.lines.append(tr("The treasure of the %s: %s authority for the crown.") % [name, signed(TREASURE_AUTHORITY)])
 		for g in exp.party:
 			give_back(g)
 		exp.party[0].loot = exp.loot  # lo porta il primo, lo lascia alla locanda (vedi arrive)
-		report("Back from the %s" % name, exp.lines)
+		report(tr("Back from the %s") % name, exp.lines)
 
 
 # nome di una risorsa nei testi: "leather armor"; le monete con la loro icona (vedi coins)
 func res_name(res: Res) -> String:
-	return Res.keys()[res].capitalize().to_lower()
+	return named(Res, res, "item").to_lower()
 
 
 # `n` monete: il numero e l'icona, per i testi ricchi (RichTextLabel con bbcode: bacheca, diario, cronaca, scheda)
@@ -4514,7 +4539,7 @@ func item_name(res: Res) -> String:
 
 # nome di un oggetto come titolo: l'icona del tipo e il nome ("Leather Armor")
 func item_title(res: Res) -> String:
-	return "%s %s" % [kind_icon(res), Res.keys()[res].capitalize()]
+	return "%s %s" % [kind_icon(res), named(Res, res, "item")]
 
 
 # una riga nella cronaca
@@ -4558,11 +4583,11 @@ func fill_board() -> void:
 	var notice: OptionButton = box.get_node("Notice/Class")
 	box.get_node("Notice").visible = researched.has(Tech.RENOWNED_INN)
 	if notice.item_count == 0:
-		for kind in Hero.values():
+		for kind in Hero.values():  # in inglese: le voci si traducono da sole, anche cambiando lingua
 			notice.add_item("Anyone" if kind == Hero.NONE else Hero.keys()[kind].capitalize(), kind)
 		notice.item_selected.connect(func(i): wanted_hero = notice.get_item_id(i))
 	notice.select(notice.get_item_index(wanted_hero))
-	box.get_node("Gold").text = "%s    %d %s provisions (meals, raw food, hardtack)" % [coins(stored(Res.GOLD)), food_stored(),
+	box.get_node("Gold").text = tr("%s    %d %s provisions (meals, raw food, hardtack)") % [coins(stored(Res.GOLD)), food_stored(),
 		"[img=center]%s[/img]" % KIND_ICONS[ItemKind.FOOD].resource_path]
 	var list: Control = box.get_node("Heroes")
 	for child in list.get_children() + box.get_node("Ruins").get_children():
@@ -4600,10 +4625,10 @@ func fill_board() -> void:
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 16)
 		var label := Label.new()
-		label.text = "%s, danger %d: %s" % [data["name"], data["danger"],
-			"explored" if explored(ruin) else "rooms %d / %d" % [ruin.cleared, data["rooms"]]]
+		label.text = tr("%s, danger %d: %s") % [tr(data["name"]), data["danger"],
+			tr("explored") if explored(ruin) else tr("rooms %d / %d") % [ruin.cleared, data["rooms"]]]
 		if researched.has(Tech.CARTOGRAPHY) and not explored(ruin):
-			label.text += ", next: %s" % ("the treasure" if ruin.cleared == data["rooms"] - 1 else CHAMBER_NAMES[next_chamber(ruin)])
+			label.text += tr(", next: %s") % (tr("the treasure") if ruin.cleared == data["rooms"] - 1 else tr(CHAMBER_NAMES[next_chamber(ruin)]))
 		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(label)
 		if not explored(ruin):
@@ -4618,17 +4643,17 @@ func fill_board() -> void:
 			send_button.focus_mode = Control.FOCUS_NONE
 			send_button.disabled = board_pick.is_empty() or stored(Res.GOLD) < cost
 			send_button.tooltip_text = "Pick who goes" if board_pick.is_empty() else ("Not enough gold" if stored(Res.GOLD) < cost
-				else ("Only %d of %d provisions: they will go hungry" % [food_stored(), food] if food_stored() < food
-				else "%d days there and back" % ceili(trip_days(ruin, board_pick))))
+				else (tr("Only %d of %d provisions: they will go hungry") % [food_stored(), food] if food_stored() < food
+				else tr("%d days there and back") % ceili(trip_days(ruin, board_pick))))
 			send_button.pressed.connect(func(): send(board_pick.duplicate(), ruin))
 			row.add_child(send_button)
 		box.get_node("Ruins").add_child(row)
 	box.get_node("Away").text = "\n".join(expeditions.map(func(exp): return "%s: %s" % [", ".join(exp.party.map(func(c): return c.first_name)),
-		"on the way out" if exp.left_at < 0 else "at the %s, due back by day %d" % [RUINS[exp.ruin.kind]["name"], int(exp.due) + 1]]))
+		tr("on the way out") if exp.left_at < 0 else tr("at the %s, due back by day %d") % [tr(RUINS[exp.ruin.kind]["name"]), int(exp.due) + 1]]))
 	box.get_node("Away").visible = not expeditions.is_empty()
-	box.get_node("Chronicle").text = "Last: " + chronicle[-1].get_slice("\n", 0) if not chronicle.is_empty() else ""  # il resto nella cronaca
+	box.get_node("Chronicle").text = tr("Last: ") + chronicle[-1].get_slice("\n", 0) if not chronicle.is_empty() else ""  # il resto nella cronaca
 	box.get_node("Chronicle").visible = not chronicle.is_empty()
-	box.get_node("ChronicleButton").text = "Chronicle (%d)" % chronicle.size()
+	box.get_node("ChronicleButton").text = tr("Chronicle (%d)") % chronicle.size()
 	$HUD/BoardPanel.reset_size()
 
 
@@ -4688,21 +4713,21 @@ func unlocked(key: String, value: int) -> bool:
 
 
 func tech_name(t: Tech) -> String:
-	return Tech.keys()[t].capitalize()
+	return named(Tech, t)
 
 
 # perché `t` non si può studiare adesso, "" se si può: già fatta, le ricerche prima, i punti studio, il libro in magazzino
 func research_block(t: Tech) -> String:
 	var data: Dictionary = TECHS[t]
 	if researched.has(t):
-		return "Studied"
+		return tr("Studied")
 	for n in data.get("needs", []):
 		if not researched.has(n):
-			return "First: %s" % tech_name(n)
+			return tr("First: %s") % tech_name(n)
 	if study < data["cost"]:
-		return "%d more study" % ceili(data["cost"] - study)
+		return tr("%d more study") % ceili(data["cost"] - study)
 	if data["tier"] > 1 and stored(BOOKS[data["tier"] - 2]) < 1:
-		return "Needs a %s in a warehouse" % res_name(BOOKS[data["tier"] - 2])
+		return tr("Needs a %s in a warehouse") % res_name(BOOKS[data["tier"] - 2])
 	return ""
 
 
@@ -4724,12 +4749,12 @@ func research(t: Tech) -> bool:
 # cosa sblocca `t`, per il suggerimento: mobili, oggetti, materiali e le leggi che la chiedono
 func unlocks_text(t: Tech) -> String:
 	var data: Dictionary = TECHS[t]
-	var names: Array = data.get("builds", []).map(func(b): return Build.keys()[b].capitalize()) \
-		+ data.get("makes", []).map(func(r): return Res.keys()[r].capitalize()) \
-		+ data.get("materials", []).map(func(r): return "%s walls and floors" % Res.keys()[r].capitalize()) \
-		+ data.get("rooms", []).map(func(k): return "the %s room" % RoomKind.keys()[k].capitalize().to_lower()) \
-		+ LAWS.keys().filter(func(law): return LAWS[law].get("needs", -1) == t).map(func(law): return "the law %s" % law_name(law))
-	return "Unlocks: " + ", ".join(names)
+	var names: Array = data.get("builds", []).map(func(b): return named(Build, b)) \
+		+ data.get("makes", []).map(func(r): return named(Res, r, "item")) \
+		+ data.get("materials", []).map(func(r): return tr("%s walls and floors") % named(Res, r, "item")) \
+		+ data.get("rooms", []).map(func(k): return tr("the %s room") % named(RoomKind, k).to_lower()) \
+		+ LAWS.keys().filter(func(law): return LAWS[law].get("needs", -1) == t).map(func(law): return tr("the law %s") % law_name(law))
+	return tr("Unlocks: ") + ", ".join(names)
 
 
 # Allo scrittoio (studiare) o sul trono (governare: solo il sovrano), se ce n'è uno libero dentro una stanza del tipo
@@ -4784,7 +4809,7 @@ func govern_rate(c: Colonist) -> float:
 # --- Ricerca: le leggi ---
 
 func law_name(law: Law) -> String:
-	return Law.keys()[law].capitalize()
+	return named(Law, law)
 
 
 func signed(v: float) -> String:
@@ -4824,9 +4849,9 @@ func shift_stress() -> float:
 func date(day: int) -> String:
 	var d := posmod(day, YEAR_DAYS) - 1  # giorni dal primo di primavera: -1 è il Capodanno
 	var r := posmod(d, SEASON_DAYS)      # giorno nella stagione: dopo i suoi tre mesi, la festa
-	var when: String = NEW_YEAR if d < 0 else FEASTS[d / SEASON_DAYS] if feast(day) \
-		else "%d %s" % [r % MONTH_DAYS + 1, MONTHS[d / SEASON_DAYS * 3 + r / MONTH_DAYS]]
-	return "%s, Year %d" % [when, day / YEAR_DAYS + 1]
+	var when: String = tr(NEW_YEAR) if d < 0 else tr(FEASTS[d / SEASON_DAYS]) if feast(day) \
+		else "%d %s" % [r % MONTH_DAYS + 1, tr(MONTHS[d / SEASON_DAYS * 3 + r / MONTH_DAYS])]
+	return tr("%s, Year %d") % [when, day / YEAR_DAYS + 1]
 
 
 # La stagione del giorno `day`, indice di SEASONS: la festa è della stagione che chiude, il Capodanno della primavera
@@ -4916,14 +4941,14 @@ func protest(c: Colonist) -> void:
 	var how := ""
 	if enacted.has(Law.HARSH_PUNISHMENT):  # alla gogna: niente autorità persa, ma un giorno di umiliazione
 		add_cond(c, Cond.PILLORIED)
-		how = ": into the stocks"
+		how = tr(": into the stocks")
 	elif enacted.has(Law.CLEMENCY):  # il sovrano lo ascolta
 		add_cond(c, Cond.HEARD)
-		how = ": the ruler listens"
+		how = tr(": the ruler listens")
 	else:
 		gain(PROTEST_AUTHORITY)
-	note("Day %d: %s protests in the throne room against %s%s." % [int(clock) + 1, full_name(c),
-		" and ".join(enacted.filter(func(law): return law_mood_of(c, law) < 0).map(law_name)), how])
+	note(tr("Day %d: %s protests in the throne room against %s%s.") % [int(clock) + 1, full_name(c),
+		tr(" and ").join(enacted.filter(func(law): return law_mood_of(c, law) < 0).map(law_name)), how])
 
 
 # Armeria di prestito: per la spedizione `g` prende dal magazzino l'armatura e l'elmo che proteggono più dei suoi, e lo
@@ -4942,7 +4967,7 @@ func lend(g: Colonist) -> PackedStringArray:
 			take_stored(best, 1)
 			g.lent[slot] = own
 			g.gear[slot] = best
-			out.append("%s to %s" % [res_name(best), g.first_name])
+			out.append(tr("%s to %s") % [res_name(best), g.first_name])
 	return out
 
 
@@ -4974,7 +4999,7 @@ func gain(amount: float) -> void:
 
 # il nome del reame col titolo: "Barony of Valbruna"
 func realm_name() -> String:
-	return "%s of %s" % [TITLES[rank]["realm"], realm]
+	return tr("%s of %s") % [tr(TITLES[rank]["realm"]), realm]
 
 
 # Il titolo, dove si vede: nella barra in alto il reame e lo stemma con la corona (anche nella scheda del sovrano, al
@@ -4985,7 +5010,7 @@ func show_title() -> void:
 		icon.texture = arms_tex
 		icon.custom_minimum_size = arms_tex.get_size() * 2
 	realm_button.text = realm_name()
-	realm_button.tooltip_text = "%s %s" % [TITLES[rank]["ruler"][ruler.sex], full_name(ruler)]
+	realm_button.tooltip_text = "%s %s" % [tr(TITLES[rank]["ruler"][ruler.sex]), full_name(ruler)]
 
 
 # Lo splendore è arrivato al titolo dopo: sale (mai giù). Nella cronaca e in una finestra al centro, coi sigilli in più
@@ -4994,8 +5019,8 @@ func rise() -> void:
 	rank += 1
 	show_title()
 	laws_key = ""
-	report(realm_name(), ["Day %d: the %s is now the %s." % [int(clock) + 1, was, realm_name()],
-		"%s %s. Seals: %d. Authority every day: +%d." % [TITLES[rank]["ruler"][ruler.sex], full_name(ruler),
+	report(realm_name(), [tr("Day %d: the %s is now the %s.") % [int(clock) + 1, was, realm_name()],
+		tr("%s %s. Seals: %d. Authority every day: +%d.") % [tr(TITLES[rank]["ruler"][ruler.sex]), full_name(ruler),
 		TITLES[rank]["seals"], AUTHORITY_DAILY * (rank + 1)]])
 
 
@@ -5016,15 +5041,15 @@ func produce(res: Res, cell: Vector2i, amount: int) -> void:
 # perché la legge `law` non si può codificare adesso, "" se si può
 func codify_block(law: Law) -> String:
 	if codified.has(law):
-		return "Codified"
+		return tr("Codified")
 	if LAWS[law].get("tier", 0) > rank:
-		return "Needs a %s" % TITLES[LAWS[law]["tier"]]["realm"].to_lower()
+		return tr("Needs a %s") % tr(TITLES[LAWS[law]["tier"]]["realm"]).to_lower()
 	if LAWS[law].has("after") and not codified.has(LAWS[law]["after"]):
-		return "First: %s" % law_name(LAWS[law]["after"])
+		return tr("First: %s") % law_name(LAWS[law]["after"])
 	if LAWS[law].has("needs") and not researched.has(LAWS[law]["needs"]):
-		return "Needs the research %s" % tech_name(LAWS[law]["needs"])
+		return tr("Needs the research %s") % tech_name(LAWS[law]["needs"])
 	if authority < LAWS[law]["cost"]:
-		return "%d more authority" % ceili(LAWS[law]["cost"] - authority)
+		return tr("%d more authority") % ceili(LAWS[law]["cost"] - authority)
 	return ""
 
 
@@ -5049,15 +5074,15 @@ func rival(law: Law) -> Variant:
 # perché `law` non si può promulgare adesso, "" se si può
 func enact_block(law: Law) -> String:
 	if not codified.has(law):
-		return "Not codified yet"
+		return tr("Not codified yet")
 	if enacted.has(law):
-		return "In force"
+		return tr("In force")
 	if revoked.get(law, 0.0) > clock:
-		return "Revoked: again in %.1f days" % (revoked[law] - clock)
+		return tr("Revoked: again in %.1f days") % (revoked[law] - clock)
 	if authority < ENACT_COST:
-		return "%d more authority" % ceili(ENACT_COST - authority)
+		return tr("%d more authority") % ceili(ENACT_COST - authority)
 	if rival(law) == null and enacted.size() >= TITLES[rank]["seals"]:
-		return "No free seal: revoke a law first"
+		return tr("No free seal: revoke a law first")
 	return ""
 
 
@@ -5085,13 +5110,13 @@ func revoke(law: Law) -> void:
 # suggerimento di una legge: cosa fa, a chi piace e a chi no, cosa serve
 func law_tip(law: Law) -> String:
 	var mood: Dictionary = LAWS[law].get("mood", {})
-	var who := mood.keys().map(func(k): return "%s %s" % [{"all": "everyone", "guests": "adventurers", "ruler": "the ruler",
-		"hunters": "bow carriers"}.get(k,
-		Trait.keys()[k].capitalize().to_lower() if k is int else ""), signed(mood[k])])
-	return LAWS[law]["info"] + ("\nHappiness: " + ", ".join(who) if not who.is_empty() else "") \
-		+ ("\nNeeds a %s" % TITLES[LAWS[law]["tier"]]["realm"].to_lower() if LAWS[law].get("tier", 0) > 0 else "") \
-		+ ("\nAfter %s" % law_name(LAWS[law]["after"]) if LAWS[law].has("after") else "") \
-		+ ("\nNeeds the research %s" % tech_name(LAWS[law]["needs"]) if LAWS[law].has("needs") else "")
+	var who := mood.keys().map(func(k): return "%s %s" % [{"all": tr("everyone"), "guests": tr("adventurers"), "ruler": tr("the ruler"),
+		"hunters": tr("bow carriers")}.get(k,
+		named(Trait, k).to_lower() if k is int else ""), signed(mood[k])])
+	return tr(LAWS[law]["info"]) + (tr("\nHappiness: ") + ", ".join(who) if not who.is_empty() else "") \
+		+ (tr("\nNeeds a %s") % tr(TITLES[LAWS[law]["tier"]]["realm"]).to_lower() if LAWS[law].get("tier", 0) > 0 else "") \
+		+ (tr("\nAfter %s") % law_name(LAWS[law]["after"]) if LAWS[law].has("after") else "") \
+		+ (tr("\nNeeds the research %s") % tech_name(LAWS[law]["needs"]) if LAWS[law].has("needs") else "")
 
 
 # Finestra Knowledge (tasto in basso, o clic su uno scrittoio): studio e libri, poi l'albero, una riga per ramo e una
@@ -5103,7 +5128,7 @@ func fill_knowledge() -> void:
 		return
 	knowledge_key = key
 	var box: Control = $HUD/KnowledgePanel/Box
-	box.get_node("Study").text = "%d [img=center]%s[/img] study    %s" % [floori(study), STUDY_ICON.resource_path,
+	box.get_node("Study").text = tr("%d [img=center]%s[/img] study    %s") % [floori(study), STUDY_ICON.resource_path,
 		"   ".join(BOOKS.map(func(b): return "%d [img=center]%s[/img]" % [stored(b), ICONS[b].resource_path]))]
 	box.get_node("Hint").visible = not rooms.any(func(r): return r.kind == RoomKind.STUDY)
 	fill_scholar(box.get_node("Scholar"))
@@ -5125,7 +5150,7 @@ func fill_knowledge() -> void:
 		var label := HBoxContainer.new()
 		label.add_child(ui_icon(BRANCHES_SHEET, Rect2(tile_rect(branch, 0)), Vector2(32, 32)))
 		var title := Label.new()
-		title.text = Branch.keys()[branch].capitalize()
+		title.text = named(Branch, branch, "branch")
 		label.add_child(title)
 		grid.add_child(label)
 		for tier in range(1, 5):
@@ -5145,12 +5170,12 @@ func fill_scholar(row: Control) -> void:
 	row.visible = scholar_until >= 0
 	if not row.visible:
 		return
-	row.add_child(rich("A wandering scholar at the inn, until day %d:" % (int(scholar_until) + 1)))
+	row.add_child(rich(tr("A wandering scholar at the inn, until day %d:") % (int(scholar_until) + 1)))
 	for i in scholar_books.size():
 		var book: Res = scholar_books[i]
 		var buy := Button.new()
 		buy.focus_mode = Control.FOCUS_NONE
-		buy.text = "Buy %s: %d" % [res_name(book), BOOK_PRICE[book]]
+		buy.text = tr("Buy %s: %d") % [res_name(book), BOOK_PRICE[book]]
 		buy.icon = KIND_ICONS[ItemKind.COINS]  # la moneta dopo il numero, come nei testi
 		buy.icon_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		buy.disabled = stored(Res.GOLD) < BOOK_PRICE[book]
@@ -5161,7 +5186,7 @@ func fill_scholar(row: Control) -> void:
 		if stored(book) > 0 and not scholar_bought:
 			var sell := Button.new()
 			sell.focus_mode = Control.FOCUS_NONE
-			sell.text = "Sell a %s: %d" % [res_name(book), BOOK_PRICE[book] / 2]
+			sell.text = tr("Sell a %s: %d") % [res_name(book), BOOK_PRICE[book] / 2]
 			sell.icon = KIND_ICONS[ItemKind.COINS]
 			sell.icon_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 			sell.tooltip_text = "He buys one book, at half price"
@@ -5182,15 +5207,15 @@ func tech_button(t: Tech) -> Button:
 	button.custom_minimum_size = Vector2(190, 44)
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	button.focus_mode = Control.FOCUS_NONE
-	var cost := "%d study%s" % [data["cost"], "" if data["tier"] == 1 else " + 1 " + res_name(BOOKS[data["tier"] - 2])]
-	button.text = "%s\n%s" % [tech_name(t), "studied" if researched.has(t) else cost]
+	var cost := tr("%d study%s") % [data["cost"], "" if data["tier"] == 1 else " + 1 " + res_name(BOOKS[data["tier"] - 2])]
+	button.text = "%s\n%s" % [tech_name(t), tr("studied") if researched.has(t) else cost]
 	var block := research_block(t)
 	button.disabled = block != ""
 	if researched.has(t):
 		button.modulate = SPLENDOR_COLOR.lightened(0.4)
 	elif data.get("needs", []).any(func(n): return not researched.has(n)):
 		button.modulate = Color(1, 1, 1, 0.5)
-	button.tooltip_text = "%s\n%s%s" % [data["info"], unlocks_text(t), "" if block in ["", "Studied"] else "\n" + block]
+	button.tooltip_text = "%s\n%s%s" % [tr(data["info"]), unlocks_text(t), "" if block in ["", tr("Studied")] else "\n" + block]
 	button.pressed.connect(research.bind(t))
 	return button
 
@@ -5206,17 +5231,17 @@ func fill_laws() -> void:
 	laws_key = key
 	var box: Control = $HUD/LawsPanel/Box
 	var stock := granary.keys().filter(func(r): return granary[r] > 0).map(func(r): return amount_text(r, granary[r]))
-	var next := "" if rank == TITLES.size() - 1 else ": a %s at %d splendor (now %d)" % [TITLES[rank + 1]["realm"].to_lower(),
+	var next := "" if rank == TITLES.size() - 1 else tr(": a %s at %d splendor (now %d)") % [tr(TITLES[rank + 1]["realm"]).to_lower(),
 		TITLES[rank + 1]["splendor"], splendor]
-	box.get_node("Authority").text = "%s%s\n%d [img=center]%s[/img] authority    Seals: %d / %d\nGranary: %s" % [realm_name(), next,
-		floori(authority), AUTHORITY_ICON.resource_path, enacted.size(), TITLES[rank]["seals"], ", ".join(stock) if not stock.is_empty() else "empty"]
+	box.get_node("Authority").text = tr("%s%s\n%d [img=center]%s[/img] authority    Seals: %d / %d\nGranary: %s") % [realm_name(), next,
+		floori(authority), AUTHORITY_ICON.resource_path, enacted.size(), TITLES[rank]["seals"], ", ".join(stock) if not stock.is_empty() else tr("empty")]
 	box.get_node("Hint").visible = thrones == 0
 	var list: Control = box.get_node("Scroll/List")
 	for child in list.get_children():
 		child.free()
 	for kind in LawKind.values():
 		var title := Label.new()
-		title.text = LawKind.keys()[kind].capitalize()
+		title.text = named(LawKind, kind)
 		title.add_theme_color_override("font_color", BUILD_INFO_COLOR)
 		list.add_child(title)
 		for law in LAWS:
@@ -5241,18 +5266,18 @@ func fill_laws() -> void:
 			button.custom_minimum_size.x = 140
 			if enacted.has(law):
 				button.text = "Revoke"
-				button.tooltip_text = "Free; then it cannot be enacted again for %d days" % REVOKE_WAIT
+				button.tooltip_text = tr("Free; then it cannot be enacted again for %d days") % REVOKE_WAIT
 				button.pressed.connect(revoke.bind(law))
 			elif codified.has(law):
 				var block := enact_block(law)
 				var other = rival(law)
-				button.text = "Enact (%d)" % ENACT_COST
+				button.text = tr("Enact (%d)") % ENACT_COST
 				button.disabled = block != ""
-				button.tooltip_text = block if block != "" else ("Takes the place of %s" % law_name(other) if other != null else "Takes a seal")
+				button.tooltip_text = block if block != "" else (tr("Takes the place of %s") % law_name(other) if other != null else "Takes a seal")
 				button.pressed.connect(enact.bind(law))
 			else:
 				var block := codify_block(law)
-				button.text = "Codify (%d)" % LAWS[law]["cost"]
+				button.text = tr("Codify (%d)") % LAWS[law]["cost"]
 				button.disabled = block != ""
 				button.tooltip_text = block if block != "" else "Once codified, it can be enacted"
 				button.pressed.connect(codify.bind(law))
@@ -5917,7 +5942,7 @@ func update_rooms() -> void:
 			if room == null:
 				room = Room.new()
 				rooms_made += 1
-				room.name = "Structure%d" % rooms_made
+				room.name = tr("Structure%d") % rooms_made
 			room.cells = cells
 			room.door = door
 			# cartello sul muro accanto alla porta: a destra o sotto, se no dall'altra parte; senza muri, fuori davanti
@@ -6318,7 +6343,7 @@ func draw_lens() -> void:
 			lens_canvas.draw_rect(tile_rect(cell.x, cell.y), Color(ROOM_COLORS[room.kind], 0.35))
 		var mid := room_mid(room)
 		if room.kind != RoomKind.NONE:
-			lens_canvas.draw_string(font, mid + Vector2(-TILE * 4, 4), RoomKind.keys()[room.kind].capitalize(),
+			lens_canvas.draw_string(font, mid + Vector2(-TILE * 4, 4), named(RoomKind, room.kind),
 				HORIZONTAL_ALIGNMENT_CENTER, TILE * 8, 12)
 
 

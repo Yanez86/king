@@ -112,7 +112,8 @@ func house_page() -> Control:
 			["Charge", "charge", Main.Charge], ["Charge tincture", "charge_tincture", null]]:
 		var key: String = r[1]
 		var values: Array = r[2].values() if r[2] != null else Main.Tincture.values()
-		var show := show_arms.bind(key, r[2].keys()) if r[2] != null else show_tincture
+		var context: String = {"division": "division", "ordinary": "heraldry", "charge": "heraldry"}.get(key, "")  # vedi Main.named
+		var show := show_arms.bind(key, r[2], context) if r[2] != null else show_tincture
 		box.add_child(pick_row(r[0], values, func(): return arms[key], set_arms.bind(key), show))
 	var dice := small_button(DICE, "Random coat of arms")
 	dice.text = "Random"
@@ -147,12 +148,12 @@ func ruler_page() -> Control:
 	var names := GridContainer.new()
 	names.columns = 3
 	name_row(names, "Name", first, ruler.first_name, func(): return Main.FIRST_NAMES[ruler.sex].pick_random())
-	name_row(names, "Nickname", nick, ruler.nickname, func(): return Main.NICKNAMES.pick_random())
+	name_row(names, "Nickname", nick, tr(ruler.nickname), func(): return tr(Main.NICKNAMES.pick_random()))
 	nick.placeholder_text = "(optional)"
 	box.add_child(names)
 	box.add_child(pick_row("Sex", Main.Sex.values(), func(): return ruler.sex, set_sex, show_sex))
 	box.add_child(pick_row("Hair", Main.Hair.values(), func(): return ruler.hair_style, set_look.bind("hair_style"),
-		show_text.bind(Main.Hair.keys())))
+		show_text.bind(Main.Hair)))
 	beard.text = "Beard"
 	beard.focus_mode = FOCUS_NONE
 	beard.button_pressed = ruler.beard
@@ -163,7 +164,7 @@ func ruler_page() -> Control:
 	for part in ["tunic", "cape"]:  # gli smalti dello stemma
 		box.add_child(pick_row(part.capitalize(), Main.TINCTURE_COLORS, func(): return ruler.get(part), dress_in.bind(part), show_swatch))
 	var label := Label.new()
-	label.text = "Traits (up to %d)" % Main.RULER_TRAITS
+	label.text = tr("Traits (up to %d)") % Main.RULER_TRAITS
 	box.add_child(label)
 	box.add_child(traits_grid())
 	row.add_child(box)
@@ -198,7 +199,7 @@ func skills_column() -> Control:
 		if s == Main.Skill.LOCKPICKING:
 			continue
 		var label := Label.new()
-		label.text = Main.Skill.keys()[s].capitalize()
+		label.text = Main.named(Main.Skill, s, "skill")
 		label.custom_minimum_size.x = 110
 		var level := Label.new()
 		level.custom_minimum_size.x = 24
@@ -269,8 +270,8 @@ func show_sex(button: Button, s: int) -> void:
 	button.icon = Main.SEX_ICONS[s]
 
 
-func show_text(button: Button, v: int, names: Array) -> void:
-	button.text = names[v].capitalize()
+func show_text(button: Button, v: int, names: Dictionary) -> void:
+	button.text = Main.named(names, v)
 
 
 func show_swatch(button: Button, color: Color) -> void:
@@ -283,12 +284,12 @@ func show_swatch(button: Button, color: Color) -> void:
 
 func show_tincture(button: Button, t: int) -> void:
 	show_swatch(button, Main.TINCTURE_COLORS[t])
-	button.tooltip_text = Main.Tincture.keys()[t].capitalize()
+	button.tooltip_text = Main.named(Main.Tincture, t)
 
 
 # forma, partizione, pezza o figura: l'icona è lo stemma con questa scelta (vedi arms_changed), il nome nel suggerimento
-func show_arms(button: Button, v: int, key: String, names: Array) -> void:
-	button.tooltip_text = names[v].capitalize()
+func show_arms(button: Button, v: int, key: String, names: Dictionary, context: String) -> void:
+	button.tooltip_text = Main.named(names, v, context)
 	arms_icons.append([button, key, v])
 
 
@@ -364,8 +365,8 @@ func traits_grid() -> Control:
 		button.icon = ImageTexture.create_from_image(img)
 		button.text = "%+d" % -cost if cost else ""
 		button.custom_minimum_size = Vector2(72, 40)
-		button.tooltip_text = "%s\n%s\n%s" % [Main.Trait.keys()[t].capitalize(), Main.TRAIT_INFO[t],
-			"Costs %d skill points" % cost if cost > 0 else ("Gives %d skill points" % -cost if cost < 0 else "Free")]
+		button.tooltip_text = "%s\n%s\n%s" % [Main.named(Main.Trait, t), tr(Main.TRAIT_INFO[t]),
+			tr("Costs %d skill points") % cost if cost > 0 else (tr("Gives %d skill points") % -cost if cost < 0 else tr("Free"))]
 		button.pressed.connect(toggle_trait.bind(t))
 		grid.add_child(button)
 		trait_buttons[t] = button
@@ -413,7 +414,7 @@ func refresh() -> void:
 	ruler.last_name = house.text.strip_edges()
 	ruler.first_name = first.text.strip_edges()
 	ruler.nickname = nick.text.strip_edges()
-	points.text = "Skill points left: %d / %d" % [points_left(), Main.RULER_POINTS]
+	points.text = tr("Skill points left: %d / %d") % [points_left(), Main.RULER_POINTS]
 	for s in levels:
 		levels[s][0].text = str(ruler.skills[s])
 		levels[s][1].disabled = not can_spend(s, -1)

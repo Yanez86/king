@@ -10,14 +10,26 @@
 - Molte risorse di apprendimento (documentazione ufficiale, tutorial).
 
 ## Localizzazione
-- Sistema integrato di Godot (`TranslationServer`) con un file CSV: una colonna per lingua.
-- La chiave è il testo inglese stesso (`locale/translations.csv`: colonna `keys` in inglese, poi una colonna per
-  lingua): i Control traducono da soli testi e suggerimenti che combaciano per intero, il testo composto nel codice
-  (con numeri, tasti) va passato da `tr()`. Parole uguali con significati diversi (Fish: pesce / pescare) vanno
-  distinte prima di tradurle.
+- Sistema integrato di Godot (`TranslationServer`) con file gettext: `locale/<lingua>.po` (per ora `locale/it.po`),
+  che Godot carica così com'è, senza importarlo. Ogni voce: `msgid` il testo inglese come lo usa il gioco, `msgstr` la
+  traduzione; `msgctxt` separa le parole uguali con sensi diversi, `msgid_plural` e `msgstr[n]` i plurali (`tr_n`).
+- I Control traducono da soli testi e suggerimenti che combaciano per intero (anche quelli messi dal codice, e
+  seguono il cambio di lingua). Il testo composto nel codice (numeri, nomi, frasi a pezzi, `draw_string`) passa da
+  `tr()`, il modello prima di riempirlo: `tr("Health: %d / %d") % [...]`. I segnaposto restano nello stesso ordine
+  (il `%` di GDScript è posizionale): se l'italiano vuole un altro ordine, si gira la frase.
+- I nomi degli enum (oggetti, mobili, abilità, talenti, leggi, ricerche...) li dà `named(Enum, valore, contesto)` in
+  `main.gd`: il nome inglese è `Enum.keys()[valore].capitalize()`. Contesti: `item` per gli oggetti (Fish: il pesce;
+  senza contesto è il pescare, il tasto in basso), `skill`, `branch`, `division` e `heraldry` per lo stemma.
+- La wiki in gioco è a parte: `wiki.gd` in inglese, `locale/wiki_<lingua>.gd` tradotta, con le stesse pagine nello
+  stesso ordine (vedi `pages` in `wiki.gd`).
 - Lingua: tab System delle opzioni, salvata in `user://settings.cfg`; la applica la schermata del titolo. Senza
-  scelta, quella del sistema. Tradotti per ora: titolo, opzioni, suggerimenti della barra in alto.
-- Inglese = lingua base, italiano = prima traduzione. Nuova lingua = nuova colonna.
+  scelta, quella del sistema. Cambiandola, le finestre composte si rifanno (vedi `set_language`); le righe già scritte
+  nella cronaca restano nella lingua di quando sono state scritte.
+- Inglese = lingua base, italiano = prima traduzione. Nuova lingua = nuovo `.po` (e la sua wiki), aggiunto in
+  Project Settings → Localization e in `LANGUAGES` di `main.gd`.
+- Controllo: `python3 tools/check_translations.py` elenca i testi senza traduzione (quelli in `tr()`, nelle scene e i
+  nomi di `named`), i segnaposto o i tag BBCode diversi e le traduzioni che un Control ritradurrebbe.
+- I test girano in inglese (`TranslationServer.set_locale("en")` all'inizio): confrontano i testi inglesi.
 
 ## Architettura (principi, non codice)
 - **Simulazione separata dalla grafica**: lo stato del gioco (mappa, coloni, oggetti) è solo dati; la grafica lo legge e lo mostra.
@@ -53,5 +65,5 @@
 - Git + GitHub (`Yanez86/king`).
 - Git LFS se gli asset binari crescono molto (non necessario ora).
 - Wiki delle meccaniche su GitHub Pages (https://yanez86.github.io/king/, da `main` → `/docs`): `python3 tools/make_wiki.py`
-  rigenera `docs/index.html` dalla wiki in gioco (`wiki.gd`) e dalle costanti di `main.gd` e `atmosphere.gd`. Va rifatta
-  e committata quando cambiano.
+  rigenera `docs/index.html` (italiano, da `locale/wiki_it.gd`) e `docs/en.html` (inglese, da `wiki.gd`), con le
+  costanti di `main.gd` e `atmosphere.gd`. Va rifatta e committata quando cambiano.

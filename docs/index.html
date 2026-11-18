@@ -12,6 +12,7 @@ nav { position: fixed; inset: 0 auto 0 0; width: 230px; overflow-y: auto; paddin
 nav h1 { margin: 0 0 4px; font-size: 20px; color: var(--gold); }
 nav h2 { margin: 20px 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
 nav small { color: var(--muted); }
+nav .lang { display: inline; color: var(--gold); }
 nav a { display: block; padding: 3px 0; color: var(--text); text-decoration: none; }
 nav a:hover { color: var(--gold); }
 main { margin-left: 230px; padding: 24px 40px 80px; max-width: 1100px; }
@@ -39,349 +40,347 @@ pre i { color: #8fb87a; }
 <body>
 <nav>
 <h1>King</h1>
-<small>Meccaniche · commit 8a3cb0a · 2026-11-18</small>
+<small>Meccaniche · commit 3c2c238 · 2026-11-18 · <a class="lang" href="en.html">English</a></small>
 <h2>Wiki</h2>
-<a href="#basics">Basics</a><a href="#controls">Controls</a><a href="#colonists">Colonists</a><a href="#skills">Skills</a><a href="#traits">Traits</a><a href="#conditions">Conditions</a><a href="#the-ruler-house">The Ruler &amp; House</a><a href="#building">Building</a><a href="#rooms">Rooms</a><a href="#food-cooking">Food &amp; Cooking</a><a href="#gathering">Gathering</a><a href="#crafting-equipment">Crafting &amp; Equipment</a><a href="#combat-wolves">Combat &amp; Wolves</a><a href="#splendor">Splendor</a><a href="#adventurers">Adventurers</a><a href="#ruins-expeditions">Ruins &amp; Expeditions</a><a href="#knowledge">Knowledge</a><a href="#laws">Laws</a><h2>Numeri</h2><a href="#main-gd">main.gd</a><a href="#atmosphere-gd">atmosphere.gd</a>
+<a href="#le-basi">Le basi</a><a href="#comandi">Comandi</a><a href="#coloni">Coloni</a><a href="#abilità">Abilità</a><a href="#talenti">Talenti</a><a href="#condizioni">Condizioni</a><a href="#il-sovrano-e-la-casata">Il sovrano e la casata</a><a href="#costruire">Costruire</a><a href="#stanze">Stanze</a><a href="#cibo-e-cucina">Cibo e cucina</a><a href="#raccolta">Raccolta</a><a href="#lavorazioni-ed-equipaggiamento">Lavorazioni ed equipaggiamento</a><a href="#combattimento-e-lupi">Combattimento e lupi</a><a href="#splendore">Splendore</a><a href="#avventurieri">Avventurieri</a><a href="#rovine-e-spedizioni">Rovine e spedizioni</a><a href="#conoscenza">Conoscenza</a><a href="#leggi">Leggi</a><h2>Numeri</h2><a href="#main-gd">main.gd</a><a href="#atmosphere-gd">atmosphere.gd</a>
 </nav>
 <main>
-<p><small style="color:var(--muted)">Testo: la wiki in gioco (<code>wiki.gd</code>). Numeri: le costanti di
-<code>main.gd</code> e <code>atmosphere.gd</code> come sono nel codice. Dove non coincidono, vale il codice.
-Generata da <code>tools/make_wiki.py</code>.</small></p>
-<section id="basics"><h2>Basics</h2><h3>Your lordship </h3>
-<p>King is a medieval colony sim. You are the ruler of a small lordship, but you never move anyone by hand: you mark trees to chop and boulders to mine, plan buildings, choose what the workshops make and pass laws. Colonists pick their jobs by themselves, following their needs and their daily routine.</p>
-<h3>The start </h3>
+<p><small style="color:var(--muted)">Testo: la wiki in gioco (<code>locale/wiki_it.gd</code>). Numeri: le costanti di <code>main.gd</code> e <code>atmosphere.gd</code> come sono nel codice. Dove non coincidono, vale il codice. Generata da <code>tools/make_wiki.py</code>.</small></p>
+<section id="le-basi"><h2>Le basi</h2><h3>La tua signoria </h3>
+<p>King è un gestionale di colonia medievale. Sei il sovrano di una piccola signoria, ma non muovi mai nessuno a mano: segni gli alberi da tagliare e i massi da scavare, progetti gli edifici, scegli cosa producono le postazioni e promulghi le leggi. I coloni scelgono da soli i lavori, seguendo i loro bisogni e la loro routine quotidiana.</p>
+<h3>L'inizio </h3>
 <ul>
-<li>Three colonists stand in a clearing. The first is your ruler, made on the new-game page.</li>
-<li>Around the clearing are three small wooden rooms. The north one is a warehouse, with some supplies and 60 <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAW0lEQVR4nGNgQAPyUir/8WF09RiAbANgCl4c9gLj/88WoGCYOE6DyDYAl0YYH4ZXVOmhYLhBVDMAXSO6BnRx6huA7oWBMwBdIcmxQLIB6OkBXSFBjVQzYMByIwCmbstkokgC9AAAAABJRU5ErkJggg==" alt="">.</li>
-<li>An abandoned weapon (a sword, an axe or a bow) lies in the grass 15–25 tiles from the clearing.</li>
-<li>From day 5 wolves come (see Combat &amp; Wolves).</li>
-<li>If every colonist dies, the colony has fallen.</li>
+<li>Tre coloni stanno in una radura. Il primo è il tuo sovrano, creato nella pagina della nuova partita.</li>
+<li>Attorno alla radura ci sono tre stanzette di legno. Quella a nord è un magazzino, con un po' di scorte e 60 <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAW0lEQVR4nGNgQAPyUir/8WF09RiAbANgCl4c9gLj/88WoGCYOE6DyDYAl0YYH4ZXVOmhYLhBVDMAXSO6BnRx6huA7oWBMwBdIcmxQLIB6OkBXSFBjVQzYMByIwCmbstkokgC9AAAAABJRU5ErkJggg==" alt="">.</li>
+<li>Un'arma abbandonata (una spada, un'ascia o un arco) giace nell'erba a 15–25 caselle dalla radura.</li>
+<li>Dal giorno 5 arrivano i lupi (vedi Combattimento e lupi).</li>
+<li>Se muoiono tutti i coloni, la colonia è caduta.</li>
 </ul>
-<h3>Time </h3>
+<h3>Il tempo </h3>
 <ul>
-<li>The season, the date and the hour are in the top bar. The game starts at 8:00 on Crown Day, Year 1; a day lasts 4 minutes at normal speed, an hour 10 seconds.</li>
-<li>The year has 365 days: Crown Day (New Year), then four seasons of three 30-day months, each closed by a feast day outside the months. Spring: Thaw, Sowing, Blossom, then the Flower Feast. Summer: Highsun, Haying, Ripening, then the Sickle Feast. Autumn: Reaping, Leaffall, Mists, then the Hearth Feast. Winter: Frost, Deepsnow, Longnight, then the Candle Feast.</li>
-<li>Night lasts from 18:00 to 6:00: lamps and lanterns light up.</li>
-<li>The speed buttons at the top right: pause, 1x, 2x, 3x. Or the keys: Space pauses (and from pause goes back to 1x), 1, 2 and 3 set the speed. The options menu pauses the game too.</li>
-<li>Times in this wiki are seconds at 1x, for a worker of skill level 5 (see Skills).</li>
+<li>La stagione, la data e l'ora sono nella barra in alto. La partita comincia alle 8:00 del Giorno della Corona dell'anno 1; a velocità normale un giorno dura 4 minuti, un'ora 10 secondi.</li>
+<li>L'anno ha 365 giorni: il Giorno della Corona (Capodanno), poi quattro stagioni di tre mesi da 30 giorni, ognuna chiusa da un giorno di festa fuori dai mesi. Primavera: Disgelo, Semina, Fioritura, poi la Festa dei Fiori. Estate: Solleone, Fienagione, Maturazione, poi la Festa della Falce. Autunno: Mietitura, Foglie morte, Nebbie, poi la Festa del Focolare. Inverno: Gelo, Neve alta, Notte lunga, poi la Festa delle Candele.</li>
+<li>La notte dura dalle 18:00 alle 6:00: si accendono abat-jour e lampioni.</li>
+<li>I pulsanti della velocità in alto a destra: pausa, 1x, 2x, 3x. Oppure i tasti: Spazio mette in pausa (e dalla pausa torna a 1x), 1, 2 e 3 scelgono la velocità. Anche il menu delle opzioni mette in pausa.</li>
+<li>I tempi di questa wiki sono in secondi a 1x, per chi lavora con l'abilità a livello 5 (vedi Abilità).</li>
 </ul>
-<h3>Top bar </h3>
-<p>Your arms and the name of your realm (click: the ruler's sheet), the items in your warehouses, colonists, beds and splendor; then WOLVES and EXPEDITION when there are any, the season, the date, the hour and the order you are giving.</p></section><section id="controls"><h2>Controls</h2><h3>Camera </h3>
+<h3>La barra in alto </h3>
+<p>Il tuo stemma e il nome del tuo reame (clic: la scheda del sovrano), gli oggetti nei magazzini, i coloni, i letti e lo splendore; poi LUPI e SPEDIZIONI quando ce ne sono, la stagione, la data, l'ora e l'ordine che stai dando.</p></section><section id="comandi"><h2>Comandi</h2><h3>Visuale </h3>
 <ul>
-<li>Drag with the right mouse button to move the view; the mouse wheel zooms.</li>
-<li>On a trackpad, two fingers move the view and a pinch zooms.</li>
+<li>Trascina col tasto destro del mouse per spostare la visuale; la rotella fa lo zoom.</li>
+<li>Sul trackpad due dita spostano la visuale e pizzicando fai lo zoom.</li>
 </ul>
 <h3>Mouse </h3>
 <ul>
-<li>With Select (the arrow), a left click opens things: a colonist's sheet, a room's sign, a workstation's menu, the notice board, a desk (Knowledge) or a throne (Laws). A click elsewhere closes the sheet.</li>
-<li>With an order chosen (Build, Destroy, Mine...), drag a rectangle with the left button to mark the area.</li>
-<li>The box at the bottom right tells what is under the mouse: logs left in a tree, how fresh a pile of food is, and so on.</li>
-<li>Windows can be dragged around; the X closes them.</li>
+<li>Con Seleziona (la freccia), il clic sinistro apre le cose: la scheda di un colono, il cartello di una stanza, il menu di una postazione, la bacheca, uno scrittoio (Conoscenza) o un trono (Leggi). Un clic altrove chiude la scheda.</li>
+<li>Con un ordine scelto (Costruisci, Distruggi, Scava...), trascina un rettangolo col tasto sinistro per segnare l'area.</li>
+<li>Il riquadro in basso a destra dice cosa c'è sotto il mouse: i tronchi rimasti in un albero, quanto è fresco un mucchio di cibo e così via.</li>
+<li>Le finestre si possono trascinare; la X le chiude.</li>
 </ul>
-<h3>Bottom bar </h3>
-<p>A key works like a click on its button (press it again to close).</p>
-<table><tr><td>Select</td><td>Q</td><td>Build</td><td>B</td></tr><tr><td>Destroy</td><td>X</td><td>Mine</td><td>M</td></tr><tr><td>Chop</td><td>C</td><td>Uproot</td><td>U</td></tr><tr><td>Harvest</td><td>H</td><td>Fish</td><td>F</td></tr><tr><td>Hunt</td><td>T</td><td>Jobs</td><td>J</td></tr><tr><td>Resources</td><td>I</td><td>Knowledge</td><td>K</td></tr><tr><td>Laws</td><td>G</td><td>Rooms lens</td><td>L</td></tr><tr><td>Wiki</td><td>F1</td><td></td><td></td></tr></table>
+<h3>La barra in basso </h3>
+<p>Un tasto fa come un clic sul suo pulsante (premilo di nuovo per chiudere).</p>
+<table><tr><td>Seleziona</td><td>Q</td><td>Costruisci</td><td>B</td></tr><tr><td>Distruggi</td><td>X</td><td>Scava</td><td>M</td></tr><tr><td>Taglia</td><td>C</td><td>Estirpa</td><td>U</td></tr><tr><td>Raccogli</td><td>H</td><td>Pesca</td><td>F</td></tr><tr><td>Caccia</td><td>T</td><td>Lavori</td><td>J</td></tr><tr><td>Risorse</td><td>I</td><td>Conoscenza</td><td>K</td></tr><tr><td>Leggi</td><td>G</td><td>Vista stanze</td><td>L</td></tr><tr><td>Wiki</td><td>F1</td><td></td><td></td></tr></table>
 <ul>
-<li>Jobs: the work waiting, in the order colonists take it. Resources: what is in your warehouses.</li>
+<li>Lavori: il lavoro in attesa, nell'ordine in cui lo prendono i coloni. Risorse: cosa c'è nei magazzini.</li>
 </ul>
-<h3>Fixed keys </h3>
+<h3>Tasti fissi </h3>
 <ul>
-<li>Space: pause; 1, 2, 3: speed.</li>
-<li>E and R: turn the next piece of furniture left or right.</li>
-<li>Esc: the options (also the gear at the top right).</li>
+<li>Spazio: pausa; 1, 2, 3: velocità.</li>
+<li>E e R: girano a sinistra o a destra il prossimo mobile.</li>
+<li>Esc: le opzioni (anche l'ingranaggio in alto a destra).</li>
 </ul>
-<h3>Options </h3>
+<h3>Opzioni </h3>
 <ul>
-<li>System: language, quit the game. Video: window size and fullscreen (also the screen button at the top right).</li>
-<li>Keybindings: click a command's key, then press the new one. Esc cancels, Delete or Backspace leaves it without a key, Reset restores the defaults. Space, 1-3, E, R and Esc can't be taken. Your keys are saved.</li>
-</ul></section><section id="colonists"><h2>Colonists</h2><p>Click a colonist for their sheet: health, needs (the arrows show which way each one is going), skills, traits, conditions, equipment and the 24 hours of their routine.</p>
-<h3>Needs </h3>
-<p>All of them go from 0 to 100.</p>
+<li>Sistema: la lingua, l'uscita dal gioco. Video: misura della finestra e schermo intero (anche il pulsante dello schermo in alto a destra).</li>
+<li>Tasti: clicca il tasto di un comando, poi premi quello nuovo. Esc annulla, Canc o Backspace lo lasciano senza tasto, Ripristina rimette quelli di partenza. Spazio, 1-3, E, R ed Esc non si possono assegnare. I tuoi tasti vengono salvati.</li>
+</ul></section><section id="coloni"><h2>Coloni</h2><p>Clicca un colono per aprire la sua scheda: salute, bisogni (le frecce mostrano se ognuno sale o scende), abilità, talenti, condizioni, equipaggiamento e le 24 ore della sua routine.</p>
+<h3>Bisogni </h3>
+<p>Vanno tutti da 0 a 100.</p>
 <ul>
-<li>Food: -90 a day. Under 30 they go and eat (see Food &amp; Cooking).</li>
-<li>Rest: -100 a day awake. Under 30 they look for a free bed; at 10 they drop everything and sleep where they stand. 8 hours of sleep fill it, at comfort 5.</li>
-<li>Fun: -120 a day awake. Under 30 they take a break, even in work hours: an hour by a campfire, or a stroll nearby.</li>
-<li>Comfort: while asleep it moves toward the comfort of where they lie (see Rooms); outdoors that is 0.</li>
-<li>Stress: +30 a day while working (fighting and fleeing too), +5 for every wolf bite; -60 a day asleep, eating, relaxing or idle. 100 is the limit.</li>
-<li>Happiness: drifts toward the average of food, rest, fun, comfort and calm (100 minus stress), plus or minus conditions and laws. The ruler's happiness sets how much authority they gather.</li>
+<li>Cibo: -90 al giorno. Sotto 30 i coloni vanno a mangiare (vedi Cibo e cucina).</li>
+<li>Riposo: -100 al giorno da svegli. Sotto 30 cercano un letto libero; a 10 mollano tutto e dormono dove si trovano. 8 ore di sonno lo riempiono, a comfort 5.</li>
+<li>Svago: -120 al giorno da svegli. Sotto 30 si prendono una pausa, anche nelle ore di lavoro: un'ora attorno a un fuoco da campo, o una passeggiata lì vicino.</li>
+<li>Comfort: nel sonno va verso il comfort del posto dove sono sdraiati (vedi Stanze); all'aperto è 0.</li>
+<li>Stress: +30 al giorno lavorando (anche combattendo e scappando), +5 per ogni morso di lupo; -60 al giorno dormendo, mangiando, svagandosi o senza far niente. Il massimo è 100.</li>
+<li>Felicità: va verso la media di cibo, riposo, svago, comfort e calma (100 meno lo stress), più o meno condizioni e leggi. La felicità del sovrano decide quanta autorità raccoglie.</li>
 </ul>
 <h3>Routine </h3>
-<p>Every hour is sleep, work or free time. The usual day: sleep 22–6, breakfast at 6, work 7–12 and 13–18 with lunch between, a free evening, and at most 8 hours of work. Traits and laws change it.</p>
+<p>Ogni ora è sonno, lavoro o tempo libero. La giornata solita: sonno 22–6, colazione alle 6, lavoro 7–12 e 13–18 col pranzo in mezzo, sera libera, e al massimo 8 ore di lavoro. Talenti e leggi la cambiano.</p>
 <ul>
-<li>Sleep hours: to bed, or on the ground if no bed is free. They stay down even when rested, then get up with at least 80 rest.</li>
-<li>Work hours: they take jobs. When the shift or their hours are over, they stop as soon as their hands are free. Every hour they also stop for an urgent need: hunger (if there is food), tiredness (if a bed is free), boredom.</li>
-<li>Free time: a snack if food is under 60, then they relax.</li>
-<li>There are no priorities to set: jobs go in this order, the nearest first. Pick up equipment; the ruler to the throne and the study's workers to their desks, if you ticked them; cook, craft, chop, mine, uproot, harvest, fish, hunt, build, furnish, haul. With nothing left, the ruler governs and the others study.</li>
+<li>Ore di sonno: a letto, o per terra se non c'è un letto libero. Restano giù anche quando sono riposati, poi si alzano con almeno 80 di riposo.</li>
+<li>Ore di lavoro: prendono i lavori. Finito il turno o finite le loro ore, smettono appena hanno le mani libere. A ogni ora si fermano anche per un bisogno urgente: fame (se c'è cibo), stanchezza (se c'è un letto libero), noia.</li>
+<li>Tempo libero: uno spuntino se il cibo è sotto 60, poi si svagano.</li>
+<li>Non ci sono priorità da impostare: i lavori vanno in quest'ordine, prima il più vicino. Prendere l'equipaggiamento; il sovrano al trono e i lavoratori dello studio ai loro scrittoi, se li hai spuntati; cucinare, produrre, tagliare, scavare, estirpare, raccogliere, pescare, cacciare, costruire, arredare, trasportare. Quando non resta altro, il sovrano governa e gli altri studiano.</li>
 </ul>
-<h3>Health </h3>
+<h3>Salute </h3>
 <ul>
-<li>0–100, healing 30 a day (60 asleep). A bar over the head shows the wounded.</li>
-<li>At 0 a colonist is downed: on the ground, doing nothing, healing 40 a day. At 30 they stand up.</li>
-<li>The dead stay on the ground for a day; their gear drops beside them and the others mourn for 3 days.</li>
-</ul></section><section id="skills"><h2>Skills</h2><p>Thirteen skills, with levels from 0 to 10 (a star at 10). Colonists start at 0; your ruler gets 12 points on the new-game page.</p>
-<h3>Speed </h3>
-<p>A job takes 1.5 times as long at level 0, the normal time at level 5 and half at level 10 (1.4 at level 1, 1.3 at level 2...). Most work also depends on conditions, and sleep, cooking, crafting and study on room comfort.</p>
-<h3>What each skill does </h3>
-<table><tr><td>Gathering</td><td>picking bushes and flax</td></tr><tr><td>Mining</td><td>mining boulders</td></tr><tr><td>Woodcutting</td><td>chopping trees</td></tr><tr><td>Construction</td><td>building: 2 s a tile or a piece</td></tr><tr><td>Smithing</td><td>at the furnace and the anvil</td></tr><tr><td>Tailoring</td><td>spinning wheel and workbench</td></tr><tr><td>Cooking</td><td>meals: speed, burnt, fine</td></tr><tr><td>Fishing</td><td>casting and catching</td></tr><tr><td>Hunting</td><td>aiming and hitting game</td></tr><tr><td>Melee</td><td>blows in a fight; dodging bites</td></tr><tr><td>Ranged</td><td>bow shots; making bows</td></tr><tr><td>Research</td><td>writing pages of study</td></tr><tr><td>Lockpicking</td><td>adventurers only: traps, locks</td></tr></table>
-<p>With a bow a hunter aims with the better of Hunting and Ranged. At a workstation a low level ruins more items, at the campfire it burns more meals.</p>
-<h3>Experience </h3>
-<p>+1 XP (hover the level to see it) for every tree felled, boulder mined or bush picked clean, every cast, piece built, meal cooked, item made, page written, shot or blow. A hunting shot counts for Hunting and Ranged. For now experience is only counted: levels don't rise with it yet.</p></section><section id="traits"><h2>Traits</h2><p>Colonists have 0–2 traits, never two that clash. Hover a trait in the sheet for its effect.</p>
-<table><tr><td><span style="color:#d9c48a">Trait</span></td><td><span style="color:#d9c48a">Effect</span></td><td><span style="color:#d9c48a">Ruler</span></td></tr><tr><td>Glutton</td><td>hunger +50%, eats at 50</td><td>+2</td></tr><tr><td>Sleepwalker</td><td>wanders off asleep</td><td>+2</td></tr><tr><td>Hothead</td><td>work stress +50%, tantrums</td><td>+2</td></tr><tr><td>Lazy</td><td>works 6 hours at most</td><td>+2</td></tr><tr><td>Workaholic</td><td>up to 12 hours, free time too</td><td>-2</td></tr><tr><td>Early bird</td><td>2 hours earlier: sleeps 20–4</td><td>0</td></tr><tr><td>Night owl</td><td>sleeps 10–18, works at night</td><td>0</td></tr><tr><td>Sleepyhead</td><td>sleeps 10 hours, until 8</td><td>+2</td></tr><tr><td>Tireless</td><td>sleeps 0–6, tires 25% slower</td><td>-2</td></tr><tr><td>Fun-loving</td><td>bored twice as fast, stops at 17</td><td>+2</td></tr><tr><td>Ascetic</td><td>never needs fun</td><td>-2</td></tr><tr><td>Small appetite</td><td>hunger -40%, never snacks</td><td>-2</td></tr><tr><td>Easygoing</td><td>half the stress from work</td><td>-2</td></tr><tr><td>Napper</td><td>naps 13–14, to bed at 23</td><td>0</td></tr><tr><td>Restless</td><td>an hour off after 2 of work</td><td>+2</td></tr></table>
-<p>Ruler: the skill points the trait gives (+2) or costs (-2) on the new-game page.</p>
-<h3>More </h3>
+<li>0–100; risale di 30 al giorno (60 dormendo). Una barretta sopra la testa mostra i feriti.</li>
+<li>A 0 un colono è a terra: sdraiato, non fa niente e risale di 40 al giorno. A 30 si rialza.</li>
+<li>I morti restano a terra per un giorno; il loro equipaggiamento cade lì accanto e gli altri sono in lutto per 3 giorni.</li>
+</ul></section><section id="abilità"><h2>Abilità</h2><p>Tredici abilità, con livelli da 0 a 10 (una stellina al 10). I coloni partono da 0; il tuo sovrano ha 12 punti nella pagina della nuova partita.</p>
+<h3>Velocità </h3>
+<p>Un lavoro dura 1,5 volte tanto a livello 0, il tempo normale a livello 5 e la metà a livello 10 (1,4 a livello 1, 1,3 a livello 2...). Quasi tutti i lavori dipendono anche dalle condizioni, e sonno, cucina, lavorazioni e studio dal comfort della stanza.</p>
+<h3>Cosa fa ogni abilità </h3>
+<table><tr><td>Raccogliere</td><td>raccolta da cespugli e lino</td></tr><tr><td>Estrarre</td><td>scavare i massi</td></tr><tr><td>Tagliare legna</td><td>abbattere gli alberi</td></tr><tr><td>Costruire</td><td>costruzione: 2 s a casella o a pezzo</td></tr><tr><td>Forgiare</td><td>alla fornace e all'incudine</td></tr><tr><td>Cucire</td><td>filatoio e banco da lavoro</td></tr><tr><td>Cucinare</td><td>pasti: velocità, bruciati, squisiti</td></tr><tr><td>Pescare</td><td>lanciare e prendere pesci</td></tr><tr><td>Cacciare</td><td>mirare e colpire la selvaggina</td></tr><tr><td>Mischia</td><td>colpi in combattimento; schivare i morsi</td></tr><tr><td>Tiro</td><td>tiri con l'arco; fare archi</td></tr><tr><td>Ricerca</td><td>scrivere pagine di studio</td></tr><tr><td>Scassinare</td><td>solo avventurieri: trappole, serrature</td></tr></table>
+<p>Con l'arco un cacciatore mira col migliore tra Cacciare e Tiro. A una postazione un livello basso rovina più oggetti, al fuoco da campo brucia più pasti.</p>
+<h3>Esperienza </h3>
+<p>+1 XP (passa il mouse sul livello per vederla) per ogni albero abbattuto, masso scavato o cespuglio spogliato, ogni lancio, pezzo costruito, pasto cucinato, oggetto fatto, pagina scritta, tiro o colpo. Un tiro di caccia conta per Cacciare e per Tiro. Per ora l'esperienza viene solo contata: non fa ancora salire i livelli.</p></section><section id="talenti"><h2>Talenti</h2><p>I coloni hanno 0–2 talenti, mai due in contrasto. Passa il mouse su un talento nella scheda per vederne l'effetto.</p>
+<table><tr><td><span style="color:#d9c48a">Talento</span></td><td><span style="color:#d9c48a">Effetto</span></td><td><span style="color:#d9c48a">Sovrano</span></td></tr><tr><td>Goloso</td><td>fame +50%, mangia a 50</td><td>+2</td></tr><tr><td>Sonnambulo</td><td>cammina nel sonno</td><td>+2</td></tr><tr><td>Iracondo</td><td>stress dal lavoro +50%, sfuriate</td><td>+2</td></tr><tr><td>Pigro</td><td>lavora al più 6 ore</td><td>+2</td></tr><tr><td>Stacanovista</td><td>fino a 12 ore, anche nel tempo libero</td><td>-2</td></tr><tr><td>Mattiniero</td><td>tutto 2 ore prima: dorme 20–4</td><td>0</td></tr><tr><td>Nottambulo</td><td>dorme 10–18, lavora di notte</td><td>0</td></tr><tr><td>Dormiglione</td><td>dorme 10 ore, fino alle 8</td><td>+2</td></tr><tr><td>Instancabile</td><td>dorme 0–6, si stanca il 25% più piano</td><td>-2</td></tr><tr><td>Festaiolo</td><td>si annoia il doppio, smette alle 17</td><td>+2</td></tr><tr><td>Asceta</td><td>non ha mai bisogno di svago</td><td>-2</td></tr><tr><td>Di poco appetito</td><td>fame -40%, niente spuntini</td><td>-2</td></tr><tr><td>Tranquillo</td><td>metà dello stress dal lavoro</td><td>-2</td></tr><tr><td>Pennichella</td><td>pisolino 13–14, a letto alle 23</td><td>0</td></tr><tr><td>Irrequieto</td><td>un'ora di pausa dopo 2 di lavoro</td><td>+2</td></tr></table>
+<p>Sovrano: i punti abilità che il talento dà (+2) o costa (-2) nella pagina della nuova partita.</p>
+<h3>Dettagli </h3>
 <ul>
-<li>Glutton: in free time snacks under 85 food, feels the food conditions twice as much and hates raw food (Ate raw).</li>
-<li>Sleepwalker: every hour of sleep, 1 chance in 10 of walking a few tiles and sleeping there, on the ground.</li>
-<li>Hothead: at 90 stress storms off for two hours, while the stress falls four times as fast.</li>
-<li>Workaholic: also gets bored half as fast.</li>
+<li>Goloso: nel tempo libero fa uno spuntino sotto 85 di cibo, sente il doppio le condizioni del cibo e detesta il cibo crudo (Mangiato crudo).</li>
+<li>Sonnambulo: a ogni ora di sonno, 1 probabilità su 10 di camminare per qualche casella e dormire lì, per terra.</li>
+<li>Iracondo: a 90 di stress se ne va a sbollire per due ore, e intanto lo stress cala quattro volte più in fretta.</li>
+<li>Stacanovista: in più si annoia la metà.</li>
 </ul>
-<h3>Never together </h3>
-<p>Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleepyhead and Tireless, Fun-loving and Ascetic, Hothead and Easygoing.</p></section><section id="conditions"><h2>Conditions</h2><p>Effects that last a while, shown as icons under the traits in the sheet (hover: what they do and the hours left).</p>
-<table><tr><td><span style="color:#d9c48a">Condition</span></td><td><span style="color:#d9c48a">Lasts</span></td><td><span style="color:#d9c48a">Work</span></td><td><span style="color:#d9c48a">Happiness</span></td></tr><tr><td>Poisoned</td><td>1 day</td><td>50% slower</td><td>-20</td></tr><tr><td>Well fed</td><td>½ day</td><td>10% faster</td><td>+5</td></tr><tr><td>Feasted</td><td>½ day</td><td>20% faster</td><td>+10</td></tr><tr><td>At table</td><td>½ day</td><td>–</td><td>+5</td></tr><tr><td>Ate raw</td><td>½ day</td><td>–</td><td>-10</td></tr><tr><td>Mourning</td><td>3 days</td><td>–</td><td>-15</td></tr><tr><td>Festive</td><td>3 days</td><td>–</td><td>+10</td></tr></table>
+<h3>Mai insieme </h3>
+<p>Goloso e Di poco appetito, Pigro e Stacanovista, Mattiniero e Nottambulo, Dormiglione e Instancabile, Festaiolo e Asceta, Iracondo e Tranquillo.</p></section><section id="condizioni"><h2>Condizioni</h2><p>Effetti che durano un po', mostrati come icone sotto i talenti nella scheda (col mouse sopra: cosa fanno e le ore che mancano).</p>
+<table><tr><td><span style="color:#d9c48a">Condizione</span></td><td><span style="color:#d9c48a">Durata</span></td><td><span style="color:#d9c48a">Lavoro</span></td><td><span style="color:#d9c48a">Felicità</span></td></tr><tr><td>Intossicato</td><td>1 giorno</td><td>50% più lento</td><td>-20</td></tr><tr><td>Ben nutrito</td><td>½ giorno</td><td>10% più veloce</td><td>+5</td></tr><tr><td>Lauto pasto</td><td>½ giorno</td><td>20% più veloce</td><td>+10</td></tr><tr><td>Mangiato al tavolo</td><td>½ giorno</td><td>–</td><td>+5</td></tr><tr><td>Mangiato crudo</td><td>½ giorno</td><td>–</td><td>-10</td></tr><tr><td>Lutto</td><td>3 giorni</td><td>–</td><td>-15</td></tr><tr><td>In festa</td><td>3 giorni</td><td>–</td><td>+10</td></tr></table>
 <ul>
-<li>Poisoned: from raw food, more likely the closer it is to rotting.</li>
-<li>Well fed: after a meal; stress from work -25%. Feasted: after a fine meal; stress from work -50%. A new meal replaces the condition of the last one.</li>
-<li>At table: ate sitting on a chair beside a table.</li>
-<li>Ate raw: a glutton who had to eat raw food. A glutton feels Well fed, Feasted, At table and Ate raw twice as much.</li>
-<li>Mourning: a colonist has died; stress from work +25%.</li>
-<li>Festive: after a feast day, with the Harvest feast law (see Laws).</li>
+<li>Intossicato: dal cibo crudo, tanto più probabile quanto più è vicino a marcire.</li>
+<li>Ben nutrito: dopo un pasto; stress dal lavoro -25%. Lauto pasto: dopo un pasto squisito; stress dal lavoro -50%. Un pasto nuovo sostituisce la condizione di quello prima.</li>
+<li>Mangiato al tavolo: ha mangiato seduto su una sedia accanto a un tavolo.</li>
+<li>Mangiato crudo: un goloso che ha dovuto mangiare cibo crudo. Il goloso sente il doppio Ben nutrito, Lauto pasto, Mangiato al tavolo e Mangiato crudo.</li>
+<li>Lutto: è morto un colono; stress dal lavoro +25%.</li>
+<li>In festa: dopo un giorno di festa, con la legge Festa del raccolto (vedi Leggi).</li>
 </ul>
-<p>The laws in force that a colonist likes or dislikes show here too, with their icon.</p></section><section id="the-ruler-house"><h2>The Ruler &amp; House</h2><h3>New game </h3>
-<p>Two pages come before the map.</p>
+<p>Qui compaiono anche le leggi in vigore che a un colono piacciono o non piacciono, con la loro icona.</p></section><section id="il-sovrano-e-la-casata"><h2>Il sovrano e la casata</h2><h3>Nuova partita </h3>
+<p>Prima della mappa vengono due pagine.</p>
 <ul>
-<li>Your House: the house name (your ruler's surname), the colony's name and the coat of arms: shape, division, field and second field, ordinary and charge, each with its tincture. The dice roll a name or a whole coat of arms.</li>
-<li>Your Ruler: name, an optional nickname, sex, hair and its color, a beard (men only), tunic and cape (they follow the first two tinctures of the arms until you pick them), up to 2 traits that don't clash, and 12 skill points, at most 3 in one skill (no Lockpicking).</li>
-<li>Traits move points: flaws give 2 (Glutton, Sleepwalker, Hothead, Lazy, Sleepyhead, Fun-loving, Restless), virtues cost 2 (Workaholic, Tireless, Ascetic, Small appetite, Easygoing); Early bird, Night owl and Napper are free.</li>
+<li>La tua casata: il nome della casata (il cognome del tuo sovrano), il nome della colonia e lo stemma: forma, partizione, campo e secondo campo, pezza e figura, ognuna col suo smalto. I dadi tirano a sorte un nome o uno stemma intero.</li>
+<li>Il tuo sovrano: nome, un soprannome facoltativo, sesso, capelli e il loro colore, la barba (solo per gli uomini), maglia e mantello (seguono i primi due smalti dello stemma finché non li scegli), fino a 2 talenti non in contrasto e 12 punti abilità, al massimo 3 in un'abilità (niente Scassinare).</li>
+<li>I talenti spostano punti: i difetti ne danno 2 (Goloso, Sonnambulo, Iracondo, Pigro, Dormiglione, Festaiolo, Irrequieto), i pregi ne costano 2 (Stacanovista, Instancabile, Asceta, Di poco appetito, Tranquillo); Mattiniero, Nottambulo e Pennichella sono gratis.</li>
 </ul>
-<p>The other two colonists come at random: skills at 0, 0–2 traits.</p>
-<h3>In the game <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAfklEQVR4nGNgGDRAXkrlP7liYMEbXlb/kSVB7BeHvTDEqroe/McwBFkxMsYmhs1guAH/ny0A0+gYm/iKKj2EIegGgLwDUwhyMroYTgNAgqRgFAPIwXDNs7QgsUAKBukBGwKLQnIw3ACKXIDsDVIwRjogOxCRDEkgBePIUqQDAN3QUMfoFlTWAAAAAElFTkSuQmCC" alt=""></h3>
+<p>Gli altri due coloni vengono a caso: abilità a 0, 0–2 talenti.</p>
+<h3>In partita <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAfklEQVR4nGNgGDRAXkrlP7liYMEbXlb/kSVB7BeHvTDEqroe/McwBFkxMsYmhs1guAH/ny0A0+gYm/iKKj2EIegGgLwDUwhyMroYTgNAgqRgFAPIwXDNs7QgsUAKBukBGwKLQnIw3ACKXIDsDVIwRjogOxCRDEkgBePIUqQDAN3QUMfoFlTWAAAAAElFTkSuQmCC" alt=""></h3>
 <ul>
-<li>The ruler is the first colonist and lives like the others: needs, routine, work, fights. They can die.</li>
-<li>Title: Lord or Lady. The top bar shows "Lordship of" your colony, beside your arms: click it for the ruler's sheet. Banners fly your arms.</li>
-<li>Only the ruler governs: on a throne, in a throne room, they gather authority for the laws (see Laws). A happy ruler (70 or more) gathers 25% more, a gloomy one (30 or less) half.</li>
-<li>For now the title stays a Lordship: +1 authority a day and 2 seals for the laws.</li>
-<li>There is no heir yet: if the ruler dies, nobody can sit on the throne.</li>
-</ul></section><section id="building"><h2>Building</h2><h3>How to build <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZklEQVR4nGNgoBWQl1L5j4xJ1lwVYgLHwRbyxBsC03xtbR4KJtoQZANWVLmC8cAZQJIX0EMdpAEZ440VXKGOjHHGCiEnE/QSoUAjGKhUNYAsL8DCAVuoIwcyPnms0UgomgkmKGIBAEoZKaB0W1aHAAAAAElFTkSuQmCC" alt=""> <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAdUlEQVR4nGNgGL5AXkrlPzomSfOFCzfAeNbMZWCcl1NDnEHYNMMMgGGchsA0I2tE10yyAeiavTwi8BtASDNOA9BDHJdmrAagBxzMn9g0YsQEPn+juwrdArz+RnYquiUo8vj8i2wAuuEoYYEt2aIHFEVJGx8AAFXqIWL9vANOAAAAAElFTkSuQmCC" alt=""></h3>
+<li>Il sovrano è il primo colono e vive come gli altri: bisogni, routine, lavoro, combattimenti. Può morire.</li>
+<li>Titolo: Signore o Signora. La barra in alto mostra "Signoria di" e il nome della tua colonia, accanto al tuo stemma: cliccaci sopra per la scheda del sovrano. Sugli stendardi sventola il tuo stemma.</li>
+<li>Solo il sovrano governa: su un trono, in una sala del trono, raccoglie autorità per le leggi (vedi Leggi). Un sovrano sereno (70 o più) ne raccoglie il 25% in più, uno cupo (30 o meno) la metà.</li>
+<li>Per ora il titolo resta quello della Signoria: +1 autorità al giorno e 2 sigilli per le leggi.</li>
+<li>Non c'è ancora un erede: se il sovrano muore, nessuno può sedere sul trono.</li>
+</ul></section><section id="costruire"><h2>Costruire</h2><h3>Come costruire <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZklEQVR4nGNgoBWQl1L5j4xJ1lwVYgLHwRbyxBsC03xtbR4KJtoQZANWVLmC8cAZQJIX0EMdpAEZ440VXKGOjHHGCiEnE/QSoUAjGKhUNYAsL8DCAVuoIwcyPnms0UgomgkmKGIBAEoZKaB0W1aHAAAAAElFTkSuQmCC" alt=""> <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAdUlEQVR4nGNgGL5AXkrlPzomSfOFCzfAeNbMZWCcl1NDnEHYNMMMgGGchsA0I2tE10yyAeiavTwi8BtASDNOA9BDHJdmrAagBxzMn9g0YsQEPn+juwrdArz+RnYquiUo8vj8i2wAuuEoYYEt2aIHFEVJGx8AAFXqIWL9vANOAAAAAElFTkSuQmCC" alt=""></h3>
 <ul>
-<li>Press Build, pick Structures or Furniture, then a piece: hover its button for the cost and the comfort or splendor it gives.</li>
-<li>Walls and floors are made of wood or stone (stone after the Masonry research). Doors, furniture and decorations have their own material.</li>
-<li>Drag on the map: the plan shows in blue. Walls go only along the border of the rectangle, so one drag outlines a room; floors, paths and doors fill it. Drawing over your unconfirmed plan replaces it: that is how to put a door into a wall you are planning.</li>
-<li>Furniture goes one piece at a time, where you let go of the button. E and R (or the arrows in the bar) turn it; the preview is red where it doesn't fit.</li>
-<li>Press Build in the middle of the bottom to confirm: only then do colonists start. The red X erases cells from the plan, even confirmed ones. Closing Build without confirming throws the plan away.</li>
-<li>The builder fetches the material from a pile (on the ground or in a warehouse) and needs 2 s a tile or a piece.</li>
-<li>Destroy (X): drag over structures and furniture to pull them down at once. The material is lost.</li>
-<li>Pieces you haven't researched yet have no button.</li>
+<li>Premi Costruisci, scegli Strutture o Mobili, poi un pezzo: col mouse sopra il suo pulsante vedi il costo e il comfort o lo splendore che dà.</li>
+<li>Muri e pavimenti si fanno con legna o pietra (la pietra dopo la ricerca Muratura). Porte, mobili e decorazioni hanno il loro materiale.</li>
+<li>Trascina sulla mappa: il progetto si vede in blu. I muri vanno solo lungo il bordo del rettangolo, così con un solo trascinamento tracci il contorno di una stanza; pavimenti, sentieri e porte lo riempiono. Disegnare sopra il tuo progetto non ancora confermato lo sostituisce: è così che metti una porta in un muro che stai progettando.</li>
+<li>I mobili si mettono un pezzo alla volta, dove rilasci il tasto. E e R (o le frecce nella barra) girano il pezzo; l'anteprima è rossa dove non ci sta.</li>
+<li>Premi Costruisci in basso al centro per confermare: solo allora i coloni cominciano. La X rossa cancella caselle dal progetto, anche quelle confermate. Se chiudi Costruisci senza confermare, il progetto si butta via.</li>
+<li>Il costruttore va a prendere il materiale da un mucchio (a terra o in un magazzino) e ci mette 2 s a casella o a pezzo.</li>
+<li>Distruggi (X): trascina sopra strutture e mobili per buttarli giù subito. Il materiale si perde.</li>
+<li>I pezzi che non hai ancora ricercato non hanno un pulsante.</li>
 </ul>
-<h3>Where </h3>
-<p>Not on water, trees, rock, bushes or weeds (uproot them first), nor on items lying on the ground. Furniture stands on bare ground, floors and paths, never on other furniture; walls and doors never on furniture.</p>
-<h3>Structures </h3>
-<table><tr><td>Wall</td><td>5 wood or stone a tile</td><td>blocks the way</td></tr><tr><td>Floor</td><td>2 wood or stone a tile</td><td>room comfort</td></tr><tr><td>Door</td><td>5 wood</td><td>rooms need one</td></tr><tr><td>Path</td><td>1 stone a tile</td><td>trodden earth</td></tr></table>
-<h3>Furniture </h3>
-<table><tr><td><span style="color:#d9c48a">Piece</span></td><td><span style="color:#d9c48a">Cost</span></td><td><span style="color:#d9c48a">Research</span></td></tr><tr><td>Bed (2x1)</td><td>10 wood</td><td>–</td></tr><tr><td>Table (2x2)</td><td>10 wood</td><td>–</td></tr><tr><td>Chair</td><td>3 wood</td><td>–</td></tr><tr><td>Campfire</td><td>5 wood</td><td>–</td></tr><tr><td>Desk</td><td>10 wood</td><td>–</td></tr><tr><td>Throne</td><td>12 wood</td><td>–</td></tr><tr><td>Lamp</td><td>3 wood</td><td>Lanterns</td></tr><tr><td>Furnace</td><td>20 stone</td><td>Forge</td></tr><tr><td>Anvil</td><td>10 iron</td><td>Forge</td></tr><tr><td>Workbench</td><td>15 wood</td><td>Tailoring</td></tr><tr><td>Spinning wheel</td><td>10 wood</td><td>Hunting</td></tr><tr><td>Carpenter bench</td><td>15 wood</td><td>Hunting</td></tr><tr><td>Notice board</td><td>8 wood</td><td>Inn</td></tr><tr><td>Bookshelf</td><td>12 wood</td><td>Bookshelf</td></tr></table>
-<p>Decorations: see Splendor.</p></section><section id="rooms"><h2>Rooms</h2><p>A room is an area closed by walls (rock and deep water count too) with at least one door to the outside, smaller than 400 tiles. Once it's finished a sign appears on the wall by the door: click it to name the room, see its comfort, choose its type, ban it and tick its owners or workers.</p>
-<h3>Types </h3>
-<p>The list shows only the types whose furniture is inside. Take that furniture away and the room loses its type, with its owners or workers.</p>
-<table><tr><td><span style="color:#d9c48a">Type</span></td><td><span style="color:#d9c48a">Needs</span></td><td><span style="color:#d9c48a">Kind</span></td></tr><tr><td>Warehouse</td><td>nothing</td><td>service</td></tr><tr><td>Bedroom</td><td>1 bed</td><td>residence</td></tr><tr><td>Dormitory</td><td>2 beds</td><td>residence</td></tr><tr><td>Kitchen</td><td>campfire</td><td>work</td></tr><tr><td>Forge</td><td>furnace, anvil</td><td>work</td></tr><tr><td>Workshop</td><td>workbench</td><td>work</td></tr><tr><td>Carpentry</td><td>carpenter bench</td><td>work</td></tr><tr><td>Inn</td><td>bed, table, notice board</td><td>service</td></tr><tr><td>Study</td><td>desk</td><td>work</td></tr><tr><td>Throne room</td><td>throne</td><td>work</td></tr></table>
+<h3>Dove </h3>
+<p>Non sull'acqua, sugli alberi, sulla roccia, sui cespugli o sulle erbacce (prima estirpali), né sugli oggetti a terra. I mobili stanno sulla terra nuda, sui pavimenti e sui sentieri, mai su altri mobili; muri e porte mai sui mobili.</p>
+<h3>Strutture </h3>
+<table><tr><td>Muro</td><td>5 legna o pietra a casella</td><td>blocca il passaggio</td></tr><tr><td>Pavimento</td><td>2 legna o pietra a casella</td><td>comfort della stanza</td></tr><tr><td>Porta</td><td>5 legna</td><td>ogni stanza ne ha bisogno</td></tr><tr><td>Sentiero</td><td>1 pietra a casella</td><td>terra battuta</td></tr></table>
+<h3>Mobili </h3>
+<table><tr><td><span style="color:#d9c48a">Pezzo</span></td><td><span style="color:#d9c48a">Costo</span></td><td><span style="color:#d9c48a">Ricerca</span></td></tr><tr><td>Letto (2x1)</td><td>10 legna</td><td>–</td></tr><tr><td>Tavolo (2x2)</td><td>10 legna</td><td>–</td></tr><tr><td>Sedia</td><td>3 legna</td><td>–</td></tr><tr><td>Fuoco da campo</td><td>5 legna</td><td>–</td></tr><tr><td>Scrittoio</td><td>10 legna</td><td>–</td></tr><tr><td>Trono</td><td>12 legna</td><td>–</td></tr><tr><td>Abat-jour</td><td>3 legna</td><td>Lanterne</td></tr><tr><td>Fornace</td><td>20 pietra</td><td>Forgia</td></tr><tr><td>Incudine</td><td>10 ferro</td><td>Forgia</td></tr><tr><td>Banco da lavoro</td><td>15 legna</td><td>Sartoria</td></tr><tr><td>Filatoio</td><td>10 legna</td><td>Caccia</td></tr><tr><td>Banco del falegname</td><td>15 legna</td><td>Caccia</td></tr><tr><td>Bacheca</td><td>8 legna</td><td>Locanda</td></tr><tr><td>Libreria</td><td>12 legna</td><td>Libreria</td></tr></table>
+<p>Decorazioni: vedi Splendore.</p></section><section id="stanze"><h2>Stanze</h2><p>Una stanza è un'area chiusa da muri (contano anche la roccia e l'acqua profonda) con almeno una porta verso l'esterno, di meno di 400 caselle. Quando è finita, sul muro accanto alla porta compare un cartello: cliccalo per dare un nome alla stanza, vederne il comfort, sceglierne il tipo, bandirla e spuntarne i proprietari o i lavoratori.</p>
+<h3>Tipi </h3>
+<p>L'elenco mostra solo i tipi i cui mobili sono dentro. Se togli quei mobili la stanza perde il tipo, e con lui i proprietari o i lavoratori.</p>
+<table><tr><td><span style="color:#d9c48a">Tipo</span></td><td><span style="color:#d9c48a">Serve</span></td><td><span style="color:#d9c48a">Categoria</span></td></tr><tr><td>Magazzino</td><td>niente</td><td>servizio</td></tr><tr><td>Camera</td><td>1 letto</td><td>residenza</td></tr><tr><td>Dormitorio</td><td>2 letti</td><td>residenza</td></tr><tr><td>Cucina</td><td>fuoco da campo</td><td>lavoro</td></tr><tr><td>Forgia</td><td>fornace, incudine</td><td>lavoro</td></tr><tr><td>Laboratorio</td><td>banco da lavoro</td><td>lavoro</td></tr><tr><td>Falegnameria</td><td>banco del falegname</td><td>lavoro</td></tr><tr><td>Locanda</td><td>letto, tavolo, bacheca</td><td>servizio</td></tr><tr><td>Studio</td><td>scrittoio</td><td>lavoro</td></tr><tr><td>Sala del trono</td><td>trono</td><td>lavoro</td></tr></table>
 <ul>
-<li>Residence: it can have owners. One with owners is closed to everyone else, even just to walk through.</li>
-<li>Work: it can have workers. For now they matter in a study (they study before any other job) and in a throne room (only the ruler).</li>
-<li>Service: shared by all.</li>
-<li>Banned: nobody goes in, not even the owners.</li>
-<li>Workstations work only inside their room: the campfire in a kitchen, furnace and anvil in a forge, workbench and spinning wheel in a workshop, the carpenter bench in a carpentry.</li>
-<li>Colonists sleep in any bed but those of an inn, which are for adventurers.</li>
+<li>Residenza: può avere dei proprietari. Se ne ha, è chiusa a tutti gli altri, anche solo per passarci.</li>
+<li>Lavoro: può avere dei lavoratori. Per ora contano in uno studio (studiano prima di qualunque altro lavoro) e in una sala del trono (solo il sovrano).</li>
+<li>Servizio: in comune per tutti.</li>
+<li>Vietata: non entra nessuno, nemmeno i proprietari.</li>
+<li>Le postazioni funzionano solo nella loro stanza: il fuoco da campo in una cucina, fornace e incudine in una forgia, banco da lavoro e filatoio in un laboratorio, il banco del falegname in una falegnameria.</li>
+<li>I coloni dormono in qualunque letto tranne quelli di una locanda, che sono per gli avventurieri.</li>
 </ul>
-<h3>Warehouses </h3>
-<p>Haulers carry loose items into warehouses, 10 at a time; with no warehouse nobody hauls. Only what is in a warehouse counts as stored: the top bar, Resources, the coins you pay, the books for research. A tile holds one kind of item: 100 wood or coins, 50 of most materials and raw food, 20 meals, 10 tools, weapons, armor or books, 5 relics. Food rots half as fast inside.</p>
+<h3>Magazzini </h3>
+<p>I trasportatori portano gli oggetti sparsi nei magazzini, 10 alla volta; senza magazzino nessuno trasporta. Conta come immagazzinato solo quello che è in un magazzino: la barra in alto, Risorse, le monete che paghi, i libri per la ricerca. Una casella tiene un solo tipo di oggetto: 100 legna o monete, 50 per la maggior parte dei materiali e del cibo crudo, 20 pasti, 10 strumenti, armi, armature o libri, 5 cimeli. Dentro, il cibo marcisce a metà velocità.</p>
 <h3>Comfort </h3>
-<p>0–10, shown on the sign. Bed and table +1; chair, lamp, campfire and bench +0.5; a floor +1 if it paves the whole room (half the room, half a point); stone counts 1.5 times. Outdoors it is 0.</p>
-<p>At 5 nothing changes. Below, sleep, cooking, crafting and study take longer (20% at 0); above, less (20% at 10). Low comfort also burns meals and ruins items more often. With fewer than 6 tiles for each person in the room, comfort drops in proportion.</p>
-<h3>Rooms lens </h3>
-<p>The Rooms lens (L) tints every room with the color of its type and shows its owners or workers: hover them for their sheet.</p></section><section id="food-cooking"><h2>Food &amp; Cooking</h2><h3>Eating </h3>
+<p>0–10, mostrato sul cartello. Letto e tavolo +1; sedia, abat-jour, fuoco da campo e panca +0,5; un pavimento +1 se copre tutta la stanza (metà stanza, mezzo punto); la pietra conta 1,5 volte. All'aperto è 0.</p>
+<p>A 5 non cambia niente. Sotto, sonno, cucina, lavorazioni e studio durano di più (20% a 0); sopra, di meno (20% a 10). Con poco comfort, inoltre, i pasti bruciano e gli oggetti si rovinano più spesso. Con meno di 6 caselle per ogni persona nella stanza, il comfort cala in proporzione.</p>
+<h3>Vista stanze </h3>
+<p>La Vista stanze (L) tinge ogni stanza col colore del suo tipo e mostra i proprietari o i lavoratori: passaci sopra col mouse per la loro scheda.</p></section><section id="cibo-e-cucina"><h2>Cibo e cucina</h2><h3>Mangiare </h3>
 <ul>
-<li>Hungry colonists (under 30 food; the glutton at 50) take the nearest food: fine meals first, then meals, raw food only when there are none (vegetables, then fish, then meat). In free time they also snack under 60.</li>
-<li>If a chair beside a table is free within 20 tiles, they carry the food there and eat sitting: +5 happiness (At table).</li>
+<li>I coloni affamati (sotto 30 di cibo; il goloso a 50) prendono il cibo più vicino: prima i pasti squisiti, poi i pasti, il crudo solo quando non ce ne sono (vegetali, poi pesce, poi carne). Nel tempo libero fanno anche uno spuntino sotto 60.</li>
+<li>Se entro 20 caselle c'è una sedia libera accanto a un tavolo, portano lì il cibo e mangiano seduti: +5 felicità (Mangiato al tavolo).</li>
 </ul>
-<h3>Food </h3>
-<table><tr><td><span style="color:#d9c48a">Food</span></td><td><span style="color:#d9c48a">Fills</span></td><td><span style="color:#d9c48a">Lasts</span></td><td><span style="color:#d9c48a">Poison</span></td></tr><tr><td><img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZUlEQVR4nGNgGDJAXkrlPwiTrTlqigMYk2wIsmaLbGPiDQApDLaQR9FIku0wA8jyN0jTs0cX/t/wsgJjsvwN00yxAbO0SPA7LKBwYYKa0f1NUlhg8zdJYYHN3ySHBTb/Eh0G5AIAQxWOQ1zM/RwAAAAASUVORK5CYII=" alt=""> Vegetables</td><td>35</td><td>3 days</td><td>5–40%</td></tr><tr><td><img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZElEQVR4nGNgGAVEAXkplf8wjFcBLvELF27AMYY6kEBeTg0YwySxaUQ3BG4QzIBZM5fBDUHWDBIHYXQDUFyDbAghjOEdXC6AeQufYSgGYAsDmDg6xgh0QrGAUyOp6YBkjUMDAACTY9iSpRM+wwAAAABJRU5ErkJggg==" alt=""> Fish</td><td>30</td><td>1.5 days</td><td>10–50%</td></tr><tr><td><img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAa0lEQVR4nGNgGNRAXkrlPzImWeMNLysUTJRB2DQi41laeAxB1vxi+zScBuA0BGYASDNFBuBzPtkGIGsmGA4gBWRpRjcEGyYqPYAUvXhyA4zRExNRtsM0r1gyi/QUSLFmkEaSNcMMIDnTAAEAIxvq60eQ4T4AAAAASUVORK5CYII=" alt=""> Meat</td><td>40</td><td>2 days</td><td>15–60%</td></tr><tr><td><img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAdklEQVR4nGNgoAV48eTGf2LEaGfIwLuALCAvpfKfFIyheWmA/v8Tmfb/Py2wArOjpjjAxUA0SBxZDMUQEAemEKYIpAEmBqKRxUE0VldUhZgQhTE0IxtwbW0eXs3BFvLYDSDGFXg1IxsCUogNE9RMKEqJ0kx3AAApgcAK+0cSPAAAAABJRU5ErkJggg==" alt=""> Meal</td><td>100</td><td>3 days</td><td>–</td></tr><tr><td><img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAgElEQVR4nGNgIAG8OOz1nzxJqDwMkyZJLRcMASAvpfKfFIyheWmA/v8Tmfb/Py2wArOjpjjAxUA0SBxZDMUQEAemEKYIpAEmBqKRxUE0VldUhZiAMXK0ImOYPIZmZAOurc2DK8SGgy3ksRuA7gqSNSMbAlKIDRPUTChKidJMdwAAOTzGLCkVlccAAAAASUVORK5CYII=" alt=""> Fine meal</td><td>100</td><td>3 days</td><td>–</td></tr></table>
+<h3>Cibo </h3>
+<table><tr><td><span style="color:#d9c48a">Cibo</span></td><td><span style="color:#d9c48a">Sazia</span></td><td><span style="color:#d9c48a">Dura</span></td><td><span style="color:#d9c48a">Intossica</span></td></tr><tr><td><img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZUlEQVR4nGNgGDJAXkrlPwiTrTlqigMYk2wIsmaLbGPiDQApDLaQR9FIku0wA8jyN0jTs0cX/t/wsgJjsvwN00yxAbO0SPA7LKBwYYKa0f1NUlhg8zdJYYHN3ySHBTb/Eh0G5AIAQxWOQ1zM/RwAAAAASUVORK5CYII=" alt=""> Vegetali</td><td>35</td><td>3 giorni</td><td>5–40%</td></tr><tr><td><img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZElEQVR4nGNgGAVEAXkplf8wjFcBLvELF27AMYY6kEBeTg0YwySxaUQ3BG4QzIBZM5fBDUHWDBIHYXQDUFyDbAghjOEdXC6AeQufYSgGYAsDmDg6xgh0QrGAUyOp6YBkjUMDAACTY9iSpRM+wwAAAABJRU5ErkJggg==" alt=""> Pesce</td><td>30</td><td>1,5 giorni</td><td>10–50%</td></tr><tr><td><img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAa0lEQVR4nGNgGNRAXkrlPzImWeMNLysUTJRB2DQi41laeAxB1vxi+zScBuA0BGYASDNFBuBzPtkGIGsmGA4gBWRpRjcEGyYqPYAUvXhyA4zRExNRtsM0r1gyi/QUSLFmkEaSNcMMIDnTAAEAIxvq60eQ4T4AAAAASUVORK5CYII=" alt=""> Carne</td><td>40</td><td>2 giorni</td><td>15–60%</td></tr><tr><td><img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAdklEQVR4nGNgoAV48eTGf2LEaGfIwLuALCAvpfKfFIyheWmA/v8Tmfb/Py2wArOjpjjAxUA0SBxZDMUQEAemEKYIpAEmBqKRxUE0VldUhZgQhTE0IxtwbW0eXs3BFvLYDSDGFXg1IxsCUogNE9RMKEqJ0kx3AAApgcAK+0cSPAAAAABJRU5ErkJggg==" alt=""> Pasto</td><td>100</td><td>3 giorni</td><td>–</td></tr><tr><td><img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAgElEQVR4nGNgIAG8OOz1nzxJqDwMkyZJLRcMASAvpfKfFIyheWmA/v8Tmfb/Py2wArOjpjjAxUA0SBxZDMUQEAemEKYIpAEmBqKRxUE0VldUhZiAMXK0ImOYPIZmZAOurc2DK8SGgy3ksRuA7gqSNSMbAlKIDRPUTChKidJMdwAAOTzGLCkVlccAAAAASUVORK5CYII=" alt=""> Pasto squisito</td><td>100</td><td>3 giorni</td><td>–</td></tr></table>
 <ul>
-<li>Lasts: on the ground outdoors; in a warehouse twice as long. Then the pile rots away. Piles that mix take the average freshness. Hover a pile: Fresh, Stale or Almost rotten, and the days left.</li>
-<li>Raw food may leave you Poisoned: the lower chance when it's fresh, the higher when it's almost rotten.</li>
-<li>A meal makes you Well fed, a fine meal Feasted (see Conditions).</li>
+<li>Dura: a terra all'aperto; in un magazzino il doppio. Poi il mucchio marcisce e sparisce. I mucchi che si mescolano prendono la freschezza media. Col mouse sopra un mucchio: Fresco, Non più fresco o Quasi marcio, e i giorni che restano.</li>
+<li>Chi mangia crudo può restare Intossicato: la probabilità è minima quando il cibo è fresco, massima quando è quasi marcio.</li>
+<li>Un pasto dà Ben nutrito, un pasto squisito Lauto pasto (vedi Condizioni).</li>
 </ul>
-<h3>Cooking </h3>
+<h3>Cucinare </h3>
 <ul>
-<li>At a campfire inside a kitchen. The cook takes 2 raw foods from one pile (vegetables, fish or meat), cooks for 8 s and carries the meal to a warehouse.</li>
-<li>Click the campfire: Keep N meals (6 at the start). Cooks cook while there are fewer meals than that, counting those on the ground, in warehouses and in hand.</li>
-<li>Burnt, and the food is lost: 6% for every Cooking level below 6, plus 3% for every point of kitchen comfort below 5 (minus above). At level 0 in a kitchen of comfort 5: 36%.</li>
-<li>Fine meal: 5% for every level above 5, plus 2% for every point of comfort above 5 (minus below): 25% at level 10.</li>
-<li>The time also depends on the kitchen's comfort and the cook's conditions.</li>
-</ul></section><section id="gathering"><h2>Gathering</h2><p>Mark what to take with the orders of the bottom bar, dragging a rectangle; marked things carry a faint icon. What is gathered falls at the worker's feet, and when the job is done they carry it to a warehouse.</p>
-<h3>Chop (C) <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZklEQVR4nGNgoBWQl1L5j4xJ1lwVYgLHwRbyxBsC03xtbR4KJtoQZANWVLmC8cAZQJIX0EMdpAEZ440VXKGOjHHGCiEnE/QSoUAjGKhUNYAsL8DCAVuoIwcyPnms0UgomgkmKGIBAEoZKaB0W1aHAAAAAElFTkSuQmCC" alt=""></h3>
-<p>Trees: oak 28 wood, pine 35, birch 20. A stroke every 10 s gives 5.</p>
-<h3>Mine (M) <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAdUlEQVR4nGNgGL5AXkrlPzomSfOFCzfAeNbMZWCcl1NDnEHYNMMMgGGchsA0I2tE10yyAeiavTwi8BtASDNOA9BDHJdmrAagBxzMn9g0YsQEPn+juwrdArz+RnYquiUo8vj8i2wAuuEoYYEt2aIHFEVJGx8AAFXqIWL9vANOAAAAAElFTkSuQmCC" alt=""></h3>
-<p>Boulders of 1x1, 2x1 or 2x2 tiles, 5 stone a tile. A stroke every 15 s gives 5. Iron and coal veins are 1x1 boulders (hover: "Iron vein", "Coal vein") that give 5 iron or 5 coal instead of stone.</p>
-<h3>Uproot (U) </h3>
-<p>Weeds, bushes and flax go in 1.5 s. Clear them before building there.</p>
-<h3>Harvest (H) <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZUlEQVR4nGNgGDJAXkrlPwiTrTlqigMYk2wIsmaLbGPiDQApDLaQR9FIku0wA8jyN0jTs0cX/t/wsgJjsvwN00yxAbO0SPA7LKBwYYKa0f1NUlhg8zdJYYHN3ySHBTb/Eh0G5AIAQxWOQ1zM/RwAAAAASUVORK5CYII=" alt=""> <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAeklEQVR4nGNgoCaQl1L5T4wYTs1VXQ/+I2vAJYZT84vzWXAN+MTwGoLPBdgMRTGkfp0rhgHYxHC6AmYINjY2C3ACmEZ8hpFkAEmaQQDkzBdPbsAx0WkB2YAVS2aBNYNokgzA5XyivIEt0IgOSGxRRogNB7BkSi6fIgAAZmmqztxjJYkAAAAASUVORK5CYII=" alt=""></h3>
-<p>Bushes and flax. A ripe bush has 5 berries (vegetables), flowering flax 5 flax, picked one every 5 s. They grow back in 2 days and the mark stays: they are picked every time. Marking Uproot removes the Harvest mark, and the other way round.</p>
-<h3>Fish (F) <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZElEQVR4nGNgGAVEAXkplf8wjFcBLvELF27AMYY6kEBeTg0YwySxaUQ3BG4QzIBZM5fBDUHWDBIHYXQDUFyDbAghjOEdXC6AeQufYSgGYAsDmDg6xgh0QrGAUyOp6YBkjUMDAACTY9iSpRM+wwAAAABJRU5ErkJggg==" alt=""></h3>
-<p>Mark water tiles. The fisher stands beside them (in shallow water too) and casts every 10 s: a fish 30% of the time, +6% for every Fishing level. A spot has 4 fish, then it's empty for a day; the mark stays.</p>
-<h3>Hunt (T) <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAa0lEQVR4nGNgGNRAXkrlPzImWeMNLysUTJRB2DQi41laeAxB1vxi+zScBuA0BGYASDNFBuBzPtkGIGsmGA4gBWRpRjcEGyYqPYAUvXhyA4zRExNRtsM0r1gyi/QUSLFmkEaSNcMMIDnTAAEAIxvq60eQ4T4AAAAASUVORK5CYII=" alt=""> <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAYklEQVR4nGNgoAaQl1L5D8Jkqwdxrq3NA2OYJC6MrA7DVJgkPryiyhW7a9ENACnEZQjJtuMyDG4QsgH4bMbrFXyuQDeUqDCgyHZivEG084kKRKp6gVBKxJoaSc0L5OqhDQAAsC6AoCGvExQAAAAASUVORK5CYII=" alt=""></h3>
+<li>A un fuoco da campo dentro una cucina. Il cuoco prende 2 crudi da un mucchio (vegetali, pesce o carne), cucina per 8 s e porta il pasto in un magazzino.</li>
+<li>Clicca il fuoco da campo: Tieni N pasti (6 all'inizio). I cuochi cucinano finché ci sono meno pasti di così, contando quelli a terra, nei magazzini e in mano.</li>
+<li>Bruciato, e il cibo è perso: 6% per ogni livello di Cucinare sotto il 6, più 3% per ogni punto di comfort della cucina sotto 5 (meno, sopra). A livello 0 in una cucina con comfort 5: 36%.</li>
+<li>Pasto squisito: 5% per ogni livello sopra il 5, più 2% per ogni punto di comfort sopra 5 (meno, sotto): 25% a livello 10.</li>
+<li>Il tempo dipende anche dal comfort della cucina e dalle condizioni del cuoco.</li>
+</ul></section><section id="raccolta"><h2>Raccolta</h2><p>Segna cosa prendere con gli ordini della barra in basso, trascinando un rettangolo; le cose segnate portano un'icona tenue. Quello che si raccoglie cade ai piedi del lavoratore, che a lavoro finito lo porta in un magazzino.</p>
+<h3>Taglia (C) <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZklEQVR4nGNgoBWQl1L5j4xJ1lwVYgLHwRbyxBsC03xtbR4KJtoQZANWVLmC8cAZQJIX0EMdpAEZ440VXKGOjHHGCiEnE/QSoUAjGKhUNYAsL8DCAVuoIwcyPnms0UgomgkmKGIBAEoZKaB0W1aHAAAAAElFTkSuQmCC" alt=""></h3>
+<p>Alberi: quercia 28 legna, pino 35, betulla 20. Un colpo ogni 10 s ne dà 5.</p>
+<h3>Scava (M) <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAdUlEQVR4nGNgGL5AXkrlPzomSfOFCzfAeNbMZWCcl1NDnEHYNMMMgGGchsA0I2tE10yyAeiavTwi8BtASDNOA9BDHJdmrAagBxzMn9g0YsQEPn+juwrdArz+RnYquiUo8vj8i2wAuuEoYYEt2aIHFEVJGx8AAFXqIWL9vANOAAAAAElFTkSuQmCC" alt=""></h3>
+<p>Massi di 1x1, 2x1 o 2x2 caselle, 5 pietra a casella. Un colpo ogni 15 s ne dà 5. Le vene di ferro e di carbone sono massi 1x1 (col mouse sopra: "Vena di ferro", "Vena di carbone") che danno 5 ferro o 5 carbone al posto della pietra.</p>
+<h3>Estirpa (U) </h3>
+<p>Erbacce, cespugli e lino se ne vanno in 1,5 s. Toglili prima di costruirci sopra.</p>
+<h3>Raccogli (H) <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZUlEQVR4nGNgGDJAXkrlPwiTrTlqigMYk2wIsmaLbGPiDQApDLaQR9FIku0wA8jyN0jTs0cX/t/wsgJjsvwN00yxAbO0SPA7LKBwYYKa0f1NUlhg8zdJYYHN3ySHBTb/Eh0G5AIAQxWOQ1zM/RwAAAAASUVORK5CYII=" alt=""> <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAeklEQVR4nGNgoCaQl1L5T4wYTs1VXQ/+I2vAJYZT84vzWXAN+MTwGoLPBdgMRTGkfp0rhgHYxHC6AmYINjY2C3ACmEZ8hpFkAEmaQQDkzBdPbsAx0WkB2YAVS2aBNYNokgzA5XyivIEt0IgOSGxRRogNB7BkSi6fIgAAZmmqztxjJYkAAAAASUVORK5CYII=" alt=""></h3>
+<p>Cespugli e lino. Un cespuglio maturo ha 5 bacche (vegetali), il lino in fiore 5 lino, colti uno ogni 5 s. Ricrescono in 2 giorni e il segno resta: si raccolgono ogni volta. Segnare Estirpa toglie il segno di Raccogli, e viceversa.</p>
+<h3>Pesca (F) <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZElEQVR4nGNgGAVEAXkplf8wjFcBLvELF27AMYY6kEBeTg0YwySxaUQ3BG4QzIBZM5fBDUHWDBIHYXQDUFyDbAghjOEdXC6AeQufYSgGYAsDmDg6xgh0QrGAUyOp6YBkjUMDAACTY9iSpRM+wwAAAABJRU5ErkJggg==" alt=""></h3>
+<p>Segna caselle d'acqua. Il pescatore si mette accanto (anche nell'acqua bassa) e lancia ogni 10 s: un pesce il 30% delle volte, +6% per ogni livello di Pescare. Un punto di pesca ha 4 pesci, poi è vuoto per un giorno; il segno resta.</p>
+<h3>Caccia (T) <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAa0lEQVR4nGNgGNRAXkrlPzImWeMNLysUTJRB2DQi41laeAxB1vxi+zScBuA0BGYASDNFBuBzPtkGIGsmGA4gBWRpRjcEGyYqPYAUvXhyA4zRExNRtsM0r1gyi/QUSLFmkEaSNcMMIDnTAAEAIxvq60eQ4T4AAAAASUVORK5CYII=" alt=""> <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAYklEQVR4nGNgoAaQl1L5D8Jkqwdxrq3NA2OYJC6MrA7DVJgkPryiyhW7a9ENACnEZQjJtuMyDG4QsgH4bMbrFXyuQDeUqDCgyHZivEG084kKRKp6gVBKxJoaSc0L5OqhDQAAsC6AoCGvExQAAAAASUVORK5CYII=" alt=""></h3>
 <ul>
-<li>Drag over animals to mark them. Hunting needs a bow: a hunter without one fetches a free bow and puts down what they held. If there is none, a bow gets made, once you can make them (Jobs says "needs a bow").</li>
-<li>The hunter shoots from up to 8 tiles, aiming 4 s a shot. To hit: 30%, +5% a level, -5% for every tile of distance; then +10% for the bow and +5% for a leather hood.</li>
-<li>An arrow does 14 damage. Hit or missed, the animal runs 8 tiles away at double speed, and the hunter follows. Killed, it leaves meat and hide.</li>
+<li>Trascina sopra gli animali per segnarli. Per cacciare serve un arco: un cacciatore che non ce l'ha va a prendere un arco libero e posa quello che aveva in mano. Se non ce n'è nessuno, se ne fa uno, appena si possono fare (Lavori dice "serve un arco").</li>
+<li>Il cacciatore tira da non più di 8 caselle, mirando 4 s a tiro. A segno: 30%, +5% a livello, -5% per ogni casella di distanza; poi +10% per l'arco e +5% per un cappuccio di cuoio.</li>
+<li>Una freccia fa 14 danni. Colpito o mancato, l'animale scappa di 8 caselle a velocità doppia, e il cacciatore lo segue. Abbattuto, lascia carne e pelle.</li>
 </ul>
-<table><tr><td><span style="color:#d9c48a">Animal</span></td><td><span style="color:#d9c48a">Health</span></td><td><span style="color:#d9c48a">Meat, hide</span></td><td><span style="color:#d9c48a">Speed</span></td></tr><tr><td>Rabbit</td><td>10</td><td>3, 1</td><td>2 tiles/s</td></tr><tr><td>Deer</td><td>20</td><td>10, 3</td><td>1.5 tiles/s</td></tr><tr><td>Wolf</td><td>30</td><td>5, 2</td><td>3 tiles/s</td></tr></table>
-<p>Animals roam outside rooms and water, born more than 15 tiles from the clearing: 6 rabbits and 3 deer at first, then a new one every half day while there are fewer than 12. A marked wolf, shot at, attacks the hunter.</p></section><section id="crafting-equipment"><h2>Crafting &amp; Equipment</h2><h3>Workstations </h3>
-<p>Click a station for its menu: one row for every recipe you know, with its ingredients and Keep N. Things get made while there are fewer than N around (on the ground, in warehouses, in hand, being made); Keep counts for every station of the kind. Equipment is also made for the colonists with an empty slot, and a bow when animals are marked and nobody has one. At the start: Keep 10 ingots, 2 bowstrings, 6 meals, 0 of the rest.</p>
-<p>The crafter brings the ingredients one by one, then works. The time depends on skill, room comfort and conditions; an item may be ruined, losing the ingredients, as often as a meal burns.</p>
-<table><tr><td><span style="color:#d9c48a">Item</span></td><td><span style="color:#d9c48a">Station</span></td><td><span style="color:#d9c48a">Needs</span></td><td><span style="color:#d9c48a">Time</span></td></tr><tr><td>Ingot</td><td>furnace</td><td>1 iron, 1 coal</td><td>6 s</td></tr><tr><td>Bowstring</td><td>spinning wheel</td><td>2 flax</td><td>8 s</td></tr><tr><td>Leather armor</td><td>workbench</td><td>4 hide</td><td>20 s</td></tr><tr><td>Leather hood</td><td>workbench</td><td>2 hide</td><td>12 s</td></tr><tr><td>Bow</td><td>carpenter bench</td><td>3 wood, 1 bowstring</td><td>15 s</td></tr><tr><td>Pickaxe</td><td>anvil</td><td>2 ingots, 2 wood</td><td>15 s</td></tr><tr><td>Axe</td><td>anvil</td><td>2 ingots, 2 wood</td><td>15 s</td></tr><tr><td>Sickle</td><td>anvil</td><td>1 ingot, 1 wood</td><td>10 s</td></tr><tr><td>Helmet</td><td>anvil</td><td>3 ingots</td><td>20 s</td></tr><tr><td>Chainmail</td><td>anvil</td><td>6 ingots</td><td>30 s</td></tr><tr><td>Sword</td><td>anvil</td><td>3 ingots, 1 wood</td><td>20 s</td></tr></table>
-<p>Skill: Smithing at furnace and anvil, Tailoring at spinning wheel and workbench, Ranged at the carpenter bench.</p>
-<h3>Equipment </h3>
-<p>Three slots: hands, body, head. A colonist with an empty slot fetches a piece by themselves, before any other job. In their hands they want the tool of their best skill among Mining, Woodcutting, Gathering, Hunting and Melee. Nobody trades a piece for a better one; only a hunter swaps for a bow.</p>
-<table><tr><td><span style="color:#d9c48a">Piece</span></td><td><span style="color:#d9c48a">Slot</span></td><td><span style="color:#d9c48a">Armor</span></td><td><span style="color:#d9c48a">Effect</span></td></tr><tr><td>Pickaxe</td><td>hands</td><td>–</td><td>mining 25% faster</td></tr><tr><td>Axe</td><td>hands</td><td>–</td><td>chopping 25% faster</td></tr><tr><td>Sickle</td><td>hands</td><td>–</td><td>picking, uprooting 25% faster</td></tr><tr><td>Bow</td><td>hands</td><td>–</td><td>to hunt; shoots in a fight</td></tr><tr><td>Sword</td><td>hands</td><td>–</td><td>melee damage 15</td></tr><tr><td>Leather armor</td><td>body</td><td>2</td><td>-25% stress outdoors</td></tr><tr><td>Chainmail</td><td>body</td><td>5</td><td>all work 10% slower</td></tr><tr><td>Leather hood</td><td>head</td><td>1</td><td>+5% to hit with a bow</td></tr><tr><td>Helmet</td><td>head</td><td>3</td><td>mining 10% faster</td></tr></table>
-<p>Tools hit too: pickaxe 10, axe 12, sickle 8, bare hands 5. Armor: see Combat &amp; Wolves.</p></section><section id="combat-wolves"><h2>Combat &amp; Wolves</h2><h3>Wolves </h3>
+<table><tr><td><span style="color:#d9c48a">Animale</span></td><td><span style="color:#d9c48a">Salute</span></td><td><span style="color:#d9c48a">Carne, pelle</span></td><td><span style="color:#d9c48a">Velocità</span></td></tr><tr><td>Coniglio</td><td>10</td><td>3, 1</td><td>2 caselle/s</td></tr><tr><td>Cervo</td><td>20</td><td>10, 3</td><td>1,5 caselle/s</td></tr><tr><td>Lupo</td><td>30</td><td>5, 2</td><td>3 caselle/s</td></tr></table>
+<p>Gli animali girano fuori dalle stanze e dall'acqua e nascono a più di 15 caselle dalla radura: all'inizio 6 conigli e 3 cervi, poi uno nuovo ogni mezza giornata finché sono meno di 12. Un lupo segnato, se gli si tira, attacca il cacciatore.</p></section><section id="lavorazioni-ed-equipaggiamento"><h2>Lavorazioni ed equipaggiamento</h2><h3>Postazioni </h3>
+<p>Clicca una postazione per il suo menu: una riga per ogni ricetta che conosci, coi suoi ingredienti e Tieni N. Si fa finché in giro ce ne sono meno di N (a terra, nei magazzini, in mano, in lavorazione); la Scorta vale per tutte le postazioni dello stesso tipo. L'equipaggiamento si fa anche per i coloni con uno slot vuoto, e un arco quando ci sono animali segnati e nessuno ne ha uno. All'inizio: Scorta 10 lingotti, 2 corde d'arco, 6 pasti, 0 per il resto.</p>
+<p>L'artigiano porta gli ingredienti uno alla volta, poi lavora. Il tempo dipende da abilità, comfort della stanza e condizioni; un oggetto può rovinarsi, e gli ingredienti vanno persi, tanto spesso quanto brucia un pasto.</p>
+<table><tr><td><span style="color:#d9c48a">Oggetto</span></td><td><span style="color:#d9c48a">Postazione</span></td><td><span style="color:#d9c48a">Ingredienti</span></td><td><span style="color:#d9c48a">Tempo</span></td></tr><tr><td>Lingotto</td><td>fornace</td><td>1 ferro, 1 carbone</td><td>6 s</td></tr><tr><td>Corda d'arco</td><td>filatoio</td><td>2 lino</td><td>8 s</td></tr><tr><td>Armatura di cuoio</td><td>banco da lavoro</td><td>4 pelli</td><td>20 s</td></tr><tr><td>Cappuccio di cuoio</td><td>banco da lavoro</td><td>2 pelli</td><td>12 s</td></tr><tr><td>Arco</td><td>banco del falegname</td><td>3 legna, 1 corda d'arco</td><td>15 s</td></tr><tr><td>Piccone</td><td>incudine</td><td>2 lingotti, 2 legna</td><td>15 s</td></tr><tr><td>Ascia</td><td>incudine</td><td>2 lingotti, 2 legna</td><td>15 s</td></tr><tr><td>Falcetto</td><td>incudine</td><td>1 lingotto, 1 legna</td><td>10 s</td></tr><tr><td>Elmo</td><td>incudine</td><td>3 lingotti</td><td>20 s</td></tr><tr><td>Cotta di maglia</td><td>incudine</td><td>6 lingotti</td><td>30 s</td></tr><tr><td>Spada</td><td>incudine</td><td>3 lingotti, 1 legna</td><td>20 s</td></tr></table>
+<p>Abilità: Forgiare a fornace e incudine, Cucire a filatoio e banco da lavoro, Tiro al banco del falegname.</p>
+<h3>Equipaggiamento </h3>
+<p>Tre slot: mani, corpo, testa. Un colono con uno slot vuoto va da sé a prendere un pezzo, prima di ogni altro lavoro. In mano vuole l'attrezzo della sua abilità migliore tra Estrarre, Tagliare legna, Raccogliere, Cacciare e Mischia. Nessuno cambia un pezzo con uno migliore; solo chi caccia lo cambia con un arco.</p>
+<table><tr><td><span style="color:#d9c48a">Pezzo</span></td><td><span style="color:#d9c48a">Slot</span></td><td><span style="color:#d9c48a">Protezione</span></td><td><span style="color:#d9c48a">Effetto</span></td></tr><tr><td>Piccone</td><td>mani</td><td>–</td><td>scavo 25% più rapido</td></tr><tr><td>Ascia</td><td>mani</td><td>–</td><td>taglio 25% più rapido</td></tr><tr><td>Falcetto</td><td>mani</td><td>–</td><td>raccolta ed estirpazione 25% più rapide</td></tr><tr><td>Arco</td><td>mani</td><td>–</td><td>per cacciare; tira in combattimento</td></tr><tr><td>Spada</td><td>mani</td><td>–</td><td>danno in mischia 15</td></tr><tr><td>Armatura di cuoio</td><td>corpo</td><td>2</td><td>-25% stress all'aperto</td></tr><tr><td>Cotta di maglia</td><td>corpo</td><td>5</td><td>ogni lavoro 10% più lento</td></tr><tr><td>Cappuccio di cuoio</td><td>testa</td><td>1</td><td>+5% a segno con l'arco</td></tr><tr><td>Elmo</td><td>testa</td><td>3</td><td>scavo 10% più rapido</td></tr></table>
+<p>Anche gli attrezzi colpiscono: piccone 10, ascia 12, falcetto 8, mani nude 5. Protezione: vedi Combattimento e lupi.</p></section><section id="combattimento-e-lupi"><h2>Combattimento e lupi</h2><h3>Lupi </h3>
 <ul>
-<li>The first pack comes on day 5, then one every 3 days: 2–3 wolves from a map edge. They smell the colony from 70 tiles away. The top bar shows WOLVES while they are around.</li>
-<li>They chase the nearest colonist or adventurer standing outside the rooms: walls protect, wolves never come in. With nobody standing outside, they go for whoever lies downed outdoors.</li>
-<li>A bite every 1.5 s does 8 damage and lands 70% of the time, -3% for every Melee level of the victim. Every bite also gives +5 stress.</li>
-<li>A pack with nobody to chase leaves after a day.</li>
+<li>Il primo branco arriva il giorno 5, poi uno ogni 3 giorni: 2–3 lupi da un bordo della mappa. Fiutano la colonia da 70 caselle di distanza. La barra in alto mostra LUPI finché sono in giro.</li>
+<li>Inseguono il colono o l'avventuriero in piedi più vicino che sta fuori dalle stanze: i muri proteggono, i lupi non entrano mai. Se fuori non c'è nessuno in piedi, se la prendono con chi è a terra all'aperto.</li>
+<li>Un morso ogni 1,5 s fa 8 danni e va a segno il 70% delle volte, -3% per ogni livello di Mischia della vittima. Ogni morso dà anche +5 stress.</li>
+<li>Un branco senza nessuno da inseguire se ne va dopo un giorno.</li>
 </ul>
-<h3>Fighting back </h3>
+<h3>Difendersi </h3>
 <ul>
-<li>A colonist with a wolf within 12 tiles drops everything and fights the nearest one. Under 40 health they run instead to the nearest room they can enter and wait there; with no room in reach, they fight.</li>
-<li>Melee: a blow every 1.5 s, landing 50% of the time, +5% for every Melee level above 5 (less below). The damage is that of what they hold: sword 15, axe 12, pickaxe 10, dagger 10, sickle 8, bare hands 5.</li>
-<li>Bow: a shot every 2 s from up to 8 tiles, aimed like a hunter's but with Ranged only; 14 damage. Hit or missed, the wolf turns on the shooter.</li>
-<li>Armor: -6% damage for every point, at most -80%. Chainmail and helmet (8 points) take off 48%.</li>
-<li>A dead wolf leaves 5 meat and 2 hide.</li>
+<li>Un colono con un lupo entro 12 caselle lascia tutto e combatte contro il più vicino. Sotto 40 punti ferita invece corre nella stanza più vicina dove può entrare e lì aspetta; se non ce n'è una a portata, combatte.</li>
+<li>Mischia: un colpo ogni 1,5 s, a segno il 50% delle volte, +5% per ogni livello di Mischia sopra il 5 (meno, sotto). Il danno è quello di ciò che ha in mano: spada 15, ascia 12, piccone 10, pugnale 10, falcetto 8, mani nude 5.</li>
+<li>Arco: un tiro ogni 2 s da non più di 8 caselle, mirato come quello di un cacciatore, ma solo con Tiro; 14 danni. Colpito o mancato, il lupo si rivolta contro chi ha tirato.</li>
+<li>Protezione: -6% di danno per ogni punto, al massimo -80%. Cotta di maglia ed elmo (8 punti) tolgono il 48%.</li>
+<li>Un lupo morto lascia 5 carne e 2 pelli.</li>
 </ul>
-<h3>Downed and dead </h3>
+<h3>A terra e morti </h3>
 <ul>
-<li>At 0 health a colonist falls. The bite that downs them kills 25% of the time, -3% for every point of armor (at least 5%).</li>
-<li>Downed, they heal 40 a day and stand up at 30. A wolf that finds them outdoors, with nobody else standing, kills them with the first bite.</li>
-<li>The dead drop their gear; the body stays a day. The other colonists mourn for 3 days (Mourning). If every colonist dies, the colony has fallen.</li>
-</ul></section><section id="splendor"><h2>Splendor</h2><p>Splendor is the sum of every finished decoration on the map, inside rooms or out, plus 5 for every famous adventurer around. The total is in the top bar.</p>
-<p>For now it does two things:</p>
+<li>A 0 punti ferita un colono cade. Il morso che lo manda a terra uccide il 25% delle volte, -3% per ogni punto di protezione (almeno il 5%).</li>
+<li>A terra guarisce 40 al giorno e si rialza a 30. Un lupo che lo trova all'aperto, senza nessun altro in piedi, lo uccide al primo morso.</li>
+<li>I morti lasciano cadere il loro equipaggiamento; il corpo resta per un giorno. Gli altri coloni portano il lutto per 3 giorni (Lutto). Se muoiono tutti i coloni, la colonia è caduta.</li>
+</ul></section><section id="splendore"><h2>Splendore</h2><p>Lo splendore è la somma di tutte le decorazioni finite sulla mappa, dentro o fuori dalle stanze, più 5 per ogni avventuriero famoso presente. Il totale è nella barra in alto.</p>
+<p>Per ora fa due cose:</p>
 <ul>
-<li>Adventurers arrive stronger: level 1, +1 for every 10 splendor, ±1 at random (from 1 to 5).</li>
-<li>+1 authority a day for every 20 splendor.</li>
+<li>Gli avventurieri arrivano più forti: livello 1, +1 ogni 10 di splendore, ±1 a caso (da 1 a 5).</li>
+<li>+1 autorità al giorno ogni 20 di splendore.</li>
 </ul>
-<table><tr><td><span style="color:#d9c48a">Decoration</span></td><td><span style="color:#d9c48a">Splendor</span></td><td><span style="color:#d9c48a">Cost</span></td><td><span style="color:#d9c48a">Research</span></td></tr><tr><td>Flower bed</td><td>1</td><td>3 wood</td><td>Decor</td></tr><tr><td>Planter</td><td>1</td><td>5 stone</td><td>Decor</td></tr><tr><td>Bench</td><td>1</td><td>6 wood</td><td>Decor</td></tr><tr><td>Lantern</td><td>1</td><td>4 wood</td><td>Lanterns</td></tr><tr><td>Banner</td><td>2</td><td>4 wood</td><td>–</td></tr><tr><td>Fountain</td><td>6</td><td>30 stone</td><td>Fountain</td></tr><tr><td>Statue</td><td>8</td><td>40 stone</td><td>Statuary</td></tr><tr><td>Chalice</td><td>3</td><td>the relic</td><td>–</td></tr><tr><td>Old banner</td><td>4</td><td>the relic</td><td>–</td></tr><tr><td>Bust</td><td>5</td><td>the relic</td><td>–</td></tr><tr><td>Crown</td><td>6</td><td>the relic</td><td>–</td></tr></table>
+<table><tr><td><span style="color:#d9c48a">Decorazione</span></td><td><span style="color:#d9c48a">Splendore</span></td><td><span style="color:#d9c48a">Costo</span></td><td><span style="color:#d9c48a">Ricerca</span></td></tr><tr><td>Aiuola</td><td>1</td><td>3 legna</td><td>Decorazioni</td></tr><tr><td>Fioriera</td><td>1</td><td>5 pietra</td><td>Decorazioni</td></tr><tr><td>Panca</td><td>1</td><td>6 legna</td><td>Decorazioni</td></tr><tr><td>Lampione</td><td>1</td><td>4 legna</td><td>Lanterne</td></tr><tr><td>Stendardo</td><td>2</td><td>4 legna</td><td>–</td></tr><tr><td>Fontana</td><td>6</td><td>30 pietra</td><td>Fontana</td></tr><tr><td>Statua</td><td>8</td><td>40 pietra</td><td>Statuaria</td></tr><tr><td>Calice</td><td>3</td><td>il cimelio</td><td>–</td></tr><tr><td>Stendardo antico</td><td>4</td><td>il cimelio</td><td>–</td></tr><tr><td>Busto</td><td>5</td><td>il cimelio</td><td>–</td></tr><tr><td>Corona</td><td>6</td><td>il cimelio</td><td>–</td></tr></table>
 <ul>
-<li>The bench (2x1) also gives +0.5 room comfort. The lantern lights the roads at night. The banner flies the arms of your house. Fountain and statue take 2x2 tiles.</li>
-<li>Relics are found only by adventurers, in ruins. They come home as items: build them from the furniture bar, one relic for each piece.</li>
-</ul></section><section id="adventurers"><h2>Adventurers</h2><h3>The inn </h3>
+<li>La panca (2x1) dà anche +0,5 di comfort alla stanza. Il lampione illumina le strade di notte. Lo stendardo sventola lo stemma della tua casata. Fontana e statua occupano 2x2 caselle.</li>
+<li>I cimeli li trovano solo gli avventurieri, nelle rovine. Arrivano a casa come oggetti: costruiscili dalla barra dei mobili, un cimelio per ogni pezzo.</li>
+</ul></section><section id="avventurieri"><h2>Avventurieri</h2><h3>La locanda </h3>
 <ul>
-<li>The Inn research unlocks the notice board. A room with a bed, a table and a notice board can become an inn.</li>
-<li>Every inn bed lets one adventurer stay. Inn beds are theirs only, and they sleep nowhere else: with no inn bed free, on the ground.</li>
+<li>La ricerca Locanda sblocca la bacheca. Una stanza con un letto, un tavolo e una bacheca può diventare una locanda.</li>
+<li>Ogni letto della locanda ospita un avventuriero. I letti della locanda sono solo loro, e loro non dormono altrove: senza un letto libero alla locanda, per terra.</li>
 </ul>
-<h3>Arrivals </h3>
+<h3>Arrivi </h3>
 <ul>
-<li>About every 2 days (±½) one comes in from the map edge, if an inn bed is free (the beds of those away count as taken).</li>
-<li>Level: 1, +1 for every 10 splendor, ±1 at random, from 1 to 5.</li>
-<li>They wait 3 days to be hired, then leave. Back from an expedition they rest 2 days, and can be hired again.</li>
-<li>They don't work: they eat your food, relax, and fight wolves like colonists (they can die). Click one for their sheet: class, level, fee, expeditions.</li>
+<li>Ogni 2 giorni circa (±½) ne arriva uno dal bordo della mappa, se c'è un letto libero alla locanda (i letti di chi è via contano come occupati).</li>
+<li>Livello: 1, +1 ogni 10 di splendore, ±1 a caso, da 1 a 5.</li>
+<li>Aspettano 3 giorni che qualcuno li ingaggi, poi se ne vanno. Tornati da una spedizione riposano 2 giorni, e si possono ingaggiare di nuovo.</li>
+<li>Non lavorano: mangiano il tuo cibo, si svagano e combattono i lupi come i coloni (possono morire). Clicca su uno di loro per la sua scheda: classe, livello, paga, spedizioni.</li>
 </ul>
-<h3>Classes </h3>
+<h3>Classi </h3>
 <ul>
-<li>Warrior: Melee 2 a level. Sword, shield (+3 armor), leather armor (chainmail from level 3), helmet. In ruins takes a double share of the wounds.</li>
-<li>Archer: Ranged 2 a level. Bow, quiver, leather armor and hood. Shoots first: the whole party takes 25% fewer wounds; takes half a share.</li>
-<li>Burglar: Lockpicking 2 a level, Melee 1 a level. Dagger, mask, sack, leather armor and hood. Disarms traps and opens locked chests; the sack brings home 50% more.</li>
+<li>Guerriero: Mischia 2 a livello. Spada, scudo (+3 protezione), armatura di cuoio (cotta di maglia dal livello 3), elmo. Nelle rovine prende una parte doppia delle ferite.</li>
+<li>Arciere: Tiro 2 a livello. Arco, faretra, armatura e cappuccio di cuoio. Tira per primo: tutto il gruppo prende il 25% di ferite in meno; lui ne prende mezza parte.</li>
+<li>Scassinatore: Scassinare 2 a livello, Mischia 1 a livello. Pugnale, maschera, sacca, armatura e cappuccio di cuoio. Disinnesca le trappole e apre i forzieri chiusi; con la sacca porta a casa il 50% in più.</li>
 </ul>
-<h3>Pay <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAW0lEQVR4nGNgQAPyUir/8WF09RiAbANgCl4c9gLj/88WoGCYOE6DyDYAl0YYH4ZXVOmhYLhBVDMAXSO6BnRx6huA7oWBMwBdIcmxQLIB6OkBXSFBjVQzYMByIwCmbstkokgC9AAAAABJRU5ErkJggg==" alt=""></h3>
-<p>Hiring costs 10 coins, +5 a level (15–35), paid from your warehouses when you send them. Back home they keep 30% of the coins they found. +1 level every 2 expeditions back, up to 5.</p>
-<h3>Their traits </h3>
-<p>One each, and 3 times in 10 also a colonist trait.</p>
-<table><tr><td>Greedy</td><td>asks 25% more</td></tr><tr><td>Loyal</td><td>keeps no share of the coins</td></tr><tr><td>Reckless</td><td>party turns back for them under 20</td></tr><tr><td>Coward</td><td>party turns back when under 60</td></tr><tr><td>Lucky</td><td>one more item in every chest</td></tr><tr><td>Cartographer</td><td>finds maps 3 times as often</td></tr><tr><td>Jinxed</td><td>every trap hits them; asks 25% less</td></tr><tr><td>Berserker</td><td>weapon counts double; +50% wounds</td></tr><tr><td>Stout</td><td>a third fewer wounds</td></tr><tr><td>Stealthy</td><td>slips past monsters 1 time in 4</td></tr><tr><td>Medic</td><td>+6 health to all after each room</td></tr><tr><td>Forager</td><td>the party eats a third less</td></tr><tr><td>Pathfinder</td><td>the journey takes half the time</td></tr><tr><td>Keen-eyed</td><td>+30% to disarm traps</td></tr><tr><td>Scholar</td><td>a level every trip; books twice as often</td></tr><tr><td>Famous</td><td>+5 splendor while on the map</td></tr></table>
-<p>With a medic standing, whoever falls is carried home. Stealth doesn't work on the guardian of the treasure.</p></section><section id="ruins-expeditions"><h2>Ruins &amp; Expeditions</h2><h3>The notice board </h3>
-<p>Click it: the coins and provisions in store, who waits at the inn (Pick up to 4), the ruins you know, the expeditions away and the last page of the chronicle. Every ruin has its Send button, with the fees and provisions it takes; hover it for the days of the trip.</p>
-<h3>Expeditions </h3>
+<h3>Paga <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAW0lEQVR4nGNgQAPyUir/8WF09RiAbANgCl4c9gLj/88WoGCYOE6DyDYAl0YYH4ZXVOmhYLhBVDMAXSO6BnRx6huA7oWBMwBdIcmxQLIB6OkBXSFBjVQzYMByIwCmbstkokgC9AAAAABJRU5ErkJggg==" alt=""></h3>
+<p>Ingaggiarli costa 10 monete, +5 a livello (15–35), pagate dai tuoi magazzini quando li mandi. Tornati a casa tengono il 30% delle monete trovate. +1 livello ogni 2 spedizioni tornate, fino a 5.</p>
+<h3>I loro talenti </h3>
+<p>Uno a testa, e 3 volte su 10 anche un talento dei coloni.</p>
+<table><tr><td>Avido</td><td>chiede il 25% in più</td></tr><tr><td>Leale</td><td>non tiene la quota delle monete</td></tr><tr><td>Temerario</td><td>il gruppo torna indietro per lui sotto 20</td></tr><tr><td>Codardo</td><td>il gruppo torna indietro quando lui è sotto 60</td></tr><tr><td>Fortunato</td><td>un oggetto in più in ogni forziere</td></tr><tr><td>Cartografo</td><td>trova mappe 3 volte più spesso</td></tr><tr><td>Iettato</td><td>ogni trappola colpisce lui; chiede il 25% in meno</td></tr><tr><td>Berserker</td><td>l'arma conta doppio; +50% di ferite</td></tr><tr><td>Robusto</td><td>un terzo di ferite in meno</td></tr><tr><td>Furtivo</td><td>evita i mostri 1 volta su 4</td></tr><tr><td>Medico</td><td>+6 punti ferita a tutti dopo ogni stanza</td></tr><tr><td>Raccoglitore</td><td>il gruppo mangia un terzo in meno</td></tr><tr><td>Guida</td><td>il viaggio dura la metà</td></tr><tr><td>Occhio di lince</td><td>+30% a disinnescare le trappole</td></tr><tr><td>Studioso</td><td>un livello a ogni viaggio; libri il doppio delle volte</td></tr><tr><td>Famoso</td><td>+5 splendore finché è sulla mappa</td></tr></table>
+<p>Con un medico in piedi, chi cade viene riportato a casa. La furtività non funziona col guardiano del tesoro.</p></section><section id="rovine-e-spedizioni"><h2>Rovine e spedizioni</h2><h3>La bacheca </h3>
+<p>Cliccala: le monete e le provviste in magazzino, chi aspetta alla locanda (Scegli, fino a 4), le rovine che conosci, le spedizioni in corso e l'ultima pagina della cronaca. Ogni rovina ha il suo pulsante Manda, con le paghe e le provviste che servono; col mouse sopra, i giorni del viaggio.</p>
+<h3>Spedizioni </h3>
 <ul>
-<li>Provisions: one a head for every day of the trip (there, ½ day for every room left, back), first from the crown's granary, then from warehouses, meals before raw food. Short of them, the party leaves anyway and goes hungry: -20 health a day each.</li>
-<li>They walk to the map edge and leave together; the top bar shows EXPEDITION. You read how it went in their diary when they're back (and in the Chronicle, with hirings and deaths).</li>
-<li>In the ruin, a room every ½ day: empty (25%), a trap (20%), monsters (35%), a chest (15%) or a collapse (5%: they turn back).</li>
-<li>Monsters: strength 5 for every point of danger. The weaker the party (weapon skill plus armor of each), the deeper the wounds; then each one's armor softens them.</li>
-<li>Traps: the best lockpicker disarms one 20% of the time, +8% a level; if not, someone takes 15 damage for every point of danger.</li>
-<li>Chests: coins and one of the ruin's items, or 35% of the time a book. Half are locked, and open only for Lockpicking of at least 2 for every point of danger.</li>
-<li>The last room is the treasure, with its guardian (double strength): three times the coins, its books and the map of the next ruin. If it stays locked, that room is left for next time.</li>
-<li>They turn back when someone drops under 40 health, when the provisions won't cover another room and the way home, or after a collapse.</li>
-<li>At 0 health one dies half the time; otherwise the others carry them home with 5 health (alone, they die). If all fall the expedition is lost: you'll know at twice the time it should have taken.</li>
-<li>Home again, they go to the inn and leave the loot there for your haulers, minus their share of the coins.</li>
-<li>Cleared rooms stay cleared: the next party starts from there. A ruin with no rooms left is explored.</li>
+<li>Provviste: una a testa per ogni giorno del viaggio (andata, ½ giorno per ogni stanza che resta, ritorno), prima dal granaio della corona, poi dai magazzini, i pasti prima del crudo. Se non bastano, il gruppo parte lo stesso e patisce la fame: -20 punti ferita al giorno a testa.</li>
+<li>Vanno a piedi fino al bordo della mappa ed escono insieme; la barra in alto mostra SPEDIZIONI. Com'è andata lo leggi nel loro diario quando tornano (e nella Cronaca, con ingaggi e morti).</li>
+<li>Nella rovina, una stanza ogni ½ giorno: vuota (25%), una trappola (20%), mostri (35%), un forziere (15%) o un crollo (5%: tornano indietro).</li>
+<li>Mostri: forza 5 per ogni punto di pericolo. Più il gruppo è debole (abilità d'arma più protezione di ognuno), più le ferite sono profonde; poi la protezione di ognuno le attenua.</li>
+<li>Trappole: il migliore a scassinare ne disinnesca una il 20% delle volte, +8% a livello; se no, qualcuno prende 15 danni per ogni punto di pericolo.</li>
+<li>Forzieri: monete e uno degli oggetti della rovina o, il 35% delle volte, un libro. Metà sono chiusi a chiave, e si aprono solo con Scassinare almeno 2 per ogni punto di pericolo.</li>
+<li>L'ultima stanza è il tesoro, col suo guardiano (forza doppia): il triplo delle monete, i suoi libri e la mappa della rovina successiva. Se resta chiuso, quella stanza resta per la volta dopo.</li>
+<li>Tornano indietro quando qualcuno scende sotto 40 punti ferita, quando le provviste non bastano per un'altra stanza e il ritorno, o dopo un crollo.</li>
+<li>A 0 punti ferita si muore una volta su due; se no gli altri lo riportano a casa con 5 punti ferita (da solo, muore). Se cadono tutti la spedizione è persa: lo saprai quando sarà passato il doppio del tempo previsto.</li>
+<li>Tornati a casa, vanno alla locanda e lì lasciano il bottino ai tuoi trasportatori, tolta la loro quota delle monete.</li>
+<li>Le stanze ripulite restano ripulite: il gruppo dopo riparte da lì. Una rovina senza più stanze è esplorata.</li>
 </ul>
-<h3>Ruins </h3>
-<p>At first you know only the tower. Every treasure holds the map of the next ruin, and any chest may (15%) hold the map of one you don't know yet. Travel is one way.</p>
-<table><tr><td><span style="color:#d9c48a">Ruin</span></td><td><span style="color:#d9c48a">Danger</span></td><td><span style="color:#d9c48a">Rooms</span></td><td><span style="color:#d9c48a">Travel</span></td></tr><tr><td>Ruined tower</td><td>1</td><td>3</td><td>½ day</td></tr><tr><td>Abandoned mine</td><td>2</td><td>5</td><td>1 day</td></tr><tr><td>Crypt</td><td>3</td><td>6</td><td>1 day</td></tr><tr><td>Ruined fort</td><td>4</td><td>8</td><td>2 days</td></tr><tr><td>Buried monastery</td><td>3</td><td>6</td><td>1½ days</td></tr></table>
-<p>Coins in a chest, its item, its book, and the treasure's books:</p>
+<h3>Rovine </h3>
+<p>All'inizio conosci solo la torre. Ogni tesoro contiene la mappa della rovina successiva, e qualunque forziere può (15%) contenere la mappa di una che non conosci ancora. Il viaggio è indicato per la sola andata.</p>
+<table><tr><td><span style="color:#d9c48a">Rovina</span></td><td><span style="color:#d9c48a">Pericolo</span></td><td><span style="color:#d9c48a">Stanze</span></td><td><span style="color:#d9c48a">Viaggio</span></td></tr><tr><td>Torre diroccata</td><td>1</td><td>3</td><td>½ giorno</td></tr><tr><td>Miniera abbandonata</td><td>2</td><td>5</td><td>1 giorno</td></tr><tr><td>Cripta</td><td>3</td><td>6</td><td>1 giorno</td></tr><tr><td>Forte in rovina</td><td>4</td><td>8</td><td>2 giorni</td></tr><tr><td>Monastero sepolto</td><td>3</td><td>6</td><td>1½ giorni</td></tr></table>
+<p>Monete in un forziere, il suo oggetto, il suo libro, e i libri del tesoro:</p>
 <ul>
-<li>Tower: 10–25; 10 wood, 10 stone or 5 iron; notebooks; 2 notebooks.</li>
-<li>Mine: 20–45; 10 iron, 10 coal, 4 ingots or a pickaxe; notebooks; 2 notebooks.</li>
-<li>Crypt: 35–70; a sword, a helmet, leather armor, 6 ingots, the chalice or the bust; notebooks or tomes; a tome.</li>
-<li>Fort: 60–120; chainmail, 2 swords, a helmet, 10 ingots, the old banner or the crown; tomes, 1 in 4 a codex; a codex.</li>
-<li>Monastery: 5–20; always a book: half notebooks, a quarter tomes, a quarter codices; a tome and a codex.</li>
-</ul></section><section id="knowledge"><h2>Knowledge</h2><h3>Study <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAfklEQVR4nGNgGAggL6XyH4TJ1vziyQ1UA2Am4sPImlcsmYVpwItrC7DiI6sLiDcgL6cGBSMbgFMzsS4gygB029ENwKqZ1DDAHTVEhAHO+CfGBXlZDf+9PCL+mxraEg4DZAOQNcMwhiH4XEC0ASCnYsMgOZAGdExyUsaVvCkGAFGoaATTjpVpAAAAAElFTkSuQmCC" alt=""></h3>
+<li>Torre: 10–25; 10 legna, 10 pietra o 5 ferro; quaderni; 2 quaderni.</li>
+<li>Miniera: 20–45; 10 ferro, 10 carbone, 4 lingotti o un piccone; quaderni; 2 quaderni.</li>
+<li>Cripta: 35–70; una spada, un elmo, un'armatura di cuoio, 6 lingotti, il calice o il busto; quaderni o tomi; un tomo.</li>
+<li>Forte: 60–120; una cotta di maglia, 2 spade, un elmo, 10 lingotti, lo stendardo antico o la corona; tomi, 1 su 4 un codice; un codice.</li>
+<li>Monastero: 5–20; sempre un libro: metà quaderni, un quarto tomi, un quarto codici; un tomo e un codice.</li>
+</ul></section><section id="conoscenza"><h2>Conoscenza</h2><h3>Studio <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAfklEQVR4nGNgGAggL6XyH4TJ1vziyQ1UA2Am4sPImlcsmYVpwItrC7DiI6sLiDcgL6cGBSMbgFMzsS4gygB029ENwKqZ1DDAHTVEhAHO+CfGBXlZDf+9PCL+mxraEg4DZAOQNcMwhiH4XEC0ASCnYsMgOZAGdExyUsaVvCkGAFGoaATTjpVpAAAAAElFTkSuQmCC" alt=""></h3>
 <ul>
-<li>A room with a desk can become a study; the desk needs no research. One colonist at a desk writes pages: every page is +1 study for the colony's shared pool and +1 Research XP.</li>
-<li>A page takes 2.5 s, more or less with room comfort and conditions. From 19:00 to 6:00, without a lamp in the room, it takes 50% longer; every bookshelf in the room takes off 10% (up to 3).</li>
-<li>The study's workers study before any other job and stay at the desk all their shift. The others write a page only when there is nothing else to do.</li>
+<li>Una stanza con uno scrittoio può diventare uno studio; lo scrittoio non richiede ricerche. Un colono allo scrittoio scrive pagine: ogni pagina è +1 studio per la riserva comune della colonia e +1 XP in Ricerca.</li>
+<li>Una pagina richiede 2,5 s, più o meno secondo il comfort della stanza e le condizioni. Dalle 19:00 alle 6:00, senza un abat-jour nella stanza, ci vuole il 50% in più; ogni libreria nella stanza toglie il 10% (fino a 3).</li>
+<li>I lavoratori dello studio studiano prima di ogni altro lavoro e restano allo scrittoio per tutto il turno. Gli altri scrivono una pagina solo quando non c'è altro da fare.</li>
 </ul>
-<h3>The Knowledge window </h3>
-<p>Press K or click a desk: your study and the books in your warehouses, then the tree, a row for every branch and a column for every tier. Hover a research for what it unlocks and what is missing; click it to research it at once. It spends the study and, from tier II, a book from a warehouse:</p>
+<h3>La finestra Conoscenza </h3>
+<p>Premi K o clicca uno scrittoio: il tuo studio e i libri nei tuoi magazzini, poi l'albero, una riga per ogni ramo e una colonna per ogni livello. Col mouse sopra una ricerca vedi cosa sblocca e cosa manca; cliccala per studiarla subito. Consuma lo studio e, dal livello II, un libro da un magazzino:</p>
 <ul>
-<li>Tier II: a notebook <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAASElEQVR4nGNgGF5AXkrlPzEYrwFZsx78N3GLAtPo+MWTG6QZoB+zAQUPEQNeHPb6v6JKbyh7YeANAGnGhVcsmUXYAIqSMjkAAKib/oAVi9QvAAAAAElFTkSuQmCC" alt="">. Tier III: a tome <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAWUlEQVR4nGNgGDRAXkrlPykYqwE3vKz+z9KC0Njwiyc3/q9YMouGBrw47PV/RZXeALoAmwEg8QsXbqBgkg2YNXMZHOfl1Iy4QCTJAJBmfBikGa8BFOUFcgEACARPE47aINQAAAAASUVORK5CYII=" alt="">. Tier IV: a codex <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAgElEQVR4nGNgoAaQl1L5Tw5GMWBF2p7/VTZ9/18c9gJjEB8Zw8RfPLnxf8WSWfgNANHYMF4DwLZW6eHUDDeEkAuoagDM30QZgO4FEP/Zowv/b3hZoRhCtAtAmkCaZ2mpoBpMihdAGtEDdgjEAtkJCVkRNq/AxEGasRpAUWaiBAAAf9a4DEl5H6EAAAAASUVORK5CYII=" alt="">.</li>
+<li>Livello II: un quaderno <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAASElEQVR4nGNgGF5AXkrlPzEYrwFZsx78N3GLAtPo+MWTG6QZoB+zAQUPEQNeHPb6v6JKbyh7YeANAGnGhVcsmUXYAIqSMjkAAKib/oAVi9QvAAAAAElFTkSuQmCC" alt="">. Livello III: un tomo <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAWUlEQVR4nGNgGDRAXkrlPykYqwE3vKz+z9KC0Njwiyc3/q9YMouGBrw47PV/RZXeALoAmwEg8QsXbqBgkg2YNXMZHOfl1Iy4QCTJAJBmfBikGa8BFOUFcgEACARPE47aINQAAAAASUVORK5CYII=" alt="">. Livello IV: un codice <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAgElEQVR4nGNgoAaQl1L5Tw5GMWBF2p7/VTZ9/18c9gJjEB8Zw8RfPLnxf8WSWfgNANHYMF4DwLZW6eHUDDeEkAuoagDM30QZgO4FEP/Zowv/b3hZoRhCtAtAmkCaZ2mpoBpMihdAGtEDdgjEAtkJCVkRNq/AxEGasRpAUWaiBAAAf9a4DEl5H6EAAAAASUVORK5CYII=" alt="">.</li>
 </ul>
-<p>Books come only from ruins (see Ruins &amp; Expeditions). There is no tier IV research yet.</p>
-<p>What you haven't researched has no build button, and its recipes don't show at the stations. From the start you have wooden walls and floors, doors, paths, beds, tables, chairs, campfires, banners, desks, thrones, relics and meals.</p>
-<h3>The tree </h3>
+<p>I libri vengono solo dalle rovine (vedi Rovine e spedizioni). Non ci sono ancora ricerche di livello IV.</p>
+<p>Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette non compaiono alle postazioni. Dall'inizio hai muri e pavimenti di legno, porte, sentieri, letti, tavoli, sedie, fuochi da campo, stendardi, scrittoi, troni, cimeli e pasti.</p>
+<h3>L'albero </h3>
 <ul>
-<li><span style="color:#d9c48a">Hunting</span> (Land I, 50): spinning wheel and carpenter bench; bowstrings and bows.</li>
-<li><span style="color:#d9c48a">Forge</span> (Fire I, 60): furnace and anvil; ingots, pickaxe, axe, sickle.</li>
-<li><span style="color:#d9c48a">Tailoring</span> (Fire I, 50): workbench; leather armor and hood.</li>
-<li><span style="color:#d9c48a">Masonry</span> (Stone I, 60): stone walls and floors.</li>
-<li><span style="color:#d9c48a">Decor</span> (Stone I, 40): flower bed, planter, bench.</li>
-<li><span style="color:#d9c48a">Fountain</span> (Stone II, 250 and a notebook, after Decor): the fountain.</li>
-<li><span style="color:#d9c48a">Statuary</span> (Stone III, 500 and a tome, after Masonry): the statue.</li>
-<li><span style="color:#d9c48a">Iron arms</span> (Iron I, 80, after Forge): sword and helmet.</li>
-<li><span style="color:#d9c48a">Chainmail</span> (Iron II, 300 and a notebook, after Iron arms): chainmail.</li>
-<li><span style="color:#d9c48a">Inn</span> (Road I, 40): the notice board; the laws Loot tax and Lodging tax.</li>
-<li><span style="color:#d9c48a">Bookshelf</span> (Lore I, 60): the bookshelf.</li>
-<li><span style="color:#d9c48a">Lanterns</span> (Lore I, 40): lamp and lantern.</li>
-</ul></section><section id="laws"><h2>Laws</h2><h3>Authority <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAe0lEQVR4nGNgoAWQl1L5jw0TrfGGlxVWjNcgfBqxGYRX84vDXnAamQ2Tn6WF5hJsBmDDWA3A5nRsmldU6aEYgNcQkGJsmGgv4MMYtpNiCE7N6OkAphAdk5SgsmY9gGuAsQlqRNasH7MBrgmbGNGaiZHDCANcCkjKWMQCADU2OBPvsVUBAAAAAElFTkSuQmCC" alt=""></h3>
+<li><span style="color:#d9c48a">Caccia</span> (Terra I, 50): filatoio e banco del falegname; corde d'arco e archi.</li>
+<li><span style="color:#d9c48a">Forgia</span> (Fuoco I, 60): fornace e incudine; lingotti, piccone, ascia, falcetto.</li>
+<li><span style="color:#d9c48a">Sartoria</span> (Fuoco I, 50): banco da lavoro; armatura e cappuccio di cuoio.</li>
+<li><span style="color:#d9c48a">Muratura</span> (Pietra I, 60): muri e pavimenti di pietra.</li>
+<li><span style="color:#d9c48a">Decorazioni</span> (Pietra I, 40): aiuola, fioriera, panca.</li>
+<li><span style="color:#d9c48a">Fontana</span> (Pietra II, 250 e un quaderno, dopo Decorazioni): la fontana.</li>
+<li><span style="color:#d9c48a">Statuaria</span> (Pietra III, 500 e un tomo, dopo Muratura): la statua.</li>
+<li><span style="color:#d9c48a">Armi di ferro</span> (Ferro I, 80, dopo Forgia): spada ed elmo.</li>
+<li><span style="color:#d9c48a">Cotta di maglia</span> (Ferro II, 300 e un quaderno, dopo Armi di ferro): la cotta di maglia.</li>
+<li><span style="color:#d9c48a">Locanda</span> (Strada I, 40): la bacheca; le leggi Gabella sul bottino e Tassa di soggiorno.</li>
+<li><span style="color:#d9c48a">Libreria</span> (Sapere I, 60): la libreria.</li>
+<li><span style="color:#d9c48a">Lanterne</span> (Sapere I, 40): abat-jour e lampione.</li>
+</ul></section><section id="leggi"><h2>Leggi</h2><h3>Autorità <img class="ic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAe0lEQVR4nGNgoAWQl1L5jw0TrfGGlxVWjNcgfBqxGYRX84vDXnAamQ2Tn6WF5hJsBmDDWA3A5nRsmldU6aEYgNcQkGJsmGgv4MMYtpNiCE7N6OkAphAdk5SgsmY9gGuAsQlqRNasH7MBrgmbGNGaiZHDCANcCkjKWMQCADU2OBPvsVUBAAAAAElFTkSuQmCC" alt=""></h3>
 <ul>
-<li>Only the ruler gathers it, holding audience on a throne in a throne room: +1 an hour, 25% more with happiness 70 or more, half with 30 or less. It counts as work.</li>
-<li>The ruler goes to the throne first if you tick them as the throne room's worker; otherwise only when there is nothing else to do.</li>
-<li>Every day +1 for the title (Lordship) and +1 for every 20 splendor; +5 for every harvest feast.</li>
+<li>La raccoglie solo il sovrano, tenendo udienza su un trono in una sala del trono: +1 all'ora, il 25% in più con felicità 70 o più, la metà con 30 o meno. Conta come lavoro.</li>
+<li>Il sovrano va al trono prima di tutto se lo spunti come lavoratore della sala del trono; se no, solo quando non ha altro da fare.</li>
+<li>Ogni giorno +1 per il titolo (Signoria) e +1 ogni 20 di splendore; +5 per ogni festa del raccolto.</li>
 </ul>
-<h3>The Laws window </h3>
-<p>Press G or click the throne: authority, seals, the crown's granary, then the laws by kind. Hover a law for what it does and who likes it.</p>
+<h3>La finestra Leggi </h3>
+<p>Premi G o clicca il trono: autorità, sigilli, il granaio della corona, poi le leggi per categoria. Col mouse sopra una legge vedi cosa fa e a chi piace.</p>
 <ul>
-<li>Codify a law once, paying its cost in authority. Then Enact it: 10 authority and a free seal. A Lordship has 2 seals.</li>
-<li>Laws of the same group (taxes, shifts) exclude each other: enacting one replaces the other.</li>
-<li>Revoking is free, but the law can't be enacted again for 3 days.</li>
-<li>Every law in force changes the happiness of the colonists (some traits feel it differently) or of the adventurers. It shows among the conditions in the sheet.</li>
-<li>The crown's granary is filled by the Tithe, and nothing in it rots. Expedition provisions come from it first.</li>
+<li>Codifica una legge una volta sola, pagandone il costo in autorità. Poi, con Promulga, la metti in vigore: 10 autorità e un sigillo libero. Una Signoria ha 2 sigilli.</li>
+<li>Le leggi dello stesso gruppo (tasse, turni) si escludono a vicenda: promulgarne una sostituisce l'altra.</li>
+<li>Revocare è gratis, ma la legge non si può promulgare di nuovo per 3 giorni.</li>
+<li>Ogni legge in vigore cambia la felicità dei coloni (alcuni talenti la sentono in modo diverso) o degli avventurieri. Compare tra le condizioni nella scheda.</li>
+<li>Il granaio della corona lo riempie la Decima, e lì dentro non marcisce niente. Le provviste delle spedizioni si prendono prima da lì.</li>
 </ul>
-<h4>Treasury </h4>
+<h4>Tesoro </h4>
 <ul>
-<li>Exemption (30, taxes): no tithe, the granary stays empty. Everyone +5.</li>
-<li>Tithe (40, taxes): one piece in ten of all that is gathered, fished, hunted, cooked and made goes to the granary. Everyone -3.</li>
-<li>Loot tax (40, Inn research): adventurers keep 20% of the coins, not 30%; a quarter fewer come, and never the greedy. Adventurers -5.</li>
-<li>Lodging tax (30, Inn research): every adventurer waiting at the inn leaves a coin a night, and waits a day less. Adventurers -3.</li>
+<li>Esenzione (30, tasse): niente decima, il granaio resta vuoto. Tutti +5.</li>
+<li>Decima (40, tasse): un pezzo su dieci di tutto ciò che si raccoglie, si pesca, si caccia, si cucina e si fa va al granaio. Tutti -3.</li>
+<li>Gabella sul bottino (40, ricerca Locanda): gli avventurieri tengono il 20% delle monete, non il 30%; ne arriva un quarto in meno, e mai gli avidi. Avventurieri -5.</li>
+<li>Tassa di soggiorno (30, ricerca Locanda): ogni avventuriero che aspetta alla locanda lascia una moneta a notte, e aspetta un giorno in meno. Avventurieri -3.</li>
 </ul>
-<h4>Work </h4>
+<h4>Lavoro </h4>
 <ul>
-<li>Long shifts (40, shifts): up to 10 hours of work a day (the lazy 7, the workaholic still 12); stress from work +25%. Everyone -5, workaholic +3; lazy, fun-loving and restless -10.</li>
-<li>Short day (40, shifts): at most 6 hours of work; stress from work -25%. Everyone +8, workaholic -5.</li>
-<li>Day of rest (30): on days 7, 14, 21... nobody works but the cooks. Everyone +6, workaholic -5, ascetic 0.</li>
+<li>Turni lunghi (40, turni): fino a 10 ore di lavoro al giorno (il pigro 7, lo stacanovista sempre 12); stress da lavoro +25%. Tutti -5, stacanovista +3; pigro, festaiolo e irrequieto -10.</li>
+<li>Giornata corta (40, turni): al massimo 6 ore di lavoro; stress da lavoro -25%. Tutti +8, stacanovista -5.</li>
+<li>Riposo festivo (30): nei giorni 7, 14, 21... non lavora nessuno tranne i cuochi. Tutti +6, stacanovista -5, asceta 0.</li>
 </ul>
-<h4>Order </h4>
+<h4>Ordine </h4>
 <ul>
-<li>Curfew (40): from 21:00 free time becomes sleep. Everyone -2, fun-loving -10, early bird +3.</li>
+<li>Coprifuoco (40): dalle 21:00 il tempo libero diventa sonno. Tutti -2, festaiolo -10, mattiniero +3.</li>
 </ul>
-<h4>Feasts </h4>
+<h4>Feste </h4>
 <ul>
-<li>Harvest feast (40): on the five feast days of the calendar (see Time) nobody works but the cooks. The next day every colonist is Festive (+10 happiness for 3 days) and you get 5 authority.</li>
+<li>Festa del raccolto (40): nei cinque giorni di festa del calendario (vedi Il tempo, in Le basi) non lavora nessuno tranne i cuochi. Il giorno dopo ogni colono è In festa (+10 felicità per 3 giorni) e ricevi 5 autorità.</li>
 </ul></section><section id="main-gd"><h2>Numeri: main.gd</h2><pre>const <b id="c-MAP_SIZE">MAP_SIZE</b> := Vector2i(100, 100)
 const <b id="c-TILE">TILE</b> := 16            <i># pixel per tile</i>
 const <b id="c-SPEED">SPEED</b> := 4.0          <i># tile al secondo</i>
@@ -809,7 +808,7 @@ const <b id="c-DEFAULT_KEYS">DEFAULT_KEYS</b> := {"Select": KEY_Q, "Build": KEY_
 const <b id="c-SPEEDS">SPEEDS</b> := {"Pause": 0.0, "Play": 1.0, "Fast": 2.0, "Fastest": 3.0}  <i># pulsanti in alto a destra, come Space e 1-3</i></pre>
 <pre><i># tab Video delle opzioni: misure della finestra, solo quelle che stanno nello schermo (la prima sempre)</i>
 const <b id="c-RESOLUTIONS">RESOLUTIONS</b> := [Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440)]</pre>
-<pre><i># tab System delle opzioni: lingue, col nome nella loro lingua; i testi tradotti sono in locale/translations.csv</i>
+<pre><i># tab System delle opzioni: lingue, col nome nella loro lingua; i testi tradotti sono in locale/&lt;lingua&gt;.po (vedi named)</i>
 const <b id="c-LANGUAGES">LANGUAGES</b> := {"en": "English", "it": "Italiano"}
 const <b id="c-FIXED_KEYS">FIXED_KEYS</b> := [KEY_SPACE, KEY_1, KEY_2, KEY_3, KEY_E, KEY_R, KEY_ESCAPE]  <i># velocità, giro dei mobili, menù</i>
 const <b id="c-MODIFIER_KEYS">MODIFIER_KEYS</b> := [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]  <i># da soli non sono un tasto</i>

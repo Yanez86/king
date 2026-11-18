@@ -31,7 +31,7 @@ theme/custom_font="res://fonts/PixelifySans.ttf"
 
 [internationalization]
 
-locale/translations=PackedStringArray("res://locale/translations.it.translation")
+locale/translations=PackedStringArray("res://locale/it.po")
 
 [physics]
 

@@ -1,0 +1,2715 @@
+# Traduzione italiana di King. La chiave (msgid) è il testo inglese così come lo usa il gioco; msgctxt separa le
+# parole uguali con sensi diversi (vedi named in main.gd). Controllo: python3 tools/check_translations.py
+msgid ""
+msgstr ""
+"Project-Id-Version: King\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# --- Scene e schermate: titolo, nuova partita, calendario, previsioni, atmosfera
+
+msgid "New Game"
+msgstr "Nuova partita"
+
+msgid "Fullscreen"
+msgstr "Schermo intero"
+
+msgid "Window"
+msgstr "Finestra"
+
+msgid "Quit"
+msgstr "Esci"
+
+msgid "Options"
+msgstr "Opzioni"
+
+msgid "Close (Esc)"
+msgstr "Chiudi (Esc)"
+
+msgid "Close"
+msgstr "Chiudi"
+
+msgid "System"
+msgstr "Sistema"
+
+msgid "Video"
+msgstr "Video"
+
+msgid "Audio"
+msgstr "Audio"
+
+msgid "Keybindings"
+msgstr "Tasti"
+
+msgid "Language"
+msgstr "Lingua"
+
+msgid "Main menu"
+msgstr "Menu principale"
+
+msgid "Load game"
+msgstr "Carica partita"
+
+msgid "Quit game"
+msgstr "Esci dal gioco"
+
+msgid "Not available yet"
+msgstr "Non ancora disponibile"
+
+msgid "Resolution"
+msgstr "Risoluzione"
+
+msgid "Window size, in windowed mode"
+msgstr "Misura della finestra, quando non è a schermo intero"
+
+msgid "Nothing here yet."
+msgstr "Ancora niente qui."
+
+msgid "Click a key, then press the new one. Esc cancels, Delete clears it. Space, 1-3, E and R are fixed."
+msgstr "Clicca un tasto, poi premi quello nuovo. Esc annulla, Canc lo toglie. Spazio, 1-3, E e R sono fissi."
+
+msgid "Reset to defaults"
+msgstr "Ripristina i tasti di partenza"
+
+msgid "Press a key"
+msgstr "Premi un tasto"
+
+msgid "Pause (Space)"
+msgstr "Pausa (Spazio)"
+
+msgid "Normal speed (1)"
+msgstr "Velocità normale (1)"
+
+msgid "Fast (2)"
+msgstr "Veloce (2)"
+
+msgid "Very fast (3)"
+msgstr "Velocissimo (3)"
+
+msgid "Fullscreen / window"
+msgstr "Schermo intero / finestra"
+
+msgid "Options (Esc)"
+msgstr "Opzioni (Esc)"
+
+msgid "Resources in warehouses"
+msgstr "Risorse nei magazzini"
+
+msgid "Colonists"
+msgstr "Coloni"
+
+msgid "Beds"
+msgstr "Letti"
+
+msgid "Colony splendor"
+msgstr "Splendore della colonia"
+
+msgid "Structures"
+msgstr "Strutture"
+
+msgid "Furniture"
+msgstr "Mobili"
+
+msgid "Rotate left (E)"
+msgstr "Ruota a sinistra (E)"
+
+msgid "Rotate right (R)"
+msgstr "Ruota a destra (R)"
+
+msgid "Erase blueprint"
+msgstr "Cancella progetto"
+
+msgid "Select"
+msgstr "Seleziona"
+
+msgid "Destroy"
+msgstr "Distruggi"
+
+msgid "Structure"
+msgstr "Struttura"
+
+msgid "Name"
+msgstr "Nome"
+
+msgid "From the furniture and floors; 5 = no bonus"
+msgstr "Da mobili e pavimenti; 5 = nessun bonus"
+
+msgid "Type"
+msgstr "Tipo"
+
+msgid "No colonist enters, not even the owners"
+msgstr "Non entra nessun colono, nemmeno i proprietari"
+
+msgid "Banned"
+msgstr "Vietata"
+
+msgid "Owners"
+msgstr "Proprietari"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "Jobs"
+msgstr "Lavori"
+
+msgid "Resources"
+msgstr "Risorse"
+
+msgid "Knowledge"
+msgstr "Conoscenza"
+
+msgid "Laws"
+msgstr "Leggi"
+
+msgid "Wiki"
+msgstr "Wiki"
+
+msgid "Rooms lens"
+msgstr "Vista stanze"
+
+msgid "Hide roofs"
+msgstr "Nascondi tetti"
+
+msgid "Nothing stored"
+msgstr "Niente in magazzino"
+
+msgid "Routine"
+msgstr "Routine"
+
+msgid "Traits"
+msgstr "Talenti"
+
+msgid "Conditions"
+msgstr "Condizioni"
+
+msgid "Equipment"
+msgstr "Equipaggiamento"
+
+msgid "Notice board"
+msgstr "Bacheca"
+
+msgid "Notice: wanted at the inn"
+msgstr "Avviso: cercasi alla locanda"
+
+msgid "Chronicle"
+msgstr "Cronaca"
+
+msgid "Nobody studies without a study: a room with a desk."
+msgstr "Nessuno studia senza uno studio: una stanza con uno scrittoio."
+
+msgid "Scriptorium: keep"
+msgstr "Scriptorium: tieni"
+
+msgid "notebooks, copied at the desk (each: 3 parchment, 1 ink, 150 study)"
+msgstr "quaderni, copiati allo scrittoio (ognuno: 3 pergamene, 1 inchiostro, 150 di studio)"
+
+msgid "The ruler gathers authority on a throne, in a throne room."
+msgstr "Il sovrano raccoglie autorità su un trono, in una sala del trono."
+
+msgid "Expedition"
+msgstr "Spedizione"
+
+msgid "The colony has fallen: everyone is dead."
+msgstr "La colonia è caduta: sono morti tutti."
+
+msgid "Your House"
+msgstr "La tua casata"
+
+msgid "Your Ruler"
+msgstr "Il tuo sovrano"
+
+msgid "Back"
+msgstr "Indietro"
+
+msgid "Start"
+msgstr "Inizia"
+
+msgid "Next"
+msgstr "Avanti"
+
+msgid "House"
+msgstr "Casata"
+
+msgid "Colony"
+msgstr "Colonia"
+
+msgid "Shape"
+msgstr "Forma"
+
+msgid "Division"
+msgstr "Partizione"
+
+msgid "Field"
+msgstr "Campo"
+
+msgid "Second field"
+msgstr "Secondo campo"
+
+msgid "Ordinary"
+msgstr "Pezza"
+
+msgid "Ordinary tincture"
+msgstr "Smalto della pezza"
+
+msgid "Charge"
+msgstr "Figura"
+
+msgid "Charge tincture"
+msgstr "Smalto della figura"
+
+msgid "Random coat of arms"
+msgstr "Stemma a caso"
+
+msgid "Random"
+msgstr "A caso"
+
+msgid "Your banner"
+msgstr "Il tuo stendardo"
+
+msgid "Nickname"
+msgstr "Soprannome"
+
+msgid "(optional)"
+msgstr "(facoltativo)"
+
+msgid "Sex"
+msgstr "Sesso"
+
+msgid "Male"
+msgstr "Uomo"
+
+msgid "Female"
+msgstr "Donna"
+
+msgid "Hair"
+msgstr "Capelli"
+
+msgid "Beard"
+msgstr "Barba"
+
+msgid "Hair color"
+msgstr "Colore dei capelli"
+
+msgid "Tunic"
+msgstr "Maglia"
+
+msgid "Cape"
+msgstr "Mantello"
+
+msgid "Traits (up to %d)"
+msgstr "Talenti (al massimo %d)"
+
+msgid "Turn"
+msgstr "Gira"
+
+msgid "Costs %d skill points"
+msgstr "Costa %d punti abilità"
+
+msgid "Gives %d skill points"
+msgstr "Dà %d punti abilità"
+
+msgid "Free"
+msgstr "Gratis"
+
+msgid "Skill points left: %d / %d"
+msgstr "Punti abilità rimasti: %d / %d"
+
+msgid "Previous month"
+msgstr "Mese precedente"
+
+msgid "Next month"
+msgstr "Mese successivo"
+
+msgid "%s, %s, Year %d"
+msgstr "%s, %s, anno %d"
+
+msgid "Day of rest"
+msgstr "Giorno di riposo"
+
+msgid "Expedition due back from the %s"
+msgstr "Rientro della spedizione da: %s"
+
+msgid "%s can be enacted again"
+msgstr "%s: si può promulgare di nuovo"
+
+msgid "Feast"
+msgstr "Festa"
+
+msgid "Weather"
+msgstr "Tempo"
+
+msgid "Weather: click for the forecast"
+msgstr "Tempo: clicca per le previsioni"
+
+msgid "Now"
+msgstr "Adesso"
+
+msgid "No warnings"
+msgstr "Nessun avviso"
+
+msgid "Research Astronomy to see one more day."
+msgstr "Con la ricerca Astronomia vedi un giorno in più."
+
+msgid "Cold wave until %s"
+msgstr "Ondata di freddo fino a: %s"
+
+msgid "Cold wave in %d h"
+msgstr "Ondata di freddo tra %d h"
+
+msgid "Frost: below zero now, down to %d°C"
+msgstr "Gelo: sotto zero adesso, fino a %d°C"
+
+msgid "Frost in %d h, down to %d°C"
+msgstr "Gelo tra %d h, fino a %d°C"
+
+msgid "Water frozen: walkable, no fishing"
+msgstr "Acqua gelata: ci si cammina sopra, niente pesca"
+
+msgid "Ice thawing: it still holds"
+msgstr "Il ghiaccio si scioglie: regge ancora"
+
+msgid "Ice forming on the water"
+msgstr "Si forma il ghiaccio sull'acqua"
+
+msgid "Thin ice melting"
+msgstr "Ghiaccio sottile che si scioglie"
+
+msgid "Storm now"
+msgstr "Temporale in corso"
+
+msgid "Storm in %d h"
+msgstr "Temporale tra %d h"
+
+msgid "Today"
+msgstr "Oggi"
+
+msgid "Tomorrow"
+msgstr "Domani"
+
+msgid "In 2 days"
+msgstr "Tra 2 giorni"
+
+msgid "%s: a cold wave. Keep the fires burning."
+msgstr "%s: un'ondata di freddo. Tieni accesi i fuochi."
+
+# --- main.gd: costanti (descrizioni, talenti, ricerche, leggi, nomi)
+
+msgid "Material"
+msgstr "Materiale"
+
+msgid "Tool"
+msgstr "Strumento"
+
+msgid "Weapon"
+msgstr "Arma"
+
+msgid "Armor"
+msgstr "Armatura"
+
+msgid "Coins"
+msgstr "Monete"
+
+msgid "Relic"
+msgstr "Cimelio"
+
+msgid "Book"
+msgstr "Libro"
+
+msgid "Fresh"
+msgstr "Fresco"
+
+msgid "Stale"
+msgstr "Non più fresco"
+
+msgid "Almost rotten"
+msgstr "Quasi marcio"
+
+msgid ""
+"Always wants more.\n"
+"Asks 25% more to be hired."
+msgstr ""
+"Ne vuole sempre di più.\n"
+"Chiede il 25% in più per farsi ingaggiare."
+
+msgid ""
+"Fights for the glory of the realm.\n"
+"Keeps no share of the gold."
+msgstr ""
+"Combatte per la gloria del reame.\n"
+"Non prende la sua quota dell'oro."
+
+msgid ""
+"Never knows when to stop.\n"
+"The party turns back for them only under 20 health."
+msgstr ""
+"Non sa mai quando fermarsi.\n"
+"Fa tornare indietro il gruppo solo quando scende sotto 20 punti ferita."
+
+msgid ""
+"Lives to fight another day.\n"
+"The party turns back when they drop under 60 health."
+msgstr ""
+"Vive per combattere un altro giorno.\n"
+"Fa tornare indietro il gruppo appena scende sotto 60 punti ferita."
+
+msgid ""
+"Born under a good star.\n"
+"One more item in every chest the party opens."
+msgstr ""
+"La fortuna è dalla sua parte.\n"
+"Un oggetto in più in ogni forziere che il gruppo apre."
+
+msgid ""
+"Draws every corridor.\n"
+"The party finds maps three times as often."
+msgstr ""
+"Disegna ogni corridoio.\n"
+"Il gruppo trova mappe tre volte più spesso."
+
+msgid ""
+"Bad things happen around them.\n"
+"Every trap hits them. Asks 25% less."
+msgstr ""
+"Dove passa, succedono disgrazie.\n"
+"Prende in pieno ogni trappola. Chiede il 25% in meno."
+
+msgid ""
+"Fights like a storm.\n"
+"Their weapon counts double, but they take 50% more wounds."
+msgstr ""
+"Combatte come una furia.\n"
+"La sua arma conta il doppio, ma subisce il 50% di ferite in più."
+
+msgid ""
+"Hard as an old oak.\n"
+"Takes a third fewer wounds."
+msgstr ""
+"Forte come una vecchia quercia.\n"
+"Subisce un terzo di ferite in meno."
+
+msgid ""
+"Moves without a sound.\n"
+"The party slips past monsters one time in four."
+msgstr ""
+"Si muove senza fare rumore.\n"
+"Il gruppo sgattaiola oltre i mostri una volta su quattro."
+
+msgid ""
+"Knows herbs and bandages.\n"
+"After each room everyone heals 6; whoever falls is carried home."
+msgstr ""
+"Conosce erbe e bende.\n"
+"Dopo ogni stanza tutti recuperano 6 punti ferita; chi cade viene riportato a casa."
+
+msgid ""
+"Finds food anywhere.\n"
+"The party eats a third less."
+msgstr ""
+"Trova da mangiare ovunque.\n"
+"Il gruppo mangia un terzo in meno."
+
+msgid ""
+"Knows every shortcut.\n"
+"The journey takes half the time."
+msgstr ""
+"Conosce ogni scorciatoia.\n"
+"Il viaggio dura la metà."
+
+msgid ""
+"Nothing escapes their eyes.\n"
+"+30% to disarm traps."
+msgstr ""
+"Niente sfugge al suo sguardo.\n"
+"+30% a disinnescare le trappole."
+
+msgid ""
+"Learns from everything.\n"
+"Goes up a level after every expedition. The party finds books twice as often."
+msgstr ""
+"Impara da tutto.\n"
+"Sale di livello dopo ogni spedizione. Il gruppo trova libri il doppio delle volte."
+
+msgid ""
+"Their name is sung in every tavern.\n"
+"+5 colony splendor while they are here."
+msgstr ""
+"Il suo nome risuona in ogni taverna.\n"
+"+5 splendore della colonia finché è qui."
+
+msgid "Ruined tower"
+msgstr "Torre diroccata"
+
+msgid "Abandoned mine"
+msgstr "Miniera abbandonata"
+
+msgid "Crypt"
+msgstr "Cripta"
+
+msgid "Ruined fort"
+msgstr "Forte in rovina"
+
+msgid "Buried monastery"
+msgstr "Monastero sepolto"
+
+msgid "an empty room"
+msgstr "una stanza vuota"
+
+msgid "a trap"
+msgstr "una trappola"
+
+msgid "monsters"
+msgstr "mostri"
+
+msgid "a chest"
+msgstr "un forziere"
+
+msgid "a collapse"
+msgstr "un crollo"
+
+msgid "Mining 25% faster. Melee damage 10."
+msgstr "Estrazione più rapida del 25%. Danno in mischia 10."
+
+msgid "Woodcutting 25% faster. Melee damage 12."
+msgstr "Taglio della legna più rapido del 25%. Danno in mischia 12."
+
+msgid "Harvesting and uprooting 25% faster. Melee damage 8."
+msgstr "Raccolta ed estirpazione più rapide del 25%. Danno in mischia 8."
+
+msgid "Needed to hunt. Aims with the better of Hunting and Ranged, +10% to hit, 2 more tiles of range. Shoots in a fight (damage 14)."
+msgstr "Serve per cacciare. Mira con la migliore tra Cacciare e Tiro, +10% a segno, 2 caselle di gittata in più. In combattimento tira (danno 14)."
+
+msgid "A weapon. Melee damage 15."
+msgstr "Un'arma. Danno in mischia 15."
+
+msgid "Light. 25% less stress working outdoors."
+msgstr "Leggera. Il 25% di stress in meno lavorando all'aperto."
+
+msgid "Blends in: +5% to hit when hunting."
+msgstr "Aiuta a mimetizzarsi: +5% a segno quando si caccia."
+
+msgid "Safe from falling rocks: mining 10% faster."
+msgstr "Al riparo dai sassi che cadono: estrazione più rapida del 10%."
+
+msgid "Heavy: all work 10% slower."
+msgstr "Pesante: ogni lavoro più lento del 10%."
+
+msgid "Round, iron-rimmed: armor 3, only with a sword or a dagger."
+msgstr "Tondo, cerchiato di ferro: protezione 3, solo con una spada o un pugnale."
+
+msgid "A burglar's knife. Melee damage 10."
+msgstr "Il coltello di uno scassinatore. Danno in mischia 10."
+
+msgid "Workers"
+msgstr "Lavoratori"
+
+msgid "Blocks the way. Walls with a door around an area make a room."
+msgstr "Sbarra il passo. Un'area circondata da muri, con una porta, diventa una stanza."
+
+msgid "Paves the ground. Furniture can stand on it."
+msgstr "Pavimenta il terreno. Ci si possono mettere sopra i mobili."
+
+msgid "Colonists walk through it. A room needs one to be entered."
+msgstr "I coloni ci passano attraverso. Senza porta, in una stanza non si entra."
+
+msgid "A trodden earth path with pebbles. Grass grows over its edges."
+msgstr "Un sentiero di terra battuta e sassolini. L'erba ne invade i bordi."
+
+msgid "Stone slabs, fitted tight. Walking on them is 25% faster."
+msgstr "Lastre di pietra ben accostate. Ci si cammina sopra il 25% più in fretta."
+
+msgid "Sharpened stakes. Wolves cannot get through; it does not make a room."
+msgstr "Pali appuntiti. I lupi non passano; non forma una stanza."
+
+msgid "A gate in the palisade: colonists and guests pass, wolves do not."
+msgstr "Un cancello nella palizzata: coloni e ospiti passano, i lupi no."
+
+msgid "A place to sleep. A bedroom needs one, a dormitory two."
+msgstr "Un posto per dormire. Ne serve uno per una camera, due per un dormitorio."
+
+msgid "Where colonists eat and work."
+msgstr "Dove i coloni mangiano e lavorano."
+
+msgid "Put it at a table, turned to face it."
+msgstr "Mettila accanto a un tavolo, rivolta verso il tavolo."
+
+msgid "Lights up at night."
+msgstr "Fa luce di notte."
+
+msgid "A wood fire inside a ring of stones. Burns day and night and warms the room. A kitchen needs one."
+msgstr "Un fuoco di legna in un cerchio di pietre. Arde giorno e notte e scalda la stanza. Serve per una cucina."
+
+msgid "A stone furnace. A forge needs one, and an anvil. Smelts iron and coal into ingots."
+msgstr "Una fornace di pietra. Serve per una forgia, insieme a un'incudine. Fonde ferro e carbone in lingotti."
+
+msgid "An iron anvil on a stump. A forge needs one, and a furnace. Tools and metal armor are made here."
+msgstr "Un'incudine di ferro su un ceppo. Serve per una forgia, insieme a una fornace. Qui si fanno attrezzi e armature di metallo."
+
+msgid "A sturdy bench. A workshop needs one. Leather armor is made here."
+msgstr "Un banco robusto. Serve per un laboratorio. Qui si fanno le armature di cuoio."
+
+msgid "Spins flax into bowstrings. Works in a workshop."
+msgstr "Fila il lino in corde d'arco. Funziona in un laboratorio."
+
+msgid "A bench with a vise and a saw. A carpentry needs one. Bows are made here."
+msgstr "Un banco con morsa e sega. Serve per una falegnameria. Qui si fanno gli archi."
+
+msgid "A wooden box of soil and flowers."
+msgstr "Una cassetta di legno con terra e fiori."
+
+msgid "A stone urn overflowing with flowers."
+msgstr "Un vaso di pietra traboccante di fiori."
+
+msgid "A wooden bench to rest along the roads."
+msgstr "Una panca di legno per riposare lungo le strade."
+
+msgid "The banner of your house, waving in the wind."
+msgstr "Lo stendardo della tua casata, che sventola al vento."
+
+msgid "A lantern on a post. Lights up the roads at night."
+msgstr "Una lanterna su un palo. Illumina le strade di notte."
+
+msgid "A stone basin with a jet of water. The pride of the square."
+msgstr "Una vasca di pietra con un getto d'acqua. L'orgoglio della piazza."
+
+msgid "The king in stone, hands on his sword, on a gilded plinth."
+msgstr "Il re in pietra, con le mani sulla spada, su un basamento dorato."
+
+msgid "Notices pinned to a board. An inn needs one, a bed and a table. Click it to hire adventurers."
+msgstr "Avvisi appuntati su una tavola. Serve per una locanda, con un letto e un tavolo. Cliccala per ingaggiare avventurieri."
+
+msgid "A silver chalice set with a ruby, from a forgotten altar. Only adventurers find these, in ruins."
+msgstr "Un calice d'argento con un rubino incastonato, da un altare dimenticato. Solo gli avventurieri ne trovano, nelle rovine."
+
+msgid "A torn banner of a fallen house. Only adventurers find these, in ruins."
+msgstr "Lo stendardo strappato di una casata caduta. Solo gli avventurieri ne trovano, nelle rovine."
+
+msgid "The stone face of a king nobody remembers. Only adventurers find these, in ruins."
+msgstr "Il volto di pietra di un re che nessuno ricorda. Solo gli avventurieri ne trovano, nelle rovine."
+
+msgid "A jeweled crown on a velvet cushion. Only adventurers find these, in ruins."
+msgstr "Una corona ingioiellata su un cuscino di velluto. Solo gli avventurieri ne trovano, nelle rovine."
+
+msgid "An open book and a candle. A study needs one: colonists write study here, one at a time."
+msgstr "Un libro aperto e una candela. Serve per uno studio: qui i coloni scrivono pagine di studio, uno alla volta."
+
+msgid "Shelves of books. +10% study in the room, up to three."
+msgstr "Scaffali di libri. +10% di studio nella stanza, fino a tre."
+
+msgid "Where the ruler governs. A throne room needs one: the ruler gathers authority here."
+msgstr "Dove governa il sovrano. Serve per una sala del trono: qui il sovrano raccoglie autorità."
+
+msgid "A wooden lookout with a bell: wolves are seen 20 tiles away. An archer standing on it shoots 2 tiles farther, +15% to hit."
+msgstr "Una vedetta di legno con una campana: i lupi si vedono a 20 caselle. Un arciere lassù tira 2 caselle più lontano, +15% a segno."
+
+msgid "A bed fit for a ruler, under a purple canopy. Sleeps like a bed, with twice the comfort."
+msgstr "Un letto degno di un sovrano, sotto un baldacchino porpora. Ci si dorme come in un letto, con il doppio del comfort."
+
+msgid "A rug of tanned hides. +1 comfort."
+msgstr "Un tappeto di pelli conciate. +1 comfort."
+
+msgid "An oak wardrobe. +1 comfort."
+msgstr "Un armadio di quercia. +1 comfort."
+
+msgid "A straw dummy on a post. In their free time colonists train here: fun, and melee experience."
+msgstr "Un fantoccio di paglia su un palo. Nel tempo libero i coloni ci si allenano: svago ed esperienza in mischia."
+
+msgid "Spring"
+msgstr "Primavera"
+
+msgid "Summer"
+msgstr "Estate"
+
+msgid "Autumn"
+msgstr "Autunno"
+
+msgid "Winter"
+msgstr "Inverno"
+
+msgid "Thaw"
+msgstr "Disgelo"
+
+msgid "Sowing"
+msgstr "Semina"
+
+msgid "Blossom"
+msgstr "Fioritura"
+
+msgid "Highsun"
+msgstr "Solleone"
+
+msgid "Haying"
+msgstr "Fienagione"
+
+msgid "Ripening"
+msgstr "Maturazione"
+
+msgid "Reaping"
+msgstr "Mietitura"
+
+msgid "Leaffall"
+msgstr "Foglie morte"
+
+msgid "Mists"
+msgstr "Nebbie"
+
+msgid "Frost"
+msgstr "Gelo"
+
+msgid "Deepsnow"
+msgstr "Neve alta"
+
+msgid "Longnight"
+msgstr "Notte lunga"
+
+msgid "Crown Day"
+msgstr "Giorno della Corona"
+
+msgid "Flower Feast"
+msgstr "Festa dei Fiori"
+
+msgid "Sickle Feast"
+msgstr "Festa della Falce"
+
+msgid "Hearth Feast"
+msgstr "Festa del Focolare"
+
+msgid "Candle Feast"
+msgstr "Festa delle Candele"
+
+msgid "Sleep"
+msgstr "Sonno"
+
+msgid "Free time"
+msgstr "Tempo libero"
+
+msgid ""
+"Always thinking about the next meal.\n"
+"Gets hungry 50% faster, eats at half hunger and snacks in free time.\n"
+"Double joy from meals, hates raw food."
+msgstr ""
+"Pensa sempre al prossimo pasto.\n"
+"La fame cresce il 50% più in fretta, va a mangiare già a metà fame e fa spuntini nel tempo libero.\n"
+"Doppia gioia dai pasti, odia il cibo crudo."
+
+msgid ""
+"Sometimes wanders off in their sleep.\n"
+"May get up at night and sleep wherever they end up."
+msgstr ""
+"A volte si allontana nel sonno.\n"
+"Può alzarsi di notte e dormire dove capita."
+
+msgid ""
+"Loses their temper easily.\n"
+"Stress from work +50%. At 90 storms off for two hours."
+msgstr ""
+"Perde facilmente le staffe.\n"
+"Stress da lavoro +50%. A 90 pianta tutto e se ne va per due ore."
+
+msgid ""
+"Would rather be anywhere else.\n"
+"Works at most 6 hours a day."
+msgstr ""
+"Vorrebbe essere ovunque, ma non qui.\n"
+"Lavora al massimo 6 ore al giorno."
+
+msgid ""
+"Lives for the job.\n"
+"Works up to 12 hours a day, free time too. Gets bored half as fast."
+msgstr ""
+"Vive per il lavoro.\n"
+"Lavora fino a 12 ore al giorno, anche nel tempo libero. Si annoia due volte più lentamente."
+
+msgid ""
+"Up before the rooster.\n"
+"Whole day two hours earlier: sleeps 20-4."
+msgstr ""
+"In piedi prima del gallo.\n"
+"Tutta la giornata due ore prima: dorme 20-4."
+
+msgid ""
+"Comes alive after dark.\n"
+"Sleeps by day (10-18), works by night."
+msgstr ""
+"Si anima col buio.\n"
+"Dorme di giorno (10-18), lavora di notte."
+
+msgid ""
+"Hard to get out of bed.\n"
+"Needs 10 hours of sleep: sleeps until 8."
+msgstr ""
+"Fatica ad alzarsi dal letto.\n"
+"Ha bisogno di 10 ore di sonno: dorme fino alle 8."
+
+msgid ""
+"Six hours of sleep are plenty.\n"
+"Sleeps 0-6, gets tired 25% slower."
+msgstr ""
+"Sei ore di sonno bastano e avanzano.\n"
+"Dorme 0-6, si stanca il 25% più lentamente."
+
+msgid ""
+"Work can wait, fun can't.\n"
+"Gets bored twice as fast. Stops work at 17."
+msgstr ""
+"Il lavoro può aspettare, lo svago no.\n"
+"Si annoia due volte più in fretta. Smette di lavorare alle 17."
+
+msgid ""
+"Wants nothing but the essentials.\n"
+"Never needs fun."
+msgstr ""
+"Non vuole che l'essenziale.\n"
+"Non ha mai bisogno di svago."
+
+msgid ""
+"Eats like a sparrow.\n"
+"Gets hungry 40% slower, never snacks."
+msgstr ""
+"Mangia come un uccellino.\n"
+"La fame cresce il 40% più lentamente, non fa mai spuntini."
+
+msgid ""
+"Nothing ruffles them.\n"
+"Half the stress from work."
+msgstr ""
+"Non si scompone mai.\n"
+"Metà dello stress dal lavoro."
+
+msgid ""
+"A nap after lunch, every day.\n"
+"Sleeps 13-14, goes to bed at 23."
+msgstr ""
+"Un pisolino dopo pranzo, ogni giorno.\n"
+"Dorme 13-14, va a letto alle 23."
+
+msgid ""
+"Can't keep at one thing for long.\n"
+"After 2 hours of work in a row, takes an hour off."
+msgstr ""
+"Non riesce a stare a lungo su una cosa.\n"
+"Dopo 2 ore di lavoro di fila, si prende un'ora di pausa."
+
+msgid "Ate raw food that was going bad. Works slowly."
+msgstr "Ha mangiato cibo crudo che stava andando a male. Lavora lentamente."
+
+msgid "Had a cooked meal. Works faster, less stress."
+msgstr "Ha mangiato un pasto cotto. Lavora più in fretta, meno stress."
+
+msgid "Had a fine meal. Works much faster, much less stress."
+msgstr "Ha mangiato un pasto squisito. Lavora molto più in fretta, molto meno stress."
+
+msgid "Ate sitting at a table."
+msgstr "Ha mangiato a tavola."
+
+msgid "A glutton forced to eat raw food."
+msgstr "Da goloso, ha dovuto mangiare cibo crudo."
+
+msgid "A fellow colonist has died."
+msgstr "Un compagno della colonia è morto."
+
+msgid "Celebrated a feast."
+msgstr "Ha celebrato una festa."
+
+msgid "Put in the stocks for a tantrum or a protest."
+msgstr "Alla gogna per una sfuriata o una protesta."
+
+msgid "The ruler listened to their complaint."
+msgstr "Il sovrano ha ascoltato la sua lamentela."
+
+msgid "Badger"
+msgstr "Tasso"
+
+msgid "Crow"
+msgstr "Corvo"
+
+msgid "Lefty"
+msgstr "Mancino"
+
+msgid "Moss"
+msgstr "Muschio"
+
+msgid "Pebble"
+msgstr "Sassolino"
+
+msgid "Red"
+msgstr "Testarossa"
+
+msgid "Stub"
+msgstr "Tappo"
+
+msgid "Thistle"
+msgstr "Cardo"
+
+msgid "Lordship"
+msgstr "Signoria"
+
+msgid "Lord"
+msgstr "Signore"
+
+msgid "Lady"
+msgstr "Signora"
+
+msgid "Barony"
+msgstr "Baronia"
+
+msgid "Baron"
+msgstr "Barone"
+
+msgid "Baroness"
+msgstr "Baronessa"
+
+msgid "County"
+msgstr "Contea"
+
+msgid "Count"
+msgstr "Conte"
+
+msgid "Countess"
+msgstr "Contessa"
+
+msgid "Kingdom"
+msgstr "Regno"
+
+msgid "King"
+msgstr "Re"
+
+msgid "Queen"
+msgstr "Regina"
+
+msgid "Furnace, anvil and the forge: ingots and the first tools."
+msgstr "Fornace, incudine e la forgia: lingotti e i primi attrezzi."
+
+msgid "The workbench and the workshop: leather armor and hoods."
+msgstr "Il banco da lavoro e il laboratorio: armature e cappucci di cuoio."
+
+msgid "Spinning wheel, carpenter bench and carpentry: bowstrings and bows."
+msgstr "Filatoio, banco del falegname e falegnameria: corde d'arco e archi."
+
+msgid "The notice board and the inn: adventurers come and go to the ruins. Books come from there."
+msgstr "La bacheca e la locanda: gli avventurieri vanno e vengono dalle rovine. Da lì arrivano i libri."
+
+msgid "Stone walls and floors: more comfort."
+msgstr "Muri e pavimenti di pietra: più comfort."
+
+msgid "Flower bed, planter and bench: the first splendor."
+msgstr "Aiuola, fioriera e panca: il primo splendore."
+
+msgid "Lamp and lantern: light at night. In the dark, study takes half as long again."
+msgstr "Abat-jour e lampione: luce di notte. Al buio lo studio richiede il 50% di tempo in più."
+
+msgid "At the anvil: sword and helmet."
+msgstr "All'incudine: spada ed elmo."
+
+msgid "Bookshelves: +10% study in the room, up to three."
+msgstr "Librerie: +10% di studio nella stanza, fino a tre."
+
+msgid "At the anvil: chainmail."
+msgstr "All'incudine: cotta di maglia."
+
+msgid "The fountain, the pride of the square."
+msgstr "La fontana, l'orgoglio della piazza."
+
+msgid "The king in stone, on a gilded plinth."
+msgstr "Il re in pietra, su un basamento dorato."
+
+msgid "Reading the sky: the weather forecast reaches one more day."
+msgstr "Leggere il cielo: le previsioni del tempo arrivano un giorno più in là."
+
+msgid "At the furnace, 5 wood make 2 coal: coal not only from the veins."
+msgstr "Alla fornace, da 5 legna 2 carbone: il carbone non viene più solo dalle vene."
+
+msgid "The pantry, a cool room only for food: it keeps three times as long as outside (twice in a warehouse)."
+msgstr "La dispensa, una stanza fresca solo per il cibo: ci dura il triplo che fuori (in magazzino il doppio)."
+
+msgid "Stone slabs: walking on them is 25% faster, and colonists choose them."
+msgstr "Lastre di pietra: ci si cammina sopra il 25% più in fretta, e i coloni le preferiscono."
+
+msgid "At the campfire, hardtack from 2 vegetables: worth 2 provisions on an expedition, and it never spoils."
+msgstr "Al fuoco da campo, gallette da 2 vegetali: valgono 2 provviste in spedizione e non marciscono mai."
+
+msgid "The notice board shows the next room of every ruin. The way to the ruins is 25% shorter."
+msgstr "La bacheca mostra la prossima stanza di ogni rovina. La strada per le rovine è più corta del 25%."
+
+msgid "Palisade and gate: wolves cannot get through."
+msgstr "Palizzata e cancello: i lupi non passano."
+
+msgid "The training dummy: in their free time colonists train there, for fun and melee experience."
+msgstr "Il fantoccio: nel tempo libero i coloni ci si allenano, per svago ed esperienza in mischia."
+
+msgid "At the campfire, smoked meat and fish: they keep four times as long."
+msgstr "Al fuoco da campo, carne e pesce affumicati: durano quattro volte tanto."
+
+msgid "Adventurers come every day and a half and wait 5 days. On the notice board, ask for a class: the next one is that."
+msgstr "Gli avventurieri arrivano ogni giorno e mezzo e aspettano 5 giorni. Sulla bacheca chiedi una classe: il prossimo che arriva sarà di quella."
+
+msgid "At the anvil, the round shield: armor 3 for whoever fights with a sword or a dagger."
+msgstr "All'incudine, lo scudo tondo: protezione 3 per chi combatte con una spada o un pugnale."
+
+msgid "Adventurers borrow better armor, helmets and shields from the warehouses for an expedition, and bring them back (unless they die)."
+msgstr "Per una spedizione gli avventurieri prendono in prestito dai magazzini armature, elmi e scudi migliori, e li riportano (se non muoiono)."
+
+msgid "At the furnace, steel from 2 ingots and 2 coal. Tools and swords are made of steel: tools 40% faster, swords damage 20."
+msgstr "Alla fornace, acciaio da 2 lingotti e 2 carbone. Attrezzi e spade si fanno d'acciaio: attrezzi il 40% più veloci, spade con danno 20."
+
+msgid "Parchment (from hides) and ink (coal and berries) at the workbench; at the desk notebooks are copied: 3 parchment, 1 ink, 150 study."
+msgstr "Pergamena (dalle pelli) e inchiostro (carbone e bacche) al banco da lavoro; allo scrittoio si copiano i quaderni: 3 pergamene, 1 inchiostro, 150 studio."
+
+msgid "Canopy bed, rug and wardrobe: the ruler's fine chamber."
+msgstr "Letto a baldacchino, tappeto e armadio: la camera signorile del sovrano."
+
+msgid "The throne room becomes a palace: audiences give 50% more authority, +10 splendor."
+msgstr "La sala del trono diventa un palazzo: le udienze danno il 50% di autorità in più, +10 splendore."
+
+msgid "The watchtower and its bell: wolves are seen 20 tiles away. An archer up there shoots 2 tiles farther, +15% to hit."
+msgstr "La torre di guardia con la sua campana: i lupi si vedono a 20 caselle. Un arciere lassù tira 2 caselle più lontano, +15% a segno."
+
+msgid "No tithe: the granary stays empty."
+msgstr "Niente decima: il granaio resta vuoto."
+
+msgid "One piece in ten of what is gathered, hunted, fished, cooked and made goes to the crown's granary."
+msgstr "Un pezzo su dieci di ciò che si raccoglie, si caccia, si pesca, si cucina e si produce va al granaio della corona."
+
+msgid "One piece in five of what is gathered, hunted, fished, cooked and made goes to the crown's granary."
+msgstr "Un pezzo su cinque di ciò che si raccoglie, si caccia, si pesca, si cucina e si produce va al granaio della corona."
+
+msgid "Adventurers keep 20% of the gold they find, not 30%. A quarter fewer come, and the greedy stay away."
+msgstr "Gli avventurieri si tengono il 20% dell'oro che trovano, non il 30%. Ne arriva un quarto in meno, e gli avidi stanno alla larga."
+
+msgid "Every adventurer waiting at the inn pays a coin a night, and stays a day less."
+msgstr "Ogni avventuriero che aspetta alla locanda paga una moneta a notte, e resta un giorno di meno."
+
+msgid "With no food left in the warehouses, the granary feeds the colony. Every new season, a meal for everyone."
+msgstr "Quando nei magazzini il cibo finisce, il granaio sfama la colonia. A ogni nuova stagione, un pasto per tutti."
+
+msgid "Every adventurer coming in pays 2 coins at the gate. A fifth fewer come."
+msgstr "Ogni avventuriero che entra paga 2 monete al cancello. Ne arriva un quinto in meno."
+
+msgid "The colonists' loyalty is the crown's: +1 authority a day for each of them."
+msgstr "La lealtà dei coloni appartiene alla corona: +1 autorità al giorno per ognuno di loro."
+
+msgid "Up to 10 hours of work a day (the lazy 7). Stress from work +25%."
+msgstr "Fino a 10 ore di lavoro al giorno (i pigri 7). Stress da lavoro +25%."
+
+msgid "At most 6 hours of work a day. Stress from work -25%."
+msgstr "Al massimo 6 ore di lavoro al giorno. Stress da lavoro -25%."
+
+msgid "Every seventh day nobody works but the cooks: the rest is free time."
+msgstr "Ogni settimo giorno non lavora nessuno tranne i cuochi: il resto è tempo libero."
+
+msgid "A colonist keeps watch at night (a night owl first, or someone who sleeps by day): wolves are seen as soon as they come."
+msgstr "Un colono fa la guardia di notte (prima un nottambulo, se no qualcuno che dorme di giorno): i lupi si vedono appena arrivano."
+
+msgid "An hour a day of free time at the training dummy. Colonists flee only under 30 health, not 40."
+msgstr "Un'ora al giorno di tempo libero al fantoccio. I coloni scappano solo sotto 30 punti ferita, non 40."
+
+msgid "Tantrums and protests end in the stocks (-10 happiness for a day), and protests cost no authority. Hotheads, afraid, storm off a third less often."
+msgstr "Sfuriate e proteste finiscono alla gogna (-10 felicità per un giorno), e le proteste non costano autorità. Gli iracondi, intimoriti, hanno sfuriate un terzo meno spesso."
+
+msgid "Tantrums last an hour. The ruler listens to whoever protests: an hour, no authority lost, +10 happiness for half a day."
+msgstr "Le sfuriate durano un'ora. Il sovrano ascolta chi protesta: un'ora, nessuna autorità persa, +10 felicità per mezza giornata."
+
+msgid "Twice as many deer, hunted only by the ruler and by those who carry a bow. +3 authority for every deer the ruler takes."
+msgstr "Il doppio dei cervi, cacciati solo dal sovrano e da chi porta un arco. +3 autorità per ogni cervo abbattuto dal sovrano."
+
+msgid "The ruler no longer works: only governs, and audiences give 50% more authority."
+msgstr "Il sovrano non lavora più: governa soltanto, e le udienze danno il 50% di autorità in più."
+
+msgid "From 21 everyone goes to bed: no evenings at the campfire, fewer targets for the wolves."
+msgstr "Dalle 21 tutti a letto: niente serate al fuoco da campo, meno prede per i lupi."
+
+msgid "The five feast days of the calendar are holidays: nobody works but the cooks. Then +10 happiness for 3 days, +5 authority."
+msgstr "I cinque giorni di festa del calendario sono festivi: non lavora nessuno tranne i cuochi. Poi +10 felicità per 3 giorni, +5 autorità."
+
+# --- main.gd: interfaccia (opzioni, costruzione, cartello, scheda, finestre)
+
+msgid "Calendar"
+msgstr "Calendario"
+
+msgid "or "
+msgstr "o "
+
+msgid "/tile"
+msgstr "/casella"
+
+msgid "+%s room comfort"
+msgstr "+%s comfort alla stanza"
+
+msgid " paving it all, x%s in stone"
+msgstr " pavimentandola tutta, x%s in pietra"
+
+msgid "+%d colony splendor"
+msgstr "+%d splendore alla colonia"
+
+msgid "Comfort: %d / %d    %d°C"
+msgstr "Comfort: %d / %d    %d°C"
+
+msgid "Works only in a %s"
+msgstr "Funziona solo in una stanza di tipo %s"
+
+msgid "or"
+msgstr "o"
+
+msgid "Keep"
+msgstr "Tieni"
+
+msgid "Made until there are this many"
+msgstr "Si produce finché non se ne ha questa quantità"
+
+msgid ", besides what colonists need to wear"
+msgstr ", oltre a quelli che i coloni devono indossare"
+
+msgid "%s, fee %s, %d expedition"
+msgid_plural "%s, fee %s, %d expeditions"
+msgstr[0] "%s, paga %s, %d spedizione"
+msgstr[1] "%s, paga %s, %d spedizioni"
+
+msgid "%s %s of %s"
+msgstr "%s %s di %s"
+
+msgid "%d XP"
+msgstr "%d XP"
+
+msgid "Health: %d / %d%s"
+msgstr "Salute: %d / %d%s"
+
+msgid "  (downed)"
+msgstr "  (a terra)"
+
+msgid "Armor %d. "
+msgstr "Protezione %d. "
+
+msgid "  (armor %d)"
+msgstr "  (protezione %d)"
+
+msgid ""
+"\n"
+"Auto. Click to choose."
+msgstr ""
+"\n"
+"Scelta automatica. Clicca per scegliere."
+
+msgid ""
+"\n"
+"Chosen: %s%s. Click to change."
+msgstr ""
+"\n"
+"Scelta: %s%s. Clicca per cambiare."
+
+msgid "nothing"
+msgstr "niente"
+
+msgid " (on the way)"
+msgstr " (in arrivo)"
+
+msgid "Auto"
+msgstr "Automatico"
+
+msgid "Empty"
+msgstr "Vuoto"
+
+msgid ""
+"%s\n"
+"%s\n"
+"%d h left"
+msgstr ""
+"%s\n"
+"%s\n"
+"Ancora %d h"
+
+msgid ""
+"%s: %s\n"
+"%s happiness while it is in force"
+msgstr ""
+"%s: %s\n"
+"%s felicità finché è in vigore"
+
+msgid "Approves"
+msgstr "Approva"
+
+msgid "Disapproves"
+msgstr "Disapprova"
+
+msgid "Worked today: %.1f / %s h"
+msgstr "Lavorato oggi: %.1f / %s h"
+
+msgid "Hostile"
+msgstr "Ostile"
+
+msgid "Health: %d / %d"
+msgstr "Salute: %d / %d"
+
+msgid "Marked: hunt"
+msgstr "Da cacciare"
+
+msgid "Fishing spot"
+msgstr "Punto di pesca"
+
+msgid "Frozen: no fishing until it thaws"
+msgstr "Ghiacciato: niente pesca fino al disgelo"
+
+msgid "Fish: %d / %d"
+msgstr "Pesci: %d / %d"
+
+msgid "Fish back in %.1f days"
+msgstr "I pesci tornano tra %.1f giorni"
+
+msgid "Logs left: %d / %d%s"
+msgstr "Tronchi rimasti: %d / %d%s"
+
+msgid ""
+"\n"
+"Marked: chop"
+msgstr ""
+"\n"
+"Da tagliare"
+
+msgid "Boulder"
+msgstr "Masso"
+
+msgid "%s left: %d / %d%s"
+msgstr "%s rimanente: %d / %d%s"
+
+msgid ""
+"\n"
+"Marked: mine"
+msgstr ""
+"\n"
+"Da scavare"
+
+msgid ""
+"\n"
+"Marked: uproot"
+msgstr ""
+"\n"
+"Da estirpare"
+
+msgid ""
+"\n"
+"Marked: harvest"
+msgstr ""
+"\n"
+"Da raccogliere"
+
+msgid "Berries"
+msgstr "Bacche"
+
+msgid "Bush"
+msgstr "Cespuglio"
+
+msgid "%s in %.1f days"
+msgstr "%s tra %.1f giorni"
+
+msgid "Weed"
+msgstr "Erbaccia"
+
+msgid "frozen: it keeps"
+msgstr "al gelo: si conserva"
+
+msgid "rots in %.1f days"
+msgstr "marcisce tra %.1f giorni"
+
+msgid "%s pile"
+msgstr "Mucchio di %s"
+
+msgid "Click: knowledge"
+msgstr "Clic: conoscenza"
+
+msgid "Click: laws"
+msgstr "Clic: leggi"
+
+msgid "Click: what to make"
+msgstr "Clic: cosa produrre"
+
+msgid "Chop trees: %d"
+msgstr "Tagliare alberi: %d"
+
+msgid "Mine boulders: %d"
+msgstr "Scavare massi: %d"
+
+msgid "Uproot plants: %d"
+msgstr "Estirpare piante: %d"
+
+msgid "Harvest bushes: %d"
+msgstr "Raccogliere dai cespugli: %d"
+
+msgid "Fish spots: %d"
+msgstr "Punti di pesca: %d"
+
+msgid "Hunt animals: %d%s"
+msgstr "Cacciare animali: %d%s"
+
+msgid " (needs a bow)"
+msgstr " (serve un arco)"
+
+msgid "Cook meals: %d"
+msgstr "Cucinare pasti: %d"
+
+msgid "Make %s: %d"
+msgstr "Produrre %s: %d"
+
+msgid "Build %s: %d"
+msgstr "Costruire %s: %d"
+
+msgid "Haul %s: %d pile"
+msgid_plural "Haul %s: %d piles"
+msgstr[0] "Trasportare %s: %d mucchio"
+msgstr[1] "Trasportare %s: %d mucchi"
+
+msgid "Nothing to do"
+msgstr "Niente da fare"
+
+# --- main.gd: barra in alto, simulazione, avventurieri e spedizioni
+
+msgid "WOLVES: %d    "
+msgstr "LUPI: %d    "
+
+msgid "EXPEDITION: %d    "
+msgstr "SPEDIZIONI: %d    "
+
+msgid "%s, %s  %02d:%02d    Order: %s"
+msgstr "%s, %s  %02d:%02d    Ordine: %s"
+
+msgid "was killed by wolves."
+msgstr "ha perso la vita sotto i morsi dei lupi."
+
+msgid "Day %d: a wandering scholar stops at the inn, with %s to sell (see Knowledge)."
+msgstr "Giorno %d: alla locanda si ferma un erudito errante, che vende %s (vedi Conoscenza)."
+
+msgctxt "book"
+msgid "a %s"
+msgstr "un %s"
+
+msgid "Day %d, night: the watch sees wolves coming."
+msgstr "Giorno %d, notte: la guardia avvista dei lupi in arrivo."
+
+msgid "%s, level %d"
+msgstr "%s, livello %d"
+
+msgid "%s: %s hired for the %s, for %s and %d of %d provisions."
+msgstr "%s: ingaggio di %s per la spedizione a %s, con %s di paga e %d provviste su %d."
+
+msgid " The armory lends: %s."
+msgstr " L'armeria presta: %s."
+
+msgid "%s: the party reaches the %s. %s"
+msgstr "%s: il gruppo raggiunge %s. %s"
+
+msgid "%s, room %d: "
+msgstr "%s, stanza %d: "
+
+msgid "the guardian of the treasure. %s "
+msgstr "il guardiano del tesoro. %s "
+
+msgid "empty."
+msgstr "vuota."
+
+msgid "%s disarms a trap."
+msgstr "%s disinnesca una trappola."
+
+msgid "a trap hurts %s (-%d)."
+msgstr "una trappola ferisce %s (-%d)."
+
+msgid "monsters, but the party slips past them."
+msgstr "mostri, ma il gruppo passa senza farsi notare."
+
+msgid "monsters! "
+msgstr "mostri! "
+
+msgid "a collapse blocks the way."
+msgstr "un crollo blocca il passaggio."
+
+msgid "%s falls and dies."
+msgstr "%s cade e muore."
+
+msgid "%s: %s died in the %s."
+msgstr "%s: %s ha perso la vita esplorando %s."
+
+msgid "%s falls; the others carry them."
+msgstr "%s cade; gli altri se ne fanno carico."
+
+msgid "The party turns back."
+msgstr "Il gruppo torna indietro."
+
+msgid "The treasure stays locked: the party turns back."
+msgstr "Il tesoro resta chiuso: il gruppo torna indietro."
+
+msgid "%s is wounded: the party turns back."
+msgstr "%s ha ferite gravi: il gruppo torna indietro."
+
+msgid "Provisions are running low: the party turns back."
+msgstr "Le provviste scarseggiano: il gruppo torna indietro."
+
+msgid "The %s has nothing left to explore."
+msgstr "%s: non resta più niente da esplorare."
+
+msgid "On the way home: "
+msgstr "Sulla via del ritorno: "
+
+msgid "No food left: hunger (-%d each)."
+msgstr "Provviste finite: fame (-%d a testa)."
+
+msgid "a locked chest nobody can open."
+msgstr "un forziere chiuso che nessuno sa aprire."
+
+msgid "a chest: %s, %s"
+msgstr "un forziere: %s, %s"
+
+msgid " and a map to the %s"
+msgstr " e una mappa per %s"
+
+msgid "Nobody came back from the %s."
+msgstr "Nessuno è tornato da %s."
+
+msgid "Lost in the %s"
+msgstr "Spedizione perduta: %s"
+
+msgid "Back home with %s%s."
+msgstr "Di ritorno a casa con %s%s."
+
+msgctxt "loot"
+msgid "nothing"
+msgstr "niente"
+
+msgid "; they keep %s"
+msgstr "; si tengono %s"
+
+msgid "New on the notice board: the %s."
+msgstr "Novità sulla bacheca: %s."
+
+msgid "%s is now level %d."
+msgstr "%s sale al livello %d."
+
+msgid "The treasure of the %s: %s authority for the crown."
+msgstr "Il tesoro di %s: %s autorità per la corona."
+
+msgid "Back from the %s"
+msgstr "Ritorno da %s"
+
+# --- main.gd: bacheca, cronaca, sapere, titoli, leggi
+
+msgid "%s    %d %s provisions (meals, raw food, hardtack)"
+msgstr "%s    %d %s provviste (pasti, cibo crudo, gallette)"
+
+msgid "Anyone"
+msgstr "Chiunque"
+
+msgid "Pick"
+msgstr "Scegli"
+
+msgid "Nobody is waiting at the inn."
+msgstr "Alla locanda non aspetta nessuno."
+
+msgid "Nobody will come without an inn: a room with a bed, a table and this board."
+msgstr "Senza una locanda non verrà nessuno: una stanza con un letto, un tavolo e questa bacheca."
+
+msgid "%s, danger %d: %s"
+msgstr "%s, pericolo %d: %s"
+
+msgid "explored"
+msgstr "esplorazione finita"
+
+msgid "rooms %d / %d"
+msgstr "stanze %d / %d"
+
+msgid ", next: %s"
+msgstr ", la prossima: %s"
+
+msgid "the treasure"
+msgstr "il tesoro"
+
+msgid "Send"
+msgstr "Manda"
+
+msgid "Pick who goes"
+msgstr "Scegli chi parte"
+
+msgid "Not enough gold"
+msgstr "Non c'è abbastanza oro"
+
+msgid "Only %d of %d provisions: they will go hungry"
+msgstr "Solo %d provviste su %d: patiranno la fame"
+
+msgid "%d days there and back"
+msgstr "Giorni di viaggio, andata e ritorno: %d"
+
+msgid "on the way out"
+msgstr "in viaggio verso la rovina"
+
+msgid "at the %s, due back by day %d"
+msgstr "%s, di ritorno entro il giorno %d"
+
+msgid "Last: "
+msgstr "Ultima: "
+
+msgid "Chronicle (%d)"
+msgstr "Cronaca (%d)"
+
+msgid "Nothing worth telling has happened yet."
+msgstr "Non è ancora successo niente che valga la pena di raccontare."
+
+msgid "Studied"
+msgstr "Studiata"
+
+msgid "First: %s"
+msgstr "Prima: %s"
+
+msgid "%d more study"
+msgstr "Ancora %d di studio"
+
+msgid "Needs a %s in a warehouse"
+msgstr "Serve un %s in un magazzino"
+
+msgid "%s walls and floors"
+msgstr "%s: muri e pavimenti"
+
+msgid "the %s room"
+msgstr "la stanza di tipo %s"
+
+msgid "the law %s"
+msgstr "la legge %s"
+
+msgid "Unlocks: "
+msgstr "Sblocca: "
+
+msgid "%s, Year %d"
+msgstr "%s, anno %d"
+
+msgid ": into the stocks"
+msgstr ": finisce alla gogna"
+
+msgid ": the ruler listens"
+msgstr ": il sovrano lo ascolta"
+
+msgid "Day %d: %s protests in the throne room against %s%s."
+msgstr "Giorno %d: %s protesta nella sala del trono contro %s%s."
+
+msgid " and "
+msgstr " e "
+
+msgid "%s to %s"
+msgstr "%s a %s"
+
+msgid "%s of %s"
+msgstr "%s di %s"
+
+msgid "Day %d: the %s is now the %s."
+msgstr "Giorno %d: %s diventa %s."
+
+msgid "%s %s. Seals: %d. Authority every day: +%d."
+msgstr "%s %s. Sigilli: %d. Autorità ogni giorno: +%d."
+
+msgid "Codified"
+msgstr "Codificata"
+
+msgid "Needs a %s"
+msgstr "Serve: %s"
+
+msgid "Needs the research %s"
+msgstr "Serve la ricerca %s"
+
+msgid "%d more authority"
+msgstr "Ancora %d di autorità"
+
+msgid "Not codified yet"
+msgstr "Non ancora codificata"
+
+msgid "In force"
+msgstr "In vigore"
+
+msgid "Revoked: again in %.1f days"
+msgstr "Revocata: di nuovo tra %.1f giorni"
+
+msgid "No free seal: revoke a law first"
+msgstr "Nessun sigillo libero: prima revoca una legge"
+
+msgid "everyone"
+msgstr "tutti"
+
+msgid "adventurers"
+msgstr "avventurieri"
+
+msgid "the ruler"
+msgstr "il sovrano"
+
+msgid "bow carriers"
+msgstr "chi ha l'arco"
+
+msgid ""
+"\n"
+"Happiness: "
+msgstr ""
+"\n"
+"Felicità: "
+
+msgid ""
+"\n"
+"Needs a %s"
+msgstr ""
+"\n"
+"Serve: %s"
+
+msgid ""
+"\n"
+"After %s"
+msgstr ""
+"\n"
+"Dopo la legge %s"
+
+msgid ""
+"\n"
+"Needs the research %s"
+msgstr ""
+"\n"
+"Serve la ricerca %s"
+
+msgid "%d [img=center]%s[/img] study    %s"
+msgstr "%d [img=center]%s[/img] studio    %s"
+
+msgid "A wandering scholar at the inn, until day %d:"
+msgstr "Un erudito errante alla locanda, fino al giorno %d:"
+
+msgid "Buy %s: %d"
+msgstr "Compra un %s: %d"
+
+msgid "Not enough gold in the warehouses"
+msgstr "Non c'è abbastanza oro nei magazzini"
+
+msgid "Paid from the warehouses"
+msgstr "Si paga con l'oro dei magazzini"
+
+msgid "Sell a %s: %d"
+msgstr "Vendi un %s: %d"
+
+msgid "He buys one book, at half price"
+msgstr "Compra un solo libro, a metà prezzo"
+
+msgid "%d study%s"
+msgstr "%d studio%s"
+
+msgid "studied"
+msgstr "studiata"
+
+msgid ": a %s at %d splendor (now %d)"
+msgstr ": %s a splendore %d (ora %d)"
+
+msgid ""
+"%s%s\n"
+"%d [img=center]%s[/img] authority    Seals: %d / %d\n"
+"Granary: %s"
+msgstr ""
+"%s%s\n"
+"%d [img=center]%s[/img] autorità    Sigilli: %d / %d\n"
+"Granaio: %s"
+
+msgid "empty"
+msgstr "vuoto"
+
+msgid "Revoke"
+msgstr "Revoca"
+
+msgid "Free; then it cannot be enacted again for %d days"
+msgstr "Gratis; poi per %d giorni non si può promulgare di nuovo"
+
+msgid "Enact (%d)"
+msgstr "Promulga (%d)"
+
+msgid "Takes the place of %s"
+msgstr "Prende il posto di %s"
+
+msgid "Takes a seal"
+msgstr "Occupa un sigillo"
+
+msgid "Codify (%d)"
+msgstr "Codifica (%d)"
+
+msgid "Once codified, it can be enacted"
+msgstr "Una volta codificata, si può promulgare"
+
+msgid "Structure%d"
+msgstr "Struttura%d"
+
+# --- Correzioni
+
+msgid "Iron vein"
+msgstr "Vena di ferro"
+
+msgid "Coal vein"
+msgstr "Vena di carbone"
+
+# --- Nomi degli enum, mostrati con named() (main.gd)
+
+msgctxt "item"
+msgid "Wood"
+msgstr "Legna"
+
+msgctxt "item"
+msgid "Stone"
+msgstr "Pietra"
+
+msgctxt "item"
+msgid "Veg"
+msgstr "Vegetali"
+
+msgctxt "item"
+msgid "Iron"
+msgstr "Ferro"
+
+msgctxt "item"
+msgid "Coal"
+msgstr "Carbone"
+
+msgctxt "item"
+msgid "Meal"
+msgstr "Pasto"
+
+msgctxt "item"
+msgid "Fine Meal"
+msgstr "Pasto squisito"
+
+msgctxt "item"
+msgid "Meat"
+msgstr "Carne"
+
+msgctxt "item"
+msgid "Fish"
+msgstr "Pesce"
+
+msgctxt "item"
+msgid "Hide"
+msgstr "Pelle"
+
+msgctxt "item"
+msgid "Ingot"
+msgstr "Lingotto"
+
+msgctxt "item"
+msgid "Flax"
+msgstr "Lino"
+
+msgctxt "item"
+msgid "Bowstring"
+msgstr "Corda d'arco"
+
+msgctxt "item"
+msgid "Pickaxe"
+msgstr "Piccone"
+
+msgctxt "item"
+msgid "Axe"
+msgstr "Ascia"
+
+msgctxt "item"
+msgid "Sickle"
+msgstr "Falcetto"
+
+msgctxt "item"
+msgid "Bow"
+msgstr "Arco"
+
+msgctxt "item"
+msgid "Leather Armor"
+msgstr "Armatura di cuoio"
+
+msgctxt "item"
+msgid "Leather Hood"
+msgstr "Cappuccio di cuoio"
+
+msgctxt "item"
+msgid "Helmet"
+msgstr "Elmo"
+
+msgctxt "item"
+msgid "Chainmail"
+msgstr "Cotta di maglia"
+
+msgctxt "item"
+msgid "Sword"
+msgstr "Spada"
+
+msgctxt "item"
+msgid "Gold"
+msgstr "Oro"
+
+msgctxt "item"
+msgid "Dagger"
+msgstr "Pugnale"
+
+msgctxt "item"
+msgid "Chalice"
+msgstr "Calice"
+
+msgctxt "item"
+msgid "Old Banner"
+msgstr "Stendardo antico"
+
+msgctxt "item"
+msgid "Bust"
+msgstr "Busto"
+
+msgctxt "item"
+msgid "Crown"
+msgstr "Corona"
+
+msgctxt "item"
+msgid "Notebook"
+msgstr "Quaderno"
+
+msgctxt "item"
+msgid "Tome"
+msgstr "Tomo"
+
+msgctxt "item"
+msgid "Codex"
+msgstr "Codice"
+
+msgctxt "item"
+msgid "Hardtack"
+msgstr "Gallette"
+
+msgctxt "item"
+msgid "Smoked Meat"
+msgstr "Carne affumicata"
+
+msgctxt "item"
+msgid "Smoked Fish"
+msgstr "Pesce affumicato"
+
+msgctxt "item"
+msgid "Shield"
+msgstr "Scudo"
+
+msgctxt "item"
+msgid "Steel"
+msgstr "Acciaio"
+
+msgctxt "item"
+msgid "Parchment"
+msgstr "Pergamena"
+
+msgctxt "item"
+msgid "Ink"
+msgstr "Inchiostro"
+
+msgctxt "skill"
+msgid "Gathering"
+msgstr "Raccogliere"
+
+msgctxt "skill"
+msgid "Mining"
+msgstr "Estrarre"
+
+msgctxt "skill"
+msgid "Woodcutting"
+msgstr "Tagliare legna"
+
+msgctxt "skill"
+msgid "Construction"
+msgstr "Costruire"
+
+msgctxt "skill"
+msgid "Smithing"
+msgstr "Forgiare"
+
+msgctxt "skill"
+msgid "Tailoring"
+msgstr "Cucire"
+
+msgctxt "skill"
+msgid "Cooking"
+msgstr "Cucinare"
+
+msgctxt "skill"
+msgid "Fishing"
+msgstr "Pescare"
+
+msgctxt "skill"
+msgid "Hunting"
+msgstr "Cacciare"
+
+msgctxt "skill"
+msgid "Melee"
+msgstr "Mischia"
+
+msgctxt "skill"
+msgid "Ranged"
+msgstr "Tiro"
+
+msgctxt "skill"
+msgid "Research"
+msgstr "Ricerca"
+
+msgctxt "skill"
+msgid "Lockpicking"
+msgstr "Scassinare"
+
+msgctxt "branch"
+msgid "Land"
+msgstr "Terra"
+
+msgctxt "branch"
+msgid "Fire"
+msgstr "Fuoco"
+
+msgctxt "branch"
+msgid "Stone"
+msgstr "Pietra"
+
+msgctxt "branch"
+msgid "Iron"
+msgstr "Ferro"
+
+msgctxt "branch"
+msgid "Road"
+msgstr "Strada"
+
+msgctxt "branch"
+msgid "Lore"
+msgstr "Sapere"
+
+msgctxt "division"
+msgid "Plain"
+msgstr "Pieno"
+
+msgctxt "division"
+msgid "Pale"
+msgstr "Partito"
+
+msgctxt "division"
+msgid "Fess"
+msgstr "Troncato"
+
+msgctxt "division"
+msgid "Bend"
+msgstr "Trinciato"
+
+msgctxt "division"
+msgid "Bend Sinister"
+msgstr "Tagliato"
+
+msgctxt "division"
+msgid "Quarterly"
+msgstr "Inquartato"
+
+msgctxt "division"
+msgid "Saltire"
+msgstr "Inquartato in decusse"
+
+msgctxt "heraldry"
+msgid "None"
+msgstr "Nessuna"
+
+msgctxt "heraldry"
+msgid "Chief"
+msgstr "Capo"
+
+msgctxt "heraldry"
+msgid "Base"
+msgstr "Campagna"
+
+msgctxt "heraldry"
+msgid "Pale"
+msgstr "Palo"
+
+msgctxt "heraldry"
+msgid "Fess"
+msgstr "Fascia"
+
+msgctxt "heraldry"
+msgid "Bend"
+msgstr "Banda"
+
+msgctxt "heraldry"
+msgid "Cross"
+msgstr "Croce"
+
+msgctxt "heraldry"
+msgid "Saltire"
+msgstr "Decusse"
+
+msgctxt "heraldry"
+msgid "Chevron"
+msgstr "Scaglione"
+
+msgctxt "heraldry"
+msgid "Bordure"
+msgstr "Bordura"
+
+msgctxt "heraldry"
+msgid "None"
+msgstr "Nessuna"
+
+msgctxt "heraldry"
+msgid "Star"
+msgstr "Stella"
+
+msgctxt "heraldry"
+msgid "Crescent"
+msgstr "Crescente"
+
+msgctxt "heraldry"
+msgid "Fleur"
+msgstr "Giglio"
+
+msgctxt "heraldry"
+msgid "Rose"
+msgstr "Rosa"
+
+msgctxt "heraldry"
+msgid "Tower"
+msgstr "Torre"
+
+msgctxt "heraldry"
+msgid "Crown"
+msgstr "Corona"
+
+msgctxt "heraldry"
+msgid "Sword"
+msgstr "Spada"
+
+msgctxt "heraldry"
+msgid "Key"
+msgstr "Chiave"
+
+msgctxt "heraldry"
+msgid "Tree"
+msgstr "Albero"
+
+msgctxt "heraldry"
+msgid "Eagle"
+msgstr "Aquila"
+
+msgid "Wall"
+msgstr "Muro"
+
+msgid "Floor"
+msgstr "Pavimento"
+
+msgid "Door"
+msgstr "Porta"
+
+msgid "Path"
+msgstr "Sentiero"
+
+msgid "Bed"
+msgstr "Letto"
+
+msgid "Table"
+msgstr "Tavolo"
+
+msgid "Chair"
+msgstr "Sedia"
+
+msgid "Lamp"
+msgstr "Abat-jour"
+
+msgid "Campfire"
+msgstr "Fuoco da campo"
+
+msgid "Furnace"
+msgstr "Fornace"
+
+msgid "Anvil"
+msgstr "Incudine"
+
+msgid "Workbench"
+msgstr "Banco da lavoro"
+
+msgid "Spinning Wheel"
+msgstr "Filatoio"
+
+msgid "Carpenter Bench"
+msgstr "Banco del falegname"
+
+msgid "Flower Bed"
+msgstr "Aiuola"
+
+msgid "Planter"
+msgstr "Fioriera"
+
+msgid "Bench"
+msgstr "Panca"
+
+msgid "Banner"
+msgstr "Stendardo"
+
+msgid "Lantern"
+msgstr "Lampione"
+
+msgid "Fountain"
+msgstr "Fontana"
+
+msgid "Statue"
+msgstr "Statua"
+
+msgid "Notice Board"
+msgstr "Bacheca"
+
+msgid "Chalice"
+msgstr "Calice"
+
+msgid "Old Banner"
+msgstr "Stendardo antico"
+
+msgid "Bust"
+msgstr "Busto"
+
+msgid "Crown"
+msgstr "Corona"
+
+msgid "Desk"
+msgstr "Scrittoio"
+
+msgid "Bookshelf"
+msgstr "Libreria"
+
+msgid "Throne"
+msgstr "Trono"
+
+msgid "Dummy"
+msgstr "Fantoccio"
+
+msgid "Watchtower"
+msgstr "Torre di guardia"
+
+msgid "Canopy Bed"
+msgstr "Letto a baldacchino"
+
+msgid "Rug"
+msgstr "Tappeto"
+
+msgid "Wardrobe"
+msgstr "Armadio"
+
+msgid "Road"
+msgstr "Strada lastricata"
+
+msgid "Palisade"
+msgstr "Palizzata"
+
+msgid "Gate"
+msgstr "Cancello"
+
+msgid "None"
+msgstr "Nessuno"
+
+msgid "Chop"
+msgstr "Taglia"
+
+msgid "Mine"
+msgstr "Scava"
+
+msgid "Uproot"
+msgstr "Estirpa"
+
+msgid "Build"
+msgstr "Costruisci"
+
+msgid "Erase"
+msgstr "Cancella"
+
+msgid "Demolish"
+msgstr "Demolisci"
+
+msgid "Harvest"
+msgstr "Raccogli"
+
+msgid "Fish"
+msgstr "Pesca"
+
+msgid "Hunt"
+msgstr "Caccia"
+
+msgid "Warehouse"
+msgstr "Magazzino"
+
+msgid "Bedroom"
+msgstr "Camera"
+
+msgid "Dormitory"
+msgstr "Dormitorio"
+
+msgid "Kitchen"
+msgstr "Cucina"
+
+msgid "Forge"
+msgstr "Forgia"
+
+msgid "Workshop"
+msgstr "Laboratorio"
+
+msgid "Carpentry"
+msgstr "Falegnameria"
+
+msgid "Inn"
+msgstr "Locanda"
+
+msgid "Study"
+msgstr "Studio"
+
+msgid "Throne Room"
+msgstr "Sala del trono"
+
+msgid "Pantry"
+msgstr "Dispensa"
+
+msgid "Glutton"
+msgstr "Goloso"
+
+msgid "Sleepwalker"
+msgstr "Sonnambulo"
+
+msgid "Hothead"
+msgstr "Iracondo"
+
+msgid "Lazy"
+msgstr "Pigro"
+
+msgid "Workaholic"
+msgstr "Stacanovista"
+
+msgid "Early Bird"
+msgstr "Mattiniero"
+
+msgid "Night Owl"
+msgstr "Nottambulo"
+
+msgid "Sleepyhead"
+msgstr "Dormiglione"
+
+msgid "Tireless"
+msgstr "Instancabile"
+
+msgid "Fun Loving"
+msgstr "Festaiolo"
+
+msgid "Ascetic"
+msgstr "Asceta"
+
+msgid "Small Appetite"
+msgstr "Di poco appetito"
+
+msgid "Easygoing"
+msgstr "Tranquillo"
+
+msgid "Napper"
+msgstr "Pennichella"
+
+msgid "Restless"
+msgstr "Irrequieto"
+
+msgid "Poisoned"
+msgstr "Intossicato"
+
+msgid "Well Fed"
+msgstr "Ben nutrito"
+
+msgid "Feasted"
+msgstr "Lauto pasto"
+
+msgid "At Table"
+msgstr "Mangiato al tavolo"
+
+msgid "Ate Raw"
+msgstr "Mangiato crudo"
+
+msgid "Mourning"
+msgstr "Lutto"
+
+msgid "Festive"
+msgstr "In festa"
+
+msgid "Pilloried"
+msgstr "Alla gogna"
+
+msgid "Heard"
+msgstr "Ascoltato"
+
+msgid "Food"
+msgstr "Cibo"
+
+msgid "Rest"
+msgstr "Riposo"
+
+msgid "Fun"
+msgstr "Svago"
+
+msgid "Comfort"
+msgstr "Comfort"
+
+msgid "Happiness"
+msgstr "Felicità"
+
+msgid "Stress"
+msgstr "Stress"
+
+msgid "Greedy"
+msgstr "Avido"
+
+msgid "Loyal"
+msgstr "Leale"
+
+msgid "Reckless"
+msgstr "Temerario"
+
+msgid "Coward"
+msgstr "Codardo"
+
+msgid "Lucky"
+msgstr "Fortunato"
+
+msgid "Cartographer"
+msgstr "Cartografo"
+
+msgid "Jinxed"
+msgstr "Iettato"
+
+msgid "Berserker"
+msgstr "Berserker"
+
+msgid "Stout"
+msgstr "Robusto"
+
+msgid "Stealthy"
+msgstr "Furtivo"
+
+msgid "Medic"
+msgstr "Medico"
+
+msgid "Forager"
+msgstr "Raccoglitore"
+
+msgid "Pathfinder"
+msgstr "Guida"
+
+msgid "Keen Eyed"
+msgstr "Occhio di lince"
+
+msgid "Scholar"
+msgstr "Studioso"
+
+msgid "Famous"
+msgstr "Famoso"
+
+msgid "Warrior"
+msgstr "Guerriero"
+
+msgid "Archer"
+msgstr "Arciere"
+
+msgid "Burglar"
+msgstr "Scassinatore"
+
+msgid "Rabbit"
+msgstr "Coniglio"
+
+msgid "Deer"
+msgstr "Cervo"
+
+msgid "Wolf"
+msgstr "Lupo"
+
+msgid "Oak"
+msgstr "Quercia"
+
+msgid "Pine"
+msgstr "Pino"
+
+msgid "Birch"
+msgstr "Betulla"
+
+msgid "Hands"
+msgstr "Mani"
+
+msgid "Body"
+msgstr "Corpo"
+
+msgid "Head"
+msgstr "Testa"
+
+msgid "Shield"
+msgstr "Scudo"
+
+msgid "Tailoring"
+msgstr "Sartoria"
+
+msgid "Hunting"
+msgstr "Caccia"
+
+msgid "Masonry"
+msgstr "Muratura"
+
+msgid "Decor"
+msgstr "Decorazioni"
+
+msgid "Lanterns"
+msgstr "Lanterne"
+
+msgid "Iron Arms"
+msgstr "Armi di ferro"
+
+msgid "Chainmail"
+msgstr "Cotta di maglia"
+
+msgid "Statuary"
+msgstr "Statuaria"
+
+msgid "Astronomy"
+msgstr "Astronomia"
+
+msgid "Charcoal"
+msgstr "Carbonaia"
+
+msgid "Cold Store"
+msgstr "Dispensa fredda"
+
+msgid "Paved Road"
+msgstr "Strada lastricata"
+
+msgid "Dry Rations"
+msgstr "Provviste secche"
+
+msgid "Cartography"
+msgstr "Cartografia"
+
+msgid "Training Dummy"
+msgstr "Fantoccio"
+
+msgid "Smokehouse"
+msgstr "Affumicatoio"
+
+msgid "Renowned Inn"
+msgstr "Locanda rinomata"
+
+msgid "Lending Armory"
+msgstr "Armeria di prestito"
+
+msgid "Steel"
+msgstr "Acciaio"
+
+msgid "Scriptorium"
+msgstr "Scriptorium"
+
+msgid "Fine Furniture"
+msgstr "Arredo fine"
+
+msgid "Palace"
+msgstr "Palazzo"
+
+msgid "Exemption"
+msgstr "Esenzione"
+
+msgid "Tithe"
+msgstr "Decima"
+
+msgid "Loot Tax"
+msgstr "Gabella sul bottino"
+
+msgid "Lodging Tax"
+msgstr "Tassa di soggiorno"
+
+msgid "Long Shifts"
+msgstr "Turni lunghi"
+
+msgid "Short Day"
+msgstr "Giornata corta"
+
+msgid "Day Of Rest"
+msgstr "Riposo festivo"
+
+msgid "Curfew"
+msgstr "Coprifuoco"
+
+msgid "Harvest Feast"
+msgstr "Festa del raccolto"
+
+msgid "Tallage"
+msgstr "Taglia"
+
+msgid "Tribute"
+msgstr "Tributo"
+
+msgid "Open Granary"
+msgstr "Granaio aperto"
+
+msgid "Toll"
+msgstr "Pedaggio"
+
+msgid "Night Watch"
+msgstr "Turno di guardia"
+
+msgid "Militia"
+msgstr "Milizia"
+
+msgid "Harsh Punishment"
+msgstr "Pene severe"
+
+msgid "Clemency"
+msgstr "Clemenza"
+
+msgid "Hunting Reserve"
+msgstr "Riserva di caccia"
+
+msgid "Court"
+msgstr "Corte"
+
+msgid "Treasury"
+msgstr "Tesoro"
+
+msgid "Work"
+msgstr "Lavoro"
+
+msgid "Order"
+msgstr "Ordine"
+
+msgid "Feasts"
+msgstr "Feste"
+
+msgid "Or"
+msgstr "Oro"
+
+msgid "Argent"
+msgstr "Argento"
+
+msgid "Gules"
+msgstr "Rosso"
+
+msgid "Azure"
+msgstr "Azzurro"
+
+msgid "Vert"
+msgstr "Verde"
+
+msgid "Sable"
+msgstr "Nero"
+
+msgid "Purpure"
+msgstr "Porpora"
+
+msgid "Heater"
+msgstr "Francese antico"
+
+msgid "Samnite"
+msgstr "Sannitico"
+
+msgid "Round"
+msgstr "Tondo"
+
+msgid "Lozenge"
+msgstr "A losanga"
+
+msgid "Short"
+msgstr "Corti"
+
+msgid "Long"
+msgstr "Lunghi"
+
+msgid "Braid"
+msgstr "Treccia"
+
+msgid "Clear"
+msgstr "Sereno"
+
+msgid "Rain"
+msgstr "Pioggia"
+
+msgid "Snow"
+msgstr "Neve"
+
+msgid "Fog"
+msgstr "Nebbia"
+
+msgid "Storm"
+msgstr "Temporale"
+
+msgid "Wood"
+msgstr "Legna"
+
+msgid "Stone"
+msgstr "Pietra"
+
+msgid "Veg"
+msgstr "Vegetali"
+
+msgid "Iron"
+msgstr "Ferro"
+
+msgid "Coal"
+msgstr "Carbone"
+
+msgid "Meal"
+msgstr "Pasto"
+
+msgid "Fine Meal"
+msgstr "Pasto squisito"
+
+msgid "Meat"
+msgstr "Carne"
+
+msgid "Hide"
+msgstr "Pelle"
+
+msgid "Ingot"
+msgstr "Lingotto"
+
+msgid "Flax"
+msgstr "Lino"
+
+msgid "Bowstring"
+msgstr "Corda d'arco"
+
+msgid "Pickaxe"
+msgstr "Piccone"
+
+msgid "Axe"
+msgstr "Ascia"
+
+msgid "Sickle"
+msgstr "Falcetto"
+
+msgid "Bow"
+msgstr "Arco"
+
+msgid "Leather Armor"
+msgstr "Armatura di cuoio"
+
+msgid "Leather Hood"
+msgstr "Cappuccio di cuoio"
+
+msgid "Helmet"
+msgstr "Elmo"
+
+msgid "Sword"
+msgstr "Spada"
+
+msgid "Gold"
+msgstr "Oro"
+
+msgid "Dagger"
+msgstr "Pugnale"
+
+msgid "Notebook"
+msgstr "Quaderno"
+
+msgid "Tome"
+msgstr "Tomo"
+
+msgid "Codex"
+msgstr "Codice"
+
+msgid "Hardtack"
+msgstr "Gallette"
+
+msgid "Smoked Meat"
+msgstr "Carne affumicata"
+
+msgid "Smoked Fish"
+msgstr "Pesce affumicato"
+
+msgid "Parchment"
+msgstr "Pergamena"
+
+msgid "Ink"
+msgstr "Inchiostro"
