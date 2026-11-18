@@ -123,7 +123,7 @@ pre i { color: #8fb87a; }
 <body>
 <nav>
 <h1>King</h1>
-<small>Meccaniche · commit c1a32ba · 2026-11-18 · <a class="lang" href="en.html">English</a></small>
+<small>Meccaniche · commit db1db69 · 2026-11-18 · <a class="lang" href="en.html">English</a></small>
 <h2>Wiki</h2>
 <a href="#le-basi"><i class="sp s75" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Le basi</a><a href="#comandi"><i class="sp s76" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Comandi</a><a href="#coloni"><i class="sp s77" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Coloni</a><a href="#abilità"><i class="sp s72" style="width:16px;height:16px;background-position:-144px 0px;background-size:208px 16px"></i> Abilità</a><a href="#talenti"><i class="sp s66" style="width:16px;height:16px;background-position:0px 0px;background-size:240px 16px"></i> Talenti</a><a href="#condizioni"><i class="sp s67" style="width:16px;height:16px;background-position:-16px 0px;background-size:144px 16px"></i> Condizioni</a><a href="#il-sovrano-e-la-casata"><i class="sp s27" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Il sovrano e la casata</a><a href="#costruire"><i class="sp s55" style="width:15px;height:15px;background-position:0px 0px;background-size:15px 15px"></i> Costruire</a><a href="#stanze"><i class="sp s64" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Stanze</a><a href="#cibo-e-cucina"><i class="sp s5" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Cibo e cucina</a><a href="#raccolta"><i class="sp s58" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Raccolta</a><a href="#lavorazioni-ed-equipaggiamento"><i class="sp s10" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Lavorazioni ed equipaggiamento</a><a href="#combattimento-e-lupi"><i class="sp s74" style="width:16px;height:16px;background-position:0px -32px;background-size:32px 48px"></i> Combattimento e lupi</a><a href="#splendore"><i class="sp s53" style="width:16px;height:16px;background-position:0px -416px;background-size:128px 960px"></i> Splendore</a><a href="#avventurieri"><i class="sp s23" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Avventurieri</a><a href="#rovine-e-spedizioni"><i class="sp s24" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Rovine e spedizioni</a><a href="#conoscenza"><i class="sp s61" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Conoscenza</a><a href="#leggi"><i class="sp s62" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Leggi</a><h2>Sviluppo</h2><a href="#todo"><i class="sp s36" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Da sviluppare</a><h2>Numeri</h2><a href="#main-gd">main.gd</a><a href="#atmosphere-gd">atmosphere.gd</a>
 </nav>
@@ -133,8 +133,8 @@ pre i { color: #8fb87a; }
 <p>King è un gestionale di colonia medievale. Sei il sovrano di una piccola signoria, ma non muovi mai nessuno a mano: segni gli alberi da tagliare e i massi da scavare, progetti gli edifici, scegli cosa producono le postazioni e promulghi le leggi. I coloni scelgono da soli i lavori, seguendo i loro bisogni e la loro routine quotidiana.</p>
 <h3>L'inizio </h3>
 <ul>
-<li>Tre coloni stanno in una radura. Il primo è il tuo sovrano, creato nella pagina della nuova partita.</li>
-<li>Attorno alla radura ci sono tre stanzette di legno. Quella a nord è un magazzino, con un po' di scorte e 60 <i class="sp s43" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i>.</li>
+<li>Il tuo sovrano, creato nella pagina della nuova partita, e tre coloni stanno in una radura. Non c'è ancora niente di costruito: né stanze né magazzino.</li>
+<li>Accanto a loro, 60 <i class="sp s43" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> sono a terra nell'erba: costruisci un magazzino e i trasportatori ce le portano (si spende solo quello che è in magazzino).</li>
 <li>Un'arma abbandonata (una spada, un'ascia o un arco) giace nell'erba a 15–25 caselle dalla radura.</li>
 <li>Dal giorno 5 arrivano i lupi (vedi Combattimento e lupi).</li>
 <li>Se muoiono tutti i coloni, la colonia è caduta.</li>
@@ -171,11 +171,18 @@ pre i { color: #8fb87a; }
 <li>Spazio: pausa; 1, 2, 3: velocità.</li>
 <li>E e R: girano a sinistra o a destra il prossimo mobile.</li>
 <li>Esc: le opzioni (anche l'ingranaggio in alto a destra).</li>
+<li>F5: salva la partita.</li>
 </ul>
 <h3>Opzioni </h3>
 <ul>
-<li>Sistema: la lingua, l'uscita dal gioco. Video: misura della finestra e schermo intero (anche il pulsante dello schermo in alto a destra).</li>
-<li>Tasti: clicca il tasto di un comando, poi premi quello nuovo. Esc annulla, Canc o Backspace lo lasciano senza tasto, Ripristina rimette quelli di partenza. Spazio, 1-3, E, R ed Esc non si possono assegnare. I tuoi tasti vengono salvati.</li>
+<li>Sistema: la lingua, salva, carica, torna al menu principale, esci dal gioco. Video: misura della finestra e schermo intero (anche il pulsante dello schermo in alto a destra).</li>
+<li>Tasti: clicca il tasto di un comando, poi premi quello nuovo. Esc annulla, Canc o Backspace lo lasciano senza tasto, Ripristina rimette quelli di partenza. Spazio, 1-3, E, R, F5 ed Esc non si possono assegnare. I tuoi tasti vengono salvati.</li>
+</ul>
+<h3>Salvataggio </h3>
+<ul>
+<li>Ogni partita ha un suo file di salvataggio. Salva partita (Sistema) o F5 lo riscrive, e la partita si salva da sé all'inizio di ogni giorno nuovo. In alto compare "Partita salvata".</li>
+<li>Sulla schermata del titolo, Continua riprende l'ultimo salvataggio e Carica partita li elenca tutti, dal più recente, col reame, la data, il sovrano e i coloni. Carica partita nelle opzioni fa lo stesso durante una partita; Elimina chiede due volte.</li>
+<li>Una partita caricata parte in pausa: Spazio per andare avanti. Menu principale ed Esci dal gioco non salvano: quello che non hai salvato va perso.</li>
 </ul></section><section id="coloni"><h2><i class="sp s77" style="width:32px;height:32px;background-position:0px 0px;background-size:32px 32px"></i> Coloni</h2><p>Clicca un colono per aprire la sua scheda: salute, bisogni (le frecce mostrano se ognuno sale o scende), abilità, talenti, condizioni, equipaggiamento e le 24 ore della sua routine.</p>
 <h3>Bisogni </h3>
 <p>Vanno tutti da 0 a 100.</p>
@@ -293,7 +300,7 @@ pre i { color: #8fb87a; }
 <h3>Cucinare </h3>
 <ul>
 <li>A un fuoco da campo dentro una cucina. Il cuoco prende 2 crudi da un mucchio (vegetali, pesce o carne), cucina per 8 s e porta il pasto in un magazzino.</li>
-<li>Clicca il fuoco da campo: Tieni N pasti (6 all'inizio). I cuochi cucinano finché ci sono meno pasti di così, contando quelli a terra, nei magazzini e in mano.</li>
+<li>Clicca il fuoco da campo: Tieni N pasti (8 all'inizio, 2 a testa). I cuochi cucinano finché ci sono meno pasti di così, contando quelli a terra, nei magazzini e in mano.</li>
 <li>Bruciato, e il cibo è perso: 6% per ogni livello di Cucinare sotto il 6, più 3% per ogni punto di comfort della cucina sotto 5 (meno, sopra). A livello 0 in una cucina con comfort 5: 36%.</li>
 <li><i class="sp s6" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Pasto squisito: 5% per ogni livello sopra il 5, più 2% per ogni punto di comfort sopra 5 (meno, sotto): 25% a livello 10.</li>
 <li>Il tempo dipende anche dal comfort della cucina e dalle condizioni del cuoco.</li>
@@ -316,7 +323,7 @@ pre i { color: #8fb87a; }
 </ul>
 <table><tr><td><span style="color:#d9c48a">Animale</span></td><td><span style="color:#d9c48a">Salute</span></td><td><span style="color:#d9c48a">Carne, pelle</span></td><td><span style="color:#d9c48a">Velocità</span></td></tr><tr><td><i class="sp s74" style="width:16px;height:16px;background-position:0px 0px;background-size:32px 48px"></i> Coniglio</td><td>10</td><td>3, 1</td><td>2 caselle/s</td></tr><tr><td><i class="sp s74" style="width:16px;height:16px;background-position:0px -16px;background-size:32px 48px"></i> Cervo</td><td>20</td><td>10, 3</td><td>1,5 caselle/s</td></tr><tr><td><i class="sp s74" style="width:16px;height:16px;background-position:0px -32px;background-size:32px 48px"></i> Lupo</td><td>30</td><td>5, 2</td><td>3 caselle/s</td></tr></table>
 <p>Gli animali girano fuori dalle stanze e dall'acqua e nascono a più di 15 caselle dalla radura: all'inizio 6 conigli e 3 cervi, poi uno nuovo ogni mezza giornata finché sono meno di 12. Un lupo segnato, se gli si tira, attacca il cacciatore.</p></section><section id="lavorazioni-ed-equipaggiamento"><h2><i class="sp s10" style="width:32px;height:32px;background-position:0px 0px;background-size:32px 32px"></i> Lavorazioni ed equipaggiamento</h2><h3>Postazioni </h3>
-<p>Clicca una postazione per il suo menu: una riga per ogni ricetta che conosci, coi suoi ingredienti e Tieni N. Si fa finché in giro ce ne sono meno di N (a terra, nei magazzini, in mano, in lavorazione); la Scorta vale per tutte le postazioni dello stesso tipo. L'equipaggiamento si fa anche per i coloni con uno slot vuoto, e un arco quando ci sono animali segnati e nessuno ne ha uno. All'inizio: Scorta 10 lingotti, 2 corde d'arco, 6 pasti, 0 per il resto.</p>
+<p>Clicca una postazione per il suo menu: una riga per ogni ricetta che conosci, coi suoi ingredienti e Tieni N. Si fa finché in giro ce ne sono meno di N (a terra, nei magazzini, in mano, in lavorazione); la Scorta vale per tutte le postazioni dello stesso tipo. L'equipaggiamento si fa anche per i coloni con uno slot vuoto, e un arco quando ci sono animali segnati e nessuno ne ha uno. All'inizio: Scorta 10 lingotti, 2 corde d'arco, 8 pasti, 0 per il resto.</p>
 <p>L'artigiano porta gli ingredienti uno alla volta, poi lavora. Il tempo dipende da abilità, comfort della stanza e condizioni; un oggetto può rovinarsi, e gli ingredienti vanno persi, tanto spesso quanto brucia un pasto.</p>
 <table><tr><td><span style="color:#d9c48a">Oggetto</span></td><td><span style="color:#d9c48a">Postazione</span></td><td><span style="color:#d9c48a">Ingredienti</span></td><td><span style="color:#d9c48a">Tempo</span></td></tr><tr><td><i class="sp s10" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Lingotto</td><td><i class="sp s53" style="width:16px;height:16px;background-position:0px -160px;background-size:128px 960px"></i> fornace</td><td>1 ferro, 1 carbone</td><td>6 s</td></tr><tr><td><i class="sp s12" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Corda d'arco</td><td><i class="sp s53" style="width:16px;height:16px;background-position:0px -256px;background-size:128px 960px"></i> filatoio</td><td>2 lino</td><td>8 s</td></tr><tr><td><i class="sp s17" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Armatura di cuoio</td><td><i class="sp s53" style="width:16px;height:16px;background-position:0px -224px;background-size:128px 960px"></i> banco da lavoro</td><td>4 pelli</td><td>20 s</td></tr><tr><td><i class="sp s18" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Cappuccio di cuoio</td><td><i class="sp s53" style="width:16px;height:16px;background-position:0px -224px;background-size:128px 960px"></i> banco da lavoro</td><td>2 pelli</td><td>12 s</td></tr><tr><td><i class="sp s16" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Arco</td><td><i class="sp s53" style="width:16px;height:16px;background-position:0px -288px;background-size:128px 960px"></i> banco del falegname</td><td>3 legna, 1 corda d'arco</td><td>15 s</td></tr><tr><td><i class="sp s13" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Piccone</td><td><i class="sp s53" style="width:16px;height:16px;background-position:0px -192px;background-size:128px 960px"></i> incudine</td><td>2 lingotti, 2 legna</td><td>15 s</td></tr><tr><td><i class="sp s14" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Ascia</td><td><i class="sp s53" style="width:16px;height:16px;background-position:0px -192px;background-size:128px 960px"></i> incudine</td><td>2 lingotti, 2 legna</td><td>15 s</td></tr><tr><td><i class="sp s15" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Falcetto</td><td><i class="sp s53" style="width:16px;height:16px;background-position:0px -192px;background-size:128px 960px"></i> incudine</td><td>1 lingotto, 1 legna</td><td>10 s</td></tr><tr><td><i class="sp s19" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Elmo</td><td><i class="sp s53" style="width:16px;height:16px;background-position:0px -192px;background-size:128px 960px"></i> incudine</td><td>3 lingotti</td><td>20 s</td></tr><tr><td><i class="sp s20" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Cotta di maglia</td><td><i class="sp s53" style="width:16px;height:16px;background-position:0px -192px;background-size:128px 960px"></i> incudine</td><td>6 lingotti</td><td>30 s</td></tr><tr><td><i class="sp s21" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Spada</td><td><i class="sp s53" style="width:16px;height:16px;background-position:0px -192px;background-size:128px 960px"></i> incudine</td><td>3 lingotti, 1 legna</td><td>20 s</td></tr></table>
 <p>Abilità: Forgiare a fornace e incudine, Cucire a filatoio e banco da lavoro, Tiro al banco del falegname.</p>
@@ -502,10 +509,9 @@ const <b id="c-CARRY_MAX">CARRY_MAX</b> := 10       <i># quantità massima trasp
 const <b id="c-BUILD_TIME">BUILD_TIME</b> := 2.0     <i># secondi per costruire una casella</i>
 const <b id="c-LOOK_AGAIN">LOOK_AGAIN</b> := 0.5     <i># secondi tra una ricerca di lavoro e l'altra, per chi non ne trova</i>
 const <b id="c-RETRY_AFTER">RETRY_AFTER</b> := 10.0   <i># secondi di gioco prima di riprovare a raggiungere una casella irraggiungibile</i>
-const <b id="c-COLONIST_COUNT">COLONIST_COUNT</b> := 3
+const <b id="c-COLONIST_COUNT">COLONIST_COUNT</b> := 3   <i># coloni all'inizio, oltre al sovrano: nella radura, senza niente di costruito</i>
+const <b id="c-TEST_PEOPLE">TEST_PEOPLE</b> := 3      <i># nei test (game_start false): il sovrano e due coloni, quelli su cui sono fatte le prove</i>
 const <b id="c-ROOM_MAX">ROOM_MAX</b> := 400       <i># caselle: una zona chiusa più grande non è una stanza, è il mondo fuori</i>
-const <b id="c-START_ROOMS">START_ROOMS</b> := [Vector2i.UP, Vector2i.LEFT, Vector2i.RIGHT]  <i># stanze 5x5 già murate attorno alla radura, porta verso fuori</i>
-const <b id="c-DEBUG_STASH">DEBUG_STASH</b> := 100    <i># debug: quanto di ogni risorsa c'è all'inizio nella prima stanza, che fa da magazzino</i>
 const <b id="c-SIDES">SIDES</b> := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 const <b id="c-TREE_SIDES">TREE_SIDES</b> := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  <i># da sopra la chioma coprirebbe chi taglia</i></pre>
 <pre>enum <b id="c-Job">Job</b> { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE,
@@ -532,8 +538,7 @@ const <b id="c-STACK_MAX">STACK_MAX</b> := {Res.WOOD: 100, Res.STONE: 50, Res.VE
 	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5, Res.NOTEBOOK: 10, Res.TOME: 10, Res.CODEX: 10, Res.HARDTACK: 50, Res.SMOKED_MEAT: 50, Res.SMOKED_FISH: 50, Res.SHIELD: 10, Res.STEEL: 50, Res.PARCHMENT: 50, Res.INK: 20}  <i># quantità massima per mucchio (casella)</i>
 const <b id="c-MEALS">MEALS</b> := [Res.FINE_MEAL, Res.MEAL]  <i># cotti: chi ha fame li prende in quest'ordine, poi il crudo</i>
 const <b id="c-RAW_FOOD">RAW_FOOD</b> := [Res.VEG, Res.FISH, Res.MEAT, Res.SMOKED_FISH, Res.SMOKED_MEAT]  <i># crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti</i>
-const <b id="c-STASH">STASH</b> := [Res.WOOD, Res.STONE, Res.VEG, Res.IRON, Res.COAL, Res.FLAX]  <i># scorta di debug: il resto si produce</i>
-const <b id="c-START_GOLD">START_GOLD</b> := 60      <i># monete nel magazzino all'inizio</i>
+const <b id="c-START_GOLD">START_GOLD</b> := 60      <i># monete all'inizio, a terra nella radura: le si spende quando sono in un magazzino</i>
 const <b id="c-COIN">COIN</b> := "[img=center]res://art/icon_coin.png[/img]"  <i># una moneta 16x16 nei testi ricchi (vedi coins)</i></pre>
 <pre><i># Tipo di ogni oggetto: la sua icona 16x16 (art/kind_*.png, per le monete la moneta) sta davanti al nome, ovunque</i>
 <i># (vedi item_name, item_title, kind_icon)</i>
@@ -809,7 +814,7 @@ const <b id="c-RECIPES">RECIPES</b> := [
 ]
 const <b id="c-STATION_ROOM">STATION_ROOM</b> := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP,
 	Build.SPINNING_WHEEL: RoomKind.WORKSHOP, Build.CARPENTER_BENCH: RoomKind.CARPENTRY, Build.DESK: RoomKind.STUDY}
-const <b id="c-STOCK">STOCK</b> := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.MEAL: MEALS_PER_COLONIST * COLONIST_COUNT, Res.COAL: 5}  <i># scorte di partenza, vedi keep</i>
+const <b id="c-STOCK">STOCK</b> := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.COAL: 5}  <i># scorte di partenza, vedi keep; i pasti MEALS_PER_COLONIST a testa</i>
 enum <b id="c-Order">Order</b> { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT }  <i># cosa segna il trascinamento del mouse</i></pre>
 <pre><i># tasti in HUD/Tools/Row dopo Build, uno alla volta (ButtonGroup "Orders"): vedi toggle_order</i>
 const <b id="c-ORDER_TOOLS">ORDER_TOOLS</b> := {Order.DEMOLISH: "Destroy", Order.MINE: "Mine", Order.CHOP: "Chop", Order.UPROOT: "Uproot",
@@ -919,7 +924,17 @@ const <b id="c-SPEEDS">SPEEDS</b> := {"Pause": 0.0, "Play": 1.0, "Fast": 2.0, "F
 const <b id="c-RESOLUTIONS">RESOLUTIONS</b> := [Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440)]</pre>
 <pre><i># tab System delle opzioni: lingue, col nome nella loro lingua; i testi tradotti sono in locale/&lt;lingua&gt;.po (vedi named)</i>
 const <b id="c-LANGUAGES">LANGUAGES</b> := {"en": "English", "it": "Italiano"}
-const <b id="c-FIXED_KEYS">FIXED_KEYS</b> := [KEY_SPACE, KEY_1, KEY_2, KEY_3, KEY_E, KEY_R, KEY_ESCAPE]  <i># velocità, giro dei mobili, menù</i>
+const <b id="c-FIXED_KEYS">FIXED_KEYS</b> := [KEY_SPACE, KEY_1, KEY_2, KEY_3, KEY_E, KEY_R, KEY_ESCAPE, KEY_F5]  <i># velocità, giro dei mobili, menù, salva</i></pre>
+<pre><i># le variabili della partita che si salvano, così come sono (gli oggetti dentro li impacchetta SAVES.Packer); il resto</i>
+<i># si rifà da queste (vedi restore) o è interfaccia. Una variabile nuova dello stato del gioco va aggiunta qui</i>
+const <b id="c-SAVED">SAVED</b> := ["game_id", "map_seed", "ground_cols", "clock", "today", "hour", "rocks", "boulders", "ores", "water",
+	"trees", "stock", "bushes", "flax", "weeds", "chop_marks", "mine_marks", "uproot_marks", "harvest_marks", "fish_marks",
+	"fish_spots", "items", "fresh", "draft", "blueprints", "built", "furniture_draft", "furniture_plans", "furniture",
+	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
+	"fallen", "animals", "arrows", "next_animal", "next_pack", "guests", "next_guest", "ruins", "expeditions",
+	"chronicle", "chronicle_days", "board_pick", "study", "researched", "authority", "codified", "enacted", "revoked",
+	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero"]
+const <b id="c-TOAST_TIME">TOAST_TIME</b> := 2000    <i># millisecondi: "Game saved" in alto, poi sparisce (vedi show_toast)</i>
 const <b id="c-MODIFIER_KEYS">MODIFIER_KEYS</b> := [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]  <i># da soli non sono un tasto</i>
 const <b id="c-BUILD_INFO">BUILD_INFO</b> := {
 	Build.WALL: "Blocks the way. Walls with a door around an area make a room.",
@@ -1383,7 +1398,9 @@ const <b id="c-OVERCAST">OVERCAST</b> := {Weather.CLEAR: 0.0, Weather.RAIN: 0.7,
 const <b id="c-SNOW_HOURS">SNOW_HOURS</b> := 4.0                       <i># ore di neve perché copra tutto</i>
 const <b id="c-MELT_HOURS">MELT_HOURS</b> := 120.0                     <i># ore per grado sopra lo 0 perché si sciolga tutta: a 10 gradi 12 ore</i>
 const <b id="c-WET_HOURS">WET_HOURS</b> := 2.0                        <i># ore di pioggia perché le pozzanghere siano piene</i>
-const <b id="c-DRY_HOURS">DRY_HOURS</b> := 8.0                        <i># ore perché si asciughino</i></pre></section>
+const <b id="c-DRY_HOURS">DRY_HOURS</b> := 8.0                        <i># ore perché si asciughino</i></pre>
+<pre><i># quello che si salva con la partita (vedi saved): il resto si rifà da sé</i>
+const <b id="c-SAVED">SAVED</b> := ["weather", "forecast", "plan", "weather_strength", "waves", "waves_until", "ice", "frozen", "snow", "wet"]</pre></section>
 </main>
 </body>
 </html>
