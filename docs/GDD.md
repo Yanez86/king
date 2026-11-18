@@ -264,11 +264,20 @@ sovrano davanti al nome e sul drappo degli stendardi (ombreggiato dalle pieghe c
   a 0 (anche fuori dalle stanze) le attività durano il 20% in più, a 10 il 20% in meno. Per ora vale per il sonno
   (8 ore a comfort 5) e per cucinare, dove cambia anche la probabilità di bruciare il pasto o farlo squisito.
   Sotto le 6 caselle a testa il comfort cala in proporzione.
+- **Tetti**: ogni stanza finita ha il suo, da sé, sopra la stanza e i suoi muri; un pulsante (V) li toglie per guardare dentro.
+- **Freddo e pioggia** tolgono comfort, anche sotto lo 0: −1 ogni 4 °C sotto i 12 °C; fuori, sotto la pioggia, −2.
+  La temperatura fuori la danno le stagioni (vedi 4.5), ±5 °C tra mezzanotte e mezzogiorno, e il tempo: pioggia −3,
+  nebbia −2, temporale −5, neve −2.
+  Sotto un tetto la temperatura va a metà strada verso 15 °C e non piove; ogni fuoco da campo della stanza la alza di 8 °C;
+  ogni punto di protezione addosso vale un grado. Da svegli, al freddo o sotto la pioggia, il comfort cala di un punto
+  all'ora per ogni punto tolto; risale solo dormendo. Nelle stanze fredde anche lavorare, cucinare e studiare va più piano.
 
 ### 4.4.1 Cibo e cucina
 - **Freschezza**: ogni mucchio di cibo ha i giorni che gli restano (mescolando due mucchi, la media pesata).
   A terra fuori il cibo dura 3 giorni, in magazzino il doppio; poi marcisce e sparisce. Il suggerimento sul mucchio
-  dice "Fresh / Stale / Almost rotten" e fra quanti giorni marcisce. Poi: dispensa fredda e inverno (più lento), marcio da buttare.
+  dice "Fresh / Stale / Almost rotten" e fra quanti giorni marcisce. Col freddo marcisce più piano: sotto i 15 °C in
+  proporzione ai gradi, sotto lo zero per niente (gela, "frozen: it keeps"); un magazzino senza fuoco fa da dispensa.
+  Poi: marcio da buttare.
 - **Crudo**: si può mangiare, ma sazia poco e può intossicare (dal crudo appena preso a quello quasi marcio):
 
   | Crudo | Sazia | Dura (fuori / magazzino) | Intossica |
@@ -344,11 +353,18 @@ sovrano davanti al nome e sul drappo degli stendardi (ombreggiato dalle pieghe c
   All'inizio: pasti 6, lingotti 10, corde d'arco 2, equipaggiamento 0.
 - Equipaggiamento: oltre ai "Keep", quanto manca perché ogni colono abbia pieni i suoi slot; per corpo e testa il primo
   in elenco di cui ci sono gli ingredienti (prima il cuoio, poi il metallo). Almeno un arco se ci sono animali segnati e
-  nessuno ne ha uno. "Keep" per un pezzo = quanti tenerne di scorta, oltre a quelli indossati.
+  nessuno ne ha uno. "Keep" per un pezzo = quanti tenerne di scorta, oltre a quelli indossati. Un pezzo scelto nella
+  scheda (vedi sotto) si fa per chi l'ha scelto e non ce l'ha, contando solo quelli uguali già fatti.
   Poi: ordini "fanne N" e "per sempre", sospendere una ricetta, qualità degli oggetti, cambiare un pezzo con uno migliore.
 - **Pelli**: dagli animali cacciati, 1 dal coniglio, 3 dal cervo. Non marciscono.
 - **Equipaggiamento** (3 slot: mani, corpo, testa): ogni colono con uno slot vuoto va a prendere in magazzino il pezzo
   giusto. Nelle mani l'attrezzo della sua abilità migliore tra estrarre, tagliare legna, raccogliere e cacciare.
+  - **Scelta dalla scheda**: clic su uno slot apre un menu: *Auto* (all'inizio, come sopra), *Empty* (niente) e i pezzi
+    di quello slot, ognuno con quanti ce ne sono liberi; spuntato quello scelto. È un ordine: appena è libero il colono va
+    a prendere il pezzo scelto e posa lì quello che aveva; con *Empty* se lo toglie e lo lascia ai suoi piedi, poi si
+    porta in magazzino. Se il pezzo non c'è si fa (vedi sopra). Uno slot scelto a mano ha un puntino d'oro in alto a
+    destra; il suggerimento dice "Auto" o la scelta, e "(on the way)" finché non ce l'ha addosso. Chi ha le mani scelte
+    non va a prendersi l'arco per cacciare. Gli avventurieri hanno il loro equipaggiamento: per loro niente menu.
   Ogni armatura ha una **protezione** (per combattimento e freddo, che verranno); i **bonus** li dà solo il pezzo che li ha:
 
   | Pezzo | Slot | Protezione | Effetto |
@@ -515,7 +531,35 @@ racconta il diario al ritorno.
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100.
 - Ciclo giorno/notte, quattro stagioni; inverno = freddo e niente raccolti.
-- Meteo semplice: sereno, pioggia, neve, ondata di freddo.
+- Calendario: 365 giorni. Capodanno (Crown Day), poi quattro stagioni di 3 mesi da 30 giorni, ognuna chiusa da un giorno
+  di festa fuori dai mesi (91 giorni a stagione). Primavera: Thaw, Sowing, Blossom, Flower Feast; estate: Highsun, Haying,
+  Ripening, Sickle Feast; autunno: Reaping, Leaffall, Mists, Hearth Feast; inverno: Frost, Deepsnow, Longnight, Candle
+  Feast. La partita comincia a Capodanno dell'anno 1. **Stato**: fatto il calendario (barra in alto e diario); le stagioni
+  cambiano la temperatura (sotto); d'inverno niente raccolti: i cespugli perdono bacche e fiori di lino al primo giorno
+  d'inverno e li rifanno 2 giorni dopo Capodanno.
+- **Temperatura**: la media del giorno sale e scende con l'anno senza salti: 23 °C a metà estate, −1 °C a metà inverno,
+  2 °C a Capodanno (il disgelo); vedi il comfort (4.3).
+- **Finestra del calendario** ✓: si apre cliccando la data in alto; una pagina per mese (il Capodanno sulla prima
+  dell'anno, la festa della stagione in fondo al suo terzo mese), che si sfoglia. Oggi è evidenziato, i giorni passati
+  più spenti; sui giorni i segni di feste e Capodanno, giorni di riposo (con la legge), voci della cronaca (morti,
+  spedizioni, ondate di freddo: ognuna nel suo giorno) e scadenze (ritorno previsto delle spedizioni, leggi revocate che
+  si possono ripromulgare); col mouse sopra, il dettaglio.
+- **Meteo** ✓: sereno, pioggia, nebbia, temporale (lampi), neve; cambia ogni 6–20 ore, sereno quasi una volta su due.
+  È deciso in anticipo per due giorni e mezzo, ondate di freddo comprese: le previsioni lo leggono.
+- **Previsioni** ✓: in alto, accanto alla data, una striscia col tempo e i gradi di adesso, le icone delle prossime
+  quattro fasce di sei ore e quelle degli avvisi (col mouse sopra, il testo). Cliccata apre il pannello: adesso, una
+  riga per fascia (tempo, gradi più bassi e più alti) per 24 ore, un giorno in più con la ricerca Astronomia, e gli
+  avvisi: ondata di freddo (in corso, fino a quando; in arrivo, fra quante ore), gelata (fra quante ore si va sotto lo
+  zero e fin dove), acqua che gela, gelata o che sgela, temporale.
+- **Acqua che gela** ✓: sotto lo zero gela, tanto più in fretta quanto fa freddo (a −5 °C in un giorno), e sgela allo
+  stesso modo; si vede ghiacciare a chiazze. Gelata del tutto regge: si cammina sull'acqua alta, quella bassa non
+  rallenta, non si pesca, la neve ci si posa. Torna acqua quando è sciolta a metà: chi sta sull'acqua alta torna a riva.
+  Quando la media del giorno è sotto i 3 °C pioggia e temporali vengono giù come neve: da fine autunno ai primi giorni di
+  primavera. La neve si posa per terra e sui tetti; sotto lo zero resta, sopra si scioglie (a 10 °C in 12 ore) in
+  pozzanghere, che riempie anche la pioggia e che si asciugano in 8 ore.
+- **Ondata di freddo** ✓: quando la media del giorno è sotto gli 8 °C (da metà autunno al disgelo), ogni giorno una
+  volta su 33 arriva e per 2–4 giorni fa 10 °C in meno (mezza giornata per arrivare e per andarsene); la annunciano le
+  previsioni (vedi sotto) e, quando arriva, la cronaca. Col freddo che porta, pioggia e temporali vengono giù come neve.
 
 ### 4.6 Eventi casuali
 - Un "narratore" pesca eventi con probabilità che dipende dallo stato della colonia.
@@ -628,7 +672,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Cartografia | I | 80 | Locanda | stanze rimaste e la prossima; viaggio −25% |
   | Sapere | Libreria ✓ | I | 60 | — | libreria: −10% tempo a pagina nella stanza, fino a 3 |
   | | Scriptorium | II | 250 | Libreria | pergamena e inchiostro: si copiano i quaderni (3 pergamene, 1 inchiostro, 150 studio) |
-  | | Astronomia | III | 500 | Scriptorium | sfera armillare: meteo e stagioni un giorno prima |
+  | | Astronomia ✓ | III | 500 | Librerie (per ora: lo Scriptorium non c'è) | le previsioni del tempo arrivano un giorno più in là |
   | | Biblioteca reale | IV | 1200 | Astronomia | si rilegano i tomi (2 quaderni + 400 studio); +2 autorità al giorno |
   | | Erboristeria | I | 100 | — | erbe medicinali, unguento (+30 punti ferita) |
   | | Medicina | II | 300 | Erboristeria | infermeria e medico: cura chi è a terra |
@@ -705,7 +749,7 @@ Quattro fasce, una per titolo; sei categorie. ✓ = c'è nel gioco.
 | | Guardia del corpo | baronia | 80 | Scudo | una guardia segue il sovrano; finché è in piedi il sovrano a terra non viene finito | la guardia +3 |
 | | Successione elettiva | contea | 150 | Successione | la colonia sceglie l'erede tra coniuge e figli; lutto regale 4 giorni | tutti +2 |
 | | Assolutismo | regno | 300 | Corona finale | le leggi non danno più né approvazione né disapprovazione; udienza +100% | — |
-| Feste | Festa del raccolto ✓ | signoria | 40 | — | l'ultimo giorno della stagione è festa (si cucina e basta); poi +10 felicità per 3 giorni, +5 autorità | — |
+| Feste | Festa del raccolto ✓ | signoria | 40 | — | i cinque giorni di festa del calendario si cucina e basta; poi +10 felicità per 3 giorni, +5 autorità | — |
 | | Funerali | signoria | 30 | cimitero | due ore di funerale: lutto di 2 giorni, −10 | — |
 | | Torneo | baronia | 100 | Fantoccio | gare a stagione; quel giorno gli avventurieri arrivano di un livello in più | tutti +3; iracondo +5 |
 | | Cronista di corte | baronia | 80 | Scriptorium | +1 autorità per spedizione raccontata, epiteti più ricchi | il cronista +3 |
@@ -728,7 +772,7 @@ IV, regno, leggi finali, cittadella.
 lavori Studiare e Governare; studio e autorità (nelle finestre Knowledge e Laws, tasti K e G, o clic su scrittoio e
 trono); i tre libri, nei forzieri e nei tesori, col monastero; le 12 ricerche segnate ✓ (Statuaria per ora dopo
 Muratura, finché non c'è Arredo fine); le 9 leggi segnate ✓, con 2 sigilli (il titolo non cresce ancora). Il granaio è
-un conto, non una stanza, e niente ci marcisce; la festa del raccolto, finché non ci sono le stagioni, è ogni 10 giorni.
+un conto, non una stanza, e niente ci marcisce; la festa del raccolto è nei cinque giorni di festa del calendario (4.5).
 Manca il resto, e i contatori di studio e autorità nella barra in alto (a 1280 di larghezza non ci stanno).
 
 ## 5. Scope

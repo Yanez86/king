@@ -1,0 +1,495 @@
+# Wiki del gioco: una pagina per argomento, [titolo, testo ricco (BBCode di RichTextLabel)]. La apre il tasto Wiki
+# della barra in basso; i numeri vengono da main.gd: se cambiano là, vanno cambiati qui.
+const PAGES := [
+	["Basics", """[color=#e8c34a]Your lordship[/color]
+King is a medieval colony sim. You are the ruler of a small lordship, but you never move anyone by hand: you mark trees to chop and boulders to mine, plan buildings, choose what the workshops make and pass laws. Colonists pick their jobs by themselves, following their needs and their daily routine.
+
+[color=#e8c34a]The start[/color]
+• Three colonists stand in a clearing. The first is your ruler, made on the new-game page.
+• Around the clearing are three small wooden rooms. The north one is a warehouse, with some supplies and 60 [img=center]res://art/icon_coin.png[/img].
+• An abandoned weapon (a sword, an axe or a bow) lies in the grass 15–25 tiles from the clearing.
+• From day 5 wolves come (see Combat & Wolves).
+• If every colonist dies, the colony has fallen.
+
+[color=#e8c34a]Time[/color]
+• The season, the date and the hour are in the top bar. The game starts at 8:00 on Crown Day, Year 1; a day lasts 4 minutes at normal speed, an hour 10 seconds.
+• The year has 365 days: Crown Day (New Year), then four seasons of three 30-day months, each closed by a feast day outside the months. Spring: Thaw, Sowing, Blossom, then the Flower Feast. Summer: Highsun, Haying, Ripening, then the Sickle Feast. Autumn: Reaping, Leaffall, Mists, then the Hearth Feast. Winter: Frost, Deepsnow, Longnight, then the Candle Feast.
+• Night lasts from 18:00 to 6:00: lamps and lanterns light up.
+• The speed buttons at the top right: pause, 1x, 2x, 3x. Or the keys: Space pauses (and from pause goes back to 1x), 1, 2 and 3 set the speed. The options menu pauses the game too.
+• Times in this wiki are seconds at 1x, for a worker of skill level 5 (see Skills).
+
+[color=#e8c34a]Top bar[/color]
+Your arms and the name of your realm (click: the ruler's sheet), the items in your warehouses, colonists, beds and splendor; then WOLVES and EXPEDITION when there are any, the season, the date, the hour and the order you are giving."""],
+
+	["Controls", """[color=#e8c34a]Camera[/color]
+• Drag with the right mouse button to move the view; the mouse wheel zooms.
+• On a trackpad, two fingers move the view and a pinch zooms.
+
+[color=#e8c34a]Mouse[/color]
+• With Select (the arrow), a left click opens things: a colonist's sheet, a room's sign, a workstation's menu, the notice board, a desk (Knowledge) or a throne (Laws). A click elsewhere closes the sheet.
+• With an order chosen (Build, Destroy, Mine...), drag a rectangle with the left button to mark the area.
+• The box at the bottom right tells what is under the mouse: logs left in a tree, how fresh a pile of food is, and so on.
+• Windows can be dragged around; the X closes them.
+
+[color=#e8c34a]Bottom bar[/color]
+A key works like a click on its button (press it again to close).
+[table=4]
+[cell]Select[/cell][cell]Q[/cell][cell]Build[/cell][cell]B[/cell]
+[cell]Destroy[/cell][cell]X[/cell][cell]Mine[/cell][cell]M[/cell]
+[cell]Chop[/cell][cell]C[/cell][cell]Uproot[/cell][cell]U[/cell]
+[cell]Harvest[/cell][cell]H[/cell][cell]Fish[/cell][cell]F[/cell]
+[cell]Hunt[/cell][cell]T[/cell][cell]Jobs[/cell][cell]J[/cell]
+[cell]Resources[/cell][cell]I[/cell][cell]Knowledge[/cell][cell]K[/cell]
+[cell]Laws[/cell][cell]G[/cell][cell]Rooms lens[/cell][cell]L[/cell]
+[cell]Wiki[/cell][cell]F1[/cell][cell][/cell][cell][/cell]
+[/table]
+• Jobs: the work waiting, in the order colonists take it. Resources: what is in your warehouses.
+
+[color=#e8c34a]Fixed keys[/color]
+• Space: pause; 1, 2, 3: speed.
+• E and R: turn the next piece of furniture left or right.
+• Esc: the options (also the gear at the top right).
+
+[color=#e8c34a]Options[/color]
+• System: language, quit the game. Video: window size and fullscreen (also the screen button at the top right).
+• Keybindings: click a command's key, then press the new one. Esc cancels, Delete or Backspace leaves it without a key, Reset restores the defaults. Space, 1-3, E, R and Esc can't be taken. Your keys are saved."""],
+
+	["Colonists", """Click a colonist for their sheet: health, needs (the arrows show which way each one is going), skills, traits, conditions, equipment and the 24 hours of their routine.
+
+[color=#e8c34a]Needs[/color]
+All of them go from 0 to 100.
+• Food: -90 a day. Under 30 they go and eat (see Food & Cooking).
+• Rest: -100 a day awake. Under 30 they look for a free bed; at 10 they drop everything and sleep where they stand. 8 hours of sleep fill it, at comfort 5.
+• Fun: -120 a day awake. Under 30 they take a break, even in work hours: an hour by a campfire, or a stroll nearby.
+• Comfort: while asleep it moves toward the comfort of where they lie (see Rooms); outdoors that is 0.
+• Stress: +30 a day while working (fighting and fleeing too), +5 for every wolf bite; -60 a day asleep, eating, relaxing or idle. 100 is the limit.
+• Happiness: drifts toward the average of food, rest, fun, comfort and calm (100 minus stress), plus or minus conditions and laws. The ruler's happiness sets how much authority they gather.
+
+[color=#e8c34a]Routine[/color]
+Every hour is sleep, work or free time. The usual day: sleep 22–6, breakfast at 6, work 7–12 and 13–18 with lunch between, a free evening, and at most 8 hours of work. Traits and laws change it.
+• Sleep hours: to bed, or on the ground if no bed is free. They stay down even when rested, then get up with at least 80 rest.
+• Work hours: they take jobs. When the shift or their hours are over, they stop as soon as their hands are free. Every hour they also stop for an urgent need: hunger (if there is food), tiredness (if a bed is free), boredom.
+• Free time: a snack if food is under 60, then they relax.
+• There are no priorities to set: jobs go in this order, the nearest first. Pick up equipment; the ruler to the throne and the study's workers to their desks, if you ticked them; cook, craft, chop, mine, uproot, harvest, fish, hunt, build, furnish, haul. With nothing left, the ruler governs and the others study.
+
+[color=#e8c34a]Health[/color]
+• 0–100, healing 30 a day (60 asleep). A bar over the head shows the wounded.
+• At 0 a colonist is downed: on the ground, doing nothing, healing 40 a day. At 30 they stand up.
+• The dead stay on the ground for a day; their gear drops beside them and the others mourn for 3 days."""],
+
+	["Skills", """Thirteen skills, with levels from 0 to 10 (a star at 10). Colonists start at 0; your ruler gets 12 points on the new-game page.
+
+[color=#e8c34a]Speed[/color]
+A job takes 1.5 times as long at level 0, the normal time at level 5 and half at level 10 (1.4 at level 1, 1.3 at level 2...). Most work also depends on conditions, and sleep, cooking, crafting and study on room comfort.
+
+[color=#e8c34a]What each skill does[/color]
+[table=2]
+[cell]Gathering[/cell][cell]picking bushes and flax[/cell]
+[cell]Mining[/cell][cell]mining boulders[/cell]
+[cell]Woodcutting[/cell][cell]chopping trees[/cell]
+[cell]Construction[/cell][cell]building: 2 s a tile or a piece[/cell]
+[cell]Smithing[/cell][cell]at the furnace and the anvil[/cell]
+[cell]Tailoring[/cell][cell]spinning wheel and workbench[/cell]
+[cell]Cooking[/cell][cell]meals: speed, burnt, fine[/cell]
+[cell]Fishing[/cell][cell]casting and catching[/cell]
+[cell]Hunting[/cell][cell]aiming and hitting game[/cell]
+[cell]Melee[/cell][cell]blows in a fight; dodging bites[/cell]
+[cell]Ranged[/cell][cell]bow shots; making bows[/cell]
+[cell]Research[/cell][cell]writing pages of study[/cell]
+[cell]Lockpicking[/cell][cell]adventurers only: traps, locks[/cell]
+[/table]
+With a bow a hunter aims with the better of Hunting and Ranged. At a workstation a low level ruins more items, at the campfire it burns more meals.
+
+[color=#e8c34a]Experience[/color]
++1 XP (hover the level to see it) for every tree felled, boulder mined or bush picked clean, every cast, piece built, meal cooked, item made, page written, shot or blow. A hunting shot counts for Hunting and Ranged. For now experience is only counted: levels don't rise with it yet."""],
+
+	["Traits", """Colonists have 0–2 traits, never two that clash. Hover a trait in the sheet for its effect.
+[table=3]
+[cell][color=#d9c48a]Trait[/color][/cell][cell][color=#d9c48a]Effect[/color][/cell][cell][color=#d9c48a]Ruler[/color][/cell]
+[cell]Glutton[/cell][cell]hunger +50%, eats at 50[/cell][cell]+2[/cell]
+[cell]Sleepwalker[/cell][cell]wanders off asleep[/cell][cell]+2[/cell]
+[cell]Hothead[/cell][cell]work stress +50%, tantrums[/cell][cell]+2[/cell]
+[cell]Lazy[/cell][cell]works 6 hours at most[/cell][cell]+2[/cell]
+[cell]Workaholic[/cell][cell]up to 12 hours, free time too[/cell][cell]-2[/cell]
+[cell]Early bird[/cell][cell]2 hours earlier: sleeps 20–4[/cell][cell]0[/cell]
+[cell]Night owl[/cell][cell]sleeps 10–18, works at night[/cell][cell]0[/cell]
+[cell]Sleepyhead[/cell][cell]sleeps 10 hours, until 8[/cell][cell]+2[/cell]
+[cell]Tireless[/cell][cell]sleeps 0–6, tires 25% slower[/cell][cell]-2[/cell]
+[cell]Fun-loving[/cell][cell]bored twice as fast, stops at 17[/cell][cell]+2[/cell]
+[cell]Ascetic[/cell][cell]never needs fun[/cell][cell]-2[/cell]
+[cell]Small appetite[/cell][cell]hunger -40%, never snacks[/cell][cell]-2[/cell]
+[cell]Easygoing[/cell][cell]half the stress from work[/cell][cell]-2[/cell]
+[cell]Napper[/cell][cell]naps 13–14, to bed at 23[/cell][cell]0[/cell]
+[cell]Restless[/cell][cell]an hour off after 2 of work[/cell][cell]+2[/cell]
+[/table]
+Ruler: the skill points the trait gives (+2) or costs (-2) on the new-game page.
+
+[color=#e8c34a]More[/color]
+• Glutton: in free time snacks under 85 food, feels the food conditions twice as much and hates raw food (Ate raw).
+• Sleepwalker: every hour of sleep, 1 chance in 10 of walking a few tiles and sleeping there, on the ground.
+• Hothead: at 90 stress storms off for two hours, while the stress falls four times as fast.
+• Workaholic: also gets bored half as fast.
+
+[color=#e8c34a]Never together[/color]
+Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleepyhead and Tireless, Fun-loving and Ascetic, Hothead and Easygoing."""],
+
+	["Conditions", """Effects that last a while, shown as icons under the traits in the sheet (hover: what they do and the hours left).
+[table=4]
+[cell][color=#d9c48a]Condition[/color][/cell][cell][color=#d9c48a]Lasts[/color][/cell][cell][color=#d9c48a]Work[/color][/cell][cell][color=#d9c48a]Happiness[/color][/cell]
+[cell]Poisoned[/cell][cell]1 day[/cell][cell]50% slower[/cell][cell]-20[/cell]
+[cell]Well fed[/cell][cell]½ day[/cell][cell]10% faster[/cell][cell]+5[/cell]
+[cell]Feasted[/cell][cell]½ day[/cell][cell]20% faster[/cell][cell]+10[/cell]
+[cell]At table[/cell][cell]½ day[/cell][cell]–[/cell][cell]+5[/cell]
+[cell]Ate raw[/cell][cell]½ day[/cell][cell]–[/cell][cell]-10[/cell]
+[cell]Mourning[/cell][cell]3 days[/cell][cell]–[/cell][cell]-15[/cell]
+[cell]Festive[/cell][cell]3 days[/cell][cell]–[/cell][cell]+10[/cell]
+[/table]
+• Poisoned: from raw food, more likely the closer it is to rotting.
+• Well fed: after a meal; stress from work -25%. Feasted: after a fine meal; stress from work -50%. A new meal replaces the condition of the last one.
+• At table: ate sitting on a chair beside a table.
+• Ate raw: a glutton who had to eat raw food. A glutton feels Well fed, Feasted, At table and Ate raw twice as much.
+• Mourning: a colonist has died; stress from work +25%.
+• Festive: after a feast day, with the Harvest feast law (see Laws).
+The laws in force that a colonist likes or dislikes show here too, with their icon."""],
+
+	["The Ruler & House", """[color=#e8c34a]New game[/color]
+Two pages come before the map.
+• Your House: the house name (your ruler's surname), the colony's name and the coat of arms: shape, division, field and second field, ordinary and charge, each with its tincture. The dice roll a name or a whole coat of arms.
+• Your Ruler: name, an optional nickname, sex, hair and its color, a beard (men only), tunic and cape (they follow the first two tinctures of the arms until you pick them), up to 2 traits that don't clash, and 12 skill points, at most 3 in one skill (no Lockpicking).
+• Traits move points: flaws give 2 (Glutton, Sleepwalker, Hothead, Lazy, Sleepyhead, Fun-loving, Restless), virtues cost 2 (Workaholic, Tireless, Ascetic, Small appetite, Easygoing); Early bird, Night owl and Napper are free.
+The other two colonists come at random: skills at 0, 0–2 traits.
+
+[color=#e8c34a]In the game[/color] [img=center]res://art/icon_crown.png[/img]
+• The ruler is the first colonist and lives like the others: needs, routine, work, fights. They can die.
+• Title: Lord or Lady. The top bar shows "Lordship of" your colony, beside your arms: click it for the ruler's sheet. Banners fly your arms.
+• Only the ruler governs: on a throne, in a throne room, they gather authority for the laws (see Laws). A happy ruler (70 or more) gathers 25% more, a gloomy one (30 or less) half.
+• For now the title stays a Lordship: +1 authority a day and 2 seals for the laws.
+• There is no heir yet: if the ruler dies, nobody can sit on the throne."""],
+
+	["Building", """[color=#e8c34a]How to build[/color] [img=center]res://art/icon_wood.png[/img] [img=center]res://art/icon_stone.png[/img]
+• Press Build, pick Structures or Furniture, then a piece: hover its button for the cost and the comfort or splendor it gives.
+• Walls and floors are made of wood or stone (stone after the Masonry research). Doors, furniture and decorations have their own material.
+• Drag on the map: the plan shows in blue. Walls go only along the border of the rectangle, so one drag outlines a room; floors, paths and doors fill it. Drawing over your unconfirmed plan replaces it: that is how to put a door into a wall you are planning.
+• Furniture goes one piece at a time, where you let go of the button. E and R (or the arrows in the bar) turn it; the preview is red where it doesn't fit.
+• Press Build in the middle of the bottom to confirm: only then do colonists start. The red X erases cells from the plan, even confirmed ones. Closing Build without confirming throws the plan away.
+• The builder fetches the material from a pile (on the ground or in a warehouse) and needs 2 s a tile or a piece.
+• Destroy (X): drag over structures and furniture to pull them down at once. The material is lost.
+• Pieces you haven't researched yet have no button.
+
+[color=#e8c34a]Where[/color]
+Not on water, trees, rock, bushes or weeds (uproot them first), nor on items lying on the ground. Furniture stands on bare ground, floors and paths, never on other furniture; walls and doors never on furniture.
+
+[color=#e8c34a]Structures[/color]
+[table=3]
+[cell]Wall[/cell][cell]5 wood or stone a tile[/cell][cell]blocks the way[/cell]
+[cell]Floor[/cell][cell]2 wood or stone a tile[/cell][cell]room comfort[/cell]
+[cell]Door[/cell][cell]5 wood[/cell][cell]rooms need one[/cell]
+[cell]Path[/cell][cell]1 stone a tile[/cell][cell]trodden earth[/cell]
+[/table]
+
+[color=#e8c34a]Furniture[/color]
+[table=3]
+[cell][color=#d9c48a]Piece[/color][/cell][cell][color=#d9c48a]Cost[/color][/cell][cell][color=#d9c48a]Research[/color][/cell]
+[cell]Bed (2x1)[/cell][cell]10 wood[/cell][cell]–[/cell]
+[cell]Table (2x2)[/cell][cell]10 wood[/cell][cell]–[/cell]
+[cell]Chair[/cell][cell]3 wood[/cell][cell]–[/cell]
+[cell]Campfire[/cell][cell]5 wood[/cell][cell]–[/cell]
+[cell]Desk[/cell][cell]10 wood[/cell][cell]–[/cell]
+[cell]Throne[/cell][cell]12 wood[/cell][cell]–[/cell]
+[cell]Lamp[/cell][cell]3 wood[/cell][cell]Lanterns[/cell]
+[cell]Furnace[/cell][cell]20 stone[/cell][cell]Forge[/cell]
+[cell]Anvil[/cell][cell]10 iron[/cell][cell]Forge[/cell]
+[cell]Workbench[/cell][cell]15 wood[/cell][cell]Tailoring[/cell]
+[cell]Spinning wheel[/cell][cell]10 wood[/cell][cell]Hunting[/cell]
+[cell]Carpenter bench[/cell][cell]15 wood[/cell][cell]Hunting[/cell]
+[cell]Notice board[/cell][cell]8 wood[/cell][cell]Inn[/cell]
+[cell]Bookshelf[/cell][cell]12 wood[/cell][cell]Bookshelf[/cell]
+[/table]
+Decorations: see Splendor."""],
+
+	["Rooms", """A room is an area closed by walls (rock and deep water count too) with at least one door to the outside, smaller than 400 tiles. Once it's finished a sign appears on the wall by the door: click it to name the room, see its comfort, choose its type, ban it and tick its owners or workers.
+
+[color=#e8c34a]Types[/color]
+The list shows only the types whose furniture is inside. Take that furniture away and the room loses its type, with its owners or workers.
+[table=3]
+[cell][color=#d9c48a]Type[/color][/cell][cell][color=#d9c48a]Needs[/color][/cell][cell][color=#d9c48a]Kind[/color][/cell]
+[cell]Warehouse[/cell][cell]nothing[/cell][cell]service[/cell]
+[cell]Bedroom[/cell][cell]1 bed[/cell][cell]residence[/cell]
+[cell]Dormitory[/cell][cell]2 beds[/cell][cell]residence[/cell]
+[cell]Kitchen[/cell][cell]campfire[/cell][cell]work[/cell]
+[cell]Forge[/cell][cell]furnace, anvil[/cell][cell]work[/cell]
+[cell]Workshop[/cell][cell]workbench[/cell][cell]work[/cell]
+[cell]Carpentry[/cell][cell]carpenter bench[/cell][cell]work[/cell]
+[cell]Inn[/cell][cell]bed, table, notice board[/cell][cell]service[/cell]
+[cell]Study[/cell][cell]desk[/cell][cell]work[/cell]
+[cell]Throne room[/cell][cell]throne[/cell][cell]work[/cell]
+[/table]
+• Residence: it can have owners. One with owners is closed to everyone else, even just to walk through.
+• Work: it can have workers. For now they matter in a study (they study before any other job) and in a throne room (only the ruler).
+• Service: shared by all.
+• Banned: nobody goes in, not even the owners.
+• Workstations work only inside their room: the campfire in a kitchen, furnace and anvil in a forge, workbench and spinning wheel in a workshop, the carpenter bench in a carpentry.
+• Colonists sleep in any bed but those of an inn, which are for adventurers.
+
+[color=#e8c34a]Warehouses[/color]
+Haulers carry loose items into warehouses, 10 at a time; with no warehouse nobody hauls. Only what is in a warehouse counts as stored: the top bar, Resources, the coins you pay, the books for research. A tile holds one kind of item: 100 wood or coins, 50 of most materials and raw food, 20 meals, 10 tools, weapons, armor or books, 5 relics. Food rots half as fast inside.
+
+[color=#e8c34a]Comfort[/color]
+0–10, shown on the sign. Bed and table +1; chair, lamp, campfire and bench +0.5; a floor +1 if it paves the whole room (half the room, half a point); stone counts 1.5 times. Outdoors it is 0.
+At 5 nothing changes. Below, sleep, cooking, crafting and study take longer (20% at 0); above, less (20% at 10). Low comfort also burns meals and ruins items more often. With fewer than 6 tiles for each person in the room, comfort drops in proportion.
+
+[color=#e8c34a]Rooms lens[/color]
+The Rooms lens (L) tints every room with the color of its type and shows its owners or workers: hover them for their sheet."""],
+
+	["Food & Cooking", """[color=#e8c34a]Eating[/color]
+• Hungry colonists (under 30 food; the glutton at 50) take the nearest food: fine meals first, then meals, raw food only when there are none (vegetables, then fish, then meat). In free time they also snack under 60.
+• If a chair beside a table is free within 20 tiles, they carry the food there and eat sitting: +5 happiness (At table).
+
+[color=#e8c34a]Food[/color]
+[table=4]
+[cell][color=#d9c48a]Food[/color][/cell][cell][color=#d9c48a]Fills[/color][/cell][cell][color=#d9c48a]Lasts[/color][/cell][cell][color=#d9c48a]Poison[/color][/cell]
+[cell][img=center]res://art/icon_veg.png[/img] Vegetables[/cell][cell]35[/cell][cell]3 days[/cell][cell]5–40%[/cell]
+[cell][img=center]res://art/icon_fish.png[/img] Fish[/cell][cell]30[/cell][cell]1.5 days[/cell][cell]10–50%[/cell]
+[cell][img=center]res://art/icon_meat.png[/img] Meat[/cell][cell]40[/cell][cell]2 days[/cell][cell]15–60%[/cell]
+[cell][img=center]res://art/icon_meal.png[/img] Meal[/cell][cell]100[/cell][cell]3 days[/cell][cell]–[/cell]
+[cell][img=center]res://art/icon_fine_meal.png[/img] Fine meal[/cell][cell]100[/cell][cell]3 days[/cell][cell]–[/cell]
+[/table]
+• Lasts: on the ground outdoors; in a warehouse twice as long. Then the pile rots away. Piles that mix take the average freshness. Hover a pile: Fresh, Stale or Almost rotten, and the days left.
+• Raw food may leave you Poisoned: the lower chance when it's fresh, the higher when it's almost rotten.
+• A meal makes you Well fed, a fine meal Feasted (see Conditions).
+
+[color=#e8c34a]Cooking[/color]
+• At a campfire inside a kitchen. The cook takes 2 raw foods from one pile (vegetables, fish or meat), cooks for 8 s and carries the meal to a warehouse.
+• Click the campfire: Keep N meals (6 at the start). Cooks cook while there are fewer meals than that, counting those on the ground, in warehouses and in hand.
+• Burnt, and the food is lost: 6% for every Cooking level below 6, plus 3% for every point of kitchen comfort below 5 (minus above). At level 0 in a kitchen of comfort 5: 36%.
+• Fine meal: 5% for every level above 5, plus 2% for every point of comfort above 5 (minus below): 25% at level 10.
+• The time also depends on the kitchen's comfort and the cook's conditions."""],
+
+	["Gathering", """Mark what to take with the orders of the bottom bar, dragging a rectangle; marked things carry a faint icon. What is gathered falls at the worker's feet, and when the job is done they carry it to a warehouse.
+
+[color=#e8c34a]Chop (C)[/color] [img=center]res://art/icon_wood.png[/img]
+Trees: oak 28 wood, pine 35, birch 20. A stroke every 10 s gives 5.
+
+[color=#e8c34a]Mine (M)[/color] [img=center]res://art/icon_stone.png[/img]
+Boulders of 1x1, 2x1 or 2x2 tiles, 5 stone a tile. A stroke every 15 s gives 5. Iron and coal veins are 1x1 boulders (hover: "Iron vein", "Coal vein") that give 5 iron or 5 coal instead of stone.
+
+[color=#e8c34a]Uproot (U)[/color]
+Weeds, bushes and flax go in 1.5 s. Clear them before building there.
+
+[color=#e8c34a]Harvest (H)[/color] [img=center]res://art/icon_veg.png[/img] [img=center]res://art/icon_flax.png[/img]
+Bushes and flax. A ripe bush has 5 berries (vegetables), flowering flax 5 flax, picked one every 5 s. They grow back in 2 days and the mark stays: they are picked every time. Marking Uproot removes the Harvest mark, and the other way round.
+
+[color=#e8c34a]Fish (F)[/color] [img=center]res://art/icon_fish.png[/img]
+Mark water tiles. The fisher stands beside them (in shallow water too) and casts every 10 s: a fish 30% of the time, +6% for every Fishing level. A spot has 4 fish, then it's empty for a day; the mark stays.
+
+[color=#e8c34a]Hunt (T)[/color] [img=center]res://art/icon_meat.png[/img] [img=center]res://art/icon_hide.png[/img]
+• Drag over animals to mark them. Hunting needs a bow: a hunter without one fetches a free bow and puts down what they held. If there is none, a bow gets made, once you can make them (Jobs says "needs a bow").
+• The hunter shoots from up to 8 tiles, aiming 4 s a shot. To hit: 30%, +5% a level, -5% for every tile of distance; then +10% for the bow and +5% for a leather hood.
+• An arrow does 14 damage. Hit or missed, the animal runs 8 tiles away at double speed, and the hunter follows. Killed, it leaves meat and hide.
+[table=4]
+[cell][color=#d9c48a]Animal[/color][/cell][cell][color=#d9c48a]Health[/color][/cell][cell][color=#d9c48a]Meat, hide[/color][/cell][cell][color=#d9c48a]Speed[/color][/cell]
+[cell]Rabbit[/cell][cell]10[/cell][cell]3, 1[/cell][cell]2 tiles/s[/cell]
+[cell]Deer[/cell][cell]20[/cell][cell]10, 3[/cell][cell]1.5 tiles/s[/cell]
+[cell]Wolf[/cell][cell]30[/cell][cell]5, 2[/cell][cell]3 tiles/s[/cell]
+[/table]
+Animals roam outside rooms and water, born more than 15 tiles from the clearing: 6 rabbits and 3 deer at first, then a new one every half day while there are fewer than 12. A marked wolf, shot at, attacks the hunter."""],
+
+	["Crafting & Equipment", """[color=#e8c34a]Workstations[/color]
+Click a station for its menu: one row for every recipe you know, with its ingredients and Keep N. Things get made while there are fewer than N around (on the ground, in warehouses, in hand, being made); Keep counts for every station of the kind. Equipment is also made for the colonists with an empty slot, and a bow when animals are marked and nobody has one. At the start: Keep 10 ingots, 2 bowstrings, 6 meals, 0 of the rest.
+The crafter brings the ingredients one by one, then works. The time depends on skill, room comfort and conditions; an item may be ruined, losing the ingredients, as often as a meal burns.
+[table=4]
+[cell][color=#d9c48a]Item[/color][/cell][cell][color=#d9c48a]Station[/color][/cell][cell][color=#d9c48a]Needs[/color][/cell][cell][color=#d9c48a]Time[/color][/cell]
+[cell]Ingot[/cell][cell]furnace[/cell][cell]1 iron, 1 coal[/cell][cell]6 s[/cell]
+[cell]Bowstring[/cell][cell]spinning wheel[/cell][cell]2 flax[/cell][cell]8 s[/cell]
+[cell]Leather armor[/cell][cell]workbench[/cell][cell]4 hide[/cell][cell]20 s[/cell]
+[cell]Leather hood[/cell][cell]workbench[/cell][cell]2 hide[/cell][cell]12 s[/cell]
+[cell]Bow[/cell][cell]carpenter bench[/cell][cell]3 wood, 1 bowstring[/cell][cell]15 s[/cell]
+[cell]Pickaxe[/cell][cell]anvil[/cell][cell]2 ingots, 2 wood[/cell][cell]15 s[/cell]
+[cell]Axe[/cell][cell]anvil[/cell][cell]2 ingots, 2 wood[/cell][cell]15 s[/cell]
+[cell]Sickle[/cell][cell]anvil[/cell][cell]1 ingot, 1 wood[/cell][cell]10 s[/cell]
+[cell]Helmet[/cell][cell]anvil[/cell][cell]3 ingots[/cell][cell]20 s[/cell]
+[cell]Chainmail[/cell][cell]anvil[/cell][cell]6 ingots[/cell][cell]30 s[/cell]
+[cell]Sword[/cell][cell]anvil[/cell][cell]3 ingots, 1 wood[/cell][cell]20 s[/cell]
+[/table]
+Skill: Smithing at furnace and anvil, Tailoring at spinning wheel and workbench, Ranged at the carpenter bench.
+
+[color=#e8c34a]Equipment[/color]
+Three slots: hands, body, head. A colonist with an empty slot fetches a piece by themselves, before any other job. In their hands they want the tool of their best skill among Mining, Woodcutting, Gathering, Hunting and Melee. Nobody trades a piece for a better one; only a hunter swaps for a bow.
+[table=4]
+[cell][color=#d9c48a]Piece[/color][/cell][cell][color=#d9c48a]Slot[/color][/cell][cell][color=#d9c48a]Armor[/color][/cell][cell][color=#d9c48a]Effect[/color][/cell]
+[cell]Pickaxe[/cell][cell]hands[/cell][cell]–[/cell][cell]mining 25% faster[/cell]
+[cell]Axe[/cell][cell]hands[/cell][cell]–[/cell][cell]chopping 25% faster[/cell]
+[cell]Sickle[/cell][cell]hands[/cell][cell]–[/cell][cell]picking, uprooting 25% faster[/cell]
+[cell]Bow[/cell][cell]hands[/cell][cell]–[/cell][cell]to hunt; shoots in a fight[/cell]
+[cell]Sword[/cell][cell]hands[/cell][cell]–[/cell][cell]melee damage 15[/cell]
+[cell]Leather armor[/cell][cell]body[/cell][cell]2[/cell][cell]-25% stress outdoors[/cell]
+[cell]Chainmail[/cell][cell]body[/cell][cell]5[/cell][cell]all work 10% slower[/cell]
+[cell]Leather hood[/cell][cell]head[/cell][cell]1[/cell][cell]+5% to hit with a bow[/cell]
+[cell]Helmet[/cell][cell]head[/cell][cell]3[/cell][cell]mining 10% faster[/cell]
+[/table]
+Tools hit too: pickaxe 10, axe 12, sickle 8, bare hands 5. Armor: see Combat & Wolves."""],
+
+	["Combat & Wolves", """[color=#e8c34a]Wolves[/color]
+• The first pack comes on day 5, then one every 3 days: 2–3 wolves from a map edge. They smell the colony from 70 tiles away. The top bar shows WOLVES while they are around.
+• They chase the nearest colonist or adventurer standing outside the rooms: walls protect, wolves never come in. With nobody standing outside, they go for whoever lies downed outdoors.
+• A bite every 1.5 s does 8 damage and lands 70% of the time, -3% for every Melee level of the victim. Every bite also gives +5 stress.
+• A pack with nobody to chase leaves after a day.
+
+[color=#e8c34a]Fighting back[/color]
+• A colonist with a wolf within 12 tiles drops everything and fights the nearest one. Under 40 health they run instead to the nearest room they can enter and wait there; with no room in reach, they fight.
+• Melee: a blow every 1.5 s, landing 50% of the time, +5% for every Melee level above 5 (less below). The damage is that of what they hold: sword 15, axe 12, pickaxe 10, dagger 10, sickle 8, bare hands 5.
+• Bow: a shot every 2 s from up to 8 tiles, aimed like a hunter's but with Ranged only; 14 damage. Hit or missed, the wolf turns on the shooter.
+• Armor: -6% damage for every point, at most -80%. Chainmail and helmet (8 points) take off 48%.
+• A dead wolf leaves 5 meat and 2 hide.
+
+[color=#e8c34a]Downed and dead[/color]
+• At 0 health a colonist falls. The bite that downs them kills 25% of the time, -3% for every point of armor (at least 5%).
+• Downed, they heal 40 a day and stand up at 30. A wolf that finds them outdoors, with nobody else standing, kills them with the first bite.
+• The dead drop their gear; the body stays a day. The other colonists mourn for 3 days (Mourning). If every colonist dies, the colony has fallen."""],
+
+	["Splendor", """Splendor is the sum of every finished decoration on the map, inside rooms or out, plus 5 for every famous adventurer around. The total is in the top bar.
+For now it does two things:
+• Adventurers arrive stronger: level 1, +1 for every 10 splendor, ±1 at random (from 1 to 5).
+• +1 authority a day for every 20 splendor.
+[table=4]
+[cell][color=#d9c48a]Decoration[/color][/cell][cell][color=#d9c48a]Splendor[/color][/cell][cell][color=#d9c48a]Cost[/color][/cell][cell][color=#d9c48a]Research[/color][/cell]
+[cell]Flower bed[/cell][cell]1[/cell][cell]3 wood[/cell][cell]Decor[/cell]
+[cell]Planter[/cell][cell]1[/cell][cell]5 stone[/cell][cell]Decor[/cell]
+[cell]Bench[/cell][cell]1[/cell][cell]6 wood[/cell][cell]Decor[/cell]
+[cell]Lantern[/cell][cell]1[/cell][cell]4 wood[/cell][cell]Lanterns[/cell]
+[cell]Banner[/cell][cell]2[/cell][cell]4 wood[/cell][cell]–[/cell]
+[cell]Fountain[/cell][cell]6[/cell][cell]30 stone[/cell][cell]Fountain[/cell]
+[cell]Statue[/cell][cell]8[/cell][cell]40 stone[/cell][cell]Statuary[/cell]
+[cell]Chalice[/cell][cell]3[/cell][cell]the relic[/cell][cell]–[/cell]
+[cell]Old banner[/cell][cell]4[/cell][cell]the relic[/cell][cell]–[/cell]
+[cell]Bust[/cell][cell]5[/cell][cell]the relic[/cell][cell]–[/cell]
+[cell]Crown[/cell][cell]6[/cell][cell]the relic[/cell][cell]–[/cell]
+[/table]
+• The bench (2x1) also gives +0.5 room comfort. The lantern lights the roads at night. The banner flies the arms of your house. Fountain and statue take 2x2 tiles.
+• Relics are found only by adventurers, in ruins. They come home as items: build them from the furniture bar, one relic for each piece."""],
+
+	["Adventurers", """[color=#e8c34a]The inn[/color]
+• The Inn research unlocks the notice board. A room with a bed, a table and a notice board can become an inn.
+• Every inn bed lets one adventurer stay. Inn beds are theirs only, and they sleep nowhere else: with no inn bed free, on the ground.
+
+[color=#e8c34a]Arrivals[/color]
+• About every 2 days (±½) one comes in from the map edge, if an inn bed is free (the beds of those away count as taken).
+• Level: 1, +1 for every 10 splendor, ±1 at random, from 1 to 5.
+• They wait 3 days to be hired, then leave. Back from an expedition they rest 2 days, and can be hired again.
+• They don't work: they eat your food, relax, and fight wolves like colonists (they can die). Click one for their sheet: class, level, fee, expeditions.
+
+[color=#e8c34a]Classes[/color]
+• Warrior: Melee 2 a level. Sword, shield (+3 armor), leather armor (chainmail from level 3), helmet. In ruins takes a double share of the wounds.
+• Archer: Ranged 2 a level. Bow, quiver, leather armor and hood. Shoots first: the whole party takes 25% fewer wounds; takes half a share.
+• Burglar: Lockpicking 2 a level, Melee 1 a level. Dagger, mask, sack, leather armor and hood. Disarms traps and opens locked chests; the sack brings home 50% more.
+
+[color=#e8c34a]Pay[/color] [img=center]res://art/icon_coin.png[/img]
+Hiring costs 10 coins, +5 a level (15–35), paid from your warehouses when you send them. Back home they keep 30% of the coins they found. +1 level every 2 expeditions back, up to 5.
+
+[color=#e8c34a]Their traits[/color]
+One each, and 3 times in 10 also a colonist trait.
+[table=2]
+[cell]Greedy[/cell][cell]asks 25% more[/cell]
+[cell]Loyal[/cell][cell]keeps no share of the coins[/cell]
+[cell]Reckless[/cell][cell]party turns back for them under 20[/cell]
+[cell]Coward[/cell][cell]party turns back when under 60[/cell]
+[cell]Lucky[/cell][cell]one more item in every chest[/cell]
+[cell]Cartographer[/cell][cell]finds maps 3 times as often[/cell]
+[cell]Jinxed[/cell][cell]every trap hits them; asks 25% less[/cell]
+[cell]Berserker[/cell][cell]weapon counts double; +50% wounds[/cell]
+[cell]Stout[/cell][cell]a third fewer wounds[/cell]
+[cell]Stealthy[/cell][cell]slips past monsters 1 time in 4[/cell]
+[cell]Medic[/cell][cell]+6 health to all after each room[/cell]
+[cell]Forager[/cell][cell]the party eats a third less[/cell]
+[cell]Pathfinder[/cell][cell]the journey takes half the time[/cell]
+[cell]Keen-eyed[/cell][cell]+30% to disarm traps[/cell]
+[cell]Scholar[/cell][cell]a level every trip; books twice as often[/cell]
+[cell]Famous[/cell][cell]+5 splendor while on the map[/cell]
+[/table]
+With a medic standing, whoever falls is carried home. Stealth doesn't work on the guardian of the treasure."""],
+
+	["Ruins & Expeditions", """[color=#e8c34a]The notice board[/color]
+Click it: the coins and provisions in store, who waits at the inn (Pick up to 4), the ruins you know, the expeditions away and the last page of the chronicle. Every ruin has its Send button, with the fees and provisions it takes; hover it for the days of the trip.
+
+[color=#e8c34a]Expeditions[/color]
+• Provisions: one a head for every day of the trip (there, ½ day for every room left, back), first from the crown's granary, then from warehouses, meals before raw food. Short of them, the party leaves anyway and goes hungry: -20 health a day each.
+• They walk to the map edge and leave together; the top bar shows EXPEDITION. You read how it went in their diary when they're back (and in the Chronicle, with hirings and deaths).
+• In the ruin, a room every ½ day: empty (25%), a trap (20%), monsters (35%), a chest (15%) or a collapse (5%: they turn back).
+• Monsters: strength 5 for every point of danger. The weaker the party (weapon skill plus armor of each), the deeper the wounds; then each one's armor softens them.
+• Traps: the best lockpicker disarms one 20% of the time, +8% a level; if not, someone takes 15 damage for every point of danger.
+• Chests: coins and one of the ruin's items, or 35% of the time a book. Half are locked, and open only for Lockpicking of at least 2 for every point of danger.
+• The last room is the treasure, with its guardian (double strength): three times the coins, its books and the map of the next ruin. If it stays locked, that room is left for next time.
+• They turn back when someone drops under 40 health, when the provisions won't cover another room and the way home, or after a collapse.
+• At 0 health one dies half the time; otherwise the others carry them home with 5 health (alone, they die). If all fall the expedition is lost: you'll know at twice the time it should have taken.
+• Home again, they go to the inn and leave the loot there for your haulers, minus their share of the coins.
+• Cleared rooms stay cleared: the next party starts from there. A ruin with no rooms left is explored.
+
+[color=#e8c34a]Ruins[/color]
+At first you know only the tower. Every treasure holds the map of the next ruin, and any chest may (15%) hold the map of one you don't know yet. Travel is one way.
+[table=4]
+[cell][color=#d9c48a]Ruin[/color][/cell][cell][color=#d9c48a]Danger[/color][/cell][cell][color=#d9c48a]Rooms[/color][/cell][cell][color=#d9c48a]Travel[/color][/cell]
+[cell]Ruined tower[/cell][cell]1[/cell][cell]3[/cell][cell]½ day[/cell]
+[cell]Abandoned mine[/cell][cell]2[/cell][cell]5[/cell][cell]1 day[/cell]
+[cell]Crypt[/cell][cell]3[/cell][cell]6[/cell][cell]1 day[/cell]
+[cell]Ruined fort[/cell][cell]4[/cell][cell]8[/cell][cell]2 days[/cell]
+[cell]Buried monastery[/cell][cell]3[/cell][cell]6[/cell][cell]1½ days[/cell]
+[/table]
+Coins in a chest, its item, its book, and the treasure's books:
+• Tower: 10–25; 10 wood, 10 stone or 5 iron; notebooks; 2 notebooks.
+• Mine: 20–45; 10 iron, 10 coal, 4 ingots or a pickaxe; notebooks; 2 notebooks.
+• Crypt: 35–70; a sword, a helmet, leather armor, 6 ingots, the chalice or the bust; notebooks or tomes; a tome.
+• Fort: 60–120; chainmail, 2 swords, a helmet, 10 ingots, the old banner or the crown; tomes, 1 in 4 a codex; a codex.
+• Monastery: 5–20; always a book: half notebooks, a quarter tomes, a quarter codices; a tome and a codex."""],
+
+	["Knowledge", """[color=#e8c34a]Study[/color] [img=center]res://art/icon_study.png[/img]
+• A room with a desk can become a study; the desk needs no research. One colonist at a desk writes pages: every page is +1 study for the colony's shared pool and +1 Research XP.
+• A page takes 2.5 s, more or less with room comfort and conditions. From 19:00 to 6:00, without a lamp in the room, it takes 50% longer; every bookshelf in the room takes off 10% (up to 3).
+• The study's workers study before any other job and stay at the desk all their shift. The others write a page only when there is nothing else to do.
+
+[color=#e8c34a]The Knowledge window[/color]
+Press K or click a desk: your study and the books in your warehouses, then the tree, a row for every branch and a column for every tier. Hover a research for what it unlocks and what is missing; click it to research it at once. It spends the study and, from tier II, a book from a warehouse:
+• Tier II: a notebook [img=center]res://art/icon_notebook.png[/img]. Tier III: a tome [img=center]res://art/icon_tome.png[/img]. Tier IV: a codex [img=center]res://art/icon_codex.png[/img].
+Books come only from ruins (see Ruins & Expeditions). There is no tier IV research yet.
+What you haven't researched has no build button, and its recipes don't show at the stations. From the start you have wooden walls and floors, doors, paths, beds, tables, chairs, campfires, banners, desks, thrones, relics and meals.
+
+[color=#e8c34a]The tree[/color]
+• [color=#d9c48a]Hunting[/color] (Land I, 50): spinning wheel and carpenter bench; bowstrings and bows.
+• [color=#d9c48a]Forge[/color] (Fire I, 60): furnace and anvil; ingots, pickaxe, axe, sickle.
+• [color=#d9c48a]Tailoring[/color] (Fire I, 50): workbench; leather armor and hood.
+• [color=#d9c48a]Masonry[/color] (Stone I, 60): stone walls and floors.
+• [color=#d9c48a]Decor[/color] (Stone I, 40): flower bed, planter, bench.
+• [color=#d9c48a]Fountain[/color] (Stone II, 250 and a notebook, after Decor): the fountain.
+• [color=#d9c48a]Statuary[/color] (Stone III, 500 and a tome, after Masonry): the statue.
+• [color=#d9c48a]Iron arms[/color] (Iron I, 80, after Forge): sword and helmet.
+• [color=#d9c48a]Chainmail[/color] (Iron II, 300 and a notebook, after Iron arms): chainmail.
+• [color=#d9c48a]Inn[/color] (Road I, 40): the notice board; the laws Loot tax and Lodging tax.
+• [color=#d9c48a]Bookshelf[/color] (Lore I, 60): the bookshelf.
+• [color=#d9c48a]Lanterns[/color] (Lore I, 40): lamp and lantern."""],
+
+	["Laws", """[color=#e8c34a]Authority[/color] [img=center]res://art/icon_authority.png[/img]
+• Only the ruler gathers it, holding audience on a throne in a throne room: +1 an hour, 25% more with happiness 70 or more, half with 30 or less. It counts as work.
+• The ruler goes to the throne first if you tick them as the throne room's worker; otherwise only when there is nothing else to do.
+• Every day +1 for the title (Lordship) and +1 for every 20 splendor; +5 for every harvest feast.
+
+[color=#e8c34a]The Laws window[/color]
+Press G or click the throne: authority, seals, the crown's granary, then the laws by kind. Hover a law for what it does and who likes it.
+• Codify a law once, paying its cost in authority. Then Enact it: 10 authority and a free seal. A Lordship has 2 seals.
+• Laws of the same group (taxes, shifts) exclude each other: enacting one replaces the other.
+• Revoking is free, but the law can't be enacted again for 3 days.
+• Every law in force changes the happiness of the colonists (some traits feel it differently) or of the adventurers. It shows among the conditions in the sheet.
+• The crown's granary is filled by the Tithe, and nothing in it rots. Expedition provisions come from it first.
+
+[color=#d9c48a]Treasury[/color]
+• Exemption (30, taxes): no tithe, the granary stays empty. Everyone +5.
+• Tithe (40, taxes): one piece in ten of all that is gathered, fished, hunted, cooked and made goes to the granary. Everyone -3.
+• Loot tax (40, Inn research): adventurers keep 20% of the coins, not 30%; a quarter fewer come, and never the greedy. Adventurers -5.
+• Lodging tax (30, Inn research): every adventurer waiting at the inn leaves a coin a night, and waits a day less. Adventurers -3.
+[color=#d9c48a]Work[/color]
+• Long shifts (40, shifts): up to 10 hours of work a day (the lazy 7, the workaholic still 12); stress from work +25%. Everyone -5, workaholic +3; lazy, fun-loving and restless -10.
+• Short day (40, shifts): at most 6 hours of work; stress from work -25%. Everyone +8, workaholic -5.
+• Day of rest (30): on days 7, 14, 21... nobody works but the cooks. Everyone +6, workaholic -5, ascetic 0.
+[color=#d9c48a]Order[/color]
+• Curfew (40): from 21:00 free time becomes sleep. Everyone -2, fun-loving -10, early bird +3.
+[color=#d9c48a]Feasts[/color]
+• Harvest feast (40): on the five feast days of the calendar (see Time) nobody works but the cooks. The next day every colonist is Festive (+10 happiness for 3 days) and you get 5 authority."""],
+]

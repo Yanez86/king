@@ -242,9 +242,69 @@ func _initialize() -> void:
 		== "Equipment  (armor %d)" % main.gear_sum(smith, "armor"), "protezione totale")
 	smith.gear.clear()
 	main._process(0.0)
-	check(slots[main.Slot.HANDS].tooltip_text == "Hands" and slots[main.Slot.HANDS].texture is AtlasTexture, "slot vuoto: la sagoma")
+	check(slots[main.Slot.HANDS].tooltip_text == "Hands\nAuto. Click to choose." and slots[main.Slot.HANDS].texture is AtlasTexture,
+		"slot vuoto: la sagoma")
 	check(main.Res.values().all(func(r): return main.ICONS.has(r) and main.STACK_MAX.has(r) and main.items.has(r)), "ogni risorsa ha icona e mucchio")
 	check(main.SKILLS_SHEET.get_width() == main.Skill.size() * 8, "un'icona per abilità")
+
+	# scelta dalla scheda: clic sullo slot, il menu; il colono va a prendere quel pezzo e posa lì quello che aveva
+	for c in main.colonists:
+		main.quit_job(c)
+		c.gear = {main.Slot.HANDS: main.Res.PICKAXE, main.Slot.BODY: main.Res.LEATHER_ARMOR, main.Slot.HEAD: main.Res.LEATHER_HOOD}
+	var spots: Array = rest.filter(func(k): return main.items.values().all(func(g): return not g.has(k)) and main.room_at(k) == null)
+	main._process(0.0)
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	slots[main.Slot.HANDS].gui_input.emit(click)
+	var tools: int = main.GEAR.keys().filter(func(g): return main.GEAR[g]["slot"] == main.Slot.HANDS).size()
+	check(main.gear_menu.visible and main.gear_menu.is_item_checked(0) and main.gear_menu.item_count == 3 + tools,
+		"menu dello slot: Auto spuntato, Empty, i pezzi")
+	main.gear_menu.id_pressed.emit(2 + main.Res.AXE)
+	main.gear_menu.hide()
+	main._process(0.0)
+	check(smith.loadout == {main.Slot.HANDS: main.Res.AXE} and main.fits(smith, main.Slot.HANDS) == [main.Res.AXE]
+		and main.gear_wanted(main.Res.AXE) == 1, "scelta l'ascia: se non c'è, si fa")
+	check(slots[main.Slot.HANDS].get_node("Pin").visible and not slots[main.Slot.BODY].get_node("Pin").visible
+		and slots[main.Slot.HANDS].tooltip_text.ends_with("Chosen: axe (on the way). Click to change."), "puntino d'oro e suggerimento")
+	main.add_item(main.Res.AXE, spots[0], 1)
+	for i in 4000:
+		main.tick(0.05)
+		if smith.gear[main.Slot.HANDS] == main.Res.AXE:
+			break
+	check(smith.gear[main.Slot.HANDS] == main.Res.AXE and main.total(main.Res.PICKAXE) == 1 and main.fits(smith, main.Slot.HANDS).is_empty(),
+		"presa l'ascia, posato il piccone")
+	# una scelta conta solo il suo pezzo: la cotta si fa anche se in magazzino c'è un'armatura di cuoio
+	main.add_item(main.Res.LEATHER_ARMOR, spots[1], 1)
+	check(main.gear_wanted(main.Res.CHAINMAIL) == 0, "in automatico basta il cuoio")
+	smith.loadout[main.Slot.BODY] = main.Res.CHAINMAIL
+	check(main.gear_wanted(main.Res.CHAINMAIL) == 1, "scelta la cotta: se ne fa una")
+	smith.loadout.erase(main.Slot.BODY)
+	main.add_item(main.Res.LEATHER_ARMOR, spots[1], -1)
+	# "Empty": se lo toglie e lo lascia lì, poi va in magazzino come ogni mucchio
+	main.open_gear_menu(main.Slot.HEAD)
+	main.gear_menu.id_pressed.emit(1)
+	main.gear_menu.hide()
+	main.quit_job(smith)
+	main.find_job(smith)
+	check(not smith.gear.has(main.Slot.HEAD) and main.total(main.Res.LEATHER_HOOD) == 1 and main.fits(smith, main.Slot.HEAD).is_empty(),
+		"Empty: si toglie il cappuccio e non ne vuole un altro")
+	# a caccia: chi ha le mani scelte non va a prendere l'arco, chi è in automatico sì
+	var hare = main.Animal.new()
+	hare.pos = main.center(spots[2])
+	hare.marked = true
+	main.animals.append(hare)
+	main.add_item(main.Res.BOW, spots[3], 1)
+	for c in main.colonists:
+		main.quit_job(c)
+	check(not main.try_hunt(smith) and main.try_hunt(tailor) and tailor.job == main.Job.EQUIP and tailor.carry_res == main.Res.BOW,
+		"l'arco lo prende chi è in automatico")
+	main.quit_job(tailor)
+	main.animals.clear()
+	main.open_gear_menu(main.Slot.HANDS)
+	main.gear_menu.id_pressed.emit(0)
+	main.gear_menu.hide()
+	check(not smith.loadout.has(main.Slot.HANDS), "di nuovo automatico")
 
 	print("OK: forgia, sartoria ed equipaggiamento")
 	quit()

@@ -965,6 +965,28 @@ oFFoFFFFFoFFFFo
 .oo.ooooo.oooo.
 """
 
+# Tetto 16x16, si ripete sopra le stanze coi loro muri (draw_roofs in main.gd): file di coppi sfalsati, la testa al sole
+# e il canale in ombra.
+ROOF = """
+FFFDFFfDFFFDFFfD
+FFfDFFfDFFfDFFfD
+FFfDFFfDFFfDFFfD
+FFfDfDDDFFfDfDDD
+FFfDFFFDFFfDFFFD
+FFfDFFfDFFfDFFfD
+FFfDFFfDFFfDFFfD
+fDDDFFfDfDDDFFfD
+FFFDFFfDFFFDFFfD
+FFfDFFfDFFfDFFfD
+FFfDFFfDFFfDFFfD
+FFfDfDDDFFfDfDDD
+FFfDFFFDFFfDFFFD
+FFfDFFfDFFfDFFfD
+FFfDFFfDFFfDFFfD
+fDDDFFfDfDDDFFfD
+"""
+SNOWY_ROOF = {"F": "h", "f": "u", "D": "X"}  # le stesse tegole sotto la neve: bianco, ombra, giunti grigi
+
 # Cartello 16x16 appeso al muro accanto alla porta di una stanza finita: cliccandolo si cambiano nome e tipo.
 SIGN = """
 ................
@@ -1884,6 +1906,145 @@ GAME_ICON = """
 .oBoo.oW88888Wo.
 .oo...ooooooooo.
 """
+
+# Velocità 16x16, in alto a destra (come Space e 1-3): pausa, 1x, 2x, 3x. Simboli color pergamena, ombra in basso.
+SPEED_ICONS = """
+................ ................ ................ ................
+..ooooo..ooooo.. ...oo........... oo......oo...... ................
+..oxxXo..oxxXo.. ...oxoo......... oxo.....oxo..... ................
+..oxxXo..oxxXo.. ...oxxxoo....... oxxo....oxxo.... oo...oo...oo....
+..oxxXo..oxxXo.. ...oxxxxxoo..... oxxxo...oxxxo... oxo..oxo..oxo...
+..oxxXo..oxxXo.. ...oxxxxxxxoo... oxxxxo..oxxxxo.. oxxo.oxxo.oxxo..
+..oxxXo..oxxXo.. ...oxxxxxxxxXoo. oxxxxxo.oxxxxxo. oxxxooxxxooxxxo.
+..oxxXo..oxxXo.. ...oxxxxxxxxxXXo oxxxxxXooxxxxxXo oxxxXoxxxXoxxxXo
+..oxxXo..oxxXo.. ...oxxxxxxxxXXXo oxxxxXXooxxxxXXo oxxXXoxxXXoxxXXo
+..oxxXo..oxxXo.. ...oxxxxxxxXXoo. oxxxxXo.oxxxxXo. oxxXooxxXooxxXo.
+..oxxXo..oxxXo.. ...oxxxxxXXoo... oxxxXo..oxxxXo.. oxXo.oxXo.oxXo..
+..oxxXo..oxxXo.. ...oxxxXXoo..... oxxXo...oxxXo... oXo..oXo..oXo...
+..oxxXo..oxxXo.. ...oxXXoo....... oxXo....oxXo.... oo...oo...oo....
+..oXXXo..oXXXo.. ...oXoo......... oXo.....oXo..... ................
+..ooooo..ooooo.. ...oo........... oo......oo...... ................
+................ ................ ................ ................
+"""
+
+# Schermo 16x16, in alto a destra (schermo intero / finestra) e tab Video delle opzioni: monitor di pietra col vetro
+# scuro e un riflesso, sul suo piede. ponytail: icona provvisoria
+SCREEN_ICON = """
+................
+.oooooooooooooo.
+.ouuuuuuuuuuuro.
+.ouEEEEEEEEEQRo.
+.ouEEEEEEEEQERo.
+.ouEEEEEEEQEERo.
+.ouEEEEEEEEEERo.
+.ouEEEEEEEEEERo.
+.ouEEEEEEEEEERo.
+.ouEEEEEEEEEERo.
+.orRRRRRRRRRRRo.
+.oooooooooooooo.
+......orRo......
+....ooorRooo....
+....orrrRRRo....
+....oooooooo....
+"""
+
+# Altoparlante 16x16, tab Audio delle opzioni: cassa di pietra e due onde.
+AUDIO_ICON = """
+................
+................
+......oo........
+.....oro....x...
+....orRo.....x..
+oooorRRo.x....x.
+ouurRRRo..x...x.
+ourRRRRo..x...x.
+ourRRRRo..x...x.
+ouurRRRo..x...x.
+oooorRRo.x....x.
+....orRo.....x..
+.....oro....x...
+......oo........
+................
+................
+"""
+
+# Wiki 16x16, nella barra in basso: pergamena arrotolata col punto di domanda.
+WIKI_ICON = """
+................
+.oooooooooooooo.
+oUIIIIIIIIIIIIUo
+.oUUUUUUUUUUUUo.
+..oIIIIIIIIIUo..
+..oIIIoooIIIUo..
+..oIIoIIIoIIUo..
+..oIIIIIIoIIUo..
+..oIIIIIoIIIUo..
+..oIIIIoIIIIUo..
+..oIIIIIIIIIUo..
+..oIIIIoIIIIUo..
+.oooooooooooooo.
+oUIIIIIIIIIIIIUo
+.oUUUUUUUUUUUUo.
+..oooooooooooo..
+"""
+
+# Meteo 16x16 (striscia in alto e previsioni, vedi forecast.gd), nell'ordine: sereno di giorno, sereno di notte,
+# pioggia, neve, nebbia, temporale; poi gli avvisi: ondata di freddo, gelata, acqua gelata
+WEATHER_ICONS = """
+.......gg....... ................ ................ ................ ................ ................ ................ ................ ................
+.......gg....... .......o........ ........oooo.... ........oooo.... ................ ........oooo.... .......oo....... .......oo....... ................
+..g..........g.. .....ooIo....... .......ouuuuo... .......ouuuuo... ...oooooooooo... .......orrrro... ......ouuo...... ...o.oo00oo.o... ................
+...g...oo...g... ....oIIo........ ....ooouuuuuuo.. ....ooouuuuuuo.. ..ouuuuuuuuuuo.. ....ooorrrrrro.. ......ouuo.oo... ..oQo0o00o0oQo.. ..oooooooooooo..
+.....ooggoo..... ...oIIIo........ ...ouuuuuuuuuuo. ...ouuuuuuuuuuo. ..orrrrrrrrrro.. ...orrrrrrrrrro. ......ouuo...... ...oQoo00ooQo... .o000000000000o.
+....og**gggo.... ..oIIIo......... ..ouuuuuuuuuuuo. ..ouuuuuuuuuuuo. ...oooooooooo... ..orrrrrrrrrrro. ......ouuo.oo... ..o0oQo00oQo0o.. o000h000000h000o
+....o****ggo.... ..oIIIIo........ .ouuuuuuuuuuuuuo .ouuuuuuuuuuuuuo .oooooooooo..... .orrrrrrrrrrrrro ......o~uo...... ..ooooQ00Qoooo.. o0000hh000h0000o
+gg.og****ggUo.gg .oIIIIIo........ .ouuuuuuuuuuuuuo .ouuuuuuuuuuuuuo ouuuuuuuuuuo.... .orrrrrrrrrrrrro ......o~uo.oo... .o000000000000o. o000000h0000000o
+gg.ogg***gUUo.gg .oIIIIIIo....... .orrrrrrrrrrrrro .orrrrrrrrrrrrro orrrrrrrrrro.... .oRRRRRRRRRRRRRo ......o~uo...... .o000000000000o. oQQQQQQhhhQQQQQo
+....oggggUUo.... ..oIIIIUUoooo... .orrrrrrrrrrrrro .orrrrrrrrrrrrro .oooooooooo..... .oRRRRRRRRRRRRRo ......o~uo...... ..ooooQ00Qoooo.. oQQQQQhQQQhQQQQo
+....ogggUUUo.... ..oIIIUUUUUUUo.. ..ooooooooooroo. ..ooooooooooroo. ....oooooooooo.. ..ooooooo*ooRoo. ......o~~o...... ..o0oQo00oQo0o.. oQQQQQhQQQQhQQQo
+.....ooUUoo..... ...oIUUUUUUUo... ............o... .........h..o... ...ouuuuuuuuuuo. .......o*o..o... .....o~0~~o..... ...oQoo00ooQo... oQQQQQQQQQQQQQQo
+...g...oo...g... ....oUUUUUUo.... ....Q...Q...Q... ....h...h0h..... ...orrrrrrrrrro. ......o***o..... .....o~0~~o..... ..oQo0o00o0oQo.. .oQQQQQQQQQQQQo.
+..g..........g.. .....ooUUoo..... ...Q...Q...Q.... ...h0h...h..h... ....oooooooooo.. .......o*o...... .....o~~~~o..... ...o.oo00oo.o... ..oooooooooooo..
+.......gg....... .......oo....... ................ ....h..h...h0h.. ................ ......o*o....... ......o~~o...... .......oo....... ................
+.......gg....... ................ .....QQ..QQ..... ......h0h...h... ................ .....o*o........ .......oo....... ................ ................
+"""
+
+# Ricerca Astronomia 12x12: la sfera armillare
+TECH_SYMBOLS_4 = """
+....oooo....
+...oggggo.o.
+..ogoooogoUo
+.ogoooooogo.
+.ogo~~~~Ugo.
+ogoo~~~~oogo
+.ogo~~~~ogo.
+.ogUooooogo.
+oUogoooogo..
+.o.oggggo...
+...ooUUoo...
+..oUUUUUUo..
+"""
+
+# Pulsante dei tetti: il tetto sollevato dalla casa, per guardarci dentro
+ROOFS_ICON = """
+................
+.......oo.......
+......oFFo......
+.....oFFFFo.....
+....oFFFFFFo....
+...oFFDFFDFFo...
+..oDDDDDDDDDDo..
+..oooooooooooo..
+................
+..oooooooooooo..
+..oBBBBBBBBBBo..
+..oBwwoooowwBo..
+..oBwwoWWowwBo..
+..oBwwoWWowwBo..
+..oBwwoWWowwBo..
+..oooooooooooo..
+"""
+
 
 # Talenti, nella scheda del colono (come Trait in main.gd): simboli 12x12, 5 per blocco, che badge() mette al
 # centro di un quadratino 16x16 in rilievo. Il punto lascia vedere il fondo del quadratino.
@@ -3016,6 +3177,15 @@ def main():
     images["icon_options"] = pixels(art(OPTIONS_ICON, 16, 16))
     images["icon_keybindings"] = pixels(art(KEYBINDINGS_ICON, 16, 16))
     images["icon_game"] = pixels(art(GAME_ICON, 16, 16))
+    for name, f in zip(["pause", "play", "fast", "fastest"], frames(SPEED_ICONS, count=4)):
+        images["icon_" + name] = pixels(f)
+    images["icon_screen"] = pixels(art(SCREEN_ICON, 16, 16))
+    images["icon_audio"] = pixels(art(AUDIO_ICON, 16, 16))
+    images["icon_wiki"] = pixels(art(WIKI_ICON, 16, 16))
+    images["icon_roofs"] = pixels(art(ROOFS_ICON, 16, 16))
+    images["weather"] = pixels(side_by_side(frames(WEATHER_ICONS, count=9)))
+    roof = art(ROOF, 16, 16)
+    images["roof"] = pixels(side_by_side([roof, ["".join(SNOWY_ROOF.get(ch, ch) for ch in line) for line in roof]]))
     symbols = [f for block in (TRAITS_1, TRAITS_2, TRAITS_3) for f in frames(block, 12, 5, 12)]
     images["traits"] = pixels(side_by_side([badge(f) for f in symbols]))
     gifts = [f for block in (HERO_TRAITS_1, HERO_TRAITS_2, HERO_TRAITS_3, HERO_TRAITS_4) for f in frames(block, 12, 4, 12)]
@@ -3025,6 +3195,7 @@ def main():
     images["icon_study"] = pixels(art(STUDY_ICON, 16, 16))
     images["icon_authority"] = pixels(art(AUTHORITY_ICON, 16, 16))
     techs = [f for block in (TECH_SYMBOLS_1, TECH_SYMBOLS_2, TECH_SYMBOLS_3) for f in frames(block, 12, 4, 12)]
+    techs += frames(TECH_SYMBOLS_4, 12, 1, 12)
     images["techs"] = pixels(side_by_side([badge(f) for f in techs]))
     laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)]
     images["laws"] = pixels(side_by_side([badge(f, "I", "x", "U") for f in laws]))

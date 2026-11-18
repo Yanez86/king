@@ -10,6 +10,7 @@ func _initialize() -> void:
 	await process_frame  # aspetta che venga chiamato _ready
 	main.needs_rate = 0.0  # bisogni fermi: se no a metà prova i coloni vanno a dormire o a mangiare (vedi fondo)
 	main.threats = false  # niente branchi di lupi: le prove del combattimento sono in test_combat
+	main.atmosphere.climate = false  # niente freddo né meteo: il comfort è quello dei mobili (il clima è provato col cartello)
 	for c in main.colonists:
 		check(c.skills.all(func(l): return l == 0) and c.xp.all(func(x): return x == 0), "tutti i coloni partono da 0 in ogni abilità")
 	check(main.animals.size() == main.BEASTS.values().reduce(func(n, b): return n + b["start"], 0), "animali all'inizio")
@@ -121,6 +122,9 @@ func _initialize() -> void:
 	check(r.door == entrance and r.sign in [entrance + across, entrance - across] and main.built[r.sign][0] == main.Build.WALL,
 		"cartello sul muro accanto alla porta")
 	check(r.cells.size() == 6 and r.cells.has(room.position + Vector2i(2, 1)), "dentro ci sono le 3x2 caselle")
+	check(main.roofed.size() == room.size.x * room.size.y and main.roofed.has(room.position)
+		and main.roofed[entrance] == ((room.position.y + room.end.y) * main.TILE - main.WALL_FRONT) / 2,
+		"tetto su stanza, muri e porta; colmo a metà tra cima e gronda (che lascia la facciata)")
 	check(r.name == "Structure1" and r.kind == main.RoomKind.NONE, "nome e tipo di default")
 
 	# fase 3: dal cartello diventa un magazzino, e i coloni ci portano la legna
@@ -260,7 +264,8 @@ func _initialize() -> void:
 	var gap: Vector2i = sides.filter(func(s): return s[0] != entrance and not main.astar.is_point_solid(s[0] + s[1]))[0][0]
 	main.mark(Rect2i(gap, Vector2i.ONE))
 	check(not main.built.has(gap) and not main.astar.is_point_solid(gap), "muro abbattuto, ci si passa")
-	check(main.rooms.is_empty() and main.stockpile.is_empty(), "stanza aperta: niente cartello né magazzino")
+	check(main.rooms.is_empty() and main.stockpile.is_empty() and main.roofed.is_empty(),
+		"stanza aperta: niente cartello, magazzino né tetto")
 
 	# fase 9: un letto girato con E (tre quarti a sinistra = uno a destra) sopra un pavimento in progetto
 	var at := Vector2i(-1, -1)  # due caselle libere una sopra l'altra
@@ -633,7 +638,28 @@ func _initialize() -> void:
 	main.room_kind.item_selected.emit(main.room_kind.get_item_index(main.RoomKind.BEDROOM))
 	check(main.room_class(den) == main.RoomClass.RESIDENCE and main.get_node("HUD/RoomPopup/Box/Owners").visible
 		and main.get_node("HUD/RoomPopup/Box/Owners/Title").text == "Owners", "la camera è una residenza: ha i proprietari")
-	check(main.get_node("HUD/RoomPopup/Box/Comfort").text == "Comfort: 3 / 10", "il cartello mostra il comfort")
+	check(main.get_node("HUD/RoomPopup/Box/Comfort").text.begins_with("Comfort: 3 / 10    ")
+		and main.get_node("HUD/RoomPopup/Box/Comfort").text.ends_with("°C"), "il cartello mostra il comfort e i gradi")
+	# freddo e pioggia: fuori meno comfort che dentro; il fuoco da campo scalda la stanza, la protezione chi la porta
+	var sky = main.atmosphere
+	sky.climate = true
+	sky.weather = sky.Weather.SNOW
+	sky.weather_strength = 1.0
+	var open_air: Vector2i = o + Vector2i(5, 0)  # fuori dalla stanza, all'aperto
+	var snug: Vector2i = o
+	check(main.temperature_at(open_air) < main.temperature_at(snug) and main.weather_comfort(open_air) < 0,
+		"nevica: fuori fa più freddo che in camera, e il freddo toglie comfort")
+	var chilly: float = main.temperature_at(snug)
+	main.furniture[o + Vector2i(1, 1)] = [main.Build.CAMPFIRE, W, 0]
+	check(main.temperature_at(snug) == chilly + main.FIRE_HEAT, "il fuoco da campo scalda la stanza")
+	main.furniture.erase(o + Vector2i(1, 1))
+	check(main.weather_comfort(open_air, 40.0) == 0, "coperto bene il freddo non si sente")
+	sky.weather = sky.Weather.RAIN
+	check(main.weather_comfort(open_air, 40.0) == -main.WET_COMFORT and main.weather_comfort(snug, 40.0) == 0,
+		"piove: si bagna solo chi sta fuori")
+	sky.weather = sky.Weather.CLEAR
+	sky.weather_strength = 0.0
+	sky.climate = false
 	var shown_kinds: Array = range(main.room_kind.item_count).map(main.room_kind.get_item_id)
 	check(shown_kinds == [main.RoomKind.NONE, main.RoomKind.WAREHOUSE, main.RoomKind.BEDROOM], "un letto: in tendina la camera sì, dormitorio, cucina e forgia no")
 	var ticks: Array = main.room_owners.get_children()

@@ -11,7 +11,12 @@
 
 ## Localizzazione
 - Sistema integrato di Godot (`TranslationServer`) con un file CSV: una colonna per lingua.
-- Tutto il testo nel codice e nei dati è una chiave (es. `JOB_COOK`), mai testo diretto.
+- La chiave è il testo inglese stesso (`locale/translations.csv`: colonna `keys` in inglese, poi una colonna per
+  lingua): i Control traducono da soli testi e suggerimenti che combaciano per intero, il testo composto nel codice
+  (con numeri, tasti) va passato da `tr()`. Parole uguali con significati diversi (Fish: pesce / pescare) vanno
+  distinte prima di tradurle.
+- Lingua: tab System delle opzioni, salvata in `user://settings.cfg`; la applica la schermata del titolo. Senza
+  scelta, quella del sistema. Tradotti per ora: titolo, opzioni, suggerimenti della barra in alto.
 - Inglese = lingua base, italiano = prima traduzione. Nuova lingua = nuova colonna.
 
 ## Architettura (principi, non codice)

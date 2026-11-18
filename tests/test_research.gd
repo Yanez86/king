@@ -14,6 +14,7 @@ func _initialize() -> void:
 	main.needs_rate = 0.0
 	main.routines = false
 	main.threats = false
+	main.atmosphere.climate = false  # niente freddo: lo studio dipende dal comfort
 	main.animals.clear()
 	main.bushes.clear()
 	main.flax.clear()
@@ -195,10 +196,18 @@ func _initialize() -> void:
 	main.guests.append(guest)
 	check(main.law_mood(guest) == -3.0, "agli avventurieri la tassa non piace")
 	var gold: int = main.total(R.GOLD)
-	main.clock = main.SEASON_DAYS - 0.5  # l'ultimo giorno della stagione: festa
+	check(main.date(0) == "Crown Day, Year 1" and main.date(1) == "1 Thaw, Year 1" and main.date(31) == "1 Sowing, Year 1"
+		and main.date(90) == "30 Blossom, Year 1" and main.date(91) == "Flower Feast, Year 1" and main.date(92) == "1 Highsun, Year 1"
+		and main.date(363) == "30 Longnight, Year 1" and main.date(364) == "Candle Feast, Year 1" and main.date(365) == "Crown Day, Year 2"
+		and main.YEAR_DAYS == 365, "il calendario: Capodanno, poi 4 stagioni di 3 mesi da 30 giorni e una festa")
+	check(main.season(0) == 0 and main.season(91) == 0 and main.season(92) == 1 and main.season(364) == 3 and main.season(366) == 0,
+		"le stagioni: la festa chiude la sua, il Capodanno apre la primavera")
+	main.clock = main.SEASON_DAYS - 0.5  # 30 Blossom: ancora primavera
+	check(not main.holiday(), "niente festa nei mesi")
+	main.clock = main.SEASON_DAYS + 0.5  # Flower Feast, tra primavera ed estate
 	check(main.holiday(), "festa del raccolto")
 	var power: float = main.authority
-	main.clock = main.SEASON_DAYS + 0.01
+	main.clock = main.SEASON_DAYS + 1.01
 	main.tick(0.0)
 	check(main.total(R.GOLD) == gold + 1, "una moneta a notte per chi aspetta alla locanda")
 	check(main.colonists.all(func(c): return c.conds.has(main.Cond.FESTIVE)) and main.authority >= power + main.FEAST_AUTHORITY,

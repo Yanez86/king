@@ -12,6 +12,7 @@ func _initialize() -> void:
 	main.needs_rate = 0.0  # bisogni fermi: nessuno va a mangiare finché non lo decide la prova
 	main.routines = false  # niente orari: la routine è provata in test_jobs
 	main.threats = false  # niente branchi di lupi: le prove del combattimento sono in test_combat
+	main.atmosphere.climate = false  # niente freddo: il cibo marcisce al ritmo pieno (il freddo è provato in fondo)
 	main.bushes.clear()
 	main.flax.clear()
 	main.weeds.clear()
@@ -382,6 +383,24 @@ func _initialize() -> void:
 	for name in ["Fish", "Hunt"]:
 		var b: Button = main.get_node("HUD/Tools/Row/" + name)
 		check(b.icon != null and b.button_group == main.order_group, "tasto %s nel gruppo delle azioni" % name)
+
+	# inverno: i cespugli perdono le bacche e le rifanno dopo Capodanno; al fresco il cibo marcisce più piano, sotto lo
+	# zero per niente (gela)
+	main.atmosphere.climate = true
+	var corner := Vector2i.ZERO  # all'aperto
+	main.bushes[corner] = 0.0
+	var new_year: int = int(main.clock) - posmod(int(main.clock), main.YEAR_DAYS) + main.YEAR_DAYS
+	main.clock = new_year - 10.0  # mezzanotte, nell'ultimo mese d'inverno
+	main.tick(0.0)
+	check(main.bushes[corner] == new_year + main.BERRY_REGROW and not main.ripe_bushes().has(corner), "d'inverno niente bacche")
+	check(main.spoil_rate(corner) == 0.0, "sotto lo zero il cibo gela e non marcisce")
+	main.clock = new_year + main.BERRY_REGROW + 0.5
+	main.tick(0.0)
+	check(main.ripe_bushes().has(corner), "in primavera le bacche tornano")
+	check(main.spoil_rate(corner) > 0.0 and main.spoil_rate(corner) < 1.0, "al fresco marcisce più piano")
+	main.clock = new_year + 1 + 1.5 * main.SEASON_DAYS  # mezzogiorno, a metà estate
+	check(main.spoil_rate(corner) == 1.0, "al caldo al ritmo pieno")
+	main.atmosphere.climate = false
 
 	print("OK: %d pasti cucinati, %d intossicati su 1000 crudi quasi marci" % [meals, poisoned])
 	quit()

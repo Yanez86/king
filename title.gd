@@ -22,6 +22,9 @@ var leaving := false  # partita scelta: si sta andando al nero, il menu non risp
 
 
 func _ready() -> void:
+	var config := ConfigFile.new()  # la lingua scelta nelle opzioni della partita (vedi set_language in main.gd)
+	if config.load("user://settings.cfg") == OK and config.has_section_key("game", "language"):
+		TranslationServer.set_locale(config.get_value("game", "language"))
 	$Stage/Menu/NewGame.pressed.connect(new_game)
 	fullscreen.pressed.connect(toggle_fullscreen)
 	$Stage/Menu/Quit.pressed.connect(get_tree().quit)
@@ -75,6 +78,6 @@ func toggle_fullscreen() -> void:
 	fullscreen.text = "Fullscreen" if full else "Window"  # il cambio di modo può arrivare dopo: non rileggerlo
 
 
-# come il tasto in alto nella partita: dice dove si va, non dove si è
+# dice dove si va, non dove si è
 static func fullscreen_text() -> String:
 	return "Window" if DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN else "Fullscreen"

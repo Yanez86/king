@@ -391,6 +391,17 @@ const COMFORT := {Build.FLOOR: 1.0, Build.BED: 1.0, Build.TABLE: 1.0, Build.CHAI
 	Build.BENCH: 0.5}
 const COMFORT_MATERIAL := {Res.STONE: 1.5}  # il resto vale 1
 const COMFORT_EFFECT := 0.2  # a comfort 0 un'attività richiede il 20% di tempo in più, al massimo il 20% in meno
+# Freddo e pioggia tolgono comfort, anche sotto lo 0 (vedi weather_comfort): -1 ogni COLD_STEP gradi sotto COLD_FROM;
+# fuori, sotto la pioggia, fino a -WET_COMFORT. Sotto un tetto la temperatura va a metà strada (INSULATION) verso
+# ROOM_TEMP e non piove; ogni fuoco da campo della stanza la alza di FIRE_HEAT; ogni punto di protezione addosso vale un
+# grado. Da svegli il comfort cala di DISCOMFORT_DROP al giorno per ogni punto tolto; risale solo dormendo
+const COLD_FROM := 12.0
+const COLD_STEP := 4.0
+const WET_COMFORT := 2.0
+const ROOM_TEMP := 15.0
+const INSULATION := 0.5
+const FIRE_HEAT := 8.0       # ponytail: uguale in ogni stanza; secondo le caselle da scaldare se le stanze si fanno grandi
+const DISCOMFORT_DROP := 24.0  # uno all'ora per punto
 # splendore della colonia: lo danno le decorazioni finite, dentro e fuori dalle stanze (vedi colony_splendor).
 # ponytail: per ora solo il totale in alto; poi terrà felici i coloni e sbloccherà cose (strade, feste: vedi GDD)
 const SPLENDOR := {Build.FLOWER_BED: 1, Build.PLANTER: 1, Build.BENCH: 1, Build.BANNER: 2, Build.LANTERN: 1,
@@ -402,7 +413,13 @@ const ROOM_SPACE := 6        # caselle a testa: chi ne ha meno (stanza piena di 
 # nome del pulsante in HUD/Tools/Row (quelli che non ci sono partono senza). Cambiati, si salvano: vedi bind_key
 const DEFAULT_KEYS := {"Select": KEY_Q, "Build": KEY_B, "Destroy": KEY_X, "Mine": KEY_M, "Chop": KEY_C, "Uproot": KEY_U,
 	"Harvest": KEY_H, "Fish": KEY_F, "Hunt": KEY_T, "Jobs": KEY_J, "Resources": KEY_I, "Knowledge": KEY_K, "Laws": KEY_G,
-	"RoomsLens": KEY_L}
+	"RoomsLens": KEY_L, "Roofs": KEY_V, "Wiki": KEY_F1}
+const SPEEDS := {"Pause": 0.0, "Play": 1.0, "Fast": 2.0, "Fastest": 3.0}  # pulsanti in alto a destra, come Space e 1-3
+# tab Video delle opzioni: misure della finestra, solo quelle che stanno nello schermo (la prima sempre)
+const RESOLUTIONS := [Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440)]
+# tab System delle opzioni: lingue, col nome nella loro lingua; i testi tradotti sono in locale/translations.csv
+const LANGUAGES := {"en": "English", "it": "Italiano"}
+const WIKI := preload("res://wiki.gd")  # pagine della finestra Wiki: [titolo, testo ricco]
 const FIXED_KEYS := [KEY_SPACE, KEY_1, KEY_2, KEY_3, KEY_E, KEY_R, KEY_ESCAPE]  # velocità, giro dei mobili, menù
 const MODIFIER_KEYS := [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]  # da soli non sono un tasto
 const TIP := preload("res://tip_button.gd")  # suggerimento fatto di Control: pulsanti di costruzione, figurine
@@ -416,7 +433,7 @@ const BUILD_INFO := {
 	Build.TABLE: "Where colonists eat and work.",
 	Build.CHAIR: "Put it at a table, turned to face it.",
 	Build.LAMP: "Lights up at night.",
-	Build.CAMPFIRE: "A wood fire inside a ring of stones. Burns day and night. A kitchen needs one.",
+	Build.CAMPFIRE: "A wood fire inside a ring of stones. Burns day and night and warms the room. A kitchen needs one.",
 	Build.FURNACE: "A stone furnace. A forge needs one, and an anvil. Smelts iron and coal into ingots.",
 	Build.ANVIL: "An iron anvil on a stump. A forge needs one, and a furnace. Tools and metal armor are made here.",
 	Build.WORKBENCH: "A sturdy bench. A workshop needs one. Leather armor is made here.",
@@ -472,7 +489,21 @@ const FURNITURE_SHEET := preload("res://art/furniture.png")
 const FURNITURE_NIGHT := preload("res://art/furniture_night.png")  # abat-jour e lampioni accesi
 const FURNITURE_GLOW := preload("res://art/furniture_glow.png")    # solo le luci accese, per `lights`
 const SIGN := preload("res://art/sign.png")  # sul muro accanto alla porta d'ingresso di una stanza finita
+const ROOF := preload("res://art/roof.png")  # 32x16: tegole, poi le stesse innevate (vedi draw_roofs)
+const OUTLINE := Color("1f1a24")             # contorno, come la "o" degli sprite
 const DAY_LENGTH := 240.0   # secondi per giorno a velocità 1x
+# Calendario: l'anno si apre col Capodanno (NEW_YEAR), poi quattro stagioni di 3 mesi da MONTH_DAYS giorni, ognuna
+# chiusa da un giorno di festa fuori dai mesi (FEASTS): 1 + 4 × 91 = 365 giorni. Il giorno 0 di `clock` è il Capodanno
+# dell'anno 1 (vedi date, season, feast)
+const MONTH_DAYS := 30
+const SEASON_DAYS := 3 * MONTH_DAYS + 1
+const YEAR_DAYS := 1 + 4 * SEASON_DAYS
+const SEASONS := ["Spring", "Summer", "Autumn", "Winter"]
+const WINTER := 3  # in SEASONS: niente bacche né lino (vedi new_day)
+const MONTHS := ["Thaw", "Sowing", "Blossom", "Highsun", "Haying", "Ripening", "Reaping", "Leaffall", "Mists",
+	"Frost", "Deepsnow", "Longnight"]
+const NEW_YEAR := "Crown Day"
+const FEASTS := ["Flower Feast", "Sickle Feast", "Hearth Feast", "Candle Feast"]  # a fine primavera, estate, autunno, inverno
 const NIGHT := Color(0.25, 0.28, 0.5)
 # luce sul mondo nelle 24 ore (0 = mezzanotte, 0.5 = mezzogiorno); l'interfaccia non cambia
 const SKY := {0.0: NIGHT, 0.21: NIGHT, 0.25: Color(1.0, 0.7, 0.6), 0.31: Color.WHITE,
@@ -482,6 +513,7 @@ const SKY := {0.0: NIGHT, 0.21: NIGHT, 0.25: Color(1.0, 0.7, 0.6), 0.31: Color.W
 const SHADOW := Color("1f1a2460")  # come la "z" degli sprite, così tutte le ombre hanno lo stesso colore
 const SHADOW_WIDTH := 10    # pixel: ovale sotto i piedi dei coloni (gli animali hanno il loro in BEASTS)
 const SHADOW_WALL := 2      # righe d'ombra sotto muri e porte, dove sotto non c'è un altro muro
+const WALL_FRONT := 10      # pixel: la facciata in fondo allo sprite del muro (vedi wall in tools/make_sprites.py)
 const GROUND := preload("res://art/ground.png")  # terreno 64x176, righe = Ground
 const WATER_SHADER := preload("res://water.gdshader")  # anima l'acqua sul terreno
 # righe di GROUND: 4 varianti per terreno, poi i bordi che un terreno disegna su quello vicino; gli angoli 3 righe più giù
@@ -588,7 +620,7 @@ const COND_INFO := {
 	Cond.AT_TABLE: [0.5, 1.0, 1.0, 5.0, "Ate sitting at a table."],
 	Cond.ATE_RAW: [0.5, 1.0, 1.0, -10.0, "A glutton forced to eat raw food."],
 	Cond.MOURNING: [3.0, 1.0, 1.25, -15.0, "A fellow colonist has died."],
-	Cond.FESTIVE: [3.0, 1.0, 1.0, 10.0, "Celebrated the harvest feast."],
+	Cond.FESTIVE: [3.0, 1.0, 1.0, 10.0, "Celebrated a feast."],
 }
 const GLUTTON_MOOD := 2.0  # il goloso: tanta felicità in più (o in meno) da quello che mangia
 const FOOD_CONDS := [Cond.WELL_FED, Cond.FEASTED, Cond.AT_TABLE, Cond.ATE_RAW]
@@ -717,7 +749,8 @@ const BRANCHES_SHEET := preload("res://art/branches.png")
 # "cost" punti studio; "needs" le ricerche che vengono prima. Sbloccano mobili ("builds"), ricette (i prodotti in
 # "makes") e materiali da costruzione ("materials"). Quello che nessuna ricerca nomina c'è dall'inizio.
 # ponytail: solo i nodi che hanno già qualcosa da sbloccare; gli altri dell'albero del GDD arrivano con le loro cose
-enum Tech { FORGE, TAILORING, HUNTING, INN, MASONRY, DECOR, LANTERNS, IRON_ARMS, BOOKSHELF, CHAINMAIL, FOUNTAIN, STATUARY }
+enum Tech { FORGE, TAILORING, HUNTING, INN, MASONRY, DECOR, LANTERNS, IRON_ARMS, BOOKSHELF, CHAINMAIL, FOUNTAIN, STATUARY,
+	ASTRONOMY }
 const TECHS_SHEET := preload("res://art/techs.png")
 const TECHS := {
 	Tech.FORGE: {"branch": Branch.FIRE, "tier": 1, "cost": 60, "builds": [Build.FURNACE, Build.ANVIL],
@@ -744,6 +777,8 @@ const TECHS := {
 		"info": "The fountain, the pride of the square."},
 	Tech.STATUARY: {"branch": Branch.STONE, "tier": 3, "cost": 500, "needs": [Tech.MASONRY], "builds": [Build.STATUE],
 		"info": "The king in stone, on a gilded plinth."},
+	Tech.ASTRONOMY: {"branch": Branch.LORE, "tier": 3, "cost": 500, "needs": [Tech.BOOKSHELF],
+		"info": "Reading the sky: the weather forecast reaches one more day."},
 }
 # Autorità: il sovrano la raccoglie governando dal trono (Job.GOVERN, in una sala del trono), AUTHORITY_PER_HOUR all'ora,
 # di più se è sereno e di meno se è cupo (RULER_MOODS: da quanta felicità, quanto); in più ogni giorno AUTHORITY_DAILY
@@ -782,14 +817,13 @@ const LAWS := {
 	Law.CURFEW: {"kind": LawKind.ORDER, "cost": 40, "mood": {"all": -2.0, Trait.FUN_LOVING: -10.0, Trait.EARLY_BIRD: 3.0},
 		"info": "From 21 everyone goes to bed: no evenings at the campfire, fewer targets for the wolves."},
 	Law.HARVEST_FEAST: {"kind": LawKind.FEASTS, "cost": 40,
-		"info": "The last day of every season is a feast: nobody works but the cooks. Then +10 happiness for 3 days, +5 authority."},
+		"info": "The five feast days of the calendar are holidays: nobody works but the cooks. Then +10 happiness for 3 days, +5 authority."},
 }
 const SHIFTS := {Law.LONG_SHIFTS: [10.0, 1.25], Law.SHORT_DAY: [6.0, 0.75]}  # ore di lavoro al giorno, stress da lavoro x
 const TITHE := 0.1          # parte di quello che si produce che va al granaio della corona (vedi produce)
 const LOOT_SHARE := 0.2     # quota delle monete degli avventurieri con la gabella sul bottino (se no SHARE)
 const LOOT_TAX_WAIT := 4.0 / 3  # con la gabella: giorni tra un arrivo e l'altro x
 const REST_EVERY := 7       # riposo festivo: l'ultimo giorno di ogni tanti
-const SEASON_DAYS := 10     # ponytail: finché non ci sono le stagioni, la festa del raccolto è l'ultimo giorno di ogni tanti
 const FEAST_AUTHORITY := 5.0
 # All'inizio, su ogni mappa, un'arma abbandonata accanto ai resti di un bivacco, tra FOUND_WEAPON_REACH caselle dalla radura
 const FOUND_WEAPONS := [Res.SWORD, Res.AXE, Res.BOW]
@@ -828,6 +862,7 @@ class Colonist:
 	var carry_days := 0.0         # cibo in mano: giorni prima che marcisca (vedi fresh)
 	var prey = null               # HUNT: l'Animal che insegue
 	var gear := {}                # Slot -> Res: quello che indossa o ha in mano (vedi GEAR)
+	var loadout := {}             # Slot -> Res scelto nella scheda, null: niente; slot che manca: automatico (vedi fits)
 	var recipe := 0               # CRAFT: indice in RECIPES
 	var fetched := {}             # CRAFT: Res -> quantità già portata alla postazione
 	var work_left := 0.0          # secondi: del colpo, della costruzione o, a svago e in sfuriata, del tempo che resta
@@ -900,6 +935,7 @@ var boulders := {}          # cella in alto a sinistra -> dimensione del masso c
 var ores := {}              # cella -> Res.IRON o Res.COAL: massi 1x1 che scavati danno il minerale invece della pietra
 var water := {}             # cella -> Ground.SHALLOW (si guada) o Ground.DEEP (non si attraversa)
 var ground_texture: ImageTexture  # tutto il terreno già disegnato, vedi bake_ground
+var water_fx: ShaderMaterial      # anima l'acqua del terreno, e la fa gelare (vedi water.gdshader e atmosphere.gd)
 var trees := {}             # cella -> TreeKind (attraversabile), in ordine di riga: serve a _draw
 var stock := {}             # albero, masso (cella d'origine) o cespuglio -> quanto resta da raccogliere; se manca, full_stock
 var bushes := {}            # cella -> `clock` da cui ha le bacche (attraversabile): raccolte, il cespuglio resta
@@ -925,6 +961,7 @@ var next_guest := GUEST_EVERY      # `clock` del prossimo arrivo alla locanda
 var ruins: Array[Ruin] = []
 var expeditions: Array[Expedition] = []
 var chronicle: PackedStringArray = []  # diari delle spedizioni e morti, dal più vecchio (vedi note)
+var chronicle_days: PackedInt32Array = []  # il giorno di ogni voce di chronicle: il calendario la segna lì
 var board_key := ""         # quello che mostra la bacheca: se cambia, la si rifà (vedi fill_board)
 var board_pick: Array[Colonist] = []  # spuntati alla bacheca per la prossima spedizione
 var study := 0.0            # punti studio: il mucchio comune, scritto allo scrittoio (vedi Job.STUDY), speso nelle ricerche
@@ -942,11 +979,18 @@ var items := {}  # risorsa -> (cella -> quantità a terra; nel magazzino = stocc
 var fresh := {}             # cella -> giorni (a terra fuori) prima che il mucchio di cibo marcisca, vedi spoil
 var stockpile := {}         # cella -> true: dentro le stanze di tipo magazzino, vedi update_stockpile
 var rooms: Array[Room] = []  # stanze finite, vedi update_rooms
+var roofed := {}            # casella sotto un tetto (stanze coi loro muri e porte) -> riga in pixel del colmo; vedi update_rooms
+var roofs_shown := true     # il pulsante Roofs li toglie, per guardare dentro
+var atmosphere := preload("res://atmosphere.gd").new()  # luci, fuochi, nuvole, meteo; neve e pozzanghere a terra
+var forecast_strip = preload("res://forecast.gd").new()  # in alto accanto alla data: il meteo di adesso e le previsioni
+var calendar = preload("res://calendar.gd").new()  # si apre cliccando la data: un mese per pagina, coi suoi eventi
 var rooms_made := 0         # per i nomi di default
 var editing: Room           # la stanza aperta nel popup del cartello
 var keep := STOCK.duplicate()  # prodotto -> quanti tenerne (a terra, in magazzino, in mano): si cambia nel menu della postazione
 var crafting := Vector2i(-1, -1)  # la postazione aperta nel menu, vedi open_craft
 var shown: Colonist         # il colono nella scheda: le barre dei bisogni lo seguono
+var gear_menu := PopupMenu.new()  # clic su uno slot della scheda: Auto, Empty o un pezzo (vedi open_gear_menu)
+var gear_slot := Slot.HANDS       # lo slot del menu aperto
 var lens_owners := []       # [centro, proprietari o lavoratori] per stanza delle figurine sulla lente, vedi place_owners
 var needs_rate := 1.0       # 0 nei test: i bisogni restano fermi e non cambiano i lavori
 var routines := true        # false nei test: niente orari né ore massime, chi è libero prende il primo lavoro
@@ -1000,7 +1044,7 @@ var lights_canvas := Node2D.new()
 @onready var splendor_label: Label = $HUD/TopBar/Row/Splendor
 @onready var info_label: Label = $HUD/TopBar/Row/Info
 @onready var realm_button: Button = $HUD/TopBar/Row/Realm  # nome del reame: apre la scheda del sovrano
-@onready var fullscreen: Button = $HUD/TopBar/Row/Fullscreen
+@onready var video: Control = $HUD/Options/Window/Box/Body/Pages/Video  # risoluzione e schermo intero
 @onready var categories: Control = $HUD/Categories  # si apre col tasto Build: una categoria per barra di costruzione
 @onready var build_bar: Control = $HUD/BuildBar  # sopra le categorie: quella scelta
 @onready var furniture_bar: Control = $HUD/FurnitureBar
@@ -1105,9 +1149,10 @@ func _ready() -> void:
 	realm_button.tooltip_text = "%s %s" % [RULER_TITLES[ruler.sex], full_name(ruler)]
 	realm_button.pressed.connect(func(): open_sheet(ruler))
 	camera.position = center(MAP_SIZE / 2)
-	fullscreen.pressed.connect(toggle_fullscreen)
-	if DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN:  # passato a schermo intero dal titolo
-		fullscreen.text = "Window"
+	for name in SPEEDS:
+		get_node("HUD/TopBar/Row/" + name).pressed.connect(func(): Engine.time_scale = SPEEDS[name])
+	$HUD/TopBar/Row/Screen.pressed.connect(func():
+		set_fullscreen(DisplayServer.window_get_mode() != DisplayServer.WINDOW_MODE_FULLSCREEN))
 	$HUD/TopBar/Row/Options.pressed.connect(toggle_options)
 	setup_options()
 	build_button.toggled.connect(toggle_build)
@@ -1134,7 +1179,19 @@ func _ready() -> void:
 	lens.add_child(lens_canvas)
 	add_child(lens)
 	lens_canvas.draw.connect(draw_lens)
+	add_child(atmosphere)  # dopo `lights` e `flat`, che usa
+	forecast_strip.main = self
+	$HUD/TopBar/Row.add_child(forecast_strip)
+	$HUD/TopBar/Row.move_child(forecast_strip, info_label.get_index() + 1)
+	calendar.main = self
+	$HUD.add_child(calendar)
+	info_label.mouse_filter = Control.MOUSE_FILTER_STOP  # la data apre il calendario
+	info_label.tooltip_text = "Calendar"
+	info_label.gui_input.connect(func(event):
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			calendar.visible = not calendar.visible)
 	$HUD/Tools/Row/RoomsLens.toggled.connect(lens.set_visible)
+	$HUD/Tools/Row/Roofs.toggled.connect(func(on): roofs_shown = not on)
 	$HUD/RoomPopup/Box/Ok.pressed.connect(room_popup.hide)
 	for kind in Build.values():  # un pulsante per tipo, con lo stesso nome: Wall, Floor, ... Lamp
 		var bar := furniture_bar if FURNITURE.has(kind) else build_bar
@@ -1153,6 +1210,14 @@ func _ready() -> void:
 	$HUD/Tools/Row/Resources.toggled.connect(resources_panel.set_visible)
 	jobs_panel.hidden.connect($HUD/Tools/Row/Jobs.set_pressed_no_signal.bind(false))  # chiusa con la X: tasto su
 	resources_panel.hidden.connect($HUD/Tools/Row/Resources.set_pressed_no_signal.bind(false))
+	var topics: ItemList = $HUD/WikiPanel/Box/Body/Topics
+	for page in WIKI.PAGES:
+		topics.add_item(page[0])
+	topics.item_selected.connect(func(i): $HUD/WikiPanel/Box/Body/Text.text = WIKI.PAGES[i][1])
+	topics.select(0)
+	topics.item_selected.emit(0)
+	$HUD/Tools/Row/Wiki.toggled.connect($HUD/WikiPanel.set_visible)
+	$HUD/WikiPanel.hidden.connect($HUD/Tools/Row/Wiki.set_pressed_no_signal.bind(false))
 	for name in ["Knowledge", "Laws"]:  # le finestre della ricerca, al centro: si rifanno aprendole (vedi fill_knowledge)
 		var panel: Control = get_node("HUD/%sPanel" % name)
 		get_node("HUD/Tools/Row/" + name).toggled.connect(func(on):
@@ -1183,9 +1248,18 @@ func _ready() -> void:
 			row.add_child(label)
 		resources_list.add_child(row)
 	ruins.append(Ruin.new())  # per ora solo la torre
+	$HUD.add_child(gear_menu)
+	gear_menu.id_pressed.connect(choose_gear)
+	for slot in Slot.values():
+		var icon: Control = $HUD/ColonistSheet/Box/Equipment/Slots.get_child(slot)
+		icon.mouse_filter = Control.MOUSE_FILTER_STOP  # il clic non trascina la finestra
+		icon.gui_input.connect(func(event):
+			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT \
+					and shown.hero == Hero.NONE:
+				open_gear_menu(slot))
 	$HUD/BoardPanel/Box/ChronicleButton.pressed.connect(open_chronicle)
 	for window in [room_popup, craft_popup, jobs_panel, resources_panel, sheet_panel, $HUD/BoardPanel, $HUD/ReportPanel, $HUD/ChroniclePanel,
-			$HUD/KnowledgePanel, $HUD/LawsPanel]:  # X in alto a destra, si trascinano
+			$HUD/KnowledgePanel, $HUD/LawsPanel, $HUD/WikiPanel]:  # X in alto a destra, si trascinano
 		window.get_node("Box/Head/Close").pressed.connect(window.hide)
 		window.gui_input.connect(drag_window.bind(window))
 		window.visibility_changed.connect(window.move_to_front, CONNECT_DEFERRED)  # l'ultima aperta sta sopra
@@ -1197,8 +1271,8 @@ func _ready() -> void:
 
 # menù delle opzioni: a sinistra le tab, icone (una per pagina, con lo stesso nome); le pagine stanno in un
 # TabContainer senza linguette, grande quanto la più grande, così la finestra non cambia misura passando dall'una
-# all'altra. Keybindings: una riga per comando della barra in basso, nell'ordine dei pulsanti. Game: menù principale,
-# carica, esci dal gioco
+# all'altra. System: lingua, menù principale, carica, esci dal gioco. Video: risoluzione e schermo intero. Audio: vuota.
+# Keybindings: icona, nome e tasto per comando della barra in basso, due per riga, nell'ordine dei pulsanti
 func setup_options() -> void:
 	var window: Control = options.get_node("Window")
 	window.get_node("Box/Head/Close").pressed.connect(options.hide)
@@ -1208,8 +1282,22 @@ func setup_options() -> void:
 	for tab in window.get_node("Box/Body/Tabs").get_children():
 		tab.toggled.connect(show_page.bind(pages.get_node(NodePath(tab.name))))
 	pages.get_node("Keybindings/Reset").pressed.connect(reset_keys)
+	# ponytail: risoluzione e schermo intero non si salvano ancora: si riparte dalla finestra di partenza
+	var sizes: OptionButton = video.get_node("Resolution/Sizes")
+	var screen := DisplayServer.screen_get_size()
+	for i in RESOLUTIONS.size():
+		if i == 0 or (RESOLUTIONS[i].x <= screen.x and RESOLUTIONS[i].y <= screen.y):
+			sizes.add_item("%d x %d" % [RESOLUTIONS[i].x, RESOLUTIONS[i].y])
+	sizes.item_selected.connect(func(i): set_resolution(RESOLUTIONS[i]))
+	video.get_node("Fullscreen").toggled.connect(set_fullscreen)
 	# ponytail: menù principale e salvataggi non ci sono ancora: "Main menu" e "Load game" restano spenti
-	pages.get_node("Game/Quit").pressed.connect(get_tree().quit)
+	pages.get_node("System/Quit").pressed.connect(get_tree().quit)
+	var languages: OptionButton = pages.get_node("System/Language/Languages")
+	for code in LANGUAGES:
+		languages.add_item(LANGUAGES[code])
+	# all'inizio quella del sistema (o salvata, vedi title.gd); se non c'è, l'inglese
+	languages.select(maxi(0, LANGUAGES.keys().find(TranslationServer.get_locale().get_slice("_", 0))))
+	languages.item_selected.connect(func(i): set_language(LANGUAGES.keys()[i]))
 	for button in hotbar.get_children():
 		if not button is Button:
 			continue
@@ -1241,12 +1329,17 @@ func toggle_options() -> void:
 	options.visible = not options.visible
 
 
-# aperto il menù il gioco si ferma; chiuso (anche con la X) riprende alla velocità di prima
+# aperto il menù il gioco si ferma e si parte sempre da System; chiuso (anche con la X) riprende alla velocità di prima
 func options_toggled() -> void:
 	if options.visible:
 		resume_speed = Engine.time_scale
 		Engine.time_scale = 0.0
 		options.move_to_front()  # sopra le finestre aperte dopo
+		options.get_node("Window/Box/Body/Tabs/System").button_pressed = true
+		var full := DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN  # anche dal tasto in alto
+		video.get_node("Fullscreen").set_pressed_no_signal(full)
+		video.get_node("Resolution/Sizes").disabled = full
+		video.get_node("Resolution/Sizes").select(RESOLUTIONS.find(DisplayServer.window_get_size()))  # -1: misura a mano
 	else:
 		Engine.time_scale = resume_speed
 		rebinding = ""
@@ -1346,10 +1439,28 @@ func drag_window(event: InputEvent, window: Control) -> void:
 		window.accept_event()
 
 
-func toggle_fullscreen() -> void:
-	var full := DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
-	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED if full else DisplayServer.WINDOW_MODE_FULLSCREEN)
-	fullscreen.text = "Fullscreen" if full else "Window"
+# schermo in alto a destra o tab Video; a schermo intero la risoluzione non si sceglie
+func set_fullscreen(on: bool) -> void:
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if on else DisplayServer.WINDOW_MODE_WINDOWED)
+	video.get_node("Resolution/Sizes").disabled = on  # il cambio di modo può arrivare dopo: non rileggerlo
+
+
+# tab System: i testi con una traduzione cambiano subito; la scelta resta per la prossima volta (la rilegge title.gd)
+func set_language(code: String) -> void:
+	TranslationServer.set_locale(code)
+	if settings_file == "":
+		return
+	var config := ConfigFile.new()
+	config.load(settings_file)  # tiene le altre sezioni
+	config.set_value("game", "language", code)
+	config.save(settings_file)
+
+
+# tab Video: la finestra prende la misura scelta e si rimette al centro dello schermo
+func set_resolution(size: Vector2i) -> void:
+	DisplayServer.window_set_size(size)
+	var screen := DisplayServer.screen_get_usable_rect()
+	DisplayServer.window_set_position(screen.position + (screen.size - size) / 2)
 
 
 # tasto "Select" (freccia): nessuno strumento, il clic sulla mappa apre le schede. Premuto chiude quello aperto;
@@ -1521,7 +1632,8 @@ func fill_people() -> void:
 # comfort della stanza nel popup, e nella tendina solo i tipi di cui ci sono i mobili (vedi ROOM_NEEDS): l'id della
 # voce è il RoomKind. La si rifà solo quando cambiano, se no si chiuderebbe mentre la si guarda
 func refresh_room() -> void:
-	$HUD/RoomPopup/Box/Comfort.text = "Comfort: %d / %d" % [room_comfort(editing), COMFORT_MAX]
+	$HUD/RoomPopup/Box/Comfort.text = "Comfort: %d / %d    %d°C" \
+		% [room_comfort(editing), COMFORT_MAX, roundi(temperature_at(editing.cells.keys()[0]))]
 	var kinds := RoomKind.values().filter(func(k): return room_meets(editing, k))
 	if kinds != range(room_kind.item_count).map(room_kind.get_item_id):
 		room_kind.clear()
@@ -1701,6 +1813,7 @@ func health_text(c: Colonist) -> String:
 
 
 # slot dell'equipaggiamento: l'icona del pezzo, col mouse sopra nome, protezione ed effetto; vuoto, la sagoma dello slot.
+# Sotto, la scelta del giocatore (vedi gear_choice); uno slot scelto a mano ha un puntino d'oro in alto a destra.
 # Sopra gli slot la protezione totale
 func update_gear(box: Control, c: Colonist) -> void:
 	var slots: Control = box.get_node("Equipment/Slots")
@@ -1708,19 +1821,67 @@ func update_gear(box: Control, c: Colonist) -> void:
 		var icon: TextureRect = slots.get_child(slot)
 		if not icon.has_meta("empty"):
 			icon.set_meta("empty", icon.texture)
+			var pin := ColorRect.new()
+			pin.name = "Pin"
+			pin.color = SPLENDOR_COLOR
+			pin.size = Vector2(6, 6)
+			pin.position = Vector2(icon.custom_minimum_size.x - 6, 0)
+			pin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			icon.add_child(pin)
+		icon.get_node("Pin").visible = c.loadout.has(slot)
+		icon.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if c.hero == Hero.NONE else Control.CURSOR_ARROW
 		var g = c.gear.get(slot)
+		var choice := gear_choice(c, slot)
 		icon.texture = ICONS[g] if g != null else icon.get_meta("empty")
-		icon.tooltip_text = Slot.keys()[slot].capitalize() if g == null else "%s\n%s%s" % [Res.keys()[g].capitalize(),
-			"Armor %d. " % GEAR[g]["armor"] if GEAR[g].has("armor") else "", GEAR[g]["info"]]
+		icon.tooltip_text = (Slot.keys()[slot].capitalize() if g == null else "%s\n%s%s" % [Res.keys()[g].capitalize(),
+			"Armor %d. " % GEAR[g]["armor"] if GEAR[g].has("armor") else "", GEAR[g]["info"]]) + choice
 		if icon.get_script() == null:
 			icon.set_script(TIP)
-		icon.set("make_tip", gear_tip.bind(g) if g != null else Callable())
+		icon.set("make_tip", gear_tip.bind(g, choice) if g != null else Callable())
 	box.get_node("Equipment/Title").text = "Equipment" + ("  (armor %d)" % gear_sum(c, "armor") if gear_sum(c, "armor") > 0 else "")
 
 
-# suggerimento di un pezzo dell'equipaggiamento: tipo e nome, poi protezione ed effetto (come tooltip_text)
-func gear_tip(g: Res) -> Control:
-	var text := rich("%s\n%s%s" % [item_title(g), "Armor %d. " % GEAR[g]["armor"] if GEAR[g].has("armor") else "", GEAR[g]["info"]])
+# riga del suggerimento dello slot sulla scelta: automatico, o cosa ha scelto il giocatore e se non ce l'ha ancora addosso.
+# Gli avventurieri hanno il loro equipaggiamento: niente scelta
+func gear_choice(c: Colonist, slot: Slot) -> String:
+	if c.hero != Hero.NONE:
+		return ""
+	if not c.loadout.has(slot):
+		return "\nAuto. Click to choose."
+	var g = c.loadout[slot]
+	return "\nChosen: %s%s. Click to change." % ["nothing" if g == null else res_name(g), "" if c.gear.get(slot) == g else " (on the way)"]
+
+
+# Menu dello slot `slot` di `shown`: Auto (lo sceglie da sé, vedi fits), Empty (niente) e i pezzi che ci vanno, con
+# quanti ce ne sono liberi; spuntato quello scelto. Uno che non c'è si fa (vedi gear_wanted)
+func open_gear_menu(slot: Slot) -> void:
+	gear_slot = slot
+	gear_menu.clear()
+	gear_menu.add_radio_check_item("Auto", 0)
+	gear_menu.set_item_checked(0, not shown.loadout.has(slot))
+	gear_menu.add_radio_check_item("Empty", 1)
+	gear_menu.set_item_checked(1, shown.loadout.has(slot) and shown.loadout[slot] == null)
+	gear_menu.add_separator()
+	for g in GEAR:
+		if GEAR[g]["slot"] == slot:
+			gear_menu.add_icon_radio_check_item(ICONS[g], "%s  x%d" % [Res.keys()[g].capitalize(), available(g)], 2 + g)
+			var i := gear_menu.get_item_index(2 + g)
+			gear_menu.set_item_checked(i, shown.loadout.get(slot) == g)
+			gear_menu.set_item_tooltip(i, GEAR[g]["info"])
+	gear_menu.position = Vector2i(get_viewport().get_mouse_position())
+	gear_menu.popup()
+
+
+func choose_gear(id: int) -> void:
+	if id == 0:
+		shown.loadout.erase(gear_slot)
+	else:
+		shown.loadout[gear_slot] = null if id == 1 else id - 2
+
+
+# suggerimento di un pezzo dell'equipaggiamento: tipo e nome, poi protezione ed effetto (come tooltip_text), poi `choice`
+func gear_tip(g: Res, choice := "") -> Control:
+	var text := rich("%s\n%s%s%s" % [item_title(g), "Armor %d. " % GEAR[g]["armor"] if GEAR[g].has("armor") else "", GEAR[g]["info"], choice])
 	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	text.custom_minimum_size.x = 260
 	return text
@@ -1873,6 +2034,8 @@ func describe(cell: Vector2i) -> Array:
 			if a.marked:
 				lines.append("Marked: hunt")
 			return [Beast.keys()[a.kind].capitalize(), "\n".join(lines)]
+	if fish_marks.has(cell) and atmosphere.frozen:
+		return ["Fishing spot", "Frozen: no fishing until it thaws"]
 	if fish_marks.has(cell):
 		return ["Fishing spot", "Fish: %d / %d" % [stock.get(cell, FISH_PER_SPOT), FISH_PER_SPOT] if fish_spots.get(cell, 0.0) <= clock
 			else "Fish back in %.1f days" % (fish_spots[cell] - clock)]
@@ -1899,8 +2062,9 @@ func describe(cell: Vector2i) -> Array:
 			var about := "%d / %d" % [items[res][cell], STACK_MAX[res]]
 			if fresh.has(cell):  # cibo: quanto è fresco e quando marcisce, dove si trova adesso
 				var part: float = fresh[cell] / SHELF_LIFE[res]
-				about += "\n%s, rots in %.1f days" % [FRESH_WORDS.filter(func(w): return part > w[0] or w[0] == 0.0)[0][1],
-					fresh[cell] / spoil_rate(cell)]
+				var rate := spoil_rate(cell)
+				about += "\n%s, %s" % [FRESH_WORDS.filter(func(w): return part > w[0] or w[0] == 0.0)[0][1],
+					"frozen: it keeps" if rate == 0 else "rots in %.1f days" % (fresh[cell] / rate)]
 			return ["%s pile" % item_title(res), about]
 	for origin in pieces_at(furniture, cell):
 		var kind: Build = furniture[origin][0]
@@ -2088,7 +2252,7 @@ func bake_ground(noise: FastNoiseLite) -> void:
 				if corner >= 0 and edge_row(own, cell + Vector2i(d.x, 0)) != corner and edge_row(own, cell + Vector2i(0, d.y)) != corner:
 					img.blend_rect(sheet, tile_rect(i, corner + 3), cell * TILE)
 	ground_texture = ImageTexture.create_from_image(img)
-	var water_fx := ShaderMaterial.new()
+	water_fx = ShaderMaterial.new()
 	water_fx.shader = WATER_SHADER
 	water_fx.set_shader_parameter("shallow", sheet.get_pixel(0, Ground.SHALLOW * TILE))  # colori base dell'acqua
 	water_fx.set_shader_parameter("deep", sheet.get_pixel(0, Ground.DEEP * TILE))
@@ -2162,11 +2326,13 @@ func _process(delta: float) -> void:
 		update_gear($HUD/ColonistSheet/Box, shown)
 		$HUD/ColonistSheet/Box/Health.text = health_text(shown)
 		update_routine_row($HUD/ColonistSheet/Box/Routine, shown)
+	for name in SPEEDS:  # premuto quello della velocità attuale, anche cambiata coi tasti
+		get_node("HUD/TopBar/Row/" + name).set_pressed_no_signal(Engine.time_scale == SPEEDS[name])
 	var t := fmod(clock, 1.0)
 	var wolves := animals.filter(hostile).size()
 	info_label.text = ("WOLVES: %d    " % wolves if wolves > 0 else "") \
-		+ ("EXPEDITION: %d    " % expeditions.size() if not expeditions.is_empty() else "") + "Day %d  %02d:%02d    Order: %s    Speed: %dx  (Space = pause, 1-3)" \
-		% [int(clock) + 1, int(t * 24), int(t * 1440) % 60, Order.keys()[order].capitalize(), Engine.time_scale]
+		+ ("EXPEDITION: %d    " % expeditions.size() if not expeditions.is_empty() else "") + "%s, %s  %02d:%02d    Order: %s" \
+		% [SEASONS[season(int(clock))], date(int(clock)), int(t * 24), int(t * 1440) % 60, Order.keys()[order].capitalize()]
 	sky.color = sky_colors.sample(t)
 	queue_redraw()
 	flat.queue_redraw()
@@ -2572,7 +2738,8 @@ static func clash(a: Trait, b: Trait) -> bool:
 # Lo stress sale lavorando e scende a riposo. Sotto EXHAUSTED di riposo il colono molla tutto e crolla dove si trova;
 # sotto NEED_LOW ci pensa find_job. L'iracondo troppo stressato se ne va a sbollire; il sonnambulo a volte si alza.
 # Le condizioni (vedi Cond) finite spariscono; quelle in corso cambiano lo stress da lavoro e la felicità.
-# ponytail: il comfort non cambia ancora i lavori; la felicità segue la media degli altri, più le condizioni
+# Da svegli freddo e pioggia fanno calare il comfort (vedi weather_comfort): un tetto e un fuoco lo salvano.
+# La felicità segue la media degli altri, più le condizioni
 func update_needs(c: Colonist, delta: float) -> void:
 	var day := delta / DAY_LENGTH * needs_rate
 	var before: Array = c.needs.duplicate()
@@ -2590,6 +2757,7 @@ func update_needs(c: Colonist, delta: float) -> void:
 		c.needs[Need.COMFORT] = move_toward(c.needs[Need.COMFORT], NEED_MAX * comfort / COMFORT_MAX, gain)
 	else:
 		c.needs[Need.REST] -= REST_DROP * fx(c, "rest", 1.0) * day
+		c.needs[Need.COMFORT] += DISCOMFORT_DROP * weather_comfort(cell_of(c.pos), gear_sum(c, "armor")) * day
 	if c.job == Job.RELAX:
 		c.needs[Need.FUN] += FUN_GAIN * day
 	elif not asleep:
@@ -2648,21 +2816,54 @@ func colony_splendor() -> int:
 		+ guests.reduce(func(n, g): return n + gift(g, "splendor", 0), 0)  # gli avventurieri famosi
 
 
-# Comfort dove sta il colono: quello della stanza, in proporzione se ha meno di ROOM_SPACE caselle a testa; fuori 0.
+# Comfort dove sta il colono: i mobili della stanza, in proporzione se ha meno di ROOM_SPACE caselle a testa (fuori 0),
+# meno freddo e pioggia (vedi weather_comfort), con la sua protezione addosso.
 # ponytail: "a testa" conta chi è nella stanza in quel momento, sveglio o no
 func comfort_of(c: Colonist) -> int:
 	var here := cell_of(c.pos)
+	var weather := weather_comfort(here, gear_sum(c, "armor"))
 	for room in rooms:
 		if room.cells.has(here):
 			var people := colonists.filter(func(o): return room.cells.has(cell_of(o.pos))).size()
-			return floori(room_comfort(room) * minf(1.0, float(room.cells.size()) / people / ROOM_SPACE))
-	return 0
+			return floori(furnishing(room) * minf(1.0, float(room.cells.size()) / people / ROOM_SPACE)) + weather
+	return weather
+
+
+# comfort per chi lavora nella stanza: i mobili, meno il freddo che ci fa
+func room_comfort(room: Room) -> int:
+	return furnishing(room) + weather_comfort(room.cells.keys()[0])
+
+
+# Comfort tolto (0 o meno) da freddo e pioggia in `cell` a chi ha `warmth` punti di protezione addosso (vedi COLD_FROM)
+func weather_comfort(cell: Vector2i, warmth := 0.0) -> int:
+	var cold := maxi(0, floori((COLD_FROM - temperature_at(cell) - warmth) / COLD_STEP))
+	var wet := 0 if sheltered(cell) else roundi(WET_COMFORT * atmosphere.raining())
+	return -(cold + wet)
+
+
+# Gradi in `cell`: fuori come dice il tempo (vedi atmosphere.temperature); sotto un tetto a metà strada verso ROOM_TEMP,
+# più FIRE_HEAT per ogni fuoco da campo della stanza: il focolare scalda
+func temperature_at(cell: Vector2i) -> float:
+	var t: float = atmosphere.temperature()
+	if not sheltered(cell):
+		return t
+	t = lerpf(t, ROOM_TEMP, INSULATION)
+	var room := room_at(cell)
+	for origin in furniture:
+		if room != null and room.cells.has(origin) and furniture[origin][0] == Build.CAMPFIRE:
+			t += FIRE_HEAT
+	return t
+
+
+# dentro una stanza o sotto il suo tetto (muri e porte)
+func sheltered(cell: Vector2i) -> bool:
+	return roofed.has(cell) or room_at(cell) != null
 
 
 # 0-COMFORT_MAX: i mobili dentro la stanza, per pezzo, e il pavimento, per la parte di stanza che copre; per materiale
 # ponytail: scorre mobili e caselle a ogni domanda (anche per ogni colono che dorme, a ogni tick); tenerlo nella Room
 # e ricalcolarlo quando cambiano mobili o pavimenti se le stanze diventano tante
-func room_comfort(room: Room) -> int:
+func furnishing(room: Room) -> int:
 	var sum := 0.0
 	for origin in furniture:
 		if room.cells.has(origin):
@@ -3010,8 +3211,12 @@ func wanted_tool(c: Colonist) -> Res:
 	return best
 
 
-# pezzi che `c` metterebbe nello slot `slot` se lo ha vuoto: nelle mani solo il suo attrezzo, se no tutti quelli dello slot
+# Pezzi che `c` metterebbe nello slot `slot`. Scelto nella scheda (loadout): quel pezzo, se non ce l'ha già addosso;
+# niente se ha scelto "Empty". Automatico, solo se lo ha vuoto: nelle mani il suo attrezzo, se no tutti quelli dello slot
 func fits(c: Colonist, slot: Slot) -> Array:
+	if c.loadout.has(slot):
+		var g = c.loadout[slot]
+		return [] if g == null or c.gear.get(slot) == g else [g]
 	if c.gear.has(slot):
 		return []
 	if slot == Slot.HANDS:
@@ -3019,9 +3224,14 @@ func fits(c: Colonist, slot: Slot) -> Array:
 	return GEAR.keys().filter(func(g): return GEAR[g]["slot"] == slot)
 
 
-# Slot vuoto e il pezzo giusto in un mucchio libero: va a prenderlo (Job.EQUIP). false se non c'è niente da mettere
+# Slot da riempire (vedi fits) e il pezzo giusto in un mucchio libero: va a prenderlo (Job.EQUIP) e posa lì quello che
+# aveva. Scelto "Empty": se lo toglie e lo posa ai suoi piedi, poi si porta in magazzino come ogni mucchio.
+# false se non c'è niente da mettere
 func try_equip(c: Colonist) -> bool:
 	for slot in Slot.values():
+		if c.loadout.has(slot) and c.loadout[slot] == null and c.gear.has(slot):
+			drop(c.gear[slot], cell_of(c.pos), 1)
+			c.gear.erase(slot)
 		for g in fits(c, slot):
 			if take(c, g):
 				return true
@@ -3039,8 +3249,9 @@ func take(c: Colonist, g: Res) -> bool:
 
 
 # Quanti `res` mancano: fino a quanti chiede il menu (vedi keep), contando anche quelli in lavorazione. Equipaggiamento,
-# se sono di più: i coloni con lo slot vuoto che lo prenderebbero (per le mani: chi vuole proprio quell'attrezzo; se no
-# tutti), meno quelli già fatti e in lavorazione per lo stesso slot.
+# se sono di più: i coloni in automatico con lo slot vuoto che lo prenderebbero (per le mani: chi vuole proprio
+# quell'attrezzo; se no tutti), meno quelli già fatti e in lavorazione per lo stesso slot; oppure chi l'ha scelto nella
+# scheda e non ce l'ha, meno quelli già fatti e in lavorazione (ognuno conta solo il suo pezzo).
 # Almeno un arco se ci sono animali da cacciare e nessuno ce l'ha: chi va a caccia se lo prende (vedi try_hunt)
 func gear_wanted(res: Res) -> int:
 	var making := func(r): return colonists.filter(func(o): return o.job == Job.CRAFT and RECIPES[o.recipe][0] == r).size()
@@ -3049,12 +3260,13 @@ func gear_wanted(res: Res) -> int:
 		return spare
 	var slot: Slot = GEAR[res]["slot"]
 	var same: Array = [res] if slot == Slot.HANDS else GEAR.keys().filter(func(g): return GEAR[g]["slot"] == slot)
-	var want := colonists.filter(func(o): return res in fits(o, slot)).size()
+	var want := colonists.filter(func(o): return not o.loadout.has(slot) and res in fits(o, slot)).size()
 	if res == Res.BOW and animals.any(func(a): return a.marked) and not colonists.any(has_bow):
 		want = maxi(want, 1)
 	for g in same:
 		want -= total(g) + making.call(g)
-	return maxi(want, spare)
+	var chosen := colonists.filter(func(o): return o.loadout.has(slot) and res in fits(o, slot)).size()
+	return maxi(maxi(want, spare), chosen - total(res) - making.call(res))
 
 
 # mobili `kind` (fornace, incudine, banco) dentro una stanza del tipo giusto (STATION_ROOM)
@@ -3421,7 +3633,7 @@ func die(c: Colonist, why: String) -> void:
 			add_cond(o, Cond.MOURNING)
 	if shown == c:
 		sheet_panel.hide()
-	note("Day %d: %s %s" % [int(clock) + 1, full_name(c), why])
+	note("%s: %s %s" % [date(int(clock)), full_name(c), why])
 	if was_colonist and colonists.is_empty():
 		fallen = true
 		$HUD/Fallen.show()
@@ -3660,7 +3872,7 @@ func send(party: Array, ruin: Ruin) -> bool:
 		travel(g)
 	expeditions.append(exp)
 	board_pick.clear()
-	note("Day %d: %s hired for the %s, for %s and %d of %d provisions." % [int(clock) + 1,
+	note("%s: %s hired for the %s, for %s and %d of %d provisions." % [date(int(clock)),
 		", ".join(party.map(func(g): return "%s (%s)" % [full_name(g), hero_name(g)])), RUINS[ruin.kind]["name"], coins(cost),
 		exp.food, want])
 	return true
@@ -3696,10 +3908,10 @@ func explore(exp: Expedition, travel: float) -> float:
 	var danger: int = data["danger"]
 	var days := 0.0
 	var start: float = exp.left_at + travel
-	exp.lines.append(("Day %d: the party reaches the %s. %s" % [int(start) + 1, data["name"], eat_on_trip(exp, travel)]).strip_edges())
+	exp.lines.append(("%s: the party reaches the %s. %s" % [date(int(start)), data["name"], eat_on_trip(exp, travel)]).strip_edges())
 	while exp.ruin.cleared < data["rooms"] and not exp.party.is_empty():
 		var last: bool = exp.ruin.cleared == data["rooms"] - 1
-		var room := "Day %d, room %d: " % [int(start + days) + 1, exp.ruin.cleared + 1]
+		var room := "%s, room %d: " % [date(int(start + days)), exp.ruin.cleared + 1]
 		days += ROOM_DAYS
 		var kind: int = Chamber.CHEST if last else pick_chamber()
 		var opened := true
@@ -3737,7 +3949,7 @@ func explore(exp: Expedition, travel: float) -> float:
 					exp.party.erase(c)
 					c.died = clock
 					exp.lines.append("%s falls and dies." % c.first_name)
-					note("Day %d: %s died in the %s." % [int(start + days) + 1, full_name(c), data["name"]])
+					note("%s: %s died in the %s." % [date(int(start + days)), full_name(c), data["name"]], int(start + days))
 				else:
 					c.hp = CARRIED_HP
 					exp.lines.append("%s falls; the others carry them." % c.first_name)
@@ -3939,8 +4151,9 @@ func item_title(res: Res) -> String:
 
 
 # una riga nella cronaca
-func note(text: String) -> void:
+func note(text: String, day := -1) -> void:  # segnata sul calendario nel giorno `day` (se manca, oggi)
 	chronicle.append(text)
+	chronicle_days.append(day if day >= 0 else int(clock))
 
 
 # diario di una spedizione: nella cronaca e in una finestra al centro
@@ -4224,21 +4437,48 @@ func shift_stress() -> float:
 	return 1.0
 
 
+# La data del giorno `day` (contato da 0, come `clock`): "3 Thaw, Year 1", o la festa: "Flower Feast, Year 1"
+@warning_ignore("integer_division")
+func date(day: int) -> String:
+	var d := posmod(day, YEAR_DAYS) - 1  # giorni dal primo di primavera: -1 è il Capodanno
+	var r := posmod(d, SEASON_DAYS)      # giorno nella stagione: dopo i suoi tre mesi, la festa
+	var when: String = NEW_YEAR if d < 0 else FEASTS[d / SEASON_DAYS] if feast(day) \
+		else "%d %s" % [r % MONTH_DAYS + 1, MONTHS[d / SEASON_DAYS * 3 + r / MONTH_DAYS]]
+	return "%s, Year %d" % [when, day / YEAR_DAYS + 1]
+
+
+# La stagione del giorno `day`, indice di SEASONS: la festa è della stagione che chiude, il Capodanno della primavera
+@warning_ignore("integer_division")
+func season(day: int) -> int:
+	return maxi(posmod(day, YEAR_DAYS) - 1, 0) / SEASON_DAYS
+
+
+# il giorno `day` è fuori dai mesi: il Capodanno o la festa a fine stagione
+func feast(day: int) -> bool:
+	var d := posmod(day, YEAR_DAYS) - 1
+	return d < 0 or d % SEASON_DAYS == 3 * MONTH_DAYS
+
+
 # oggi è festa (riposo festivo, festa del raccolto): si cucina e basta, gli altri si svagano (vedi find_work)
 func holiday() -> bool:
 	var day := int(clock)
 	return (enacted.has(Law.DAY_OF_REST) and day % REST_EVERY == REST_EVERY - 1) \
-		or (enacted.has(Law.HARVEST_FEAST) and day % SEASON_DAYS == SEASON_DAYS - 1)
+		or (enacted.has(Law.HARVEST_FEAST) and feast(day))
 
 
 # All'alba di ogni giorno (a mezzanotte): la tassa di soggiorno di chi aspetta alla locanda, una moneta lì dov'è;
-# finita la festa del raccolto, la sua felicità e la sua autorità
+# finita la festa del raccolto, la sua felicità e la sua autorità. D'inverno niente raccolti: i cespugli perdono bacche
+# e fiori di lino e li rifanno BERRY_REGROW giorni dopo Capodanno
 func new_day() -> void:
+	if season(today) == WINTER:
+		var spring: float = today - posmod(today, YEAR_DAYS) + YEAR_DAYS + BERRY_REGROW
+		for cell in bushes:
+			bushes[cell] = maxf(bushes[cell], spring)
 	if enacted.has(Law.LODGING_TAX):
 		for g in guests:
 			if not g.hired and g.errand == Errand.NONE:
 				drop(Res.GOLD, cell_of(g.pos), 1)
-	if enacted.has(Law.HARVEST_FEAST) and posmod(today - 1, SEASON_DAYS) == SEASON_DAYS - 1:
+	if enacted.has(Law.HARVEST_FEAST) and feast(today - 1):
 		for c in colonists:
 			add_cond(c, Cond.FESTIVE)
 		authority += FEAST_AUTHORITY
@@ -4461,7 +4701,38 @@ func fill_laws() -> void:
 
 # punti di pesca segnati dove ci sono pesci
 func fishable() -> Array:
+	if atmosphere.frozen:  # sotto il ghiaccio niente pesca
+		return []
 	return fish_marks.keys().filter(func(k): return fish_spots.get(k, 0.0) <= clock)
+
+
+# L'acqua gela o sgela (vedi atmosphere.gd): gelata, l'acqua alta regge e quella bassa non rallenta più; non si pesca
+# (vedi fishable). Sgelata, chi sta sull'acqua alta torna a riva e chi doveva passarci cerca un'altra strada
+func freeze_water(on: bool) -> void:
+	for cell in water:
+		if water[cell] == Ground.DEEP:
+			astar.set_point_solid(cell, not on)
+		else:
+			astar.set_point_weight_scale(cell, 1.0 if on else SHALLOW_COST)
+	if on:
+		return
+	for o in people() + animals:
+		var here := cell_of(o.pos)
+		if water.get(here) == Ground.DEEP:  # ponytail: a riva d'un colpo; a nuoto se capita di vederlo
+			var shore := []
+			var reach := 1
+			while shore.is_empty():  # la riva più vicina, in quadrati sempre più grandi
+				shore = cells_in(Rect2i(here - Vector2i.ONE * reach, Vector2i.ONE * (2 * reach + 1))) \
+					.filter(func(k): return astar.is_in_boundsv(k) and not astar.is_point_solid(k))
+				reach += 1
+			sort_by_distance(shore, o.pos)
+			o.pos = center(shore[0])
+			o.path.clear()
+		elif o.path.any(func(k): return water.get(k) == Ground.DEEP):
+			if o is Colonist:
+				o.path = path_of(o, here, o.path.back())
+			else:
+				o.path.clear()
 
 
 func catch_chance(level: int) -> float:
@@ -4485,13 +4756,14 @@ func hit_chance(level: int, tiles: float) -> float:
 
 # Caccia, solo con l'arco: l'animale segnato più vicino che nessuno insegue già. Il cacciatore va verso di lui finché
 # non è a tiro (vedi track_prey), poi tira (vedi Job.HUNT). Senza arco va a prenderne uno, se ce n'è uno libero, e posa
-# quello che aveva in mano. false se non c'è niente da cacciare, nessun arco o non ci si arriva.
+# quello che aveva in mano; non chi ha le mani scelte nella scheda. false se non c'è niente da cacciare, nessun arco
+# o non ci si arriva.
 func try_hunt(c: Colonist) -> bool:
 	var prey := animals.filter(func(a): return a.marked and a.hunter == null and a.blocked <= clock)
 	if prey.is_empty():
 		return false
 	if not has_bow(c):
-		return take(c, Res.BOW)
+		return not c.loadout.has(Slot.HANDS) and take(c, Res.BOW)
 	prey.sort_custom(func(a, b): return a.pos.distance_squared_to(c.pos) < b.pos.distance_squared_to(c.pos))
 	c.job = Job.HUNT
 	c.prey = prey[0]
@@ -4813,7 +5085,7 @@ func pick_up(c: Colonist, res: Res, cell: Vector2i, amount: int) -> void:
 	c.carrying = amount
 
 
-# Il cibo a terra invecchia di `days` giorni, a metà velocità in magazzino (vedi spoil_rate); finiti, il mucchio marcisce
+# Il cibo a terra invecchia di `days` giorni, più piano in magazzino e al freddo (vedi spoil_rate); finiti, il mucchio marcisce
 # e sparisce. Chi ci stava andando lo trova vuoto e lascia perdere.
 # ponytail: quello in mano non invecchia (lo si tiene poco); il marcio non lascia niente: se serve un mucchio da buttare
 func spoil(days: float) -> void:
@@ -4825,8 +5097,11 @@ func spoil(days: float) -> void:
 			fresh.erase(cell)
 
 
+# quanto in fretta marcisce il cibo in `cell`: a metà in magazzino; sotto ROOM_TEMP gradi più piano, in proporzione,
+# e sotto lo zero per niente (gela). Un magazzino freddo è una dispensa; il fuoco da campo la scalda
 func spoil_rate(cell: Vector2i) -> float:
-	return SPOIL_STORED if stockpile.has(cell) else 1.0
+	var cold := clampf(temperature_at(cell) / ROOM_TEMP, 0.0, 1.0)
+	return (SPOIL_STORED if stockpile.has(cell) else 1.0) * cold
 
 
 # Posa a terra `amount` di `res` su `cell`; oltre STACK_MAX il resto va sulle caselle più vicine dove ci sta
@@ -5080,7 +5355,37 @@ func update_rooms() -> void:
 			if not room_meets(room, room.kind):  # abbattuto un mobile che serviva: torna senza tipo, e senza proprietari
 				retype(room, RoomKind.NONE)
 			rooms.append(room)
+	update_roofs()
 	update_stockpile()
+
+
+# Tetti da soli, come le stanze: sopra ogni stanza e i muri e le porte che la toccano, anche di sbieco. Il colmo sta a
+# metà di ogni colonna di tetto (fino alla gronda, che lascia scoperta la facciata del muro in fondo): sopra la falda
+# al sole, sotto quella in ombra (vedi draw_roofs).
+func update_roofs() -> void:
+	var covered := {}
+	for room in rooms:
+		for cell in room.cells:
+			for dx in [-1, 0, 1]:
+				for dy in [-1, 0, 1]:
+					var k: Vector2i = cell + Vector2i(dx, dy)
+					if room.cells.has(k) or built.get(k, [Build.FLOOR])[0] not in PAVING:
+						covered[k] = true
+	var ridges := {}  # nuovo ogni volta: atmosphere.gd se ne accorge e rifà la maschera della neve
+	for cell in covered:
+		var top: Vector2i = cell
+		while covered.has(top + Vector2i.UP):
+			top += Vector2i.UP
+		var bottom: Vector2i = cell
+		while covered.has(bottom + Vector2i.DOWN):
+			bottom += Vector2i.DOWN
+		ridges[cell] = (top.y * TILE + eave_y(bottom)) / 2
+	roofed = ridges
+
+
+# riga in pixel della gronda del tetto che finisce in `cell`: sopra un muro (o una porta) se ne vede la facciata
+func eave_y(cell: Vector2i) -> int:
+	return (cell.y + 1) * TILE - (WALL_FRONT if built.get(cell, [Build.FLOOR])[0] not in PAVING else 0)
 
 
 func update_stockpile() -> void:
@@ -5109,6 +5414,13 @@ func stored(res: Res) -> int:
 
 
 # --- Input ---
+
+# trascinare col destro sposta la telecamera prima che l'interfaccia prenda il mouse: anche sopra le finestre e col
+# menù delle opzioni aperto (rotella e due dita passano già quando la finestra sotto non ha niente da scorrere)
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion and event.button_mask & MOUSE_BUTTON_MASK_RIGHT:
+		camera.position -= event.relative / camera.zoom
+
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
@@ -5146,8 +5458,6 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event is InputEventMouseMotion:
 		if drag_start != null:
 			drag_end = cell_of(get_global_mouse_position())
-		if event.button_mask & MOUSE_BUTTON_MASK_RIGHT:
-			camera.position -= event.relative / camera.zoom
 	elif event is InputEventPanGesture:      # trackpad: due dita
 		camera.position += event.delta * 10 / camera.zoom
 	elif event is InputEventMagnifyGesture:  # trackpad: pizzico
@@ -5323,6 +5633,8 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 		draw_creature(c)
 	for arrow in arrows:  # sopra tutto: volano
 		draw_arrow(arrow)
+	if roofs_shown:
+		draw_roofs()
 
 	for cell in chop_marks:
 		draw_mark(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE), Order.CHOP)
@@ -5382,7 +5694,44 @@ func draw_mark(rect: Rect2, kind: Order) -> void:
 # ponytail: un colono che passa davanti a un lampione ci finisce sotto, la luce resta sopra
 func draw_lights() -> void:
 	if sun_height() < 0:
-		draw_pieces(lights_canvas, FURNITURE_GLOW, furniture)
+		var lit := furniture.duplicate()
+		if roofs_shown:  # sotto i tetti non si vedono
+			for origin in furniture:
+				if roofed.has(origin):
+					lit.erase(origin)
+		draw_pieces(lights_canvas, FURNITURE_GLOW, lit)
+
+
+# Tetti (vedi update_roofs): coprono chi sta dentro. Tegole, innevate quanto la neve a terra; la falda sotto il colmo
+# un po' in ombra, una riga di luce sul colmo, il contorno sui bordi; sotto la gronda la facciata del muro, con l'ombra
+# del tetto. Poi di nuovo i cartelli: restano sopra e si cliccano.
+func draw_roofs() -> void:
+	var snow: float = atmosphere.snow
+	for cell in roofed:
+		var eave := not roofed.has(cell + Vector2i.DOWN)
+		var r := Rect2(tile_rect(cell.x, cell.y))
+		if eave:  # sotto la gronda si vede la facciata del muro
+			r.size.y = eave_y(cell) - r.position.y
+		draw_texture_rect_region(ROOF, r, Rect2(Vector2.ZERO, r.size))
+		if snow > 0:
+			draw_texture_rect_region(ROOF, r, Rect2(Vector2(TILE, 0), r.size), Color(1, 1, 1, snow))
+		var ridge: float = roofed[cell]
+		if ridge < r.end.y:
+			var from := maxf(r.position.y, ridge)
+			draw_rect(Rect2(r.position.x, from, TILE, r.end.y - from), Color(OUTLINE, 0.22))
+		if ridge - 1 >= r.position.y and ridge - 1 < r.end.y:
+			draw_rect(Rect2(r.position.x, ridge - 1, TILE, 1), Color(1, 1, 1, 0.3))
+		if not roofed.has(cell + Vector2i.UP):
+			draw_rect(Rect2(r.position, Vector2(TILE, 1)), OUTLINE)
+		if not roofed.has(cell + Vector2i.LEFT):
+			draw_rect(Rect2(r.position, Vector2(1, r.size.y)), OUTLINE)
+		if not roofed.has(cell + Vector2i.RIGHT):
+			draw_rect(Rect2(r.end.x - 1, r.position.y, 1, r.size.y), OUTLINE)
+		if eave:
+			draw_rect(Rect2(r.position.x, r.end.y - 1, TILE, 1), OUTLINE)
+			draw_rect(Rect2(r.position.x, r.end.y, TILE, 3), SHADOW)
+	for room in rooms:
+		draw_texture(SIGN, Vector2(room.sign) * TILE)
 
 
 func draw_lens() -> void:

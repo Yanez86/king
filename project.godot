@@ -29,6 +29,10 @@ window/stretch/aspect="expand"
 theme/custom="res://theme.tres"
 theme/custom_font="res://fonts/PixelifySans.ttf"
 
+[internationalization]
+
+locale/translations=PackedStringArray("res://locale/translations.it.translation")
+
 [physics]
 
 3d/physics_engine="Jolt Physics"

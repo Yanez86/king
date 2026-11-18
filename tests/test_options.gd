@@ -1,5 +1,6 @@
 # Esegui: godot --headless --path . -s tests/test_options.gd
-# Menù delle opzioni: apertura con Esc e con l'ingranaggio, pausa, tab Keybindings, tasti della barra in basso
+# Menù delle opzioni: apertura con Esc e con l'ingranaggio, pausa, tab (System, Video, Audio, Keybindings), tasti della
+# barra in basso; velocità in alto, finestra Wiki
 extends SceneTree
 
 const SAVED := "user://test_settings.cfg"
@@ -38,26 +39,55 @@ func _initialize() -> void:
 	press(main, KEY_B, true)
 	check(not main.build_button.button_pressed, "con Ctrl il tasto non vale")
 
-	# Esc e ingranaggio: il menù apre la tab dei tasti e ferma il gioco, chiuso riprende alla velocità di prima
+	# velocità in alto: i pulsanti la cambiano e mostrano quella attuale, anche cambiata coi tasti
+	var top: Node = main.get_node("HUD/TopBar/Row")
+	check(not top.has_node("Fullscreen") and top.get_node("Screen").icon != null and top.get_node("Screen").text == "",
+		"in alto lo schermo, senza scritta")
+	top.get_node("Fast").pressed.emit()
+	check(Engine.time_scale == 2.0, "Fast: 2x")
+	press(main, KEY_3)
+	await process_frame
+	check(top.get_node("Fastest").button_pressed and not top.get_node("Fast").button_pressed, "3: premuto Fastest")
+	press(main, KEY_SPACE)
+	await process_frame
+	check(Engine.time_scale == 0.0 and top.get_node("Pause").button_pressed, "Space: pausa")
+	top.get_node("Play").pressed.emit()
+	await process_frame
+	check(Engine.time_scale == 1.0 and top.get_node("Play").button_pressed and not top.get_node("Pause").button_pressed, "Play: 1x")
+
+	# Esc e ingranaggio: il menù apre sempre la tab System e ferma il gioco, chiuso riprende alla velocità di prima
 	Engine.time_scale = 2.0
 	press(main, KEY_ESCAPE)
 	check(main.options.visible and Engine.time_scale == 0.0, "Esc apre il menù e ferma il gioco")
-	check(main.key_list.is_visible_in_tree(), "tab Keybindings aperta")
 	var tabs: Node = main.get_node("HUD/Options/Window/Box/Body/Tabs")
-	var game: Control = main.get_node("HUD/Options/Window/Box/Body/Pages/Game")
-	check(tabs.get_children().map(func(t): return String(t.name)) == ["Keybindings", "Game"], "due tab: tasti e partita")
+	var system: Control = main.get_node("HUD/Options/Window/Box/Body/Pages/System")
+	var video: Control = main.get_node("HUD/Options/Window/Box/Body/Pages/Video")
+	check(system.is_visible_in_tree() and not main.key_list.is_visible_in_tree(), "tab System aperta")
+	check(tabs.get_children().map(func(t): return String(t.name)) == ["System", "Video", "Audio", "Keybindings"],
+		"quattro tab: sistema, video, audio, tasti")
 	check(tabs.get_children().all(func(t): return t.text == "" and t.icon != null), "tab: solo icone")
+	check(system.get_node("MainMenu").disabled and system.get_node("Load").disabled and not system.get_node("Quit").disabled,
+		"menù principale e carica non ci sono ancora, esci sì")
+	var languages: OptionButton = system.get_node("Language/Languages")
+	check(range(languages.item_count).map(languages.get_item_text) == ["English", "Italiano"], "lingue, nella loro lingua")
+	languages.select(1)
+	languages.item_selected.emit(1)
+	check(TranslationServer.get_locale() == "it" and main.tr("Options") == "Opzioni", "Italiano: i testi tradotti cambiano")
+	languages.select(0)
+	languages.item_selected.emit(0)
+	check(main.tr("Options") == "Options", "e si torna all'inglese")
 	await process_frame
 	var size: Vector2 = main.options.get_node("Window").size
-	tabs.get_node("Game").button_pressed = true
+	tabs.get_node("Video").button_pressed = true
 	await process_frame
-	check(game.is_visible_in_tree() and not main.key_list.is_visible_in_tree(), "tab Game: la sua pagina al posto dei tasti")
-	check(game.get_node("MainMenu").disabled and game.get_node("Load").disabled and not game.get_node("Quit").disabled,
-		"menù principale e carica non ci sono ancora, esci sì")
+	check(video.is_visible_in_tree() and not system.is_visible_in_tree(), "tab Video: la sua pagina al posto di System")
+	check(video.get_node("Resolution/Sizes").item_count >= 1 and video.get_node("Resolution/Sizes").get_item_text(0) == "1280 x 720",
+		"risoluzioni, dalla più piccola")
+	check(not video.get_node("Fullscreen").button_pressed, "nei test in finestra")
 	check(main.options.get_node("Window").size == size, "cambiando tab la finestra non cambia misura")
 	tabs.get_node("Keybindings").button_pressed = true
-	check(main.key_list.is_visible_in_tree() and not game.is_visible_in_tree() and not tabs.get_node("Game").button_pressed,
-		"di nuovo i tasti, una tab alla volta")
+	check(main.key_list.is_visible_in_tree() and not video.is_visible_in_tree() and not tabs.get_node("Video").button_pressed,
+		"i tasti, una tab alla volta")
 	press(main, KEY_B)
 	press(main, KEY_SPACE)
 	check(not main.build_button.button_pressed and Engine.time_scale == 0.0, "col menù aperto i tasti del gioco non valgono")
@@ -65,6 +95,7 @@ func _initialize() -> void:
 	check(not main.options.visible and Engine.time_scale == 2.0, "Esc lo chiude: si riprende a 2x")
 	main.get_node("HUD/TopBar/Row/Options").pressed.emit()
 	check(main.options.visible, "anche l'ingranaggio lo apre")
+	check(system.is_visible_in_tree() and tabs.get_node("System").button_pressed, "di nuovo su System")
 	main.get_node("HUD/Options/Window/Box/Head/Close").pressed.emit()
 	check(not main.options.visible and Engine.time_scale == 2.0, "e la X lo chiude")
 	Engine.time_scale = 1.0
@@ -98,6 +129,20 @@ func _initialize() -> void:
 	main.get_node("HUD/Options/Window/Box/Body/Pages/Keybindings/Reset").pressed.emit()
 	check(main.hotkeys["Build"] == KEY_B and main.hotkeys["Mine"] == KEY_M and main.hotkeys["Chop"] == KEY_C, "Reset: quelli di partenza")
 
+	# Wiki: tasto in basso (F1), una voce per pagina, si apre sulla prima
+	var wiki: Control = main.get_node("HUD/WikiPanel")
+	var topics: ItemList = wiki.get_node("Box/Body/Topics")
+	check(not wiki.visible and main.hotkeys["Wiki"] == KEY_F1, "Wiki chiusa, tasto F1")
+	press(main, KEY_F1)
+	check(wiki.visible and main.get_node("HUD/Tools/Row/Wiki").button_pressed, "F1 apre la Wiki")
+	check(topics.item_count == main.WIKI.PAGES.size() and topics.item_count > 5 and topics.is_selected(0), "argomenti, il primo scelto")
+	check(wiki.get_node("Box/Body/Text").text == main.WIKI.PAGES[0][1], "la sua pagina")
+	topics.select(2)
+	topics.item_selected.emit(2)
+	check(wiki.get_node("Box/Body/Text").text == main.WIKI.PAGES[2][1], "un'altra voce, un'altra pagina")
+	wiki.get_node("Box/Head/Close").pressed.emit()
+	check(not wiki.visible and not main.get_node("HUD/Tools/Row/Wiki").button_pressed, "la X la chiude, tasto su")
+
 	# salvati: si ritrovano
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVED))
 	main.settings_file = SAVED
@@ -108,6 +153,12 @@ func _initialize() -> void:
 	main.bind_key("Build", KEY_NONE)
 	main.load_keys()
 	check(main.hotkeys["Build"] == KEY_NONE, "anche quelli tolti")
+	main.set_language("it")
+	var config := ConfigFile.new()
+	config.load(SAVED)
+	check(config.get_value("game", "language") == "it" and config.get_value("keys", "Build") == KEY_NONE,
+		"la lingua si salva accanto ai tasti")
+	TranslationServer.set_locale("en")
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVED))
 	print("OK: menù delle opzioni e tasti")
 	quit()
