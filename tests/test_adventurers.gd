@@ -9,6 +9,7 @@ var lost := false
 
 
 func _initialize() -> void:
+	TranslationServer.set_locale("en")  # i testi confrontati sono quelli inglesi
 	seed(1)
 	main = load("res://main.tscn").instantiate()
 	main.start_rooms = false

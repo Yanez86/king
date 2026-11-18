@@ -3,6 +3,7 @@ extends SceneTree
 
 
 func _initialize() -> void:
+	TranslationServer.set_locale("en")  # i testi confrontati sono quelli inglesi
 	seed(1)  # mappa sempre uguale
 	var main = load("res://main.tscn").instantiate()
 	main.start_rooms = false  # le prove partono da una mappa senza costruzioni: le stanze di partenza sono in fondo

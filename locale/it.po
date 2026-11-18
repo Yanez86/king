@@ -1,0 +1,985 @@
+# Traduzione italiana di King. La chiave (msgid) è il testo inglese così come lo usa il gioco; msgctxt separa le
+# parole uguali con sensi diversi (vedi named in main.gd). Controllo: python3 tools/check_translations.py
+msgid ""
+msgstr ""
+"Project-Id-Version: King\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# --- Nomi degli enum, mostrati con named() (main.gd)
+
+msgctxt "item"
+msgid "Wood"
+msgstr "Legna"
+
+msgctxt "item"
+msgid "Stone"
+msgstr "Pietra"
+
+msgctxt "item"
+msgid "Veg"
+msgstr "Vegetali"
+
+msgctxt "item"
+msgid "Iron"
+msgstr "Ferro"
+
+msgctxt "item"
+msgid "Coal"
+msgstr "Carbone"
+
+msgctxt "item"
+msgid "Meal"
+msgstr "Pasto"
+
+msgctxt "item"
+msgid "Fine Meal"
+msgstr "Pasto squisito"
+
+msgctxt "item"
+msgid "Meat"
+msgstr "Carne"
+
+msgctxt "item"
+msgid "Fish"
+msgstr "Pesce"
+
+msgctxt "item"
+msgid "Hide"
+msgstr "Pelle"
+
+msgctxt "item"
+msgid "Ingot"
+msgstr "Lingotto"
+
+msgctxt "item"
+msgid "Flax"
+msgstr "Lino"
+
+msgctxt "item"
+msgid "Bowstring"
+msgstr "Corda d'arco"
+
+msgctxt "item"
+msgid "Pickaxe"
+msgstr "Piccone"
+
+msgctxt "item"
+msgid "Axe"
+msgstr "Ascia"
+
+msgctxt "item"
+msgid "Sickle"
+msgstr "Falcetto"
+
+msgctxt "item"
+msgid "Bow"
+msgstr "Arco"
+
+msgctxt "item"
+msgid "Leather Armor"
+msgstr "Armatura di cuoio"
+
+msgctxt "item"
+msgid "Leather Hood"
+msgstr "Cappuccio di cuoio"
+
+msgctxt "item"
+msgid "Helmet"
+msgstr "Elmo"
+
+msgctxt "item"
+msgid "Chainmail"
+msgstr "Cotta di maglia"
+
+msgctxt "item"
+msgid "Sword"
+msgstr "Spada"
+
+msgctxt "item"
+msgid "Gold"
+msgstr "Oro"
+
+msgctxt "item"
+msgid "Dagger"
+msgstr "Pugnale"
+
+msgctxt "item"
+msgid "Chalice"
+msgstr "Calice"
+
+msgctxt "item"
+msgid "Old Banner"
+msgstr "Stendardo antico"
+
+msgctxt "item"
+msgid "Bust"
+msgstr "Busto"
+
+msgctxt "item"
+msgid "Crown"
+msgstr "Corona"
+
+msgctxt "item"
+msgid "Notebook"
+msgstr "Quaderno"
+
+msgctxt "item"
+msgid "Tome"
+msgstr "Tomo"
+
+msgctxt "item"
+msgid "Codex"
+msgstr "Codice"
+
+msgctxt "item"
+msgid "Hardtack"
+msgstr "Gallette"
+
+msgctxt "item"
+msgid "Smoked Meat"
+msgstr "Carne affumicata"
+
+msgctxt "item"
+msgid "Smoked Fish"
+msgstr "Pesce affumicato"
+
+msgctxt "item"
+msgid "Shield"
+msgstr "Scudo"
+
+msgctxt "item"
+msgid "Steel"
+msgstr "Acciaio"
+
+msgctxt "item"
+msgid "Parchment"
+msgstr "Pergamena"
+
+msgctxt "item"
+msgid "Ink"
+msgstr "Inchiostro"
+
+msgctxt "skill"
+msgid "Gathering"
+msgstr "Raccogliere"
+
+msgctxt "skill"
+msgid "Mining"
+msgstr "Estrarre"
+
+msgctxt "skill"
+msgid "Woodcutting"
+msgstr "Tagliare legna"
+
+msgctxt "skill"
+msgid "Construction"
+msgstr "Costruire"
+
+msgctxt "skill"
+msgid "Smithing"
+msgstr "Forgiare"
+
+msgctxt "skill"
+msgid "Tailoring"
+msgstr "Cucire"
+
+msgctxt "skill"
+msgid "Cooking"
+msgstr "Cucinare"
+
+msgctxt "skill"
+msgid "Fishing"
+msgstr "Pescare"
+
+msgctxt "skill"
+msgid "Hunting"
+msgstr "Cacciare"
+
+msgctxt "skill"
+msgid "Melee"
+msgstr "Mischia"
+
+msgctxt "skill"
+msgid "Ranged"
+msgstr "Tiro"
+
+msgctxt "skill"
+msgid "Research"
+msgstr "Ricerca"
+
+msgctxt "skill"
+msgid "Lockpicking"
+msgstr "Scassinare"
+
+msgctxt "branch"
+msgid "Land"
+msgstr "Terra"
+
+msgctxt "branch"
+msgid "Fire"
+msgstr "Fuoco"
+
+msgctxt "branch"
+msgid "Stone"
+msgstr "Pietra"
+
+msgctxt "branch"
+msgid "Iron"
+msgstr "Ferro"
+
+msgctxt "branch"
+msgid "Road"
+msgstr "Strada"
+
+msgctxt "branch"
+msgid "Lore"
+msgstr "Sapere"
+
+msgctxt "division"
+msgid "Plain"
+msgstr "Pieno"
+
+msgctxt "division"
+msgid "Pale"
+msgstr "Partito"
+
+msgctxt "division"
+msgid "Fess"
+msgstr "Troncato"
+
+msgctxt "division"
+msgid "Bend"
+msgstr "Trinciato"
+
+msgctxt "division"
+msgid "Bend Sinister"
+msgstr "Tagliato"
+
+msgctxt "division"
+msgid "Quarterly"
+msgstr "Inquartato"
+
+msgctxt "division"
+msgid "Saltire"
+msgstr "Inquartato in decusse"
+
+msgctxt "heraldry"
+msgid "None"
+msgstr "Nessuna"
+
+msgctxt "heraldry"
+msgid "Chief"
+msgstr "Capo"
+
+msgctxt "heraldry"
+msgid "Base"
+msgstr "Campagna"
+
+msgctxt "heraldry"
+msgid "Pale"
+msgstr "Palo"
+
+msgctxt "heraldry"
+msgid "Fess"
+msgstr "Fascia"
+
+msgctxt "heraldry"
+msgid "Bend"
+msgstr "Banda"
+
+msgctxt "heraldry"
+msgid "Cross"
+msgstr "Croce"
+
+msgctxt "heraldry"
+msgid "Saltire"
+msgstr "Decusse"
+
+msgctxt "heraldry"
+msgid "Chevron"
+msgstr "Scaglione"
+
+msgctxt "heraldry"
+msgid "Bordure"
+msgstr "Bordura"
+
+msgctxt "heraldry"
+msgid "None"
+msgstr "Nessuna"
+
+msgctxt "heraldry"
+msgid "Star"
+msgstr "Stella"
+
+msgctxt "heraldry"
+msgid "Crescent"
+msgstr "Crescente"
+
+msgctxt "heraldry"
+msgid "Fleur"
+msgstr "Giglio"
+
+msgctxt "heraldry"
+msgid "Rose"
+msgstr "Rosa"
+
+msgctxt "heraldry"
+msgid "Tower"
+msgstr "Torre"
+
+msgctxt "heraldry"
+msgid "Crown"
+msgstr "Corona"
+
+msgctxt "heraldry"
+msgid "Sword"
+msgstr "Spada"
+
+msgctxt "heraldry"
+msgid "Key"
+msgstr "Chiave"
+
+msgctxt "heraldry"
+msgid "Tree"
+msgstr "Albero"
+
+msgctxt "heraldry"
+msgid "Eagle"
+msgstr "Aquila"
+
+msgid "Wall"
+msgstr "Muro"
+
+msgid "Floor"
+msgstr "Pavimento"
+
+msgid "Door"
+msgstr "Porta"
+
+msgid "Path"
+msgstr "Sentiero"
+
+msgid "Bed"
+msgstr "Letto"
+
+msgid "Table"
+msgstr "Tavolo"
+
+msgid "Chair"
+msgstr "Sedia"
+
+msgid "Lamp"
+msgstr "Abat-jour"
+
+msgid "Campfire"
+msgstr "Fuoco da campo"
+
+msgid "Furnace"
+msgstr "Fornace"
+
+msgid "Anvil"
+msgstr "Incudine"
+
+msgid "Workbench"
+msgstr "Banco da lavoro"
+
+msgid "Spinning Wheel"
+msgstr "Filatoio"
+
+msgid "Carpenter Bench"
+msgstr "Banco del falegname"
+
+msgid "Flower Bed"
+msgstr "Aiuola"
+
+msgid "Planter"
+msgstr "Fioriera"
+
+msgid "Bench"
+msgstr "Panca"
+
+msgid "Banner"
+msgstr "Stendardo"
+
+msgid "Lantern"
+msgstr "Lampione"
+
+msgid "Fountain"
+msgstr "Fontana"
+
+msgid "Statue"
+msgstr "Statua"
+
+msgid "Notice Board"
+msgstr "Bacheca"
+
+msgid "Chalice"
+msgstr "Calice"
+
+msgid "Old Banner"
+msgstr "Stendardo antico"
+
+msgid "Bust"
+msgstr "Busto"
+
+msgid "Crown"
+msgstr "Corona"
+
+msgid "Desk"
+msgstr "Scrittoio"
+
+msgid "Bookshelf"
+msgstr "Libreria"
+
+msgid "Throne"
+msgstr "Trono"
+
+msgid "Dummy"
+msgstr "Fantoccio"
+
+msgid "Watchtower"
+msgstr "Torre di guardia"
+
+msgid "Canopy Bed"
+msgstr "Letto a baldacchino"
+
+msgid "Rug"
+msgstr "Tappeto"
+
+msgid "Wardrobe"
+msgstr "Armadio"
+
+msgid "Road"
+msgstr "Strada lastricata"
+
+msgid "Palisade"
+msgstr "Palizzata"
+
+msgid "Gate"
+msgstr "Cancello"
+
+msgid "None"
+msgstr "Nessuno"
+
+msgid "Chop"
+msgstr "Taglia"
+
+msgid "Mine"
+msgstr "Scava"
+
+msgid "Uproot"
+msgstr "Estirpa"
+
+msgid "Build"
+msgstr "Costruisci"
+
+msgid "Erase"
+msgstr "Cancella"
+
+msgid "Demolish"
+msgstr "Demolisci"
+
+msgid "Harvest"
+msgstr "Raccogli"
+
+msgid "Fish"
+msgstr "Pesca"
+
+msgid "Hunt"
+msgstr "Caccia"
+
+msgid "Warehouse"
+msgstr "Magazzino"
+
+msgid "Bedroom"
+msgstr "Camera"
+
+msgid "Dormitory"
+msgstr "Dormitorio"
+
+msgid "Kitchen"
+msgstr "Cucina"
+
+msgid "Forge"
+msgstr "Forgia"
+
+msgid "Workshop"
+msgstr "Laboratorio"
+
+msgid "Carpentry"
+msgstr "Falegnameria"
+
+msgid "Inn"
+msgstr "Locanda"
+
+msgid "Study"
+msgstr "Studio"
+
+msgid "Throne Room"
+msgstr "Sala del trono"
+
+msgid "Pantry"
+msgstr "Dispensa"
+
+msgid "Glutton"
+msgstr "Goloso"
+
+msgid "Sleepwalker"
+msgstr "Sonnambulo"
+
+msgid "Hothead"
+msgstr "Iracondo"
+
+msgid "Lazy"
+msgstr "Pigro"
+
+msgid "Workaholic"
+msgstr "Stacanovista"
+
+msgid "Early Bird"
+msgstr "Mattiniero"
+
+msgid "Night Owl"
+msgstr "Nottambulo"
+
+msgid "Sleepyhead"
+msgstr "Dormiglione"
+
+msgid "Tireless"
+msgstr "Instancabile"
+
+msgid "Fun Loving"
+msgstr "Festaiolo"
+
+msgid "Ascetic"
+msgstr "Asceta"
+
+msgid "Small Appetite"
+msgstr "Di poco appetito"
+
+msgid "Easygoing"
+msgstr "Tranquillo"
+
+msgid "Napper"
+msgstr "Pennichella"
+
+msgid "Restless"
+msgstr "Irrequieto"
+
+msgid "Poisoned"
+msgstr "Intossicato"
+
+msgid "Well Fed"
+msgstr "Ben nutrito"
+
+msgid "Feasted"
+msgstr "Lauto pasto"
+
+msgid "At Table"
+msgstr "Mangiato al tavolo"
+
+msgid "Ate Raw"
+msgstr "Mangiato crudo"
+
+msgid "Mourning"
+msgstr "Lutto"
+
+msgid "Festive"
+msgstr "In festa"
+
+msgid "Pilloried"
+msgstr "Alla gogna"
+
+msgid "Heard"
+msgstr "Ascoltato"
+
+msgid "Food"
+msgstr "Cibo"
+
+msgid "Rest"
+msgstr "Riposo"
+
+msgid "Fun"
+msgstr "Svago"
+
+msgid "Comfort"
+msgstr "Comfort"
+
+msgid "Happiness"
+msgstr "Felicità"
+
+msgid "Stress"
+msgstr "Stress"
+
+msgid "Greedy"
+msgstr "Avido"
+
+msgid "Loyal"
+msgstr "Leale"
+
+msgid "Reckless"
+msgstr "Temerario"
+
+msgid "Coward"
+msgstr "Codardo"
+
+msgid "Lucky"
+msgstr "Fortunato"
+
+msgid "Cartographer"
+msgstr "Cartografo"
+
+msgid "Jinxed"
+msgstr "Iettato"
+
+msgid "Berserker"
+msgstr "Berserker"
+
+msgid "Stout"
+msgstr "Robusto"
+
+msgid "Stealthy"
+msgstr "Furtivo"
+
+msgid "Medic"
+msgstr "Medico"
+
+msgid "Forager"
+msgstr "Raccoglitore"
+
+msgid "Pathfinder"
+msgstr "Guida"
+
+msgid "Keen Eyed"
+msgstr "Occhio di lince"
+
+msgid "Scholar"
+msgstr "Studioso"
+
+msgid "Famous"
+msgstr "Famoso"
+
+msgid "Warrior"
+msgstr "Guerriero"
+
+msgid "Archer"
+msgstr "Arciere"
+
+msgid "Burglar"
+msgstr "Scassinatore"
+
+msgid "Rabbit"
+msgstr "Coniglio"
+
+msgid "Deer"
+msgstr "Cervo"
+
+msgid "Wolf"
+msgstr "Lupo"
+
+msgid "Oak"
+msgstr "Quercia"
+
+msgid "Pine"
+msgstr "Pino"
+
+msgid "Birch"
+msgstr "Betulla"
+
+msgid "Hands"
+msgstr "Mani"
+
+msgid "Body"
+msgstr "Corpo"
+
+msgid "Head"
+msgstr "Testa"
+
+msgid "Shield"
+msgstr "Scudo"
+
+msgid "Tailoring"
+msgstr "Sartoria"
+
+msgid "Hunting"
+msgstr "Caccia"
+
+msgid "Masonry"
+msgstr "Muratura"
+
+msgid "Decor"
+msgstr "Decorazioni"
+
+msgid "Lanterns"
+msgstr "Lanterne"
+
+msgid "Iron Arms"
+msgstr "Armi di ferro"
+
+msgid "Chainmail"
+msgstr "Cotta di maglia"
+
+msgid "Statuary"
+msgstr "Statuaria"
+
+msgid "Astronomy"
+msgstr "Astronomia"
+
+msgid "Charcoal"
+msgstr "Carbonaia"
+
+msgid "Cold Store"
+msgstr "Dispensa fredda"
+
+msgid "Paved Road"
+msgstr "Strada lastricata"
+
+msgid "Dry Rations"
+msgstr "Provviste secche"
+
+msgid "Cartography"
+msgstr "Cartografia"
+
+msgid "Training Dummy"
+msgstr "Fantoccio"
+
+msgid "Smokehouse"
+msgstr "Affumicatoio"
+
+msgid "Renowned Inn"
+msgstr "Locanda rinomata"
+
+msgid "Lending Armory"
+msgstr "Armeria di prestito"
+
+msgid "Steel"
+msgstr "Acciaio"
+
+msgid "Scriptorium"
+msgstr "Scriptorium"
+
+msgid "Fine Furniture"
+msgstr "Arredo fine"
+
+msgid "Palace"
+msgstr "Palazzo"
+
+msgid "Exemption"
+msgstr "Esenzione"
+
+msgid "Tithe"
+msgstr "Decima"
+
+msgid "Loot Tax"
+msgstr "Gabella sul bottino"
+
+msgid "Lodging Tax"
+msgstr "Tassa di soggiorno"
+
+msgid "Long Shifts"
+msgstr "Turni lunghi"
+
+msgid "Short Day"
+msgstr "Giornata corta"
+
+msgid "Day Of Rest"
+msgstr "Riposo festivo"
+
+msgid "Curfew"
+msgstr "Coprifuoco"
+
+msgid "Harvest Feast"
+msgstr "Festa del raccolto"
+
+msgid "Tallage"
+msgstr "Taglia"
+
+msgid "Tribute"
+msgstr "Tributo"
+
+msgid "Open Granary"
+msgstr "Granaio aperto"
+
+msgid "Toll"
+msgstr "Pedaggio"
+
+msgid "Night Watch"
+msgstr "Turno di guardia"
+
+msgid "Militia"
+msgstr "Milizia"
+
+msgid "Harsh Punishment"
+msgstr "Pene severe"
+
+msgid "Clemency"
+msgstr "Clemenza"
+
+msgid "Hunting Reserve"
+msgstr "Riserva di caccia"
+
+msgid "Court"
+msgstr "Corte"
+
+msgid "Treasury"
+msgstr "Tesoro"
+
+msgid "Work"
+msgstr "Lavoro"
+
+msgid "Order"
+msgstr "Ordine"
+
+msgid "Feasts"
+msgstr "Feste"
+
+msgid "Or"
+msgstr "Oro"
+
+msgid "Argent"
+msgstr "Argento"
+
+msgid "Gules"
+msgstr "Rosso"
+
+msgid "Azure"
+msgstr "Azzurro"
+
+msgid "Vert"
+msgstr "Verde"
+
+msgid "Sable"
+msgstr "Nero"
+
+msgid "Purpure"
+msgstr "Porpora"
+
+msgid "Heater"
+msgstr "Francese antico"
+
+msgid "Samnite"
+msgstr "Sannitico"
+
+msgid "Round"
+msgstr "Tondo"
+
+msgid "Lozenge"
+msgstr "A losanga"
+
+msgid "Short"
+msgstr "Corti"
+
+msgid "Long"
+msgstr "Lunghi"
+
+msgid "Braid"
+msgstr "Treccia"
+
+msgid "Clear"
+msgstr "Sereno"
+
+msgid "Rain"
+msgstr "Pioggia"
+
+msgid "Snow"
+msgstr "Neve"
+
+msgid "Fog"
+msgstr "Nebbia"
+
+msgid "Storm"
+msgstr "Temporale"
+
+msgid "Wood"
+msgstr "Legna"
+
+msgid "Stone"
+msgstr "Pietra"
+
+msgid "Veg"
+msgstr "Vegetali"
+
+msgid "Iron"
+msgstr "Ferro"
+
+msgid "Coal"
+msgstr "Carbone"
+
+msgid "Meal"
+msgstr "Pasto"
+
+msgid "Fine Meal"
+msgstr "Pasto squisito"
+
+msgid "Meat"
+msgstr "Carne"
+
+msgid "Hide"
+msgstr "Pelle"
+
+msgid "Ingot"
+msgstr "Lingotto"
+
+msgid "Flax"
+msgstr "Lino"
+
+msgid "Bowstring"
+msgstr "Corda d'arco"
+
+msgid "Pickaxe"
+msgstr "Piccone"
+
+msgid "Axe"
+msgstr "Ascia"
+
+msgid "Sickle"
+msgstr "Falcetto"
+
+msgid "Bow"
+msgstr "Arco"
+
+msgid "Leather Armor"
+msgstr "Armatura di cuoio"
+
+msgid "Leather Hood"
+msgstr "Cappuccio di cuoio"
+
+msgid "Helmet"
+msgstr "Elmo"
+
+msgid "Sword"
+msgstr "Spada"
+
+msgid "Gold"
+msgstr "Oro"
+
+msgid "Dagger"
+msgstr "Pugnale"
+
+msgid "Notebook"
+msgstr "Quaderno"
+
+msgid "Tome"
+msgstr "Tomo"
+
+msgid "Codex"
+msgstr "Codice"
+
+msgid "Hardtack"
+msgstr "Gallette"
+
+msgid "Smoked Meat"
+msgstr "Carne affumicata"
+
+msgid "Smoked Fish"
+msgstr "Pesce affumicato"
+
+msgid "Parchment"
+msgstr "Pergamena"
+
+msgid "Ink"
+msgstr "Inchiostro"

@@ -5,6 +5,7 @@ extends SceneTree
 
 
 func _initialize() -> void:
+	TranslationServer.set_locale("en")  # i testi confrontati sono quelli inglesi
 	seed(1)
 	var page = load("res://creation.tscn").instantiate()
 	root.add_child(page)

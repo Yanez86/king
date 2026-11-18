@@ -449,9 +449,9 @@ const DEFAULT_KEYS := {"Select": KEY_Q, "Build": KEY_B, "Destroy": KEY_X, "Mine"
 const SPEEDS := {"Pause": 0.0, "Play": 1.0, "Fast": 2.0, "Fastest": 3.0}  # pulsanti in alto a destra, come Space e 1-3
 # tab Video delle opzioni: misure della finestra, solo quelle che stanno nello schermo (la prima sempre)
 const RESOLUTIONS := [Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440)]
-# tab System delle opzioni: lingue, col nome nella loro lingua; i testi tradotti sono in locale/translations.csv
+# tab System delle opzioni: lingue, col nome nella loro lingua; i testi tradotti sono in locale/<lingua>.po (vedi named)
 const LANGUAGES := {"en": "English", "it": "Italiano"}
-const WIKI := preload("res://wiki.gd")  # pagine della finestra Wiki: [titolo, testo ricco]
+const WIKI := preload("res://wiki.gd")  # pagine della finestra Wiki: [titolo, testo ricco], tradotte (vedi WIKI.pages)
 const FIXED_KEYS := [KEY_SPACE, KEY_1, KEY_2, KEY_3, KEY_E, KEY_R, KEY_ESCAPE]  # velocità, giro dei mobili, menù
 const MODIFIER_KEYS := [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]  # da soli non sono un tasto
 const TIP := preload("res://tip_button.gd")  # suggerimento fatto di Control: pulsanti di costruzione, figurine
@@ -1376,11 +1376,8 @@ func _ready() -> void:
 	jobs_panel.hidden.connect($HUD/Tools/Row/Jobs.set_pressed_no_signal.bind(false))  # chiusa con la X: tasto su
 	resources_panel.hidden.connect($HUD/Tools/Row/Resources.set_pressed_no_signal.bind(false))
 	var topics: ItemList = $HUD/WikiPanel/Box/Body/Topics
-	for page in WIKI.PAGES:
-		topics.add_item(page[0])
-	topics.item_selected.connect(func(i): $HUD/WikiPanel/Box/Body/Text.text = WIKI.PAGES[i][1])
-	topics.select(0)
-	topics.item_selected.emit(0)
+	topics.item_selected.connect(func(i): $HUD/WikiPanel/Box/Body/Text.text = WIKI.pages()[i][1])
+	fill_wiki()
 	$HUD/Tools/Row/Wiki.toggled.connect($HUD/WikiPanel.set_visible)
 	$HUD/WikiPanel.hidden.connect($HUD/Tools/Row/Wiki.set_pressed_no_signal.bind(false))
 	for name in ["Knowledge", "Laws"]:  # le finestre della ricerca, al centro: si rifanno aprendole (vedi fill_knowledge)
@@ -1610,15 +1607,40 @@ func set_fullscreen(on: bool) -> void:
 	video.get_node("Resolution/Sizes").disabled = on  # il cambio di modo può arrivare dopo: non rileggerlo
 
 
-# tab System: i testi con una traduzione cambiano subito; la scelta resta per la prossima volta (la rilegge title.gd)
+# tab System: i testi con una traduzione cambiano subito (quelli composti nel codice al prossimo aggiornamento: le
+# finestre che si rifanno solo se cambia qualcosa si rifanno ora); la scelta resta per la prossima volta (la rilegge
+# title.gd)
 func set_language(code: String) -> void:
 	TranslationServer.set_locale(code)
+	board_key = ""
+	knowledge_key = ""
+	laws_key = ""
+	fill_wiki()
 	if settings_file == "":
 		return
 	var config := ConfigFile.new()
 	config.load(settings_file)  # tiene le altre sezioni
 	config.set_value("game", "language", code)
 	config.save(settings_file)
+
+
+# finestra Wiki: gli argomenti nella lingua del gioco, aperta sulla pagina che si stava leggendo (all'inizio la prima)
+func fill_wiki() -> void:
+	var topics: ItemList = $HUD/WikiPanel/Box/Body/Topics
+	var page := maxi(0, topics.get_selected_items()[0] if topics.is_anything_selected() else 0)
+	topics.clear()
+	for p in WIKI.pages():
+		topics.add_item(p[0])
+	topics.select(page)
+	topics.item_selected.emit(page)
+
+
+# nome da mostrare per il valore di un enum, tradotto (locale/<lingua>.po): Res.LEATHER_ARMOR -> "Leather Armor",
+# in italiano "Armatura di cuoio". `context` separa le parole uguali con sensi diversi: "item" per gli oggetti (Res:
+# Fish è il pesce, non il pescare), "skill" per le abilità, "branch" per i rami della ricerca, "division" per le
+# partizioni dello stemma, "heraldry" per pezze e figure
+static func named(names: Dictionary, value: int, context := "") -> String:
+	return String(TranslationServer.translate(names.keys()[value].capitalize(), context))
 
 
 # tab Video: la finestra prende la misura scelta e si rimette al centro dello schermo
