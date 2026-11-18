@@ -12,10 +12,9 @@ const CARRY_MAX := 10       # quantità massima trasportata per viaggio, di una 
 const BUILD_TIME := 2.0     # secondi per costruire una casella
 const LOOK_AGAIN := 0.5     # secondi tra una ricerca di lavoro e l'altra, per chi non ne trova
 const RETRY_AFTER := 10.0   # secondi di gioco prima di riprovare a raggiungere una casella irraggiungibile
-const COLONIST_COUNT := 3
+const COLONIST_COUNT := 3   # coloni all'inizio, oltre al sovrano: nella radura, senza niente di costruito
+const TEST_PEOPLE := 3      # nei test (game_start false): il sovrano e due coloni, quelli su cui sono fatte le prove
 const ROOM_MAX := 400       # caselle: una zona chiusa più grande non è una stanza, è il mondo fuori
-const START_ROOMS := [Vector2i.UP, Vector2i.LEFT, Vector2i.RIGHT]  # stanze 5x5 già murate attorno alla radura, porta verso fuori
-const DEBUG_STASH := 100    # debug: quanto di ogni risorsa c'è all'inizio nella prima stanza, che fa da magazzino
 const TUNIC_COLORS := [Color("a33b3b"), Color("3b5ea3"), Color("c9a23b"), Color("6e3ba3"), Color("d8d0c0")]
 const CAPE_COLORS := [Color("2f4a6e"), Color("6e2f2f"), Color("5a3b6e"), Color("4a4a4a"), Color("7a5a2f")]
 const HAIR_COLORS := [Color("3b2a1e"), Color("d9b35b"), Color("a8462f"), Color("8b5a2b"), Color("2a2a2a")]
@@ -46,8 +45,7 @@ const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.IRON: 50, Res
 	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5, Res.NOTEBOOK: 10, Res.TOME: 10, Res.CODEX: 10, Res.HARDTACK: 50, Res.SMOKED_MEAT: 50, Res.SMOKED_FISH: 50, Res.SHIELD: 10, Res.STEEL: 50, Res.PARCHMENT: 50, Res.INK: 20, Res.ICE: 50}  # quantità massima per mucchio (casella)
 const MEALS := [Res.FINE_MEAL, Res.MEAL]  # cotti: chi ha fame li prende in quest'ordine, poi il crudo
 const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT, Res.SMOKED_FISH, Res.SMOKED_MEAT]  # crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti
-const STASH := [Res.WOOD, Res.STONE, Res.VEG, Res.IRON, Res.COAL, Res.FLAX]  # scorta di debug: il resto si produce
-const START_GOLD := 60      # monete nel magazzino all'inizio
+const START_GOLD := 60      # monete all'inizio, a terra nella radura: le si spende quando sono in un magazzino
 const COIN := "[img=center]res://art/icon_coin.png[/img]"  # una moneta 16x16 nei testi ricchi (vedi coins)
 # Tipo di ogni oggetto: la sua icona 16x16 (art/kind_*.png, per le monete la moneta) sta davanti al nome, ovunque
 # (vedi item_name, item_title, kind_icon)
@@ -334,7 +332,7 @@ const SMOKED := [Res.SMOKED_MEAT, Res.SMOKED_FISH]
 const SMOKE_TIME := 0.75     # affumicare al fuoco da campo, dove il fumo resta: tempo x (al focolare va su per la canna)
 const STATION_ROOM := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.HEARTH: RoomKind.KITCHEN, Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP,
 	Build.SPINNING_WHEEL: RoomKind.WORKSHOP, Build.CARPENTER_BENCH: RoomKind.CARPENTRY, Build.DESK: RoomKind.STUDY}
-const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.MEAL: MEALS_PER_COLONIST * COLONIST_COUNT, Res.COAL: 5}  # scorte di partenza, vedi keep
+const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.COAL: 5}  # scorte di partenza, vedi keep; i pasti MEALS_PER_COLONIST a testa
 enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT, ICE }  # cosa segna il trascinamento del mouse
 const ORDER_COLORS := [Color.TRANSPARENT, Color.ORANGE, Color("8fd3ff"), Color("9be36a"), Color("e6e2d0"),
 	Color("ff5a5a"), Color("c83030"), Color("d84a6a"), Color("6ab0e0"), Color("c87a3a"), Color("bfe6f2")]  # selezione e segni, per Order
@@ -1290,7 +1288,7 @@ var gear_slot := Slot.HANDS       # lo slot del menu aperto
 var lens_owners := []       # [centro, proprietari o lavoratori] per stanza delle figurine sulla lente, vedi place_owners
 var needs_rate := 1.0       # 0 nei test: i bisogni restano fermi e non cambiano i lavori
 var routines := true        # false nei test: niente orari né ore massime, chi è libero prende il primo lavoro
-var start_rooms := true     # false nei test: mappa di sempre, senza stanze né scorte di partenza (va messo prima di _ready)
+var game_start := true      # false nei test: TEST_PEOPLE coloni, niente monete né arma a terra, tutto studiato (prima di _ready)
 var settings_file := "user://settings.cfg"  # "" nei test: tasti di partenza, niente da leggere né da salvare
 var hotkeys := {}           # nome del pulsante in HUD/Tools/Row -> Key, KEY_NONE se non ne ha: vedi bind_key
 var tool_names := {}        # nome del pulsante in HUD/Tools/Row -> suggerimento senza il tasto
@@ -1419,7 +1417,8 @@ func _ready() -> void:
 	flat.draw.connect(draw_flat)
 	casters.draw.connect(draw_shadows)
 	add_child(sky)
-	for i in COLONIST_COUNT:
+	var heads := COLONIST_COUNT + 1 if game_start else TEST_PEOPLE  # il primo è il sovrano
+	for i in heads:
 		var c := Colonist.new()
 		c.pos = center(MAP_SIZE / 2 + Vector2i(i - 1, 0))
 		c.tunic = TUNIC_COLORS[i % TUNIC_COLORS.size()]
@@ -1440,6 +1439,7 @@ func _ready() -> void:
 				c.traits.append(t)
 		colonists.append(c)
 	ruler = colonists[0]
+	keep[Res.MEAL] = MEALS_PER_COLONIST * colonists.size()
 	realm = setup.get("colony", COLONY_NAMES.pick_random())
 	arms = setup.get("arms", random_arms())
 	banner_tex = banner_texture(arms)
@@ -1569,10 +1569,10 @@ func _ready() -> void:
 		window.get_node("Box/Head/Close").pressed.connect(window.hide)
 		window.gui_input.connect(drag_window.bind(window))
 		window.visibility_changed.connect(window.move_to_front, CONNECT_DEFERRED)  # l'ultima aperta sta sopra
-	if not start_rooms:  # nei test tutto studiato: le prove della ricerca sono in test_research
+	if not game_start:  # nei test tutto studiato: le prove della ricerca sono in test_research
 		for t in Tech.values():
 			researched[t] = true
-	fire_risk = start_rooms
+	fire_risk = game_start
 	refresh_unlocks()
 
 
@@ -2502,13 +2502,10 @@ func generate_map() -> void:
 	var lakes := FastNoiseLite.new()
 	lakes.seed = noise.seed + 1
 	lakes.frequency = 0.04
-	# stanze di partenza: centro a 8 caselle dalla radura, muri a 3 dal centro, più un giro di prato attorno
-	var starts: Array = START_ROOMS if start_rooms else []
-	var room_rects := starts.map(func(d): return Rect2i(MAP_SIZE / 2 + d * 8 - Vector2i(4, 4), Vector2i(9, 9)))
 	for y in MAP_SIZE.y:  # per righe, così `trees` resta ordinato dall'alto in basso
 		for x in MAP_SIZE.x:
 			var cell := Vector2i(x, y)
-			if (cell - MAP_SIZE / 2).length() < 4 or room_rects.any(func(r): return r.has_point(cell)):
+			if (cell - MAP_SIZE / 2).length() < 4:
 				continue  # radura di partenza
 			var n := noise.get_noise_2d(x, y)
 			var w := lakes.get_noise_2d(x, y)
@@ -2560,26 +2557,12 @@ func generate_map() -> void:
 				boulders[cell] = size
 				break
 
-	for d in starts:  # muri di legno, la porta in mezzo al lato che guarda fuori
-		var mid: Vector2i = MAP_SIZE / 2 + d * 8
-		for dy in range(-3, 4):
-			for dx in range(-3, 4):
-				var k := mid + Vector2i(dx, dy)
-				if k == mid + d * 3:
-					built[k] = [Build.DOOR, Res.WOOD]
-				elif maxi(absi(dx), absi(dy)) == 3:
-					built[k] = [Build.WALL, Res.WOOD]
-					astar.set_point_solid(k)
-	update_rooms()
 	wild.seed = noise.seed + 3
 	for kind in BEASTS:
 		for i in BEASTS[kind]["start"]:
 			spawn_animal(kind)
-	if start_rooms:  # ponytail: scorta di debug, da togliere (o DEBUG_STASH a 0) quando si gioca sul serio
-		var first: Vector2i = MAP_SIZE / 2 + START_ROOMS[0] * 8
-		for i in STASH.size():  # un mucchio per risorsa, cinque per riga dalla riga di mezzo, il resto si allarga accanto
-			drop(STASH[i], first + Vector2i(i % 5 - 2, i / 5), DEBUG_STASH)
-		drop(Res.GOLD, first + Vector2i(0, 1), START_GOLD)
+	if game_start:  # niente di costruito: le monete a terra nella radura, due caselle sotto i coloni
+		drop(Res.GOLD, MAP_SIZE / 2 + Vector2i(0, 2), START_GOLD)
 		var spots := []  # l'arma abbandonata: sul prato, né troppo vicino né troppo lontano dalla radura
 		for cell in cells_in(Rect2i(MAP_SIZE / 2 - Vector2i.ONE * FOUND_WEAPON_REACH[1], Vector2i.ONE * FOUND_WEAPON_REACH[1] * 2)):
 			var far := Vector2(cell - MAP_SIZE / 2).length()
@@ -2587,8 +2570,6 @@ func generate_map() -> void:
 				spots.append(cell)
 		if not spots.is_empty():
 			drop(FOUND_WEAPONS.pick_random(), spots.pick_random(), 1)
-		rooms.filter(func(r): return r.cells.has(first))[0].kind = RoomKind.WAREHOUSE
-		update_stockpile()
 	bake_ground(noise)
 
 
@@ -4375,10 +4356,11 @@ func sell_book(book: Res) -> bool:
 	return true
 
 
-# posa `amount` di `res` in magazzino, dove ci sta (vedi dest_cells); pieno, accanto alla prima casella
-func store(res: Res, amount: int) -> void:
+# posa `amount` di `res` in magazzino, dove ci sta (vedi dest_cells); pieno, accanto alla prima casella; senza
+# magazzini (si parte senza, o sono stati abbattuti) a terra su `near`
+func store(res: Res, amount: int, near := MAP_SIZE / 2) -> void:
 	var cells := dest_cells(res)
-	drop(res, cells[0] if not cells.is_empty() else stockpile.keys()[0], amount)
+	drop(res, cells[0] if not cells.is_empty() else (stockpile.keys()[0] if not stockpile.is_empty() else near), amount)
 
 
 # torri di guardia finite
@@ -5450,7 +5432,7 @@ func lend(g: Colonist) -> PackedStringArray:
 # tornato dalla spedizione: i pezzi prestati in magazzino, i suoi di nuovo addosso
 func give_back(g: Colonist) -> void:
 	for slot in g.lent:
-		store(g.gear[slot], 1)
+		store(g.gear[slot], 1, cell_of(g.pos))
 		if g.lent[slot] == null:
 			g.gear.erase(slot)
 		else:

@@ -5,8 +5,8 @@ const PAGES := [
 King è un gestionale di colonia medievale. Sei il sovrano di una piccola signoria, ma non muovi mai nessuno a mano: segni gli alberi da tagliare e i massi da scavare, progetti gli edifici, scegli cosa producono le postazioni e promulghi le leggi. I coloni scelgono da soli i lavori, seguendo i loro bisogni e la loro routine quotidiana.
 
 [color=#e8c34a]L'inizio[/color]
-• Tre coloni stanno in una radura. Il primo è il tuo sovrano, creato nella pagina della nuova partita.
-• Attorno alla radura ci sono tre stanzette di legno. Quella a nord è un magazzino, con un po' di scorte e 60 [img=center]res://art/icon_coin.png[/img].
+• Il tuo sovrano, creato nella pagina della nuova partita, e tre coloni stanno in una radura. Non c'è ancora niente di costruito: né stanze né magazzino.
+• Accanto a loro, 60 [img=center]res://art/icon_coin.png[/img] sono a terra nell'erba: costruisci un magazzino e i trasportatori ce le portano (si spende solo quello che è in magazzino).
 • Un'arma abbandonata (una spada, un'ascia o un arco) giace nell'erba a 15–25 caselle dalla radura.
 • Dal giorno 5 arrivano i lupi (vedi Combattimento e lupi).
 • Se muoiono tutti i coloni, la colonia è caduta.
@@ -302,7 +302,7 @@ La vista calore (N) colora le stanze secondo la temperatura: rosso il caldo, gia
 
 [color=#e8c34a]Cucinare[/color]
 • A un fuoco da campo o a un focolare dentro una cucina. Il cuoco prende 2 crudi da un mucchio (vegetali, pesce o carne), cucina per 8 s e porta il pasto in un magazzino.
-• Clicca il fuoco da campo: Tieni N pasti (6 all'inizio). I cuochi cucinano finché ci sono meno pasti di così, contando quelli a terra, nei magazzini e in mano.
+• Clicca il fuoco da campo: Tieni N pasti (8 all'inizio, 2 a testa). I cuochi cucinano finché ci sono meno pasti di così, contando quelli a terra, nei magazzini e in mano.
 • Bruciato, e il cibo è perso: 6% per ogni livello di Cucinare sotto il 6, più 3% per ogni punto di comfort della cucina sotto 5 (meno, sopra). A livello 0 in una cucina con comfort 5: 36%.
 • Pasto squisito: 5% per ogni livello sopra il 5, più 2% per ogni punto di comfort sopra 5 (meno, sotto): 25% a livello 10.
 • Il tempo dipende anche dal comfort della cucina e dalle condizioni del cuoco."""],
@@ -337,7 +337,7 @@ Segna caselle d'acqua. Il pescatore si mette accanto (anche nell'acqua bassa) e 
 Gli animali girano fuori dalle stanze e dall'acqua e nascono a più di 15 caselle dalla radura: all'inizio 6 conigli e 3 cervi, poi uno nuovo ogni mezza giornata finché sono meno di 12. Un lupo segnato, se gli si tira, attacca il cacciatore."""],
 
 	["Lavorazioni ed equipaggiamento", """[color=#e8c34a]Postazioni[/color]
-Clicca una postazione per il suo menu: una riga per ogni ricetta che conosci, coi suoi ingredienti e Tieni N. Si fa finché in giro ce ne sono meno di N (a terra, nei magazzini, in mano, in lavorazione); la Scorta vale per tutte le postazioni dello stesso tipo. L'equipaggiamento si fa anche per i coloni con uno slot vuoto, e un arco quando ci sono animali segnati e nessuno ne ha uno. All'inizio: Scorta 10 lingotti, 2 corde d'arco, 6 pasti, 0 per il resto.
+Clicca una postazione per il suo menu: una riga per ogni ricetta che conosci, coi suoi ingredienti e Tieni N. Si fa finché in giro ce ne sono meno di N (a terra, nei magazzini, in mano, in lavorazione); la Scorta vale per tutte le postazioni dello stesso tipo. L'equipaggiamento si fa anche per i coloni con uno slot vuoto, e un arco quando ci sono animali segnati e nessuno ne ha uno. All'inizio: Scorta 10 lingotti, 2 corde d'arco, 8 pasti, 0 per il resto.
 L'artigiano porta gli ingredienti uno alla volta, poi lavora. Il tempo dipende da abilità, comfort della stanza e condizioni; un oggetto può rovinarsi, e gli ingredienti vanno persi, tanto spesso quanto brucia un pasto.
 [table=4]
 [cell][color=#d9c48a]Oggetto[/color][/cell][cell][color=#d9c48a]Postazione[/color][/cell][cell][color=#d9c48a]Ingredienti[/color][/cell][cell][color=#d9c48a]Tempo[/color][/cell]

@@ -6,7 +6,7 @@ func _initialize() -> void:
 	TranslationServer.set_locale("en")  # i testi confrontati sono quelli inglesi
 	seed(1)  # mappa sempre uguale
 	var main = load("res://main.tscn").instantiate()
-	main.start_rooms = false  # le prove partono da una mappa senza costruzioni: le stanze di partenza sono in fondo
+	main.game_start = false  # le prove partono con tre coloni e niente a terra: la partenza di gioco è in fondo
 	root.add_child(main)
 	await process_frame  # aspetta che venga chiamato _ready
 	main.needs_rate = 0.0  # bisogni fermi: se no a metà prova i coloni vanno a dormire o a mangiare (vedi fondo)
@@ -852,22 +852,52 @@ func _initialize() -> void:
 	main.sheet_panel.hide()
 	main.routines = false
 
-	# mappa di gioco: 3 stanze 5x5 con la porta verso fuori, nella prima la scorta di debug
+	# partenza di gioco: il sovrano e 3 coloni nella radura, niente di costruito; a terra le monete e un'arma abbandonata
 	var game = load("res://main.tscn").instantiate()
 	root.add_child(game)
 	for col in game.colonists:  # talenti a caso, ma mai due uguali o in contrasto
 		for a in col.traits:
 			check(col.traits.count(a) == 1 and col.traits.all(func(b): return a == b or not game.clash(a, b)), "talenti compatibili")
-	check(game.rooms.size() == 3 and game.rooms.all(func(r): return r.cells.size() == 25), "3 stanze 5x5 di partenza")
-	for d in game.START_ROOMS:
-		check(game.rooms.any(func(r): return r.door == game.MAP_SIZE / 2 + d * 11), "porta verso fuori")
-	check(game.rooms.all(func(r): return game.built[r.sign][0] == game.Build.WALL and (r.sign - r.door).length() == 1),
-		"cartelli sul muro accanto alla porta")
+	check(game.colonists.size() == game.COLONIST_COUNT + 1 and game.ruler == game.colonists[0], "il sovrano e 3 coloni")
+	check(game.keep[game.Res.MEAL] == game.MEALS_PER_COLONIST * game.colonists.size(), "pasti da tenere: 2 a testa")
+	check(game.built.is_empty() and game.rooms.is_empty() and game.stockpile.is_empty(), "niente stanze né magazzino")
 	for res in game.Res.values():
-		var start: int = game.DEBUG_STASH if res in game.STASH else (game.START_GOLD if res == game.Res.GOLD else 0)
-		check(game.stored(res) == start, "scorta di debug nel magazzino della prima stanza: materiali, vegetali, lino e oro")
+		var start: int = game.START_GOLD if res == game.Res.GOLD else (1 if res in game.FOUND_WEAPONS else 0)
+		check(game.stored(res) == 0 and game.total(res) <= start, "niente in magazzino; a terra solo monete e arma")
+	check(game.total(game.Res.GOLD) == game.START_GOLD and game.FOUND_WEAPONS.map(game.total).reduce(func(a, b): return a + b) == 1,
+		"le monete nella radura e un'arma sul prato")
+	# una stanza 5x5 di legno, nel prato più vicino alla radura (con un giro libero attorno), la porta in basso
+	var clearing: Vector2i = game.MAP_SIZE / 2
+	var room_spots := []
+	for y in range(clearing.y - 25, clearing.y + 17):
+		for x in range(clearing.x - 25, clearing.x + 17):
+			if not Rect2i(x, y, 9, 9).intersects(Rect2i(clearing - Vector2i(5, 5), Vector2i(11, 11))):
+				room_spots.append(Rect2i(x, y, 9, 9))
+	room_spots.sort_custom(func(a, b): return Vector2(a.get_center() - clearing).length() < Vector2(b.get_center() - clearing).length())
+	var room_spot := Rect2i()
+	for cand in room_spots:  # niente acqua, massi né cose a terra: le piante le si toglie, come chi sgombera il prato
+		if game.cells_in(cand).all(func(k): return not game.water.has(k) and not game.astar.is_point_solid(k) \
+				and game.items.values().all(func(ground): return not ground.has(k))):
+			room_spot = cand
+			break
+	check(room_spot.size != Vector2i.ZERO, "c'è posto per una stanza vicino alla radura")
+	for k in game.cells_in(room_spot):
+		for plants in [game.trees, game.bushes, game.weeds, game.flax]:
+			plants.erase(k)
+	check(game.cells_in(room_spot).all(func(k): return game.can_build(k)), "sgomberato, ci si costruisce")
+	var door: Vector2i = room_spot.position + Vector2i(4, 7)
+	for k in game.cells_in(room_spot.grow(-1)):
+		if k == door:
+			game.built[k] = [game.Build.DOOR, W]
+		elif not room_spot.grow(-2).has_point(k):
+			game.built[k] = [game.Build.WALL, W]
+			game.astar.set_point_solid(k)
+	game.update_rooms()
+	check(game.rooms.size() == 1 and game.rooms[0].cells.size() == 25 and game.rooms[0].door == door, "murata: una stanza 5x5")
+	check(game.built[game.rooms[0].sign][0] == game.Build.WALL and (game.rooms[0].sign - door).length() == 1,
+		"il cartello sul muro accanto alla porta")
 	# il tipo resta finché ci sono i suoi mobili: in una stanza vuota, un letto e poi niente
-	var hall = game.rooms.filter(func(r): return r.kind == game.RoomKind.NONE)[0]
+	var hall = game.rooms[0]
 	var bed_spot: Vector2i = hall.cells.keys().min()
 	game.furniture[bed_spot] = [game.Build.BED, W, 0]
 	game.open_room(hall)

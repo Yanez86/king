@@ -10,7 +10,7 @@ func _initialize() -> void:
 	TranslationServer.set_locale("en")  # i testi confrontati sono quelli inglesi
 	seed(1)
 	var main = load("res://main.tscn").instantiate()
-	main.start_rooms = false
+	main.game_start = false
 	main.settings_file = ""  # tasti di partenza: non quelli salvati da chi gioca
 	root.add_child(main)
 	await process_frame

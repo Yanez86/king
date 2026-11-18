@@ -240,7 +240,7 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
   | Monete | moneta | oro (nei testi c'è solo la moneta, dopo il numero) |
   | Cimelio | gemma | calice, stendardo antico, busto, corona |
   | Libro | quaderno | quaderno azzurro, tomo rosso, codice di porpora (vedi 4.7.2) |
-- **Oro**: monete, in magazzino (mucchi da 100). All'inizio 60; poi si trovano nelle rovine (vedi 4.4.4). Servono a pagare
+- **Oro**: monete, in magazzino (mucchi da 100). All'inizio 60, a terra nella radura (si spendono quando sono in un magazzino); poi si trovano nelle rovine (vedi 4.4.4). Servono a pagare
   gli avventurieri. Nei testi (bacheca, scheda, diari, cronaca, finestra Jobs) al posto della parola c'è una monetina
   16×16 dopo il numero. Poi: vene d'oro nella roccia, commercio.
 - Catene MVP:
@@ -302,7 +302,7 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
 - **Cucinare** (abilità cucinare): in una stanza di tipo cucina, accanto al fuoco da campo. Il cuoco prende 2 crudi dal
   mucchio più vicino, cucina, il pasto cade ai suoi piedi e lo porta in magazzino. Si cucina finché in giro
   (a terra, in magazzino, in mano) ci sono meno pasti di quanti ne chiede il menu del fuoco (vedi 4.4.2; all'inizio
-  2 a colono, 6); nella finestra Jobs: "Cook meals: N". Poi: altre ricette (stufato, conserve).
+  2 a colono, 8); nella finestra Jobs: "Cook meals: N". Poi: altre ricette (stufato, conserve).
   - Tempo: 8 s a livello 5 (×1,5 a livello 0, ×0,5 a livello 10), secondo il comfort della cucina (±20%) e le condizioni del cuoco.
   - +1 punto esperienza per pasto.
   - **Bruciato** (vegetali persi): 6% per livello sotto il 6 (36% a livello 0), +3% per punto di comfort della cucina sotto 5 (sopra lo abbassa).
@@ -360,7 +360,7 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
   ingredienti e **"Keep N"**, quanti tenerne. Si fa finché in giro (a terra, in magazzino, in mano, in lavorazione) ce
   ne sono meno; vale per tutte le postazioni dello stesso tipo. Fuori dalla sua stanza il menu lo dice, in rosso.
   Al fuoco da campo i pasti, da 2 crudi uguali qualsiasi. Il suggerimento sul mobile dice "Click: what to make".
-  All'inizio: pasti 6, lingotti 10, corde d'arco 2, equipaggiamento 0.
+  All'inizio: pasti 8 (2 a testa), lingotti 10, corde d'arco 2, equipaggiamento 0.
 - Equipaggiamento: oltre ai "Keep", quanto manca perché ogni colono abbia pieni i suoi slot; per corpo e testa il primo
   in elenco di cui ci sono gli ingredienti (prima il cuoio, poi il metallo). Almeno un arco se ci sono animali segnati e
   nessuno ne ha uno. "Keep" per un pezzo = quanti tenerne di scorta, oltre a quelli indossati. Un pezzo scelto nella
@@ -881,6 +881,9 @@ Quattro fasce, una per titolo; sei categorie. ✓ = c'è nel gioco.
 | | Calendario delle feste | contea | 180 | Astronomia | feste annunciate (+3 nei due giorni prima), ×1,5, un giorno in più a stagione | festaiolo +5 |
 
 #### 4.7.8 All'inizio della partita
+- Il sovrano e 3 coloni (a caso) in una radura al centro della mappa, senza niente di costruito: né stanze né magazzino.
+  Accanto a loro le 60 monete di partenza, a terra; il resto si raccoglie. (Le tre stanzette di legno e il magazzino con
+  la scorta di prova non ci sono più.)
 - I lupi arrivano dal giorno 5 (vedi 4.4.3).
 - Su ogni mappa c'è sempre un'**arma abbandonata**: a caso tra spada, ascia e arco, a 15–25 caselle dalla radura, sul
   prato. Si raccoglie come ogni oggetto a terra e la prende chi la sa usare. Con l'arco si caccia già (l'ordine Caccia c'è
