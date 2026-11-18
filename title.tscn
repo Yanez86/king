@@ -91,27 +91,15 @@ expand_mode = 1
 [node name="Menu" type="VBoxContainer" parent="Stage"]
 layout_mode = 0
 offset_left = 112.0
-offset_top = 352.0
+offset_top = 392.0
 offset_right = 432.0
-offset_bottom = 672.0
+offset_bottom = 632.0
 theme = SubResource("MenuTheme")
 theme_override_constants/separation = 4
-
-[node name="Continue" type="Button" parent="Stage/Menu"]
-visible = false
-layout_mode = 2
-text = "Continue"
-alignment = 0
 
 [node name="NewGame" type="Button" parent="Stage/Menu"]
 layout_mode = 2
 text = "New Game"
-alignment = 0
-
-[node name="Load" type="Button" parent="Stage/Menu"]
-visible = false
-layout_mode = 2
-text = "Load Game"
 alignment = 0
 
 [node name="Fullscreen" type="Button" parent="Stage/Menu"]

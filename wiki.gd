@@ -50,16 +50,10 @@ A key works like a click on its button (press it again to close).
 • Space: pause; 1, 2, 3: speed.
 • E and R: turn the next piece of furniture left or right.
 • Esc: the options (also the gear at the top right).
-• F5: save the game.
 
 [color=#e8c34a]Options[/color]
-• System: language, save, load, back to the main menu, quit the game. Video: window size and fullscreen (also the screen button at the top right).
-• Keybindings: click a command's key, then press the new one. Esc cancels, Delete or Backspace leaves it without a key, Reset restores the defaults. Space, 1-3, E, R, F5 and Esc can't be taken. Your keys are saved.
-
-[color=#e8c34a]Saving[/color]
-• Every game has one save file. Save game (System) or F5 writes it again, and the game saves by itself at the start of every new day. "Game saved" shows at the top.
-• On the title screen, Continue picks up the latest save and Load Game lists them all, newest first, with the realm, the date, the ruler and the colonists. Load game in the options does the same during a game; Delete asks twice.
-• A loaded game starts paused: Space to go on. Main menu and Quit game don't save: what you haven't saved is lost."""],
+• System: language, quit the game. Video: window size and fullscreen (also the screen button at the top right).
+• Keybindings: click a command's key, then press the new one. Esc cancels, Delete or Backspace leaves it without a key, Reset restores the defaults. Space, 1-3, E, R and Esc can't be taken. Your keys are saved."""],
 
 	["Colonists", """Click a colonist for their sheet: health, needs (the arrows show which way each one is going), skills, traits, conditions, equipment and the 24 hours of their routine.
 

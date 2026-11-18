@@ -566,14 +566,6 @@ racconta il diario al ritorno.
   volta su 33 arriva e per 2–4 giorni fa 10 °C in meno (mezza giornata per arrivare e per andarsene); la annunciano le
   previsioni (vedi sotto) e, quando arriva, la cronaca. Col freddo che porta, pioggia e temporali vengono giù come neve.
 
-### 4.5.1 Salvataggio
-- Un file per partita, solo locale (il cloud dopo l'MVP, vedi docs/TECH.md). **Salva partita** nelle opzioni (Sistema)
-  o F5 lo riscrive; la partita si salva anche da sola a ogni giorno nuovo. In alto compare "Partita salvata".
-- Dal titolo: **Continua** (l'ultimo salvataggio) e **Carica partita** (l'elenco, dal più recente: reame, data,
-  sovrano, coloni, quando è stato salvato; si possono eliminare). Lo stesso elenco da Carica partita nelle opzioni.
-- Una partita caricata riparte in pausa, esattamente com'era: coloni a metà lavoro, spedizioni in viaggio, meteo.
-- Menu principale ed Esci dal gioco non salvano. Una colonia caduta non si salva.
-
 ### 4.6 Eventi casuali
 - Un "narratore" pesca eventi con probabilità che dipende dallo stato della colonia.
 - Ogni evento è un file di dati (condizioni, peso, effetti, testi localizzati).

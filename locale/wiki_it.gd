@@ -49,16 +49,10 @@ Un tasto fa come un clic sul suo pulsante (premilo di nuovo per chiudere).
 • Spazio: pausa; 1, 2, 3: velocità.
 • E e R: girano a sinistra o a destra il prossimo mobile.
 • Esc: le opzioni (anche l'ingranaggio in alto a destra).
-• F5: salva la partita.
 
 [color=#e8c34a]Opzioni[/color]
-• Sistema: la lingua, salva, carica, torna al menu principale, esci dal gioco. Video: misura della finestra e schermo intero (anche il pulsante dello schermo in alto a destra).
-• Tasti: clicca il tasto di un comando, poi premi quello nuovo. Esc annulla, Canc o Backspace lo lasciano senza tasto, Ripristina rimette quelli di partenza. Spazio, 1-3, E, R, F5 ed Esc non si possono assegnare. I tuoi tasti vengono salvati.
-
-[color=#e8c34a]Salvataggio[/color]
-• Ogni partita ha un suo file di salvataggio. Salva partita (Sistema) o F5 lo riscrive, e la partita si salva da sé all'inizio di ogni giorno nuovo. In alto compare "Partita salvata".
-• Sulla schermata del titolo, Continua riprende l'ultimo salvataggio e Carica partita li elenca tutti, dal più recente, col reame, la data, il sovrano e i coloni. Carica partita nelle opzioni fa lo stesso durante una partita; Elimina chiede due volte.
-• Una partita caricata parte in pausa: Spazio per andare avanti. Menu principale ed Esci dal gioco non salvano: quello che non hai salvato va perso."""],
+• Sistema: la lingua, l'uscita dal gioco. Video: misura della finestra e schermo intero (anche il pulsante dello schermo in alto a destra).
+• Tasti: clicca il tasto di un comando, poi premi quello nuovo. Esc annulla, Canc o Backspace lo lasciano senza tasto, Ripristina rimette quelli di partenza. Spazio, 1-3, E, R ed Esc non si possono assegnare. I tuoi tasti vengono salvati."""],
 
 	["Coloni", """Clicca un colono per aprire la sua scheda: salute, bisogni (le frecce mostrano se ognuno sale o scende), abilità, talenti, condizioni, equipaggiamento e le 24 ore della sua routine.
 

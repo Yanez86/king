@@ -67,8 +67,8 @@ func _initialize() -> void:
 	check(tabs.get_children().map(func(t): return String(t.name)) == ["System", "Video", "Audio", "Keybindings"],
 		"quattro tab: sistema, video, audio, tasti")
 	check(tabs.get_children().all(func(t): return t.text == "" and t.icon != null), "tab: solo icone")
-	check(["Save", "Load", "MainMenu", "Quit"].all(func(b): return not system.get_node(b).disabled) and not system.get_node("SaveNote").visible,
-		"salva, carica, menù principale, esci")
+	check(system.get_node("MainMenu").disabled and system.get_node("Load").disabled and not system.get_node("Quit").disabled,
+		"menù principale e carica non ci sono ancora, esci sì")
 	var languages: OptionButton = system.get_node("Language/Languages")
 	check(range(languages.item_count).map(languages.get_item_text) == ["English", "Italiano"], "lingue, nella loro lingua")
 	languages.select(1)

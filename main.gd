@@ -450,21 +450,7 @@ const RESOLUTIONS := [Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1
 # tab System delle opzioni: lingue, col nome nella loro lingua; i testi tradotti sono in locale/<lingua>.po (vedi named)
 const LANGUAGES := {"en": "English", "it": "Italiano"}
 const WIKI := preload("res://wiki.gd")  # pagine della finestra Wiki: [titolo, testo ricco], tradotte (vedi WIKI.pages)
-const FIXED_KEYS := [KEY_SPACE, KEY_1, KEY_2, KEY_3, KEY_E, KEY_R, KEY_ESCAPE, KEY_F5]  # velocità, giro dei mobili, menù, salva
-# Salvataggio (vedi saves.gd, game_state, restore): un file per partita; si salva dal menù (System), con F5 e da sé a
-# ogni giorno nuovo. Si caricano dal titolo (Continue, Load Game) e dal menù (Load game)
-const SAVES := preload("res://saves.gd")
-const SAVE_LIST := preload("res://save_list.gd")
-# le variabili della partita che si salvano, così come sono (gli oggetti dentro li impacchetta SAVES.Packer); il resto
-# si rifà da queste (vedi restore) o è interfaccia. Una variabile nuova dello stato del gioco va aggiunta qui
-const SAVED := ["game_id", "map_seed", "ground_cols", "clock", "today", "hour", "rocks", "boulders", "ores", "water",
-	"trees", "stock", "bushes", "flax", "weeds", "chop_marks", "mine_marks", "uproot_marks", "harvest_marks", "fish_marks",
-	"fish_spots", "items", "fresh", "draft", "blueprints", "built", "furniture_draft", "furniture_plans", "furniture",
-	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
-	"fallen", "animals", "arrows", "next_animal", "next_pack", "guests", "next_guest", "ruins", "expeditions",
-	"chronicle", "chronicle_days", "board_pick", "study", "researched", "authority", "codified", "enacted", "revoked",
-	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero"]
-const TOAST_TIME := 2000    # millisecondi: "Game saved" in alto, poi sparisce (vedi show_toast)
+const FIXED_KEYS := [KEY_SPACE, KEY_1, KEY_2, KEY_3, KEY_E, KEY_R, KEY_ESCAPE]  # velocità, giro dei mobili, menù
 const MODIFIER_KEYS := [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]  # da soli non sono un tasto
 const TIP := preload("res://tip_button.gd")  # suggerimento fatto di Control: pulsanti di costruzione, figurine
 const BUILD_INFO_COLOR := Color("d9c48a")
@@ -1105,13 +1091,6 @@ var boulders := {}          # cella in alto a sinistra -> dimensione del masso c
 var ores := {}              # cella -> Res.IRON o Res.COAL: massi 1x1 che scavati danno il minerale invece della pietra
 var water := {}             # cella -> Ground.SHALLOW (si guada) o Ground.DEEP (non si attraversa)
 var ground_texture: ImageTexture  # tutto il terreno già disegnato, vedi bake_ground
-var map_seed := 0           # del rumore della mappa: col salvataggio, rifà le chiazze di erba sassosa (vedi ground_noise)
-var ground_cols := PackedByteArray()  # per casella, riga per riga: la variante del terreno (colonna di GROUND, vedi bake_ground)
-var game_id := ""           # il nome del file della partita, dato al primo salvataggio (vedi save_game)
-var autosave_due := false   # è cominciato un giorno nuovo: si salva finito il tick (vedi _process)
-var save_list               # la pagina dei salvataggi nel menù delle opzioni (save_list.gd), dopo Load game
-var toast := Label.new()    # in alto al centro: "Game saved"; resta fino a toast_until (millisecondi di Time.get_ticks_msec)
-var toast_until := 0
 var water_fx: ShaderMaterial      # anima l'acqua del terreno, e la fa gelare (vedi water.gdshader e atmosphere.gd)
 var trees := {}             # cella -> TreeKind (attraversabile), in ordine di riga: serve a _draw
 var stock := {}             # albero, masso (cella d'origine) o cespuglio -> quanto resta da raccogliere; se manca, full_stock
@@ -1291,16 +1270,11 @@ func _init() -> void:
 
 
 func _ready() -> void:
-	var state: Dictionary = SAVES.pending  # una partita salvata da riprendere (vedi load_game), se no una nuova
-	SAVES.pending = {}
 	astar.region = Rect2i(Vector2i.ZERO, MAP_SIZE)
 	astar.cell_size = Vector2.ONE * TILE
 	astar.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_ONLY_IF_NO_OBSTACLES
 	astar.update()
-	if state.is_empty():
-		generate_map()
-	else:
-		restore(state)
+	generate_map()
 	sky_colors.offsets = PackedFloat32Array(SKY.keys())
 	sky_colors.colors = PackedColorArray(SKY.values())
 	for layer in [flat, shadows]:  # sopra il terreno di bake_ground, sotto quello che disegna _draw
@@ -1311,8 +1285,31 @@ func _ready() -> void:
 	flat.draw.connect(draw_flat)
 	casters.draw.connect(draw_shadows)
 	add_child(sky)
-	if state.is_empty():
-		new_people()
+	var heads := COLONIST_COUNT + 1 if game_start else TEST_PEOPLE  # il primo è il sovrano
+	for i in heads:
+		var c := Colonist.new()
+		c.pos = center(MAP_SIZE / 2 + Vector2i(i - 1, 0))
+		c.tunic = TUNIC_COLORS[i % TUNIC_COLORS.size()]
+		dress(c, people().map(func(o): return o.first_name))
+		c.skills = Skill.values().map(func(_s): return 0)
+		c.xp = Skill.values().map(func(_s): return 0)
+		var made: Dictionary = setup.get("ruler", {}) if i == 0 else {}
+		for key in made:  # il sovrano, come l'ha fatto il giocatore: gli altri evitano il suo nome
+			c.set(key, made[key])
+		# sfalsati: non dormono tutti insieme; lo stress parte basso
+		c.needs = Need.values().map(func(n): return randf_range(0, 40) if n == Need.STRESS else randf_range(60, NEED_MAX))
+		c.trend = c.needs.map(func(_v): return 0.0)
+		var pool := Trait.values()
+		pool.shuffle()
+		var count := 0 if not made.is_empty() else randi_range(0, 2)  # il sovrano ha quelli scelti dal giocatore
+		for t in pool:  # a caso, ma niente talenti in contrasto (vedi TRAIT_CLASH)
+			if c.traits.size() < count and not c.traits.any(func(o): return clash(o, t)):
+				c.traits.append(t)
+		colonists.append(c)
+	ruler = colonists[0]
+	keep[Res.MEAL] = MEALS_PER_COLONIST * colonists.size()
+	realm = setup.get("colony", COLONY_NAMES.pick_random())
+	arms = setup.get("arms", random_arms())
 	banner_tex = banner_texture(arms)
 	show_title()
 	realm_button.pressed.connect(func(): open_sheet(ruler))
@@ -1348,14 +1345,6 @@ func _ready() -> void:
 	add_child(lens)
 	lens_canvas.draw.connect(draw_lens)
 	add_child(atmosphere)  # dopo `lights` e `flat`, che usa
-	toast.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
-	toast.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	toast.position.y = 72  # sotto la barra in alto
-	toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	toast.add_theme_color_override("font_outline_color", Color(0.12, 0.1, 0.14))
-	toast.add_theme_constant_override("outline_size", 8)
-	toast.hide()
-	$HUD.add_child(toast)
 	forecast_strip.main = self
 	$HUD/TopBar/Row.add_child(forecast_strip)
 	$HUD/TopBar/Row.move_child(forecast_strip, info_label.get_index() + 1)
@@ -1420,8 +1409,7 @@ func _ready() -> void:
 			label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT if text == "" else HORIZONTAL_ALIGNMENT_LEFT
 			row.add_child(label)
 		resources_list.add_child(row)
-	if state.is_empty():
-		ruins.append(Ruin.new())  # per ora solo la torre
+	ruins.append(Ruin.new())  # per ora solo la torre
 	$HUD.add_child(gear_menu)
 	gear_menu.id_pressed.connect(choose_gear)
 	for slot in Slot.values():
@@ -1441,44 +1429,11 @@ func _ready() -> void:
 		for t in Tech.values():
 			researched[t] = true
 	refresh_unlocks()
-	if not state.is_empty():
-		resume(state)
-
-
-# Partita nuova: il sovrano (come l'ha fatto il giocatore nella pagina della nuova partita, vedi setup) e gli altri
-# coloni nella radura, a caso; il nome del reame e lo stemma
-func new_people() -> void:
-	var heads := COLONIST_COUNT + 1 if game_start else TEST_PEOPLE  # il primo è il sovrano
-	for i in heads:
-		var c := Colonist.new()
-		c.pos = center(MAP_SIZE / 2 + Vector2i(i - 1, 0))
-		c.tunic = TUNIC_COLORS[i % TUNIC_COLORS.size()]
-		dress(c, people().map(func(o): return o.first_name))
-		c.skills = Skill.values().map(func(_s): return 0)
-		c.xp = Skill.values().map(func(_s): return 0)
-		var made: Dictionary = setup.get("ruler", {}) if i == 0 else {}
-		for key in made:  # il sovrano, come l'ha fatto il giocatore: gli altri evitano il suo nome
-			c.set(key, made[key])
-		# sfalsati: non dormono tutti insieme; lo stress parte basso
-		c.needs = Need.values().map(func(n): return randf_range(0, 40) if n == Need.STRESS else randf_range(60, NEED_MAX))
-		c.trend = c.needs.map(func(_v): return 0.0)
-		var pool := Trait.values()
-		pool.shuffle()
-		var count := 0 if not made.is_empty() else randi_range(0, 2)  # il sovrano ha quelli scelti dal giocatore
-		for t in pool:  # a caso, ma niente talenti in contrasto (vedi TRAIT_CLASH)
-			if c.traits.size() < count and not c.traits.any(func(o): return clash(o, t)):
-				c.traits.append(t)
-		colonists.append(c)
-	ruler = colonists[0]
-	keep[Res.MEAL] = MEALS_PER_COLONIST * colonists.size()
-	realm = setup.get("colony", COLONY_NAMES.pick_random())
-	arms = setup.get("arms", random_arms())
 
 
 # menù delle opzioni: a sinistra le tab, icone (una per pagina, con lo stesso nome); le pagine stanno in un
 # TabContainer senza linguette, grande quanto la più grande, così la finestra non cambia misura passando dall'una
-# all'altra. System: lingua, salva, carica (la pagina dei salvataggi, vedi open_saves), menù principale, esci dal gioco.
-# Video: risoluzione e schermo intero. Audio: vuota.
+# all'altra. System: lingua, menù principale, carica, esci dal gioco. Video: risoluzione e schermo intero. Audio: vuota.
 # Keybindings: icona, nome e tasto per comando della barra in basso, due per riga, nell'ordine dei pulsanti
 func setup_options() -> void:
 	var window: Control = options.get_node("Window")
@@ -1497,16 +1452,8 @@ func setup_options() -> void:
 			sizes.add_item("%d x %d" % [RESOLUTIONS[i].x, RESOLUTIONS[i].y])
 	sizes.item_selected.connect(func(i): set_resolution(RESOLUTIONS[i]))
 	video.get_node("Fullscreen").toggled.connect(set_fullscreen)
-	pages.get_node("System/Save").pressed.connect(save_from_menu)
-	pages.get_node("System/Load").pressed.connect(open_saves)
-	pages.get_node("System/MainMenu").pressed.connect(go_to.bind("res://title.tscn"))
+	# ponytail: menù principale e salvataggi non ci sono ancora: "Main menu" e "Load game" restano spenti
 	pages.get_node("System/Quit").pressed.connect(get_tree().quit)
-	save_list = SAVE_LIST.new()  # una pagina senza tab: ci si arriva da Load game, Back torna a System
-	save_list.name = "Saves"
-	save_list.keyboard = false
-	pages.add_child(save_list)
-	save_list.chosen.connect(load_game)
-	save_list.closed.connect(func(): pages.current_tab = 0)
 	var languages: OptionButton = pages.get_node("System/Language/Languages")
 	for code in LANGUAGES:
 		languages.add_item(LANGUAGES[code])
@@ -1533,116 +1480,6 @@ func setup_options() -> void:
 	load_keys()
 
 
-# --- Salvataggio (vedi SAVES) ---
-
-# le classi interne i cui oggetti stanno nel salvataggio (vedi SAVES.Packer): l'ordine conta, è nei file
-func saved_classes() -> Array:
-	return [Colonist, Animal, Arrow, Room, Ruin, Expedition]
-
-
-# Tutto lo stato della partita, pronto per store_var: le variabili di SAVED (gli oggetti impacchettati in "objects"),
-# il caso degli animali, il meteo e dove guarda la telecamera
-func game_state() -> Dictionary:
-	var packer := SAVES.Packer.new(saved_classes())
-	var fields := {}
-	for name in SAVED:
-		fields[name] = packer.pack(get(name))
-	return {"main": fields, "objects": packer.fields(), "wild": [wild.seed, wild.state], "weather": atmosphere.saved(),
-		"camera": [camera.position, camera.zoom]}
-
-
-# quello che l'elenco dei salvataggi mostra, nella lingua di adesso
-func header() -> Dictionary:
-	var t := fmod(clock, 1.0)
-	return {"title": realm_name(), "ruler": full_name(ruler), "people": colonists.size(), "day": int(clock),
-		"date": "%s %02d:%02d" % [date(int(clock)), int(t * 24), int(t * 1440) % 60], "saved": Time.get_unix_time_from_system()}
-
-
-# Salva la partita nel suo file, che sostituisce quello di prima (uno per partita: il nome lo prende al primo
-# salvataggio, dal reame e dall'ora). OK, o l'errore
-func save_game() -> Error:
-	if game_id == "":
-		game_id = "%s_%d" % [realm.validate_filename(), int(Time.get_unix_time_from_system() * 1000)]
-	return SAVES.write(SAVES.path_for(game_id), header(), game_state())
-
-
-# Rimette lo stato salvato (in _ready, al posto di generate_map) e rifà quello che ne discende: la griglia dei
-# percorsi, tetti e magazzini, il terreno disegnato. Meteo e telecamera dopo, in resume
-func restore(state: Dictionary) -> void:
-	var unpacker := SAVES.Unpacker.new(saved_classes(), state["objects"])
-	for name in state["main"]:
-		SAVES.Unpacker.put(self, name, unpacker.unpack(state["main"][name]))
-	for res in Res.values():  # un oggetto nuovo, che il salvataggio non conosceva: nessuno a terra
-		if not items.has(res):
-			items[res] = {}
-	wild.seed = state["wild"][0]
-	wild.state = state["wild"][1]  # dopo il seme, che lo azzera
-	rebuild_grid()
-	update_roofs()
-	update_stockpile()
-	bake_ground(ground_noise(map_seed))
-
-
-# la griglia dei percorsi da quello che c'è sulla mappa, come la lasciano generate_map, build e mark: roccia e acqua
-# alta solide, l'acqua bassa lenta, muri e palizzate solidi, le strade svelte (il ghiaccio lo rimette resume)
-func rebuild_grid() -> void:
-	for cell in rocks:
-		astar.set_point_solid(cell)
-	for cell in water:
-		if water[cell] == Ground.DEEP:
-			astar.set_point_solid(cell)
-		else:
-			astar.set_point_weight_scale(cell, SHALLOW_COST)
-	for cell in built:
-		if built[cell][0] in BARRIERS:
-			astar.set_point_solid(cell)
-		elif built[cell][0] == Build.ROAD:
-			astar.set_point_weight_scale(cell, 1.0 / ROAD_SPEED)
-
-
-# finito _ready di una partita caricata: il meteo (e l'acqua gelata), la telecamera; si riparte in pausa
-func resume(state: Dictionary) -> void:
-	atmosphere.restore(state["weather"])
-	if atmosphere.frozen:
-		freeze_water(true)
-	camera.position = state["camera"][0]
-	camera.zoom = state["camera"][1]
-	if fallen:
-		$HUD/Fallen.show()
-	Engine.time_scale = 0.0
-
-
-# tab System, Save game: salva e lo dice sotto i tasti
-func save_from_menu() -> void:
-	var said: Label = options.get_node("Window/Box/Body/Pages/System/SaveNote")
-	var err := save_game()
-	said.text = tr("Saved: %s") % header()["date"] if err == OK else tr("Could not save the game (%s).") % error_string(err)
-	said.show()
-
-
-# tab System, Load game: la pagina coi salvataggi, riletti dal disco
-func open_saves() -> void:
-	save_list.refresh()
-	options.get_node("Window/Box/Body/Pages").current_tab = save_list.get_index()
-
-
-# la partita scelta nell'elenco: la scena si rifà da capo e _ready la prende al posto di una nuova
-func load_game(state: Dictionary) -> void:
-	SAVES.pending = state
-	go_to("res://main.tscn")
-
-
-# un'altra scena (il titolo, o di nuovo la partita); il menù delle opzioni aveva fermato il gioco
-func go_to(scene: String) -> void:
-	Engine.time_scale = 1.0
-	get_tree().change_scene_to_file(scene)
-
-
-func show_toast(text: String) -> void:
-	toast.text = text
-	toast_until = Time.get_ticks_msec() + TOAST_TIME
-
-
 # tab del menù delle opzioni: la sua pagina al posto di quella aperta
 func show_page(on: bool, page: Control) -> void:
 	if on:
@@ -1661,10 +1498,6 @@ func options_toggled() -> void:
 		Engine.time_scale = 0.0
 		options.move_to_front()  # sopra le finestre aperte dopo
 		options.get_node("Window/Box/Body/Tabs/System").button_pressed = true
-		options.get_node("Window/Box/Body/Pages").current_tab = 0  # anche dalla pagina dei salvataggi
-		var system: Control = options.get_node("Window/Box/Body/Pages/System")
-		system.get_node("Save").disabled = fallen
-		system.get_node("SaveNote").hide()
 		var full := DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN  # anche dal tasto in alto
 		video.get_node("Fullscreen").set_pressed_no_signal(full)
 		video.get_node("Resolution/Sizes").disabled = full
@@ -1682,8 +1515,7 @@ func load_keys() -> void:
 	var config := ConfigFile.new()
 	if settings_file != "" and config.load(settings_file) == OK and config.has_section("keys"):
 		for name in config.get_section_keys("keys"):
-			# comandi tolti dalla barra, e tasti diventati fissi dopo (F5): si ignorano
-			if tool_names.has(name) and config.get_value("keys", name) not in FIXED_KEYS:
+			if tool_names.has(name):  # comandi tolti dalla barra: si ignorano
 				bind_key(name, config.get_value("keys", name), false)
 	show_keys()
 
@@ -2492,8 +2324,9 @@ func update_resources() -> void:
 
 
 func generate_map() -> void:
-	var noise := ground_noise(randi())
-	map_seed = noise.seed
+	var noise := FastNoiseLite.new()
+	noise.seed = randi()
+	noise.frequency = 0.08
 	var lakes := FastNoiseLite.new()
 	lakes.seed = noise.seed + 1
 	lakes.frequency = 0.04
@@ -2568,32 +2401,18 @@ func generate_map() -> void:
 	bake_ground(noise)
 
 
-# il rumore della mappa (roccia, alberi, erba sassosa): lo stesso `from`, le stesse chiazze
-func ground_noise(from: int) -> FastNoiseLite:
-	var noise := FastNoiseLite.new()
-	noise.seed = from
-	noise.frequency = 0.08
-	return noise
-
-
-# Disegna il terreno una volta sola in un'unica immagine, che _draw mostra come una texture. Le varianti delle caselle
-# sono a caso la prima volta, poi quelle di ground_cols (una partita caricata si rivede uguale).
+# Disegna il terreno una volta sola in un'unica immagine, che _draw mostra come una texture.
 # ponytail: si fa solo alla generazione; quando il terreno cambierà (scavi, ponti) ridisegnare le caselle toccate
 func bake_ground(noise: FastNoiseLite) -> void:
 	var sheet := GROUND.get_image()
 	sheet.convert(Image.FORMAT_RGBA8)
 	var img := Image.create_empty(MAP_SIZE.x * TILE, MAP_SIZE.y * TILE, false, Image.FORMAT_RGBA8)
-	var fresh_cols := ground_cols.size() != MAP_SIZE.x * MAP_SIZE.y
-	if fresh_cols:
-		ground_cols.resize(MAP_SIZE.x * MAP_SIZE.y)
 	for y in MAP_SIZE.y:
 		for x in MAP_SIZE.x:
 			var cell := Vector2i(x, y)
 			var own := ground_of(cell)
 			var row := Ground.STONY_GRASS if own == Ground.GRASS and noise.get_noise_2d(x, y) > 0.15 else own
-			if fresh_cols:
-				ground_cols[y * MAP_SIZE.x + x] = randi() % 4
-			img.blit_rect(sheet, tile_rect(ground_cols[y * MAP_SIZE.x + x], row), cell * TILE)
+			img.blit_rect(sheet, tile_rect(randi() % 4, row), cell * TILE)
 			for i in 4:  # i vicini "più alti" sbordano su questa casella: lati, e angoli se nessun lato li copre già
 				var side := edge_row(own, cell + EDGE_SIDES[i])
 				if side >= 0:
@@ -2643,11 +2462,6 @@ func tile_rect(col: int, row: int) -> Rect2i:
 
 func _process(delta: float) -> void:
 	tick(delta)
-	if autosave_due:
-		autosave_due = false
-		show_toast(tr("Autosaved") if save_game() == OK else tr("Could not save the game"))
-	toast.visible = Time.get_ticks_msec() < toast_until
-	toast.modulate.a = clampf((toast_until - Time.get_ticks_msec()) / 500.0, 0.0, 1.0)  # sparisce nell'ultimo mezzo secondo
 	stored_label.text = str(Res.values().map(stored).reduce(func(a, b): return a + b, 0))
 	colonists_label.text = str(colonists.size())
 	beds_label.text = str(furniture.values().filter(func(plan): return plan[0] in BEDS).size())  # solo quelli finiti
@@ -2710,7 +2524,6 @@ func tick(delta: float) -> void:
 	if int(clock) != today:
 		today = int(clock)
 		new_day()
-		autosave_due = game_start and not fallen  # nei test no
 	if int(clock * 24) != hour:
 		hour = int(clock * 24)
 		new_hour()
@@ -6247,9 +6060,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_3: Engine.time_scale = 3.0
 			KEY_E: turn(-1)
 			KEY_R: turn(1)
-			KEY_F5:
-				if not event.echo and not fallen:
-					show_toast(tr("Game saved") if save_game() == OK else tr("Could not save the game"))
 
 
 func zoom_by(factor: float) -> void:
