@@ -191,6 +191,13 @@ size_flags_horizontal = 3
 horizontal_alignment = 2
 vertical_alignment = 1
 
+[node name="Saved" type="Label" parent="HUD/TopBar/Row"]
+modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(56, 0)
+text = "Saved"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="Fullscreen" type="Button" parent="HUD/TopBar/Row"]
 custom_minimum_size = Vector2(100, 0)
 focus_mode = 0
@@ -199,7 +206,7 @@ text = "Fullscreen"
 [node name="Options" type="Button" parent="HUD/TopBar/Row"]
 custom_minimum_size = Vector2(32, 32)
 focus_mode = 0
-tooltip_text = "Quit"
+tooltip_text = "Save and go back to the title"
 icon = ExtResource("options_icon")
 icon_alignment = 1
 expand_icon = true

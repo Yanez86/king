@@ -91,15 +91,27 @@ expand_mode = 1
 [node name="Menu" type="VBoxContainer" parent="Stage"]
 layout_mode = 0
 offset_left = 112.0
-offset_top = 392.0
+offset_top = 372.0
 offset_right = 432.0
-offset_bottom = 632.0
+offset_bottom = 700.0
 theme = SubResource("MenuTheme")
 theme_override_constants/separation = 4
+
+[node name="Continue" type="Button" parent="Stage/Menu"]
+visible = false
+layout_mode = 2
+text = "Continue"
+alignment = 0
 
 [node name="NewGame" type="Button" parent="Stage/Menu"]
 layout_mode = 2
 text = "New Game"
+alignment = 0
+
+[node name="Colonies" type="Button" parent="Stage/Menu"]
+visible = false
+layout_mode = 2
+text = "Colonies"
 alignment = 0
 
 [node name="Fullscreen" type="Button" parent="Stage/Menu"]
@@ -110,6 +122,33 @@ alignment = 0
 [node name="Quit" type="Button" parent="Stage/Menu"]
 layout_mode = 2
 text = "Quit"
+alignment = 0
+
+[node name="Colonies" type="VBoxContainer" parent="Stage"]
+visible = false
+layout_mode = 0
+offset_left = 112.0
+offset_top = 372.0
+offset_right = 480.0
+offset_bottom = 700.0
+theme = SubResource("MenuTheme")
+theme_override_constants/separation = 12
+
+[node name="Scroll" type="ScrollContainer" parent="Stage/Colonies"]
+custom_minimum_size = Vector2(0, 252)
+layout_mode = 2
+follow_focus = true
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
+
+[node name="Entries" type="VBoxContainer" parent="Stage/Colonies/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="Back" type="Button" parent="Stage/Colonies"]
+layout_mode = 2
+text = "Back"
 alignment = 0
 
 [node name="Fade" type="ColorRect" parent="."]

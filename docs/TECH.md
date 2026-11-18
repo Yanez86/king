@@ -21,12 +21,21 @@
 - Pathfinding: `AStarGrid2D` integrato in Godot.
 
 ## Salvataggio
-- Un unico file per partita: lo stato serializzato (JSON o binario di Godot), compresso.
-- Prima versione: solo salvataggio locale.
+- Solo automatici, locali, più colonie (vedi GDD 4.7). `saves.gd`: una cartella per colonia in `user://saves/`, con
+  `autosave_1.save` (il più recente), `_2` e `_3`. Un file è un dizionario scritto con `store_var` e compresso (zstd):
+  `version`, `info` (per l'elenco del titolo), `state`. Si scrive su un file temporaneo e solo dopo si fanno scorrere
+  gli altri: un crash a metà non rovina l'ultimo salvataggio buono.
+- Binario di Godot e non JSON: tiene da solo `Vector2i`, `Color` e `INF`, con meno codice.
+- `main.gd`, `save_state` / `load_state`: gli enum si salvano per nome (aggiungere una voce in mezzo non rompe i vecchi
+  salvataggi), i riferimenti tra oggetti (proprietari delle stanze, lupi che inseguono) come indici dei coloni. Non si
+  salvano i lavori a metà; si ricostruiscono pathfinding, stanze, magazzini e il terreno disegnato (dal seme della
+  mappa e dalla roccia iniziale, `gravel`, così torna identico).
+- Quando cambia il formato di `state`: aumentare `Saves.VERSION` e convertire i vecchi in `load_state`.
+- Un salvataggio pesa ~17 KB e richiede pochi millisecondi (vedi `tests/test_save.gd`).
 - Cloud, due opzioni:
   - **Steam Cloud**, se il gioco finisce su Steam (100 $ una tantum): quasi zero lavoro.
   - **Supabase** (piano gratuito): login + upload/download del file via REST (`HTTPRequest`). Indipendente da Steam.
-- Decisione rimandata a dopo l'MVP; il formato a file unico funziona con entrambe.
+- Decisione rimandata a dopo l'MVP; basta sincronizzare la cartella `user://saves/`.
 
 ## macOS
 - Per uso personale l'export funziona senza firma (primo avvio: tasto destro → Apri).

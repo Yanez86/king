@@ -277,6 +277,8 @@ const SHADOW_SKEW := 1.5    # pixel d'ombra in orizzontale per pixel d'altezza, 
 const SHADOW_DROP := 0.3    # e in verticale verso nord (il sole passa a sud): a mezzogiorno resta corta, dietro la base
 const GROUND := preload("res://art/ground.png")  # terreno 64x176, righe = Ground
 const WATER_SHADER := preload("res://water.gdshader")  # anima l'acqua sul terreno
+const Saves := preload("res://saves.gd")
+const DAWN := 6.0 / 24      # ora del salvataggio automatico di ogni giorno, quando i coloni si alzano
 # righe di GROUND: 4 varianti per terreno, poi i bordi che un terreno disegna su quello vicino; gli angoli 3 righe più giù
 enum Ground { GRASS, STONY_GRASS, GRAVEL, SHALLOW, DEEP, GRASS_EDGE, SHORE, SHALLOW_EDGE }
 const EDGE_SIDES := [Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]          # colonne dei lati in GROUND
@@ -554,6 +556,12 @@ var build_turn := 0         # quarti di giro in senso orario del prossimo mobile
 var drag_start = null       # cella d'inizio della selezione, o null
 var drag_end := Vector2i.ZERO
 var clock := 8.0 / 24       # giorni passati: la parte intera conta i giorni, quella decimale è l'ora
+var colony := ""            # cartella dei salvataggi (vedi saves.gd); vuota nei test o lanciando main.tscn da sola: non salva
+var colony_name := ""
+var saved := {}             # salvataggio da riprendere, messo dal titolo prima di _ready (vedi load_state); vuoto: colonia nuova
+var next_save := 0.0        # `clock` del prossimo salvataggio automatico, alla prossima alba (vedi autosave)
+var map_seed := 0           # seme dei rumori della mappa: ridisegna lo stesso terreno anche caricando (vedi bake_ground)
+var gravel := {}            # cella -> true: la roccia com'era all'inizio; il terreno disegnato resta ghiaia anche dove si scava
 var sky := CanvasModulate.new()   # tinge il mondo secondo SKY
 var sky_colors := Gradient.new()
 var flat := Node2D.new()          # pavimenti, progetti, mucchi: stanno a terra, le ombre ci cadono sopra
@@ -609,7 +617,12 @@ func _ready() -> void:
 	astar.cell_size = Vector2.ONE * TILE
 	astar.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_ONLY_IF_NO_OBSTACLES
 	astar.update()
-	generate_map()
+	if saved.is_empty():
+		generate_map()
+		add_colonists()
+		camera.position = center(MAP_SIZE / 2)
+	else:
+		load_state(saved.state)
 	sky_colors.offsets = PackedFloat32Array(SKY.keys())
 	sky_colors.colors = PackedColorArray(SKY.values())
 	for layer in [flat, shadows]:  # sopra il terreno di bake_ground, sotto quello che disegna _draw
@@ -619,32 +632,10 @@ func _ready() -> void:
 	flat.draw.connect(draw_flat)
 	casters.draw.connect(draw_shadows)
 	add_child(sky)
-	for i in COLONIST_COUNT:
-		var c := Colonist.new()
-		c.pos = center(MAP_SIZE / 2 + Vector2i(i - 1, 0))
-		c.tunic = TUNIC_COLORS[i % TUNIC_COLORS.size()]
-		c.cape = CAPE_COLORS.pick_random()
-		c.hair = HAIR_COLORS.pick_random()
-		c.first_name = FIRST_NAMES.pick_random()
-		c.nickname = NICKNAMES.pick_random() if randf() < 0.5 else ""
-		c.last_name = LAST_NAMES.pick_random()
-		c.skills = Skill.values().map(func(_s): return 0)
-		c.xp = Skill.values().map(func(_s): return 0)
-		# sfalsati: non dormono tutti insieme; lo stress parte basso
-		c.needs = Need.values().map(func(n): return randf_range(0, 40) if n == Need.STRESS else randf_range(60, NEED_MAX))
-		c.trend = c.needs.map(func(_v): return 0.0)
-		var pool := Trait.values()
-		pool.shuffle()
-		var count := randi_range(0, 2)
-		for t in pool:  # a caso, ma niente talenti in contrasto (vedi TRAIT_CLASH)
-			if c.traits.size() < count and not c.traits.any(func(o): return clash(o, t)):
-				c.traits.append(t)
-		colonists.append(c)
-	camera.position = center(MAP_SIZE / 2)
 	fullscreen.pressed.connect(toggle_fullscreen)
 	if DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN:  # passato a schermo intero dal titolo
 		fullscreen.text = "Window"
-	$HUD/TopBar/Row/Options.pressed.connect(get_tree().quit)  # ponytail: per ora chiude il gioco, poi aprirà le opzioni
+	$HUD/TopBar/Row/Options.pressed.connect(to_title)  # ponytail: poi aprirà le opzioni, e da lì si tornerà al titolo
 	structures_button.toggled.connect(toggle_build.bind(build_bar))
 	furniture_button.toggled.connect(toggle_build.bind(furniture_bar))
 	for o in ORDER_TOOLS:
@@ -702,6 +693,34 @@ func _ready() -> void:
 		window.get_node("Box/Head/Close").pressed.connect(window.hide)
 		window.gui_input.connect(drag_window.bind(window))
 		window.visibility_changed.connect(window.move_to_front, CONNECT_DEFERRED)  # l'ultima aperta sta sopra
+	next_save = next_dawn()
+	if saved.is_empty():
+		autosave()  # una colonia nuova compare subito nell'elenco del titolo
+
+
+# I coloni di una colonia nuova, nella radura.
+func add_colonists() -> void:
+	for i in COLONIST_COUNT:
+		var c := Colonist.new()
+		c.pos = center(MAP_SIZE / 2 + Vector2i(i - 1, 0))
+		c.tunic = TUNIC_COLORS[i % TUNIC_COLORS.size()]
+		c.cape = CAPE_COLORS.pick_random()
+		c.hair = HAIR_COLORS.pick_random()
+		c.first_name = FIRST_NAMES.pick_random()
+		c.nickname = NICKNAMES.pick_random() if randf() < 0.5 else ""
+		c.last_name = LAST_NAMES.pick_random()
+		c.skills = Skill.values().map(func(_s): return 0)
+		c.xp = Skill.values().map(func(_s): return 0)
+		# sfalsati: non dormono tutti insieme; lo stress parte basso
+		c.needs = Need.values().map(func(n): return randf_range(0, 40) if n == Need.STRESS else randf_range(60, NEED_MAX))
+		c.trend = c.needs.map(func(_v): return 0.0)
+		var pool := Trait.values()
+		pool.shuffle()
+		var count := randi_range(0, 2)
+		for t in pool:  # a caso, ma niente talenti in contrasto (vedi TRAIT_CLASH)
+			if c.traits.size() < count and not c.traits.any(func(o): return clash(o, t)):
+				c.traits.append(t)
+		colonists.append(c)
 
 
 # finestre: col tasto sinistro si portano sopra le altre e si trascinano, senza uscire dallo schermo
@@ -1238,9 +1257,8 @@ func update_resources() -> void:
 
 
 func generate_map() -> void:
-	var noise := FastNoiseLite.new()
-	noise.seed = randi()
-	noise.frequency = 0.08
+	map_seed = randi()
+	var noise := ground_noise()
 	var lakes := FastNoiseLite.new()
 	lakes.seed = noise.seed + 1
 	lakes.frequency = 0.04
@@ -1320,28 +1338,42 @@ func generate_map() -> void:
 			drop(res, first + Vector2i(res - 2, 0), DEBUG_STASH)
 		rooms.filter(func(r): return r.cells.has(first))[0].kind = RoomKind.WAREHOUSE
 		update_stockpile()
+	gravel = rocks.duplicate()
 	bake_ground(noise)
 
 
-# Disegna il terreno una volta sola in un'unica immagine, che _draw mostra come una texture.
-# ponytail: si fa solo alla generazione; quando il terreno cambierà (scavi, ponti) ridisegnare le caselle toccate
+# rumore della mappa: il fitto del bosco e la roccia; nel terreno disegnato, le chiazze di erba sassosa
+func ground_noise() -> FastNoiseLite:
+	var noise := FastNoiseLite.new()
+	noise.seed = map_seed
+	noise.frequency = 0.08
+	return noise
+
+
+# Disegna il terreno una volta sola in un'unica immagine, che _draw mostra come una texture. La roccia è quella di
+# `gravel`, com'era all'inizio, e le varianti delle caselle vengono dal seme: caricando torna uguale.
+# ponytail: si fa solo alla generazione e al caricamento; quando il terreno cambierà (scavi, ponti) ridisegnare le
+# caselle toccate
 func bake_ground(noise: FastNoiseLite) -> void:
+	var variant := RandomNumberGenerator.new()
+	variant.seed = map_seed
 	var sheet := GROUND.get_image()
 	sheet.convert(Image.FORMAT_RGBA8)
 	var img := Image.create_empty(MAP_SIZE.x * TILE, MAP_SIZE.y * TILE, false, Image.FORMAT_RGBA8)
 	for y in MAP_SIZE.y:
 		for x in MAP_SIZE.x:
 			var cell := Vector2i(x, y)
-			var own := ground_of(cell)
+			var own := ground_of(cell, gravel)
 			var row := Ground.STONY_GRASS if own == Ground.GRASS and noise.get_noise_2d(x, y) > 0.15 else own
-			img.blit_rect(sheet, tile_rect(randi() % 4, row), cell * TILE)
+			img.blit_rect(sheet, tile_rect(variant.randi() % 4, row), cell * TILE)
 			for i in 4:  # i vicini "più alti" sbordano su questa casella: lati, e angoli se nessun lato li copre già
-				var side := edge_row(own, cell + EDGE_SIDES[i])
+				var side := edge_row(own, cell + EDGE_SIDES[i], gravel)
 				if side >= 0:
 					img.blend_rect(sheet, tile_rect(i, side), cell * TILE)
 				var d: Vector2i = EDGE_CORNERS[i]
-				var corner := edge_row(own, cell + d)
-				if corner >= 0 and edge_row(own, cell + Vector2i(d.x, 0)) != corner and edge_row(own, cell + Vector2i(0, d.y)) != corner:
+				var corner := edge_row(own, cell + d, gravel)
+				if corner >= 0 and edge_row(own, cell + Vector2i(d.x, 0), gravel) != corner \
+						and edge_row(own, cell + Vector2i(0, d.y), gravel) != corner:
 					img.blend_rect(sheet, tile_rect(i, corner + 3), cell * TILE)
 	ground_texture = ImageTexture.create_from_image(img)
 	var water_fx := ShaderMaterial.new()
@@ -1356,17 +1388,18 @@ func bake_ground(noise: FastNoiseLite) -> void:
 	add_child(sprite)
 
 
-func ground_of(cell: Vector2i) -> int:
+# `rock`: la roccia da guardare; quella di adesso, o per il terreno disegnato quella di partenza (`gravel`)
+func ground_of(cell: Vector2i, rock := rocks) -> int:
 	if water.has(cell):
 		return water[cell]
-	return Ground.GRAVEL if rocks.has(cell) else Ground.GRASS
+	return Ground.GRAVEL if rock.has(cell) else Ground.GRASS
 
 
 # Riga del bordo che la casella `next` disegna su una casella di terreno `own`, -1 se nessuno.
-func edge_row(own: int, next: Vector2i) -> int:
+func edge_row(own: int, next: Vector2i, rock := rocks) -> int:
 	if not astar.is_in_boundsv(next):
 		return -1
-	var other := ground_of(next)
+	var other := ground_of(next, rock)
 	if own >= Ground.SHALLOW and other < Ground.SHALLOW:
 		return Ground.SHORE
 	if own == Ground.DEEP and other == Ground.SHALLOW:
@@ -1440,6 +1473,8 @@ func tick(delta: float) -> void:
 	if threats and clock >= next_pack:
 		next_pack = clock + WOLF_EVERY
 		spawn_pack()
+	if clock >= next_save:
+		autosave()
 
 
 func update_colonist(c: Colonist, delta: float) -> void:
@@ -3164,6 +3199,245 @@ func stored(res: Res) -> int:
 	for cell in stockpile:
 		sum += items[res].get(cell, 0)
 	return sum
+
+
+# --- Salvataggi ---
+# Salvataggio automatico all'alba, uscendo (tasto in alto a destra, chiusura della finestra) e appena fondata la colonia;
+# niente salvataggi a mano: una colonia è una storia sola (vedi saves.gd per i file).
+# Gli enum si salvano per nome, così aggiungere una voce in mezzo (una risorsa, un mobile) non rompe i vecchi
+# salvataggi; le voci che non ci sono più si saltano. I lavori a metà non si salvano: caricando, ognuno posa quello
+# che ha in mano e ne sceglie un altro. Pathfinding, stanze, magazzini e terreno disegnato si ricostruiscono.
+
+func autosave() -> void:
+	next_save = next_dawn()
+	if colony == "":
+		return
+	var info := {"name": colony_name, "day": int(clock) + 1, "colonists": colonists.size()}
+	if Saves.write(colony, info, save_state()):
+		var saved_label: Label = $HUD/TopBar/Row/Saved
+		saved_label.modulate.a = 1.0
+		create_tween().tween_property(saved_label, "modulate:a", 0.0, 1.0).set_delay(1.5)
+
+
+func next_dawn() -> float:
+	return floorf(clock - DAWN) + 1 + DAWN
+
+
+func to_title() -> void:
+	autosave()
+	get_tree().change_scene_to_file("res://title.tscn")
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:  # chiusura della finestra: salva prima che il gioco esca
+		autosave()
+
+
+func save_state() -> Dictionary:
+	var index := {}  # Colonist -> posizione in `colonists`: i riferimenti tra oggetti diventano numeri
+	for i in colonists.size():
+		index[colonists[i]] = i
+	return {
+		"seed": map_seed, "clock": clock, "next_animal": next_animal, "next_pack": next_pack, "rooms_made": rooms_made,
+		"wild": [wild.seed, wild.state], "camera": [camera.position, camera.zoom],
+		"rocks": rocks.keys(), "gravel": gravel.keys(), "boulders": boulders, "ores": names_of(ores, Res),
+		"water": names_of(water, Ground), "trees": names_of(trees, TreeKind), "stock": stock, "bushes": bushes,
+		"weeds": weeds.keys(), "fish_spots": fish_spots,
+		"marks": {"chop": chop_marks.keys(), "mine": mine_marks.keys(), "uproot": uproot_marks.keys(),
+			"harvest": harvest_marks.keys(), "fish": fish_marks.keys()},
+		"items": keys_by_name(items, Res), "fresh": fresh,
+		"built": plans_out(built), "blueprints": plans_out(blueprints), "draft": plans_out(draft),
+		"furniture": plans_out(furniture), "furniture_plans": plans_out(furniture_plans),
+		"furniture_draft": plans_out(furniture_draft),
+		"rooms": rooms.map(func(r: Room): return {
+			"at": r.cells.keys().min(), "name": r.name, "kind": RoomKind.find_key(r.kind), "banned": r.banned,
+			"owners": r.owners.map(func(c): return index[c]), "workers": r.workers.map(func(c): return index[c])}),
+		"colonists": colonists.map(func(c: Colonist): return {
+			"name": [c.first_name, c.nickname, c.last_name], "hp": c.hp, "downed": c.downed,
+			"skills": list_by_name(c.skills, Skill), "xp": list_by_name(c.xp, Skill), "needs": list_by_name(c.needs, Need),
+			"traits": c.traits.map(func(t): return Trait.find_key(t)), "conds": keys_by_name(c.conds, Cond),
+			"pos": c.pos, "facing": Facing.find_key(c.facing), "colors": [c.tunic, c.cape, c.hair],
+			"gear": names_of(keys_by_name(c.gear, Slot), Res),
+			"carry": [Res.find_key(c.carry_res), c.carrying, c.carry_days], "fetched": keys_by_name(c.fetched, Res),
+			"day": [c.worked, c.workday, c.streak, c.pause_until, c.hour]}),
+		"animals": animals.map(func(a: Animal): return {
+			"kind": Beast.find_key(a.kind), "pos": a.pos, "damage": a.damage, "target": index.get(a.target, -1),
+			"leave_at": a.leave_at, "rest": a.rest, "left": a.left, "marked": a.marked, "blocked": a.blocked}),
+	}
+
+
+# Da chiamare al posto di generate_map, prima di aggiungere i livelli del disegno (come generate_map).
+func load_state(s: Dictionary) -> void:
+	map_seed = s.seed
+	clock = s.clock
+	next_animal = s.next_animal
+	next_pack = s.next_pack
+	rooms_made = s.rooms_made
+	wild.seed = s.wild[0]
+	wild.state = s.wild[1]  # dopo il seme, che lo azzera
+	camera.position = s.camera[0]
+	camera.zoom = s.camera[1]
+	rocks = set_of(s.rocks)
+	gravel = set_of(s.gravel)
+	boulders = s.boulders
+	ores = values_of(s.ores, Res)
+	water = values_of(s.water, Ground)
+	var cells: Array = s.trees.keys()
+	cells.sort_custom(func(a, b): return a.y < b.y or (a.y == b.y and a.x < b.x))  # in ordine di riga, serve a _draw
+	for cell in cells:
+		if TreeKind.has(s.trees[cell]):
+			trees[cell] = TreeKind[s.trees[cell]]
+	stock = s.stock
+	bushes = s.bushes
+	weeds = set_of(s.weeds)
+	fish_spots = s.fish_spots
+	chop_marks = set_of(s.marks.chop)
+	mine_marks = set_of(s.marks.mine)
+	uproot_marks = set_of(s.marks.uproot)
+	harvest_marks = set_of(s.marks.harvest)
+	fish_marks = set_of(s.marks.fish)
+	items.merge(keys_from_name(s.items, Res), true)  # le risorse nuove restano col loro dizionario vuoto (vedi _init)
+	fresh = s.fresh
+	built = plans_in(s.built)
+	blueprints = plans_in(s.blueprints)
+	draft = plans_in(s.draft)
+	furniture = plans_in(s.furniture)
+	furniture_plans = plans_in(s.furniture_plans)
+	furniture_draft = plans_in(s.furniture_draft)
+	for cell in rocks:
+		astar.set_point_solid(cell)
+	for cell in water:
+		if water[cell] == Ground.DEEP:
+			astar.set_point_solid(cell)
+		else:
+			astar.set_point_weight_scale(cell, SHALLOW_COST)
+	for cell in built:
+		if built[cell][0] == Build.WALL:
+			astar.set_point_solid(cell)
+	for saved_c: Dictionary in s.colonists:
+		var c := Colonist.new()
+		c.first_name = saved_c.name[0]
+		c.nickname = saved_c.name[1]
+		c.last_name = saved_c.name[2]
+		c.hp = saved_c.hp
+		c.downed = saved_c.downed
+		c.skills = list_from_name(saved_c.skills, Skill, 0)
+		c.xp = list_from_name(saved_c.xp, Skill, 0)
+		c.needs = Need.values().map(func(n): return saved_c.needs.get(Need.find_key(n), 0.0 if n == Need.STRESS else NEED_MAX))
+		c.trend = c.needs.map(func(_v): return 0.0)
+		c.traits = saved_c.traits.filter(func(t): return Trait.has(t)).map(func(t): return Trait[t])
+		c.conds = keys_from_name(saved_c.conds, Cond)
+		c.pos = saved_c.pos
+		c.facing = Facing.get(saved_c.facing, Facing.DOWN)
+		c.tunic = saved_c.colors[0]
+		c.cape = saved_c.colors[1]
+		c.hair = saved_c.colors[2]
+		c.gear = keys_from_name(values_of(saved_c.gear, Res), Slot)
+		c.carry_res = Res.get(saved_c.carry[0], Res.WOOD)
+		c.carrying = saved_c.carry[1] if Res.has(saved_c.carry[0]) else 0
+		c.carry_days = saved_c.carry[2]
+		c.fetched = keys_from_name(saved_c.fetched, Res)
+		c.worked = saved_c.day[0]
+		c.workday = saved_c.day[1]
+		c.streak = saved_c.day[2]
+		c.pause_until = saved_c.day[3]
+		c.hour = saved_c.day[4]
+		colonists.append(c)
+	for saved_r: Dictionary in s.rooms:  # update_rooms le ritrova dalla casella più in alto a sinistra
+		var room := Room.new()
+		room.cells = {saved_r.at: true}
+		room.name = saved_r.name
+		room.kind = RoomKind.get(saved_r.kind, RoomKind.NONE)
+		room.banned = saved_r.banned
+		room.owners.assign(saved_r.owners.map(func(i): return colonists[i]))
+		room.workers.assign(saved_r.workers.map(func(i): return colonists[i]))
+		rooms.append(room)
+	update_rooms()
+	for saved_a: Dictionary in s.animals:
+		if not Beast.has(saved_a.kind):
+			continue
+		var a := Animal.new()
+		a.kind = Beast[saved_a.kind]
+		a.pos = saved_a.pos
+		a.damage = saved_a.damage
+		a.target = colonists[saved_a.target] if saved_a.target >= 0 else null
+		a.leave_at = saved_a.leave_at
+		a.rest = saved_a.rest
+		a.left = saved_a.left
+		a.marked = saved_a.marked
+		a.blocked = saved_a.blocked
+		animals.append(a)
+	for c in colonists:  # il lavoro a metà non c'è più: posa quello che ha in mano
+		quit_job(c)
+	bake_ground(ground_noise())
+
+
+static func set_of(cells: Array) -> Dictionary:
+	var out := {}
+	for cell in cells:
+		out[cell] = true
+	return out
+
+
+# {chiave: valore di `e`} -> {chiave: nome}, e ritorno saltando i nomi che `e` non ha più
+static func names_of(dict: Dictionary, e: Dictionary) -> Dictionary:
+	var out := {}
+	for k in dict:
+		out[k] = e.find_key(dict[k])
+	return out
+
+
+static func values_of(dict: Dictionary, e: Dictionary) -> Dictionary:
+	var out := {}
+	for k in dict:
+		if e.has(dict[k]):
+			out[k] = e[dict[k]]
+	return out
+
+
+# {valore di `e`: x} -> {nome: x}, e ritorno
+static func keys_by_name(dict: Dictionary, e: Dictionary) -> Dictionary:
+	var out := {}
+	for k in dict:
+		out[e.find_key(k)] = dict[k]
+	return out
+
+
+static func keys_from_name(dict: Dictionary, e: Dictionary) -> Dictionary:
+	var out := {}
+	for key in dict:
+		if e.has(key):
+			out[e[key]] = dict[key]
+	return out
+
+
+# lista con un valore per voce di `e` (abilità, bisogni) -> {nome: valore}, e ritorno; le voci nuove valgono `default`
+static func list_by_name(list: Array, e: Dictionary) -> Dictionary:
+	var out := {}
+	for i in list.size():
+		out[e.find_key(i)] = list[i]
+	return out
+
+
+static func list_from_name(dict: Dictionary, e: Dictionary, default) -> Array:
+	return e.values().map(func(v): return dict.get(e.find_key(v), default))
+
+
+# progetti, costruzioni e mobili: [Build, Res, (quarti di giro)] -> [nome, nome, (quarti di giro)], e ritorno
+static func plans_out(plans: Dictionary) -> Dictionary:
+	var out := {}
+	for cell in plans:
+		out[cell] = [Build.find_key(plans[cell][0]), Res.find_key(plans[cell][1])] + plans[cell].slice(2)
+	return out
+
+
+static func plans_in(plans: Dictionary) -> Dictionary:
+	var out := {}
+	for cell in plans:
+		var plan: Array = plans[cell]
+		if Build.has(plan[0]) and Res.has(plan[1]):
+			out[cell] = [Build[plan[0]], Res[plan[1]]] + plan.slice(2)
+	return out
 
 
 # --- Input ---

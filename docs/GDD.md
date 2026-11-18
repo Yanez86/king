@@ -1,4 +1,4 @@
-# King — Game Design Document
+# Colonia: Long Live the King — Game Design Document
 
 > Stato: bozza v0.1 — 2026-11-15
 
@@ -236,6 +236,16 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 - Ogni evento è un file di dati (condizioni, peso, effetti, testi localizzati).
 - Lista da definire. Esempi segnaposto: arrivo di un viandante, malattia, incendio, ondata di freddo, raccolto abbondante.
 
+### 4.7 Salvataggi
+- Solo automatici: una colonia è una storia, niente salvataggi a mano né caricamenti per tornare indietro.
+- Quando: appena fondata la colonia, a ogni alba (alle 6, quando i coloni si alzano), tornando al titolo (tasto in
+  alto a destra) e chiudendo la finestra. In alto compare "Saved" per un attimo.
+- Più colonie, ognuna col nome di un borgo (es. Ashford, Ravenmere). Nel titolo "Continue" riprende la più recente,
+  "Colonies" le elenca tutte (nome, giorno, coloni): da lì si riprende quella scelta o la si cancella (la X, premuta
+  due volte).
+- Ogni colonia tiene gli ultimi 3 salvataggi: se l'ultimo si rovina si riparte da quello prima.
+- Caricando, i lavori a metà ricominciano: ognuno posa quello che ha in mano e ne sceglie un altro.
+
 ## 5. Scope
 
 ### MVP (primo traguardo giocabile)
@@ -256,4 +266,3 @@ Combattimento tattico (oggi i coloni si difendono da soli, vedi 4.4.3), livelli 
 - Dimensione dei tile: 16×16 o 32×32?
 - Condizione di sconfitta oltre alla fine della dinastia?
 - Lista degli eventi.
-- Nome definitivo del gioco.
