@@ -103,7 +103,7 @@ func _initialize() -> void:
 	var chosen: Dictionary = page.arms.duplicate()
 	page.free()
 	var main = load("res://main.tscn").instantiate()
-	main.start_rooms = false
+	main.game_start = false
 	main.settings_file = ""
 	root.add_child(main)
 	await process_frame

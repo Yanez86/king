@@ -6,8 +6,8 @@ const PAGES := [
 King is a medieval colony sim. You are the ruler of a small lordship, but you never move anyone by hand: you mark trees to chop and boulders to mine, plan buildings, choose what the workshops make and pass laws. Colonists pick their jobs by themselves, following their needs and their daily routine.
 
 [color=#e8c34a]The start[/color]
-• Three colonists stand in a clearing. The first is your ruler, made on the new-game page.
-• Around the clearing are three small wooden rooms. The north one is a warehouse, with some supplies and 60 [img=center]res://art/icon_coin.png[/img].
+• Your ruler, made on the new-game page, and three colonists stand in a clearing. Nothing is built yet: no rooms, no warehouse.
+• Next to them, 60 [img=center]res://art/icon_coin.png[/img] lie on the grass: build a warehouse and haulers carry them in (you can only spend what is in a warehouse).
 • An abandoned weapon (a sword, an axe or a bow) lies in the grass 15–25 tiles from the clearing.
 • From day 5 wolves come (see Combat & Wolves).
 • If every colonist dies, the colony has fallen.
@@ -50,10 +50,16 @@ A key works like a click on its button (press it again to close).
 • Space: pause; 1, 2, 3: speed.
 • E and R: turn the next piece of furniture left or right.
 • Esc: the options (also the gear at the top right).
+• F5: save the game.
 
 [color=#e8c34a]Options[/color]
-• System: language, quit the game. Video: window size and fullscreen (also the screen button at the top right).
-• Keybindings: click a command's key, then press the new one. Esc cancels, Delete or Backspace leaves it without a key, Reset restores the defaults. Space, 1-3, E, R and Esc can't be taken. Your keys are saved."""],
+• System: language, save, load, back to the main menu, quit the game. Video: window size and fullscreen (also the screen button at the top right).
+• Keybindings: click a command's key, then press the new one. Esc cancels, Delete or Backspace leaves it without a key, Reset restores the defaults. Space, 1-3, E, R, F5 and Esc can't be taken. Your keys are saved.
+
+[color=#e8c34a]Saving[/color]
+• Every game has one save file. Save game (System) or F5 writes it again, and the game saves by itself at the start of every new day. "Game saved" shows at the top.
+• On the title screen, Continue picks up the latest save and Load Game lists them all, newest first, with the realm, the date, the ruler and the colonists. Load game in the options does the same during a game; Delete asks twice.
+• A loaded game starts paused: Space to go on. Main menu and Quit game don't save: what you haven't saved is lost."""],
 
 	["Colonists", """Click a colonist for their sheet: health, needs (the arrows show which way each one is going), skills, traits, conditions, equipment and the 24 hours of their routine.
 
@@ -261,7 +267,7 @@ The Rooms lens (L) tints every room with the color of its type and shows its own
 
 [color=#e8c34a]Cooking[/color]
 • At a campfire inside a kitchen. The cook takes 2 raw foods from one pile (vegetables, fish or meat), cooks for 8 s and carries the meal to a warehouse.
-• Click the campfire: Keep N meals (6 at the start). Cooks cook while there are fewer meals than that, counting those on the ground, in warehouses and in hand.
+• Click the campfire: Keep N meals (8 at the start, 2 a head). Cooks cook while there are fewer meals than that, counting those on the ground, in warehouses and in hand.
 • Burnt, and the food is lost: 6% for every Cooking level below 6, plus 3% for every point of kitchen comfort below 5 (minus above). At level 0 in a kitchen of comfort 5: 36%.
 • Fine meal: 5% for every level above 5, plus 2% for every point of comfort above 5 (minus below): 25% at level 10.
 • The time also depends on the kitchen's comfort and the cook's conditions."""],
@@ -296,7 +302,7 @@ Mark water tiles. The fisher stands beside them (in shallow water too) and casts
 Animals roam outside rooms and water, born more than 15 tiles from the clearing: 6 rabbits and 3 deer at first, then a new one every half day while there are fewer than 12. A marked wolf, shot at, attacks the hunter."""],
 
 	["Crafting & Equipment", """[color=#e8c34a]Workstations[/color]
-Click a station for its menu: one row for every recipe you know, with its ingredients and Keep N. Things get made while there are fewer than N around (on the ground, in warehouses, in hand, being made); Keep counts for every station of the kind. Equipment is also made for the colonists with an empty slot, and a bow when animals are marked and nobody has one. At the start: Keep 10 ingots, 2 bowstrings, 6 meals, 0 of the rest.
+Click a station for its menu: one row for every recipe you know, with its ingredients and Keep N. Things get made while there are fewer than N around (on the ground, in warehouses, in hand, being made); Keep counts for every station of the kind. Equipment is also made for the colonists with an empty slot, and a bow when animals are marked and nobody has one. At the start: Keep 10 ingots, 2 bowstrings, 8 meals, 0 of the rest.
 The crafter brings the ingredients one by one, then works. The time depends on skill, room comfort and conditions; an item may be ruined, losing the ingredients, as often as a meal burns.
 [table=4]
 [cell][color=#d9c48a]Item[/color][/cell][cell][color=#d9c48a]Station[/color][/cell][cell][color=#d9c48a]Needs[/color][/cell][cell][color=#d9c48a]Time[/color][/cell]

@@ -1415,27 +1415,39 @@ focus_mode = 0
 
 [node name="Separator" type="HSeparator" parent="HUD/Options/Window/Box/Body/Pages/System"]
 
-[node name="MainMenu" type="Button" parent="HUD/Options/Window/Box/Body/Pages/System"]
+[node name="Save" type="Button" parent="HUD/Options/Window/Box/Body/Pages/System"]
 custom_minimum_size = Vector2(200, 40)
 size_flags_horizontal = 4
 focus_mode = 0
-tooltip_text = "Not available yet"
-disabled = true
-text = "Main menu"
+tooltip_text = "Also F5; the game saves by itself every new day"
+text = "Save game"
 
 [node name="Load" type="Button" parent="HUD/Options/Window/Box/Body/Pages/System"]
 custom_minimum_size = Vector2(200, 40)
 size_flags_horizontal = 4
 focus_mode = 0
-tooltip_text = "Not available yet"
-disabled = true
 text = "Load game"
+
+[node name="MainMenu" type="Button" parent="HUD/Options/Window/Box/Body/Pages/System"]
+custom_minimum_size = Vector2(200, 40)
+size_flags_horizontal = 4
+focus_mode = 0
+tooltip_text = "What is not saved is lost"
+text = "Main menu"
 
 [node name="Quit" type="Button" parent="HUD/Options/Window/Box/Body/Pages/System"]
 custom_minimum_size = Vector2(200, 40)
 size_flags_horizontal = 4
 focus_mode = 0
+tooltip_text = "What is not saved is lost"
 text = "Quit game"
+
+[node name="SaveNote" type="Label" parent="HUD/Options/Window/Box/Body/Pages/System"]
+visible = false
+custom_minimum_size = Vector2(300, 0)
+theme_override_colors/font_color = Color(0.85, 0.77, 0.54, 1)
+horizontal_alignment = 1
+autowrap_mode = 3
 
 [node name="Video" type="VBoxContainer" parent="HUD/Options/Window/Box/Body/Pages"]
 visible = false
@@ -1478,7 +1490,7 @@ columns = 6
 [node name="Hint" type="Label" parent="HUD/Options/Window/Box/Body/Pages/Keybindings"]
 custom_minimum_size = Vector2(300, 0)
 theme_override_colors/font_color = Color(0.85, 0.77, 0.54, 1)
-text = "Click a key, then press the new one. Esc cancels, Delete clears it. Space, 1-3, E and R are fixed."
+text = "Click a key, then press the new one. Esc cancels, Delete clears it. Space, 1-3, E, R and F5 (save) are fixed."
 autowrap_mode = 3
 
 [node name="Reset" type="Button" parent="HUD/Options/Window/Box/Body/Pages/Keybindings"]

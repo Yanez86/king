@@ -7,7 +7,7 @@ func _initialize() -> void:
 	TranslationServer.set_locale("en")  # i testi confrontati sono quelli inglesi
 	seed(1)
 	var main = load("res://main.tscn").instantiate()
-	main.start_rooms = false
+	main.game_start = false
 	root.add_child(main)
 	await process_frame
 	main.researched.erase(main.Tech.STEEL)  # qui attrezzi e spade di ferro: l'acciaio è in test_research

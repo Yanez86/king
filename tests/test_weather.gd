@@ -7,7 +7,7 @@ func _initialize() -> void:
 	TranslationServer.set_locale("en")  # i testi confrontati sono quelli inglesi
 	seed(1)
 	var main = load("res://main.tscn").instantiate()
-	main.start_rooms = false  # e tutte le ricerche fatte, Astronomia compresa
+	main.game_start = false  # e tutte le ricerche fatte, Astronomia compresa
 	root.add_child(main)
 	await process_frame
 	main.threats = false

@@ -12,10 +12,9 @@ const CARRY_MAX := 10       # quantità massima trasportata per viaggio, di una 
 const BUILD_TIME := 2.0     # secondi per costruire una casella
 const LOOK_AGAIN := 0.5     # secondi tra una ricerca di lavoro e l'altra, per chi non ne trova
 const RETRY_AFTER := 10.0   # secondi di gioco prima di riprovare a raggiungere una casella irraggiungibile
-const COLONIST_COUNT := 3
+const COLONIST_COUNT := 3   # coloni all'inizio, oltre al sovrano: nella radura, senza niente di costruito
+const TEST_PEOPLE := 3      # nei test (game_start false): il sovrano e due coloni, quelli su cui sono fatte le prove
 const ROOM_MAX := 400       # caselle: una zona chiusa più grande non è una stanza, è il mondo fuori
-const START_ROOMS := [Vector2i.UP, Vector2i.LEFT, Vector2i.RIGHT]  # stanze 5x5 già murate attorno alla radura, porta verso fuori
-const DEBUG_STASH := 100    # debug: quanto di ogni risorsa c'è all'inizio nella prima stanza, che fa da magazzino
 const TUNIC_COLORS := [Color("a33b3b"), Color("3b5ea3"), Color("c9a23b"), Color("6e3ba3"), Color("d8d0c0")]
 const CAPE_COLORS := [Color("2f4a6e"), Color("6e2f2f"), Color("5a3b6e"), Color("4a4a4a"), Color("7a5a2f")]
 const HAIR_COLORS := [Color("3b2a1e"), Color("d9b35b"), Color("a8462f"), Color("8b5a2b"), Color("2a2a2a")]
@@ -46,8 +45,7 @@ const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.IRON: 50, Res
 	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5, Res.NOTEBOOK: 10, Res.TOME: 10, Res.CODEX: 10, Res.HARDTACK: 50, Res.SMOKED_MEAT: 50, Res.SMOKED_FISH: 50, Res.SHIELD: 10, Res.STEEL: 50, Res.PARCHMENT: 50, Res.INK: 20}  # quantità massima per mucchio (casella)
 const MEALS := [Res.FINE_MEAL, Res.MEAL]  # cotti: chi ha fame li prende in quest'ordine, poi il crudo
 const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT, Res.SMOKED_FISH, Res.SMOKED_MEAT]  # crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti
-const STASH := [Res.WOOD, Res.STONE, Res.VEG, Res.IRON, Res.COAL, Res.FLAX]  # scorta di debug: il resto si produce
-const START_GOLD := 60      # monete nel magazzino all'inizio
+const START_GOLD := 60      # monete all'inizio, a terra nella radura: le si spende quando sono in un magazzino
 const COIN := "[img=center]res://art/icon_coin.png[/img]"  # una moneta 16x16 nei testi ricchi (vedi coins)
 # Tipo di ogni oggetto: la sua icona 16x16 (art/kind_*.png, per le monete la moneta) sta davanti al nome, ovunque
 # (vedi item_name, item_title, kind_icon)
@@ -332,7 +330,7 @@ const RECIPES := [
 ]
 const STATION_ROOM := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP,
 	Build.SPINNING_WHEEL: RoomKind.WORKSHOP, Build.CARPENTER_BENCH: RoomKind.CARPENTRY, Build.DESK: RoomKind.STUDY}
-const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.MEAL: MEALS_PER_COLONIST * COLONIST_COUNT, Res.COAL: 5}  # scorte di partenza, vedi keep
+const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.COAL: 5}  # scorte di partenza, vedi keep; i pasti MEALS_PER_COLONIST a testa
 enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT }  # cosa segna il trascinamento del mouse
 const ORDER_COLORS := [Color.TRANSPARENT, Color.ORANGE, Color("8fd3ff"), Color("9be36a"), Color("e6e2d0"),
 	Color("ff5a5a"), Color("c83030"), Color("d84a6a"), Color("6ab0e0"), Color("c87a3a")]  # selezione e segni, per Order
@@ -452,7 +450,21 @@ const RESOLUTIONS := [Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1
 # tab System delle opzioni: lingue, col nome nella loro lingua; i testi tradotti sono in locale/<lingua>.po (vedi named)
 const LANGUAGES := {"en": "English", "it": "Italiano"}
 const WIKI := preload("res://wiki.gd")  # pagine della finestra Wiki: [titolo, testo ricco], tradotte (vedi WIKI.pages)
-const FIXED_KEYS := [KEY_SPACE, KEY_1, KEY_2, KEY_3, KEY_E, KEY_R, KEY_ESCAPE]  # velocità, giro dei mobili, menù
+const FIXED_KEYS := [KEY_SPACE, KEY_1, KEY_2, KEY_3, KEY_E, KEY_R, KEY_ESCAPE, KEY_F5]  # velocità, giro dei mobili, menù, salva
+# Salvataggio (vedi saves.gd, game_state, restore): un file per partita; si salva dal menù (System), con F5 e da sé a
+# ogni giorno nuovo. Si caricano dal titolo (Continue, Load Game) e dal menù (Load game)
+const SAVES := preload("res://saves.gd")
+const SAVE_LIST := preload("res://save_list.gd")
+# le variabili della partita che si salvano, così come sono (gli oggetti dentro li impacchetta SAVES.Packer); il resto
+# si rifà da queste (vedi restore) o è interfaccia. Una variabile nuova dello stato del gioco va aggiunta qui
+const SAVED := ["game_id", "map_seed", "ground_cols", "clock", "today", "hour", "rocks", "boulders", "ores", "water",
+	"trees", "stock", "bushes", "flax", "weeds", "chop_marks", "mine_marks", "uproot_marks", "harvest_marks", "fish_marks",
+	"fish_spots", "items", "fresh", "draft", "blueprints", "built", "furniture_draft", "furniture_plans", "furniture",
+	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
+	"fallen", "animals", "arrows", "next_animal", "next_pack", "guests", "next_guest", "ruins", "expeditions",
+	"chronicle", "chronicle_days", "board_pick", "study", "researched", "authority", "codified", "enacted", "revoked",
+	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero"]
+const TOAST_TIME := 2000    # millisecondi: "Game saved" in alto, poi sparisce (vedi show_toast)
 const MODIFIER_KEYS := [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]  # da soli non sono un tasto
 const TIP := preload("res://tip_button.gd")  # suggerimento fatto di Control: pulsanti di costruzione, figurine
 const BUILD_INFO_COLOR := Color("d9c48a")
@@ -1093,6 +1105,13 @@ var boulders := {}          # cella in alto a sinistra -> dimensione del masso c
 var ores := {}              # cella -> Res.IRON o Res.COAL: massi 1x1 che scavati danno il minerale invece della pietra
 var water := {}             # cella -> Ground.SHALLOW (si guada) o Ground.DEEP (non si attraversa)
 var ground_texture: ImageTexture  # tutto il terreno già disegnato, vedi bake_ground
+var map_seed := 0           # del rumore della mappa: col salvataggio, rifà le chiazze di erba sassosa (vedi ground_noise)
+var ground_cols := PackedByteArray()  # per casella, riga per riga: la variante del terreno (colonna di GROUND, vedi bake_ground)
+var game_id := ""           # il nome del file della partita, dato al primo salvataggio (vedi save_game)
+var autosave_due := false   # è cominciato un giorno nuovo: si salva finito il tick (vedi _process)
+var save_list               # la pagina dei salvataggi nel menù delle opzioni (save_list.gd), dopo Load game
+var toast := Label.new()    # in alto al centro: "Game saved"; resta fino a toast_until (millisecondi di Time.get_ticks_msec)
+var toast_until := 0
 var water_fx: ShaderMaterial      # anima l'acqua del terreno, e la fa gelare (vedi water.gdshader e atmosphere.gd)
 var trees := {}             # cella -> TreeKind (attraversabile), in ordine di riga: serve a _draw
 var stock := {}             # albero, masso (cella d'origine) o cespuglio -> quanto resta da raccogliere; se manca, full_stock
@@ -1160,7 +1179,7 @@ var gear_slot := Slot.HANDS       # lo slot del menu aperto
 var lens_owners := []       # [centro, proprietari o lavoratori] per stanza delle figurine sulla lente, vedi place_owners
 var needs_rate := 1.0       # 0 nei test: i bisogni restano fermi e non cambiano i lavori
 var routines := true        # false nei test: niente orari né ore massime, chi è libero prende il primo lavoro
-var start_rooms := true     # false nei test: mappa di sempre, senza stanze né scorte di partenza (va messo prima di _ready)
+var game_start := true      # false nei test: TEST_PEOPLE coloni, niente monete né arma a terra, tutto studiato (prima di _ready)
 var settings_file := "user://settings.cfg"  # "" nei test: tasti di partenza, niente da leggere né da salvare
 var hotkeys := {}           # nome del pulsante in HUD/Tools/Row -> Key, KEY_NONE se non ne ha: vedi bind_key
 var tool_names := {}        # nome del pulsante in HUD/Tools/Row -> suggerimento senza il tasto
@@ -1272,11 +1291,16 @@ func _init() -> void:
 
 
 func _ready() -> void:
+	var state: Dictionary = SAVES.pending  # una partita salvata da riprendere (vedi load_game), se no una nuova
+	SAVES.pending = {}
 	astar.region = Rect2i(Vector2i.ZERO, MAP_SIZE)
 	astar.cell_size = Vector2.ONE * TILE
 	astar.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_ONLY_IF_NO_OBSTACLES
 	astar.update()
-	generate_map()
+	if state.is_empty():
+		generate_map()
+	else:
+		restore(state)
 	sky_colors.offsets = PackedFloat32Array(SKY.keys())
 	sky_colors.colors = PackedColorArray(SKY.values())
 	for layer in [flat, shadows]:  # sopra il terreno di bake_ground, sotto quello che disegna _draw
@@ -1287,29 +1311,8 @@ func _ready() -> void:
 	flat.draw.connect(draw_flat)
 	casters.draw.connect(draw_shadows)
 	add_child(sky)
-	for i in COLONIST_COUNT:
-		var c := Colonist.new()
-		c.pos = center(MAP_SIZE / 2 + Vector2i(i - 1, 0))
-		c.tunic = TUNIC_COLORS[i % TUNIC_COLORS.size()]
-		dress(c, people().map(func(o): return o.first_name))
-		c.skills = Skill.values().map(func(_s): return 0)
-		c.xp = Skill.values().map(func(_s): return 0)
-		var made: Dictionary = setup.get("ruler", {}) if i == 0 else {}
-		for key in made:  # il sovrano, come l'ha fatto il giocatore: gli altri evitano il suo nome
-			c.set(key, made[key])
-		# sfalsati: non dormono tutti insieme; lo stress parte basso
-		c.needs = Need.values().map(func(n): return randf_range(0, 40) if n == Need.STRESS else randf_range(60, NEED_MAX))
-		c.trend = c.needs.map(func(_v): return 0.0)
-		var pool := Trait.values()
-		pool.shuffle()
-		var count := 0 if not made.is_empty() else randi_range(0, 2)  # il sovrano ha quelli scelti dal giocatore
-		for t in pool:  # a caso, ma niente talenti in contrasto (vedi TRAIT_CLASH)
-			if c.traits.size() < count and not c.traits.any(func(o): return clash(o, t)):
-				c.traits.append(t)
-		colonists.append(c)
-	ruler = colonists[0]
-	realm = setup.get("colony", COLONY_NAMES.pick_random())
-	arms = setup.get("arms", random_arms())
+	if state.is_empty():
+		new_people()
 	banner_tex = banner_texture(arms)
 	show_title()
 	realm_button.pressed.connect(func(): open_sheet(ruler))
@@ -1345,6 +1348,14 @@ func _ready() -> void:
 	add_child(lens)
 	lens_canvas.draw.connect(draw_lens)
 	add_child(atmosphere)  # dopo `lights` e `flat`, che usa
+	toast.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	toast.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	toast.position.y = 72  # sotto la barra in alto
+	toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	toast.add_theme_color_override("font_outline_color", Color(0.12, 0.1, 0.14))
+	toast.add_theme_constant_override("outline_size", 8)
+	toast.hide()
+	$HUD.add_child(toast)
 	forecast_strip.main = self
 	$HUD/TopBar/Row.add_child(forecast_strip)
 	$HUD/TopBar/Row.move_child(forecast_strip, info_label.get_index() + 1)
@@ -1409,7 +1420,8 @@ func _ready() -> void:
 			label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT if text == "" else HORIZONTAL_ALIGNMENT_LEFT
 			row.add_child(label)
 		resources_list.add_child(row)
-	ruins.append(Ruin.new())  # per ora solo la torre
+	if state.is_empty():
+		ruins.append(Ruin.new())  # per ora solo la torre
 	$HUD.add_child(gear_menu)
 	gear_menu.id_pressed.connect(choose_gear)
 	for slot in Slot.values():
@@ -1425,15 +1437,48 @@ func _ready() -> void:
 		window.get_node("Box/Head/Close").pressed.connect(window.hide)
 		window.gui_input.connect(drag_window.bind(window))
 		window.visibility_changed.connect(window.move_to_front, CONNECT_DEFERRED)  # l'ultima aperta sta sopra
-	if not start_rooms:  # nei test tutto studiato: le prove della ricerca sono in test_research
+	if not game_start:  # nei test tutto studiato: le prove della ricerca sono in test_research
 		for t in Tech.values():
 			researched[t] = true
 	refresh_unlocks()
+	if not state.is_empty():
+		resume(state)
+
+
+# Partita nuova: il sovrano (come l'ha fatto il giocatore nella pagina della nuova partita, vedi setup) e gli altri
+# coloni nella radura, a caso; il nome del reame e lo stemma
+func new_people() -> void:
+	var heads := COLONIST_COUNT + 1 if game_start else TEST_PEOPLE  # il primo è il sovrano
+	for i in heads:
+		var c := Colonist.new()
+		c.pos = center(MAP_SIZE / 2 + Vector2i(i - 1, 0))
+		c.tunic = TUNIC_COLORS[i % TUNIC_COLORS.size()]
+		dress(c, people().map(func(o): return o.first_name))
+		c.skills = Skill.values().map(func(_s): return 0)
+		c.xp = Skill.values().map(func(_s): return 0)
+		var made: Dictionary = setup.get("ruler", {}) if i == 0 else {}
+		for key in made:  # il sovrano, come l'ha fatto il giocatore: gli altri evitano il suo nome
+			c.set(key, made[key])
+		# sfalsati: non dormono tutti insieme; lo stress parte basso
+		c.needs = Need.values().map(func(n): return randf_range(0, 40) if n == Need.STRESS else randf_range(60, NEED_MAX))
+		c.trend = c.needs.map(func(_v): return 0.0)
+		var pool := Trait.values()
+		pool.shuffle()
+		var count := 0 if not made.is_empty() else randi_range(0, 2)  # il sovrano ha quelli scelti dal giocatore
+		for t in pool:  # a caso, ma niente talenti in contrasto (vedi TRAIT_CLASH)
+			if c.traits.size() < count and not c.traits.any(func(o): return clash(o, t)):
+				c.traits.append(t)
+		colonists.append(c)
+	ruler = colonists[0]
+	keep[Res.MEAL] = MEALS_PER_COLONIST * colonists.size()
+	realm = setup.get("colony", COLONY_NAMES.pick_random())
+	arms = setup.get("arms", random_arms())
 
 
 # menù delle opzioni: a sinistra le tab, icone (una per pagina, con lo stesso nome); le pagine stanno in un
 # TabContainer senza linguette, grande quanto la più grande, così la finestra non cambia misura passando dall'una
-# all'altra. System: lingua, menù principale, carica, esci dal gioco. Video: risoluzione e schermo intero. Audio: vuota.
+# all'altra. System: lingua, salva, carica (la pagina dei salvataggi, vedi open_saves), menù principale, esci dal gioco.
+# Video: risoluzione e schermo intero. Audio: vuota.
 # Keybindings: icona, nome e tasto per comando della barra in basso, due per riga, nell'ordine dei pulsanti
 func setup_options() -> void:
 	var window: Control = options.get_node("Window")
@@ -1452,8 +1497,16 @@ func setup_options() -> void:
 			sizes.add_item("%d x %d" % [RESOLUTIONS[i].x, RESOLUTIONS[i].y])
 	sizes.item_selected.connect(func(i): set_resolution(RESOLUTIONS[i]))
 	video.get_node("Fullscreen").toggled.connect(set_fullscreen)
-	# ponytail: menù principale e salvataggi non ci sono ancora: "Main menu" e "Load game" restano spenti
+	pages.get_node("System/Save").pressed.connect(save_from_menu)
+	pages.get_node("System/Load").pressed.connect(open_saves)
+	pages.get_node("System/MainMenu").pressed.connect(go_to.bind("res://title.tscn"))
 	pages.get_node("System/Quit").pressed.connect(get_tree().quit)
+	save_list = SAVE_LIST.new()  # una pagina senza tab: ci si arriva da Load game, Back torna a System
+	save_list.name = "Saves"
+	save_list.keyboard = false
+	pages.add_child(save_list)
+	save_list.chosen.connect(load_game)
+	save_list.closed.connect(func(): pages.current_tab = 0)
 	var languages: OptionButton = pages.get_node("System/Language/Languages")
 	for code in LANGUAGES:
 		languages.add_item(LANGUAGES[code])
@@ -1480,6 +1533,116 @@ func setup_options() -> void:
 	load_keys()
 
 
+# --- Salvataggio (vedi SAVES) ---
+
+# le classi interne i cui oggetti stanno nel salvataggio (vedi SAVES.Packer): l'ordine conta, è nei file
+func saved_classes() -> Array:
+	return [Colonist, Animal, Arrow, Room, Ruin, Expedition]
+
+
+# Tutto lo stato della partita, pronto per store_var: le variabili di SAVED (gli oggetti impacchettati in "objects"),
+# il caso degli animali, il meteo e dove guarda la telecamera
+func game_state() -> Dictionary:
+	var packer := SAVES.Packer.new(saved_classes())
+	var fields := {}
+	for name in SAVED:
+		fields[name] = packer.pack(get(name))
+	return {"main": fields, "objects": packer.fields(), "wild": [wild.seed, wild.state], "weather": atmosphere.saved(),
+		"camera": [camera.position, camera.zoom]}
+
+
+# quello che l'elenco dei salvataggi mostra, nella lingua di adesso
+func header() -> Dictionary:
+	var t := fmod(clock, 1.0)
+	return {"title": realm_name(), "ruler": full_name(ruler), "people": colonists.size(), "day": int(clock),
+		"date": "%s %02d:%02d" % [date(int(clock)), int(t * 24), int(t * 1440) % 60], "saved": Time.get_unix_time_from_system()}
+
+
+# Salva la partita nel suo file, che sostituisce quello di prima (uno per partita: il nome lo prende al primo
+# salvataggio, dal reame e dall'ora). OK, o l'errore
+func save_game() -> Error:
+	if game_id == "":
+		game_id = "%s_%d" % [realm.validate_filename(), int(Time.get_unix_time_from_system() * 1000)]
+	return SAVES.write(SAVES.path_for(game_id), header(), game_state())
+
+
+# Rimette lo stato salvato (in _ready, al posto di generate_map) e rifà quello che ne discende: la griglia dei
+# percorsi, tetti e magazzini, il terreno disegnato. Meteo e telecamera dopo, in resume
+func restore(state: Dictionary) -> void:
+	var unpacker := SAVES.Unpacker.new(saved_classes(), state["objects"])
+	for name in state["main"]:
+		SAVES.Unpacker.put(self, name, unpacker.unpack(state["main"][name]))
+	for res in Res.values():  # un oggetto nuovo, che il salvataggio non conosceva: nessuno a terra
+		if not items.has(res):
+			items[res] = {}
+	wild.seed = state["wild"][0]
+	wild.state = state["wild"][1]  # dopo il seme, che lo azzera
+	rebuild_grid()
+	update_roofs()
+	update_stockpile()
+	bake_ground(ground_noise(map_seed))
+
+
+# la griglia dei percorsi da quello che c'è sulla mappa, come la lasciano generate_map, build e mark: roccia e acqua
+# alta solide, l'acqua bassa lenta, muri e palizzate solidi, le strade svelte (il ghiaccio lo rimette resume)
+func rebuild_grid() -> void:
+	for cell in rocks:
+		astar.set_point_solid(cell)
+	for cell in water:
+		if water[cell] == Ground.DEEP:
+			astar.set_point_solid(cell)
+		else:
+			astar.set_point_weight_scale(cell, SHALLOW_COST)
+	for cell in built:
+		if built[cell][0] in BARRIERS:
+			astar.set_point_solid(cell)
+		elif built[cell][0] == Build.ROAD:
+			astar.set_point_weight_scale(cell, 1.0 / ROAD_SPEED)
+
+
+# finito _ready di una partita caricata: il meteo (e l'acqua gelata), la telecamera; si riparte in pausa
+func resume(state: Dictionary) -> void:
+	atmosphere.restore(state["weather"])
+	if atmosphere.frozen:
+		freeze_water(true)
+	camera.position = state["camera"][0]
+	camera.zoom = state["camera"][1]
+	if fallen:
+		$HUD/Fallen.show()
+	Engine.time_scale = 0.0
+
+
+# tab System, Save game: salva e lo dice sotto i tasti
+func save_from_menu() -> void:
+	var said: Label = options.get_node("Window/Box/Body/Pages/System/SaveNote")
+	var err := save_game()
+	said.text = tr("Saved: %s") % header()["date"] if err == OK else tr("Could not save the game (%s).") % error_string(err)
+	said.show()
+
+
+# tab System, Load game: la pagina coi salvataggi, riletti dal disco
+func open_saves() -> void:
+	save_list.refresh()
+	options.get_node("Window/Box/Body/Pages").current_tab = save_list.get_index()
+
+
+# la partita scelta nell'elenco: la scena si rifà da capo e _ready la prende al posto di una nuova
+func load_game(state: Dictionary) -> void:
+	SAVES.pending = state
+	go_to("res://main.tscn")
+
+
+# un'altra scena (il titolo, o di nuovo la partita); il menù delle opzioni aveva fermato il gioco
+func go_to(scene: String) -> void:
+	Engine.time_scale = 1.0
+	get_tree().change_scene_to_file(scene)
+
+
+func show_toast(text: String) -> void:
+	toast.text = text
+	toast_until = Time.get_ticks_msec() + TOAST_TIME
+
+
 # tab del menù delle opzioni: la sua pagina al posto di quella aperta
 func show_page(on: bool, page: Control) -> void:
 	if on:
@@ -1498,6 +1661,10 @@ func options_toggled() -> void:
 		Engine.time_scale = 0.0
 		options.move_to_front()  # sopra le finestre aperte dopo
 		options.get_node("Window/Box/Body/Tabs/System").button_pressed = true
+		options.get_node("Window/Box/Body/Pages").current_tab = 0  # anche dalla pagina dei salvataggi
+		var system: Control = options.get_node("Window/Box/Body/Pages/System")
+		system.get_node("Save").disabled = fallen
+		system.get_node("SaveNote").hide()
 		var full := DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN  # anche dal tasto in alto
 		video.get_node("Fullscreen").set_pressed_no_signal(full)
 		video.get_node("Resolution/Sizes").disabled = full
@@ -1515,7 +1682,8 @@ func load_keys() -> void:
 	var config := ConfigFile.new()
 	if settings_file != "" and config.load(settings_file) == OK and config.has_section("keys"):
 		for name in config.get_section_keys("keys"):
-			if tool_names.has(name):  # comandi tolti dalla barra: si ignorano
+			# comandi tolti dalla barra, e tasti diventati fissi dopo (F5): si ignorano
+			if tool_names.has(name) and config.get_value("keys", name) not in FIXED_KEYS:
 				bind_key(name, config.get_value("keys", name), false)
 	show_keys()
 
@@ -2324,19 +2492,15 @@ func update_resources() -> void:
 
 
 func generate_map() -> void:
-	var noise := FastNoiseLite.new()
-	noise.seed = randi()
-	noise.frequency = 0.08
+	var noise := ground_noise(randi())
+	map_seed = noise.seed
 	var lakes := FastNoiseLite.new()
 	lakes.seed = noise.seed + 1
 	lakes.frequency = 0.04
-	# stanze di partenza: centro a 8 caselle dalla radura, muri a 3 dal centro, più un giro di prato attorno
-	var starts: Array = START_ROOMS if start_rooms else []
-	var room_rects := starts.map(func(d): return Rect2i(MAP_SIZE / 2 + d * 8 - Vector2i(4, 4), Vector2i(9, 9)))
 	for y in MAP_SIZE.y:  # per righe, così `trees` resta ordinato dall'alto in basso
 		for x in MAP_SIZE.x:
 			var cell := Vector2i(x, y)
-			if (cell - MAP_SIZE / 2).length() < 4 or room_rects.any(func(r): return r.has_point(cell)):
+			if (cell - MAP_SIZE / 2).length() < 4:
 				continue  # radura di partenza
 			var n := noise.get_noise_2d(x, y)
 			var w := lakes.get_noise_2d(x, y)
@@ -2388,26 +2552,12 @@ func generate_map() -> void:
 				boulders[cell] = size
 				break
 
-	for d in starts:  # muri di legno, la porta in mezzo al lato che guarda fuori
-		var mid: Vector2i = MAP_SIZE / 2 + d * 8
-		for dy in range(-3, 4):
-			for dx in range(-3, 4):
-				var k := mid + Vector2i(dx, dy)
-				if k == mid + d * 3:
-					built[k] = [Build.DOOR, Res.WOOD]
-				elif maxi(absi(dx), absi(dy)) == 3:
-					built[k] = [Build.WALL, Res.WOOD]
-					astar.set_point_solid(k)
-	update_rooms()
 	wild.seed = noise.seed + 3
 	for kind in BEASTS:
 		for i in BEASTS[kind]["start"]:
 			spawn_animal(kind)
-	if start_rooms:  # ponytail: scorta di debug, da togliere (o DEBUG_STASH a 0) quando si gioca sul serio
-		var first: Vector2i = MAP_SIZE / 2 + START_ROOMS[0] * 8
-		for i in STASH.size():  # un mucchio per risorsa, cinque per riga dalla riga di mezzo, il resto si allarga accanto
-			drop(STASH[i], first + Vector2i(i % 5 - 2, i / 5), DEBUG_STASH)
-		drop(Res.GOLD, first + Vector2i(0, 1), START_GOLD)
+	if game_start:  # niente di costruito: le monete a terra nella radura, due caselle sotto i coloni
+		drop(Res.GOLD, MAP_SIZE / 2 + Vector2i(0, 2), START_GOLD)
 		var spots := []  # l'arma abbandonata: sul prato, né troppo vicino né troppo lontano dalla radura
 		for cell in cells_in(Rect2i(MAP_SIZE / 2 - Vector2i.ONE * FOUND_WEAPON_REACH[1], Vector2i.ONE * FOUND_WEAPON_REACH[1] * 2)):
 			var far := Vector2(cell - MAP_SIZE / 2).length()
@@ -2415,23 +2565,35 @@ func generate_map() -> void:
 				spots.append(cell)
 		if not spots.is_empty():
 			drop(FOUND_WEAPONS.pick_random(), spots.pick_random(), 1)
-		rooms.filter(func(r): return r.cells.has(first))[0].kind = RoomKind.WAREHOUSE
-		update_stockpile()
 	bake_ground(noise)
 
 
-# Disegna il terreno una volta sola in un'unica immagine, che _draw mostra come una texture.
+# il rumore della mappa (roccia, alberi, erba sassosa): lo stesso `from`, le stesse chiazze
+func ground_noise(from: int) -> FastNoiseLite:
+	var noise := FastNoiseLite.new()
+	noise.seed = from
+	noise.frequency = 0.08
+	return noise
+
+
+# Disegna il terreno una volta sola in un'unica immagine, che _draw mostra come una texture. Le varianti delle caselle
+# sono a caso la prima volta, poi quelle di ground_cols (una partita caricata si rivede uguale).
 # ponytail: si fa solo alla generazione; quando il terreno cambierà (scavi, ponti) ridisegnare le caselle toccate
 func bake_ground(noise: FastNoiseLite) -> void:
 	var sheet := GROUND.get_image()
 	sheet.convert(Image.FORMAT_RGBA8)
 	var img := Image.create_empty(MAP_SIZE.x * TILE, MAP_SIZE.y * TILE, false, Image.FORMAT_RGBA8)
+	var fresh_cols := ground_cols.size() != MAP_SIZE.x * MAP_SIZE.y
+	if fresh_cols:
+		ground_cols.resize(MAP_SIZE.x * MAP_SIZE.y)
 	for y in MAP_SIZE.y:
 		for x in MAP_SIZE.x:
 			var cell := Vector2i(x, y)
 			var own := ground_of(cell)
 			var row := Ground.STONY_GRASS if own == Ground.GRASS and noise.get_noise_2d(x, y) > 0.15 else own
-			img.blit_rect(sheet, tile_rect(randi() % 4, row), cell * TILE)
+			if fresh_cols:
+				ground_cols[y * MAP_SIZE.x + x] = randi() % 4
+			img.blit_rect(sheet, tile_rect(ground_cols[y * MAP_SIZE.x + x], row), cell * TILE)
 			for i in 4:  # i vicini "più alti" sbordano su questa casella: lati, e angoli se nessun lato li copre già
 				var side := edge_row(own, cell + EDGE_SIDES[i])
 				if side >= 0:
@@ -2481,6 +2643,11 @@ func tile_rect(col: int, row: int) -> Rect2i:
 
 func _process(delta: float) -> void:
 	tick(delta)
+	if autosave_due:
+		autosave_due = false
+		show_toast(tr("Autosaved") if save_game() == OK else tr("Could not save the game"))
+	toast.visible = Time.get_ticks_msec() < toast_until
+	toast.modulate.a = clampf((toast_until - Time.get_ticks_msec()) / 500.0, 0.0, 1.0)  # sparisce nell'ultimo mezzo secondo
 	stored_label.text = str(Res.values().map(stored).reduce(func(a, b): return a + b, 0))
 	colonists_label.text = str(colonists.size())
 	beds_label.text = str(furniture.values().filter(func(plan): return plan[0] in BEDS).size())  # solo quelli finiti
@@ -2543,6 +2710,7 @@ func tick(delta: float) -> void:
 	if int(clock) != today:
 		today = int(clock)
 		new_day()
+		autosave_due = game_start and not fallen  # nei test no
 	if int(clock * 24) != hour:
 		hour = int(clock * 24)
 		new_hour()
@@ -3903,10 +4071,11 @@ func sell_book(book: Res) -> bool:
 	return true
 
 
-# posa `amount` di `res` in magazzino, dove ci sta (vedi dest_cells); pieno, accanto alla prima casella
-func store(res: Res, amount: int) -> void:
+# posa `amount` di `res` in magazzino, dove ci sta (vedi dest_cells); pieno, accanto alla prima casella; senza
+# magazzini (si parte senza, o sono stati abbattuti) a terra su `near`
+func store(res: Res, amount: int, near := MAP_SIZE / 2) -> void:
 	var cells := dest_cells(res)
-	drop(res, cells[0] if not cells.is_empty() else stockpile.keys()[0], amount)
+	drop(res, cells[0] if not cells.is_empty() else (stockpile.keys()[0] if not stockpile.is_empty() else near), amount)
 
 
 # torri di guardia finite
@@ -4974,7 +5143,7 @@ func lend(g: Colonist) -> PackedStringArray:
 # tornato dalla spedizione: i pezzi prestati in magazzino, i suoi di nuovo addosso
 func give_back(g: Colonist) -> void:
 	for slot in g.lent:
-		store(g.gear[slot], 1)
+		store(g.gear[slot], 1, cell_of(g.pos))
 		if g.lent[slot] == null:
 			g.gear.erase(slot)
 		else:
@@ -6078,6 +6247,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_3: Engine.time_scale = 3.0
 			KEY_E: turn(-1)
 			KEY_R: turn(1)
+			KEY_F5:
+				if not event.echo and not fallen:
+					show_toast(tr("Game saved") if save_game() == OK else tr("Could not save the game"))
 
 
 func zoom_by(factor: float) -> void:

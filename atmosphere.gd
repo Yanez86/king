@@ -44,6 +44,8 @@ const SNOW_HOURS := 4.0                       # ore di neve perché copra tutto
 const MELT_HOURS := 120.0                     # ore per grado sopra lo 0 perché si sciolga tutta: a 10 gradi 12 ore
 const WET_HOURS := 2.0                        # ore di pioggia perché le pozzanghere siano piene
 const DRY_HOURS := 8.0                        # ore perché si asciughino
+# quello che si salva con la partita (vedi saved): il resto si rifà da sé
+const SAVED := ["weather", "forecast", "plan", "weather_strength", "waves", "waves_until", "ice", "frozen", "snow", "wet"]
 # neve e pozzanghere sul terreno, a pixel interi: la neve si posa prima dove il rumore è alto e il bordo è più scuro;
 # le pozzanghere stanno nelle conche (rumore basso), col bordo in alto che riflette il cielo e le gocce che brillano
 const GROUND_SHADER := """
@@ -303,14 +305,7 @@ func update_weather(delta: float) -> void:
 	weather_strength = move_toward(weather_strength, 1.0 if weather == forecast else 0.0, delta / WEATHER_FADE)
 	if weather != forecast and weather_strength == 0.0:
 		weather = forecast
-		var storm := weather == Weather.STORM
-		rain.amount = 500 if storm else 250  # ricomincia da capo: si può, adesso non si vede
-		rain.direction = Vector2(0.55 if storm else 0.15, 1)
-		rain.emitting = storm or weather == Weather.RAIN
-		splashes.emitting = rain.emitting
-		flakes.emitting = weather == Weather.SNOW
-		for p in [rain, splashes, flakes]:  # niente avanzi del tempo di prima mentre compare il nuovo
-			p.visible = p.emitting
+		start_weather()
 	var hour: float = main.DAY_LENGTH / 24.0
 	if weather == Weather.SNOW:
 		snow = minf(snow + delta * weather_strength / (SNOW_HOURS * hour), 1.0)
@@ -336,6 +331,34 @@ func update_weather(delta: float) -> void:
 		flash = 1.0
 	flash = move_toward(flash, 0.0, delta * 2.5)
 	lightning.queue_redraw()
+
+
+# pioggia, schizzi e neve secondo `weather`, appena cambiato (o rimesso da un salvataggio)
+func start_weather() -> void:
+	var storm := weather == Weather.STORM
+	rain.amount = 500 if storm else 250  # ricomincia da capo: si può, adesso non si vede
+	rain.direction = Vector2(0.55 if storm else 0.15, 1)
+	rain.emitting = storm or weather == Weather.RAIN
+	splashes.emitting = rain.emitting
+	flakes.emitting = weather == Weather.SNOW
+	for p in [rain, splashes, flakes]:  # niente avanzi del tempo di prima mentre compare il nuovo
+		p.visible = p.emitting
+
+
+# il meteo per il salvataggio (vedi main.game_state): il tempo di adesso e quello deciso, neve, pozzanghere, ghiaccio
+func saved() -> Dictionary:
+	var out := {}
+	for key in SAVED:
+		out[key] = get(key)
+	return out
+
+
+# e di nuovo com'era (vedi main.resume, che rimette anche la griglia dell'acqua gelata)
+func restore(state: Dictionary) -> void:
+	for key in state:
+		if key in SAVED:
+			set(key, state[key])
+	start_weather()
 
 
 # Decide il tempo fino a PLAN_DAYS giorni da adesso: prima le ondate di freddo, un tiro per giorno (non per i giorni

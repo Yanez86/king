@@ -38,8 +38,28 @@
 - Pathfinding: `AStarGrid2D` integrato in Godot.
 
 ## Salvataggio
-- Un unico file per partita: lo stato serializzato (JSON o binario di Godot), compresso.
-- Prima versione: solo salvataggio locale.
+- Un unico file per partita, `user://saves/<reame>_<millisecondi>.save` (il nome lo prende al primo salvataggio, vedi
+  `save_game` in `main.gd`), compresso (zstd, `FileAccess.open_compressed`). Dentro due valori di `store_var`, uno dopo
+  l'altro: l'**intestazione** (reame, sovrano, data, coloni, ora del salvataggio, `version`), che l'elenco legge da sola,
+  e lo **stato**. Si scrive in un `.tmp` accanto e poi lo si sostituisce: un salvataggio a metà non rovina quello di prima.
+  Si legge con `get_var` senza oggetti: un file non può far girare codice. Il codice è in `saves.gd` (file, elenco,
+  impacchettamento) e `save_list.gd` (l'elenco, nel titolo e nelle opzioni).
+- **Cosa si salva**: le variabili di `main.gd` elencate in `SAVED`, così come sono (dizionari con `Vector2i`, colori,
+  enum come interi, `INF`...), più il caso degli animali (`wild`: seme e stato), il meteo (`SAVED` di `atmosphere.gd`) e
+  la telecamera. Gli oggetti delle classi interne (Colonist, Animal, Arrow, Room, Ruin, Expedition) li impacchetta
+  `SAVES.Packer`: ognuno diventa un dizionario coi suoi campi (tutte le variabili dello script, da sole: un campo nuovo
+  si salva senza toccare niente), e i riferimenti tra loro (`ruler`, proprietari delle stanze, `reserved`, prede...)
+  diventano `{"@": classe, "#": indice}`, così dopo il caricamento sono di nuovo lo stesso oggetto.
+- **Cosa si rifà** (`restore`, `resume`): la griglia dei percorsi (`rebuild_grid`: roccia, acqua, muri, strade, ghiaccio),
+  tetti e magazzini (`update_roofs`, `update_stockpile`), il terreno disegnato (dal seme della mappa, `map_seed`, e dalle
+  varianti delle caselle, `ground_cols`), i fuochi e le luci (da sé), le finestre.
+- **Una variabile nuova dello stato della partita in `main.gd` va aggiunta a `SAVED`** (in `atmosphere.gd` al suo
+  `SAVED`); quelle delle classi interne no. Un campo che non c'è più nel salvataggio si ignora, uno nuovo resta al valore
+  di partenza. Se cambia il senso dei dati (per esempio un valore nuovo in mezzo a un enum) si alza `SAVES.VERSION` e si
+  converte in `restore`: un salvataggio di una versione più nuova non si carica.
+- Quando: Save game (opzioni, System), F5, e da sé a ogni giorno nuovo (finito il tick, mai nei test). Si carica dal
+  titolo (Continue, Load Game) e dalle opzioni (Load game): `SAVES.pending` porta lo stato letto a `main.tscn`, che in
+  `_ready` lo rimette al posto di una partita nuova. Una partita caricata parte in pausa.
 - Cloud, due opzioni:
   - **Steam Cloud**, se il gioco finisce su Steam (100 $ una tantum): quasi zero lavoro.
   - **Supabase** (piano gratuito): login + upload/download del file via REST (`HTTPRequest`). Indipendente da Steam.
