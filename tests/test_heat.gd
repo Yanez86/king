@@ -250,6 +250,50 @@ func _initialize() -> void:
 	main.wear.clear()
 	main.roof_stamp += 1
 
+	# isolare: pelli alle pareti (fino a 3), la portiera alla porta, l'intonaco sui muri di legno
+	var base: float = main.insulation(kitchen)
+	check(not main.piece_fits(Vector2i(12, 12), [B.WALL_HIDES, R.HIDE, 0]), "le pelli vanno appese a un muro")
+	for x in [11, 12, 13, 14]:
+		main.furniture[Vector2i(x, 11)] = [B.WALL_HIDES, R.HIDE, 0]  # contro il muro in alto
+	check(is_equal_approx(main.insulation(kitchen), base + 0.05 * 3), "pelli alle pareti: +5% ciascuna, al massimo 3")
+	var door := Vector2i(13, 14)
+	check(main.piece_fits(door + Vector2i.UP, [B.DOOR_CURTAIN, R.HIDE, 2]) and not main.piece_fits(Vector2i(12, 13), [B.DOOR_CURTAIN, R.HIDE, 2]),
+		"la portiera va davanti alla porta")
+	main.furniture[door + Vector2i.UP] = [B.DOOR_CURTAIN, R.HIDE, 2]
+	check(is_equal_approx(main.insulation(kitchen), base + 0.05 * 3 + 0.1), "la portiera: +10%")
+	for x in [11, 12, 13, 14]:
+		main.furniture.erase(Vector2i(x, 11))
+	main.furniture.erase(door + Vector2i.UP)
+	var plank := Vector2i(12, 10)  # il muro in alto della cucina, di legno
+	check(main.can_build(plank, B.PLASTER) and not main.can_build(Vector2i(12, 12), B.PLASTER), "si intonacano solo i muri di legno")
+	main.blueprints[plank] = [B.PLASTER, R.STONE]
+	main.build(plank)
+	check(main.plastered.has(plank) and main.built[plank] == [B.WALL, R.WOOD] and main.room_walls(kitchen)[plank] == main.PLASTER_INSULATION,
+		"intonacato: il muro resta di legno, ma isola di più")
+	check(main.structure_src(plank, main.built[plank], [main.built]).position.y == main.PLASTER_ROW * main.TILE, "e diventa bianco")
+	check(not main.can_build(plank, B.PLASTER), "una volta basta")
+	main.plastered.erase(plank)
+
+	# la stufa a olle passa tutto il calore, anche attraverso la pietra
+	main.built[wall] = [B.WALL, R.STONE]
+	main.furniture[hearth] = [B.TILED_STOVE, R.STONE, 1]
+	check(main.heat_through(hearth) == bedroom and main.heat_sources(bedroom)[0][1] == main.HEAT[B.TILED_STOVE],
+		"la stufa a olle scalda la stanza dietro il muro di pietra quanto la sua")
+	main.furniture.erase(hearth)
+	main.built[wall] = [B.WALL, R.WOOD]
+
+	# il baldacchino: le tende scaldano chi ci dorme
+	var sleeper = main.colonists[2]
+	main.furniture[Vector2i(18, 11)] = [B.CANOPY_BED, R.WOOD, 0]
+	sleeper.pos = main.center(Vector2i(18, 11))
+	sleeper.job = main.Job.SLEEP
+	check(main.bed_warmth(sleeper) == main.BED_WARMTH[B.CANOPY_BED], "nel baldacchino 4 gradi in più")
+	sleeper.job = main.Job.NONE
+	main.furniture.erase(Vector2i(18, 11))
+	check(main.tech_for("builds", B.TAPESTRY) == main.Tech.LOOM and main.tech_for("builds", B.TILED_STOVE) == main.Tech.TILED_STOVE
+		and main.tech_for("builds", B.WALL_HIDES) == main.Tech.HUNTING and main.tech_for("builds", B.PLASTER) == main.Tech.MASONRY,
+		"le ricerche: telaio, stufa a olle, caccia, muratura")
+
 	# il suggerimento del pulsante dice quanto scalda
 	var tip: Control = main.build_tip(B.HEARTH)
 	var texts: Array = tip.get_children().filter(func(n): return n is Label).map(func(l): return l.text)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=80 format=3]
+[gd_scene load_steps=85 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Texture2D" path="res://art/icon_wood.png" id="2"]
@@ -177,6 +177,26 @@ region = Rect2(0, 928, 16, 16)
 [sub_resource type="AtlasTexture" id="HearthIcon"]
 atlas = ExtResource("8")
 region = Rect2(0, 960, 16, 16)
+
+[sub_resource type="AtlasTexture" id="WallHidesIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 992, 16, 16)
+
+[sub_resource type="AtlasTexture" id="DoorCurtainIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 1024, 16, 16)
+
+[sub_resource type="AtlasTexture" id="TapestryIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 1056, 16, 16)
+
+[sub_resource type="AtlasTexture" id="TiledStoveIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 1088, 16, 16)
+
+[sub_resource type="AtlasTexture" id="PlasterIcon"]
+atlas = ExtResource("5")
+region = Rect2(160, 160, 16, 16)
 
 [sub_resource type="AtlasTexture" id="DummyIcon"]
 atlas = ExtResource("8")
@@ -463,6 +483,15 @@ icon = SubResource("GateIcon")
 icon_alignment = 1
 expand_icon = true
 
+[node name="Plaster" type="Button" parent="HUD/BuildBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("PlasterIcon")
+icon_alignment = 1
+expand_icon = true
+
 [node name="Materials" type="HBoxContainer" parent="HUD/BuildBar/Row"]
 visible = false
 theme_override_constants/separation = 6
@@ -563,6 +592,42 @@ focus_mode = 0
 toggle_mode = true
 button_group = SubResource("Kinds")
 icon = SubResource("HearthIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Wall Hides" type="Button" parent="HUD/FurnitureBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("WallHidesIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Door Curtain" type="Button" parent="HUD/FurnitureBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("DoorCurtainIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Tapestry" type="Button" parent="HUD/FurnitureBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("TapestryIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Tiled Stove" type="Button" parent="HUD/FurnitureBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("TiledStoveIcon")
 icon_alignment = 1
 expand_icon = true
 

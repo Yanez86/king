@@ -373,8 +373,10 @@ enum Build { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE
 	WATCHTOWER,  # la torre di guardia con la campana: lupi visti da lontano, l'arciere lassù tira meglio (vedi TOWER)
 	CANOPY_BED, RUG, WARDROBE,  # arredo fine: il baldacchino è un letto (vedi BEDS), tappeto e armadio danno comfort
 	HEARTH,  # il focolare di pietra contro un muro: fa quello che fa il fuoco da campo (vedi ROLE), scalda di più (HEAT)
+	WALL_HIDES, DOOR_CURTAIN, TAPESTRY, TILED_STOVE,  # isolano la stanza (INSULATES); la stufa a olle scalda due stanze
 	ROAD,  # strada lastricata: ci si cammina più svelti (vedi ROAD_SPEED)
-	PALISADE, GATE }  # palizzata e cancello: i lupi non passano; non fanno stanze (vedi update_rooms, beast_path)
+	PALISADE, GATE,  # palizzata e cancello: i lupi non passano; non fanno stanze (vedi update_rooms, beast_path)
+	PLASTER }  # intonaco su un muro di legno già fatto: isola di più (PLASTER_INSULATION), diventa bianco (vedi plastered)
 # materiale per casella; per i mobili, per pezzo
 const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3,
 	Build.LAMP: 3, Build.CAMPFIRE: 5, Build.FURNACE: 20, Build.ANVIL: 10, Build.WORKBENCH: 15, Build.SPINNING_WHEEL: 10,
@@ -382,7 +384,8 @@ const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1
 	Build.BENCH: 6, Build.BANNER: 4, Build.LANTERN: 4, Build.FOUNTAIN: 30, Build.STATUE: 40, Build.NOTICE_BOARD: 8,
 	Build.CHALICE: 1, Build.OLD_BANNER: 1, Build.BUST: 1, Build.CROWN: 1, Build.DESK: 10, Build.BOOKSHELF: 12, Build.THRONE: 12, Build.ROAD: 2, Build.DUMMY: 6, Build.WATCHTOWER: 20,
 	Build.CANOPY_BED: 20, Build.RUG: 4, Build.WARDROBE: 12, Build.HEARTH: 15,
-	Build.PALISADE: 4, Build.GATE: 6}
+	Build.WALL_HIDES: 2, Build.DOOR_CURTAIN: 2, Build.TAPESTRY: 4, Build.TILED_STOVE: 20,
+	Build.PALISADE: 4, Build.GATE: 6, Build.PLASTER: 1}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
 const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
 	Build.CAMPFIRE: Vector2i.ONE, Build.FURNACE: Vector2i.ONE, Build.ANVIL: Vector2i.ONE, Build.WORKBENCH: Vector2i.ONE,
@@ -392,7 +395,8 @@ const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Buil
 	Build.CHALICE: Vector2i.ONE, Build.OLD_BANNER: Vector2i.ONE, Build.BUST: Vector2i.ONE, Build.CROWN: Vector2i.ONE,
 	Build.DESK: Vector2i.ONE, Build.BOOKSHELF: Vector2i.ONE, Build.THRONE: Vector2i.ONE, Build.DUMMY: Vector2i.ONE,
 	Build.WATCHTOWER: Vector2i.ONE, Build.CANOPY_BED: Vector2i(2, 1), Build.RUG: Vector2i(2, 1), Build.WARDROBE: Vector2i.ONE,
-	Build.HEARTH: Vector2i.ONE}
+	Build.HEARTH: Vector2i.ONE, Build.WALL_HIDES: Vector2i.ONE, Build.DOOR_CURTAIN: Vector2i.ONE, Build.TAPESTRY: Vector2i.ONE,
+	Build.TILED_STOVE: Vector2i.ONE}
 # mobili animati: secondi per fotogramma; i fotogrammi stanno nelle colonne dei quarti di giro (sono simmetrici)
 const ANIMATED := {Build.CAMPFIRE: 0.15, Build.BANNER: 0.3, Build.FOUNTAIN: 0.2}
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
@@ -401,7 +405,8 @@ const PAVING := [Build.FLOOR, Build.PATH, Build.ROAD]  # a terra: si calpestano,
 # materiale fisso; il resto solo di legno
 # i cimeli: la decorazione si fa con l'oggetto trovato nelle rovine, uno a pezzo
 const RELICS := {Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}
-const BUILD_RES := {Build.PATH: Res.STONE, Build.ROAD: Res.STONE, Build.RUG: Res.HIDE, Build.FURNACE: Res.STONE, Build.HEARTH: Res.STONE, Build.ANVIL: Res.IRON, Build.PLANTER: Res.STONE, Build.FOUNTAIN: Res.STONE,
+const BUILD_RES := {Build.PATH: Res.STONE, Build.ROAD: Res.STONE, Build.RUG: Res.HIDE, Build.FURNACE: Res.STONE, Build.HEARTH: Res.STONE,
+	Build.WALL_HIDES: Res.HIDE, Build.DOOR_CURTAIN: Res.HIDE, Build.TAPESTRY: Res.FLAX, Build.TILED_STOVE: Res.STONE, Build.PLASTER: Res.STONE, Build.ANVIL: Res.IRON, Build.PLANTER: Res.STONE, Build.FOUNTAIN: Res.STONE,
 	Build.STATUE: Res.STONE, Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}
 # mobili che servono perché il cartello lasci scegliere il tipo di stanza: tipo -> {mobile: almeno quanti}
 # ponytail: la cucina accetterà anche la stufa, quando ci sarà: allora "uno tra" invece di "tutti"
@@ -446,16 +451,24 @@ const ROCK_INSULATION := 0.85  # la roccia della mappa che chiude una stanza: la
 const INSULATION_MAX := 0.9
 const FIRE_HEAT := 8.0       # il fuoco da campo
 # gradi in più nella stanza del fuoco; ponytail: uguale in ogni stanza, secondo le caselle se le stanze si fanno grandi
-const HEAT := {Build.CAMPFIRE: FIRE_HEAT, Build.HEARTH: 12.0, Build.FURNACE: 15.0}
+const HEAT := {Build.CAMPFIRE: FIRE_HEAT, Build.HEARTH: 12.0, Build.FURNACE: 15.0, Build.TILED_STOVE: 10.0}
 const THROUGH_WALL := 0.5    # parte del calore di focolare e fornace che passa il muro di legno alle loro spalle
-const PASSES_HEAT := [Build.HEARTH, Build.FURNACE]
+# fuochi che passano il muro alle spalle -> parte del calore; la stufa a olle tutto, anche attraverso la pietra
+const THROUGH := {Build.HEARTH: THROUGH_WALL, Build.FURNACE: THROUGH_WALL, Build.TILED_STOVE: 1.0}
+const THROUGH_STONE := [Build.TILED_STOVE]
 const BACKS := [Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]  # le spalle di un mobile, per quarto di giro
-const AGAINST := {Build.HEARTH: [Build.WALL]}  # mobili da addossare: quello che vogliono alle spalle (vedi backed)
+const AGAINST := {Build.HEARTH: [Build.WALL], Build.WALL_HIDES: [Build.WALL], Build.TAPESTRY: [Build.WALL],
+	Build.TILED_STOVE: [Build.WALL], Build.DOOR_CURTAIN: [Build.DOOR]}  # mobili da addossare: quello che vogliono alle spalle (vedi backed)
+# pezzi che isolano la stanza dove stanno: [quanto in più, al massimo quanti ne contano]; l'intonaco porta i muri di
+# legno a PLASTER_INSULATION; le tende del baldacchino scaldano chi ci dorme (BED_WARMTH gradi)
+const INSULATES := {Build.WALL_HIDES: [0.05, 3], Build.DOOR_CURTAIN: [0.1, 1], Build.TAPESTRY: [0.05, 3]}
+const PLASTER_INSULATION := 0.6
+const BED_WARMTH := {Build.CANOPY_BED: 4.0}
 const DISCOMFORT_DROP := 24.0  # uno all'ora per punto
 # splendore della colonia: lo danno le decorazioni finite, dentro e fuori dalle stanze (vedi colony_splendor).
 # ponytail: per ora solo il totale in alto; poi terrà felici i coloni e sbloccherà cose (strade, feste: vedi GDD)
 const SPLENDOR := {Build.FLOWER_BED: 1, Build.PLANTER: 1, Build.BENCH: 1, Build.BANNER: 2, Build.LANTERN: 1,
-	Build.FOUNTAIN: 6, Build.STATUE: 8, Build.CHALICE: 3, Build.OLD_BANNER: 4, Build.BUST: 5, Build.CROWN: 6}
+	Build.FOUNTAIN: 6, Build.STATUE: 8, Build.TAPESTRY: 2, Build.CHALICE: 3, Build.OLD_BANNER: 4, Build.BUST: 5, Build.CROWN: 6}
 const SPLENDOR_COLOR := Color("e8c34a")
 const HEAT_COLOR := Color("f2a03a")
 # lente del calore: sopra COLD_FROM, sotto ma senza malus, poi per punti di comfort tolti dal freddo (1, 2, 3 e più)
@@ -493,6 +506,11 @@ const BUILD_INFO := {
 	Build.LAMP: "Lights up at night.",
 	Build.CAMPFIRE: "A wood fire inside a ring of stones. Burns day and night and warms the room. A kitchen needs one, or a hearth. Smoking is faster here.",
 	Build.FURNACE: "A stone furnace. A forge needs one, and an anvil. Smelts iron and coal into ingots. Half its heat goes through a wooden wall at its back.",
+	Build.WALL_HIDES: "Hides nailed to a wall, against the draughts. Hang it against a wall.",
+	Build.DOOR_CURTAIN: "A heavy leather curtain in front of a door, where the cold gets in. Hang it against a door.",
+	Build.TAPESTRY: "Purple linen with a golden lozenge: warmth and splendor. Hang it against a wall.",
+	Build.TILED_STOVE: "Glazed green tiles around a slow fire, against a wall: it warms its room and the one behind the wall all the same, through stone too.",
+	Build.PLASTER: "Lime plaster over a wooden wall: it keeps the heat in better, and turns the wall white.",
 	Build.HEARTH: "A stone fireplace with a chimney, set against a wall. Cooks and warms like a campfire, more. Half its heat goes through a wooden wall at its back, none through stone.",
 	Build.ANVIL: "An iron anvil on a stump. A forge needs one, and a furnace. Tools and metal armor are made here.",
 	Build.WORKBENCH: "A sturdy bench. A workshop needs one. Leather armor is made here.",
@@ -655,6 +673,7 @@ const ICONS := {
 # 256x128, righe: muri di legno, muri di pietra (colonna = lati collegati, vedi WALL_LINKS), pavimenti (colonna = Res,
 # poi il sentiero), porte (di fronte, di lato), erba sui pavimenti (lati, angoli, due varianti); vedi structure_src e draw_grass_over
 const STRUCTURES := preload("res://art/structures.png")
+const PLASTER_ROW := 10      # in STRUCTURES: i muri di legno intonacati
 const WALL_LINKS := [Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]  # bit 1, 2, 4, 8 della colonna dei muri
 # scheda del colono, vedi open_sheet
 enum Skill { GATHERING, MINING, WOODCUTTING, CONSTRUCTION, SMITHING, TAILORING, COOKING, FISHING, HUNTING, MELEE, RANGED, RESEARCH,
@@ -872,19 +891,20 @@ const BRANCHES_SHEET := preload("res://art/branches.png")
 # ponytail: solo i nodi che hanno già qualcosa da sbloccare; gli altri dell'albero del GDD arrivano con le loro cose
 enum Tech { FORGE, TAILORING, HUNTING, INN, MASONRY, DECOR, LANTERNS, IRON_ARMS, BOOKSHELF, CHAINMAIL, FOUNTAIN, STATUARY,
 	ASTRONOMY, CHARCOAL, COLD_STORE, PAVED_ROAD, DRY_RATIONS, CARTOGRAPHY, PALISADE, TRAINING_DUMMY, SMOKEHOUSE, RENOWNED_INN,
-	WATCHTOWER, SHIELD, LENDING_ARMORY, STEEL, SCRIPTORIUM, FINE_FURNITURE, PALACE }
+	WATCHTOWER, SHIELD, LENDING_ARMORY, STEEL, SCRIPTORIUM, FINE_FURNITURE, PALACE, LOOM, TILED_STOVE }
 const TECHS_SHEET := preload("res://art/techs.png")
 const TECHS := {
 	Tech.FORGE: {"branch": Branch.FIRE, "tier": 1, "cost": 60, "builds": [Build.FURNACE, Build.ANVIL],
 		"makes": [Res.INGOT, Res.PICKAXE, Res.AXE, Res.SICKLE], "info": "Furnace, anvil and the forge: ingots and the first tools."},
 	Tech.TAILORING: {"branch": Branch.FIRE, "tier": 1, "cost": 50, "builds": [Build.WORKBENCH],
 		"makes": [Res.LEATHER_ARMOR, Res.LEATHER_HOOD], "info": "The workbench and the workshop: leather armor and hoods."},
-	Tech.HUNTING: {"branch": Branch.LAND, "tier": 1, "cost": 50, "builds": [Build.SPINNING_WHEEL, Build.CARPENTER_BENCH],
-		"makes": [Res.BOWSTRING, Res.BOW], "info": "Spinning wheel, carpenter bench and carpentry: bowstrings and bows."},
+	Tech.HUNTING: {"branch": Branch.LAND, "tier": 1, "cost": 50, "builds": [Build.SPINNING_WHEEL, Build.CARPENTER_BENCH,
+		Build.WALL_HIDES, Build.DOOR_CURTAIN], "makes": [Res.BOWSTRING, Res.BOW],
+		"info": "Spinning wheel, carpenter bench and carpentry: bowstrings and bows. Hides on the walls and curtains at the doors keep rooms warmer."},
 	Tech.INN: {"branch": Branch.ROAD, "tier": 1, "cost": 40, "builds": [Build.NOTICE_BOARD],
 		"info": "The notice board and the inn: adventurers come and go to the ruins. Books come from there."},
-	Tech.MASONRY: {"branch": Branch.STONE, "tier": 1, "cost": 60, "materials": [Res.STONE], "builds": [Build.HEARTH],
-		"info": "Stone walls and floors: more comfort, and they keep the heat in. The hearth, with its chimney."},
+	Tech.MASONRY: {"branch": Branch.STONE, "tier": 1, "cost": 60, "materials": [Res.STONE], "builds": [Build.HEARTH, Build.PLASTER],
+		"info": "Stone walls and floors: more comfort, and they keep the heat in. The hearth, with its chimney. Plaster for wooden walls."},
 	Tech.DECOR: {"branch": Branch.STONE, "tier": 1, "cost": 40, "builds": [Build.FLOWER_BED, Build.PLANTER, Build.BENCH],
 		"info": "Flower bed, planter and bench: the first splendor."},
 	Tech.LANTERNS: {"branch": Branch.LORE, "tier": 1, "cost": 40, "builds": [Build.LAMP, Build.LANTERN],
@@ -931,6 +951,10 @@ const TECHS := {
 		"info": "Canopy bed, rug and wardrobe: the ruler's fine chamber."},
 	Tech.PALACE: {"branch": Branch.STONE, "tier": 4, "cost": 1200, "needs": [Tech.STATUARY],
 		"info": "The throne room becomes a palace: audiences give 50% more authority, +10 splendor."},
+	Tech.LOOM: {"branch": Branch.FIRE, "tier": 2, "cost": 200, "needs": [Tech.TAILORING], "builds": [Build.TAPESTRY],
+		"info": "Woven linen: tapestries for the walls, warmth and splendor."},
+	Tech.TILED_STOVE: {"branch": Branch.FIRE, "tier": 2, "cost": 300, "needs": [Tech.CHARCOAL, Tech.MASONRY], "builds": [Build.TILED_STOVE],
+		"info": "The tiled stove, against a wall: +10 °C to its room and to the one behind, through stone too."},
 	Tech.WATCHTOWER: {"branch": Branch.IRON, "tier": 2, "cost": 300, "needs": [Tech.PALISADE], "builds": [Build.WATCHTOWER],
 		"info": "The watchtower and its bell: wolves are seen 20 tiles away. An archer up there shoots 2 tiles farther, +15% to hit."},
 }
@@ -1208,6 +1232,7 @@ var rooms: Array[Room] = []  # stanze finite, vedi update_rooms
 var roofed := {}            # casella sotto un tetto (stanze coi loro muri e porte) -> il suo Roof; vedi update_roofs
 var roofs: Array[Roof] = []  # i tetti, uno per rettangolo di stanza (vedi rectangles)
 var wear := {}              # casella di tetto -> usura, da 0 (vedi WORN; da 1 un buco)
+var plastered := {}         # muro di legno intonacato -> true (vedi Build.PLASTER)
 var roof_stamp := 0         # cambia quando si apre o si chiude un buco: atmosphere rifà la maschera della neve
 var storm_noted := {}       # stanza -> giorno in cui la cronaca ha detto del temporale che ne ha strappato il tetto
 var roofs_shown := true     # il pulsante Roofs li toglie, per guardare dentro
@@ -1822,10 +1847,17 @@ func build_tip(kind: Build) -> Control:
 	if HEAT.has(kind):
 		var heat := Label.new()
 		heat.text = tr("+%d °C in the room") % HEAT[kind]
-		if kind in PASSES_HEAT:
-			heat.text += tr(", +%s °C behind a wooden wall") % str(HEAT[kind] * THROUGH_WALL).trim_suffix(".0")
+		if kind in THROUGH_STONE:
+			heat.text += tr(", +%s °C behind a wall, even of stone") % str(HEAT[kind] * THROUGH[kind]).trim_suffix(".0")
+		elif THROUGH.has(kind):
+			heat.text += tr(", +%s °C behind a wooden wall") % str(HEAT[kind] * THROUGH[kind]).trim_suffix(".0")
 		heat.add_theme_color_override("font_color", HEAT_COLOR)
 		box.add_child(heat)
+	if INSULATES.has(kind):
+		var keeps := Label.new()
+		keeps.text = tr("+%d%% room insulation") % roundi(INSULATES[kind][0] * 100)
+		keeps.add_theme_color_override("font_color", HEAT_COLOR)
+		box.add_child(keeps)
 	if SPLENDOR.has(kind):
 		var splendor := Label.new()
 		splendor.text = tr("+%d colony splendor") % SPLENDOR[kind]
@@ -3139,6 +3171,14 @@ func sleepwalk(c: Colonist) -> void:
 	c.path = path
 
 
+# gradi in più per chi dorme in un letto con le tende (BED_WARMTH)
+func bed_warmth(c: Colonist) -> float:
+	if not in_bed(c):
+		return 0.0
+	var beds := pieces_at(furniture, cell_of(c.pos)).filter(func(o): return furniture[o][0] in BEDS)
+	return BED_WARMTH.get(furniture[beds[0]][0], 0.0)
+
+
 func in_bed(c: Colonist) -> bool:
 	return c.job == Job.SLEEP and not pieces_at(furniture, cell_of(c.pos)).filter(func(o): return furniture[o][0] in BEDS).is_empty()
 
@@ -3155,7 +3195,7 @@ func colony_splendor() -> int:
 # ponytail: "a testa" conta chi è nella stanza in quel momento, sveglio o no
 func comfort_of(c: Colonist) -> int:
 	var here := cell_of(c.pos)
-	var weather := weather_comfort(here, gear_sum(c, "armor"))
+	var weather := weather_comfort(here, gear_sum(c, "armor") + bed_warmth(c))
 	for room in rooms:
 		if room.cells.has(here):
 			var people := colonists.filter(func(o): return room.cells.has(cell_of(o.pos))).size()
@@ -3221,7 +3261,14 @@ func insulation(room: Room) -> float:
 	var sum := 0.0
 	for k in walls:
 		sum += walls[k]
-	return minf(sum / walls.size(), INSULATION_MAX)
+	var pieces := {}  # pelli, portiere, arazzi nella stanza
+	for origin in furniture:
+		if INSULATES.has(furniture[origin][0]) and room.cells.has(origin):
+			pieces[furniture[origin][0]] = pieces.get(furniture[origin][0], 0) + 1
+	var extra := 0.0
+	for kind in pieces:
+		extra += INSULATES[kind][0] * mini(pieces[kind], INSULATES[kind][1])
+	return minf(sum / walls.size() + extra, INSULATION_MAX)
 
 
 # caselle attorno alla stanza (di lato) che la chiudono -> quanto isolano
@@ -3234,7 +3281,7 @@ func room_walls(room: Room) -> Dictionary:
 				continue
 			var b: Array = built.get(k, [-1, -1])
 			if b[0] == Build.WALL:
-				walls[k] = WALL_INSULATION[b[1]]
+				walls[k] = PLASTER_INSULATION if plastered.has(k) and b[1] == Res.WOOD else WALL_INSULATION[b[1]]
 			elif b[0] == Build.DOOR:
 				walls[k] = WALL_INSULATION[Res.WOOD]
 			elif rocks.has(k):
@@ -3252,13 +3299,14 @@ func heat_sources(room: Room) -> Array:
 			continue
 		if room.cells.has(origin):
 			out.append([origin, HEAT[kind]])
-		elif kind in PASSES_HEAT and heat_through(origin) == room:
-			out.append([origin, HEAT[kind] * THROUGH_WALL])
+		elif THROUGH.has(kind) and heat_through(origin) == room:
+			out.append([origin, HEAT[kind] * THROUGH[kind]])
 	return out
 
 
 # La stanza dall'altra parte del muro di legno alle spalle del fuoco in `origin` (vedi BACKS), che ne prende una parte
-# del calore; null se dietro non c'è un muro di legno con una stanza diversa oltre
+# del calore (THROUGH); null se dietro non c'è un muro di legno (per la stufa a olle anche di pietra) con una stanza
+# diversa oltre
 func heat_through(origin: Vector2i) -> Room:
 	var p := passage(origin, furniture[origin])
 	return p[1] if not p.is_empty() and p[2] else null
@@ -3272,7 +3320,7 @@ func passage(origin: Vector2i, plan: Array) -> Array:
 	var other := room_at(origin + back * 2)
 	if wall[0] != Build.WALL or other == null or other == room_at(origin):
 		return []
-	return [origin + back, other, wall[1] == Res.WOOD]
+	return [origin + back, other, wall[1] == Res.WOOD or plan[0] in THROUGH_STONE]
 
 
 # la direzione delle spalle del mobile `plan` (girato di plan[2] quarti)
@@ -6068,6 +6116,7 @@ func mark(rect: Rect2i) -> void:
 				if built[cell][0] == Build.ROAD:
 					astar.set_point_weight_scale(cell, 1.0)
 				built.erase(cell)
+				plastered.erase(cell)
 			for origin in furniture.keys().filter(func(o): return rect.intersects(piece_rect(o, furniture[o]))):
 				furniture.erase(origin)
 			update_rooms()
@@ -6106,6 +6155,8 @@ func quit_job(c: Colonist) -> void:
 # niente acqua, alberi, erbacce e cespugli (si estirpano), roccia, edifici o roba a terra; i mobili vanno anche
 # sopra i pavimenti (pure in progetto), ma non sopra un altro mobile, e i muri e le porte non vanno sopra i mobili
 func can_build(cell: Vector2i, kind := Build.FLOOR) -> bool:
+	if kind == Build.PLASTER:  # sopra un muro di legno già fatto, non ancora intonacato
+		return built.get(cell, [-1, -1]) == [Build.WALL, Res.WOOD] and not plastered.has(cell) and not blueprints.has(cell)
 	if not (astar.is_in_boundsv(cell) and not astar.is_point_solid(cell) and not water.has(cell) and not trees.has(cell) \
 			and not bushes.has(cell) and not weeds.has(cell) and items.values().all(func(ground): return not ground.has(cell))):
 		return false
@@ -6116,6 +6167,11 @@ func can_build(cell: Vector2i, kind := Build.FLOOR) -> bool:
 
 
 func build(cell: Vector2i) -> void:
+	if blueprints[cell][0] == Build.PLASTER:  # il muro resta quello che è, intonacato
+		blueprints.erase(cell)
+		if built.get(cell, [-1])[0] == Build.WALL:
+			plastered[cell] = true
+		return
 	built[cell] = blueprints[cell]
 	blueprints.erase(cell)
 	if built[cell][0] == Build.ROAD:  # la strada si preferisce, come si va più svelti
@@ -6484,7 +6540,8 @@ func structure_src(cell: Vector2i, plan: Array, layers: Array) -> Rect2i:
 		if layers.any(func(l): return l.has(next) and l[next][0] not in PAVING):
 			links |= 1 << i
 	match plan[0]:
-		Build.WALL: return tile_rect(links, plan[1])
+		Build.WALL: return tile_rect(links, PLASTER_ROW if plastered.has(cell) and plan[1] == Res.WOOD else plan[1])
+		Build.PLASTER: return tile_rect(links, PLASTER_ROW)
 		Build.FLOOR: return tile_rect(plan[1], 2)
 		Build.PATH: return tile_rect(2, 2)
 		Build.ROAD: return tile_rect(3, 2)
@@ -6500,10 +6557,14 @@ func draw_flat() -> void:  # sotto le ombre: il terreno lo disegna lo Sprite2D d
 			flat.draw_texture_rect_region(STRUCTURES, tile_rect(cell.x, cell.y), structure_src(cell, built[cell], [built]))
 			draw_grass_over(cell)
 	var plans := [built, blueprints, draft]  # i progetti si collegano anche ai muri già fatti
-	for cell in blueprints:  # in trasparenza
+	for cell in blueprints:  # in trasparenza (l'intonaco sopra il muro, vedi _draw)
+		if blueprints[cell][0] == Build.PLASTER:
+			continue
 		flat.draw_texture_rect_region(STRUCTURES, tile_rect(cell.x, cell.y), structure_src(cell, blueprints[cell], plans),
 			Color(1, 1, 1, 0.4))
 	for cell in draft:  # velati d'azzurro, da confermare
+		if draft[cell][0] == Build.PLASTER:
+			continue
 		flat.draw_texture_rect_region(STRUCTURES, tile_rect(cell.x, cell.y), structure_src(cell, draft[cell], plans),
 			Color(1, 1, 1, 0.6))
 		flat.draw_rect(tile_rect(cell.x, cell.y), Color(0.55, 0.8, 1, 0.45))
@@ -6583,6 +6644,13 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 	for cell in built:  # muri e porte, dentro le loro caselle come i massi
 		if built[cell][0] not in PAVING:
 			draw_texture_rect_region(STRUCTURES, tile_rect(cell.x, cell.y), structure_src(cell, built[cell], [built]))
+	for layer in [blueprints, draft]:  # l'intonaco in progetto, sopra il suo muro
+		for cell in layer:
+			if layer[cell][0] == Build.PLASTER:
+				draw_texture_rect_region(STRUCTURES, tile_rect(cell.x, cell.y), structure_src(cell, layer[cell], [built]),
+					Color(1, 1, 1, 0.5 if layer == blueprints else 0.7))
+				if layer == draft:
+					draw_rect(tile_rect(cell.x, cell.y), Color(0.55, 0.8, 1, 0.45))
 	for cell in boulders:  # stanno dentro le loro caselle: niente ordine per righe
 		draw_texture(boulder_tex(cell), Vector2(cell) * TILE)
 	for cell in bushes:  # bassi, dentro la loro casella come i massi; con le bacche (o i fiori) se sono maturi
@@ -6824,9 +6892,9 @@ func draw_heat_lens() -> void:
 		var kind: int = furniture[origin][0]
 		if HEAT.has(kind):
 			lens_text(center(origin) + Vector2(-TILE, -TILE / 2.0 - 2), "+%d" % HEAT[kind], TILE * 2, 10, HEAT_COLOR)
-			if kind in PASSES_HEAT:
+			if THROUGH.has(kind):
 				draw_passage(origin, furniture[origin])
-	if previewing_heat() and build_kind in PASSES_HEAT:
+	if previewing_heat() and THROUGH.has(build_kind):
 		draw_passage(cell_of(get_global_mouse_position()), [build_kind, build_res, build_turn])
 
 
@@ -6846,7 +6914,7 @@ func draw_passage(origin: Vector2i, plan: Array) -> void:
 	heat_canvas.draw_line(from + dir * 4, to, HEAT_COLOR, 2.0)
 	heat_canvas.draw_colored_polygon(PackedVector2Array([to + dir * 3, to - dir * 3 + dir.orthogonal() * 4,
 		to - dir * 3 - dir.orthogonal() * 4]), HEAT_COLOR)
-	lens_text(to + Vector2(-TILE, TILE - 2), "+%s" % str(HEAT[plan[0]] * THROUGH_WALL).trim_suffix(".0"), TILE * 2, 10, HEAT_COLOR)
+	lens_text(to + Vector2(-TILE, TILE - 2), "+%s" % str(HEAT[plan[0]] * THROUGH[plan[0]]).trim_suffix(".0"), TILE * 2, 10, HEAT_COLOR)
 
 
 # scritta centrata nella larghezza `width`, col contorno: si legge sopra ogni colore
@@ -6864,9 +6932,9 @@ func heat_color(t: float) -> Color:
 	return HEAT_SCALE[0] if t >= COLD_FROM else HEAT_SCALE[mini(cold_malus(t) + 1, HEAT_SCALE.size() - 1)]
 
 
-# si sta piazzando un mobile che scalda: la lente del calore si accende da sola, con l'anteprima
+# si sta piazzando un mobile che scalda o isola, o si intonaca: la lente del calore si accende da sola, con l'anteprima
 func previewing_heat() -> bool:
-	return order == Order.BUILD and HEAT.has(build_kind)
+	return order == Order.BUILD and (HEAT.has(build_kind) or INSULATES.has(build_kind) or build_kind == Build.PLASTER)
 
 
 # Sotto il tipo, sulla lente, le figurine dei proprietari (o dei lavoratori): col mouse sopra, la loro scheda (vedi colonist_tip).

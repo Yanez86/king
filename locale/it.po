@@ -985,14 +985,14 @@ msgstr "Fornace, incudine e la forgia: lingotti e i primi attrezzi."
 msgid "The workbench and the workshop: leather armor and hoods."
 msgstr "Il banco da lavoro e il laboratorio: armature e cappucci di cuoio."
 
-msgid "Spinning wheel, carpenter bench and carpentry: bowstrings and bows."
-msgstr "Filatoio, banco del falegname e falegnameria: corde d'arco e archi."
+msgid "Spinning wheel, carpenter bench and carpentry: bowstrings and bows. Hides on the walls and curtains at the doors keep rooms warmer."
+msgstr "Filatoio, banco del falegname e falegnameria: corde d'arco e archi. Pelli alle pareti e portiere alle porte tengono le stanze più calde."
 
 msgid "The notice board and the inn: adventurers come and go to the ruins. Books come from there."
 msgstr "La bacheca e la locanda: gli avventurieri vanno e vengono dalle rovine. Da lì arrivano i libri."
 
-msgid "Stone walls and floors: more comfort, and they keep the heat in. The hearth, with its chimney."
-msgstr "Muri e pavimenti di pietra: più comfort, e tengono il caldo. Il focolare, col suo comignolo."
+msgid "Stone walls and floors: more comfort, and they keep the heat in. The hearth, with its chimney. Plaster for wooden walls."
+msgstr "Muri e pavimenti di pietra: più comfort, e tengono il caldo. Il focolare, col suo comignolo. L'intonaco per i muri di legno."
 
 msgid "Flower bed, planter and bench: the first splendor."
 msgstr "Aiuola, fioriera e panca: il primo splendore."
@@ -2743,3 +2743,48 @@ msgstr "%s: il temporale ha strappato le tegole dal tetto di %s."
 
 msgid "Repair roofs: %d"
 msgstr "Riparare tetti: %d"
+
+msgid "Wall Hides"
+msgstr "Pelli alle pareti"
+
+msgid "Door Curtain"
+msgstr "Portiera"
+
+msgid "Tapestry"
+msgstr "Arazzo"
+
+msgid "Tiled Stove"
+msgstr "Stufa a olle"
+
+msgid "Plaster"
+msgstr "Intonaco"
+
+msgid ", +%s °C behind a wall, even of stone"
+msgstr ", +%s °C dietro un muro, anche di pietra"
+
+msgid "+%d%% room insulation"
+msgstr "+%d%% di isolamento della stanza"
+
+msgid "Loom"
+msgstr "Telaio"
+
+msgid "Hides nailed to a wall, against the draughts. Hang it against a wall."
+msgstr "Pelli inchiodate al muro, contro gli spifferi. Va appesa a un muro."
+
+msgid "A heavy leather curtain in front of a door, where the cold gets in. Hang it against a door."
+msgstr "Una pesante tenda di pelle davanti alla porta, da dove entra il freddo. Va appesa a una porta."
+
+msgid "Purple linen with a golden lozenge: warmth and splendor. Hang it against a wall."
+msgstr "Lino di porpora con una losanga d'oro: calore e splendore. Va appeso a un muro."
+
+msgid "Glazed green tiles around a slow fire, against a wall: it warms its room and the one behind the wall all the same, through stone too."
+msgstr "Piastrelle verdi smaltate attorno a un fuoco lento, contro un muro: scalda la sua stanza e quella dietro il muro allo stesso modo, anche attraverso la pietra."
+
+msgid "Lime plaster over a wooden wall: it keeps the heat in better, and turns the wall white."
+msgstr "Intonaco di calce su un muro di legno: tiene meglio il caldo, e il muro diventa bianco."
+
+msgid "Woven linen: tapestries for the walls, warmth and splendor."
+msgstr "Lino tessuto: arazzi per le pareti, calore e splendore."
+
+msgid "The tiled stove, against a wall: +10 °C to its room and to the one behind, through stone too."
+msgstr "La stufa a olle, contro un muro: +10 °C alla sua stanza e a quella dietro, anche attraverso la pietra."

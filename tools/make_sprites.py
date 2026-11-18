@@ -1113,6 +1113,20 @@ WWWWWWWWWWWWWWWW iiiiiiiiiiiiiiii
 oooooooooooooooo oooooooooooooooo
 """
 
+# Muro di legno intonacato (vedi Build.PLASTER in main.gd): la cima resta di assi, la facciata bianca a graticcio
+PLASTER_FRONT = """
+WWWWWWWWWWWWWWWW
+WxxxxWxxxxxWxxxx
+WxxxxWxxxxxWxxxx
+WXxxxWXxxxxWXxxx
+WWWWWWWWWWWWWWWW
+WxxxxWxxxxxWxxxx
+WxxxxWxxxxxWxxxx
+WXxxxWXxxxxWXxxx
+WWWWWWWWWWWWWWWW
+oooooooooooooooo
+"""
+
 # Porta di legno -> di fronte (in un muro orizzontale), di lato (in un muro verticale, vista dall'alto).
 DOORS = """
 oooooooooooooooo occcccccccccccco
@@ -2825,6 +2839,86 @@ HEARTH = """
 ................ ................ .......orRo.....
 """
 
+# Pelli alle pareti 1x1, appese al muro alle spalle (di fronte: il muro in alto; di lato: a destra; da dietro: in basso)
+WALL_HIDES = """
+..oooooooooooo.. ................ ................
+.occcccccccccco. ............oooo ................
+.occCccccccCcco. ............occo ................
+.occcccccccccco. ...........ocCco ................
+..occcCcccccco.. ...........occco ................
+..occccccccCco.. ...........occCo ................
+...occcccccco... ...........occco ................
+...occCccccco... ...........ocCco ................
+....occcccco.... ...........occco ................
+.....oooooo..... ............occo ................
+................ ............oCco ................
+................ ............occo ..oooooooooooo..
+................ .............oco .occcCcccccCcco.
+................ .............ooo .occcccccccccco.
+................ ................ .occccccCccccco.
+................ ................ .oooooooooooooo.
+"""
+
+# Portiera 1x1: una tenda di pelle su un'asta, davanti alla porta che ha alle spalle (di lato come le pelli)
+DOOR_CURTAIN = """
+.oooooooooooooo. ................
+.oBBBBBBBBBBBBo. ................
+.oooooooooooooo. ................
+.ocCccCcCccCcCo. ................
+.ocCccCcCccCcCo. ................
+.ocCccCcCccCcCo. ................
+.ocCccCcCccCcCo. ................
+.ocCccCcCccCcCo. ................
+.ocCccCcCccCcCo. ................
+.owCwwCwCwwCwCo. ................
+.oooooooooooooo. ................
+................ .oooooooooooooo.
+................ .oBBBBBBBBBBBBo.
+................ .oooooooooooooo.
+................ .ocCccCcCccCcCo.
+................ .oooooooooooooo.
+"""
+
+# Arazzo 1x1: tela di porpora con la cornice d'oro e una losanga, appesa al muro alle spalle (come le pelli)
+TAPESTRY = """
+.oooooooooooooo. ................ ................
+.oggggggggggggo. ............oooo ................
+.ogèèèèèèèèèègo. ............ogèo ................
+.ogèéèèèèèèéègo. ............ogèo ................
+.ogèèèèggèèèègo. ............ogèo ................
+.ogèèèggggèèègo. ............ogèo ................
+.ogèèèèggèèèègo. ............ogèo ................
+.ogèéèèèèèèéègo. ............ogèo ................
+.ogèèèèèèèèèègo. ............ogèo ................
+.oggggggggggggo. ............ogèo ................
+.oooooooooooooo. ............ogèo ................
+..o.o.o..o.o.o.. ............oooo .oooooooooooooo.
+................ ................ .oggggggggggggo.
+................ ................ .ogèèèèggèèèègo.
+................ ................ .oggggggggggggo.
+................ ................ .oooooooooooooo.
+"""
+
+# Stufa a olle 1x1: un blocco di piastrelle verdi smaltate su una base di pietra, la bocca accesa. Uguale girata
+TILED_STOVE = """
+...oooooooooo...
+...oLLLLLLLLo...
+..oooooooooooo..
+..oLmLmLmLmLmo..
+..omLmLmLmLmLo..
+..oLmLmLmLmLmo..
+..omLmLmLmLmLo..
+..oLmLmLmLmLmo..
+..omLmoooomLmo..
+..oLmLo98oLmLo..
+..omLmo=8omLmo..
+..oLmLmLmLmLmo..
+..oiiiiiiiiiio..
+..oooooooooooo..
+.zzzzzzzzzzzzzz.
+................
+"""
+
 # Sopra i tetti (vedi draw_roofs in main.gd), 16x16 ciascuno: il comignolo di pietra di focolari e fornaci, lo
 # sfiatatoio di legno sopra un fuoco da campo sotto un tetto. Il fumo esce dalla cima.
 CHIMNEYS = """
@@ -3050,6 +3144,23 @@ oggggjjgggg<
 oggggjjgggg<
 o<<<<<<<<<<<
 oooooooooooo
+"""
+
+# telaio (la tela a righe, con la frangia), stufa a olle (le piastrelle verdi, la bocca accesa), ghiacciaia (la cupola
+# di ghiaccio con la porta)
+TECH_SYMBOLS_10 = """
+............ ............ ............
+.oooooooooo. .oooooooooo. ....oooo....
+.oèèèèèèèèo. .oLmLmLmLmo. ..oohhhhoo..
+.oggggggggo. .omLmLmLmLo. .ohhhhhhhho.
+.oèèèèèèèèo. .oLmLmLmLmo. .ohuuhhuuho.
+.oèéèéèéèéo. .omLmLmLmLo. ohhhhhhhhhho
+.oggggggggo. .oLmoooomLo. ohuuhoouuhho
+.oèèèèèèèèo. .omLo98oLmo. ohhhho66ohho
+.oèéèéèéèéo. .oLmo=8omLo. ohuuho66ouho
+.oggggggggo. .oiiiiiiiio. oooooo66oooo
+.oooooooooo. .oooooooooo. ............
+..o.o.o.o... ............ ............
 """
 
 # Leggi 12x12, nei quadratini color pergamena (vedi badge), nell'ordine di Law in main.gd: esenzione, decima, gabella sul
@@ -3414,15 +3525,16 @@ def gate():
 
 
 def structures_sheet():
-    """Costruzioni, foglio 256x160. Righe: muri di legno, muri di pietra (colonna = lati collegati, vedi wall),
+    """Costruzioni, foglio 256x176. Righe: muri di legno, muri di pietra (colonna = lati collegati, vedi wall),
     pavimenti (legno, pietra, sentiero, strada lastricata), porte (di fronte, di lato), erba che sborda sui pavimenti: lati (prato
     sopra, a destra, sotto, a sinistra) e angoli (prato in alto a sx, alto a dx, basso a dx, basso a sx), due varianti;
-    la palizzata (colonna = lati collegati, vedi palisade), il cancello (di fronte, di lato)."""
+    la palizzata (colonna = lati collegati, vedi palisade), il cancello (di fronte, di lato); i muri di legno intonacati."""
     tops, fronts = frames(WALL_TOPS, count=2), frames(WALL_FRONTS, height=10, count=2)
     rows = [[wall(tops[m], fronts[m], links) for links in range(16)] for m in range(2)]
     edges = frames(FLOOR_EDGE, count=4)  # lato, angolo, lato, angolo
     rows += [frames(FLOORS, count=4), frames(DOORS, count=2)] + [turns(e) for e in edges]
     rows += [[palisade(links) for links in range(16)], [gate(), frames(DOORS, count=2)[1]]]  # cancello di lato: come la porta
+    rows += [[wall(tops[0], art(PLASTER_FRONT, 16, 10), links) for links in range(16)]]  # muri di legno intonacati
     empty = ["." * 16] * 16
     return [line for fs in rows for line in side_by_side(fs + [empty] * (16 - len(fs)))]
 
@@ -3518,9 +3630,9 @@ def banner_drape():
 
 
 def furniture_sheet():
-    """Mobili, foglio 128x992. Righe: letto, tavolo, sedia, abat-jour, fuoco da campo, fornace, incudine, banco da lavoro,
+    """Mobili, foglio 128x1120. Righe: letto, tavolo, sedia, abat-jour, fuoco da campo, fornace, incudine, banco da lavoro,
     filatoio, banco del falegname, poi le decorazioni: aiuola, fioriera, panca, stendardo, lampione, fontana, statua;
-    la bacheca; i cimeli: calice, stendardo antico, busto, corona; scrittoio, libreria, trono, fantoccio, torre di guardia, baldacchino, tappeto, armadio, focolare (come Build in main.gd);
+    la bacheca; i cimeli: calice, stendardo antico, busto, corona; scrittoio, libreria, trono, fantoccio, torre di guardia, baldacchino, tappeto, armadio, focolare, pelli alle pareti, portiera, arazzo, stufa a olle (come Build in main.gd);
     colonne: quarti di giro in senso orario (per fuoco, stendardo e fontana, fotogrammi), ognuno in alto a sinistra nel suo riquadro 32x32."""
     bed, chair, chair_left = art(BED, 32, 16), art(CHAIR, 16, 16), art(CHAIR_LEFT, 16, 16)
     table, lamp, anvil = art(TABLE, 32, 32), art(LAMP, 16, 16), art(ANVIL, 16, 16)
@@ -3551,7 +3663,11 @@ def furniture_sheet():
            [art(DUMMY, 16, 16)] * 4, [art(WATCHTOWER, 16, 16)] * 4,
            [canopy(f) for f in (bed, art(BED_UP, 16, 32), mirror(bed), art(BED_DOWN, 16, 32))],
            [rug, rug_side, rug, rug_side], [art(WARDROBE, 16, 16)] * 4,
-           (lambda h: [h[0], h[1], h[2], mirror(h[1])])(frames(HEARTH))]
+           (lambda h: [h[0], h[1], h[2], mirror(h[1])])(frames(HEARTH)),
+           (lambda h: [h[0], h[1], h[2], mirror(h[1])])(frames(WALL_HIDES)),
+           (lambda h, c: [c[0], h[1], c[1], mirror(h[1])])(frames(WALL_HIDES), frames(DOOR_CURTAIN, count=2)),
+           (lambda h: [h[0], h[1], h[2], mirror(h[1])])(frames(TAPESTRY)),
+           [art(TILED_STOVE, 16, 16)] * 4]
     slot = lambda g: [line.ljust(32, ".") for line in g] + ["." * 32] * (32 - len(g))
     return [line for row in rows for line in side_by_side([slot(g) for g in row])]
 
@@ -3693,7 +3809,8 @@ def main():
     techs = [f for block in (TECH_SYMBOLS_1, TECH_SYMBOLS_2, TECH_SYMBOLS_3) for f in frames(block, 12, 4, 12)]
     techs += frames(TECH_ASTRONOMY, 12, 1, 12)  # come Tech in main.gd: astronomia, poi le altre
     techs += frames(TECH_SYMBOLS_4, 12, 5, 12) + frames(TECH_SYMBOLS_5, 12, 2, 12) + frames(TECH_SYMBOLS_6, 12, 3, 12) \
-        + frames(TECH_SYMBOLS_7, 12, 2, 12) + frames(TECH_SYMBOLS_8, 12, 3, 12) + frames(TECH_SYMBOLS_9, 12, 1, 12)
+        + frames(TECH_SYMBOLS_7, 12, 2, 12) + frames(TECH_SYMBOLS_8, 12, 3, 12) + frames(TECH_SYMBOLS_9, 12, 1, 12) \
+        + frames(TECH_SYMBOLS_10, 12, 3, 12)[:2]
     images["techs"] = pixels(side_by_side([badge(f) for f in techs]))
     laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 3, 12) + frames(LAW_SYMBOLS_5, 12, 3, 12) + frames(LAW_SYMBOLS_6, 12, 4, 12)
     images["laws"] = pixels(side_by_side([badge(f, "I", "x", "U") for f in laws]))
