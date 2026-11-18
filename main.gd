@@ -1606,7 +1606,7 @@ func _ready() -> void:
 	if not state.is_empty():
 		resume(state)
 	else:
-		autosave(true)  # appena fondata: compare subito tra le colonie del titolo
+		autosave()  # appena fondata, il primo giorno (l'alba è già passata): compare subito tra le colonie del titolo
 
 
 # Partita nuova: il sovrano (come l'ha fatto il giocatore nella pagina della nuova partita, vedi setup) e gli altri
