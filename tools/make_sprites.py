@@ -1081,22 +1081,22 @@ oooooooooooooooo oCCCCCCCCCCCCCCo
 
 # Pavimenti: si ripetono senza giunte visibili tra caselle vicine.
 FLOORS = """
-BBBBBBBBBBBWBBBB urrrrrrRurrrrrrR ((((((((((())(((
-BBBwBBBBBBBWBBBB rrrrrrrRrrrrrrrR ((__((_r((((((((
-BBBBBBBBBBBWBBwB rrrrrrrRrrrrRrrR ((((((()(((ur(((
-WWWWWWWWWWWWWWWW rrRrrrrRrrrrrrrR (_ur(((((((R)(((
-BBBBWBBBBBBBBBBB rrrrrrrRrrrrrrrR ()R)(((((())((((
-BBBBWBBBBBwBBBBB rrrrrrrRrrrrrrrR (((((r((((((((((
-BwBBWBBBBBBBBBBB rrrrrrrRrrrrrrrR ((((()(((ur(((((
-WWWWWWWWWWWWWWWW RRRRRRRRRRRRRRRR ((_((_(((R)(((r(
-BBBBBBBBWBBBBBBB rrrRurrrrrrRurrr (r(((((((((((()(
-BBBBBBBBWBBBBwBB rrrRrrrrrrrRrrrr ()(__(ur((((((((
-BBBwBBBBWBBBBBBB rrrRrrrrrRrRrrrr )()(((R)((((()()
-WWWWWWWWWWWWWWWW rrrRrrrrrrrRrrrr ((((((_((((((())
-BBBBBBBBBBBBBBWB rRrRrrrrrrrRrrrr (_(((((((((((ur(
-BBBBBwBBBBBBBBWB rrrRrrrrrrrRrrrr (((ur((((((((R)(
-BBBBBBBBBBBBBBWB rrrRrrrrrrrRrrrr (((R)(((()r((((_
-WWWWWWWWWWWWWWWW RRRRRRRRRRRRRRRR (((__(((__)(((((
+BBBBBBBBBBBWBBBB urrrrrrRurrrrrrR ((((((((((())((( urrrrrrRiurrrrRi
+BBBwBBBBBBBWBBBB rrrrrrrRrrrrrrrR ((__((_r(((((((( rrrrrrrRirrrrrRi
+BBBBBBBBBBBWBBwB rrrrrrrRrrrrRrrR ((((((()(((ur((( rrrrrrrRirrrrrRi
+WWWWWWWWWWWWWWWW rrRrrrrRrrrrrrrR (_ur(((((((R)((( rrrrrrrRirrrrrRi
+BBBBWBBBBBBBBBBB rrrrrrrRrrrrrrrR ()R)(((((())(((( rrrrrrrRirrrrrRi
+BBBBWBBBBBwBBBBB rrrrrrrRrrrrrrrR (((((r(((((((((( RRRRRRRRiRRRRRRi
+BwBBWBBBBBBBBBBB rrrrrrrRrrrrrrrR ((((()(((ur((((( iiiiiiiiiiiiiiii
+WWWWWWWWWWWWWWWW RRRRRRRRRRRRRRRR ((_((_(((R)(((r( rrRiurrrrrRiurrr
+BBBBBBBBWBBBBBBB rrrRurrrrrrRurrr (r(((((((((((()( rrRirrrrrrRirrrr
+BBBBBBBBWBBBBwBB rrrRrrrrrrrRrrrr ()(__(ur(((((((( rrRirrrrrrRirrrr
+BBBwBBBBWBBBBBBB rrrRrrrrrRrRrrrr )()(((R)((((()() rrRirrrrrrRirrrr
+WWWWWWWWWWWWWWWW rrrRrrrrrrrRrrrr ((((((_((((((()) rrRirrrrrrRirrrr
+BBBBBBBBBBBBBBWB rRrRrrrrrrrRrrrr (_(((((((((((ur( rrRirrrrrrRirrrr
+BBBBBwBBBBBBBBWB rrrRrrrrrrrRrrrr (((ur((((((((R)( rrRirrrrrrRirrrr
+BBBBBBBBBBBBBBWB rrrRrrrrrrrRrrrr (((R)(((()r((((_ RRRiRRRRRRRiRRRR
+WWWWWWWWWWWWWWWW RRRRRRRRRRRRRRRR (((__(((__)((((( iiiiiiiiiiiiiiii
 """
 
 # Rocce: massi da 1x1, 2x1 e 2x2 caselle, disegnati dentro il loro ingombro.
@@ -2010,7 +2010,7 @@ gg.ogg***gUUo.gg .oIIIIIIo....... .orrrrrrrrrrrrro .orrrrrrrrrrrrro orrrrrrrrrro
 """
 
 # Ricerca Astronomia 12x12: la sfera armillare
-TECH_SYMBOLS_4 = """
+TECH_ASTRONOMY = """
 ....oooo....
 ...oggggo.o.
 ..ogoooogoUo
@@ -2266,22 +2266,22 @@ STRESS_ICON = """
 
 # Slot vuoti dell'equipaggiamento 16x16, sotto i talenti -> mani, corpo, testa: incavo con la sagoma di cosa ci va.
 EQUIPMENT = """
-oooooooooooooooo oooooooooooooooo oooooooooooooooo
-oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR
-oiiiiRiRiRiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR
-oiiiiRiRiRiiiiiR oiiiRRRiiRRRiiiR oiiiiiRRRRiiiiiR
-oiiiiRiRiRiRiiiR oiiRRRRRRRRRRiiR oiiiiRRRRRRiiiiR
-oiiiiRiRiRiRiiiR oiRRRRRRRRRRRRiR oiiiRRRRRRRRiiiR
-oiiiiRRRRRiRiiiR oiRRRRRRRRRRRRiR oiiiRRRRRRRRiiiR
-oiiiiRRRRRRRiiiR oiiiRRRRRRRRiiiR oiiRRRRRRRRRRiiR
-oiiiiRRRRRRiiiiR oiiiRRRRRRRRiiiR oiiiRRiRRiRRiiiR
-oiiiiRRRRRRiiiiR oiiiRRRRRRRRiiiR oiiiRRiRRiRRiiiR
-oiiiiiRRRRiiiiiR oiiiRRRRRRRRiiiR oiiiRRiiiiRRiiiR
-oiiiiiRRRRiiiiiR oiiiRRRRRRRRiiiR oiiiiRiiiiRiiiiR
-oiiiiiRRRRiiiiiR oiiiRRRRRRRRiiiR oiiiiiiiiiiiiiiR
-oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR
-oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR
-oRRRRRRRRRRRRRRR oRRRRRRRRRRRRRRR oRRRRRRRRRRRRRRR
+oooooooooooooooo oooooooooooooooo oooooooooooooooo oooooooooooooooo
+oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR
+oiiiiRiRiRiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR oiiiiiRRRRiiiiiR
+oiiiiRiRiRiiiiiR oiiiRRRiiRRRiiiR oiiiiiRRRRiiiiiR oiiiiRRRRRRiiiiR
+oiiiiRiRiRiRiiiR oiiRRRRRRRRRRiiR oiiiiRRRRRRiiiiR oiiiRRRRRRRRiiiR
+oiiiiRiRiRiRiiiR oiRRRRRRRRRRRRiR oiiiRRRRRRRRiiiR oiiRRRRRRRRRRiiR
+oiiiiRRRRRiRiiiR oiRRRRRRRRRRRRiR oiiiRRRRRRRRiiiR oiiRRRRRRRRRRiiR
+oiiiiRRRRRRRiiiR oiiiRRRRRRRRiiiR oiiRRRRRRRRRRiiR oiiRRRRRRRRRRiiR
+oiiiiRRRRRRiiiiR oiiiRRRRRRRRiiiR oiiiRRiRRiRRiiiR oiiRRRRRRRRRRiiR
+oiiiiRRRRRRiiiiR oiiiRRRRRRRRiiiR oiiiRRiRRiRRiiiR oiiRRRRRRRRRRiiR
+oiiiiiRRRRiiiiiR oiiiRRRRRRRRiiiR oiiiRRiiiiRRiiiR oiiiRRRRRRRRiiiR
+oiiiiiRRRRiiiiiR oiiiRRRRRRRRiiiR oiiiiRiiiiRiiiiR oiiiiRRRRRRiiiiR
+oiiiiiRRRRiiiiiR oiiiRRRRRRRRiiiR oiiiiiiiiiiiiiiR oiiiiiRRRRiiiiiR
+oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR
+oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR oiiiiiiiiiiiiiiR
+oRRRRRRRRRRRRRRR oRRRRRRRRRRRRRRR oRRRRRRRRRRRRRRR oRRRRRRRRRRRRRRR
 """
 
 # Icona "ruota" 16x16, in senso orario (quella antioraria è lo specchio).
@@ -2570,6 +2570,46 @@ oooooooooooooooo
 .zzzzzzzzzzzzzz.
 """
 
+# Fantoccio 16x16: testa di sacco, braccia di legno, corpo di paglia sul palo
+DUMMY = """
+......oooo......
+.....occcCo.....
+.....occcCo.....
+......oooo......
+..oooo*CC*oooo..
+..owwo****owWo..
+..oooo****oooo..
+.....o****o.....
+.....o*CC*o.....
+.....o****o.....
+.....o*CC*o.....
+......oooo......
+.......wW.......
+.......wW.......
+......owWo......
+....zzzzzzzz....
+"""
+
+# Torre di guardia 16x16: la tettoia, la campana, la piattaforma e la scala
+WATCHTOWER = """
+.......oo.......
+......oFFo......
+.....oFFfFo.....
+....oFFffFFo....
+...oFFfffffDo...
+..oooooooooooo..
+..ow...gg...Wo..
+..ow..g88g..Wo..
+..ow...<<...Wo..
+..oBBBBBBBBBBo..
+..oWWWWWWWWWWo..
+..ow.o....o.Wo..
+..ow.oBBBBo.Wo..
+..ow.o....o.Wo..
+..ow.oBBBBo.Wo..
+.zzzzzzzzzzzzzz.
+"""
+
 # Libri 16x16, come ICONS -> quaderno azzurro (sottile, una fascia), tomo rosso (spesso, due fasce, fermaglio),
 # codice di porpora (grande, tre fasce, angoli d'oro e gemma): si riconoscono anche dalla sagoma
 BOOK_ICONS = """
@@ -2631,6 +2671,122 @@ ojjjjggggg<jjJJo
 ................
 """
 
+# Scudo tondo 16x16: legno col bordo e la borchia di ferro
+SHIELD_ICON = """
+................
+.....oooooo.....
+...oorrrrrroo...
+..orrccccccRRo..
+..orccccccccRo..
+.orcccccccccCRo.
+.orccccuuccccRo.
+.orcccuurRccCRo.
+.orccccrRRccCRo.
+.orcccccccccCRo.
+..orcccccccCRo..
+..oRRcccccCRRo..
+...ooRRRRRRoo...
+.....oooooo.....
+....zzzzzzzz....
+................
+"""
+
+# Pergamena (il rotolo scritto), inchiostro (il calamaio con la penna), 16x16
+PARCHMENT_ICON = """
+................
+................
+...oooooooooo...
+..oIIIIIIIIIIo..
+..oUUUUUUUUUUo..
+...oIIIIIIIIo...
+...oIoooooIIo...
+...oIIIIIIIIo...
+...oIooooIIIo...
+...oIIIIIIIIo...
+...oIoooooIIo...
+...oIIIIIIIIo...
+..oIIIIIIIIIIo..
+..oUUUUUUUUUUo..
+...oooooooooo...
+....zzzzzzzz....
+"""
+INK_ICON = """
+..........o.....
+.........oxo....
+........oxXo....
+.......oxXo.....
+......oxXo......
+......oXo.......
+.....oooooo.....
+......o66o......
+....oo6666oo....
+...o66666667o...
+...o66666666o...
+...o66666666o...
+...o66666666o...
+....oooooooo....
+....zzzzzzzz....
+................
+"""
+
+# Arredo fine: armadio 16x16, tappeto di pelli 32x16 (di lato, girato); il baldacchino è il letto in porpora e oro
+WARDROBE = """
+................
+..oooooooooooo..
+..oBBBBBBBBBWo..
+..oooooooooooo..
+..oBwwWooBwwWo..
+..oBwwWooBwwWo..
+..oBwwWooBwwWo..
+..oBwwgoogwwWo..
+..oBwwWooBwwWo..
+..oBwwWooBwwWo..
+..oBwwWooBwwWo..
+..oBwwWooBwwWo..
+..oooooooooooo..
+..oWo......oWo..
+..ooo......ooo..
+...zzzzzzzzzz...
+"""
+RUG = """
+................................
+................................
+..oooooooooooooooooooooooooooo..
+..ojjjjjjjjjjjjjjjjjjjjjjjjjjo..
+..ojggggggggggggggggggggggggjo..
+..ojgJJJJJJJJJJJJJJJJJJJJJJgjo..
+..ojgJjjjjjjjjggggjjjjjjjjJgjo..
+..ojgJjjjjjjjgg88ggjjjjjjjJgjo..
+..ojgJjjjjjjjgg88ggjjjjjjjJgjo..
+..ojgJjjjjjjjjggggjjjjjjjjJgjo..
+..ojgJJJJJJJJJJJJJJJJJJJJJJgjo..
+..ojggggggggggggggggggggggggjo..
+..ojjjjjjjjjjjjjjjjjjjjjjjjjjo..
+..oooooooooooooooooooooooooooo..
+................................
+................................
+"""
+
+# Galletta 16x16: biscotto secco, coi buchi
+HARDTACK_ICON = """
+................
+................
+..oooooooooooo..
+..occcccccccCo..
+..occcccccccCo..
+..occwccwccwCo..
+..occcccccccCo..
+..occcccccccCo..
+..occwccwccwCo..
+..occcccccccCo..
+..occcccccccCo..
+..occwccwccwCo..
+..oCCCCCCCCCCo..
+..oooooooooooo..
+...zzzzzzzzzz...
+................
+"""
+
 # Ricerche 12x12, nei quadratini come i talenti (vedi badge), nell'ordine di Tech in main.gd:
 # forgia, sartoria, caccia, locanda, muratura (camino), decorazioni, lanterne, armi di ferro, libreria, cotta di maglia,
 # fontana, statuaria
@@ -2680,6 +2836,105 @@ ocCCCCCCCCwo ...oRRRRo... .oRRRRRRRRo. .ouurrrRRo..
 oooooooooooo ...oooooo... ..oooooooo.. .oooooooooo.
 """
 
+# Ricerche del livello I che usano cose che ci sono già: carbonaia (il cumulo che fuma), dispensa fredda (il fiocco di
+# neve), strada lastricata (le lastre), provviste secche (le gallette), cartografia (la mappa con la croce)
+TECH_SYMBOLS_4 = """
+.....xX..... .....00..... oooooooooooo ............ .oooooooooo.
+....xX...... ..0..00..0.. ourrRourrrRo ............ oIIIIIIIIIUo
+.....xX..... ...0.00.0... orrrRorrrrRo ..oooooooo.. oIoIIIIIIIUo
+......X..... ....0000.... oRRRRoRRRRRo .occwccwcCo. oIIoIIIIIIUo
+.....oo..... .0..0000..0. oooooooooooo .occcccccCo. oIIIIoIIIIUo
+....o(_o.... 000000000000 ourrrrRourRo .oCCCCCCCCo. oIIIIIIoIIUo
+...o((_(o... 000000000000 orrrrrRorrRo oooooooooooo oIIIIIIjIjUo
+..o((6((_o.. .0..0000..0. oRRRRRRoRRRo occwccwccwCo oIIIIIIIjIUo
+.o((((6(((o. ....0000.... oooooooooooo occcccccccCo oIIIIIIjIjUo
+o(((6((((6(o ...0.00.0... ourRourrrrRo occwccwccwCo oIIIIIIIIIUo
+o))))))))))o ..0..00..0.. oRRRoRRRRRRo oCCCCCCCCCCo oUUUUUUUUUUo
+oooooooooooo .....00..... oooooooooooo oooooooooooo .oooooooooo.
+"""
+
+# Ricerche del ferro: palizzata (i pali appuntiti), fantoccio
+TECH_SYMBOLS_5 = """
+.o...o...o.. ....oooo....
+oBo.oBo.oBo. ...occcCo...
+oBwooBwooBwo ....oooo....
+oBwWoBwWoBwo oooo*CC*oooo
+oBwWoBwWoBwo owwo****owWo
+oBwWoBwWoBwo oooo****oooo
+oBwWoBwWoBwo ...o*CC*o...
+oBwWoBwWoBwo ...o****o...
+oBwWoBwWoBwo ....oooo....
+oBwWoBwWoBwo .....wW.....
+oBwWoBwWoBwo .....wW.....
+oooooooooooo ....owWo....
+"""
+
+# Ricerche di livello II: affumicatoio (il prosciutto nel fumo), locanda rinomata (l'insegna con la stella), torre di
+# guardia
+TECH_SYMBOLS_6 = """
+..X..X..X... oooooooooooo .....oo.....
+.X..X..X.... ..o......o.. ....oFFo....
+..X..X..X... ..o......o.. ...oFFfFo...
+.....o...... .oooooooooo. ..oFFffFFo..
+....owo..... .occccccccCo .oooooooooo.
+...owwWo.... .occcc8cccCo .ow..gg..Wo.
+..owwwwWo... .occ88888cCo .ow.g88g.Wo.
+..owwwwWWo.. .occc888ccCo .oBBBBBBBBo.
+..owwwWWWo.. .occ8ccc8cCo .ow.oBBo.Wo.
+...oWWWWo... .occccccccCo .ow.o..o.Wo.
+....oxxo.... .oCCCCCCCCCo .ow.oBBo.Wo.
+.....oo..... .oooooooooo. .ow.o..o.Wo.
+"""
+
+# Ricerche di livello II: scudo, armeria di prestito (la rastrelliera con la spada e l'elmo)
+TECH_SYMBOLS_7 = """
+...oooooo... oooooooooooo
+..orrrrrRo.. oWWWWWWWWWWo
+.orccccccRo. oooooooooooo
+orcccccccCRo ..o.....oo..
+orccuuccccRo .oro...orro.
+orcuurRcccRo .oro..orrrRo
+orccrRRcccRo .oro..orrrRo
+orcccccccCRo .oro..oRRRRo
+.orcccccCRo. ooooo.oRooRo
+.oRRcccCRRo. .ogo...o..o.
+..ooRRRRoo.. .owo........
+....oooo.... ..o.........
+"""
+
+# Ricerche di livello II: acciaio (il lingotto azzurro che sfavilla), scriptorium (la penna sulla pergamena), arredo
+# fine (il baldacchino)
+TECH_SYMBOLS_8 = """
+........*... ........o... oooooooooooo
+.......*.*.. .......oxo.. oééééééééééo
+........*... ......oxXo.. oèèèèèèèèèèo
+...oooooo... .....oxXo... og.o....o.go
+..o00000Qo.. ....oxXo.... og.o....o.go
+.o0QQQQQEEo. .oooooooooo. ogoxxxxxxogo
+oQQQQQQQQEEo .oIIIIIIIUo. ogoxxxxxxogo
+oEEEEEEEEEEo .oIoooooIUo. ogoééééééogo
+oooooooooooo .oIIIIIIIUo. ogoèèèèèèogo
+............ .oIooooIIUo. ogoooooooogo
+............ .oUUUUUUUUo. og<<<<<<<<go
+............ .oooooooooo. oooooooooooo
+"""
+
+# Palazzo: le torri dorate col portone
+TECH_SYMBOLS_9 = """
+..o......o..
+.o8o....o8o.
+oggo.oo.oggo
+oggooggoogg<
+ogggggggggg<
+og<gg<<gg<g<
+oggggoogggg<
+og<gojjogg<<
+oggggjjgggg<
+oggggjjgggg<
+o<<<<<<<<<<<
+oooooooooooo
+"""
+
 # Leggi 12x12, nei quadratini color pergamena (vedi badge), nell'ordine di Law in main.gd: esenzione, decima, gabella sul
 # bottino, tassa di soggiorno, turni lunghi, giornata corta, riposo festivo, coprifuoco, festa del raccolto. Sulla scheda
 # dei coloni sono anche le condizioni "approva / disapprova"
@@ -2727,6 +2982,57 @@ LAW_SYMBOLS_3 = """
 .oxxxxxxxxo. .oooooooooo. ...oowCoèo..
 .oXXXXXXXXo. .og8ggggg<o. .....owoo...
 .oooooooooo. ..oooooooo.. ......o.....
+"""
+
+# Leggi di baronia e contea: taglia (il sacco del granaio con la moneta), tributo (il cuore fedele con la corona),
+# granaio aperto (il granaio con le porte aperte e il grano)
+LAW_SYMBOLS_4 = """
+....oooo.... ............ .....oo.....
+...oCcCCo... ...o.oo.o... ....oFFo....
+....oCCo.... ..o8og8o8o.. ...oFFfFo...
+..oocccCoo.. ..og8gg8<o.. ..oFFffFFo..
+.occcccccCo. ..ogjgg<<o.. .oFFfffffFo.
+occcoooooCCo ..oooooooo.. oooooooooooo
+occco8g<oCCo .oojjoojjoo. .owwoooowWo.
+occcog<<oCCo ojjjjjjjjjJo .owwo**owWo.
+occcoooooCCo ojjjjjjjjjJo .owwo**owWo.
+.occcccccCo. .ojjjjjjjJo. .owwo**owWo.
+.oCCCCCCCCo. ..ojjjjjJo.. .owwo**owWo.
+..oooooooo.. ...ojjJJo... .oooooooooo.
+"""
+
+# Leggi della palizzata e del fantoccio: pedaggio (la moneta sul cancello), turno di guardia (la luna e le stelle),
+# milizia (i bastoni incrociati e lo scudo)
+LAW_SYMBOLS_5 = """
+....oooo.... ....oooo.... w..........w
+...o88g<o... ..oo888o.... .w........w.
+...o8g<<o... .o888oo..*.. ..w......w..
+...og<<<o... .o88o....... ...woooow...
+....oooo.... o88o........ ...ojjjjo...
+............ o88o........ ...ojggjo...
+.o..o..o..o. o88o........ ...ojggjo...
+oBooBooBooBo o888o.....*. ...ojjjjo...
+WWWWWWWWWWWW .o888oo..... ...woooow...
+oBwoBwoBwoBw ..oo888ooo.. ..w......w..
+WWWWWWWWWWWW ....ooooo... .w........w.
+oooooooooooo ............ w..........w
+"""
+
+# Giustizia, caccia e corte: pene severe (la gogna), clemenza (il sovrano ascolta), riserva di caccia (il cervo), corte
+# (la corona sul cuscino). Gogna e ascolto sono anche le condizioni di chi ci passa (vedi conditions)
+LAW_SYMBOLS_6 = """
+............ ..oooooooo.. .o.o....o.o. ............
+.....oo..... .oxxxxxxxxo. .owo....owo. .o...oo...o.
+.....wW..... oxxgxgxgxxXo ..owo..owo.. o8o.o88o.o8o
+oooooooooooo oxxgggggxxXo ...owoowo... ogooogggoogo
+occcccccccCo oxxg8g8gxxXo ....owwo.... oggggggggg<o
+ocoocoocooCo oxxgggggxxXo ...ocCCco... ogjgg8ggjg<o
+ocoocoocooCo .oxxxxxxxXo. ..occccCCo.. og<<<<<<<<<o
+oCCCCCCCCCCo ..ooxooooo.. ..ococcoCo.. oooooooooooo
+oooooooooooo ...oxo...... ...occcCo... .oJjjjjjjJo.
+.....wW..... ...oo....... ...occcCo... .oJJJJJJJJo.
+.....wW..... ............ ....oCCo.... .oooooooooo.
+....owWo.... ............ .....oo..... ............
 """
 
 # Rami dell'albero del sapere 12x12, nei quadratini: terra (spiga), fuoco (fiamma), pietra (mattoni), ferro (spada e
@@ -2951,14 +3257,55 @@ def wall(top, front, links):
     return ["".join(r) for r in rows]
 
 
+def palisade(links):
+    """Palizzata per i lati collegati `links` (come wall): pali di 4 pixel (bordo, luce, legno, ombra), appuntiti in
+    cima se sopra non continua, chiusi in fondo se sotto non continua, col bordo ai lati liberi."""
+    up, right, down, left = (links >> i & 1 for i in range(4))
+    rows = []
+    for y in range(16):
+        tip = "" if up else {0: ".o..", 1: "oBo.", 2: "oBwo"}.get(y, "")
+        rows.append(list((tip or "oBwW") * 4))
+    if not down:
+        rows[15] = list("o" * 16)
+    if not right:
+        for row in rows:
+            if row[15] != ".":
+                row[15] = "o"
+    return ["".join(r) for r in rows]
+
+
+def gate():
+    """Cancello nella palizzata, di fronte: assi strette appuntite, due traverse scure, il paletto d'oro."""
+    rows = []
+    for y in range(16):
+        row = []
+        for x in range(15):
+            k, i = divmod(x, 3)
+            if y == 0:
+                row.append("o" if i == 1 else ".")
+            elif y == 1:
+                row.append("oBo"[i])
+            elif y in (5, 11):
+                row.append("W" if i else "o")
+            else:
+                row.append("oBw"[i])
+        row.append("o" if y else ".")
+        rows.append(row)
+    rows[8][13] = "g"
+    rows[15] = list("o" * 16)
+    return ["".join(r) for r in rows]
+
+
 def structures_sheet():
-    """Costruzioni, foglio 256x128. Righe: muri di legno, muri di pietra (colonna = lati collegati, vedi wall),
-    pavimenti (legno, pietra, sentiero), porte (di fronte, di lato), erba che sborda sui pavimenti: lati (prato
-    sopra, a destra, sotto, a sinistra) e angoli (prato in alto a sx, alto a dx, basso a dx, basso a sx), due varianti."""
+    """Costruzioni, foglio 256x160. Righe: muri di legno, muri di pietra (colonna = lati collegati, vedi wall),
+    pavimenti (legno, pietra, sentiero, strada lastricata), porte (di fronte, di lato), erba che sborda sui pavimenti: lati (prato
+    sopra, a destra, sotto, a sinistra) e angoli (prato in alto a sx, alto a dx, basso a dx, basso a sx), due varianti;
+    la palizzata (colonna = lati collegati, vedi palisade), il cancello (di fronte, di lato)."""
     tops, fronts = frames(WALL_TOPS, count=2), frames(WALL_FRONTS, height=10, count=2)
     rows = [[wall(tops[m], fronts[m], links) for links in range(16)] for m in range(2)]
     edges = frames(FLOOR_EDGE, count=4)  # lato, angolo, lato, angolo
-    rows += [frames(FLOORS, count=3), frames(DOORS, count=2)] + [turns(e) for e in edges]
+    rows += [frames(FLOORS, count=4), frames(DOORS, count=2)] + [turns(e) for e in edges]
+    rows += [[palisade(links) for links in range(16)], [gate(), frames(DOORS, count=2)[1]]]  # cancello di lato: come la porta
     empty = ["." * 16] * 16
     return [line for fs in rows for line in side_by_side(fs + [empty] * (16 - len(fs)))]
 
@@ -3025,12 +3372,24 @@ ARMS_SMALL = """
 #...# ..... .###. .###. .#.#. ..... .###. ..##. .###. .#.#.
 """
 
+# Corone dei titoli 16x6, sopra lo scudo (l'ultima riga sul suo bordo): baronia (cerchio), contea (a punte), regno
+# (corona reale, con la croce). La signoria non ne ha.
+ARMS_CROWNS = """
+................ ................ .......oo.......
+................ ..o....oo....o.. ..o..o88<<o..o..
+................ .o8o..o8<o..o8o. .o8o.oo8<oo.o8o.
+.oooooooooooooo. .og<oog88goog<o. .og<oog8<goog<o.
+.og8gjgg8gàgg<o. .og8gjgg8gjgg<o. .ogjg8gàg8gjg<o.
+.oooooooooooooo. .oooooooooooooo. .oooooooooooooo.
+"""
+
 
 def arms_sheet():
-    """Stemmi, foglio 80x29: in alto le forme (16x16), sotto le figure 8x8, in fondo quelle 5x5. "x" chiaro: da colorare."""
+    """Stemmi, foglio 80x35: in alto le forme (16x16), sotto le figure 8x8, poi quelle 5x5, in fondo le corone 16x6.
+    "x" chiaro: da colorare."""
     pad = lambda rows: [line.replace("#", "x").ljust(80, ".") for line in rows]
     return (pad(side_by_side(frames(ARMS_SHAPES, count=4))) + pad(side_by_side(frames(ARMS_CHARGES, 8, 10, 8)))
-            + pad(side_by_side(frames(ARMS_SMALL, 5, 10, 5))))
+            + pad(side_by_side(frames(ARMS_SMALL, 5, 10, 5))) + pad(side_by_side(frames(ARMS_CROWNS, 6, 3, 16))))
 
 
 def banner_drape():
@@ -3044,12 +3403,15 @@ def banner_drape():
 def furniture_sheet():
     """Mobili, foglio 128x800. Righe: letto, tavolo, sedia, abat-jour, fuoco da campo, fornace, incudine, banco da lavoro,
     filatoio, banco del falegname, poi le decorazioni: aiuola, fioriera, panca, stendardo, lampione, fontana, statua;
-    la bacheca; i cimeli: calice, stendardo antico, busto, corona; scrittoio, libreria, trono (come Build in main.gd);
+    la bacheca; i cimeli: calice, stendardo antico, busto, corona; scrittoio, libreria, trono, fantoccio, torre di guardia, baldacchino, tappeto, armadio (come Build in main.gd);
     colonne: quarti di giro in senso orario (per fuoco, stendardo e fontana, fotogrammi), ognuno in alto a sinistra nel suo riquadro 32x32."""
     bed, chair, chair_left = art(BED, 32, 16), art(CHAIR, 16, 16), art(CHAIR_LEFT, 16, 16)
     table, lamp, anvil = art(TABLE, 32, 32), art(LAMP, 16, 16), art(ANVIL, 16, 16)
     workbench, wheel, carpenter = art(WORKBENCH, 16, 16), art(SPINNING_WHEEL, 16, 16), art(CARPENTER_BENCH, 16, 16)
     bench, bench_side = art(BENCH, 32, 16), art(BENCH_SIDE, 16, 32)
+    canopy = lambda f: [line.translate(str.maketrans("jJBw", "éèg<")) for line in f]  # il letto in porpora e oro
+    rug = art(RUG, 32, 16)
+    rug_side = ["".join(row[x] for row in rug) for x in range(32)]  # girato di un quarto: righe e colonne scambiate
     rows = [[bed, art(BED_UP, 16, 32), mirror(bed), art(BED_DOWN, 16, 32)],
             [table] * 4,  # simmetrici: girarli non cambia il disegno
             [chair, chair_left, art(CHAIR_UP, 16, 16), mirror(chair_left)],
@@ -3068,7 +3430,10 @@ def furniture_sheet():
             frames(FOUNTAIN, height=32, count=4, width=32),
             [art(STATUE, 32, 32)] * 4,
             [art(NOTICE_BOARD, 16, 16)] * 4] + [[art(r, 16, 16)] * 4 for r in (CHALICE, OLD_BANNER, BUST, CROWN)] \
-        + [[art(DESK, 16, 16), mirror(art(DESK, 16, 16))] * 2, [art(BOOKSHELF, 16, 16)] * 4, [art(THRONE, 16, 16)] * 4]
+        + [[art(DESK, 16, 16), mirror(art(DESK, 16, 16))] * 2, [art(BOOKSHELF, 16, 16)] * 4, [art(THRONE, 16, 16)] * 4,
+           [art(DUMMY, 16, 16)] * 4, [art(WATCHTOWER, 16, 16)] * 4,
+           [canopy(f) for f in (bed, art(BED_UP, 16, 32), mirror(bed), art(BED_DOWN, 16, 32))],
+           [rug, rug_side, rug, rug_side], [art(WARDROBE, 16, 16)] * 4]
     slot = lambda g: [line.ljust(32, ".") for line in g] + ["." * 32] * (32 - len(g))
     return [line for row in rows for line in side_by_side([slot(g) for g in row])]
 
@@ -3144,6 +3509,15 @@ def main():
         images["icon_" + name] = pixels(art(block, 16, 16))
     images["icon_flax"] = pixels(art(FLAX_ICON, 16, 16))
     images["icon_bowstring"] = pixels(art(BOWSTRING_ICON, 16, 16))
+    images["icon_hardtack"] = pixels(art(HARDTACK_ICON, 16, 16))
+    images["icon_shield"] = pixels(art(SHIELD_ICON, 16, 16))
+    images["icon_parchment"] = pixels(art(PARCHMENT_ICON, 16, 16))
+    images["icon_ink"] = pixels(art(INK_ICON, 16, 16))
+    ingot = frames(ITEMS, count=7)[1]
+    images["icon_steel"] = pixels([line.translate(str.maketrans("urRi", "0QEE")) for line in ingot])  # il lingotto azzurrato
+    meat, fish = frames(RAW_ICONS, count=2)  # affumicati: la carne bruna, il pesce dorato
+    images["icon_smoked_meat"] = pixels([line.translate(str.maketrans("jJs", "wWc")) for line in meat])
+    images["icon_smoked_fish"] = pixels([line.translate(str.maketrans("urR", "c<W")) for line in fish])
     images["animals"] = pixels(art(ANIMALS.replace(" ", ""), 32, 48))
     images["sign"] = pixels(art(SIGN, 16, 16))
     images["structures"] = pixels(structures_sheet())
@@ -3155,7 +3529,9 @@ def main():
     images["icon_iron"], images["icon_coal"] = (pixels(f) for f in frames(ORE_ICONS, count=2))
     images["icon_meal"], images["icon_fine_meal"] = (pixels(f) for f in frames(MEALS, count=2))
     feast = ["." * 16] * 2 + [".." + line + ".." for line in art(FEAST_SYMBOL, 12, 12)] + ["." * 16] * 2
-    images["conditions"] = pixels(side_by_side(frames(CONDITIONS, count=6) + [feast]))
+    pad12 = lambda f: ["." * 16] * 2 + [".." + line + ".." for line in f] + ["." * 16] * 2  # simbolo 12x12 in 16x16
+    pillory, heard = frames(LAW_SYMBOLS_6, 12, 4, 12)[:2]
+    images["conditions"] = pixels(side_by_side(frames(CONDITIONS, count=6) + [feast, pad12(pillory), pad12(heard)]))
     images["ground"] = pixels(ground_sheet())
     images["warehouse_day"] = pixels(art(WAREHOUSE, 64, 32))
     images["warehouse_night"] = pixels(art(WAREHOUSE, 64, 32), palette=night_palette())
@@ -3195,9 +3571,11 @@ def main():
     images["icon_study"] = pixels(art(STUDY_ICON, 16, 16))
     images["icon_authority"] = pixels(art(AUTHORITY_ICON, 16, 16))
     techs = [f for block in (TECH_SYMBOLS_1, TECH_SYMBOLS_2, TECH_SYMBOLS_3) for f in frames(block, 12, 4, 12)]
-    techs += frames(TECH_SYMBOLS_4, 12, 1, 12)
+    techs += frames(TECH_ASTRONOMY, 12, 1, 12)  # come Tech in main.gd: astronomia, poi le altre
+    techs += frames(TECH_SYMBOLS_4, 12, 5, 12) + frames(TECH_SYMBOLS_5, 12, 2, 12) + frames(TECH_SYMBOLS_6, 12, 3, 12) \
+        + frames(TECH_SYMBOLS_7, 12, 2, 12) + frames(TECH_SYMBOLS_8, 12, 3, 12) + frames(TECH_SYMBOLS_9, 12, 1, 12)
     images["techs"] = pixels(side_by_side([badge(f) for f in techs]))
-    laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)]
+    laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 3, 12) + frames(LAW_SYMBOLS_5, 12, 3, 12) + frames(LAW_SYMBOLS_6, 12, 4, 12)
     images["laws"] = pixels(side_by_side([badge(f, "I", "x", "U") for f in laws]))
     branches = [f for block in (BRANCH_SYMBOLS_1, BRANCH_SYMBOLS_2) for f in frames(block, 12, 3, 12)]
     images["branches"] = pixels(side_by_side([badge(f) for f in branches]))
@@ -3207,7 +3585,7 @@ def main():
     images["icon_stress"] = pixels(art(STRESS_ICON, 8, 8))
     images["icon_male"], images["icon_female"] = (pixels(f) for f in frames(SEX_ICONS, 8, 2, 8))
     images["skills"] = pixels(side_by_side(frames(SKILLS, 8, 13, 8)))
-    images["equipment"] = pixels(side_by_side(frames(EQUIPMENT)))
+    images["equipment"] = pixels(side_by_side(frames(EQUIPMENT, count=4)))
     for name, rows in images.items():
         write_png(out / f"{name}.png", rows)
         print("scritto", out / f"{name}.png")

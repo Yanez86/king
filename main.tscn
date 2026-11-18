@@ -1,4 +1,4 @@
-[gd_scene load_steps=74 format=3]
+[gd_scene load_steps=78 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Texture2D" path="res://art/icon_wood.png" id="2"]
@@ -49,6 +49,10 @@ region = Rect2(16, 0, 16, 16)
 atlas = ExtResource("equipment")
 region = Rect2(32, 0, 16, 16)
 
+[sub_resource type="AtlasTexture" id="ShieldSlot"]
+atlas = ExtResource("equipment")
+region = Rect2(48, 0, 16, 16)
+
 [sub_resource type="AtlasTexture" id="WallIcon"]
 atlas = ExtResource("5")
 region = Rect2(0, 16, 16, 16)
@@ -60,6 +64,10 @@ region = Rect2(0, 32, 16, 16)
 [sub_resource type="AtlasTexture" id="PathIcon"]
 atlas = ExtResource("5")
 region = Rect2(32, 32, 16, 16)
+
+[sub_resource type="AtlasTexture" id="RoadIcon"]
+atlas = ExtResource("5")
+region = Rect2(48, 32, 16, 16)
 
 [sub_resource type="AtlasTexture" id="DoorIcon"]
 atlas = ExtResource("5")
@@ -148,6 +156,34 @@ region = Rect2(0, 736, 16, 16)
 [sub_resource type="AtlasTexture" id="ThroneIcon"]
 atlas = ExtResource("8")
 region = Rect2(0, 768, 16, 16)
+
+[sub_resource type="AtlasTexture" id="WatchtowerIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 832, 16, 16)
+
+[sub_resource type="AtlasTexture" id="CanopyBedIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 864, 32, 16)
+
+[sub_resource type="AtlasTexture" id="RugIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 896, 32, 16)
+
+[sub_resource type="AtlasTexture" id="WardrobeIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 928, 16, 16)
+
+[sub_resource type="AtlasTexture" id="DummyIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 800, 16, 16)
+
+[sub_resource type="AtlasTexture" id="PalisadeIcon"]
+atlas = ExtResource("5")
+region = Rect2(0, 128, 16, 16)
+
+[sub_resource type="AtlasTexture" id="GateIcon"]
+atlas = ExtResource("5")
+region = Rect2(0, 144, 16, 16)
 
 [sub_resource type="AtlasTexture" id="ChaliceIcon"]
 atlas = ExtResource("8")
@@ -386,12 +422,39 @@ icon = SubResource("PathIcon")
 icon_alignment = 1
 expand_icon = true
 
+[node name="Road" type="Button" parent="HUD/BuildBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("RoadIcon")
+icon_alignment = 1
+expand_icon = true
+
 [node name="Door" type="Button" parent="HUD/BuildBar/Row"]
 custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
 toggle_mode = true
 button_group = SubResource("Kinds")
 icon = SubResource("DoorIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Palisade" type="Button" parent="HUD/BuildBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("PalisadeIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Gate" type="Button" parent="HUD/BuildBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("GateIcon")
 icon_alignment = 1
 expand_icon = true
 
@@ -441,6 +504,15 @@ focus_mode = 0
 toggle_mode = true
 button_group = SubResource("Kinds")
 icon = SubResource("BedIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Canopy Bed" type="Button" parent="HUD/FurnitureBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("CanopyBedIcon")
 icon_alignment = 1
 expand_icon = true
 
@@ -558,6 +630,42 @@ focus_mode = 0
 toggle_mode = true
 button_group = SubResource("Kinds")
 icon = SubResource("ThroneIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Dummy" type="Button" parent="HUD/FurnitureBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("DummyIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Watchtower" type="Button" parent="HUD/FurnitureBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("WatchtowerIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Rug" type="Button" parent="HUD/FurnitureBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("RugIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Wardrobe" type="Button" parent="HUD/FurnitureBar/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("WardrobeIcon")
 icon_alignment = 1
 expand_icon = true
 
@@ -1157,6 +1265,13 @@ texture = SubResource("HeadSlot")
 expand_mode = 1
 stretch_mode = 5
 
+[node name="Shield" type="TextureRect" parent="HUD/ColonistSheet/Box/Equipment/Slots"]
+custom_minimum_size = Vector2(32, 32)
+tooltip_text = "Shield"
+texture = SubResource("ShieldSlot")
+expand_mode = 1
+stretch_mode = 5
+
 [node name="ObjectSheet" type="PanelContainer" parent="HUD"]
 visible = false
 custom_minimum_size = Vector2(220, 0)
@@ -1407,6 +1522,15 @@ bbcode_enabled = true
 fit_content = true
 scroll_active = false
 
+[node name="Notice" type="HBoxContainer" parent="HUD/BoardPanel/Box"]
+visible = false
+
+[node name="Label" type="Label" parent="HUD/BoardPanel/Box/Notice"]
+text = "Notice: wanted at the inn"
+
+[node name="Class" type="OptionButton" parent="HUD/BoardPanel/Box/Notice"]
+focus_mode = 0
+
 [node name="Heroes" type="VBoxContainer" parent="HUD/BoardPanel/Box"]
 theme_override_constants/separation = 6
 
@@ -1466,7 +1590,26 @@ autowrap_mode = 0
 theme_override_colors/font_color = Color(1, 0.415686, 0.290196, 1)
 text = "Nobody studies without a study: a room with a desk."
 
-[node name="Tree" type="GridContainer" parent="HUD/KnowledgePanel/Box"]
+[node name="Scholar" type="HFlowContainer" parent="HUD/KnowledgePanel/Box"]
+visible = false
+
+[node name="Copies" type="HBoxContainer" parent="HUD/KnowledgePanel/Box"]
+visible = false
+
+[node name="Label" type="Label" parent="HUD/KnowledgePanel/Box/Copies"]
+text = "Scriptorium: keep"
+
+[node name="Keep" type="SpinBox" parent="HUD/KnowledgePanel/Box/Copies"]
+max_value = 20.0
+
+[node name="Each" type="Label" parent="HUD/KnowledgePanel/Box/Copies"]
+text = "notebooks, copied at the desk (each: 3 parchment, 1 ink, 150 study)"
+
+[node name="Scroll" type="ScrollContainer" parent="HUD/KnowledgePanel/Box"]
+custom_minimum_size = Vector2(0, 440)
+horizontal_scroll_mode = 0
+
+[node name="Tree" type="GridContainer" parent="HUD/KnowledgePanel/Box/Scroll"]
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 columns = 5
@@ -1511,7 +1654,12 @@ autowrap_mode = 0
 theme_override_colors/font_color = Color(1, 0.415686, 0.290196, 1)
 text = "The ruler gathers authority on a throne, in a throne room."
 
-[node name="List" type="VBoxContainer" parent="HUD/LawsPanel/Box"]
+[node name="Scroll" type="ScrollContainer" parent="HUD/LawsPanel/Box"]
+custom_minimum_size = Vector2(0, 380)
+horizontal_scroll_mode = 0
+
+[node name="List" type="VBoxContainer" parent="HUD/LawsPanel/Box/Scroll"]
+size_flags_horizontal = 3
 theme_override_constants/separation = 4
 
 [node name="WikiPanel" type="PanelContainer" parent="HUD"]

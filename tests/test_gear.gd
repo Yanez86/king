@@ -9,6 +9,7 @@ func _initialize() -> void:
 	main.start_rooms = false
 	root.add_child(main)
 	await process_frame
+	main.researched.erase(main.Tech.STEEL)  # qui attrezzi e spade di ferro: l'acciaio è in test_research
 	main.needs_rate = 0.0
 	main.routines = false  # niente orari: la routine è provata in test_jobs
 	main.threats = false  # niente branchi di lupi: le prove del combattimento sono in test_combat
@@ -130,7 +131,7 @@ func _initialize() -> void:
 	check(main.job_list().contains("Make %s: 10" % main.item_name(I)) and main.job_list().contains("Make %s: 1" % main.item_name(main.Res.PICKAXE)),
 		"finestra Jobs: cosa si fa, col tipo davanti al nome")
 	main.open_craft(anvil)
-	check(main.get_node("HUD/CraftPopup/Box/List").get_child_count() == 6, "menu dell'incudine: sei ricette")
+	check(main.get_node("HUD/CraftPopup/Box/List").get_child_count() == 7, "menu dell'incudine: sette ricette (con lo scudo)")
 	main.keep[main.Res.SWORD] = 2
 	check(main.gear_wanted(main.Res.SWORD) == 2, "spade di scorta chieste dal menu")
 	main.keep.erase(main.Res.SWORD)
@@ -305,6 +306,18 @@ func _initialize() -> void:
 	main.gear_menu.id_pressed.emit(0)
 	main.gear_menu.hide()
 	check(not smith.loadout.has(main.Slot.HANDS), "di nuovo automatico")
+
+	# carbonaia: finito il carbone, alla fornace 5 legna fanno 2 carboni, finché non c'è la scorta del menu
+	main.add_item(W, rest[2], 30)  # legna per la carbonaia, quella di prima è andata negli archi
+	for res in [main.Res.COAL, main.Res.IRON, I]:  # senza ferro né lingotti la fornace fa solo carbone
+		for k in main.items[res].keys():
+			main.items[res].erase(k)
+	var wood0: int = main.total(W)
+	for i in 20000:
+		main.tick(0.05)
+		if main.total(main.Res.COAL) >= main.STOCK[main.Res.COAL] and not main.colonists.any(func(c): return c.job == main.Job.CRAFT):
+			break
+	check(main.total(main.Res.COAL) == 6 and main.total(W) == wood0 - 15, "carbonaia: tre volte 5 legna, 6 carboni (scorta 5)")
 
 	print("OK: forgia, sartoria ed equipaggiamento")
 	quit()

@@ -73,7 +73,8 @@ func _initialize() -> void:
 	main.update_guests()
 	check(main.guests.size() == 1, "un letto, un avventuriero")
 	walk_until(func(): return g.errand == main.Errand.NONE, 4000)
-	check(main.room_at(main.cell_of(g.pos)) == inn and is_equal_approx(g.stay_until, main.clock + main.GUEST_STAY), "arrivato alla locanda, aspetta")
+	check(main.room_at(main.cell_of(g.pos)) == inn and is_equal_approx(g.stay_until, main.clock + main.RENOWNED_GUESTS[1]),
+		"arrivato alla locanda, aspetta (5 giorni: nei test la locanda rinomata è studiata)")
 	check(main.free_beds(g) == [bed], "dorme solo nei letti della locanda")
 	main.find_job(g)
 	check(g.job not in main.WORK_JOBS, "non lavora")
@@ -258,8 +259,11 @@ func _initialize() -> void:
 	var guide = plain(main.new_hero(main.Hero.ARCHER, 1))
 	guide.gifts = [G.PATHFINDER]
 	var fresh_tower = main.Ruin.new()
+	main.researched.erase(main.Tech.CARTOGRAPHY)
 	check(main.provisions([forager], fresh_tower) == 2 and main.provisions([guide], fresh_tower) == 2
 		and main.trip_days(fresh_tower, [guide]) == 2.0, "chi trova cibo e la guida: meno provviste, viaggio più corto")
+	main.researched[main.Tech.CARTOGRAPHY] = true
+	check(main.trip_days(fresh_tower, [guide]) == 1.875, "con la cartografia l'andata e il ritorno un quarto più corti")
 	var famous = plain(main.new_hero(main.Hero.ARCHER, 1))
 	famous.gifts = [G.FAMOUS]
 	var shine: int = main.colony_splendor()
@@ -326,10 +330,12 @@ func _initialize() -> void:
 	main.stockpile[shelf] = true
 	main.add_item(R.CROWN, shelf, 1)
 	var before: int = main.colony_splendor()
+	var power: float = main.authority
 	main.furniture_plans[plinth] = [B.CROWN, R.CROWN, 0]
 	walk_until(func(): return main.furniture.has(plinth), 6000)
 	check(main.furniture[plinth][0] == B.CROWN and main.colony_splendor() == before + main.SPLENDOR[B.CROWN] and main.total(R.CROWN) == 0,
 		"la corona sul suo cuscino: +6 splendore")
+	check(main.authority >= power + main.RELIC_AUTHORITY, "cimelio posato: +3 autorità")
 	# la cronaca: tutto, dal più recente
 	main.open_board()
 	main.fill_board()
