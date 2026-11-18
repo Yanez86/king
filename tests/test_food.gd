@@ -385,9 +385,9 @@ func _initialize() -> void:
 		var b: Button = main.get_node("HUD/Tools/Row/" + name)
 		check(b.icon != null and b.button_group == main.order_group, "tasto %s nel gruppo delle azioni" % name)
 
-	# orto: col tasto Garden si segna il prato libero; il contadino semina, GROW_DAYS giorni dopo raccoglie CROP_YIELD
-	# vegetali e risemina. Si semina solo se si fa in tempo prima dell'inverno; il primo giorno d'inverno il gelo si
-	# prende quello che è nei campi
+	# orto: col tasto Garden si segna il prato libero; il contadino semina, coi tempi veri (CROP_DAYS) raccoglie CROP_YIELD
+	# rape o cavoli, che durano a lungo, e risemina. Si semina con la terra tiepida e solo se si fa in tempo prima
+	# dell'inverno; il primo giorno d'inverno il gelo si prende quello che è nei campi
 	var garden_button: Button = main.get_node("HUD/Tools/Row/Garden")
 	check(garden_button.visible and garden_button.button_group == main.order_group, "tasto Garden nel gruppo delle azioni")
 	main.researched.erase(main.Tech.GARDEN)
@@ -411,6 +411,16 @@ func _initialize() -> void:
 	check(main.garden.size() == 2 and main.garden.values().all(func(t): return t < 0), "due caselle d'orto, da seminare")
 	check(not main.can_build(plot) and not main.can_plant(plot), "sull'orto non si costruisce")
 	check(main.crop_of(plot) != main.crop_of(plot + Vector2i.DOWN), "rape e cavoli a file alterne")
+	var crop: int = main.crop_of(plot)
+	var harvest: int = main.CROP_RES[crop]
+	check(main.CROP_DAYS == [60.0, 90.0] and main.SHELF_LIFE[main.Res.TURNIP] == 10.0 and main.SHELF_LIFE[main.Res.CABBAGE] == 14.0
+		and harvest in main.RAW_FOOD, "rape in 60 giorni, cavoli in 90; si conservano 10 e 14 giorni, si cucinano")
+	main.atmosphere.climate = true  # all'inizio della primavera la terra è ancora fredda
+	check(not main.sowing_season(crop), "a inizio primavera è presto per seminare")
+	main.clock = year_start + 40.5
+	main.tick(0.0)
+	check(main.sowing_season(crop) and main.atmosphere.mean_temperature() >= main.SOW_TEMP, "dal tardo Disgelo si semina")
+	main.atmosphere.climate = false
 	check(main.farm_ready().size() == 2, "in primavera si semina")
 	var farmer = main.colonists[0]
 	var gathering: int = farmer.xp[main.Skill.GATHERING]
@@ -422,24 +432,24 @@ func _initialize() -> void:
 			break
 	check(main.garden.values().all(func(t): return t >= 0 and main.clock - t < 1.0), "seminato")
 	check(main.colonists.any(func(c): return c.xp[main.Skill.GATHERING] > 0) and main.farm_ready().is_empty(), "esperienza; poi si aspetta")
-	for k in main.garden:  # GROW_DAYS dopo: maturo
-		main.garden[k] = main.clock - main.GROW_DAYS
-	var veg_before: int = main.total(V)
-	for i in 3000:
+	for k in main.garden:  # CROP_DAYS dopo: maturo
+		main.garden[k] = main.clock - main.CROP_DAYS[crop]
+	var crop_before: int = main.total(harvest)
+	for i in 4000:
 		main.tick(0.05)
-		if main.total(V) >= veg_before + 2 * main.CROP_YIELD:
+		if main.total(harvest) >= crop_before + 2 * main.CROP_YIELD[crop]:
 			break
-	check(main.total(V) >= veg_before + 2 * main.CROP_YIELD, "raccolti %d vegetali a casella" % main.CROP_YIELD)
+	check(main.total(harvest) >= crop_before + 2 * main.CROP_YIELD[crop], "raccolti %d a casella" % main.CROP_YIELD[crop])
 	for i in 2000:  # e si risemina
 		main.tick(0.05)
 		if main.garden.values().all(func(t): return t >= 0):
 			break
-	check(main.garden.values().all(func(t): return t >= 0 and main.clock - t < main.GROW_DAYS), "e risemina")
+	check(main.garden.values().all(func(t): return t >= 0 and main.clock - t < 1.0), "e risemina")
 	var winter_starts: int = year_start + 1 + main.WINTER * main.SEASON_DAYS
-	main.clock = winter_starts - main.GROW_DAYS + 0.5  # non si fa più in tempo
+	main.clock = winter_starts - main.CROP_DAYS[crop] + 0.5  # non si fa più in tempo
 	main.tick(0.0)
 	main.garden[plot] = -1.0
-	check(not main.sowing_season() and not main.farm_ready().has(plot), "troppo vicino all'inverno: non si semina")
+	check(not main.sowing_season(crop) and not main.farm_ready().has(plot), "troppo vicino all'inverno: non si semina")
 	main.clock = winter_starts  # mezzanotte del primo giorno d'inverno
 	main.tick(0.0)
 	check(main.garden.values().all(func(t): return t < 0), "il gelo si prende quello che c'era")

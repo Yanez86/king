@@ -298,7 +298,7 @@ La vista calore (N) colora le stanze secondo la temperatura: rosso il caldo, gia
 • Al fuoco tutti lasciano il resto: prendono un secchio all'acqua e lo gettano, 2 ore di fuoco in meno ciascuno."""],
 
 	["Cibo e cucina", """[color=#e8c34a]Mangiare[/color]
-• I coloni affamati (sotto 30 di cibo; il goloso a 50) prendono il cibo più vicino: prima i pasti squisiti, poi i pasti, il crudo solo quando non ce ne sono (vegetali, poi pesce, poi carne). Nel tempo libero fanno anche uno spuntino sotto 60.
+• I coloni affamati (sotto 30 di cibo; il goloso a 50) prendono il cibo più vicino: prima i pasti squisiti, poi i pasti, il crudo solo quando non ce ne sono (vegetali, pesce, carne, affumicati, poi rape e cavoli, che durano di più). Nel tempo libero fanno anche uno spuntino sotto 60.
 • Se entro 20 caselle c'è una sedia libera accanto a un tavolo, portano lì il cibo e mangiano seduti: +5 felicità (Mangiato al tavolo).
 
 [color=#e8c34a]Cibo[/color]
@@ -307,6 +307,8 @@ La vista calore (N) colora le stanze secondo la temperatura: rosso il caldo, gia
 [cell][img=center]res://art/icon_veg.png[/img] Vegetali[/cell][cell]35[/cell][cell]3 giorni[/cell][cell]5–40%[/cell]
 [cell][img=center]res://art/icon_fish.png[/img] Pesce[/cell][cell]30[/cell][cell]1,5 giorni[/cell][cell]10–50%[/cell]
 [cell][img=center]res://art/icon_meat.png[/img] Carne[/cell][cell]40[/cell][cell]2 giorni[/cell][cell]15–60%[/cell]
+[cell][img=center]res://art/icon_turnip.png[/img] Rapa[/cell][cell]35[/cell][cell]10 giorni[/cell][cell]2–30%[/cell]
+[cell][img=center]res://art/icon_cabbage.png[/img] Cavolo[/cell][cell]35[/cell][cell]14 giorni[/cell][cell]2–30%[/cell]
 [cell][img=center]res://art/icon_meal.png[/img] Pasto[/cell][cell]100[/cell][cell]3 giorni[/cell][cell]–[/cell]
 [cell][img=center]res://art/icon_fine_meal.png[/img] Pasto squisito[/cell][cell]100[/cell][cell]3 giorni[/cell][cell]–[/cell]
 [/table]
@@ -337,8 +339,9 @@ Cespugli e lino. Un cespuglio maturo ha 5 bacche (vegetali), il lino in fiore 5 
 
 [color=#e8c34a]Orto (P)[/color] [img=center]res://art/icon_veg.png[/img]
 • Dopo la ricerca Orto. Trascina sul prato libero, fuori dalle stanze, per fare le caselle dell'orto: prima vanno tolte erbacce e cespugli, e sull'orto non si costruisce. Rape e cavoli crescono a file alterne.
-• Un colono semina una casella in 4 s (Raccogliere, come ogni tempo di lavoro) e la raccoglie 20 giorni dopo: 10 vegetali. Poi la risemina.
-• Si semina solo se il raccolto matura prima dell'inverno: dai 20 giorni prima dell'inverno non si semina più. Il primo giorno d'inverno il gelo si prende quello che è ancora nei campi.
+• Un colono semina una casella in 4 s (Raccogliere, come ogni tempo di lavoro). Le rape maturano in 60 giorni, 30 a casella; i cavoli in 90, 45 a casella. Poi la casella si risemina.
+• Rape e cavoli si conservano molto più delle bacche (vedi Cibo): un raccolto può arrivare fino all'inverno.
+• Si comincia a seminare quando la terra è tiepida (6 °C di media del giorno, dal tardo Disgelo) e solo se il raccolto matura prima dell'inverno: i cavoli non si seminano negli ultimi 90 giorni prima dell'inverno, le rape negli ultimi 60. Il primo giorno d'inverno il gelo si prende quello che è ancora nei campi.
 • Distruggi (X) toglie l'orto.
 
 [color=#e8c34a]Pesca (F)[/color] [img=center]res://art/icon_fish.png[/img]
@@ -515,7 +518,7 @@ I libri vengono solo dalle rovine (vedi Rovine e spedizioni). Non ci sono ancora
 Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette non compaiono alle postazioni. Dall'inizio hai muri e pavimenti di legno, porte, sentieri, letti, tavoli, sedie, fuochi da campo, stendardi, scrittoi, troni, cimeli e pasti.
 
 [color=#e8c34a]L'albero[/color]
-• [color=#d9c48a]Orto[/color] (Terra I, 80): le caselle dell'orto, rape e cavoli in 20 giorni.
+• [color=#d9c48a]Orto[/color] (Terra I, 80): le caselle dell'orto; rape in 60 giorni, cavoli in 90.
 • [color=#d9c48a]Caccia[/color] (Terra I, 50): filatoio e banco del falegname; corde d'arco e archi; pelli alle pareti e portiere.
 • [color=#d9c48a]Ghiacciaia[/color] (Terra II, 250 e un quaderno, dopo Dispensa fredda): la ghiacciaia, la fossa del ghiaccio, il taglio del ghiaccio.
 • [color=#d9c48a]Forgia[/color] (Fuoco I, 60): fornace e incudine; lingotti, piccone, ascia, falcetto.

@@ -299,7 +299,7 @@ The Heat lens (N) tints rooms by temperature: red warm, yellow cool without a ma
 • Everyone fights a fire first: they fetch a bucket at the water and throw it, 2 hours off the fire each."""],
 
 	["Food & Cooking", """[color=#e8c34a]Eating[/color]
-• Hungry colonists (under 30 food; the glutton at 50) take the nearest food: fine meals first, then meals, raw food only when there are none (vegetables, then fish, then meat). In free time they also snack under 60.
+• Hungry colonists (under 30 food; the glutton at 50) take the nearest food: fine meals first, then meals, raw food only when there are none (vegetables, fish, meat, smoked, then turnips and cabbages, which keep longer). In free time they also snack under 60.
 • If a chair beside a table is free within 20 tiles, they carry the food there and eat sitting: +5 happiness (At table).
 
 [color=#e8c34a]Food[/color]
@@ -308,6 +308,8 @@ The Heat lens (N) tints rooms by temperature: red warm, yellow cool without a ma
 [cell][img=center]res://art/icon_veg.png[/img] Vegetables[/cell][cell]35[/cell][cell]3 days[/cell][cell]5–40%[/cell]
 [cell][img=center]res://art/icon_fish.png[/img] Fish[/cell][cell]30[/cell][cell]1.5 days[/cell][cell]10–50%[/cell]
 [cell][img=center]res://art/icon_meat.png[/img] Meat[/cell][cell]40[/cell][cell]2 days[/cell][cell]15–60%[/cell]
+[cell][img=center]res://art/icon_turnip.png[/img] Turnip[/cell][cell]35[/cell][cell]10 days[/cell][cell]2–30%[/cell]
+[cell][img=center]res://art/icon_cabbage.png[/img] Cabbage[/cell][cell]35[/cell][cell]14 days[/cell][cell]2–30%[/cell]
 [cell][img=center]res://art/icon_meal.png[/img] Meal[/cell][cell]100[/cell][cell]3 days[/cell][cell]–[/cell]
 [cell][img=center]res://art/icon_fine_meal.png[/img] Fine meal[/cell][cell]100[/cell][cell]3 days[/cell][cell]–[/cell]
 [/table]
@@ -338,8 +340,9 @@ Bushes and flax. A ripe bush has 5 berries (vegetables), flowering flax 5 flax, 
 
 [color=#e8c34a]Garden (P)[/color] [img=center]res://art/icon_veg.png[/img]
 • After the Garden research. Drag over open grass, outside rooms, to make garden plots: weeds and bushes have to go first, and nothing can be built on a plot. Turnips and cabbages grow in alternate rows.
-• A colonist sows a plot in 4 s (Gathering, like every job time) and harvests it 20 days later: 10 vegetables. Then it is sown again.
-• A plot is sown only if it ripens before winter: from 20 days before winter nothing more is sown. On the first day of winter the frost takes whatever is still in the fields.
+• A colonist sows a plot in 4 s (Gathering, like every job time). Turnips ripen in 60 days, 30 to a plot; cabbages in 90, 45 to a plot. Then the plot is sown again.
+• Turnips and cabbages keep far longer than berries (see Food), so a harvest can last into the winter.
+• Sowing starts when the ground is mild (a daily average of 6 °C, from late Thaw) and only if the crop ripens before winter: cabbages are not sown in the last 90 days before winter, turnips in the last 60. On the first day of winter the frost takes whatever is still in the fields.
 • Destroy (X) removes plots.
 
 [color=#e8c34a]Fish (F)[/color] [img=center]res://art/icon_fish.png[/img]
@@ -516,7 +519,7 @@ Books come only from ruins (see Ruins & Expeditions). There is no tier IV resear
 What you haven't researched has no build button, and its recipes don't show at the stations. From the start you have wooden walls and floors, doors, paths, beds, tables, chairs, campfires, banners, desks, thrones, relics and meals.
 
 [color=#e8c34a]The tree[/color]
-• [color=#d9c48a]Garden[/color] (Land I, 80): garden plots, turnips and cabbages in 20 days.
+• [color=#d9c48a]Garden[/color] (Land I, 80): garden plots; turnips in 60 days, cabbages in 90.
 • [color=#d9c48a]Hunting[/color] (Land I, 50): spinning wheel and carpenter bench; bowstrings and bows; hides on the walls and door curtains.
 • [color=#d9c48a]Icehouse[/color] (Land II, 250 and a notebook, after Cold store): the icehouse, the ice pit, cutting ice.
 • [color=#d9c48a]Forge[/color] (Fire I, 60): furnace and anvil; ingots, pickaxe, axe, sickle.

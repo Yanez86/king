@@ -459,7 +459,8 @@ PLANTS = """
 """
 
 # Orto 16x16 (vedi garden in main.gd) -> terra lavorata a solchi, poi rape e cavoli: germoglio, che cresce, maturo.
-# Le piante si disegnano sopra la terra; la rapa matura mostra la radice bianca e viola.
+# Le piante si disegnano sopra la terra; la rapa matura mostra la radice bianca e viola. Le mature sono anche le icone
+# di rapa e cavolo raccolti (icon_turnip, icon_cabbage).
 CROPS = """
 )((()((()((()((( ................ ................ ......o..o...... ................ ................ ....oooooooo....
 &)&&&)&&&)&&&)&) ................ ................ .....oyo.oyo.... ................ ................ ..ooaaaAAaaaoo..
@@ -3797,7 +3798,10 @@ def main():
     images["icon_chop"] = pixels(art(CHOP_ICON, 16, 16))
     images["icon_uproot"] = pixels(art(UPROOT_ICON, 16, 16))
     images["icon_harvest"] = pixels(art(HARVEST_ICON, 16, 16))
-    images["crops"] = pixels(side_by_side(frames(CROPS, count=7)))
+    crops = frames(CROPS, count=7)
+    images["crops"] = pixels(side_by_side(crops))
+    images["icon_turnip"] = pixels(["." * 16] + crops[3][:15])  # le piante mature, un po' più giù: rapa e cavolo raccolti
+    images["icon_cabbage"] = pixels(["." * 16] * 2 + crops[6][:14])
     images["icon_garden"] = pixels(art(GARDEN_ICON, 16, 16))
     images["icon_fishing"] = pixels(art(FISHING_ICON, 16, 16))
     images["icon_hunting"] = pixels(art(HUNTING_ICON, 16, 16))

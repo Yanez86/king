@@ -301,6 +301,8 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
   | Vegetali (raccolta) | 35 | 3 / 6 giorni | 5% → 40% |
   | Pesce (pesca) | 30 | 1,5 / 3 giorni | 10% → 50% |
   | Carne (caccia) | 40 | 2 / 4 giorni | 15% → 60% |
+  | Rape (orto) | 35 | 10 / 20 giorni | 2% → 30% |
+  | Cavoli (orto) | 35 | 14 / 28 giorni | 2% → 30% |
 
 - **Pasti**: 2 crudi dello stesso mucchio (vegetali, pesce o carne) → 1 pasto, che sazia 100 e dà *ben nutrito*. Non intossica.
   Chi ha fame prende prima un pasto squisito, poi un pasto, il crudo solo se non ce ne sono (vegetali, pesce, carne).
@@ -342,12 +344,18 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
   Un colono mangia circa 2 vegetali al giorno se cucinati, 2,6 crudi; un cespuglio ne dà 2,5: 1–2 cespugli a testa.
 - **Coltivare** (ricerca Orto, tasto "Garden", P): si trascina sul prato libero, fuori dalle stanze, e le caselle
   diventano orto (terra lavorata); erbacce e cespugli si estirpano prima, sull'orto non si costruisce, Distruggi lo
-  toglie. Rape e cavoli a file alterne. Il contadino (abilità raccogliere) semina una casella in 4 s a livello 5 e
-  20 giorni dopo la raccoglie: 10 vegetali, che cadono ai suoi piedi e porta in magazzino; poi risemina. +1 punto
-  esperienza per semina e per raccolto. Si semina solo se il raccolto matura prima dell'inverno (dai 20 giorni prima
-  non si semina più); il primo giorno d'inverno il gelo si prende quello che è rimasto nei campi (lo dice la cronaca).
-  Una casella dà mezzo vegetale al giorno: 4 caselle a testa, fuori dall'inverno; l'inverno si passa con le scorte.
+  toglie. Rape e cavoli a file alterne. Tempi veri: il contadino (abilità raccogliere) semina una casella in 4 s a
+  livello 5; le rape maturano in 60 giorni (30 a casella), i cavoli in 90 (45 a casella); cadono ai suoi piedi, le porta
+  in magazzino e risemina. +1 punto esperienza per semina e per raccolto. Rape e cavoli sono cibi a sé: si mangiano e si
+  cucinano come il crudo, ma durano 10 e 14 giorni fuori (il doppio in magazzino, il triplo in dispensa, al gelo per
+  sempre), così il raccolto arriva fino all'inverno. Si semina quando la terra è tiepida (6 °C di media del giorno, dal
+  tardo Disgelo) e solo se il raccolto matura prima dell'inverno (i cavoli non negli ultimi 90 giorni, le rape negli
+  ultimi 60); il primo giorno d'inverno il gelo si prende quello che è rimasto nei campi (lo dice la cronaca).
+  Una casella dà mezzo pasto crudo al giorno: 4 caselle a testa, fuori dall'inverno; l'inverno si passa con le scorte.
   Numeri da tarare.
+- Poi: fertilità della terra nascosta (la rivelano le ricerche), rotazione annuale dei campi col cartello del campo
+  (cavoli, rape, fave, maggese; a Capodanno si passa al passo dopo), concimi naturali (cenere, compost, sovescio,
+  letame).
 
 ### 4.4.2 Forgia, sartoria ed equipaggiamento
 - **Stanze**: forgia (fornace e incudine), laboratorio (banco da lavoro, 15 legna; ci lavora anche il filatoio, 10 legna),
@@ -793,7 +801,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
 
   | Ramo | Ricerca | Liv. | Studio | Richiede | Sblocca |
   |---|---|---|---|---|---|
-  | Terra | Orto ✓ | I | 80 | — | zona orto e lavoro Coltivare: rape e cavoli in 20 giorni, niente d'inverno |
+  | Terra | Orto ✓ | I | 80 | — | zona orto e lavoro Coltivare: rape in 60 giorni e cavoli in 90, niente d'inverno |
   | | Forno di pietra | II | 300 | Orto | forno 2x1: pane (2 vegetali → 3, sazia 60, dura 8 giorni), stufato |
   | | Apicoltura | III | 450 | Forno di pietra | arnia accanto alle aiuole: miele (non marcisce), cera (candele: si studia di notte) |
   | | Banchetto reale | IV | 1000 | Apicoltura | il banchetto al forno: +15 felicità per 3 giorni, +20 autorità |

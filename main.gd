@@ -8,11 +8,15 @@ const ORE_VEIN := 0.35      # soglia del rumore delle vene: più alta, meno mine
 const UPROOT_TIME := 1.5    # secondi per estirpare un'erbaccia o un cespuglio
 const BERRIES_PER_BUSH := 5 # bacche (vegetali) su un cespuglio maturo
 const BERRY_REGROW := 2.0   # giorni prima che il cespuglio rifaccia le bacche
-# Orto (Tech.GARDEN): caselle di prato segnate con "Garden" (vedi garden). Il contadino (abilità raccogliere) semina, e
-# GROW_DAYS giorni dopo raccoglie CROP_YIELD vegetali; rape e cavoli a file alterne (vedi crop_of). Si semina solo se
-# il raccolto matura prima dell'inverno; il primo giorno d'inverno il gelo si prende quello che è rimasto nei campi
-const GROW_DAYS := 20.0
-const CROP_YIELD := 10
+# Orto (Tech.GARDEN): caselle di prato segnate con "Garden" (vedi garden), rape e cavoli a file alterne (vedi crop_of).
+# Il contadino (abilità raccogliere) semina, e coi tempi veri (CROP_DAYS) raccoglie CROP_YIELD rape o cavoli, che si
+# conservano a lungo (SHELF_LIFE): mezzo a casella al giorno. Si semina quando la terra è tiepida (SOW_TEMP, la media
+# del giorno) e solo se il raccolto matura prima dell'inverno; il primo giorno d'inverno il gelo si prende quello che è
+# rimasto nei campi
+const CROP_DAYS := [60.0, 90.0]   # per Crop: giorni dalla semina al raccolto
+const CROP_YIELD := [30, 45]      # per Crop: quanti a casella
+const CROP_RES := [Res.TURNIP, Res.CABBAGE]
+const SOW_TEMP := 6.0       # gradi, la media del giorno: dal tardo Disgelo (vedi atmosphere.mean_temperature)
 const FARM_TIME := 4.0      # secondi per seminare o raccogliere una casella, a livello 5 (vedi skill_time)
 const CARRY_MAX := 10       # quantità massima trasportata per viaggio, di una risorsa sola
 const BUILD_TIME := 2.0     # secondi per costruire una casella
@@ -60,13 +64,14 @@ const PRIORITY_COLORS := [Color("c86450"), Color("e8c34a"), Color("e6e2d0"), Col
 enum Res { WOOD, STONE, VEG, IRON, COAL, MEAL, FINE_MEAL, MEAT, FISH, HIDE, INGOT, FLAX, BOWSTRING,
 	PICKAXE, AXE, SICKLE, BOW, LEATHER_ARMOR, LEATHER_HOOD, HELMET, CHAINMAIL, SWORD, GOLD, DAGGER,
 	CHALICE, OLD_BANNER, BUST, CROWN, NOTEBOOK, TOME, CODEX, HARDTACK, SMOKED_MEAT, SMOKED_FISH, SHIELD,
-	STEEL, PARCHMENT, INK, ICE }  # ICE: blocchi tagliati dall'acqua gelata, per la ghiacciaia (vedi Order.ICE)
-const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.IRON: 50, Res.COAL: 50, Res.MEAL: 20, Res.FINE_MEAL: 20,
+	STEEL, PARCHMENT, INK, ICE, TURNIP, CABBAGE }  # ICE: blocchi tagliati dall'acqua gelata, per la ghiacciaia (vedi Order.ICE);
+	# TURNIP, CABBAGE: dall'orto (vedi garden), si conservano a lungo
+const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.TURNIP: 50, Res.CABBAGE: 50, Res.IRON: 50, Res.COAL: 50, Res.MEAL: 20, Res.FINE_MEAL: 20,
 	Res.MEAT: 50, Res.FISH: 50, Res.HIDE: 50, Res.INGOT: 50, Res.FLAX: 50, Res.BOWSTRING: 50, Res.PICKAXE: 10, Res.AXE: 10, Res.SICKLE: 10, Res.BOW: 10,
 	Res.LEATHER_ARMOR: 10, Res.LEATHER_HOOD: 10, Res.HELMET: 10, Res.CHAINMAIL: 10, Res.SWORD: 10, Res.GOLD: 100, Res.DAGGER: 10,
 	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5, Res.NOTEBOOK: 10, Res.TOME: 10, Res.CODEX: 10, Res.HARDTACK: 50, Res.SMOKED_MEAT: 50, Res.SMOKED_FISH: 50, Res.SHIELD: 10, Res.STEEL: 50, Res.PARCHMENT: 50, Res.INK: 20, Res.ICE: 50}  # quantità massima per mucchio (casella)
 const MEALS := [Res.FINE_MEAL, Res.MEAL]  # cotti: chi ha fame li prende in quest'ordine, poi il crudo
-const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT, Res.SMOKED_FISH, Res.SMOKED_MEAT]  # crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti
+const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT, Res.SMOKED_FISH, Res.SMOKED_MEAT, Res.TURNIP, Res.CABBAGE]  # crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti (prima quello che dura meno)
 const START_GOLD := 60      # monete all'inizio, a terra nella radura: le si spende quando sono in un magazzino
 const COIN := "[img=center]res://art/icon_coin.png[/img]"  # una moneta 16x16 nei testi ricchi (vedi coins)
 # Tipo di ogni oggetto: la sua icona 16x16 (art/kind_*.png, per le monete la moneta) sta davanti al nome, ovunque
@@ -83,7 +88,7 @@ const ITEM_KIND := {
 	Res.WOOD: ItemKind.MATERIAL, Res.STONE: ItemKind.MATERIAL, Res.IRON: ItemKind.MATERIAL, Res.COAL: ItemKind.MATERIAL,
 	Res.HIDE: ItemKind.MATERIAL, Res.INGOT: ItemKind.MATERIAL, Res.FLAX: ItemKind.MATERIAL,
 	Res.BOWSTRING: ItemKind.MATERIAL,
-	Res.VEG: ItemKind.FOOD, Res.MEAL: ItemKind.FOOD, Res.FINE_MEAL: ItemKind.FOOD, Res.MEAT: ItemKind.FOOD, Res.FISH: ItemKind.FOOD,
+	Res.VEG: ItemKind.FOOD, Res.TURNIP: ItemKind.FOOD, Res.CABBAGE: ItemKind.FOOD, Res.MEAL: ItemKind.FOOD, Res.FINE_MEAL: ItemKind.FOOD, Res.MEAT: ItemKind.FOOD, Res.FISH: ItemKind.FOOD,
 	Res.PICKAXE: ItemKind.TOOL, Res.AXE: ItemKind.TOOL, Res.SICKLE: ItemKind.TOOL,
 	Res.BOW: ItemKind.WEAPON, Res.SWORD: ItemKind.WEAPON, Res.DAGGER: ItemKind.WEAPON,
 	Res.LEATHER_ARMOR: ItemKind.ARMOR, Res.LEATHER_HOOD: ItemKind.ARMOR, Res.HELMET: ItemKind.ARMOR, Res.CHAINMAIL: ItemKind.ARMOR,
@@ -95,15 +100,15 @@ const ITEM_KIND := {
 }
 # cibo: quanto sazia (vedi eat) e in quanti giorni marcisce a terra fuori (vedi spoil); in magazzino ci mette il doppio.
 # Il crudo sazia meno e può intossicare (vedi poison_chance), i pasti no e danno un bonus (vedi Cond)
-const FOOD := {Res.VEG: 35.0, Res.FISH: 30.0, Res.MEAT: 40.0, Res.MEAL: 100.0, Res.FINE_MEAL: 100.0,
+const FOOD := {Res.VEG: 35.0, Res.TURNIP: 35.0, Res.CABBAGE: 35.0, Res.FISH: 30.0, Res.MEAT: 40.0, Res.MEAL: 100.0, Res.FINE_MEAL: 100.0,
 	Res.SMOKED_FISH: 30.0, Res.SMOKED_MEAT: 40.0}
 const SHELF_LIFE := {Res.VEG: 3.0, Res.FISH: 1.5, Res.MEAT: 2.0, Res.MEAL: 3.0, Res.FINE_MEAL: 3.0,
-	Res.SMOKED_FISH: 6.0, Res.SMOKED_MEAT: 8.0}  # affumicati: quattro volte il fresco
+	Res.SMOKED_FISH: 6.0, Res.SMOKED_MEAT: 8.0, Res.TURNIP: 10.0, Res.CABBAGE: 14.0}  # affumicati: quattro volte il fresco
 const SPOIL_STORED := 0.5   # in magazzino il cibo marcisce a metà velocità
 const SPOIL_PANTRY := 1.0 / 3  # in dispensa a un terzo: dura il triplo che fuori
 # probabilità di intossicarsi mangiando crudo: [appena preso, quasi marcio], in mezzo in proporzione
 const POISON := {Res.VEG: [0.05, 0.4], Res.FISH: [0.1, 0.5], Res.MEAT: [0.15, 0.6], Res.SMOKED_FISH: [0.05, 0.5],
-	Res.SMOKED_MEAT: [0.05, 0.6]}
+	Res.SMOKED_MEAT: [0.05, 0.6], Res.TURNIP: [0.02, 0.3], Res.CABBAGE: [0.02, 0.3]}
 const FRESH_WORDS := [[0.5, "Fresh"], [0.2, "Stale"], [0.0, "Almost rotten"]]  # sopra quale parte della durata, nel suggerimento
 # cucinare (vedi try_cook): 2 crudi dello stesso mucchio (vegetali, pesce o carne) -> 1 pasto al fuoco da campo di una
 # cucina, finché in giro ci sono meno pasti di quanti chiede il menu del fuoco (all'inizio MEALS_PER_COLONIST a testa)
@@ -702,6 +707,8 @@ const ICONS := {
 	Res.WOOD: preload("res://art/icon_wood.png"),
 	Res.STONE: preload("res://art/icon_stone.png"),
 	Res.VEG: preload("res://art/icon_veg.png"),
+	Res.TURNIP: preload("res://art/icon_turnip.png"),
+	Res.CABBAGE: preload("res://art/icon_cabbage.png"),
 	Res.IRON: preload("res://art/icon_iron.png"),
 	Res.COAL: preload("res://art/icon_coal.png"),
 	Res.MEAL: preload("res://art/icon_meal.png"),
@@ -1024,7 +1031,7 @@ const TECHS := {
 	Tech.ICEHOUSE: {"branch": Branch.LAND, "tier": 2, "cost": 250, "needs": [Tech.COLD_STORE], "rooms": [RoomKind.ICEHOUSE],
 		"builds": [Build.ICE_PIT], "info": "The icehouse: stone walls, a pit of ice cut from the frozen water in winter. While the ice lasts, food barely spoils."},
 	Tech.GARDEN: {"branch": Branch.LAND, "tier": 1, "cost": 80, "orders": [Order.GARDEN],
-		"info": "The garden: mark plots on open grass. Colonists sow turnips and cabbages and harvest them 20 days later. Nothing grows in winter."},
+		"info": "The garden: mark plots on open grass. Colonists sow turnips, ripe in 60 days, and cabbages, in 90. They keep for long. Nothing grows in winter."},
 	Tech.LOOM: {"branch": Branch.FIRE, "tier": 2, "cost": 200, "needs": [Tech.TAILORING], "builds": [Build.TAPESTRY],
 		"info": "Woven linen: tapestries for the walls, warmth and splendor."},
 	Tech.TILED_STOVE: {"branch": Branch.FIRE, "tier": 2, "cost": 300, "needs": [Tech.CHARCOAL, Tech.MASONRY], "builds": [Build.TILED_STOVE],
@@ -1276,7 +1283,7 @@ var uproot_marks := {}      # cella -> true: erbacce e cespugli da estirpare
 var harvest_marks := {}     # cella -> true: cespugli da cui raccogliere le bacche, ogni volta che maturano
 var fish_marks := {}        # cella d'acqua -> true: punti di pesca
 var ice_marks := {}         # cella d'acqua -> true: dove si taglia il ghiaccio, quando gela
-var garden := {}            # casella dell'orto -> `clock` della semina, o -1 se è da seminare (vedi GROW_DAYS)
+var garden := {}            # casella dell'orto -> `clock` della semina, o -1 se è da seminare (vedi CROP_DAYS)
 var fish_spots := {}        # cella d'acqua -> `clock` da cui ci sono di nuovo pesci (se manca, ci sono)
 var animals: Array[Animal] = []
 var arrows: Array[Arrow] = []  # in volo, vedi shoot
@@ -3153,15 +3160,16 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			if c.work_left > 0:
 				return
 			var sown: float = garden.get(c.target, -1.0)
-			if sown >= 0 and clock - sown >= GROW_DAYS:
+			var crop := crop_of(c.target)
+			if sown >= 0 and ripe(c.target):
 				var here := cell_of(c.pos)
-				produce(Res.VEG, here, CROP_YIELD)
+				produce(CROP_RES[crop], here, CROP_YIELD[crop])
 				garden[c.target] = -1.0
 				c.xp[Skill.GATHERING] += 1
 				end_job(c)
-				try_haul(c, Res.VEG, [here])  # porta subito via il raccolto
+				try_haul(c, CROP_RES[crop], [here])  # porta subito via il raccolto
 				return
-			if garden.has(c.target) and sown < 0 and sowing_season():
+			if garden.has(c.target) and sown < 0 and sowing_season(crop):
 				garden[c.target] = clock
 				c.xp[Skill.GATHERING] += 1
 			end_job(c)
@@ -3729,14 +3737,21 @@ func ice_space() -> int:
 
 # caselle dell'orto dove c'è da fare: mature da raccogliere, o vuote da seminare se si è in tempo (sowing_season)
 func farm_ready() -> Array:
-	var sow := sowing_season()
-	return garden.keys().filter(func(k): return (garden[k] < 0 and sow) or (garden[k] >= 0 and clock - garden[k] >= GROW_DAYS))
+	var sow := Crop.values().map(sowing_season)
+	return garden.keys().filter(func(k): return (garden[k] < 0 and sow[crop_of(k)]) or (garden[k] >= 0 and ripe(k)))
 
 
-# si semina se il raccolto matura prima dell'inverno: fuori dall'inverno, e almeno GROW_DAYS giorni prima del suo inizio
-func sowing_season() -> bool:
+# quello che cresce in `cell` è maturo
+func ripe(cell: Vector2i) -> bool:
+	return garden[cell] >= 0 and clock - garden[cell] >= CROP_DAYS[crop_of(cell)]
+
+
+# si semina `crop` se la terra è tiepida (SOW_TEMP) e se matura prima dell'inverno: fuori dall'inverno, e almeno
+# CROP_DAYS giorni prima del suo inizio
+func sowing_season(crop: Crop) -> bool:
 	var winter := today - posmod(today, YEAR_DAYS) + 1 + WINTER * SEASON_DAYS  # il primo giorno d'inverno di quest'anno
-	return season(today) != WINTER and winter - clock >= GROW_DAYS
+	var warm: bool = not atmosphere.climate or atmosphere.mean_temperature() >= SOW_TEMP
+	return warm and season(today) != WINTER and winter - clock >= CROP_DAYS[crop]
 
 
 # sul prato libero, fuori dalle stanze: ci si può fare l'orto
@@ -7327,7 +7342,7 @@ func draw_garden() -> void:
 		var r := Rect2(tile_rect(cell.x, cell.y))
 		flat.draw_texture_rect_region(CROPS, r, tile_rect(0, 0))
 		if garden[cell] >= 0:
-			var grown: float = (clock - garden[cell]) / GROW_DAYS
+			var grown: float = (clock - garden[cell]) / CROP_DAYS[crop_of(cell)]
 			var stage := 2 if grown >= 1.0 else (1 if grown >= 1.0 / 3.0 else 0)
 			flat.draw_texture_rect_region(CROPS, r, tile_rect(1 + crop_of(cell) * 3 + stage, 0))
 
