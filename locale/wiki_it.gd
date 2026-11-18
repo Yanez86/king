@@ -45,7 +45,7 @@ Un tasto fa come un clic sul suo pulsante (premilo di nuovo per chiudere).
 [cell]Tagliare il ghiaccio[/cell][cell]Y[/cell][cell]Tetti[/cell][cell]V[/cell]
 [cell]Wiki[/cell][cell]F1[/cell][cell][/cell][cell][/cell]
 [/table]
-• Lavori: il lavoro in attesa, nell'ordine in cui lo prendono i coloni. Risorse: cosa c'è nei magazzini.
+• Lavori: chi fa cosa per primo (vedi Coloni), e il lavoro in attesa. Risorse: cosa c'è nei magazzini.
 
 [color=#e8c34a]Tasti fissi[/color]
 • Spazio: pausa; 1, 2, 3: velocità.
@@ -78,7 +78,12 @@ Ogni ora è sonno, lavoro o tempo libero. La giornata solita: sonno 22–6, cola
 • Ore di sonno: a letto, o per terra se non c'è un letto libero. Restano giù anche quando sono riposati, poi si alzano con almeno 80 di riposo.
 • Ore di lavoro: prendono i lavori. Finito il turno o finite le loro ore, smettono appena hanno le mani libere. A ogni ora si fermano anche per un bisogno urgente: fame (se c'è cibo), stanchezza (se c'è un letto libero), noia.
 • Tempo libero: uno spuntino se il cibo è sotto 60, poi si svagano.
-• Non ci sono priorità da impostare: i lavori vanno in quest'ordine, prima il più vicino. Prendere l'equipaggiamento; il sovrano al trono e i lavoratori dello studio ai loro scrittoi, se li hai spuntati; cucinare, produrre, tagliare, scavare, estirpare, raccogliere, pescare, cacciare, costruire, arredare, trasportare. Quando non resta altro, il sovrano governa e gli altri studiano.
+
+[color=#e8c34a]Priorità[/color]
+La tabella in cima a Lavori (J): una riga per colono, una colonna per tipo di lavoro (passa sopra le icone). Ogni casella va da 1 (prima) a 4 (per ultimo), o – per mai; clic per dopo, clic destro per prima. All'inizio è tutto 3.
+• Un colono prende il lavoro col numero migliore che ha qualcosa da fare; a numeri uguali, quello più a sinistra; di ogni tipo di lavoro, il più vicino.
+• Le colonne: cucinare, produrre (forgia, banco da lavoro, filatoio, banco del falegname), tagliare, scavare (e tagliare il ghiaccio), raccogliere (cespugli, lino, estirpare), coltivare, pescare, cacciare, costruire (e arredare, riparare i tetti), trasportare, governare (solo il sovrano), studiare.
+• Prima della tabella: prendere l'equipaggiamento; il sovrano al trono e i lavoratori dello studio ai loro scrittoi, se li hai spuntati sul cartello. Un tetto in fiamme viene prima di tutto, per tutti.
 
 [color=#e8c34a]Salute[/color]
 • 0–100; risale di 30 al giorno (60 dormendo). Una barretta sopra la testa mostra i feriti.

@@ -31,6 +31,22 @@ enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, 
 	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE, DOUSE, FARM }
 const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FURNISH, Job.HARVEST, Job.COOK, Job.FISH,
 	Job.HUNT, Job.CRAFT, Job.STUDY, Job.GOVERN, Job.REPAIR, Job.CUT_ICE, Job.FARM]  # contano come ore di lavoro
+# Tabella delle priorità (in cima alla finestra Jobs): per colono e per lavoro da 1 (prima) a PRIORITY_LEVELS (dopo),
+# 0 mai. Si prende il lavoro disponibile con la priorità più alta; a pari priorità nell'ordine di Work, e di un lavoro
+# il più vicino (vedi find_work). All'inizio tutto PRIORITY_DEFAULT: l'ordine di Work
+enum Work { COOK, CRAFT, CHOP, MINE, GATHER, FARM, FISH, HUNT, BUILD, HAUL, GOVERN, STUDY }
+const PRIORITY_DEFAULT := 3
+const PRIORITY_LEVELS := 4
+const WORK_ICONS := [preload("res://art/icon_meal.png"), preload("res://art/icon_ingot.png"), preload("res://art/icon_chop.png"),
+	preload("res://art/icon_mine.png"), preload("res://art/icon_harvest.png"), preload("res://art/icon_garden.png"),
+	preload("res://art/icon_fishing.png"), preload("res://art/icon_hunting.png"), preload("res://art/icon_build.png"),
+	preload("res://art/icon_resources.png"), preload("res://art/icon_authority.png"), preload("res://art/icon_study.png")]
+const WORK_INFO := ["Cooking meals at the campfire or the hearth.", "Forge, workbench, spinning wheel, carpenter's bench, furnace.",
+	"Felling the marked trees.", "Mining the marked boulders, cutting ice.", "Picking bushes and flax, uprooting.",
+	"Sowing and harvesting the garden.", "Fishing at the marked water.", "Hunting the marked animals.",
+	"Building, furnishing, repairing roofs.", "Carrying things into the warehouses.",
+	"Governing from the throne: only the ruler.", "Studying at a desk."]
+const PRIORITY_COLORS := [Color("c86450"), Color("e8c34a"), Color("e6e2d0"), Color("b0aca0"), Color("8a8678")]  # mai, poi 1-4
 # VEG: vegetali, dalle bacche dei cespugli; IRON, COAL: dai massi con le vene; MEAL, FINE_MEAL: pasti, dalla cucina;
 # MEAT, HIDE: carne e pelle, dagli animali cacciati; FISH: pesce, dai punti di pesca; INGOT: lingotti, dalla fornace;
 # FLAX: lino, dai fiori (vedi flax); BOWSTRING: corda d'arco, dal filatoio;
@@ -1132,6 +1148,7 @@ class Colonist:
 	var needs := []               # 0-NEED_MAX per Need, vedi update_needs
 	var trend := []               # per Need: -1 scende, 0 fermo, 1 sale (le frecce della scheda)
 	var traits := []              # Trait
+	var priorities := []          # per Work: 1 (prima) - PRIORITY_LEVELS, 0 mai; quelli che mancano PRIORITY_DEFAULT (vedi priority)
 	var conds := {}               # Cond -> `clock` a cui finisce
 	var pos: Vector2
 	var tunic: Color
@@ -1406,6 +1423,8 @@ var lights_canvas := Node2D.new()
 @onready var craft_popup: Control = $HUD/CraftPopup  # menu della postazione cliccata, vedi open_craft
 @onready var jobs_panel: Control = $HUD/JobsPanel  # a destra, si apre col tasto Jobs in basso: vedi job_list
 @onready var jobs_list: RichTextLabel = $HUD/JobsPanel/Box/List  # testo ricco: le monete con l'icona
+var priority_grid := GridContainer.new()  # in cima alla finestra Jobs: la tabella delle priorità (vedi refresh_priorities)
+var priorities_key := ""    # coloni, sovrano e lingua con cui è fatta la tabella: se cambiano, la si rifà
 @onready var resources_panel: Control = $HUD/ResourcesPanel  # stesso posto: vedi update_resources
 @onready var resources_list: Control = $HUD/ResourcesPanel/Box/List  # una riga per Res: icona, nome, quantità
 @onready var sheet_panel: Control = $HUD/ColonistSheet  # a sinistra, si apre cliccando un colono: vedi open_sheet
@@ -1555,6 +1574,22 @@ func _ready() -> void:
 	confirm.pressed.connect(confirm_build)
 	erase.toggled.connect(toggle_erase)
 	$HUD/Tools/Row/Jobs.toggled.connect(jobs_panel.set_visible)
+	var jobs_box: Control = jobs_panel.get_node("Box")
+	priority_grid.columns = Work.size() + 1
+	priority_grid.add_theme_constant_override("h_separation", 2)
+	priority_grid.add_theme_constant_override("v_separation", 0)
+	jobs_box.add_child(priority_grid)
+	jobs_box.move_child(priority_grid, jobs_list.get_index())
+	var hint := Label.new()
+	hint.name = "PriorityHint"
+	hint.text = "1 first, 4 last, – never. Click: later; right click: sooner."
+	hint.add_theme_color_override("font_color", Color(0.85, 0.77, 0.54))
+	hint.add_theme_font_size_override("font_size", 12)
+	jobs_box.add_child(hint)
+	jobs_box.move_child(hint, jobs_list.get_index())
+	var line := HSeparator.new()
+	jobs_box.add_child(line)
+	jobs_box.move_child(line, jobs_list.get_index())
 	$HUD/Tools/Row/Resources.toggled.connect(resources_panel.set_visible)
 	jobs_panel.hidden.connect($HUD/Tools/Row/Jobs.set_pressed_no_signal.bind(false))  # chiusa con la X: tasto su
 	resources_panel.hidden.connect($HUD/Tools/Row/Resources.set_pressed_no_signal.bind(false))
@@ -2668,7 +2703,64 @@ func confirm_build() -> void:
 			furniture_plans[origin] = pieces[origin]
 
 
-# finestra "Jobs": lavori in attesa per tipo, nell'ordine in cui i coloni li scelgono (vedi find_work)
+# Tabella delle priorità in cima alla finestra Jobs: in testa le icone dei lavori (Work), poi una riga per colono col
+# nome e un tasto per lavoro, 1-4 o – per mai: clic per farlo dopo (1, 2, 3, 4, mai, di nuovo 1), clic destro per
+# farlo prima. Governare solo il sovrano. Si rifà quando cambiano i coloni, il sovrano o la lingua
+func refresh_priorities() -> void:
+	var key := str(colonists) + str(ruler) + TranslationServer.get_locale()
+	if key != priorities_key:
+		priorities_key = key
+		for child in priority_grid.get_children():
+			priority_grid.remove_child(child)
+			child.queue_free()
+		priority_grid.add_child(Control.new())  # sopra i nomi
+		for w in Work.values():
+			var icon := ui_icon(WORK_ICONS[w], Rect2(), Vector2(16, 16))
+			icon.tooltip_text = "%s\n%s" % [named(Work, w, "work"), tr(WORK_INFO[w])]
+			icon.mouse_filter = Control.MOUSE_FILTER_STOP  # il suggerimento
+			priority_grid.add_child(icon)
+		for c in colonists:
+			var label := Label.new()
+			label.text = c.first_name
+			priority_grid.add_child(label)
+			for w in Work.values():
+				if w == Work.GOVERN and c != ruler:
+					priority_grid.add_child(Control.new())
+					continue
+				var cell := Button.new()
+				cell.flat = true
+				cell.focus_mode = Control.FOCUS_NONE
+				cell.custom_minimum_size = Vector2(22, 22)
+				cell.tooltip_text = "%s: %s" % [c.first_name, named(Work, w, "work")]
+				cell.pressed.connect(step_priority.bind(c, w, 1))
+				cell.gui_input.connect(priority_click.bind(c, w))
+				priority_grid.add_child(cell)
+	var i := Work.size() + 1  # dopo la riga delle icone
+	for c in colonists:
+		i += 1  # il nome
+		for w in Work.values():
+			var cell: Control = priority_grid.get_child(i)
+			i += 1
+			if cell is Button:
+				var p := priority(c, w)
+				cell.text = str(p) if p > 0 else "–"
+				for state in ["font_color", "font_hover_color", "font_pressed_color"]:
+					cell.add_theme_color_override(state, PRIORITY_COLORS[p])
+
+
+# un passo nel giro delle priorità di `c` per il lavoro `w`: avanti (1 dopo, 4, mai, 1) o indietro
+func step_priority(c: Colonist, w: Work, step: int) -> void:
+	var cycle := range(1, PRIORITY_LEVELS + 1) + [0]
+	set_priority(c, w, cycle[posmod(cycle.find(priority(c, w)) + step, cycle.size())])
+	refresh_priorities()
+
+
+func priority_click(event: InputEvent, c: Colonist, w: Work) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+		step_priority(c, w, -1)
+
+
+# finestra "Jobs": lavori in attesa per tipo (vedi find_work)
 func job_list() -> String:
 	var lines := PackedStringArray()
 	if not chop_marks.is_empty():
@@ -2890,6 +2982,7 @@ func _process(delta: float) -> void:
 	splendor_label.text = str(colony_splendor())
 	confirm.disabled = draft.is_empty() and furniture_draft.is_empty()
 	if jobs_panel.visible:
+		refresh_priorities()
 		jobs_list.text = job_list()
 	if resources_panel.visible:
 		update_resources()
@@ -3946,24 +4039,71 @@ func stroll(c: Colonist, reach: int) -> Array[Vector2i]:
 	return none
 
 
-# Avvia il lavoro libero più vicino, in ordine fisso finché non c'è la tabella delle priorità: prendere
-# l'equipaggiamento, cucinare, forgiare e cucire, tagliare, scavare, estirpare, raccogliere, pescare, cacciare,
-# costruire, trasportare. false se non ce n'è
+# Avvia il lavoro da fare per primo secondo la tabella delle priorità (vedi Work): prima di tutto l'equipaggiamento; poi
+# chi lavora in una sala del trono o in uno studio (scelto dal cartello) ci governa e ci studia; poi i lavori dalla
+# priorità 1 alla PRIORITY_LEVELS, a pari priorità nell'ordine di Work, e di ognuno il più vicino. false se non ce n'è
 func find_work(c: Colonist) -> bool:
 	if c == ruler and enacted.has(Law.COURT):  # a corte il sovrano governa e basta
 		return try_equip(c) or try_seat(c, Build.THRONE, false)
 	if routines and holiday():  # riposo festivo, festa del raccolto: si cucina e basta
-		return try_equip(c) or try_cook(c)
-	if try_equip(c) or try_seat(c, Build.THRONE, true) or try_seat(c, Build.DESK, true) or try_cook(c) or try_craft(c) \
-			or try_work(c, Job.CHOP, chop_marks.keys(), TREE_SIDES, gather_time(c, Job.CHOP)) \
-			or try_work(c, Job.MINE, mine_marks.keys(), SIDES, gather_time(c, Job.MINE)) \
-			or try_work(c, Job.UPROOT, uproot_marks.keys(), SIDES, UPROOT_TIME * work_factor(c, Job.UPROOT)) \
-			or try_work(c, Job.HARVEST, harvest_ready(), SIDES, gather_time(c, Job.HARVEST)) \
-			or try_work(c, Job.FARM, farm_ready(), SIDES, FARM_TIME * skill_time(c.skills[Skill.GATHERING]) * work_factor(c, Job.FARM)) \
-			or try_work(c, Job.FISH, fishable(), SIDES, gather_time(c, Job.FISH)) or try_hunt(c) \
-			or try_work(c, Job.CUT_ICE, ice_ready(), SIDES, gather_time(c, Job.CUT_ICE)):
+		return try_equip(c) or (priority(c, Work.COOK) > 0 and try_cook(c))
+	if try_equip(c) or (priority(c, Work.GOVERN) > 0 and try_seat(c, Build.THRONE, true)) \
+			or (priority(c, Work.STUDY) > 0 and try_seat(c, Build.DESK, true)):
 		return true
+	for level in range(1, PRIORITY_LEVELS + 1):
+		for w in Work.values():
+			if priority(c, w) == level and try_work_kind(c, w):
+				return true
+	return false
 
+
+# la priorità di `c` per il lavoro `w`: 1 (prima) - PRIORITY_LEVELS, 0 mai
+func priority(c: Colonist, w: Work) -> int:
+	return c.priorities[w] if w < c.priorities.size() else PRIORITY_DEFAULT
+
+
+func set_priority(c: Colonist, w: Work, level: int) -> void:
+	while c.priorities.size() < Work.size():
+		c.priorities.append(PRIORITY_DEFAULT)
+	c.priorities[w] = level
+
+
+# Avvia un lavoro del tipo `w` (una colonna della tabella delle priorità), il più vicino; false se non ce n'è
+func try_work_kind(c: Colonist, w: Work) -> bool:
+	match w:
+		Work.COOK:
+			return try_cook(c)
+		Work.CRAFT:
+			return try_craft(c)
+		Work.CHOP:
+			return try_work(c, Job.CHOP, chop_marks.keys(), TREE_SIDES, gather_time(c, Job.CHOP))
+		Work.MINE:
+			return try_work(c, Job.MINE, mine_marks.keys(), SIDES, gather_time(c, Job.MINE)) \
+				or try_work(c, Job.CUT_ICE, ice_ready(), SIDES, gather_time(c, Job.CUT_ICE))
+		Work.GATHER:
+			return try_work(c, Job.UPROOT, uproot_marks.keys(), SIDES, UPROOT_TIME * work_factor(c, Job.UPROOT)) \
+				or try_work(c, Job.HARVEST, harvest_ready(), SIDES, gather_time(c, Job.HARVEST))
+		Work.FARM:
+			return try_work(c, Job.FARM, farm_ready(), SIDES, FARM_TIME * skill_time(c.skills[Skill.GATHERING]) * work_factor(c, Job.FARM))
+		Work.FISH:
+			return try_work(c, Job.FISH, fishable(), SIDES, gather_time(c, Job.FISH))
+		Work.HUNT:
+			return try_hunt(c)
+		Work.BUILD:
+			return try_build(c) or try_repair(c)
+		Work.HAUL:
+			for res in Res.values():
+				if try_haul(c, res, items[res].keys().filter(func(cell): return not stockpile.has(cell) and is_free(cell))):
+					return true
+		Work.GOVERN:
+			return try_seat(c, Build.THRONE, false)
+		Work.STUDY:
+			return try_seat(c, Build.DESK, false)
+	return false
+
+
+# Costruire: prima le strutture, poi i mobili; al mucchio a prendere il materiale, poi al cantiere più vicino
+func try_build(c: Colonist) -> bool:
 	for job in [Job.BUILD, Job.FURNISH]:  # prima le strutture, poi i mobili
 		var plans := plans_of(job)
 		var stands := {}  # casella libera accanto a un progetto per cui c'è un mucchio di materiale -> progetto
@@ -3979,13 +4119,7 @@ func find_work(c: Colonist) -> bool:
 			c.carry_res = piles[to_source.back()]
 			reserved[to_source.back()] = c  # intanto nessun altro prende da quel mucchio
 			return true
-
-	if try_repair(c):
-		return true
-	for res in Res.values():
-		if try_haul(c, res, items[res].keys().filter(func(cell): return not stockpile.has(cell) and is_free(cell))):
-			return true
-	return try_seat(c, Build.THRONE, false) or try_seat(c, Build.DESK, false)  # niente da fare: governa, studia
+	return false
 
 
 # Riparare un tetto: la casella consumata (da WORN) più vicina, con un mucchio del suo materiale (legna per le

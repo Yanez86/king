@@ -46,7 +46,7 @@ A key works like a click on its button (press it again to close).
 [cell]Cut ice[/cell][cell]Y[/cell][cell]Roofs[/cell][cell]V[/cell]
 [cell]Wiki[/cell][cell]F1[/cell][cell][/cell][cell][/cell]
 [/table]
-• Jobs: the work waiting, in the order colonists take it. Resources: what is in your warehouses.
+• Jobs: who does what first (see Colonists), and the work waiting. Resources: what is in your warehouses.
 
 [color=#e8c34a]Fixed keys[/color]
 • Space: pause; 1, 2, 3: speed.
@@ -79,7 +79,12 @@ Every hour is sleep, work or free time. The usual day: sleep 22–6, breakfast a
 • Sleep hours: to bed, or on the ground if no bed is free. They stay down even when rested, then get up with at least 80 rest.
 • Work hours: they take jobs. When the shift or their hours are over, they stop as soon as their hands are free. Every hour they also stop for an urgent need: hunger (if there is food), tiredness (if a bed is free), boredom.
 • Free time: a snack if food is under 60, then they relax.
-• There are no priorities to set: jobs go in this order, the nearest first. Pick up equipment; the ruler to the throne and the study's workers to their desks, if you ticked them; cook, craft, chop, mine, uproot, harvest, fish, hunt, build, furnish, haul. With nothing left, the ruler governs and the others study.
+
+[color=#e8c34a]Priorities[/color]
+The table at the top of Jobs (J): one row per colonist, one column per kind of work (hover the icons). Each cell is 1 (first) to 4 (last), or – for never; click for later, right click for sooner. At the start everything is 3.
+• A colonist takes the work with the best number that has something to do; with equal numbers, the one further left; of each kind of work, the nearest.
+• The columns: cook, craft (forge, workbench, spinning wheel, carpenter's bench), chop, mine (and cut ice), gather (bushes, flax, uprooting), farm, fish, hunt, build (and furnish, repair roofs), haul, govern (only the ruler), study.
+• Before the table: picking up equipment; the ruler to the throne and the study's workers to their desks, if you ticked them on the sign. A roof on fire comes before everything, for everyone.
 
 [color=#e8c34a]Health[/color]
 • 0–100, healing 30 a day (60 asleep). A bar over the head shows the wounded.

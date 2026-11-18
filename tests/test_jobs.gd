@@ -895,6 +895,61 @@ func _initialize() -> void:
 	main.sheet_panel.hide()
 	main.routines = false
 
+	# tabella delle priorità: all'inizio tutto 3, cioè l'ordine di Work; prima la priorità più alta, a pari priorità
+	# l'ordine di Work, 0 mai. Nella finestra Jobs un tasto per colono e lavoro: clic dopo, clic destro prima
+	var P = main.Work
+	var prio_worker = main.colonists[1]
+	check(P.values().all(func(w): return main.priority(prio_worker, w) == main.PRIORITY_DEFAULT), "all'inizio tutto 3")
+	for col in main.colonists:
+		main.quit_job(col)
+		if col != prio_worker:
+			for w in P.values():
+				main.set_priority(col, w, 0)  # gli altri stanno fermi
+	var near_tree: Array = main.trees.keys()
+	main.sort_by_distance(near_tree, prio_worker.pos)
+	var near_rock: Array = main.boulders.keys()
+	main.sort_by_distance(near_rock, prio_worker.pos)
+	main.chop_marks[near_tree[0]] = true
+	main.mine_marks[near_rock[0]] = true
+	check(main.find_work(prio_worker) and prio_worker.job == main.Job.CHOP, "a pari priorità prima tagliare, poi scavare (l'ordine di Work)")
+	main.quit_job(prio_worker)
+	main.set_priority(prio_worker, P.MINE, 1)
+	check(main.find_work(prio_worker) and prio_worker.job == main.Job.MINE, "scavare a 1 viene prima")
+	main.quit_job(prio_worker)
+	main.set_priority(prio_worker, P.MINE, 0)
+	main.set_priority(prio_worker, P.CHOP, 4)
+	check(main.find_work(prio_worker) and prio_worker.job == main.Job.CHOP, "scavare mai: taglia, anche a 4")
+	main.quit_job(prio_worker)
+	for w in P.values():
+		main.set_priority(prio_worker, w, 0)
+	check(not main.find_work(prio_worker) and prio_worker.job == main.Job.NONE, "tutto a mai: non lavora")
+	main.chop_marks.erase(near_tree[0])
+	main.mine_marks.erase(near_rock[0])
+	for col in main.colonists:
+		col.priorities.clear()  # di nuovo tutto 3
+	main.jobs_panel.show()
+	main.refresh_priorities()
+	var prio_grid: GridContainer = main.priority_grid
+	check(prio_grid.columns == P.size() + 1 and prio_grid.get_child_count() == prio_grid.columns * (main.colonists.size() + 1),
+		"in testa le icone dei lavori, poi una riga per colono")
+	var row: int = main.colonists.find(prio_worker) + 1
+	var cook_cell: Button = prio_grid.get_child(row * prio_grid.columns + 1 + P.COOK)
+	check(cook_cell.text == "3", "il tasto dice la priorità")
+	cook_cell.pressed.emit()
+	check(main.priority(prio_worker, P.COOK) == 4 and cook_cell.text == "4", "clic: dopo")
+	cook_cell.pressed.emit()
+	check(main.priority(prio_worker, P.COOK) == 0 and cook_cell.text == "–", "dopo il 4, mai")
+	var right := InputEventMouseButton.new()
+	right.button_index = MOUSE_BUTTON_RIGHT
+	right.pressed = true
+	cook_cell.gui_input.emit(right)
+	check(main.priority(prio_worker, P.COOK) == 4, "clic destro: prima")
+	var govern_col: int = 1 + P.GOVERN
+	check(prio_grid.get_child(row * prio_grid.columns + govern_col) is not Button and prio_grid.get_child(govern_col + prio_grid.columns
+		* (main.colonists.find(main.ruler) + 1)) is Button, "governa solo il sovrano")
+	main.jobs_panel.hide()
+	prio_worker.priorities.clear()
+
 	# partenza di gioco: il sovrano e 3 coloni nella radura, niente di costruito; a terra le monete e un'arma abbandonata
 	var game = load("res://main.tscn").instantiate()
 	root.add_child(game)

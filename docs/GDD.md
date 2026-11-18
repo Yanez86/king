@@ -33,9 +33,14 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 
 ### 4.1 Lavori e priorità
 - Tipi di lavoro (MVP): Costruire, Tagliare legna, Estrarre, Raccogliere/Trasportare, Cucinare, Produrre (artigianato), Coltivare.
-- Ogni colono ha una tabella colono × lavoro con priorità 1–4 (o disattivato).
-- Default sensati, modificabili dal giocatore.
-- Il colono sceglie il lavoro disponibile con priorità più alta, poi il più vicino.
+- Ogni colono ha una tabella colono × lavoro con priorità 1–4 (o disattivato) ✓: in cima alla finestra Jobs, una riga
+  per colono e una colonna per lavoro (cucinare, produrre, tagliare, scavare e tagliare il ghiaccio, raccogliere ed
+  estirpare, coltivare, pescare, cacciare, costruire arredare e riparare, trasportare, governare solo il sovrano,
+  studiare); clic per dopo (1 → 4 → mai), clic destro per prima.
+- All'inizio tutto 3: i coloni vanno nell'ordine delle colonne, come prima della tabella.
+- Il colono sceglie il lavoro disponibile con priorità più alta; a pari priorità quello più a sinistra; di un lavoro
+  il più vicino. Prima della tabella: prendere l'equipaggiamento, e chi è spuntato su sala del trono o studio ci
+  governa e ci studia; un tetto in fiamme viene prima di tutto.
 
 ### 4.2 Coloni
 - **Bisogni**: fame, riposo, divertimento, comfort, felicità; calore in seguito. Il divertimento scende da svegli e sale svagandosi.
@@ -328,8 +333,7 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
   | Cervo | 2 | 10 | 1,5 caselle/s | 3 |
 
   Nascono a più di 15 caselle dalla radura; ogni mezza giornata ne arriva uno nuovo, fino a 12.
-- Ordine dei lavori finché non c'è la tabella delle priorità: prendere l'equipaggiamento, cucinare, forgiare e cucire,
-  tagliare, scavare, estirpare, raccogliere, pescare, cacciare, costruire, trasportare.
+- Ordine dei lavori: vedi la tabella delle priorità (4.1).
 - Poi: animali che si difendono; stufato (vegetali + carne o pesce), conserve per l'inverno.
 - **Raccogliere** (tasto "Harvest", cestino, dopo "Uproot"): si segnano i cespugli; i coloni ne raccolgono le bacche ogni
   volta che maturano (5 ogni 2 giorni), finché il segno resta, e le portano in magazzino. Segnare "Uproot" toglie il segno e viceversa.
@@ -943,9 +947,10 @@ in alto (a 1280 di larghezza non ci stanno).
 
 ## 5. Scope
 
-### MVP (primo traguardo giocabile)
+### MVP (primo traguardo giocabile) ✓
 Mappa, 3–5 coloni, tagliare/estrarre/costruire/cucinare, priorità, fame/riposo/freddo,
-una stagione invernale, salvataggio locale, inglese + italiano.
+una stagione invernale, salvataggio locale, inglese + italiano. Raggiunto il 2026-11-18, con la tabella delle priorità
+(4.1) e l'orto (4.4.1).
 
 ### Dopo l'MVP (in ordine)
 1. Catene produttive e attrezzi

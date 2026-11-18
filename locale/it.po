@@ -2880,6 +2880,95 @@ msgstr "Orto"
 msgid "The garden: mark plots on open grass. Colonists sow turnips and cabbages and harvest them 20 days later. Nothing grows in winter."
 msgstr "L'orto: segna delle caselle sul prato libero. I coloni seminano rape e cavoli e li raccolgono 20 giorni dopo. D'inverno non cresce niente."
 
+# --- Tabella delle priorità (finestra Jobs): i lavori, col contesto "work"
+
+msgctxt "work"
+msgid "Cook"
+msgstr "Cucinare"
+
+msgctxt "work"
+msgid "Craft"
+msgstr "Produrre"
+
+msgctxt "work"
+msgid "Chop"
+msgstr "Tagliare"
+
+msgctxt "work"
+msgid "Mine"
+msgstr "Scavare"
+
+msgctxt "work"
+msgid "Gather"
+msgstr "Raccogliere"
+
+msgctxt "work"
+msgid "Farm"
+msgstr "Coltivare"
+
+msgctxt "work"
+msgid "Fish"
+msgstr "Pescare"
+
+msgctxt "work"
+msgid "Hunt"
+msgstr "Cacciare"
+
+msgctxt "work"
+msgid "Build"
+msgstr "Costruire"
+
+msgctxt "work"
+msgid "Haul"
+msgstr "Trasportare"
+
+msgctxt "work"
+msgid "Govern"
+msgstr "Governare"
+
+msgctxt "work"
+msgid "Study"
+msgstr "Studiare"
+
+msgid "Cooking meals at the campfire or the hearth."
+msgstr "Cucinare i pasti al fuoco da campo o al focolare."
+
+msgid "Forge, workbench, spinning wheel, carpenter's bench, furnace."
+msgstr "Forgia, banco da lavoro, filatoio, banco del falegname, fornace."
+
+msgid "Felling the marked trees."
+msgstr "Abbattere gli alberi segnati."
+
+msgid "Mining the marked boulders, cutting ice."
+msgstr "Scavare i massi segnati, tagliare il ghiaccio."
+
+msgid "Picking bushes and flax, uprooting."
+msgstr "Raccogliere da cespugli e lino, estirpare."
+
+msgid "Sowing and harvesting the garden."
+msgstr "Seminare e raccogliere nell'orto."
+
+msgid "Fishing at the marked water."
+msgstr "Pescare nell'acqua segnata."
+
+msgid "Hunting the marked animals."
+msgstr "Cacciare gli animali segnati."
+
+msgid "Building, furnishing, repairing roofs."
+msgstr "Costruire, arredare, riparare i tetti."
+
+msgid "Carrying things into the warehouses."
+msgstr "Portare le cose nei magazzini."
+
+msgid "Governing from the throne: only the ruler."
+msgstr "Governare dal trono: solo il sovrano."
+
+msgid "Studying at a desk."
+msgstr "Studiare allo scrittoio."
+
+msgid "1 first, 4 last, – never. Click: later; right click: sooner."
+msgstr "1 prima, 4 per ultimo, – mai. Clic: dopo; clic destro: prima."
+
 msgid "Tend the garden: %d plot"
 msgid_plural "Tend the garden: %d plots"
 msgstr[0] "Curare l'orto: %d casella"
