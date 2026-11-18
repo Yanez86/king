@@ -254,7 +254,7 @@ La Vista stanze (L) tinge ogni stanza col colore del suo tipo e mostra i proprie
 [cell][img=center]res://art/icon_meal.png[/img] Pasto[/cell][cell]100[/cell][cell]3 giorni[/cell][cell]–[/cell]
 [cell][img=center]res://art/icon_fine_meal.png[/img] Pasto squisito[/cell][cell]100[/cell][cell]3 giorni[/cell][cell]–[/cell]
 [/table]
-• Dura: a terra all'aperto; in un magazzino il doppio. Poi il mucchio marcisce e sparisce. I mucchi che si mescolano prendono la freschezza media. Col mouse sopra un mucchio: Fresco, Stantio o Quasi marcio, e i giorni che restano.
+• Dura: a terra all'aperto; in un magazzino il doppio. Poi il mucchio marcisce e sparisce. I mucchi che si mescolano prendono la freschezza media. Col mouse sopra un mucchio: Fresco, Non più fresco o Quasi marcio, e i giorni che restano.
 • Chi mangia crudo può restare Intossicato: la probabilità è minima quando il cibo è fresco, massima quando è quasi marcio.
 • Un pasto dà Ben nutrito, un pasto squisito Lauto pasto (vedi Condizioni).
 
