@@ -66,4 +66,7 @@
 - Git LFS se gli asset binari crescono molto (non necessario ora).
 - Wiki delle meccaniche su GitHub Pages (https://yanez86.github.io/king/, da `main` → `/docs`): `python3 tools/make_wiki.py`
   rigenera `docs/index.html` (italiano, da `locale/wiki_it.gd`) e `docs/en.html` (inglese, da `wiki.gd`), con le
-  costanti di `main.gd` e `atmosphere.gd`. Va rifatta e committata quando cambiano.
+  costanti di `main.gd` e `atmosphere.gd`. Le icone sono quelle del gioco, ritagliate dai PNG di `art/` (pulsanti di
+  `main.tscn`, fogli `*_SHEET`), davanti ai nomi delle cose nelle tabelle e negli elenchi; la sezione "Da sviluppare"
+  viene dal GDD (fasi degli "Ordine di lavoro" non ancora fatte, i "Poi:", ricerche e leggi senza ✓). Va rifatta e
+  committata quando cambiano il gioco o il GDD.
