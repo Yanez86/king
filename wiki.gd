@@ -258,7 +258,9 @@ At 5 nothing changes. Below, sleep, cooking, crafting and study take longer (20%
 The Rooms lens (L) tints every room with the color of its type and shows its owners or workers: hover them for their sheet."""],
 
 	["Roofs & Heat", """[color=#e8c34a]Roofs[/color]
-• Every finished room gets its own roof over its walls and doors; V lifts them all to look inside. An L-shaped room gets two roofs; a roof taller than wide has its ridge north to south and a gable over the front wall.
+• Every finished room gets its own roof over its walls and doors; V lifts them all to look inside. Roofs have height: they rise over the room and can hide up to three tiles behind it. An L-shaped room gets two roofs. The ridge runs along the long side: a roof taller than wide has it north to south and a gable over the front wall; a wide one east to west, with a small gable over the door if the house is at least 7 tiles wide and 4 deep.
+• With roofs on, the front wall is a tall facade: half-timbering on wood, coursed stone on stone, a window every two tiles, an arched door.
+• Whoever walks behind a house shows through a round hole in its roof; those inside stay covered, except the colonist whose sheet is open.
 • Roofs follow the walls: shingles over wooden walls, clay tiles over stone (the majority of the room's walls; doors count as wood).
 • Snow lies on roofs as on the ground, but the heat leaking out of a warm room melts it, first around the chimneys. Wet roofs are darker, eaves drip in the rain and grow icicles below zero.
 

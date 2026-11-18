@@ -45,10 +45,13 @@ func _initialize() -> void:
 	for k in main.cells_in(Rect2i(0, 0, 5, 2)) + main.cells_in(Rect2i(0, 2, 2, 4)):
 		l_shape[k] = true
 	check(main.rectangles(l_shape) == [Rect2i(0, 0, 5, 2), Rect2i(0, 2, 2, 4)], "una stanza a L: due rettangoli, due colmi")
-	var narrow = main.Roof.new()
-	narrow.rect = Rect2i(0, 0, 5, 9)
-	narrow.vertical = true
-	check(main.ridge_of(narrow) == 2.5 * main.TILE, "più alta che larga: il colmo da nord a sud, a metà")
+	var front := []
+	front.resize(5)
+	front.fill(main.ROOFS.Front.WOOD)
+	var narrow: Dictionary = main.ROOFS.new().bake(Rect2i(0, 0, 5, 9), front, -1, main.ROOFS.Mat.SHINGLE)
+	check(not narrow["along_x"] and narrow["mid"] == 2.5 * main.TILE, "più alta che larga: il colmo da nord a sud, a metà")
+	check(main.ROOFS.lift(narrow, Vector2(2.5 * main.TILE, 0)) == main.ROOFS.FACADE + narrow["rise"]
+		and main.ROOFS.lift(narrow, Vector2(0, 0)) < main.ROOFS.lift(narrow, Vector2(main.TILE, 0)), "il colmo in alto, la gronda in basso")
 	var cold: float = main.temperature_at(Vector2i(12, 12))
 	check(is_equal_approx(cold, lerpf(out, main.ROOM_TEMP, 0.5)), "sotto il tetto a metà strada verso ROOM_TEMP")
 

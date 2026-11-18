@@ -965,50 +965,7 @@ oFFoFFFFFoFFFFo
 .oo.ooooo.oooo.
 """
 
-# Tetto 16x16, si ripete sopra le stanze coi loro muri (draw_roofs in main.gd): file di coppi sfalsati, la testa al sole
-# e il canale in ombra.
-ROOF = """
-FFFDFFfDFFFDFFfD
-FFfDFFfDFFfDFFfD
-FFfDFFfDFFfDFFfD
-FFfDfDDDFFfDfDDD
-FFfDFFFDFFfDFFFD
-FFfDFFfDFFfDFFfD
-FFfDFFfDFFfDFFfD
-fDDDFFfDfDDDFFfD
-FFFDFFfDFFFDFFfD
-FFfDFFfDFFfDFFfD
-FFfDFFfDFFfDFFfD
-FFfDfDDDFFfDfDDD
-FFfDFFFDFFfDFFFD
-FFfDFFfDFFfDFFfD
-FFfDFFfDFFfDFFfD
-fDDDFFfDfDDDFFfD
-"""
-SNOWY_ROOF = {"F": "h", "f": "u", "D": "X"}  # le stesse tegole sotto la neve: bianco, ombra, giunti grigi
-
-# Scandole 16x16, il tetto delle case di legno: file di tavolette sovrapposte, sfalsate di mezza tavoletta
-SHINGLES = """
-WWWWWWWWWWWWWWWW
-cBBBBcBWcBBBBcBW
-BBwBBBBWBBwBBBBW
-wBBBBwwWwBBBBwwW
-WWWWWWWWWWWWWWWW
-BcBWcBBBBcBWcBBB
-BBBWBBwBBBBWBBwB
-BwwWwBBBBwwWwBBB
-WWWWWWWWWWWWWWWW
-cBBBBcBWcBBBBcBW
-BBwBBBBWBBwBBBBW
-wBBBBwwWwBBBBwwW
-WWWWWWWWWWWWWWWW
-BcBWcBBBBcBWcBBB
-BBBWBBwBBBBWBBwB
-BwwWwBBBBwwWwBBB
-"""
-SNOWY_SHINGLES = {"c": "h", "B": "h", "w": "u", "W": "X"}
-
-# Usura di una casella di tetto (vedi draw_roofs in main.gd), sopra coppi o scandole: licheni (vecchio ma integro),
+# Usura di una casella di tetto (vedi draw_wear in main.gd), sopra coppi o scandole: licheni (vecchio ma integro),
 # tegole smosse e muschio, il buco con le travi a vista
 ROOF_WEAR = """
 ................ ................ ................
@@ -1028,18 +985,6 @@ ROOF_WEAR = """
 .........+...... ................ ................
 ................ ................ ................
 """
-
-
-def roof_sheet():
-    """Tetti, foglio 32x64: righe coppi e scandole, ognuno col colmo da est a ovest (le file scendono verso nord e sud)
-    e da nord a sud (girato: le file vanno verso est e ovest); colonne: asciutto, innevato (vedi draw_roofs)."""
-    turn = lambda g: ["".join(row[x] for row in g) for x in range(len(g[0]))]
-    snowy = lambda g, m: ["".join(m.get(ch, ch) for ch in line) for line in g]
-    tiles, shingles = art(ROOF, 16, 16), art(SHINGLES, 16, 16)
-    rows = []
-    for grid, snow in ((tiles, SNOWY_ROOF), (turn(tiles), SNOWY_ROOF), (shingles, SNOWY_SHINGLES), (turn(shingles), SNOWY_SHINGLES)):
-        rows += side_by_side([grid, snowy(grid, snow)])
-    return rows
 
 # Cartello 16x16 appeso al muro accanto alla porta di una stanza finita: cliccandolo si cambiano nome e tipo.
 SIGN = """
@@ -3862,7 +3807,6 @@ def main():
     images["icon_roofs"] = pixels(art(ROOFS_ICON, 16, 16))
     images["icon_heat"] = pixels(art(HEAT_ICON, 16, 16))
     images["weather"] = pixels(side_by_side(frames(WEATHER_ICONS, count=9)))
-    images["roof"] = pixels(roof_sheet())
     images["roof_wear"] = pixels(side_by_side(frames(ROOF_WEAR)))
     images["chimneys"] = pixels(side_by_side(frames(CHIMNEYS, count=2)))
     block = art(ICE_BLOCK, 16, 16)

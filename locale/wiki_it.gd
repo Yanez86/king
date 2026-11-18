@@ -257,7 +257,9 @@ A 5 non cambia niente. Sotto, sonno, cucina, lavorazioni e studio durano di più
 La Vista stanze (L) tinge ogni stanza col colore del suo tipo e mostra i proprietari o i lavoratori: passaci sopra col mouse per la loro scheda."""],
 
 	["Tetti e calore", """[color=#e8c34a]Tetti[/color]
-• Ogni stanza finita ha il suo tetto, sopra i muri e le porte; V li toglie tutti per guardare dentro. Una stanza a L ha due tetti; un tetto più alto che largo ha il colmo da nord a sud e il timpano sopra il muro davanti.
+• Ogni stanza finita ha il suo tetto, sopra i muri e le porte; V li toglie tutti per guardare dentro. I tetti hanno un'altezza: salgono sopra la stanza e possono nascondere fino a tre caselle dietro. Una stanza a L ha due tetti. Il colmo corre lungo il lato lungo: un tetto più alto che largo lo ha da nord a sud e il timpano sopra il muro davanti; uno largo da est a ovest, con un piccolo timpano sopra la porta se la casa è larga almeno 7 caselle e profonda 4.
+• Coi tetti, il muro davanti è una facciata alta: graticcio sul legno, pietra a corsi sulla pietra, una finestra ogni due caselle, la porta ad arco.
+• Chi passa dietro una casa si vede da un buco tondo nel tetto; chi è dentro resta coperto, tranne il colono di cui è aperta la scheda.
 • I tetti seguono i muri: scandole sui muri di legno, coppi su quelli di pietra (la maggioranza dei muri della stanza; le porte contano come legno).
 • La neve si posa sui tetti come per terra, ma il calore che esce da una stanza calda la scioglie, prima attorno ai comignoli. Bagnati i tetti sono più scuri, dalle gronde gocciola quando piove e sotto lo zero pendono i ghiaccioli.
 
