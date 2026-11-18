@@ -502,6 +502,44 @@ func _initialize() -> void:
 	pick.item_selected.emit(pick.selected)
 	check(main.plans[plot] == [year, [S.CABBAGE]] and box.get_node("Years").text == "This year: Cabbages. Next year: Cabbages.",
 		"il piano finisce al primo —")
+	# la terra del campo: col Catasto i numeri e il prossimo raccolto, con l'Almanacco cinque fasce e la tendenza, col
+	# Saggio tre fasce; senza ricerche quello che dicono i contadini bravi delle caselle che hanno lavorato
+	var ago: PackedByteArray = main.soil.duplicate()
+	for k in main.field_of(plot):
+		main.add_soil(k, 60 - main.soil_at(k))
+		ago[k.y * main.MAP_SIZE.x + k.x] = 50
+	main.soil_year_ago = ago
+	main.refresh_field()
+	var soil_text: Label = box.get_node("Soil")
+	check(soil_text.visible and soil_text.text.begins_with("Soil: 60, rising.\nNext harvest: about "), "col Catasto: numeri, tendenza, previsione")
+	main.researched.erase(main.Tech.LAND_REGISTER)
+	main.refresh_field()
+	check(soil_text.text == "Soil: good, rising.", "con l'Almanacco: cinque fasce e la tendenza")
+	main.researched.erase(main.Tech.ALMANAC)
+	main.refresh_field()
+	check(soil_text.text == "Soil: average.", "col Saggio del terreno: tre fasce")
+	check(main.get_node("HUD/Tools/Row/SoilLens").visible, "e la lente")
+	main.researched.erase(main.Tech.SOIL_SURVEY)
+	main.refresh_unlocks()
+	main.refresh_field()
+	check(not soil_text.visible and not main.get_node("HUD/Tools/Row/SoilLens").visible, "senza ricerche la terra non si vede")
+	var farmer = main.colonists[0]
+	farmer.skills[main.Skill.GATHERING] = main.SOIL_EYE - 1
+	main.learn_soil(farmer, plot)
+	check(main.soil_known.is_empty(), "un contadino alle prime armi non la riconosce")
+	farmer.skills[main.Skill.GATHERING] = main.SOIL_EYE
+	main.learn_soil(farmer, plot)
+	main.refresh_field()
+	check(soil_text.visible and soil_text.text == "The farmers say the soil is average.", "un contadino bravo sì")
+	for t in [main.Tech.SOIL_SURVEY, main.Tech.ALMANAC, main.Tech.LAND_REGISTER]:
+		main.researched[t] = true
+	main.refresh_unlocks()
+	var soil_lens: Button = main.get_node("HUD/Tools/Row/SoilLens")
+	main.get_node("HUD/Tools/Row/HeatLens").button_pressed = true
+	soil_lens.button_pressed = true
+	check(main.soil_lens.visible and not main.get_node("HUD/Tools/Row/HeatLens").button_pressed, "la lente della terra, una lente alla volta")
+	soil_lens.button_pressed = false
+	check(not main.soil_lens.visible, "e si chiude")
 	main.field_popup.hide()
 	main.order = main.Order.GARDEN
 	main.mark(Rect2i(plot + Vector2i(2, 0), Vector2i.ONE))  # una casella accanto: prende il piano del campo

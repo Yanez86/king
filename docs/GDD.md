@@ -384,8 +384,7 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
     i numeri esatti, sulla lente e sul cartello, e la previsione del prossimo raccolto.
   - **Ordine di lavoro**: (1) fertilità, resa, campi col cartello, indizi, bilancio; (2) fave, piano di rotazione,
     maggese, terra stanca; (3) le tre ricerche, la lente, il contadino che impara.
-  - **Stato**: fatte le fasi 1 e 2 (test in `tests/test_food.gd`). Il contadino che impara si segna già (le caselle
-    lavorate da chi ha almeno 5 in Raccogliere), si vedrà con la fase 3.
+  - **Stato**: fatte le fasi 1–3 (test in `tests/test_food.gd`).
   - Poi: concimi naturali (cenere dalla carbonaia, compost dal cibo marcio e dalle erbacce, sovescio delle fave,
     letame con la stalla).
 
@@ -835,6 +834,9 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   |---|---|---|---|---|---|
   | Terra | Orto ✓ | I | 80 | — | zona orto e lavoro Coltivare: rape in 60 giorni e cavoli in 90, niente d'inverno |
   | | Forno di pietra | II | 300 | Orto | forno 2x1: pane (2 vegetali → 3, sazia 60, dura 8 giorni), stufato |
+  | | Saggio del terreno ✓ | I | 60 | Orto | la lente della terra (O) in tre fasce; la fascia sul cartello del campo |
+  | | Almanacco agrario ✓ | II | 250 | Saggio del terreno | cinque fasce; se un campo sale o scende rispetto a un anno prima |
+  | | Catasto ✓ | III | 450 | Almanacco agrario | i numeri della terra e il prossimo raccolto di ogni campo |
   | | Apicoltura | III | 450 | Forno di pietra | arnia accanto alle aiuole: miele (non marcisce), cera (candele: si studia di notte) |
   | | Banchetto reale | IV | 1000 | Apicoltura | il banchetto al forno: +15 felicità per 3 giorni, +20 autorità |
   | | Caccia ✓ | I | 50 | — | *filatoio, corda d'arco, banco del falegname, falegnameria, arco, pelli alle pareti, portiera* (vedi 4.4.5) |
@@ -977,7 +979,7 @@ IV, regno, leggi finali, cittadella.
 **Stato**: fatte le fasi 1–4; della 5 una parte dei nodi, l'erudito errante e la protesta. Nel gioco: scrittoio,
 libreria e trono; stanze Studio e Sala del trono; lavori Studiare e Governare; studio e autorità (nelle finestre
 Knowledge e Laws, tasti K e G, o clic su scrittoio e trono; tutte e due scorrono); i tre libri, nei forzieri e nei
-tesori, col monastero; le 30 ricerche segnate ✓; le 19 leggi segnate ✓; il titolo cresce con lo splendore (4.3) e dà i
+tesori, col monastero; le 33 ricerche segnate ✓; le 19 leggi segnate ✓; il titolo cresce con lo splendore (4.3) e dà i
 sigilli (2–5), le fasce delle leggi e l'autorità di ogni giorno; gli eventi d'autorità del 4.7.4 tranne
 l'incoronazione (manca la successione), mai sotto zero. Il granaio è un conto, non una stanza, e niente ci marcisce;
 paga le provviste, poi (Granaio aperto) l'ora senza cibo in magazzino e il pasto di ogni stagione; la festa del

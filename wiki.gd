@@ -43,8 +43,8 @@ A key works like a click on its button (press it again to close).
 [cell]Jobs[/cell][cell]J[/cell][cell]Resources[/cell][cell]I[/cell]
 [cell]Knowledge[/cell][cell]K[/cell][cell]Laws[/cell][cell]G[/cell]
 [cell]Rooms lens[/cell][cell]L[/cell][cell]Heat lens[/cell][cell]N[/cell]
-[cell]Cut ice[/cell][cell]Y[/cell][cell]Roofs[/cell][cell]V[/cell]
-[cell]Wiki[/cell][cell]F1[/cell][cell][/cell][cell][/cell]
+[cell]Soil lens[/cell][cell]O[/cell][cell]Cut ice[/cell][cell]Y[/cell]
+[cell]Roofs[/cell][cell]V[/cell][cell]Wiki[/cell][cell]F1[/cell]
 [/table]
 • Jobs: who does what first (see Colonists), and the work waiting. Resources: what is in your warehouses.
 
@@ -353,6 +353,8 @@ Bushes and flax. A ripe bush has 5 berries (vegetables), flowering flax 5 flax, 
 • Every harvest tires the soil: cabbages most, turnips less, while beans give it back. At New Year the garden rests, and a field left fallow for a year recovers a lot.
 • The same crop on the same plot the next year gives a quarter less, the third year in a row half: rotate.
 • Hints: on poor soil the plants grow pale and yellowish; the sign says the last harvest a plot; at the Hearth Feast the chronicle sums up the year's harvest, with the year before.
+• Farmers learn: a colonist with Gathering 5 or more knows the soil of the plots they sow or harvest, and the sign says what the farmers think of it (poor, average, rich).
+• Research shows it: Soil survey gives the soil lens (O), poor, average or rich on every tile, and the band on the signs; the Almanac five bands, and whether a field is growing richer or poorer than a year ago; the Land register the exact numbers (on the lens, close up) and the next harvest of every field.
 • Sowing starts when the ground is mild (a daily average of 6 °C, from late Thaw) and only if the crop ripens before winter: cabbages are not sown in the last 90 days before winter, turnips in the last 60. On the first day of winter the frost takes whatever is still in the fields.
 • Destroy (X) removes plots.
 
@@ -531,6 +533,9 @@ What you haven't researched has no build button, and its recipes don't show at t
 
 [color=#e8c34a]The tree[/color]
 • [color=#d9c48a]Garden[/color] (Land I, 80): garden plots and fields with their rotation; turnips in 60 days, cabbages in 90, broad beans in 100.
+• [color=#d9c48a]Soil survey[/color] (Land I, 60, after Garden): the soil lens, in three bands.
+• [color=#d9c48a]Almanac[/color] (Land II, 250 and a notebook, after Soil survey): five bands, and the trend of every field.
+• [color=#d9c48a]Land register[/color] (Land III, 450 and a tome, after Almanac): the soil's numbers and the next harvest.
 • [color=#d9c48a]Hunting[/color] (Land I, 50): spinning wheel and carpenter bench; bowstrings and bows; hides on the walls and door curtains.
 • [color=#d9c48a]Icehouse[/color] (Land II, 250 and a notebook, after Cold store): the icehouse, the ice pit, cutting ice.
 • [color=#d9c48a]Forge[/color] (Fire I, 60): furnace and anvil; ingots, pickaxe, axe, sickle.

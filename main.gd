@@ -36,6 +36,12 @@ enum Sow { MIXED, TURNIP, CABBAGE, BEANS, FALLOW }
 const SOW_NAMES := ["Mixed", "Turnips", "Cabbages", "Beans", "Fallow"]
 const CLASSIC_PLAN := [Sow.CABBAGE, Sow.TURNIP, Sow.BEANS, Sow.FALLOW]  # la rotazione classica, dal cartello
 const PLAN_YEARS := 4
+# Ricerche della terra: Saggio del terreno, la lente (vedi draw_soil_lens) in tre fasce; Almanacco agrario cinque fasce e
+# la tendenza (rispetto a soil_year_ago, oltre SOIL_TREND); Catasto i numeri e la previsione. Fasce: sotto ogni soglia
+const SOIL_BANDS := [[40, 70], [20, 40, 60, 80]]
+const SOIL_WORDS := [["Poor", "Average", "Rich"], ["Very poor", "Poor", "Average", "Good", "Rich"]]
+const SOIL_COLORS := [Color("b0502e"), Color("d08a3a"), Color("d8c24a"), Color("8fb84a"), Color("3f9a3a")]  # dalla più povera
+const SOIL_TREND := 3       # punti di fertilità in un anno: sotto, la terra "regge"
 const FARM_TIME := 4.0      # secondi per seminare o raccogliere una casella, a livello 5 (vedi skill_time)
 const CARRY_MAX := 10       # quantità massima trasportata per viaggio, di una risorsa sola
 const BUILD_TIME := 2.0     # secondi per costruire una casella
@@ -543,7 +549,7 @@ const ROOM_SPACE := 6        # caselle a testa: chi ne ha meno (stanza piena di 
 # nome del pulsante in HUD/Tools/Row (quelli che non ci sono partono senza). Cambiati, si salvano: vedi bind_key
 const DEFAULT_KEYS := {"Select": KEY_Q, "Build": KEY_B, "Destroy": KEY_X, "Mine": KEY_M, "Chop": KEY_C, "Uproot": KEY_U,
 	"Harvest": KEY_H, "Garden": KEY_P, "Fish": KEY_F, "Hunt": KEY_T, "Ice": KEY_Y, "Jobs": KEY_J, "Resources": KEY_I, "Knowledge": KEY_K, "Laws": KEY_G,
-	"RoomsLens": KEY_L, "HeatLens": KEY_N, "Roofs": KEY_V, "Wiki": KEY_F1}
+	"RoomsLens": KEY_L, "HeatLens": KEY_N, "SoilLens": KEY_O, "Roofs": KEY_V, "Wiki": KEY_F1}
 const SPEEDS := {"Pause": 0.0, "Play": 1.0, "Fast": 2.0, "Fastest": 3.0}  # pulsanti in alto a destra, come Space e 1-3
 # tab Video delle opzioni: misure della finestra, solo quelle che stanno nello schermo (la prima sempre)
 const RESOLUTIONS := [Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440)]
@@ -991,7 +997,8 @@ const BRANCHES_SHEET := preload("res://art/branches.png")
 # ponytail: solo i nodi che hanno già qualcosa da sbloccare; gli altri dell'albero del GDD arrivano con le loro cose
 enum Tech { FORGE, TAILORING, HUNTING, INN, MASONRY, DECOR, LANTERNS, IRON_ARMS, BOOKSHELF, CHAINMAIL, FOUNTAIN, STATUARY,
 	ASTRONOMY, CHARCOAL, COLD_STORE, PAVED_ROAD, DRY_RATIONS, CARTOGRAPHY, PALISADE, TRAINING_DUMMY, SMOKEHOUSE, RENOWNED_INN,
-	WATCHTOWER, SHIELD, LENDING_ARMORY, STEEL, SCRIPTORIUM, FINE_FURNITURE, PALACE, LOOM, TILED_STOVE, ICEHOUSE, GARDEN }
+	WATCHTOWER, SHIELD, LENDING_ARMORY, STEEL, SCRIPTORIUM, FINE_FURNITURE, PALACE, LOOM, TILED_STOVE, ICEHOUSE, GARDEN,
+	SOIL_SURVEY, ALMANAC, LAND_REGISTER }
 const TECHS_SHEET := preload("res://art/techs.png")
 const TECHS := {
 	Tech.FORGE: {"branch": Branch.FIRE, "tier": 1, "cost": 60, "builds": [Build.FURNACE, Build.ANVIL],
@@ -1055,6 +1062,12 @@ const TECHS := {
 		"builds": [Build.ICE_PIT], "info": "The icehouse: stone walls, a pit of ice cut from the frozen water in winter. While the ice lasts, food barely spoils."},
 	Tech.GARDEN: {"branch": Branch.LAND, "tier": 1, "cost": 80, "orders": [Order.GARDEN],
 		"info": "The garden: mark plots on open grass. Colonists sow turnips (60 days), cabbages (90) and broad beans (100); each field follows its rotation. Nothing grows in winter."},
+	Tech.SOIL_SURVEY: {"branch": Branch.LAND, "tier": 1, "cost": 60, "needs": [Tech.GARDEN],
+		"info": "The soil lens (O): how fertile every tile is, poor, average or rich. A field's sign says it too."},
+	Tech.ALMANAC: {"branch": Branch.LAND, "tier": 2, "cost": 250, "needs": [Tech.SOIL_SURVEY],
+		"info": "The farmer's almanac: the soil in five bands, and on the signs whether a field is growing richer or poorer than a year ago."},
+	Tech.LAND_REGISTER: {"branch": Branch.LAND, "tier": 3, "cost": 450, "needs": [Tech.ALMANAC],
+		"info": "The land register: the soil's exact numbers on the lens and the signs, and the next harvest of every field."},
 	Tech.LOOM: {"branch": Branch.FIRE, "tier": 2, "cost": 200, "needs": [Tech.TAILORING], "builds": [Build.TAPESTRY],
 		"info": "Woven linen: tapestries for the walls, warmth and splendor."},
 	Tech.TILED_STOVE: {"branch": Branch.FIRE, "tier": 2, "cost": 300, "needs": [Tech.CHARCOAL, Tech.MASONRY], "builds": [Build.TILED_STOVE],
@@ -1317,6 +1330,8 @@ var last_yield := {}        # casella -> [anno, Crop, quanti]: l'ultimo raccolto
 var harvests := {}          # anno -> {Crop: [quanti, raccolti]}: il bilancio dell'anno (vedi note_harvests)
 var field_signs: Array[Vector2i] = []  # il cartello di ogni campo, nella sua casella più in alto a sinistra (vedi update_fields)
 var field_popup := PanelContainer.new()  # il cartello di un campo aperto (vedi open_field)
+var soil_lens := CanvasLayer.new()  # la lente della terra (Saggio del terreno): la fertilità a colori (vedi draw_soil_lens)
+var soil_canvas := Node2D.new()
 var editing_field := Vector2i.ZERO  # una casella del campo aperto
 var fish_spots := {}        # cella d'acqua -> `clock` da cui ci sono di nuovo pesci (se manca, ci sono)
 var animals: Array[Animal] = []
@@ -1573,6 +1588,12 @@ func _ready() -> void:
 	heat_lens.add_child(heat_canvas)
 	add_child(heat_lens)
 	heat_canvas.draw.connect(draw_heat_lens)
+	soil_lens.follow_viewport_enabled = true
+	soil_lens.layer = 1
+	soil_lens.visible = false
+	soil_lens.add_child(soil_canvas)
+	add_child(soil_lens)
+	soil_canvas.draw.connect(draw_soil_lens)
 	add_child(atmosphere)  # dopo `lights` e `flat`, che usa
 	toast.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	toast.grow_horizontal = Control.GROW_DIRECTION_BOTH
@@ -1592,13 +1613,14 @@ func _ready() -> void:
 	info_label.gui_input.connect(func(event):
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			calendar.visible = not calendar.visible)
-	$HUD/Tools/Row/RoomsLens.toggled.connect(func(on):  # una lente alla volta
-		lens.visible = on
-		if on:
-			$HUD/Tools/Row/HeatLens.button_pressed = false)
-	$HUD/Tools/Row/HeatLens.toggled.connect(func(on):
-		if on:
-			$HUD/Tools/Row/RoomsLens.button_pressed = false)
+	for name in ["RoomsLens", "HeatLens", "SoilLens"]:  # una lente alla volta
+		get_node("HUD/Tools/Row/" + name).toggled.connect(func(on):
+			if on:
+				for other in ["RoomsLens", "HeatLens", "SoilLens"]:
+					if other != name:
+						get_node("HUD/Tools/Row/" + other).button_pressed = false)
+	$HUD/Tools/Row/RoomsLens.toggled.connect(func(on): lens.visible = on)
+	$HUD/Tools/Row/SoilLens.toggled.connect(func(on): soil_lens.visible = on)
 	$HUD/Tools/Row/Roofs.toggled.connect(func(on): roofs_shown = not on)
 	$HUD/RoomPopup/Box/Ok.pressed.connect(room_popup.hide)
 	for kind in Build.values():  # un pulsante per tipo, con lo stesso nome: Wall, Floor, ... Lamp
@@ -2349,9 +2371,66 @@ func refresh_field() -> void:
 	box.get_node("Soil").visible = box.get_node("Soil").text != ""
 
 
-# quello che si sa della terra del campo `field` (vedi le ricerche della terra); per ora niente
-func soil_words(_field: Array) -> String:
+# Quello che si sa della terra del campo `field`: col Catasto i numeri, la tendenza e il prossimo raccolto; con
+# l'Almanacco cinque fasce e la tendenza; col Saggio tre fasce; senza ricerche, quello che dicono i contadini delle
+# caselle che hanno lavorato (vedi learn_soil); se no niente
+func soil_words(field: Array) -> String:
+	var now := mean_soil(field, soil)
+	var trend := now - mean_soil(field, soil_year_ago)
+	var going: String = tr("rising") if trend > SOIL_TREND else (tr("falling") if trend < -SOIL_TREND else tr("steady"))
+	if researched.has(Tech.LAND_REGISTER):
+		var crops := field.map(crop_of).filter(func(c): return c >= 0)
+		var next := tr("Fallow this year.") if crops.is_empty() else tr("Next harvest: about %d a plot.") \
+			% roundi(field.filter(func(k): return crop_of(k) >= 0).reduce(func(n, k): return n + crop_yield(k, crop_of(k)), 0) / float(crops.size()))
+		return tr("Soil: %d, %s.") % [roundi(now), going] + "\n" + next
+	if researched.has(Tech.ALMANAC):
+		return tr("Soil: %s, %s.") % [tr(soil_word(now, 1)).to_lower(), going]
+	if researched.has(Tech.SOIL_SURVEY):
+		return tr("Soil: %s.") % tr(soil_word(now, 0)).to_lower()
+	var known := field.filter(func(k): return soil_known.has(k))
+	if not known.is_empty():
+		return tr("The farmers say the soil is %s.") % tr(soil_word(mean_soil(known, soil), 0)).to_lower()
 	return ""
+
+
+# la fertilità media delle caselle `cells` in `values` (soil, o soil_year_ago)
+func mean_soil(cells: Array, values: PackedByteArray) -> float:
+	if cells.is_empty() or values.size() != soil.size():
+		return 0.0
+	return cells.reduce(func(n, k): return n + values[k.y * MAP_SIZE.x + k.x], 0) / float(cells.size())
+
+
+# la fascia di `f` (0: tre fasce, 1: cinque, vedi SOIL_BANDS)
+func soil_band(f: float, scale: int) -> int:
+	var band := 0
+	for edge in SOIL_BANDS[scale]:
+		if f >= edge:
+			band += 1
+	return band
+
+
+func soil_word(f: float, scale: int) -> String:
+	return SOIL_WORDS[scale][soil_band(f, scale)]
+
+
+# Lente della terra: le caselle che si vedono, fuori da acqua e roccia, col colore della loro fascia (tre col Saggio,
+# cinque con l'Almanacco); col Catasto, da vicino, il numero
+func draw_soil_lens() -> void:
+	var half := get_viewport_rect().size / camera.zoom / 2
+	var view := Rect2i(cell_of(camera.position - half) - Vector2i.ONE, Vector2i((half * 2 / TILE).ceil()) + Vector2i(3, 3))
+	view = view.intersection(Rect2i(Vector2i.ZERO, MAP_SIZE))
+	var scale := 1 if researched.has(Tech.ALMANAC) else 0
+	var numbers := researched.has(Tech.LAND_REGISTER) and camera.zoom.x >= 2.5
+	var font := info_label.get_theme_font("font")
+	for cell in cells_in(view):
+		if water.has(cell) or rocks.has(cell):
+			continue
+		var f := soil_at(cell)
+		var band := soil_band(f, scale)
+		var tint: Color = SOIL_COLORS[band * 2 if scale == 0 else band]  # tre fasce: povera, media, ricca
+		soil_canvas.draw_rect(tile_rect(cell.x, cell.y), Color(tint, 0.45))
+		if numbers:
+			lens_text_on(soil_canvas, Vector2(cell * TILE) + Vector2(0, 11), str(f), font)
 
 
 # il piano del campo aperto: `preset`, o quello delle tendine fino al primo "—"; parte da quest'anno
@@ -3191,6 +3270,8 @@ func _process(delta: float) -> void:
 	heat_lens.visible = $HUD/Tools/Row/HeatLens.button_pressed or previewing_heat()
 	if heat_lens.visible:
 		heat_canvas.queue_redraw()
+	if soil_lens.visible:
+		soil_canvas.queue_redraw()
 
 
 func tick(delta: float) -> void:
@@ -5892,6 +5973,9 @@ func refresh_unlocks() -> void:
 	$HUD/BuildBar/Row/Materials/Stone.visible = unlocked("materials", Res.STONE)
 	$HUD/Tools/Row/Ice.visible = unlocked("rooms", RoomKind.ICEHOUSE)  # col tasto del ghiaccio, la ghiacciaia
 	$HUD/Tools/Row/Garden.visible = unlocked("orders", Order.GARDEN)
+	$HUD/Tools/Row/SoilLens.visible = researched.has(Tech.SOIL_SURVEY)
+	if not researched.has(Tech.SOIL_SURVEY):
+		$HUD/Tools/Row/SoilLens.button_pressed = false
 
 
 # la ricerca che sblocca `value` nella lista `key` di TECHS ("builds", "makes", "materials"); -1 se c'è dall'inizio
@@ -8083,6 +8167,12 @@ func draw_lens() -> void:
 		if room.kind != RoomKind.NONE:
 			lens_canvas.draw_string(font, mid + Vector2(-TILE * 4, 4), named(RoomKind, room.kind),
 				HORIZONTAL_ALIGNMENT_CENTER, TILE * 8, 12)
+
+
+# un numero piccolo, centrato in una casella, sulla lente `canvas`
+func lens_text_on(canvas: Node2D, at: Vector2, text: String, font: Font) -> void:
+	canvas.draw_string_outline(font, at, text, HORIZONTAL_ALIGNMENT_CENTER, TILE, 8, 2, Color(OUTLINE, 0.8))
+	canvas.draw_string(font, at, text, HORIZONTAL_ALIGNMENT_CENTER, TILE, 8, Color.WHITE)
 
 
 # Lente del calore: ogni casella delle stanze colorata coi suoi gradi (HEAT_SCALE: quanto comfort toglie il freddo;

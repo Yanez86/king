@@ -2941,6 +2941,71 @@ msgstr " (l'anno scorso %d)"
 msgid "%s: the harvest of the year: %s."
 msgstr "%s: il raccolto dell'anno: %s."
 
+# --- Ricerche della terra: la lente, il cartello del campo
+
+msgid "Soil Survey"
+msgstr "Saggio del terreno"
+
+msgid "Almanac"
+msgstr "Almanacco agrario"
+
+msgid "Land Register"
+msgstr "Catasto"
+
+msgid "The soil lens (O): how fertile every tile is, poor, average or rich. A field's sign says it too."
+msgstr "La lente della terra (O): quanto è fertile ogni casella, povera, media o ricca. Lo dice anche il cartello del campo."
+
+msgid "The farmer's almanac: the soil in five bands, and on the signs whether a field is growing richer or poorer than a year ago."
+msgstr "L'almanacco agrario: la terra in cinque fasce, e sui cartelli se un campo diventa più ricco o più povero di un anno fa."
+
+msgid "The land register: the soil's exact numbers on the lens and the signs, and the next harvest of every field."
+msgstr "Il catasto: i numeri esatti della terra sulla lente e sui cartelli, e il prossimo raccolto di ogni campo."
+
+msgid "Soil lens"
+msgstr "Lente della terra"
+
+msgid "Very poor"
+msgstr "Molto povera"
+
+msgid "Poor"
+msgstr "Povera"
+
+msgid "Average"
+msgstr "Media"
+
+msgid "Good"
+msgstr "Buona"
+
+msgid "Rich"
+msgstr "Ricca"
+
+msgid "rising"
+msgstr "in crescita"
+
+msgid "falling"
+msgstr "in calo"
+
+msgid "steady"
+msgstr "stabile"
+
+msgid "Soil: %d, %s."
+msgstr "Terra: %d, %s."
+
+msgid "Soil: %s, %s."
+msgstr "Terra: %s, %s."
+
+msgid "Soil: %s."
+msgstr "Terra: %s."
+
+msgid "The farmers say the soil is %s."
+msgstr "Secondo i contadini la terra è %s."
+
+msgid "Fallow this year."
+msgstr "Quest'anno a maggese."
+
+msgid "Next harvest: about %d a plot."
+msgstr "Prossimo raccolto: circa %d a casella."
+
 # --- Tabella delle priorità (finestra Jobs): i lavori, col contesto "work"
 
 msgctxt "work"

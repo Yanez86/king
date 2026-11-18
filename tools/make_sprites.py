@@ -521,6 +521,43 @@ FIELD_SIGN = """
 ................
 """
 
+# Icona 16x16 della lente della terra (tasto "Soil lens"): una zolla a strati, chiara, media e scura, con la lente sopra.
+SOIL_ICON = """
+................
+.......oooo.....
+......o0000o....
+.....o00uu00o...
+.....o0u0000o...
+.....o000000o...
+......o0000oo...
+..oooooooooRio..
+.o(((((((((oRio.
+o___________oRo.
+o(((((((((((o.o.
+o)))))))))))o...
+o$$$$$$$$$$$o...
+.ooooooooooo....
+................
+................
+"""
+
+# Ricerche 12x12 della terra, come TECH_SYMBOLS: saggio del terreno (la paletta nella zolla), almanacco agrario (il libro
+# col sole e la spiga), catasto (la mappa dei campi a riquadri)
+TECH_SOIL = """
+.......ooo.. ............ ............
+......ouuo.. ..oooooooo.. .oooooooooo.
+.....ouuo... .o9988899o.. .o_(_(o,-,o.
+....ouRo.... .o898g898o.. .o(_(_o-,-o.
+...owwo..... .o889g988o.. .ooooooooo..
+..owwo...... .oggggggggo. .o,-,o_(_(o.
+.ooooooooo.. .o8888888go. .o-,-o(_(_o.
+o(((((((((o. .o8888888go. .oooooooooo.
+o_________o. .ooooooooogo .o_(_o,-,-o.
+o)))))))))o. ..oooooooooo .o(_(o-,-,o.
+.ooooooooo.. ............ .oooooooooo.
+............ ............ ............
+"""
+
 # Icona 16x16 dell'orto (tasto "Garden"): un germoglio su un cumulo di terra lavorata.
 GARDEN_ICON = """
 ................
@@ -3845,6 +3882,7 @@ def main():
     images["icon_cabbage"] = pixels(["." * 16] * 2 + crops[6][:14])
     images["icon_beans"] = pixels(["." * 16] + crops[9][:15])
     images["field_sign"] = pixels(art(FIELD_SIGN, 16, 16))
+    images["icon_soil"] = pixels(art(SOIL_ICON, 16, 16))
     images["icon_garden"] = pixels(art(GARDEN_ICON, 16, 16))
     images["icon_fishing"] = pixels(art(FISHING_ICON, 16, 16))
     images["icon_hunting"] = pixels(art(HUNTING_ICON, 16, 16))
@@ -3931,7 +3969,7 @@ def main():
     techs += frames(TECH_ASTRONOMY, 12, 1, 12)  # come Tech in main.gd: astronomia, poi le altre
     techs += frames(TECH_SYMBOLS_4, 12, 5, 12) + frames(TECH_SYMBOLS_5, 12, 2, 12) + frames(TECH_SYMBOLS_6, 12, 3, 12) \
         + frames(TECH_SYMBOLS_7, 12, 2, 12) + frames(TECH_SYMBOLS_8, 12, 3, 12) + frames(TECH_SYMBOLS_9, 12, 1, 12) \
-        + frames(TECH_SYMBOLS_10, 12, 3, 12) + [art(TECH_GARDEN, 12, 12)]
+        + frames(TECH_SYMBOLS_10, 12, 3, 12) + [art(TECH_GARDEN, 12, 12)] + frames(TECH_SOIL, 12, 3, 12)
     images["techs"] = pixels(side_by_side([badge(f) for f in techs]))
     laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 3, 12) + frames(LAW_SYMBOLS_5, 12, 3, 12) + frames(LAW_SYMBOLS_6, 12, 4, 12)
     images["laws"] = pixels(side_by_side([badge(f, "I", "x", "U") for f in laws]))

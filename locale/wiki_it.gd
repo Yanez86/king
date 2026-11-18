@@ -42,8 +42,8 @@ Un tasto fa come un clic sul suo pulsante (premilo di nuovo per chiudere).
 [cell]Lavori[/cell][cell]J[/cell][cell]Risorse[/cell][cell]I[/cell]
 [cell]Conoscenza[/cell][cell]K[/cell][cell]Leggi[/cell][cell]G[/cell]
 [cell]Vista stanze[/cell][cell]L[/cell][cell]Vista calore[/cell][cell]N[/cell]
-[cell]Tagliare il ghiaccio[/cell][cell]Y[/cell][cell]Tetti[/cell][cell]V[/cell]
-[cell]Wiki[/cell][cell]F1[/cell][cell][/cell][cell][/cell]
+[cell]Lente della terra[/cell][cell]O[/cell][cell]Tagliare il ghiaccio[/cell][cell]Y[/cell]
+[cell]Tetti[/cell][cell]V[/cell][cell]Wiki[/cell][cell]F1[/cell]
 [/table]
 • Lavori: chi fa cosa per primo (vedi Coloni), e il lavoro in attesa. Risorse: cosa c'è nei magazzini.
 
@@ -352,6 +352,8 @@ Cespugli e lino. Un cespuglio maturo ha 5 bacche (vegetali), il lino in fiore 5 
 • Ogni raccolto stanca la terra: i cavoli di più, le rape meno, mentre le fave la restituiscono. A Capodanno l'orto si riposa, e un campo lasciato un anno a maggese si riprende molto.
 • La stessa coltura sulla stessa casella l'anno dopo rende un quarto in meno, il terzo anno di fila la metà: si ruota.
 • Gli indizi: su terra povera le piante crescono smorte e giallastre; il cartello dice l'ultimo raccolto a casella; alla Festa del focolare la cronaca fa il bilancio del raccolto dell'anno, con quello dell'anno prima.
+• I contadini imparano: un colono con almeno 5 in Raccogliere riconosce la terra delle caselle che semina o raccoglie, e il cartello dice cosa ne pensano i contadini (povera, media, ricca).
+• Le ricerche la mostrano: il Saggio del terreno dà la lente della terra (O), povera, media o ricca su ogni casella, e la fascia sui cartelli; l'Almanacco agrario cinque fasce, e se un campo diventa più ricco o più povero di un anno fa; il Catasto i numeri esatti (sulla lente, da vicino) e il prossimo raccolto di ogni campo.
 • Si comincia a seminare quando la terra è tiepida (6 °C di media del giorno, dal tardo Disgelo) e solo se il raccolto matura prima dell'inverno: i cavoli non si seminano negli ultimi 90 giorni prima dell'inverno, le rape negli ultimi 60. Il primo giorno d'inverno il gelo si prende quello che è ancora nei campi.
 • Distruggi (X) toglie l'orto.
 
@@ -530,6 +532,9 @@ Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette 
 
 [color=#e8c34a]L'albero[/color]
 • [color=#d9c48a]Orto[/color] (Terra I, 80): le caselle dell'orto e i campi con la loro rotazione; rape in 60 giorni, cavoli in 90, fave in 100.
+• [color=#d9c48a]Saggio del terreno[/color] (Terra I, 60, dopo l'Orto): la lente della terra, in tre fasce.
+• [color=#d9c48a]Almanacco agrario[/color] (Terra II, 250 e un quaderno, dopo il Saggio): cinque fasce, e la tendenza di ogni campo.
+• [color=#d9c48a]Catasto[/color] (Terra III, 450 e un tomo, dopo l'Almanacco): i numeri della terra e il prossimo raccolto.
 • [color=#d9c48a]Caccia[/color] (Terra I, 50): filatoio e banco del falegname; corde d'arco e archi; pelli alle pareti e portiere.
 • [color=#d9c48a]Ghiacciaia[/color] (Terra II, 250 e un quaderno, dopo Dispensa fredda): la ghiacciaia, la fossa del ghiaccio, il taglio del ghiaccio.
 • [color=#d9c48a]Forgia[/color] (Fuoco I, 60): fornace e incudine; lingotti, piccone, ascia, falcetto.
