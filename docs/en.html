@@ -131,7 +131,7 @@ pre i { color: #8fb87a; }
 <body>
 <nav>
 <h1>King</h1>
-<small>Mechanics · commit 97b1271 · 2026-11-18 · <a class="lang" href="index.html">Italiano</a></small>
+<small>Mechanics · commit e59dfd2 · 2026-11-18 · <a class="lang" href="index.html">Italiano</a></small>
 <h2>Wiki</h2>
 <a href="#basics"><i class="sp s83" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Basics</a><a href="#controls"><i class="sp s84" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Controls</a><a href="#colonists"><i class="sp s85" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Colonists</a><a href="#skills"><i class="sp s80" style="width:16px;height:16px;background-position:-144px 0px;background-size:208px 16px"></i> Skills</a><a href="#traits"><i class="sp s74" style="width:16px;height:16px;background-position:0px 0px;background-size:240px 16px"></i> Traits</a><a href="#conditions"><i class="sp s75" style="width:16px;height:16px;background-position:-16px 0px;background-size:144px 16px"></i> Conditions</a><a href="#the-ruler-house"><i class="sp s30" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> The Ruler &amp; House</a><a href="#building"><i class="sp s59" style="width:15px;height:15px;background-position:0px 0px;background-size:15px 15px"></i> Building</a><a href="#rooms"><i class="sp s70" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Rooms</a><a href="#roofs-heat"><i class="sp s71" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Roofs &amp; Heat</a><a href="#food-cooking"><i class="sp s8" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Food &amp; Cooking</a><a href="#gathering"><i class="sp s62" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Gathering</a><a href="#crafting-equipment"><i class="sp s13" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Crafting &amp; Equipment</a><a href="#combat-wolves"><i class="sp s82" style="width:16px;height:16px;background-position:0px -32px;background-size:32px 48px"></i> Combat &amp; Wolves</a><a href="#splendor"><i class="sp s57" style="width:16px;height:16px;background-position:0px -416px;background-size:128px 1152px"></i> Splendor</a><a href="#adventurers"><i class="sp s26" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Adventurers</a><a href="#ruins-expeditions"><i class="sp s27" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Ruins &amp; Expeditions</a><a href="#knowledge"><i class="sp s67" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Knowledge</a><a href="#laws"><i class="sp s68" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Laws</a><h2>Development</h2><a href="#todo"><i class="sp s39" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Still to develop</a><h2>Numbers</h2><a href="#main-gd">main.gd</a><a href="#atmosphere-gd">atmosphere.gd</a>
 </nav>
@@ -374,14 +374,15 @@ pre i { color: #8fb87a; }
 </ul>
 <h3>Fields and rotation </h3>
 <ul>
-<li>Garden plots that touch make a field, with a sign on its top left plot. Click the field: what it grows this year and the rotation plan, one to four years, from this year on (mixed, turnips, cabbages, beans, fallow; a "—" ends the plan). Classic rotation is cabbages, turnips, beans, fallow. At New Year every field moves to the next year of its plan. What is already sown finishes growing; new plots next to a field take its plan.</li>
-<li>Mixed: turnips and cabbages in alternate rows, every year.</li>
+<li>Garden plots that touch make a field, with a sign on its top left plot. Click the field: its name, its timeline for this year, what it grows next year, the last harvest; "Plan the fields…" opens the planning.</li>
+<li>The planning is a chart of the year, one row per field: every crop is a bar as long as it grows, sown on its day. Striped, the cold soil before late Thaw; blue, winter. Click an empty spot to add a crop: it starts right after the one before, and the crops that would not end before winter (or before the next one) are greyed out. Click a crop to change it or remove it, a field's name for ready rotations (turnips every year; the classic one: cabbages, then turnips, then beans, then a fallow year) and for the cycle, one to four years. ◀ ▶ show the years ahead.</li>
+<li>At New Year every field moves to the next year of its cycle. A colonist sows a crop on its day, as soon as the plot is free and the soil mild; a crop that would no longer ripen before winter is skipped. What is already sown finishes growing; new plots next to a field take its plan. Without a plan, turnips, as many as fit in the year.</li>
 </ul>
 <h3>The soil </h3>
 <ul>
 <li>Every tile has its own fertility, which you can't see. It is richer near water and poorer beside rock; felling a tree leaves rich humus. The richer the soil, the bigger the harvest.</li>
-<li>Every harvest tires the soil: cabbages most, turnips less, while beans give it back. At New Year the garden rests, and a field left fallow for a year recovers a lot.</li>
-<li>The same crop on the same plot the next year gives a quarter less, the third year in a row half: rotate.</li>
+<li>Every harvest tires the soil: cabbages most, turnips less, while beans give it back. At New Year the garden rests, and a plot with no harvest all year (fallow) recovers a lot.</li>
+<li>The same crop twice in a row on a plot gives a quarter less, from the third time half: alternate them.</li>
 <li>Hints: on poor soil the plants grow pale and yellowish; the sign says the last harvest a plot; at the Hearth Feast the chronicle sums up the year's harvest, with the year before.</li>
 <li>Farmers learn: a colonist with Gathering 5 or more knows the soil of the plots they sow or harvest, and the sign says what the farmers think of it (poor, average, rich).</li>
 <li>Research shows it: Soil survey gives the soil lens (O), poor, average or rich on every tile, and the band on the signs; the Almanac five bands, and whether a field is growing richer or poorer than a year ago; the Land register the exact numbers (on the lens, close up) and the next harvest of every field.</li>
@@ -601,20 +602,28 @@ const <b id="c-CROP_SOIL">CROP_SOIL</b> := [-8, -15, 10]        <i># per Crop: f
 const <b id="c-SOW_TEMP">SOW_TEMP</b> := 6.0       <i># gradi, la media del giorno: dal tardo Disgelo (vedi atmosphere.mean_temperature)</i></pre>
 <pre><i># Fertilità per casella, 0-100, nascosta (vedi soil): dalla mappa tra SOIL_RANGE, più ricca vicino all'acqua, più povera</i>
 <i># accanto alla roccia; un albero abbattuto lascia l'humus. La resa va per 0,4 + fertilità/100. A Capodanno ogni casella</i>
-<i># d'orto si riposa (SOIL_WINTER), di più dopo un anno a maggese (SOIL_FALLOW)</i>
+<i># d'orto si riposa (SOIL_WINTER), di più dopo un anno a maggese, senza raccolti (SOIL_FALLOW)</i>
 const <b id="c-SOIL_RANGE">SOIL_RANGE</b> := [30.0, 80.0]
 const <b id="c-SOIL_WATER">SOIL_WATER</b> := 10      <i># entro 3 caselle dall'acqua</i>
 const <b id="c-SOIL_ROCK">SOIL_ROCK</b> := -15      <i># accanto alla roccia</i>
 const <b id="c-SOIL_HUMUS">SOIL_HUMUS</b> := 15      <i># abbattuto un albero, a quella casella</i>
 const <b id="c-SOIL_WINTER">SOIL_WINTER</b> := 5
 const <b id="c-SOIL_FALLOW">SOIL_FALLOW</b> := 25
-const <b id="c-TIRED">TIRED</b> := [1.0, 0.75, 0.5]  <i># resa con la stessa coltura per 1, 2, 3 (o più) anni di fila sulla stessa casella</i>
+const <b id="c-TIRED">TIRED</b> := [1.0, 0.75, 0.5]  <i># resa con la stessa coltura per la 1a, 2a, 3a (o più) volta di fila sulla stessa casella</i>
 const <b id="c-SOIL_EYE">SOIL_EYE</b> := 5         <i># da questo livello di raccogliere il contadino riconosce la terra che lavora (soil_known)</i></pre>
-<pre><i># piano dei campi (vedi plans): la coltura di un anno; miste, rape e cavoli a file alterne</i>
-enum <b id="c-Sow">Sow</b> { MIXED, TURNIP, CABBAGE, BEANS, FALLOW }
-const <b id="c-SOW_NAMES">SOW_NAMES</b> := ["Mixed", "Turnips", "Cabbages", "Beans", "Fallow"]
-const <b id="c-CLASSIC_PLAN">CLASSIC_PLAN</b> := [Sow.CABBAGE, Sow.TURNIP, Sow.BEANS, Sow.FALLOW]  <i># la rotazione classica, dal cartello</i>
-const <b id="c-PLAN_YEARS">PLAN_YEARS</b> := 4</pre>
+<pre><i># Piano dei campi (vedi plans, la pianificazione a gantt in draw_plan): per ogni anno del ciclo, da 1 a PLAN_YEARS, le</i>
+<i># colture una dopo l'altra, ognuna dal suo giorno dell'anno (da SOW_FROM, quando di solito la terra è tiepida), tutte</i>
+<i># finite prima dell'inverno. Un anno senza colture è a maggese. Senza piano, DEFAULT_PLAN</i>
+const <b id="c-SOW_FROM">SOW_FROM</b> := 22
+const <b id="c-CROP_NAMES">CROP_NAMES</b> := ["Turnips", "Cabbages", "Beans"]
+const <b id="c-DEFAULT_PLAN">DEFAULT_PLAN</b> := [[[Crop.TURNIP, 22], [Crop.TURNIP, 82], [Crop.TURNIP, 142], [Crop.TURNIP, 202]]]  <i># rape, quante ne stanno</i>
+const <b id="c-CLASSIC_PLAN">CLASSIC_PLAN</b> := [[[Crop.CABBAGE, 22], [Crop.CABBAGE, 112], [Crop.TURNIP, 202]],
+	[[Crop.TURNIP, 22], [Crop.TURNIP, 82], [Crop.TURNIP, 142], [Crop.TURNIP, 202]], [[Crop.BEANS, 22], [Crop.BEANS, 122]], []]
+const <b id="c-PLAN_YEARS">PLAN_YEARS</b> := 4
+const <b id="c-PLAN_DAY">PLAN_DAY</b> := 2.0       <i># pixel per giorno nella pianificazione</i>
+const <b id="c-PLAN_NAME">PLAN_NAME</b> := 200      <i># pixel: la colonna coi nomi dei campi</i>
+const <b id="c-PLAN_AXIS">PLAN_AXIS</b> := 36       <i># pixel: stagioni e mesi in testa</i>
+const <b id="c-PLAN_ROW">PLAN_ROW</b> := 40        <i># pixel: una riga per campo</i></pre>
 <pre><i># Ricerche della terra: Saggio del terreno, la lente (vedi draw_soil_lens) in tre fasce; Almanacco agrario cinque fasce e</i>
 <i># la tendenza (rispetto a soil_year_ago, oltre SOIL_TREND); Catasto i numeri e la previsione. Fasce: sotto ogni soglia</i>
 const <b id="c-SOIL_BANDS">SOIL_BANDS</b> := [[40, 70], [20, 40, 60, 80]]
@@ -1109,7 +1118,7 @@ const <b id="c-SAVED">SAVED</b> := ["game_id", "map_seed", "ground_cols", "grave
 	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
 	"fallen", "animals", "arrows", "next_animal", "next_pack", "guests", "next_guest", "ruins", "expeditions",
 	"chronicle", "chronicle_days", "board_pick", "study", "researched", "authority", "codified", "enacted", "revoked",
-	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "sown", "plans", "soil", "soil_year_ago", "soil_known", "tired", "last_yield",
+	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "sown", "plans", "slot_done", "soil", "soil_year_ago", "soil_known", "tired", "last_yield",
 	"harvests", "wear", "plastered", "burning",
 	"fire_noted", "storm_noted", "delivered"]
 const <b id="c-TOAST_TIME">TOAST_TIME</b> := 2000    <i># millisecondi: "Saved" in alto, poi sparisce (vedi show_toast)</i>

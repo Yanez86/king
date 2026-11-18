@@ -131,7 +131,7 @@ pre i { color: #8fb87a; }
 <body>
 <nav>
 <h1>King</h1>
-<small>Meccaniche · commit 97b1271 · 2026-11-18 · <a class="lang" href="en.html">English</a></small>
+<small>Meccaniche · commit e59dfd2 · 2026-11-18 · <a class="lang" href="en.html">English</a></small>
 <h2>Wiki</h2>
 <a href="#le-basi"><i class="sp s83" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Le basi</a><a href="#comandi"><i class="sp s84" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Comandi</a><a href="#coloni"><i class="sp s85" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Coloni</a><a href="#abilità"><i class="sp s80" style="width:16px;height:16px;background-position:-144px 0px;background-size:208px 16px"></i> Abilità</a><a href="#talenti"><i class="sp s74" style="width:16px;height:16px;background-position:0px 0px;background-size:240px 16px"></i> Talenti</a><a href="#condizioni"><i class="sp s75" style="width:16px;height:16px;background-position:-16px 0px;background-size:144px 16px"></i> Condizioni</a><a href="#il-sovrano-e-la-casata"><i class="sp s30" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Il sovrano e la casata</a><a href="#costruire"><i class="sp s59" style="width:15px;height:15px;background-position:0px 0px;background-size:15px 15px"></i> Costruire</a><a href="#stanze"><i class="sp s70" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Stanze</a><a href="#tetti-e-calore"><i class="sp s71" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Tetti e calore</a><a href="#cibo-e-cucina"><i class="sp s8" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Cibo e cucina</a><a href="#raccolta"><i class="sp s62" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Raccolta</a><a href="#lavorazioni-ed-equipaggiamento"><i class="sp s13" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Lavorazioni ed equipaggiamento</a><a href="#combattimento-e-lupi"><i class="sp s82" style="width:16px;height:16px;background-position:0px -32px;background-size:32px 48px"></i> Combattimento e lupi</a><a href="#splendore"><i class="sp s57" style="width:16px;height:16px;background-position:0px -416px;background-size:128px 1152px"></i> Splendore</a><a href="#avventurieri"><i class="sp s26" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Avventurieri</a><a href="#rovine-e-spedizioni"><i class="sp s27" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Rovine e spedizioni</a><a href="#conoscenza"><i class="sp s67" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Conoscenza</a><a href="#leggi"><i class="sp s68" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Leggi</a><h2>Sviluppo</h2><a href="#todo"><i class="sp s39" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Da sviluppare</a><h2>Numeri</h2><a href="#main-gd">main.gd</a><a href="#atmosphere-gd">atmosphere.gd</a>
 </nav>
@@ -374,14 +374,15 @@ pre i { color: #8fb87a; }
 </ul>
 <h3>Campi e rotazione </h3>
 <ul>
-<li>Le caselle d'orto che si toccano fanno un campo, col cartello sulla casella in alto a sinistra. Clicca il campo: cosa cresce quest'anno e il piano di rotazione, da uno a quattro anni, da quest'anno in poi (miste, rape, cavoli, fave, maggese; un "—" chiude il piano). La rotazione classica è cavoli, rape, fave, maggese. A Capodanno ogni campo passa all'anno dopo del suo piano. Quello che è già seminato finisce di crescere; le caselle nuove accanto a un campo ne prendono il piano.</li>
-<li>Miste: rape e cavoli a file alterne, tutti gli anni.</li>
+<li>Le caselle d'orto che si toccano fanno un campo, col cartello sulla casella in alto a sinistra. Clicca il campo: il suo nome, la sua timeline di quest'anno, cosa cresce l'anno prossimo, l'ultimo raccolto; "Pianifica i campi…" apre la pianificazione.</li>
+<li>La pianificazione è un grafico dell'anno, una riga per campo: ogni coltura è una barra lunga quanto cresce, seminata nel suo giorno. A righe la terra fredda prima del tardo Disgelo; in azzurro l'inverno. Clic su uno spazio vuoto per aggiungere una coltura: comincia subito dopo quella prima, e quelle che non finirebbero prima dell'inverno (o della coltura dopo) sono spente. Clic su una coltura per cambiarla o toglierla, sul nome di un campo per le rotazioni pronte (rape ogni anno; la classica: cavoli, poi rape, poi fave, poi un anno a maggese) e per il ciclo, da uno a quattro anni. ◀ ▶ mostrano gli anni dopo.</li>
+<li>A Capodanno ogni campo passa all'anno dopo del suo ciclo. Un colono semina una coltura nel suo giorno, appena la casella è libera e la terra tiepida; una coltura che non farebbe più in tempo a maturare prima dell'inverno si salta. Quello che è già seminato finisce di crescere; le caselle nuove accanto a un campo ne prendono il piano. Senza piano, rape, quante ne stanno nell'anno.</li>
 </ul>
 <h3>La terra </h3>
 <ul>
 <li>Ogni casella ha la sua fertilità, che non si vede. È più ricca vicino all'acqua e più povera accanto alla roccia; abbattere un albero lascia l'humus. Più la terra è ricca, più il raccolto è grande.</li>
-<li>Ogni raccolto stanca la terra: i cavoli di più, le rape meno, mentre le fave la restituiscono. A Capodanno l'orto si riposa, e un campo lasciato un anno a maggese si riprende molto.</li>
-<li>La stessa coltura sulla stessa casella l'anno dopo rende un quarto in meno, il terzo anno di fila la metà: si ruota.</li>
+<li>Ogni raccolto stanca la terra: i cavoli di più, le rape meno, mentre le fave la restituiscono. A Capodanno l'orto si riposa, e una casella senza raccolti per tutto l'anno (a maggese) si riprende molto.</li>
+<li>La stessa coltura due volte di fila su una casella rende un quarto in meno, dalla terza volta la metà: si alternano.</li>
 <li>Gli indizi: su terra povera le piante crescono smorte e giallastre; il cartello dice l'ultimo raccolto a casella; alla Festa del focolare la cronaca fa il bilancio del raccolto dell'anno, con quello dell'anno prima.</li>
 <li>I contadini imparano: un colono con almeno 5 in Raccogliere riconosce la terra delle caselle che semina o raccoglie, e il cartello dice cosa ne pensano i contadini (povera, media, ricca).</li>
 <li>Le ricerche la mostrano: il Saggio del terreno dà la lente della terra (O), povera, media o ricca su ogni casella, e la fascia sui cartelli; l'Almanacco agrario cinque fasce, e se un campo diventa più ricco o più povero di un anno fa; il Catasto i numeri esatti (sulla lente, da vicino) e il prossimo raccolto di ogni campo.</li>
@@ -601,20 +602,28 @@ const <b id="c-CROP_SOIL">CROP_SOIL</b> := [-8, -15, 10]        <i># per Crop: f
 const <b id="c-SOW_TEMP">SOW_TEMP</b> := 6.0       <i># gradi, la media del giorno: dal tardo Disgelo (vedi atmosphere.mean_temperature)</i></pre>
 <pre><i># Fertilità per casella, 0-100, nascosta (vedi soil): dalla mappa tra SOIL_RANGE, più ricca vicino all'acqua, più povera</i>
 <i># accanto alla roccia; un albero abbattuto lascia l'humus. La resa va per 0,4 + fertilità/100. A Capodanno ogni casella</i>
-<i># d'orto si riposa (SOIL_WINTER), di più dopo un anno a maggese (SOIL_FALLOW)</i>
+<i># d'orto si riposa (SOIL_WINTER), di più dopo un anno a maggese, senza raccolti (SOIL_FALLOW)</i>
 const <b id="c-SOIL_RANGE">SOIL_RANGE</b> := [30.0, 80.0]
 const <b id="c-SOIL_WATER">SOIL_WATER</b> := 10      <i># entro 3 caselle dall'acqua</i>
 const <b id="c-SOIL_ROCK">SOIL_ROCK</b> := -15      <i># accanto alla roccia</i>
 const <b id="c-SOIL_HUMUS">SOIL_HUMUS</b> := 15      <i># abbattuto un albero, a quella casella</i>
 const <b id="c-SOIL_WINTER">SOIL_WINTER</b> := 5
 const <b id="c-SOIL_FALLOW">SOIL_FALLOW</b> := 25
-const <b id="c-TIRED">TIRED</b> := [1.0, 0.75, 0.5]  <i># resa con la stessa coltura per 1, 2, 3 (o più) anni di fila sulla stessa casella</i>
+const <b id="c-TIRED">TIRED</b> := [1.0, 0.75, 0.5]  <i># resa con la stessa coltura per la 1a, 2a, 3a (o più) volta di fila sulla stessa casella</i>
 const <b id="c-SOIL_EYE">SOIL_EYE</b> := 5         <i># da questo livello di raccogliere il contadino riconosce la terra che lavora (soil_known)</i></pre>
-<pre><i># piano dei campi (vedi plans): la coltura di un anno; miste, rape e cavoli a file alterne</i>
-enum <b id="c-Sow">Sow</b> { MIXED, TURNIP, CABBAGE, BEANS, FALLOW }
-const <b id="c-SOW_NAMES">SOW_NAMES</b> := ["Mixed", "Turnips", "Cabbages", "Beans", "Fallow"]
-const <b id="c-CLASSIC_PLAN">CLASSIC_PLAN</b> := [Sow.CABBAGE, Sow.TURNIP, Sow.BEANS, Sow.FALLOW]  <i># la rotazione classica, dal cartello</i>
-const <b id="c-PLAN_YEARS">PLAN_YEARS</b> := 4</pre>
+<pre><i># Piano dei campi (vedi plans, la pianificazione a gantt in draw_plan): per ogni anno del ciclo, da 1 a PLAN_YEARS, le</i>
+<i># colture una dopo l'altra, ognuna dal suo giorno dell'anno (da SOW_FROM, quando di solito la terra è tiepida), tutte</i>
+<i># finite prima dell'inverno. Un anno senza colture è a maggese. Senza piano, DEFAULT_PLAN</i>
+const <b id="c-SOW_FROM">SOW_FROM</b> := 22
+const <b id="c-CROP_NAMES">CROP_NAMES</b> := ["Turnips", "Cabbages", "Beans"]
+const <b id="c-DEFAULT_PLAN">DEFAULT_PLAN</b> := [[[Crop.TURNIP, 22], [Crop.TURNIP, 82], [Crop.TURNIP, 142], [Crop.TURNIP, 202]]]  <i># rape, quante ne stanno</i>
+const <b id="c-CLASSIC_PLAN">CLASSIC_PLAN</b> := [[[Crop.CABBAGE, 22], [Crop.CABBAGE, 112], [Crop.TURNIP, 202]],
+	[[Crop.TURNIP, 22], [Crop.TURNIP, 82], [Crop.TURNIP, 142], [Crop.TURNIP, 202]], [[Crop.BEANS, 22], [Crop.BEANS, 122]], []]
+const <b id="c-PLAN_YEARS">PLAN_YEARS</b> := 4
+const <b id="c-PLAN_DAY">PLAN_DAY</b> := 2.0       <i># pixel per giorno nella pianificazione</i>
+const <b id="c-PLAN_NAME">PLAN_NAME</b> := 200      <i># pixel: la colonna coi nomi dei campi</i>
+const <b id="c-PLAN_AXIS">PLAN_AXIS</b> := 36       <i># pixel: stagioni e mesi in testa</i>
+const <b id="c-PLAN_ROW">PLAN_ROW</b> := 40        <i># pixel: una riga per campo</i></pre>
 <pre><i># Ricerche della terra: Saggio del terreno, la lente (vedi draw_soil_lens) in tre fasce; Almanacco agrario cinque fasce e</i>
 <i># la tendenza (rispetto a soil_year_ago, oltre SOIL_TREND); Catasto i numeri e la previsione. Fasce: sotto ogni soglia</i>
 const <b id="c-SOIL_BANDS">SOIL_BANDS</b> := [[40, 70], [20, 40, 60, 80]]
@@ -1109,7 +1118,7 @@ const <b id="c-SAVED">SAVED</b> := ["game_id", "map_seed", "ground_cols", "grave
 	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
 	"fallen", "animals", "arrows", "next_animal", "next_pack", "guests", "next_guest", "ruins", "expeditions",
 	"chronicle", "chronicle_days", "board_pick", "study", "researched", "authority", "codified", "enacted", "revoked",
-	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "sown", "plans", "soil", "soil_year_ago", "soil_known", "tired", "last_yield",
+	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "sown", "plans", "slot_done", "soil", "soil_year_ago", "soil_known", "tired", "last_yield",
 	"harvests", "wear", "plastered", "burning",
 	"fire_noted", "storm_noted", "delivered"]
 const <b id="c-TOAST_TIME">TOAST_TIME</b> := 2000    <i># millisecondi: "Saved" in alto, poi sparisce (vedi show_toast)</i>
