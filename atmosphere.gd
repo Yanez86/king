@@ -104,6 +104,9 @@ var env := Environment.new()
 var halo := GradientTexture2D.new()
 var fires := {}                   # cella del fuoco (main.HEAT) -> [fumo, braci se fa fiamma]
 var flames := []                  # i fuochi con le braci: fuoco da campo e focolare (la fornace è chiusa)
+var blazes := {}                  # casella di tetto in fiamme (main.burning) -> il suo fumo, nero e fitto
+const BLAZE_SMOKE := Color(0.22, 0.2, 0.24)
+const BLAZE_REACH := 44.0         # alone di un tetto in fiamme, di notte
 var fireflies := CPUParticles2D.new()
 var clouds := ShaderMaterial.new()
 var map_rect: Rect2
@@ -289,6 +292,17 @@ func _process(delta: float) -> void:
 			smoke.scale_amount_max = 7.0 if use == 2 else 5.0
 			if fires[cell].size() > 1:
 				fires[cell][1].visible = not (main.roofs_shown and main.roofed.has(cell))
+	for cell in blazes.keys():  # tetti spenti o bruciati del tutto
+		if not main.burning.has(cell):
+			blazes[cell].queue_free()
+			blazes.erase(cell)
+	for cell in main.burning:
+		if not blazes.has(cell):
+			var smoke := make_smoke(main.center(cell) + Vector2(0, -6))
+			smoke.color = BLAZE_SMOKE
+			smoke.scale_amount_min = 5.0
+			smoke.scale_amount_max = 8.0
+			blazes[cell] = smoke
 	glow.queue_redraw()
 
 
@@ -463,6 +477,10 @@ func draw_halos() -> void:
 		if kind == main.Build.CAMPFIRE:
 			r *= 1.0 + 0.05 * sin(seconds * 11.0 + cell.x) + 0.03 * sin(seconds * 23.0 + cell.y)
 		r = roundf(r)
+		glow.draw_texture_rect(halo, Rect2((main.center(cell) - Vector2.ONE * r).round(), Vector2.ONE * r * 2), false,
+			Color(WARM, night))
+	for cell in main.burning:  # i tetti in fiamme si vedono da lontano
+		var r := roundf(BLAZE_REACH * (1.0 + 0.08 * sin(seconds * 13.0 + cell.x)))
 		glow.draw_texture_rect(halo, Rect2((main.center(cell) - Vector2.ONE * r).round(), Vector2.ONE * r * 2), false,
 			Color(WARM, night))
 

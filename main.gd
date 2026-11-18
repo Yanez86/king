@@ -23,7 +23,7 @@ const SIDES := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 const TREE_SIDES := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  # da sopra la chioma coprirebbe chi taglia
 
 enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE,
-	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE }
+	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE, DOUSE }
 const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FURNISH, Job.HARVEST, Job.COOK, Job.FISH,
 	Job.HUNT, Job.CRAFT, Job.STUDY, Job.GOVERN, Job.REPAIR, Job.CUT_ICE]  # contano come ore di lavoro
 # VEG: vegetali, dalle bacche dei cespugli; IRON, COAL: dai massi con le vene; MEAL, FINE_MEAL: pasti, dalla cucina;
@@ -610,12 +610,26 @@ const SNOW_LOAD_AREA := 30
 const SNOW_LOAD_HIT := 0.02
 const REPAIR_TIME := 3.0     # secondi per casella a livello 5 (Job.REPAIR)
 const REPAIR_COST := 1       # legna per le scandole, pietra per i coppi
+# Incendio (vedi ignite_roofs, burn): ogni giorno un fuoco da campo sotto un tetto di scandole lo accende con
+# probabilità FIRE_DAILY; ogni ora di temporale un fulmine colpisce un tetto di scandole con probabilità LIGHTNING_HIT.
+# Una casella brucia per BURN_HOURS ore, poi è un buco; intanto il fuoco passa alle scandole accanto (anche di un altro
+# tetto) con probabilità FIRE_SPREAD all'ora. I coppi non bruciano. I coloni portano secchi d'acqua (Job.DOUSE):
+# riempirlo e gettarlo BUCKET_TIME secondi, ognuno toglie DOUSE_HOURS ore al fuoco; spento, resta FIRE_SCAR di usura
+const FIRE_DAILY := 0.02
+const LIGHTNING_HIT := 0.01
+const BURN_HOURS := 4.0
+const FIRE_SPREAD := 0.2
+const BUCKET_TIME := 2.0
+const DOUSE_HOURS := 2.0
+const FIRE_SCAR := 0.3
+const BUCKET := preload("res://art/icon_bucket.png")
 const ROOF_MELT := 10.0      # gradi di calore che passa il tetto e ci sciolgono tutta la neve (vedi roof_snow)
 const CHIMNEY_SNOW := 0.3    # attorno ai comignoli resta questa parte della neve
 const WET_ROOF := 0.25       # quanto scurisce il tetto bagnato (atmosphere.wet)
 const GABLE_MAX := 10.0      # pixel: altezza del timpano dei tetti col colmo da nord a sud
 const GABLE_COLORS := {Res.WOOD: Color("9a6b40"), Res.STONE: Color("9a99a6")}  # come le assi e la pietra dei muri
 const DRIP_COLOR := Color("a8c8e0")
+const FIRE_COLORS := [Color("d8562f"), Color("f2a03a"), Color("ffe6a0")]  # brace, fiamma, cuore (come gli sprite)
 const ICE_COLOR := Color("e8f4ff")
 const DAY_LENGTH := 240.0   # secondi per giorno a velocità 1x
 # Calendario: l'anno si apre col Capodanno (NEW_YEAR), poi quattro stagioni di 3 mesi da MONTH_DAYS giorni, ognuna
@@ -1116,6 +1130,7 @@ class Colonist:
 	var loadout := {}             # Slot -> Res scelto nella scheda, null: niente; slot che manca: automatico (vedi fits)
 	var recipe := 0               # CRAFT: indice in RECIPES
 	var fetched := {}             # CRAFT: Res -> quantità già portata alla postazione
+	var bucket := false           # DOUSE: ha il secchio pieno
 	var work_left := 0.0          # secondi: del colpo, della costruzione o, a svago e in sfuriata, del tempo che resta
 	var work_total := 0.0         # 0 se non è un lavoro a tempo (niente barra né colpi)
 	var worked := 0.0             # ore lavorate nella sua giornata, che comincia quando si alza (vedi update_routine)
@@ -1256,6 +1271,9 @@ var roofed := {}            # casella sotto un tetto (stanze coi loro muri e por
 var roofs: Array[Roof] = []  # i tetti, uno per rettangolo di stanza (vedi rectangles)
 var wear := {}              # casella di tetto -> usura, da 0 (vedi WORN; da 1 un buco)
 var plastered := {}         # muro di legno intonacato -> true (vedi Build.PLASTER)
+var burning := {}           # casella di tetto che brucia -> ore che le restano (vedi burn)
+var fire_risk := true       # false nei test: niente incendi a caso (le prove dell'incendio sono in test_heat)
+var fire_noted := {}        # stanza -> giorno in cui la cronaca ha detto che il suo tetto brucia
 var roof_stamp := 0         # cambia quando si apre o si chiude un buco: atmosphere rifà la maschera della neve
 var storm_noted := {}       # stanza -> giorno in cui la cronaca ha detto del temporale che ne ha strappato il tetto
 var roofs_shown := true     # il pulsante Roofs li toglie, per guardare dentro
@@ -1554,6 +1572,7 @@ func _ready() -> void:
 	if not start_rooms:  # nei test tutto studiato: le prove della ricerca sono in test_research
 		for t in Tech.values():
 			researched[t] = true
+	fire_risk = start_rooms
 	refresh_unlocks()
 
 
@@ -2352,6 +2371,8 @@ func show_tip(cell: Vector2i) -> void:
 # [titolo, testo] del suggerimento per l'oggetto in `cell`, [] se non c'è niente. Gli alberi valgono anche sulla
 # chioma, nella casella sopra; tra più cose nella stessa casella vince quella disegnata sopra.
 func describe(cell: Vector2i) -> Array:
+	if burning.has(cell):
+		return [tr("Fire!"), tr("The roof is burning: %.1f hours to burn through") % burning[cell]]
 	if heat_lens.visible and room_at(cell) != null:  # lente del calore: il conto dei gradi della stanza
 		return [room_at(cell).name, "\n".join(heat_lines(room_at(cell)))]
 	for a in animals:
@@ -2444,6 +2465,8 @@ func job_list() -> String:
 	for r in RECIPES:  # solo quello che manca, che si sa fare e che ha una postazione
 		if unlocked("makes", r[0]) and gear_wanted(r[0]) > 0 and not stations(r[1]).is_empty():
 			lines.append(tr("Make %s: %d") % [item_name(r[0]), gear_wanted(r[0])])
+	if not burning.is_empty():
+		lines.append(tr("Put out the fire: %d tiles") % burning.size())
 	if not roof_repairs().is_empty():
 		lines.append(tr("Repair roofs: %d") % roof_repairs().size())
 	for plans in [blueprints, furniture_plans]:  # prima le strutture (per casella), poi i mobili (per pezzo)
@@ -2687,6 +2710,7 @@ func _process(delta: float) -> void:
 func tick(delta: float) -> void:
 	clock += delta / DAY_LENGTH
 	spoil(delta / DAY_LENGTH)
+	burn(delta)
 	var splendor := colony_splendor()
 	authority += (AUTHORITY_DAILY * (rank + 1) + floorf(splendor / float(SPLENDOR_PER_AUTHORITY))
 		+ (colonists.size() if enacted.has(Law.TRIBUTE) else 0)) * delta / DAY_LENGTH
@@ -2855,6 +2879,30 @@ func update_colonist(c: Colonist, delta: float) -> void:
 				c.carrying = 0
 				c.xp[Skill.CONSTRUCTION] += 1
 				end_job(c)
+		Job.DOUSE:  # all'acqua riempie il secchio, poi accanto al fuoco (target) lo getta
+			if not burning.has(c.target):
+				end_job(c)  # spento, o bruciato del tutto: find_job ne cerca un altro
+				return
+			c.work_left = maxf(c.work_left - delta, 0.0)
+			if c.work_left > 0:
+				if c.bucket:
+					face(c, center(c.target) - c.pos)
+				return
+			c.work_left = BUCKET_TIME
+			if not c.bucket:
+				c.bucket = true
+				c.path = path_of(c, cell_of(c.pos), c.dest)
+				if c.path.is_empty():
+					end_job(c)
+				return
+			c.bucket = false
+			burning[c.target] -= DOUSE_HOURS
+			if burning[c.target] <= 0:
+				burning.erase(c.target)
+				wear[c.target] = wear.get(c.target, 0.0) + FIRE_SCAR
+				if burning.is_empty():
+					note(tr("%s: the fire is out.") % date(today))
+			end_job(c)
 		Job.REPAIR:  # come BUILD: al mucchio prende il materiale (carry_res), poi accanto alla casella (target) la ripara
 			if wear.get(c.target, 0.0) < WORN or not roofed.has(c.target):
 				quit_job(c)  # già riparata, o la stanza non c'è più
@@ -3509,6 +3557,8 @@ func find_job(c: Colonist) -> void:
 		return
 	if c.errand != Errand.NONE:  # avventuriero per strada, interrotto: riprende la strada
 		travel(c)
+		return
+	if c.hero == Hero.NONE and try_douse(c):  # un tetto brucia: tutti col secchio
 		return
 	var peckish: bool = act == Act.FREE and c.needs[Need.FOOD] < fx(c, "snack", SNACK)
 	if c.needs[Need.FOOD] < (GLUTTON_HUNGER if Trait.GLUTTON in c.traits else NEED_LOW) or peckish:
@@ -5331,6 +5381,7 @@ func new_day() -> void:
 func new_hour() -> void:
 	wear_roofs()
 	melt_ice()
+	ignite_roofs()
 	for c in colonists:
 		if c != ruler and c.needs[Need.HAPPINESS] < UNHAPPY and c.protested != today and not c.downed \
 				and c.job not in [Job.SLEEP, Job.FIGHT, Job.FLEE, Job.TANTRUM, Job.PROTEST] \
@@ -6469,6 +6520,102 @@ func holed(cell: Vector2i) -> bool:
 	return wear.get(cell, 0.0) >= 1.0
 
 
+# Un'ora: i fuochi da campo sotto le scandole e i fulmini dei temporali possono accendere un tetto (vedi FIRE_DAILY)
+func ignite_roofs() -> void:
+	if not fire_risk:
+		return
+	for origin in furniture:
+		if furniture[origin][0] == Build.CAMPFIRE and flammable(origin) and randf() < FIRE_DAILY / 24.0:
+			ignite(origin)
+	if atmosphere.climate and atmosphere.weather == atmosphere.Weather.STORM:
+		for roof in roofs:
+			if roof.material == Res.WOOD and randf() < LIGHTNING_HIT * atmosphere.weather_strength:
+				ignite(roof.rect.position + Vector2i(randi() % roof.rect.size.x, randi() % roof.rect.size.y))
+
+
+# sotto `cell` c'è un tetto di scandole che può bruciare: non già in fiamme, non già un buco
+func flammable(cell: Vector2i) -> bool:
+	return roofed.has(cell) and roofed[cell].material == Res.WOOD and not burning.has(cell) and not holed(cell)
+
+
+# Il tetto in `cell` prende fuoco: nella cronaca (una volta al giorno per stanza); chi dorme si sveglia e chi lavora
+# molla il lavoro, per spegnerlo
+func ignite(cell: Vector2i) -> void:
+	if not flammable(cell):
+		return
+	burning[cell] = BURN_HOURS
+	var room: Room = roofed[cell].room
+	if fire_noted.get(room) != today:
+		fire_noted[room] = today
+		note(tr("%s: fire! The roof of %s is burning.") % [date(today), room.name])
+	for c in colonists:
+		if c.job == Job.SLEEP and not c.downed and c.needs[Need.REST] > EXHAUSTED:
+			end_job(c)
+		elif c.job in WORK_JOBS:
+			quit_job(c)
+
+
+# Il fuoco va avanti di `delta` secondi: ogni casella brucia (finita, è un buco) e passa alle scandole accanto
+func burn(delta: float) -> void:
+	if burning.is_empty():
+		return
+	var hours := delta / DAY_LENGTH * 24.0
+	for cell in burning.keys():
+		if not roofed.has(cell):  # la stanza non c'è più
+			burning.erase(cell)
+			continue
+		burning[cell] -= hours
+		for side in SIDES:
+			if flammable(cell + side) and randf() < FIRE_SPREAD * hours:
+				ignite(cell + side)
+		if burning[cell] <= 0:
+			burning.erase(cell)
+			wear[cell] = maxf(wear.get(cell, 0.0), 1.0 + FIRE_SCAR)
+			roof_stamp += 1
+	if burning.is_empty():
+		note(tr("%s: the fire is out.") % date(today))
+
+
+# Un secchio d'acqua sul fuoco più vicino: dall'acqua (riva o acqua bassa), poi accanto alla casella che brucia (vedi
+# Job.DOUSE). Prima di tutto il resto, per tutti i coloni. false se non c'è fuoco o non ci si arriva
+func try_douse(c: Colonist) -> bool:
+	if burning.is_empty():
+		return false
+	var stands := {}
+	for cell in burning:
+		add_stands(stands, [cell], cell, SIDES)
+	var to_fire := path_to_nearest(c, stands.keys())
+	if to_fire.is_empty():
+		return false
+	c.job = Job.DOUSE
+	c.target = stands[to_fire.back()]
+	c.dest = to_fire.back()
+	c.work_left = BUCKET_TIME
+	c.work_total = BUCKET_TIME
+	if c.bucket:
+		c.path = to_fire
+		return true
+	var to_water := path_to_nearest(c, water_stands())
+	if to_water.is_empty():
+		c.job = Job.NONE
+		return false
+	c.path = to_water
+	return true
+
+
+# dove si riempie un secchio: l'acqua bassa e le caselle accanto all'acqua
+func water_stands() -> Array:
+	var out := {}
+	for w in water:
+		if not astar.is_point_solid(w):
+			out[w] = true
+		for side in SIDES:
+			var k: Vector2i = w + side
+			if astar.is_in_boundsv(k) and not astar.is_point_solid(k) and not water.has(k):
+				out[k] = true
+	return out.keys()
+
+
 # Le caselle `cells` in rettangoli: dall'alto a sinistra, ognuno largo quanto la sua prima riga e giù finché le righe
 # sono piene. Una stanza rettangolare coi suoi muri è un rettangolo solo, una a L due
 func rectangles(cells: Dictionary) -> Array[Rect2i]:
@@ -6791,6 +6938,7 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 		draw_arrow(arrow)
 	if roofs_shown:
 		draw_roofs()
+	draw_fire()
 
 	for cell in chop_marks:
 		draw_mark(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE), Order.CHOP)
@@ -6858,6 +7006,23 @@ func draw_lights() -> void:
 				if roofed.has(origin):
 					lit.erase(origin)
 		draw_pieces(lights_canvas, FURNITURE_GLOW, lit)
+
+
+# Le caselle di tetto in fiamme: annerite, con le lingue di fuoco che guizzano (anche coi tetti tolti)
+func draw_fire() -> void:
+	var seconds := clock * DAY_LENGTH
+	for cell in burning:
+		var r := Rect2(tile_rect(cell.x, cell.y))
+		draw_rect(r, Color(OUTLINE, 0.35))
+		for i in 3:
+			var x := r.position.x + 3 + i * 5
+			var flick := sin(seconds * 9.0 + i * 2.1 + cell.x) * 2.0
+			var tall := 9.0 + flick + (2.0 if i == 1 else 0.0)
+			var base := r.end.y - 2
+			for layer in [[FIRE_COLORS[0], 0.0], [FIRE_COLORS[1], 2.0], [FIRE_COLORS[2], 4.5]]:
+				var h: float = tall - layer[1]
+				draw_colored_polygon(PackedVector2Array([Vector2(x - 2.5 + layer[1] / 3, base), Vector2(x + 2.5 - layer[1] / 3, base),
+					Vector2(x + flick / 2, base - h)]), layer[0])
 
 
 # Dove esce il fumo del fuoco in `origin`: [casella, Chimney]. Focolare e fornace col comignolo di pietra sul muro alle
@@ -7141,6 +7306,8 @@ func draw_colonist(c: Colonist) -> void:
 		draw_health(c.pos, c.hp / MAX_HP)
 	if c.carrying > 0:
 		draw_texture_rect(ICONS[c.carry_res], Rect2(at + Vector2(8, 6), Vector2(8, 8)), false)
+	elif c.bucket:
+		draw_texture_rect(BUCKET, Rect2(at + Vector2(8, 6), Vector2(8, 8)), false)
 	if c.job == Job.SLEEP and c.path.is_empty():  # ponytail: niente sprite sdraiato, solo una "z" che sale
 		draw_string(ThemeDB.fallback_font, at + Vector2(11, 2 - fmod(clock * DAY_LENGTH, 2.0) * 2), "z",
 			HORIZONTAL_ALIGNMENT_LEFT, -1, 8)

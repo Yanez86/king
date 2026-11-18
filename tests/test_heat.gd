@@ -376,6 +376,54 @@ func _initialize() -> void:
 	check(main.heat_lines(ice_room).has("Fountain: −3 °C"), "e il cartello lo dice")
 	main.furniture.erase(Vector2i(13, 21))
 
+	# incendio: le scandole bruciano e il fuoco passa accanto, i coppi no; i coloni lo spengono coi secchi
+	main.update_roofs()
+	var roof_cell := Vector2i(12, 11)  # sul tetto della cucina, di legno
+	check(main.flammable(roof_cell), "le scandole possono bruciare")
+	check(not main.flammable(Vector2i(13, 22)), "i coppi della ghiacciaia no")
+	var notes_before: int = main.chronicle.size()
+	main.ignite(roof_cell)
+	check(main.burning.has(roof_cell) and main.chronicle[main.chronicle.size() - 1].contains("is burning"), "prende fuoco: nella cronaca")
+	check(main.job_list().contains("Put out the fire: 1 tiles"), "spegnere è un lavoro")
+	var spread_ok := false
+	for i in 200:
+		main.burn(main.DAY_LENGTH / 24.0 / 10.0)  # un decimo d'ora alla volta
+		if main.burning.size() > 1:
+			spread_ok = true
+			break
+	check(spread_ok, "il fuoco passa alle scandole accanto")
+	for i in 200:
+		main.burn(main.DAY_LENGTH / 24.0 / 10.0)
+		if main.burning.is_empty():
+			break
+	check(main.burning.is_empty() and main.holed(roof_cell), "senza nessuno a spegnerlo, il tetto brucia: resta un buco")
+	check(main.chronicle[main.chronicle.size() - 1].contains("the fire is out"), "la cronaca dice quando è finito")
+	main.wear.clear()
+	main.roof_stamp += 1
+	# coi secchi: i coloni mollano il lavoro, vanno all'acqua e tornano a spegnerlo
+	var fireman = main.colonists[0]
+	for c in main.colonists:
+		c.pos = main.center(Vector2i(12, 15))
+		c.path.clear()
+	main.drop(R.WOOD, Vector2i(20, 17), 5)
+	main.chop_marks[main.trees.keys()[0]] = true  # chi lavora molla tutto
+	for i in 50:
+		main.tick(0.05)
+	main.ignite(roof_cell)
+	check(main.colonists.all(func(c): return c.job not in main.WORK_JOBS), "al fuoco si molla il lavoro")
+	var bucket_seen := false
+	for i in 20000:
+		main.tick(0.05)
+		bucket_seen = bucket_seen or fireman.bucket
+		if main.burning.is_empty():
+			break
+	check(bucket_seen and main.burning.is_empty() and not main.holed(roof_cell), "spento coi secchi prima che bruci tutto")
+	main.chop_marks.clear()
+	main.items[R.WOOD].clear()
+	main.wear.clear()
+	main.roof_stamp += 1
+	check(main.chronicle.size() > notes_before, "tutto nella cronaca")
+
 	# il suggerimento del pulsante dice quanto scalda
 	var tip: Control = main.build_tip(B.HEARTH)
 	var texts: Array = tip.get_children().filter(func(n): return n is Label).map(func(l): return l.text)
