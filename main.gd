@@ -21,21 +21,32 @@ const CROP_SOIL := [-8, -15, 10]        # per Crop: fertilità a raccolto (le fa
 const SOW_TEMP := 6.0       # gradi, la media del giorno: dal tardo Disgelo (vedi atmosphere.mean_temperature)
 # Fertilità per casella, 0-100, nascosta (vedi soil): dalla mappa tra SOIL_RANGE, più ricca vicino all'acqua, più povera
 # accanto alla roccia; un albero abbattuto lascia l'humus. La resa va per 0,4 + fertilità/100. A Capodanno ogni casella
-# d'orto si riposa (SOIL_WINTER), di più dopo un anno a maggese (SOIL_FALLOW)
+# d'orto si riposa (SOIL_WINTER), di più dopo un anno a maggese, senza raccolti (SOIL_FALLOW)
 const SOIL_RANGE := [30.0, 80.0]
 const SOIL_WATER := 10      # entro 3 caselle dall'acqua
 const SOIL_ROCK := -15      # accanto alla roccia
 const SOIL_HUMUS := 15      # abbattuto un albero, a quella casella
 const SOIL_WINTER := 5
 const SOIL_FALLOW := 25
-const TIRED := [1.0, 0.75, 0.5]  # resa con la stessa coltura per 1, 2, 3 (o più) anni di fila sulla stessa casella
+const TIRED := [1.0, 0.75, 0.5]  # resa con la stessa coltura per la 1a, 2a, 3a (o più) volta di fila sulla stessa casella
 const SOIL_EYE := 5         # da questo livello di raccogliere il contadino riconosce la terra che lavora (soil_known)
 const SOIL_PALE := Color(0.85, 0.8, 0.45)  # le piante su terra povera: smorte, verso il giallo (vedi draw_garden)
-# piano dei campi (vedi plans): la coltura di un anno; miste, rape e cavoli a file alterne
-enum Sow { MIXED, TURNIP, CABBAGE, BEANS, FALLOW }
-const SOW_NAMES := ["Mixed", "Turnips", "Cabbages", "Beans", "Fallow"]
-const CLASSIC_PLAN := [Sow.CABBAGE, Sow.TURNIP, Sow.BEANS, Sow.FALLOW]  # la rotazione classica, dal cartello
+# Piano dei campi (vedi plans, la pianificazione a gantt in draw_plan): per ogni anno del ciclo, da 1 a PLAN_YEARS, le
+# colture una dopo l'altra, ognuna dal suo giorno dell'anno (da SOW_FROM, quando di solito la terra è tiepida), tutte
+# finite prima dell'inverno. Un anno senza colture è a maggese. Senza piano, DEFAULT_PLAN
+const SOW_FROM := 22
+const CROP_NAMES := ["Turnips", "Cabbages", "Beans"]
+const CROP_COLORS := [Color("8e5aa8"), Color("6f9e3c"), Color("8a6a44")]
+const DEFAULT_PLAN := [[[Crop.TURNIP, 22], [Crop.TURNIP, 82], [Crop.TURNIP, 142], [Crop.TURNIP, 202]]]  # rape, quante ne stanno
+const CLASSIC_PLAN := [[[Crop.CABBAGE, 22], [Crop.CABBAGE, 112], [Crop.TURNIP, 202]],
+	[[Crop.TURNIP, 22], [Crop.TURNIP, 82], [Crop.TURNIP, 142], [Crop.TURNIP, 202]], [[Crop.BEANS, 22], [Crop.BEANS, 122]], []]
 const PLAN_YEARS := 4
+const PLAN_DAY := 2.0       # pixel per giorno nella pianificazione
+const PLAN_NAME := 200      # pixel: la colonna coi nomi dei campi
+const PLAN_AXIS := 36       # pixel: stagioni e mesi in testa
+const PLAN_ROW := 40        # pixel: una riga per campo
+const PLAN_COLD := Color(0.63, 0.75, 0.86, 0.22)   # prima di SOW_FROM: la terra fredda, a righe
+const PLAN_WINTER := Color(0.47, 0.55, 0.75, 0.3)  # l'inverno
 # Ricerche della terra: Saggio del terreno, la lente (vedi draw_soil_lens) in tre fasce; Almanacco agrario cinque fasce e
 # la tendenza (rispetto a soil_year_ago, oltre SOIL_TREND); Catasto i numeri e la previsione. Fasce: sotto ogni soglia
 const SOIL_BANDS := [[40, 70], [20, 40, 60, 80]]
@@ -570,7 +581,7 @@ const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today"
 	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
 	"fallen", "animals", "arrows", "next_animal", "next_pack", "guests", "next_guest", "ruins", "expeditions",
 	"chronicle", "chronicle_days", "board_pick", "study", "researched", "authority", "codified", "enacted", "revoked",
-	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "sown", "plans", "soil", "soil_year_ago", "soil_known", "tired", "last_yield",
+	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "sown", "plans", "slot_done", "soil", "soil_year_ago", "soil_known", "tired", "last_yield",
 	"harvests", "wear", "plastered", "burning",
 	"fire_noted", "storm_noted", "delivered"]
 const TOAST_TIME := 2000    # millisecondi: "Saved" in alto, poi sparisce (vedi show_toast)
@@ -1321,11 +1332,12 @@ var fish_marks := {}        # cella d'acqua -> true: punti di pesca
 var ice_marks := {}         # cella d'acqua -> true: dove si taglia il ghiaccio, quando gela
 var garden := {}            # casella dell'orto -> `clock` della semina, o -1 se è da seminare (vedi CROP_DAYS)
 var sown := {}              # casella seminata -> Crop
-var plans := {}             # casella dell'orto -> [anno di partenza, [Sow, ...]]: il piano di rotazione (vedi sow_of)
+var plans := {}             # casella dell'orto -> [anno di partenza, [[[Crop, giorno], ...] per anno del ciclo]] (vedi plan_of)
+var slot_done := {}         # casella -> [anno, indice]: l'ultima coltura del piano seminata quest'anno (vedi next_slot)
 var soil := PackedByteArray()  # per casella, riga per riga: la fertilità 0-100 (vedi make_soil, soil_at)
 var soil_year_ago := PackedByteArray()  # la stessa all'ultimo Capodanno: l'Almanacco agrario dice se sale o scende
 var soil_known := {}        # casella -> true: un contadino bravo (SOIL_EYE) l'ha lavorata e ne sa la terra
-var tired := {}             # casella -> [Crop, anno, anni di fila]: l'ultimo raccolto (vedi tired_years)
+var tired := {}             # casella -> [Crop, quante volte di fila]: l'ultimo raccolto (vedi tired_count)
 var last_yield := {}        # casella -> [anno, Crop, quanti]: l'ultimo raccolto, per il cartello del campo
 var harvests := {}          # anno -> {Crop: [quanti, raccolti]}: il bilancio dell'anno (vedi note_harvests)
 var field_signs: Array[Vector2i] = []  # il cartello di ogni campo, nella sua casella più in alto a sinistra (vedi update_fields)
@@ -1333,6 +1345,11 @@ var field_popup := PanelContainer.new()  # il cartello di un campo aperto (vedi 
 var soil_lens := CanvasLayer.new()  # la lente della terra (Saggio del terreno): la fertilità a colori (vedi draw_soil_lens)
 var soil_canvas := Node2D.new()
 var editing_field := Vector2i.ZERO  # una casella del campo aperto
+var plan_panel := PanelContainer.new()  # la pianificazione dei campi, a gantt (vedi open_plan)
+var plan_chart := Control.new()  # ci disegna draw_plan; i clic li prende plan_input
+var plan_menu := PopupMenu.new()  # aggiungi, cambia, togli una coltura; le rotazioni pronte (vedi plan_input)
+var plan_year := 0          # l'anno che mostra la pianificazione: quello di adesso più questo, fino a PLAN_YEARS - 1
+var plan_click := []        # dove si è cliccato: [cartello del campo, anno del ciclo, coltura (indice) o -1, giorno d'inizio]
 var fish_spots := {}        # cella d'acqua -> `clock` da cui ci sono di nuovo pesci (se manca, ci sono)
 var animals: Array[Animal] = []
 var arrows: Array[Arrow] = []  # in volo, vedi shoot
@@ -1703,7 +1720,8 @@ func _ready() -> void:
 				open_gear_menu(slot))
 	$HUD/BoardPanel/Box/ChronicleButton.pressed.connect(open_chronicle)
 	build_field_popup()
-	for window in [room_popup, field_popup, craft_popup, jobs_panel, resources_panel, sheet_panel, $HUD/BoardPanel, $HUD/ReportPanel, $HUD/ChroniclePanel,
+	build_plan_panel()
+	for window in [room_popup, field_popup, plan_panel, craft_popup, jobs_panel, resources_panel, sheet_panel, $HUD/BoardPanel, $HUD/ReportPanel, $HUD/ChroniclePanel,
 			$HUD/KnowledgePanel, $HUD/LawsPanel, $HUD/WikiPanel]:  # X in alto a destra, si trascinano
 		window.get_node("Box/Head/Close").pressed.connect(window.hide)
 		window.gui_input.connect(drag_window.bind(window))
@@ -1888,6 +1906,12 @@ func restore(state: Dictionary) -> void:
 	wild.state = state["wild"][1]  # dopo il seme, che lo azzera
 	if soil.size() != MAP_SIZE.x * MAP_SIZE.y:  # un salvataggio di prima della fertilità
 		make_soil()
+	for k in plans.keys():  # di prima della pianificazione (una coltura per anno): rape, quante ne stanno
+		if plans[k][1].any(func(year): return year is int):
+			plans[k] = [plans[k][0], DEFAULT_PLAN.duplicate(true)]
+	for k in tired.keys():
+		if tired[k].size() == 3:
+			tired[k] = [tired[k][0], tired[k][2]]
 	update_fields()
 	rebuild_grid()
 	update_roofs()
@@ -2273,64 +2297,66 @@ func toggle_order(on: bool, which: Order) -> void:
 		order = Order.NONE
 
 
-# Il cartello di un campo (vedi open_field), come gli altri popup: titolo e X; il piano di rotazione, una tendina per
-# anno da quest'anno (dalla seconda anche "—": finisce lì) e "Rotazione classica"; sotto quello che si sa del campo
+# Il cartello di un campo (vedi open_field), come gli altri popup: titolo (il nome del campo) e X; quante caselle; la
+# sua timeline di quest'anno (vedi draw_plan_row); l'anno prossimo, l'ultimo raccolto, la terra; "Plan the fields…"
 func build_field_popup() -> void:
 	field_popup.name = "FieldPopup"
 	field_popup.visible = false
-	field_popup.custom_minimum_size = Vector2(280, 0)
+	field_popup.custom_minimum_size = Vector2(380, 0)
 	field_popup.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	field_popup.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	field_popup.grow_vertical = Control.GROW_DIRECTION_BOTH
-	var box := VBoxContainer.new()
-	box.name = "Box"
-	box.add_theme_constant_override("separation", 8)
-	field_popup.add_child(box)
-	var head := HBoxContainer.new()
-	head.name = "Head"
-	box.add_child(head)
-	var title := Label.new()
-	title.name = "Title"
-	title.text = "Field"
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	head.add_child(title)
-	var close: Button = $HUD/RoomPopup/Box/Head/Close.duplicate()
-	close.name = "Close"
-	head.add_child(close)
+	var box := popup_frame(field_popup, "Field")
 	var size_label := Label.new()
 	size_label.name = "Size"
 	size_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(size_label)
-	var plan_title := Label.new()
-	plan_title.text = "Rotation, from this year:"
-	box.add_child(plan_title)
-	var row := HBoxContainer.new()
-	row.name = "Plan"
-	box.add_child(row)
-	for i in PLAN_YEARS:
-		var pick := OptionButton.new()
-		pick.focus_mode = Control.FOCUS_NONE
-		if i > 0:
-			pick.add_item("—", -1)
-		for sow in Sow.values():
-			pick.add_item(SOW_NAMES[sow], sow)
-		pick.item_selected.connect(func(_i): set_field_plan())
-		row.add_child(pick)
-	var classic := Button.new()
-	classic.name = "Classic"
-	classic.text = "Classic rotation"
-	classic.tooltip_text = "Cabbages, turnips, beans, fallow"
-	classic.focus_mode = Control.FOCUS_NONE
-	classic.pressed.connect(set_field_plan.bind(CLASSIC_PLAN))
-	box.add_child(classic)
-	for name in ["Years", "Last", "Soil"]:
+	var this_year := Label.new()
+	this_year.text = "This year"
+	this_year.add_theme_color_override("font_color", BUILD_INFO_COLOR)
+	box.add_child(this_year)
+	var mini := Control.new()
+	mini.name = "Mini"
+	mini.custom_minimum_size = Vector2(360, 28)
+	mini.draw.connect(func(): draw_plan_row(mini, field_of(editing_field).min(), year_of(today), Rect2(Vector2.ZERO, mini.size), false))
+	box.add_child(mini)
+	for name in ["Next", "Last", "Soil"]:
 		var label := Label.new()
 		label.name = name
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		label.custom_minimum_size = Vector2(360, 0)  # andando a capo, senza una larghezza sarebbe una lettera per riga
 		box.add_child(label)
+	var plan := Button.new()
+	plan.name = "Plan"
+	plan.text = "Plan the fields…"
+	plan.focus_mode = Control.FOCUS_NONE
+	plan.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	plan.pressed.connect(func():
+		field_popup.hide()
+		open_plan())
+	box.add_child(plan)
 	$HUD.add_child(field_popup)
+
+
+# una finestra come gli altri popup: Box, Head col titolo `title` e la X (che la chiude, vedi _ready); ritorna Box
+func popup_frame(window: PanelContainer, title: String) -> VBoxContainer:
+	var box := VBoxContainer.new()
+	box.name = "Box"
+	box.add_theme_constant_override("separation", 8)
+	window.add_child(box)
+	var head := HBoxContainer.new()
+	head.name = "Head"
+	box.add_child(head)
+	var label := Label.new()
+	label.name = "Title"
+	label.text = title
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	head.add_child(label)
+	var close: Button = $HUD/RoomPopup/Box/Head/Close.duplicate()
+	close.name = "Close"
+	head.add_child(close)
+	return box
 
 
 func open_field(cell: Vector2i) -> void:
@@ -2340,8 +2366,8 @@ func open_field(cell: Vector2i) -> void:
 	field_popup.reset_size()
 
 
-# Il campo aperto: quante caselle, il piano da quest'anno nelle tendine, quest'anno e il prossimo, l'ultimo raccolto
-# a casella, e la terra se la si conosce (vedi soil_words)
+# Il campo aperto: il nome, quante caselle, la timeline di quest'anno, le colture dell'anno prossimo, l'ultimo
+# raccolto a casella, e la terra se la si conosce (vedi soil_words)
 func refresh_field() -> void:
 	var field := field_of(editing_field)
 	if field.is_empty():
@@ -2350,12 +2376,10 @@ func refresh_field() -> void:
 	var box: Control = field_popup.get_node("Box")
 	var y := year_of(today)
 	var sign_cell: Vector2i = field.min()
+	box.get_node("Head/Title").text = field_name(sign_cell)
 	box.get_node("Size").text = tr_n("%d plot", "%d plots", field.size()) % field.size()
-	var plan := plan_from(sign_cell, y)
-	for i in PLAN_YEARS:
-		var pick: OptionButton = box.get_node("Plan").get_child(i)
-		pick.select(pick.get_item_index(plan[i] if i < plan.size() else -1))
-	box.get_node("Years").text = tr("This year: %s. Next year: %s.") % [tr(SOW_NAMES[sow_of(sign_cell, y)]), tr(SOW_NAMES[sow_of(sign_cell, y + 1)])]
+	box.get_node("Mini").queue_redraw()
+	box.get_node("Next").text = tr("Next year: %s.") % crops_words(slots_of(sign_cell, y + 1))
 	var latest := -1
 	for k in field:
 		latest = maxi(latest, last_yield.get(k, [-1])[0])
@@ -2366,9 +2390,16 @@ func refresh_field() -> void:
 		var crop: int = last[-1][1]
 		var same := last.filter(func(e): return e[1] == crop)
 		var avg := roundi(same.reduce(func(n, e): return n + e[2], 0) / float(same.size()))
-		box.get_node("Last").text = tr("Last harvest: %s, %d a plot.") % [tr(SOW_NAMES[crop + 1]).to_lower(), avg]
+		box.get_node("Last").text = tr("Last harvest: %s, %d a plot.") % [tr(CROP_NAMES[crop]).to_lower(), avg]
 	box.get_node("Soil").text = soil_words(field)
 	box.get_node("Soil").visible = box.get_node("Soil").text != ""
+
+
+# le colture `slots` in parole: "turnips, turnips, cabbages", o "fallow"
+func crops_words(slots: Array) -> String:
+	if slots.is_empty():
+		return tr("fallow")
+	return ", ".join(slots.map(func(slot): return tr(CROP_NAMES[slot[0]]).to_lower()))
 
 
 # Quello che si sa della terra del campo `field`: col Catasto i numeri, la tendenza e il prossimo raccolto; con
@@ -2433,17 +2464,218 @@ func draw_soil_lens() -> void:
 			lens_text_on(soil_canvas, Vector2(cell * TILE) + Vector2(0, 11), str(f), font)
 
 
-# il piano del campo aperto: `preset`, o quello delle tendine fino al primo "—"; parte da quest'anno
-func set_field_plan(preset := []) -> void:
-	var list := preset.duplicate()
-	if list.is_empty():
-		for pick: OptionButton in field_popup.get_node("Box/Plan").get_children():
-			if pick.get_selected_id() < 0:
-				break
-			list.append(pick.get_selected_id())
-	for k in field_of(editing_field):
-		plans[k] = [year_of(today), list.duplicate()]
-	refresh_field()
+# --- Pianificazione dei campi, a gantt ---
+# Una finestra (vedi open_plan) con l'anno in orizzontale (stagioni e mesi in testa) e una riga per campo: le colture del
+# suo piano sono barre lunghe quanto crescono, colorate per coltura; a righe la terra fredda prima di SOW_FROM, in
+# azzurro l'inverno; la linea gialla è oggi. ◀ ▶ mostrano gli anni dopo, fino a PLAN_YEARS - 1. Clic su uno spazio
+# vuoto: una coltura, attaccata a quella prima; su una coltura: cambiarla o toglierla; sul nome: le rotazioni pronte e
+# il ciclo, da 1 a PLAN_YEARS anni (vedi plan_input)
+func build_plan_panel() -> void:
+	plan_panel.name = "PlanPanel"
+	plan_panel.visible = false
+	plan_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	plan_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	plan_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	var box := popup_frame(plan_panel, "Field planning")
+	var nav := HBoxContainer.new()
+	nav.name = "Nav"
+	nav.alignment = BoxContainer.ALIGNMENT_CENTER
+	nav.add_theme_constant_override("separation", 14)
+	for step in [-1, 1]:
+		var arrow := Button.new()
+		arrow.name = "Prev" if step < 0 else "Next"
+		arrow.text = "◀" if step < 0 else "▶"
+		arrow.focus_mode = Control.FOCUS_NONE
+		arrow.pressed.connect(func():
+			plan_year = clampi(plan_year + step, 0, PLAN_YEARS - 1)
+			refresh_plan())
+		nav.add_child(arrow)
+	var year_label := Label.new()
+	year_label.name = "Year"
+	year_label.add_theme_color_override("font_color", Color("e8c34a"))
+	nav.add_child(year_label)
+	nav.move_child(year_label, 1)
+	box.add_child(nav)
+	plan_chart.name = "Chart"
+	plan_chart.mouse_filter = Control.MOUSE_FILTER_STOP
+	plan_chart.draw.connect(draw_plan)
+	plan_chart.gui_input.connect(plan_input)
+	box.add_child(plan_chart)
+	var legend := Label.new()
+	legend.name = "Legend"
+	legend.text = "Striped: the soil is still cold, no sowing. Blue: winter, nothing grows. Click an empty spot to add a crop, a crop to change it, a field's name for ready rotations."
+	legend.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	legend.custom_minimum_size = Vector2(PLAN_NAME + YEAR_DAYS * PLAN_DAY, 0)
+	legend.add_theme_font_size_override("font_size", 12)
+	legend.add_theme_color_override("font_color", Color("b0aca0"))
+	box.add_child(legend)
+	plan_menu.id_pressed.connect(plan_menu_pressed)
+	plan_panel.add_child(plan_menu)
+	$HUD.add_child(plan_panel)
+
+
+func open_plan() -> void:
+	plan_year = 0
+	refresh_plan()
+	plan_panel.show()
+	plan_panel.reset_size()
+
+
+# l'anno mostrato e le frecce; la misura del gantt, una riga per campo
+func refresh_plan() -> void:
+	var nav: Control = plan_panel.get_node("Box/Nav")
+	nav.get_node("Year").text = tr("Year %d") % (year_of(today) + plan_year + 1) + (tr(" · this year") if plan_year == 0 else "")
+	nav.get_node("Prev").disabled = plan_year == 0
+	nav.get_node("Next").disabled = plan_year == PLAN_YEARS - 1
+	plan_chart.custom_minimum_size = Vector2(PLAN_NAME + YEAR_DAYS * PLAN_DAY, PLAN_AXIS + maxi(field_signs.size(), 1) * PLAN_ROW + 18)
+	plan_chart.queue_redraw()
+	plan_panel.reset_size()
+
+
+func draw_plan() -> void:
+	var font := info_label.get_theme_font("font")
+	var x0 := float(PLAN_NAME)
+	var tall := PLAN_AXIS + maxi(field_signs.size(), 1) * PLAN_ROW
+	for season_i in SEASONS.size():  # in testa stagioni e mesi; una riga a ogni stagione
+		var sx := x0 + (1 + season_i * SEASON_DAYS) * PLAN_DAY
+		plan_chart.draw_line(Vector2(sx, 0), Vector2(sx, tall), Color(1, 1, 1, 0.12))
+		plan_chart.draw_string(font, Vector2(sx, 13), tr(SEASONS[season_i]), HORIZONTAL_ALIGNMENT_CENTER,
+			SEASON_DAYS * PLAN_DAY, 13, Color("d9c48a"))
+		for m in 3:
+			plan_chart.draw_string(font, Vector2(sx + m * MONTH_DAYS * PLAN_DAY, 29), tr(MONTHS[season_i * 3 + m]).left(3),
+				HORIZONTAL_ALIGNMENT_CENTER, MONTH_DAYS * PLAN_DAY, 11, Color("b0aca0"))
+	if field_signs.is_empty():
+		plan_chart.draw_string(font, Vector2(0, PLAN_AXIS + 24), tr("No fields yet: mark garden plots with Garden (P)."),
+			HORIZONTAL_ALIGNMENT_CENTER, x0 + YEAR_DAYS * PLAN_DAY, 14, Color("b0aca0"))
+	var y := year_of(today) + plan_year
+	for r in field_signs.size():
+		var sign_cell: Vector2i = field_signs[r]
+		var top := PLAN_AXIS + r * PLAN_ROW
+		var cycle: int = plan_of(sign_cell)[1].size()
+		var sub: String = tr_n("%d plot", "%d plots", field_of(sign_cell).size()) % field_of(sign_cell).size() + " · " + (tr("every year")
+			if cycle == 1 else tr("%d-year cycle, year %d") % [cycle, plan_index(sign_cell, y) + 1])
+		plan_chart.draw_string(font, Vector2(4, top + 17), field_name(sign_cell), HORIZONTAL_ALIGNMENT_LEFT, x0 - 8, 15, Color("e6e2d0"))
+		plan_chart.draw_string(font, Vector2(4, top + 32), sub, HORIZONTAL_ALIGNMENT_LEFT, x0 - 8, 11, Color("b0aca0"))
+		draw_plan_row(plan_chart, sign_cell, y, Rect2(x0, top + 4, YEAR_DAYS * PLAN_DAY, PLAN_ROW - 8), true)
+	if plan_year == 0:
+		var tx := x0 + (clock - year_start()) * PLAN_DAY
+		plan_chart.draw_string(font, Vector2(tx - 100, tall + 14), "▲ " + tr("today, %s") % day_name(today),
+			HORIZONTAL_ALIGNMENT_CENTER, 200, 11, Color("e8c34a"))
+
+
+# Una riga del gantt in `r` su `canvas`: le colture del piano del campo di `sign_cell` nell'anno `y`; a righe la terra
+# fredda, in azzurro l'inverno, la linea gialla di oggi. `labels`: icona e nome sulle barre, "fallow" se non ce ne sono
+func draw_plan_row(canvas: Control, sign_cell: Vector2i, y: int, r: Rect2, labels: bool) -> void:
+	var font := info_label.get_theme_font("font")
+	var px := r.size.x / YEAR_DAYS
+	canvas.draw_rect(r, Color(1, 1, 1, 0.05))
+	var cold := Rect2(r.position, Vector2(SOW_FROM * px, r.size.y))
+	canvas.draw_rect(cold, Color(PLAN_COLD, PLAN_COLD.a * 0.5))
+	for k in range(0, int(cold.size.x + cold.size.y), 6):  # righe in diagonale, tagliate al riquadro
+		var a := Vector2(cold.position.x + k, cold.position.y)
+		var t0 := clampf((a.x - cold.end.x) / cold.size.y, 0.0, 1.0)
+		var t1 := clampf((a.x - cold.position.x) / cold.size.y, 0.0, 1.0)
+		canvas.draw_line(a + Vector2(-cold.size.y, cold.size.y) * t0, a + Vector2(-cold.size.y, cold.size.y) * t1, PLAN_COLD, 2.0)
+	canvas.draw_rect(Rect2(r.position.x + winter_day() * px, r.position.y, (YEAR_DAYS - winter_day()) * px, r.size.y), PLAN_WINTER)
+	if field_of(sign_cell).is_empty():
+		return
+	var slots := slots_of(sign_cell, y)
+	if slots.is_empty() and labels:
+		canvas.draw_string(font, Vector2(r.position.x, r.position.y + r.size.y / 2 + 5), tr("Fallow: the soil rests"),
+			HORIZONTAL_ALIGNMENT_CENTER, winter_day() * px, 13, Color("b0aca0"))
+	for slot in slots:
+		var bar := Rect2(r.position.x + slot[1] * px, r.position.y, CROP_DAYS[slot[0]] * px, r.size.y)
+		canvas.draw_rect(bar, CROP_COLORS[slot[0]])
+		canvas.draw_rect(bar, OUTLINE, false, 2.0)
+		var icon := minf(16, r.size.y - 4)
+		canvas.draw_texture_rect(ICONS[CROP_RES[slot[0]]], Rect2(bar.position + Vector2(3, (r.size.y - icon) / 2), Vector2.ONE * icon), false)
+		if labels:
+			canvas.draw_string(font, Vector2(bar.position.x + icon + 6, bar.position.y + r.size.y / 2 + 5), tr(CROP_NAMES[slot[0]]),
+				HORIZONTAL_ALIGNMENT_LEFT, bar.size.x - icon - 8, 13, Color.WHITE)
+	if y == year_of(today):
+		var tx := r.position.x + (clock - year_start()) * px
+		canvas.draw_line(Vector2(tx, r.position.y - 2), Vector2(tx, r.end.y + 2), Color("e8c34a"), 2.0)
+
+
+# Clic nel gantt: sul nome di un campo le rotazioni pronte e il ciclo; su una coltura cambiarla o toglierla; nel vuoto
+# una coltura nuova, attaccata a quella prima (vedi slot_room): quelle che non ci stanno sono spente, col perché
+func plan_input(event: InputEvent) -> void:
+	if not (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
+		return
+	var row: int = floori((event.position.y - PLAN_AXIS) / PLAN_ROW)
+	if event.position.y < PLAN_AXIS or row < 0 or row >= field_signs.size():
+		return
+	var sign_cell: Vector2i = field_signs[row]
+	var y := year_of(today) + plan_year
+	var slots := slots_of(sign_cell, y)
+	plan_menu.clear()
+	plan_click = [sign_cell, plan_index(sign_cell, y), -1, 0]
+	if event.position.x < PLAN_NAME:
+		plan_menu.add_item(tr("Every year: turnips"), 100)
+		plan_menu.add_item(tr("Classic rotation, 4 years, from this one"), 101)
+		plan_menu.add_separator()
+		for n in range(1, PLAN_YEARS + 1):
+			plan_menu.add_radio_check_item(tr("Every year") if n == 1 else tr("A %d-year cycle") % n, 110 + n)
+			plan_menu.set_item_checked(plan_menu.get_item_count() - 1, plan_of(sign_cell)[1].size() == n)
+		plan_menu.add_separator()
+		plan_menu.add_item(tr("Leave this year fallow"), 120)
+	else:
+		var day: float = (event.position.x - PLAN_NAME) / PLAN_DAY
+		var at := slots.find_custom(func(slot): return slot[1] <= day and day < slot[1] + CROP_DAYS[slot[0]])
+		var room := slot_room(slots, day)
+		if at >= 0:  # su una coltura: al suo posto un'altra che ci stia, o via
+			plan_click[2] = at
+			room = slot_room(slots.slice(0, at) + slots.slice(at + 1), slots[at][1])
+			room[0] = slots[at][1]
+		plan_click[3] = room[0]
+		for crop in Crop.values():
+			var end: int = room[0] + int(CROP_DAYS[crop])
+			var text := "%s: %s" % [tr(CROP_NAMES[crop]), tr("%d days: %s – %s") % [CROP_DAYS[crop], day_name(room[0]), day_name(end)]]
+			if end > room[1]:
+				text = "%s: %s" % [tr(CROP_NAMES[crop]), tr("doesn't end before winter") if room[1] == winter_day() else tr("no room before the next crop")]
+			plan_menu.add_icon_item(ICONS[CROP_RES[crop]], text, (200 if at >= 0 else 300) + crop)
+			plan_menu.set_item_disabled(plan_menu.get_item_count() - 1, end > room[1] or (at >= 0 and slots[at][0] == crop))
+		if at >= 0:
+			plan_menu.add_separator()
+			plan_menu.add_item(tr("Remove"), 210)
+	plan_menu.reset_size()
+	plan_menu.position = Vector2i(get_viewport().get_mouse_position())
+	plan_menu.popup()
+
+
+# la voce scelta nel menu del gantt, sul campo e l'anno del ciclo di plan_click
+func plan_menu_pressed(id: int) -> void:
+	var sign_cell: Vector2i = plan_click[0]
+	var at: int = plan_click[1]
+	var plan: Array = plan_of(sign_cell).duplicate(true)
+	if id == 100:
+		plan = [year_of(today), DEFAULT_PLAN.duplicate(true)]
+	elif id == 101:
+		plan = [year_of(today) + plan_year, CLASSIC_PLAN.duplicate(true)]
+	elif id > 110 and id <= 110 + PLAN_YEARS:  # il ciclo: gli anni nuovi a maggese, da riempire
+		var years: Array = plan[1]
+		while years.size() < id - 110:
+			years.append([])
+		years.resize(id - 110)
+	elif id == 120:
+		plan[1][at] = []
+	elif id >= 200 and id < 200 + Crop.size():
+		plan[1][at][plan_click[2]][0] = id - 200
+	elif id == 210:
+		plan[1][at].remove_at(plan_click[2])
+	elif id >= 300 and id < 300 + Crop.size():
+		plan[1][at].append([id - 300, plan_click[3]])
+		plan[1][at].sort_custom(func(a, b): return a[1] < b[1])
+	set_field_plan(sign_cell, plan)
+
+
+# `plan` diventa il piano di tutte le caselle del campo di `sign_cell`
+func set_field_plan(sign_cell: Vector2i, plan: Array) -> void:
+	for k in field_of(sign_cell):
+		plans[k] = plan.duplicate(true)
+	refresh_plan()
+	if field_popup.visible:
+		refresh_field()
 
 
 # cartello di una stanza: popup con nome, comfort, tipo, divieto e, secondo la categoria del tipo, proprietari
@@ -3272,6 +3504,8 @@ func _process(delta: float) -> void:
 		heat_canvas.queue_redraw()
 	if soil_lens.visible:
 		soil_canvas.queue_redraw()
+	if plan_panel.visible:  # la linea di oggi va avanti
+		plan_chart.queue_redraw()
 
 
 func tick(delta: float) -> void:
@@ -3407,7 +3641,8 @@ func update_colonist(c: Colonist, delta: float) -> void:
 				end_job(c)
 				try_haul(c, CROP_RES[crop], [here])  # porta subito via il raccolto
 				return
-			if garden.get(c.target, 0.0) < 0 and crop >= 0 and sowing_season(crop):
+			if sowable(c.target):
+				slot_done[c.target] = [year_of(today), next_slot(c.target)]
 				garden[c.target] = clock
 				sown[c.target] = crop
 				learn_soil(c, c.target)
@@ -3975,10 +4210,9 @@ func ice_space() -> int:
 	return room_left - (total(Res.ICE) - pits.keys().reduce(func(n, k): return n + items[Res.ICE].get(k, 0), 0))
 
 
-# caselle dell'orto dove c'è da fare: mature da raccogliere, o vuote da seminare se si è in tempo (sowing_season)
+# caselle dell'orto dove c'è da fare: mature da raccogliere, o vuote da seminare secondo il piano (sowable)
 func farm_ready() -> Array:
-	var sow := Crop.values().map(sowing_season)
-	return garden.keys().filter(func(k): return (garden[k] < 0 and crop_of(k) >= 0 and sow[crop_of(k)]) or ripe(k))
+	return garden.keys().filter(func(k): return sowable(k) or ripe(k))
 
 
 # quello che cresce in `cell` è maturo
@@ -3990,7 +4224,7 @@ func ripe(cell: Vector2i) -> bool:
 # stessa coltura, l'ultimo raccolto per il cartello e il bilancio dell'anno; la casella torna da seminare
 func harvested(cell: Vector2i, crop: Crop, amount: int) -> void:
 	var y := year_of(today)
-	tired[cell] = [crop, y, tired_years(cell, crop)]
+	tired[cell] = [crop, tired_count(cell, crop)]
 	add_soil(cell, CROP_SOIL[crop])
 	last_yield[cell] = [y, crop, amount]
 	var book: Dictionary = harvests.get(y, {})
@@ -4001,18 +4235,15 @@ func harvested(cell: Vector2i, crop: Crop, amount: int) -> void:
 	sown.erase(cell)
 
 
-# quanti anni di fila sarebbero con `crop` in `cell`, raccogliendolo quest'anno (vedi TIRED)
-func tired_years(cell: Vector2i, crop: Crop) -> int:
-	var rec: Array = tired.get(cell, [-1, -10, 0])
-	if rec[0] != crop:
-		return 1
-	var y := year_of(today)
-	return rec[2] if rec[1] == y else (rec[2] + 1 if rec[1] == y - 1 else 1)
+# quante volte di fila sarebbe `crop` in `cell`, raccogliendolo adesso (vedi TIRED)
+func tired_count(cell: Vector2i, crop: Crop) -> int:
+	var rec: Array = tired.get(cell, [-1, 0])
+	return rec[1] + 1 if rec[0] == crop else 1
 
 
 # quanti ne dà `crop` in `cell`: la base per 0,4 + fertilità/100, meno la terra stanca; almeno uno
 func crop_yield(cell: Vector2i, crop: Crop) -> int:
-	var f: float = (0.4 + soil_at(cell) / 100.0) * TIRED[mini(tired_years(cell, crop), TIRED.size()) - 1]
+	var f: float = (0.4 + soil_at(cell) / 100.0) * TIRED[mini(tired_count(cell, crop), TIRED.size()) - 1]
 	return maxi(1, roundi(CROP_YIELD[crop] * f))
 
 
@@ -4059,17 +4290,75 @@ func year_of(day: int) -> int:
 	return day / YEAR_DAYS
 
 
-# la coltura del piano di `cell` nell'anno `y` (vedi plans); senza piano, miste
-func sow_of(cell: Vector2i, y: int) -> Sow:
-	var plan: Array = plans.get(cell, [y, [Sow.MIXED]])
-	return plan[1][posmod(y - plan[0], plan[1].size())]
+# il piano di `cell` (vedi plans); senza, DEFAULT_PLAN
+func plan_of(cell: Vector2i) -> Array:
+	return plans.get(cell, [0, DEFAULT_PLAN])
 
 
-# il piano di `cell` a partire dall'anno `y`
-func plan_from(cell: Vector2i, y: int) -> Array:
-	var plan: Array = plans.get(cell, [y, [Sow.MIXED]])
-	var at := posmod(y - plan[0], plan[1].size())
-	return plan[1].slice(at) + plan[1].slice(0, at)
+# l'anno del ciclo del piano di `cell` nell'anno `y`
+func plan_index(cell: Vector2i, y: int) -> int:
+	var plan := plan_of(cell)
+	return posmod(y - plan[0], plan[1].size())
+
+
+# le colture del piano di `cell` nell'anno `y`: [[Crop, giorno dell'anno], ...], in ordine
+func slots_of(cell: Vector2i, y: int) -> Array:
+	return plan_of(cell)[1][plan_index(cell, y)]
+
+
+# il primo giorno d'inverno, contato dall'inizio dell'anno (il Capodanno è il giorno 0)
+func winter_day() -> int:
+	return 1 + WINTER * SEASON_DAYS
+
+
+# il Capodanno dell'anno di oggi, come `clock`
+func year_start() -> int:
+	return today - posmod(today, YEAR_DAYS)
+
+
+# la prossima coltura del piano da seminare in `cell` quest'anno, indice in slots_of; -1 se non ce n'è più. Quelle che
+# non farebbero più in tempo a maturare prima dell'inverno si saltano
+func next_slot(cell: Vector2i) -> int:
+	var y := year_of(today)
+	var slots := slots_of(cell, y)
+	var done: Array = slot_done.get(cell, [-1, -1])
+	var i: int = done[1] + 1 if done[0] == y else 0
+	while i < slots.size():
+		if year_start() + winter_day() - clock >= CROP_DAYS[slots[i][0]]:
+			return i
+		i += 1
+	return -1
+
+
+# in `cell` si semina adesso: è libera, la sua prossima coltura del piano è arrivata al suo giorno e la terra è tiepida
+func sowable(cell: Vector2i) -> bool:
+	var i := next_slot(cell)
+	if garden.get(cell, 0.0) >= 0 or i < 0:
+		return false
+	var slot: Array = slots_of(cell, year_of(today))[i]
+	return clock - year_start() >= slot[1] and sowing_season(slot[0])
+
+
+# dove andrebbe una coltura cliccando il giorno `day` fra le colture `slots`: [giorno d'inizio, giorno entro cui deve
+# finire]. Attaccata a quella prima (o da SOW_FROM), prima di quella dopo e dell'inverno
+func slot_room(slots: Array, day: float) -> Array:
+	var start := SOW_FROM
+	var limit := winter_day()
+	for slot in slots:
+		if slot[1] <= day:
+			start = maxi(start, slot[1] + int(CROP_DAYS[slot[0]]))
+		else:
+			limit = mini(limit, slot[1])
+	return [start, limit]
+
+
+# il nome di `day` nell'anno, senza l'anno: "3 Thaw", la festa, il Capodanno
+@warning_ignore("integer_division")
+func day_name(day: int) -> String:
+	var d := posmod(day, YEAR_DAYS) - 1
+	var r := posmod(d, SEASON_DAYS)
+	return tr(NEW_YEAR) if d < 0 else tr(FEASTS[d / SEASON_DAYS]) if feast(day) \
+		else "%d %s" % [r % MONTH_DAYS + 1, tr(MONTHS[d / SEASON_DAYS * 3 + r / MONTH_DAYS])]
 
 
 # si semina `crop` se la terra è tiepida (SOW_TEMP) e se matura prima dell'inverno: fuori dall'inverno, e almeno
@@ -4085,20 +4374,12 @@ func can_plant(cell: Vector2i) -> bool:
 	return not garden.has(cell) and can_build(cell, Build.WALL) and ground_of(cell) == Ground.GRASS and not roofed.has(cell)
 
 
-# quello che cresce in `cell`, o che ci si semina quest'anno secondo il piano; -1 a maggese
+# quello che cresce in `cell`, o la prossima coltura del piano da seminarci; -1 se quest'anno non c'è più niente
 func crop_of(cell: Vector2i) -> int:
 	if sown.has(cell):
 		return sown[cell]
-	match sow_of(cell, year_of(today)):
-		Sow.MIXED:  # rape e cavoli a file alterne
-			return Crop.TURNIP if posmod(cell.y, 2) == 0 else Crop.CABBAGE
-		Sow.TURNIP:
-			return Crop.TURNIP
-		Sow.CABBAGE:
-			return Crop.CABBAGE
-		Sow.BEANS:
-			return Crop.BEANS
-	return -1
+	var i := next_slot(cell)
+	return slots_of(cell, year_of(today))[i][0] if i >= 0 else -1
 
 
 # I campi: le caselle d'orto che si toccano. Il cartello sta nella più in alto a sinistra; le caselle senza piano
@@ -4119,6 +4400,12 @@ func update_fields() -> void:
 			for k in field:
 				if not plans.has(k):
 					plans[k] = plan.duplicate(true)
+	field_signs.sort_custom(func(a, b): return a.y < b.y or (a.y == b.y and a.x < b.x))
+
+
+# "Field 3": i campi contati dall'alto in basso (vedi update_fields)
+func field_name(sign_cell: Vector2i) -> String:
+	return tr("Field %d") % (field_signs.find(sign_cell) + 1)
 
 
 # le caselle del campo di `cell`
@@ -6126,11 +6413,7 @@ func shift_stress() -> float:
 # La data del giorno `day` (contato da 0, come `clock`): "3 Thaw, Year 1", o la festa: "Flower Feast, Year 1"
 @warning_ignore("integer_division")
 func date(day: int) -> String:
-	var d := posmod(day, YEAR_DAYS) - 1  # giorni dal primo di primavera: -1 è il Capodanno
-	var r := posmod(d, SEASON_DAYS)      # giorno nella stagione: dopo i suoi tre mesi, la festa
-	var when: String = tr(NEW_YEAR) if d < 0 else tr(FEASTS[d / SEASON_DAYS]) if feast(day) \
-		else "%d %s" % [r % MONTH_DAYS + 1, tr(MONTHS[d / SEASON_DAYS * 3 + r / MONTH_DAYS])]
-	return tr("%s, Year %d") % [when, day / YEAR_DAYS + 1]
+	return tr("%s, Year %d") % [day_name(day), day / YEAR_DAYS + 1]
 
 
 # La stagione del giorno `day`, indice di SEASONS: la festa è della stagione che chiude, il Capodanno della primavera
@@ -6162,7 +6445,7 @@ func note_harvests() -> void:
 	var parts := PackedStringArray()
 	for crop in Crop.values():
 		if book.has(crop):
-			var part: String = tr("%s %d a plot") % [tr(SOW_NAMES[crop + 1]).to_lower(), roundi(float(book[crop][0]) / book[crop][1])]
+			var part: String = tr("%s %d a plot") % [tr(CROP_NAMES[crop]).to_lower(), roundi(float(book[crop][0]) / book[crop][1])]
 			if before.has(crop):
 				part += tr(" (last year %d)") % roundi(float(before[crop][0]) / before[crop][1])
 			parts.append(part)
@@ -6174,9 +6457,9 @@ func note_harvests() -> void:
 # BERRY_REGROW giorni dopo Capodanno, nell'orto il gelo si prende quello che c'era. Finito un giorno di festa del calendario: la felicità e l'autorità della festa del
 # raccolto; col granaio aperto un pasto a tutti, un pezzo del granaio a testa finché ce n'è
 func new_day() -> void:
-	if posmod(today, YEAR_DAYS) == 0 and today > 0:  # Capodanno: la terra dell'orto si riposa, di più dopo il maggese
+	if posmod(today, YEAR_DAYS) == 0 and today > 0:  # Capodanno: la terra dell'orto si riposa, di più dopo un anno senza raccolti
 		for cell in garden:
-			add_soil(cell, SOIL_WINTER + (SOIL_FALLOW if sow_of(cell, year_of(today) - 1) == Sow.FALLOW else 0))
+			add_soil(cell, SOIL_WINTER + (SOIL_FALLOW if last_yield.get(cell, [-1])[0] < year_of(today) - 1 else 0))
 		soil_year_ago = soil.duplicate()
 	if feast(today) and season(today) == WINTER - 1:  # la Festa del focolare: il bilancio dei raccolti dell'anno
 		note_harvests()

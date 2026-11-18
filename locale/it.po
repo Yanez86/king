@@ -2899,12 +2899,6 @@ msgid_plural "%d plots"
 msgstr[0] "%d casella"
 msgstr[1] "%d caselle"
 
-msgid "Rotation, from this year:"
-msgstr "Rotazione, da quest'anno:"
-
-msgid "Mixed"
-msgstr "Miste"
-
 msgid "Turnips"
 msgstr "Rape"
 
@@ -2914,17 +2908,76 @@ msgstr "Cavoli"
 msgid "Beans"
 msgstr "Fave"
 
-msgid "Fallow"
-msgstr "Maggese"
+msgid "Field %d"
+msgstr "Campo %d"
 
-msgid "Classic rotation"
-msgstr "Rotazione classica"
+msgid "This year"
+msgstr "Quest'anno"
 
-msgid "Cabbages, turnips, beans, fallow"
-msgstr "Cavoli, rape, fave, maggese"
+msgid "Next year: %s."
+msgstr "L'anno prossimo: %s."
 
-msgid "This year: %s. Next year: %s."
-msgstr "Quest'anno: %s. L'anno prossimo: %s."
+msgid "fallow"
+msgstr "maggese"
+
+msgid "Plan the fields…"
+msgstr "Pianifica i campi…"
+
+# --- La pianificazione dei campi, a gantt
+
+msgid "Field planning"
+msgstr "Pianificazione dei campi"
+
+msgid "Year %d"
+msgstr "Anno %d"
+
+msgid " · this year"
+msgstr " · quest'anno"
+
+msgid "Striped: the soil is still cold, no sowing. Blue: winter, nothing grows. Click an empty spot to add a crop, a crop to change it, a field's name for ready rotations."
+msgstr "A righe: la terra è ancora fredda, non si semina. In azzurro: l'inverno, non cresce niente. Clic su uno spazio vuoto per aggiungere una coltura, su una coltura per cambiarla, sul nome di un campo per le rotazioni pronte."
+
+msgid "No fields yet: mark garden plots with Garden (P)."
+msgstr "Ancora nessun campo: segna le caselle d'orto con Orto (P)."
+
+msgid "every year"
+msgstr "ogni anno"
+
+msgid "%d-year cycle, year %d"
+msgstr "ciclo di %d anni, %d°"
+
+msgid "today, %s"
+msgstr "oggi, %s"
+
+msgid "Fallow: the soil rests"
+msgstr "Maggese: la terra riposa"
+
+msgid "Every year: turnips"
+msgstr "Ogni anno: rape"
+
+msgid "Classic rotation, 4 years, from this one"
+msgstr "Rotazione classica, 4 anni, da questo"
+
+msgid "Every year"
+msgstr "Ogni anno"
+
+msgid "A %d-year cycle"
+msgstr "Un ciclo di %d anni"
+
+msgid "Leave this year fallow"
+msgstr "Lascia quest'anno a maggese"
+
+msgid "%d days: %s – %s"
+msgstr "%d giorni: %s – %s"
+
+msgid "doesn't end before winter"
+msgstr "non finisce prima dell'inverno"
+
+msgid "no room before the next crop"
+msgstr "non c'è posto prima della coltura dopo"
+
+msgid "Remove"
+msgstr "Togli"
 
 msgid "No harvest yet."
 msgstr "Ancora nessun raccolto."

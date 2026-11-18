@@ -344,13 +344,14 @@ Cespugli e lino. Un cespuglio maturo ha 5 bacche (vegetali), il lino in fiore 5 
 • Rape e cavoli si conservano molto più delle bacche, le fave secche più di tutto: il cibo dell'inverno (vedi Cibo).
 
 [color=#e8c34a]Campi e rotazione[/color]
-• Le caselle d'orto che si toccano fanno un campo, col cartello sulla casella in alto a sinistra. Clicca il campo: cosa cresce quest'anno e il piano di rotazione, da uno a quattro anni, da quest'anno in poi (miste, rape, cavoli, fave, maggese; un "—" chiude il piano). La rotazione classica è cavoli, rape, fave, maggese. A Capodanno ogni campo passa all'anno dopo del suo piano. Quello che è già seminato finisce di crescere; le caselle nuove accanto a un campo ne prendono il piano.
-• Miste: rape e cavoli a file alterne, tutti gli anni.
+• Le caselle d'orto che si toccano fanno un campo, col cartello sulla casella in alto a sinistra. Clicca il campo: il suo nome, la sua timeline di quest'anno, cosa cresce l'anno prossimo, l'ultimo raccolto; "Pianifica i campi…" apre la pianificazione.
+• La pianificazione è un grafico dell'anno, una riga per campo: ogni coltura è una barra lunga quanto cresce, seminata nel suo giorno. A righe la terra fredda prima del tardo Disgelo; in azzurro l'inverno. Clic su uno spazio vuoto per aggiungere una coltura: comincia subito dopo quella prima, e quelle che non finirebbero prima dell'inverno (o della coltura dopo) sono spente. Clic su una coltura per cambiarla o toglierla, sul nome di un campo per le rotazioni pronte (rape ogni anno; la classica: cavoli, poi rape, poi fave, poi un anno a maggese) e per il ciclo, da uno a quattro anni. ◀ ▶ mostrano gli anni dopo.
+• A Capodanno ogni campo passa all'anno dopo del suo ciclo. Un colono semina una coltura nel suo giorno, appena la casella è libera e la terra tiepida; una coltura che non farebbe più in tempo a maturare prima dell'inverno si salta. Quello che è già seminato finisce di crescere; le caselle nuove accanto a un campo ne prendono il piano. Senza piano, rape, quante ne stanno nell'anno.
 
 [color=#e8c34a]La terra[/color]
 • Ogni casella ha la sua fertilità, che non si vede. È più ricca vicino all'acqua e più povera accanto alla roccia; abbattere un albero lascia l'humus. Più la terra è ricca, più il raccolto è grande.
-• Ogni raccolto stanca la terra: i cavoli di più, le rape meno, mentre le fave la restituiscono. A Capodanno l'orto si riposa, e un campo lasciato un anno a maggese si riprende molto.
-• La stessa coltura sulla stessa casella l'anno dopo rende un quarto in meno, il terzo anno di fila la metà: si ruota.
+• Ogni raccolto stanca la terra: i cavoli di più, le rape meno, mentre le fave la restituiscono. A Capodanno l'orto si riposa, e una casella senza raccolti per tutto l'anno (a maggese) si riprende molto.
+• La stessa coltura due volte di fila su una casella rende un quarto in meno, dalla terza volta la metà: si alternano.
 • Gli indizi: su terra povera le piante crescono smorte e giallastre; il cartello dice l'ultimo raccolto a casella; alla Festa del focolare la cronaca fa il bilancio del raccolto dell'anno, con quello dell'anno prima.
 • I contadini imparano: un colono con almeno 5 in Raccogliere riconosce la terra delle caselle che semina o raccoglie, e il cartello dice cosa ne pensano i contadini (povera, media, ricca).
 • Le ricerche la mostrano: il Saggio del terreno dà la lente della terra (O), povera, media o ricca su ogni casella, e la fascia sui cartelli; l'Almanacco agrario cinque fasce, e se un campo diventa più ricco o più povero di un anno fa; il Catasto i numeri esatti (sulla lente, da vicino) e il prossimo raccolto di ogni campo.

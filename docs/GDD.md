@@ -358,7 +358,7 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
     accanto alla roccia; abbattere un albero lascia l'humus, +15 a quella casella. La resa del raccolto è quella base
     (30 rape, 45 cavoli) per 0,4 + fertilità/100: a 60 la base, a 100 +40%, a 20 −40%. Ogni raccolto la consuma
     secondo la coltura; a Capodanno ogni casella d'orto ne riprende 5 (il riposo dell'inverno), 25 in più se l'anno
-    prima era a maggese.
+    prima non ha dato raccolti (maggese).
 
     | Coltura | Matura in | A casella | Fertilità a raccolto | Dura (fuori) |
     |---|---|---|---|---|
@@ -367,12 +367,23 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
     | Fave (secche) | 100 giorni | 20 | +10 | 60 giorni: il cibo dell'inverno; saziano 40 |
     | Maggese | — | — | +25 l'anno dopo | — |
 
-  - **Campi**: le caselle d'orto che si toccano fanno un campo, col suo cartello (un paletto nella casella più in alto a
-    sinistra). Cliccandolo: la coltura di quest'anno e il piano di rotazione, da 1 a 4 anni (miste a file, rape,
-    cavoli, fave, maggese); "Rotazione classica" mette cavoli → rape → fave → maggese. Il piano parte dall'anno in cui
-    lo si sceglie e a Capodanno si passa all'anno dopo. Le caselle nuove accanto a un campo ne prendono il piano.
-    Quello che è già seminato finisce di crescere.
-  - **Terra stanca**: la stessa coltura sulla stessa casella l'anno dopo rende −25%, il terzo anno di fila −50%.
+  - **Campi**: le caselle d'orto che si toccano fanno un campo ("Campo 1", 2… dall'alto in basso), col suo cartello
+    (un paletto nella casella più in alto a sinistra). Cliccandolo: il nome, le caselle, la sua timeline di quest'anno,
+    le colture dell'anno prossimo, l'ultimo raccolto, la terra (se la si conosce) e "Pianifica i campi…".
+  - **Pianificazione, a gantt** (decisa il 2026-11-18): una finestra con l'anno in orizzontale (stagioni e mesi in
+    testa, la linea di oggi) e una riga per campo. Il piano di un campo ha un ciclo da 1 a 4 anni; per ogni anno le
+    colture una dopo l'altra, ognuna dal suo giorno: sono barre lunghe quanto crescono (rape 60 giorni, cavoli 90, fave
+    100), colorate per coltura. A righe la terra fredda prima del giorno 22, in azzurro l'inverno (dal giorno 274): circa
+    250 giorni utili, per esempio rape + rape + cavoli. Clic su uno spazio vuoto: una coltura, attaccata a quella prima;
+    quelle che non finirebbero prima dell'inverno o della coltura dopo sono spente, col perché. Clic su una coltura:
+    cambiarla o toglierla. Clic sul nome: rotazioni pronte (rape ogni anno; la classica: cavoli, cavoli, rape → rape ×4 →
+    fave, fave → maggese) e il ciclo; gli anni nuovi del ciclo sono a maggese, da riempire. ◀ ▶ mostrano fino a 3 anni
+    dopo. A Capodanno ogni campo passa all'anno dopo del suo ciclo. Il contadino semina una coltura dal suo giorno, appena
+    la casella è libera e la terra è tiepida; una coltura che non farebbe più in tempo a maturare si salta. Quello che è
+    già seminato finisce di crescere; le caselle nuove accanto a un campo ne prendono il piano. Senza piano, rape quante
+    ne stanno (4).
+  - **Terra stanca**: la stessa coltura due volte di fila sulla stessa casella (anche nello stesso anno) rende −25%,
+    dalla terza volta −50%.
   - **Indizi senza ricerche**: su terra povera le piante sono smorte (più è povera, più sono gialle); il cartello dice
     l'ultimo raccolto a casella; alla Festa del focolare (fine autunno) la cronaca fa il bilancio dell'anno per
     coltura, a casella, con quello dell'anno prima.
@@ -384,7 +395,7 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
     i numeri esatti, sulla lente e sul cartello, e la previsione del prossimo raccolto.
   - **Ordine di lavoro**: (1) fertilità, resa, campi col cartello, indizi, bilancio; (2) fave, piano di rotazione,
     maggese, terra stanca; (3) le tre ricerche, la lente, il contadino che impara.
-  - **Stato**: fatte le fasi 1–3 (test in `tests/test_food.gd`).
+  - **Stato**: fatte le fasi 1–3 e la pianificazione a gantt (test in `tests/test_food.gd`).
   - Poi: concimi naturali (cenere dalla carbonaia, compost dal cibo marcio e dalle erbacce, sovescio delle fave,
     letame con la stalla).
 

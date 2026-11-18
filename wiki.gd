@@ -345,13 +345,14 @@ Bushes and flax. A ripe bush has 5 berries (vegetables), flowering flax 5 flax, 
 • Turnips and cabbages keep far longer than berries, dried beans longest of all: the winter food (see Food).
 
 [color=#e8c34a]Fields and rotation[/color]
-• Garden plots that touch make a field, with a sign on its top left plot. Click the field: what it grows this year and the rotation plan, one to four years, from this year on (mixed, turnips, cabbages, beans, fallow; a "—" ends the plan). Classic rotation is cabbages, turnips, beans, fallow. At New Year every field moves to the next year of its plan. What is already sown finishes growing; new plots next to a field take its plan.
-• Mixed: turnips and cabbages in alternate rows, every year.
+• Garden plots that touch make a field, with a sign on its top left plot. Click the field: its name, its timeline for this year, what it grows next year, the last harvest; "Plan the fields…" opens the planning.
+• The planning is a chart of the year, one row per field: every crop is a bar as long as it grows, sown on its day. Striped, the cold soil before late Thaw; blue, winter. Click an empty spot to add a crop: it starts right after the one before, and the crops that would not end before winter (or before the next one) are greyed out. Click a crop to change it or remove it, a field's name for ready rotations (turnips every year; the classic one: cabbages, then turnips, then beans, then a fallow year) and for the cycle, one to four years. ◀ ▶ show the years ahead.
+• At New Year every field moves to the next year of its cycle. A colonist sows a crop on its day, as soon as the plot is free and the soil mild; a crop that would no longer ripen before winter is skipped. What is already sown finishes growing; new plots next to a field take its plan. Without a plan, turnips, as many as fit in the year.
 
 [color=#e8c34a]The soil[/color]
 • Every tile has its own fertility, which you can't see. It is richer near water and poorer beside rock; felling a tree leaves rich humus. The richer the soil, the bigger the harvest.
-• Every harvest tires the soil: cabbages most, turnips less, while beans give it back. At New Year the garden rests, and a field left fallow for a year recovers a lot.
-• The same crop on the same plot the next year gives a quarter less, the third year in a row half: rotate.
+• Every harvest tires the soil: cabbages most, turnips less, while beans give it back. At New Year the garden rests, and a plot with no harvest all year (fallow) recovers a lot.
+• The same crop twice in a row on a plot gives a quarter less, from the third time half: alternate them.
 • Hints: on poor soil the plants grow pale and yellowish; the sign says the last harvest a plot; at the Hearth Feast the chronicle sums up the year's harvest, with the year before.
 • Farmers learn: a colonist with Gathering 5 or more knows the soil of the plots they sow or harvest, and the sign says what the farmers think of it (poor, average, rich).
 • Research shows it: Soil survey gives the soil lens (O), poor, average or rich on every tile, and the band on the signs; the Almanac five bands, and whether a field is growing richer or poorer than a year ago; the Land register the exact numbers (on the lens, close up) and the next harvest of every field.

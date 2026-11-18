@@ -431,8 +431,8 @@ func _initialize() -> void:
 	main.mark(Rect2i(plot + Vector2i(3, 0), Vector2i.ONE))
 	main.order = main.Order.NONE
 	check(main.garden.size() == 2 and main.field_signs == [plot], "Destroy toglie l'orto")
-	check(main.crop_of(plot) == main.crop_of(plot + Vector2i.RIGHT) and main.crop_of(plot) != main.crop_of(plot + Vector2i.DOWN),
-		"senza piano miste: rape e cavoli a file alterne")
+	check(main.crop_of(plot) == main.Crop.TURNIP and main.slots_of(plot, year) == main.DEFAULT_PLAN[0] and main.DEFAULT_PLAN[0].size() == 4,
+		"senza piano rape, quante ne stanno nell'anno")
 	var crop: int = main.crop_of(plot)
 	var harvest: int = main.CROP_RES[crop]
 	check(main.CROP_DAYS == [60.0, 90.0, 100.0] and main.SHELF_LIFE[main.Res.TURNIP] == 10.0 and main.SHELF_LIFE[main.Res.CABBAGE] == 14.0
@@ -465,43 +465,81 @@ func _initialize() -> void:
 	check(main.total(harvest) >= crop_before + 2 * main.CROP_YIELD[crop], "a fertilità 60, %d a casella" % main.CROP_YIELD[crop])
 	check(main.harvests[year][crop] == [2 * main.CROP_YIELD[crop], 2] and main.last_yield[plot] == [year, crop, main.CROP_YIELD[crop]],
 		"il bilancio dell'anno e l'ultimo raccolto")
-	check(main.soil_at(plot) == 60 + main.CROP_SOIL[crop] and main.tired[plot] == [crop, year, 1], "la terra paga il raccolto")
+	check(main.soil_at(plot) == 60 + main.CROP_SOIL[crop] and main.tired[plot] == [crop, 1], "la terra paga il raccolto")
+	check(main.next_slot(plot) == 1 and not main.sowable(plot) and main.farm_ready().is_empty(), "la coltura dopo aspetta il suo giorno")
+	main.clock = year_start + main.DEFAULT_PLAN[0][1][1] + 0.5
+	main.tick(0.0)
 	for i in 2000:  # e si risemina
 		main.tick(0.05)
 		if main.garden.values().all(func(t): return t >= 0):
 			break
-	check(main.garden.values().all(func(t): return t >= 0 and main.clock - t < 1.0), "e risemina")
+	check(main.garden.values().all(func(t): return t >= 0 and main.clock - t < 1.0) and main.slot_done[plot] == [year, 1], "e risemina, col piano")
 	# la resa: per 0,4 + fertilità/100; la stessa coltura l'anno dopo -25%, il terzo anno -50%
+	var tired_before: Array = main.tired[plot]
+	main.tired.erase(plot)  # terra non stanca: solo la fertilità
 	main.add_soil(plot, 100 - main.soil_at(plot))
 	check(main.crop_yield(plot, crop) == roundi(main.CROP_YIELD[crop] * 1.4), "a 100 il 40% in più")
 	main.add_soil(plot, 20 - main.soil_at(plot))
 	check(main.crop_yield(plot, crop) == roundi(main.CROP_YIELD[crop] * 0.6), "a 20 il 40% in meno")
 	main.add_soil(plot, 60 - main.soil_at(plot))
-	main.tired[plot] = [crop, year - 1, 1]
-	check(main.crop_yield(plot, crop) == roundi(main.CROP_YIELD[crop] * 0.75), "terra stanca: -25%")
-	main.tired[plot] = [crop, year - 1, 2]
-	check(main.crop_yield(plot, crop) == roundi(main.CROP_YIELD[crop] * 0.5), "il terzo anno -50%")
-	main.tired[plot] = [1 - crop, year - 1, 3]
+	check(tired_before == [crop, 1], "la stessa coltura di fila si conta")
+	main.tired[plot] = [crop, 1]
+	check(main.crop_yield(plot, crop) == roundi(main.CROP_YIELD[crop] * 0.75), "terra stanca: la seconda volta di fila -25%")
+	main.tired[plot] = [crop, 2]
+	check(main.crop_yield(plot, crop) == roundi(main.CROP_YIELD[crop] * 0.5), "dalla terza -50%")
+	main.tired[plot] = [1 - crop, 3]
 	check(main.crop_yield(plot, crop) == main.CROP_YIELD[crop], "cambiando coltura la terra non è stanca")
-	# il cartello: il piano di rotazione da quest'anno; la rotazione classica; a Capodanno si passa all'anno dopo
+	# il cartello: il nome del campo, la sua timeline, le colture dell'anno prossimo, l'ultimo raccolto; Plan the fields…
 	main.open_field(plot + Vector2i.RIGHT)
 	var box: Control = main.field_popup.get_node("Box")
-	check(main.field_popup.visible and box.get_node("Size").text == "2 plots" and box.get_node("Years").text == "This year: Mixed. Next year: Mixed.",
-		"il cartello del campo")
-	check(box.get_node("Last").text == "Last harvest: %s, %d a plot." % [main.SOW_NAMES[crop + 1].to_lower(), main.CROP_YIELD[crop]],
-		"col suo ultimo raccolto")
-	box.get_node("Classic").pressed.emit()
-	var S = main.Sow
+	check(main.field_popup.visible and box.get_node("Head/Title").text == "Field 1" and box.get_node("Size").text == "2 plots"
+		and box.get_node("Next").text == "Next year: turnips, turnips, turnips, turnips.", "il cartello del campo")
+	check(box.get_node("Last").text == "Last harvest: turnips, %d a plot." % main.CROP_YIELD[crop], "col suo ultimo raccolto")
+	box.get_node("Plan").pressed.emit()
+	check(main.plan_panel.visible and not main.field_popup.visible and main.plan_year == 0, "Plan the fields… apre la pianificazione")
+	# la pianificazione: un campo per riga, l'anno in orizzontale. Clic sul nome: le rotazioni pronte e il ciclo
+	var C = main.Crop
+	var chart: Control = main.plan_chart
+	var row_y: float = main.PLAN_AXIS + 10
+	var at_day := func(day: float) -> Vector2: return Vector2(main.PLAN_NAME + day * main.PLAN_DAY, row_y)
+	plan_click(main, chart, Vector2(20, row_y))
+	check(main.plan_menu.item_count == 9 and main.plan_menu.is_item_checked(main.plan_menu.get_item_index(111)), "le rotazioni pronte e il ciclo")
+	main.plan_menu_pressed(101)
 	check(main.plans[plot] == [year, main.CLASSIC_PLAN] and main.plans[plot + Vector2i.RIGHT] == [year, main.CLASSIC_PLAN],
 		"rotazione classica, per tutto il campo")
-	check(box.get_node("Years").text == "This year: Cabbages. Next year: Turnips." and box.get_node("Plan").get_child(3).get_selected_id() == S.FALLOW,
-		"quest'anno cavoli, poi rape, fave e maggese")
-	check(main.crop_of(plot) == crop, "quello che è già seminato finisce di crescere")
-	var pick: OptionButton = box.get_node("Plan").get_child(1)
-	pick.select(pick.get_item_index(-1))
-	pick.item_selected.emit(pick.selected)
-	check(main.plans[plot] == [year, [S.CABBAGE]] and box.get_node("Years").text == "This year: Cabbages. Next year: Cabbages.",
-		"il piano finisce al primo —")
+	check(main.slots_of(plot, year + 1) == main.CLASSIC_PLAN[1] and main.slots_of(plot, year + 3) == [] and main.crop_of(plot) == crop,
+		"quattro anni, l'ultimo a maggese; quello che è già seminato finisce di crescere")
+	# clic su una coltura: un'altra che ci stia al suo posto, o via
+	plan_click(main, chart, at_day.call(30))  # i primi cavoli, dal 22 al 112
+	var item := func(id: int) -> int: return main.plan_menu.get_item_index(id)
+	check(main.plan_click[2] == 0 and not main.plan_menu.is_item_disabled(item.call(200 + C.TURNIP))
+		and main.plan_menu.is_item_disabled(item.call(200 + C.CABBAGE)) and main.plan_menu.is_item_disabled(item.call(200 + C.BEANS))
+		and "no room" in main.plan_menu.get_item_text(item.call(200 + C.BEANS)), "al posto dei cavoli le rape sì, le fave non ci stanno")
+	main.plan_menu_pressed(210)
+	check(main.slots_of(plot, year) == [[C.CABBAGE, 112], [C.TURNIP, 202]], "tolta")
+	# clic nel vuoto: una coltura attaccata a quella prima, se finisce prima della dopo e dell'inverno
+	plan_click(main, chart, at_day.call(50))
+	check(main.plan_click[3] == main.SOW_FROM and not main.plan_menu.is_item_disabled(item.call(300 + C.TURNIP))
+		and not main.plan_menu.is_item_disabled(item.call(300 + C.CABBAGE)) and main.plan_menu.is_item_disabled(item.call(300 + C.BEANS)),
+		"nel vuoto prima dei cavoli: rape o cavoli sì, fave no")
+	main.plan_menu_pressed(300 + C.TURNIP)
+	check(main.slots_of(plot, year) == [[C.TURNIP, 22], [C.CABBAGE, 112], [C.TURNIP, 202]], "aggiunta, in ordine")
+	plan_click(main, chart, at_day.call(300))
+	check(main.plan_click[3] == 262 and main.plan_menu.is_item_disabled(item.call(300 + C.TURNIP))
+		and "winter" in main.plan_menu.get_item_text(item.call(300 + C.TURNIP)), "dopo l'ultima rapa non ci sta più niente prima dell'inverno")
+	main.plan_click = [plot, 0, -1, 0]
+	main.plan_menu_pressed(112)
+	check(main.plans[plot][1].size() == 2 and main.slots_of(plot, year + 2) == main.slots_of(plot, year), "un ciclo di due anni")
+	main.plan_menu_pressed(113)
+	check(main.plans[plot][1].size() == 3 and main.plans[plot][1][2] == [], "di tre: l'anno nuovo è a maggese, da riempire")
+	var nav: Control = main.plan_panel.get_node("Box/Nav")
+	check(nav.get_node("Prev").disabled and nav.get_node("Year").text == "Year %d · this year" % (year + 1), "si parte da quest'anno")
+	nav.get_node("Next").pressed.emit()
+	check(main.plan_year == 1 and nav.get_node("Year").text == "Year %d" % (year + 2), "▶ l'anno dopo")
+	plan_click(main, chart, at_day.call(30))
+	check(main.plan_click[1] == 1, "e lo si pianifica")
+	main.plan_panel.hide()
+	main.open_field(plot)
 	# la terra del campo: col Catasto i numeri e il prossimo raccolto, con l'Almanacco cinque fasce e la tendenza, col
 	# Saggio tre fasce; senza ricerche quello che dicono i contadini bravi delle caselle che hanno lavorato
 	var ago: PackedByteArray = main.soil.duplicate()
@@ -548,7 +586,8 @@ func _initialize() -> void:
 	for k in main.garden:  # niente in campo: il piano dice cosa si semina
 		main.garden[k] = -1.0
 		main.sown.erase(k)
-		main.plans[k] = [year, [S.BEANS, S.FALLOW]]
+		main.slot_done.erase(k)
+		main.plans[k] = [year, [[[C.BEANS, 22]], []]]
 	check(main.crop_of(plot) == main.Crop.BEANS, "fave")
 	main.garden[plot] = main.clock - main.CROP_DAYS[main.Crop.BEANS]
 	main.sown[plot] = main.Crop.BEANS
@@ -564,7 +603,8 @@ func _initialize() -> void:
 	var winter_starts: int = year_start + 1 + main.WINTER * main.SEASON_DAYS
 	main.clock = winter_starts - main.CROP_DAYS[main.Crop.TURNIP] + 0.5  # non si fa più in tempo
 	main.tick(0.0)
-	main.plans[plot] = [year, [S.TURNIP]]
+	main.plans[plot] = [year, [[[C.TURNIP, 22]]]]
+	main.slot_done.erase(plot)
 	check(not main.sowing_season(main.Crop.TURNIP) and not main.farm_ready().has(plot), "troppo vicino all'inverno: non si semina")
 	main.garden[plot] = main.clock
 	main.sown[plot] = main.Crop.TURNIP
@@ -572,16 +612,17 @@ func _initialize() -> void:
 	main.tick(0.0)
 	check(main.garden.values().all(func(t): return t < 0) and main.sown.is_empty(), "il gelo si prende quello che c'era")
 	check(Array(main.chronicle).any(func(line): return "frost took 1 plot of" in line), "e la cronaca lo dice")
-	# Capodanno: la terra dell'orto si riposa, dopo il maggese di più; il piano passa all'anno dopo
-	main.plans[plot] = [year, [S.FALLOW, S.BEANS]]
-	main.plans[plot + Vector2i.RIGHT] = [year, [S.BEANS, S.FALLOW]]
+	# Capodanno: la terra dell'orto si riposa, dopo un anno senza raccolti di più; il piano passa all'anno dopo
+	main.plans[plot] = [year, [[[C.BEANS, 22]], []]]
+	main.plans[plot + Vector2i.RIGHT] = [year, [[], [[C.BEANS, 22]]]]
+	main.last_yield.erase(plot)  # quest'anno lì niente raccolti
 	main.add_soil(plot, 40 - main.soil_at(plot))
 	main.add_soil(plot + Vector2i.RIGHT, 40 - main.soil_at(plot + Vector2i.RIGHT))
 	main.clock = year_start + main.YEAR_DAYS + 0.25  # Capodanno dell'anno dopo
 	main.tick(0.0)
 	check(main.soil_at(plot) == 40 + main.SOIL_WINTER + main.SOIL_FALLOW and main.soil_at(plot + Vector2i.RIGHT) == 40 + main.SOIL_WINTER,
-		"a Capodanno la terra si riposa, dopo il maggese di più")
-	check(main.crop_of(plot) == main.Crop.BEANS and main.crop_of(plot + Vector2i.RIGHT) == -1, "e il piano passa all'anno dopo")
+		"a Capodanno la terra si riposa, dopo un anno senza raccolti di più")
+	check(main.crop_of(plot) == -1 and main.crop_of(plot + Vector2i.RIGHT) == C.BEANS, "e il piano passa all'anno dopo")
 	check(main.soil_year_ago == main.soil, "la fertilità di Capodanno, per l'anno dopo")
 	main.order = main.Order.DEMOLISH
 	main.mark(Rect2i(plot, Vector2i(3, 1)))
@@ -617,6 +658,15 @@ func check_cook(main, fire: Vector2i) -> void:
 			var here: Vector2i = main.cell_of(c.pos)
 			check((here - fire).length() == 1, "cucina accanto al fuoco")
 			check(main.WORK_CYCLE.has(main.frame_of(c)), "fotogrammi d'azione mentre cucina")
+
+
+# un clic sinistro nel gantt della pianificazione, in `at`
+func plan_click(main, chart: Control, at: Vector2) -> void:
+	var event := InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.pressed = true
+	event.position = at
+	main.plan_input(event)
 
 
 func check(ok: bool, what: String) -> void:
