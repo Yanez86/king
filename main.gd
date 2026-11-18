@@ -458,13 +458,17 @@ const SPLENDOR := {Build.FLOWER_BED: 1, Build.PLANTER: 1, Build.BENCH: 1, Build.
 	Build.FOUNTAIN: 6, Build.STATUE: 8, Build.CHALICE: 3, Build.OLD_BANNER: 4, Build.BUST: 5, Build.CROWN: 6}
 const SPLENDOR_COLOR := Color("e8c34a")
 const HEAT_COLOR := Color("f2a03a")
+# lente del calore: sopra COLD_FROM, sotto ma senza malus, poi per punti di comfort tolti dal freddo (1, 2, 3 e più)
+const HEAT_SCALE := [Color("e8442a"), Color("e8c34a"), Color("8ad0e8"), Color("4a8ae0"), Color("3a3ab0")]
+const FROST_COLOR := Color("eef8ff")  # sotto lo zero: il cibo non marcisce
+const BLOCKED_COLOR := Color("d84a3a")  # la ✕ sul muro di pietra che il calore non passa
 const ROOM_SPACE := 6        # caselle a testa: chi ne ha meno (stanza piena di gente) ha il comfort in proporzione
 # suggerimento dei pulsanti di costruzione (vedi build_tip): sotto nome e costo il comfort, poi la descrizione colorata
 # menù delle opzioni (Esc o ingranaggio), tab Keybindings: tasti di partenza dei comandi della barra in basso, per
 # nome del pulsante in HUD/Tools/Row (quelli che non ci sono partono senza). Cambiati, si salvano: vedi bind_key
 const DEFAULT_KEYS := {"Select": KEY_Q, "Build": KEY_B, "Destroy": KEY_X, "Mine": KEY_M, "Chop": KEY_C, "Uproot": KEY_U,
 	"Harvest": KEY_H, "Fish": KEY_F, "Hunt": KEY_T, "Jobs": KEY_J, "Resources": KEY_I, "Knowledge": KEY_K, "Laws": KEY_G,
-	"RoomsLens": KEY_L, "Roofs": KEY_V, "Wiki": KEY_F1}
+	"RoomsLens": KEY_L, "HeatLens": KEY_N, "Roofs": KEY_V, "Wiki": KEY_F1}
 const SPEEDS := {"Pause": 0.0, "Play": 1.0, "Fast": 2.0, "Fastest": 3.0}  # pulsanti in alto a destra, come Space e 1-3
 # tab Video delle opzioni: misure della finestra, solo quelle che stanno nello schermo (la prima sempre)
 const RESOLUTIONS := [Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440)]
@@ -1221,6 +1225,8 @@ var feet := {}                    # [texture, rettangolo] -> riga dei piedi, ved
 # lenti: sopra il mondo e sotto l'interfaccia (HUD è al livello 2), in un livello a parte così la notte non le scurisce
 var lens := CanvasLayer.new()
 var lens_canvas := Node2D.new()   # ci disegna draw_lens
+var heat_lens := CanvasLayer.new()  # la lente del calore: si accende anche da sola, piazzando un fuoco (vedi previewing_heat)
+var heat_canvas := Node2D.new()     # ci disegna draw_heat_lens
 # luci accese di notte: come le lenti, in un livello che la notte non scurisce; ci disegna draw_lights
 var lights := CanvasLayer.new()
 var lights_canvas := Node2D.new()
@@ -1366,6 +1372,12 @@ func _ready() -> void:
 	lens.add_child(lens_canvas)
 	add_child(lens)
 	lens_canvas.draw.connect(draw_lens)
+	heat_lens.follow_viewport_enabled = true
+	heat_lens.layer = 1
+	heat_lens.visible = false
+	heat_lens.add_child(heat_canvas)
+	add_child(heat_lens)
+	heat_canvas.draw.connect(draw_heat_lens)
 	add_child(atmosphere)  # dopo `lights` e `flat`, che usa
 	forecast_strip.main = self
 	$HUD/TopBar/Row.add_child(forecast_strip)
@@ -1377,7 +1389,13 @@ func _ready() -> void:
 	info_label.gui_input.connect(func(event):
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			calendar.visible = not calendar.visible)
-	$HUD/Tools/Row/RoomsLens.toggled.connect(lens.set_visible)
+	$HUD/Tools/Row/RoomsLens.toggled.connect(func(on):  # una lente alla volta
+		lens.visible = on
+		if on:
+			$HUD/Tools/Row/HeatLens.button_pressed = false)
+	$HUD/Tools/Row/HeatLens.toggled.connect(func(on):
+		if on:
+			$HUD/Tools/Row/RoomsLens.button_pressed = false)
 	$HUD/Tools/Row/Roofs.toggled.connect(func(on): roofs_shown = not on)
 	$HUD/RoomPopup/Box/Ok.pressed.connect(room_popup.hide)
 	for kind in Build.values():  # un pulsante per tipo, con lo stesso nome: Wall, Floor, ... Lamp
@@ -2241,6 +2259,8 @@ func show_tip(cell: Vector2i) -> void:
 # [titolo, testo] del suggerimento per l'oggetto in `cell`, [] se non c'è niente. Gli alberi valgono anche sulla
 # chioma, nella casella sopra; tra più cose nella stessa casella vince quella disegnata sopra.
 func describe(cell: Vector2i) -> Array:
+	if heat_lens.visible and room_at(cell) != null:  # lente del calore: il conto dei gradi della stanza
+		return [room_at(cell).name, "\n".join(heat_lines(room_at(cell)))]
 	for a in animals:
 		if cell_of(a.pos) == cell:
 			var lines := PackedStringArray()
@@ -2560,6 +2580,9 @@ func _process(delta: float) -> void:
 	if lens.visible:
 		lens_canvas.queue_redraw()
 		place_owners()
+	heat_lens.visible = $HUD/Tools/Row/HeatLens.button_pressed or previewing_heat()
+	if heat_lens.visible:
+		heat_canvas.queue_redraw()
 
 
 func tick(delta: float) -> void:
@@ -3082,7 +3105,7 @@ func room_comfort(room: Room) -> int:
 
 # Comfort tolto (0 o meno) da freddo e pioggia in `cell` a chi ha `warmth` punti di protezione addosso (vedi COLD_FROM)
 func weather_comfort(cell: Vector2i, warmth := 0.0) -> int:
-	var cold := maxi(0, floori((COLD_FROM - temperature_at(cell) - warmth) / COLD_STEP))
+	var cold := cold_malus(temperature_at(cell) + warmth)
 	var wet := 0 if sheltered(cell) else roundi(WET_COMFORT * atmosphere.raining())
 	return -(cold + wet)
 
@@ -3099,13 +3122,24 @@ func temperature_at(cell: Vector2i, memo := {}) -> float:
 	var room := room_at(cell)
 	if room == null:  # un muro o una porta sotto il tetto
 		return lerpf(t, ROOM_TEMP, WALL_INSULATION[Res.WOOD])
-	if memo.has(room):
-		return memo[room]
-	t = lerpf(t, room_base(room), insulation(room))
+	if not memo.has(room):
+		memo[room] = room_temperature(room)
+	return memo[room]
+
+
+# i gradi della stanza sotto il suo tetto: verso room_base di quanto isola, più i fuochi
+func room_temperature(room: Room) -> float:
+	if not atmosphere.climate:
+		return ROOM_TEMP
+	var t := lerpf(atmosphere.temperature(), room_base(room), insulation(room))
 	for source in heat_sources(room):
 		t += source[1]
-	memo[room] = t
 	return t
+
+
+# punti di comfort che il freddo toglie a `t` gradi: uno ogni COLD_STEP sotto COLD_FROM (vedi weather_comfort)
+func cold_malus(t: float) -> int:
+	return maxi(0, floori((COLD_FROM - t) / COLD_STEP))
 
 
 # la temperatura verso cui va la stanza: ROOM_TEMP dove si vive, STORE_TEMP nei magazzini e nelle dispense
@@ -3161,12 +3195,19 @@ func heat_sources(room: Room) -> Array:
 # La stanza dall'altra parte del muro di legno alle spalle del fuoco in `origin` (vedi BACKS), che ne prende una parte
 # del calore; null se dietro non c'è un muro di legno con una stanza diversa oltre
 func heat_through(origin: Vector2i) -> Room:
-	var back := back_of(furniture[origin])
+	var p := passage(origin, furniture[origin])
+	return p[1] if not p.is_empty() and p[2] else null
+
+
+# Il muro alle spalle del mobile `plan` in `origin`, se oltre c'è un'altra stanza: [muro, stanza oltre, il calore passa
+# (il muro è di legno)]; [] se dietro non c'è un muro o oltre non c'è una stanza diversa
+func passage(origin: Vector2i, plan: Array) -> Array:
+	var back := back_of(plan)
 	var wall: Array = built.get(origin + back, [-1, -1])
-	if wall[0] != Build.WALL or wall[1] != Res.WOOD:
-		return null
 	var other := room_at(origin + back * 2)
-	return other if other != room_at(origin) else null
+	if wall[0] != Build.WALL or other == null or other == room_at(origin):
+		return []
+	return [origin + back, other, wall[1] == Res.WOOD]
 
 
 # la direzione delle spalle del mobile `plan` (girato di plan[2] quarti)
@@ -3198,7 +3239,7 @@ func heat_lines(room: Room) -> Array:
 		var name := named(Build, furniture[source[0]][0])
 		lines.append(("%s: +%s °C" % [name if from == room or from == null else tr("%s of %s") % [name, from.name],
 			str(snappedf(source[1], 0.5)).trim_suffix(".0")]))
-	lines.append(tr("Total: %d °C") % roundi(temperature_at(room.cells.keys()[0])))
+	lines.append(tr("Total: %d °C") % roundi(room_temperature(room)))
 	return lines
 
 
@@ -6519,6 +6560,67 @@ func draw_lens() -> void:
 		if room.kind != RoomKind.NONE:
 			lens_canvas.draw_string(font, mid + Vector2(-TILE * 4, 4), named(RoomKind, room.kind),
 				HORIZONTAL_ALIGNMENT_CENTER, TILE * 8, 12)
+
+
+# Lente del calore: ogni casella delle stanze colorata coi suoi gradi (HEAT_SCALE: quanto comfort toglie il freddo;
+# sotto lo zero FROST_COLOR), al centro i gradi e il malus; sopra ogni fuoco quanto scalda, e dove passa il muro alle
+# sue spalle una freccia col calore che va oltre, o una ✕ se il muro è di pietra. Piazzando un fuoco, la sua anteprima
+func draw_heat_lens() -> void:
+	var memo := {}
+	for room in rooms:
+		for cell in room.cells:
+			heat_canvas.draw_rect(tile_rect(cell.x, cell.y), Color(heat_color(temperature_at(cell, memo)), 0.6))
+		var t := room_temperature(room)
+		var malus := cold_malus(t)
+		lens_text(room_mid(room) + Vector2(-TILE * 4, 4), "%d °C" % roundi(t) + (" · −%d" % malus if malus > 0 else ""),
+			TILE * 8, 12, Color.WHITE)
+	for origin in furniture:
+		var kind: int = furniture[origin][0]
+		if HEAT.has(kind):
+			lens_text(center(origin) + Vector2(-TILE, -TILE / 2.0 - 2), "+%d" % HEAT[kind], TILE * 2, 10, HEAT_COLOR)
+			if kind in PASSES_HEAT:
+				draw_passage(origin, furniture[origin])
+	if previewing_heat() and build_kind in PASSES_HEAT:
+		draw_passage(cell_of(get_global_mouse_position()), [build_kind, build_res, build_turn])
+
+
+# sulla lente del calore: la freccia del calore che passa il muro alle spalle del fuoco, o la ✕ sul muro di pietra
+func draw_passage(origin: Vector2i, plan: Array) -> void:
+	var p := passage(origin, plan)
+	if p.is_empty():
+		return
+	var to := center(p[0] + back_of(plan))
+	if not p[2]:
+		var x := center(p[0])
+		heat_canvas.draw_line(x - Vector2(4, 4), x + Vector2(4, 4), BLOCKED_COLOR, 2.0)
+		heat_canvas.draw_line(x + Vector2(-4, 4), x + Vector2(4, -4), BLOCKED_COLOR, 2.0)
+		return
+	var from := center(origin)
+	var dir := (to - from).normalized()
+	heat_canvas.draw_line(from + dir * 4, to, HEAT_COLOR, 2.0)
+	heat_canvas.draw_colored_polygon(PackedVector2Array([to + dir * 3, to - dir * 3 + dir.orthogonal() * 4,
+		to - dir * 3 - dir.orthogonal() * 4]), HEAT_COLOR)
+	lens_text(to + Vector2(-TILE, TILE - 2), "+%s" % str(HEAT[plan[0]] * THROUGH_WALL).trim_suffix(".0"), TILE * 2, 10, HEAT_COLOR)
+
+
+# scritta centrata nella larghezza `width`, col contorno: si legge sopra ogni colore
+func lens_text(at: Vector2, text: String, width: int, size: int, color: Color) -> void:
+	var font := info_label.get_theme_font("font")
+	heat_canvas.draw_string_outline(font, at, text, HORIZONTAL_ALIGNMENT_CENTER, width, size, 4, OUTLINE)
+	heat_canvas.draw_string(font, at, text, HORIZONTAL_ALIGNMENT_CENTER, width, size, color)
+
+
+# il colore della lente per `t` gradi: sotto lo zero il ghiaccio, sopra COLD_FROM il caldo, in mezzo per quanto
+# comfort toglie il freddo
+func heat_color(t: float) -> Color:
+	if t <= 0.0:
+		return FROST_COLOR
+	return HEAT_SCALE[0] if t >= COLD_FROM else HEAT_SCALE[mini(cold_malus(t) + 1, HEAT_SCALE.size() - 1)]
+
+
+# si sta piazzando un mobile che scalda: la lente del calore si accende da sola, con l'anteprima
+func previewing_heat() -> bool:
+	return order == Order.BUILD and HEAT.has(build_kind)
 
 
 # Sotto il tipo, sulla lente, le figurine dei proprietari (o dei lavoratori): col mouse sopra, la loro scheda (vedi colonist_tip).

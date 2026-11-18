@@ -2734,3 +2734,6 @@ msgstr "I muri tengono al %d%% verso %d °C"
 
 msgid "Total: %d °C"
 msgstr "In tutto: %d °C"
+
+msgid "Heat lens"
+msgstr "Vista calore"

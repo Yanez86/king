@@ -160,6 +160,37 @@ func _initialize() -> void:
 	kitchen.kind = main.RoomKind.NONE
 	main.update_stockpile()
 
+	# lente del calore: colori per malus, il conto col mouse sopra, la freccia del calore che passa; una lente alla volta
+	main.clock = floorf(1 + 3.5 * main.SEASON_DAYS) + 0.25  # di nuovo a metà inverno
+	main.furniture[hearth] = [B.HEARTH, R.STONE, 1]
+	main.built[wall] = [B.WALL, R.WOOD]
+	check(main.heat_color(-2.0) == main.FROST_COLOR and main.heat_color(20.0) == main.HEAT_SCALE[0]
+		and main.heat_color(9.0) == main.HEAT_SCALE[1] and main.heat_color(5.0) == main.HEAT_SCALE[2],
+		"i colori della lente: ghiaccio, caldo, fresco senza malus, un punto di freddo")
+	var rooms_button: Button = main.get_node("HUD/Tools/Row/RoomsLens")
+	var heat_button: Button = main.get_node("HUD/Tools/Row/HeatLens")
+	rooms_button.button_pressed = true
+	heat_button.button_pressed = true
+	main._process(0.0)
+	check(main.heat_lens.visible and not main.lens.visible and not rooms_button.button_pressed, "una lente alla volta")
+	check(main.describe(Vector2i(19, 12)) == [bedroom.name, "\n".join(main.heat_lines(bedroom))], "col mouse sopra, il conto dei gradi")
+	check(main.passage(hearth, main.furniture[hearth]) == [wall, bedroom, true], "dietro il focolare il muro di legno: passa")
+	main.built[wall] = [B.WALL, R.STONE]
+	check(main.passage(hearth, main.furniture[hearth]) == [wall, bedroom, false], "di pietra: bloccato (la ✕)")
+	main.built[wall] = [B.WALL, R.WOOD]
+	heat_button.button_pressed = false
+	main._process(0.0)
+	check(not main.heat_lens.visible, "spenta col suo tasto")
+	main.order = main.Order.BUILD
+	main.build_kind = B.HEARTH
+	main._process(0.0)
+	check(main.heat_lens.visible, "piazzando un focolare la lente si accende da sola")
+	main.build_kind = B.BED
+	main._process(0.0)
+	check(not main.heat_lens.visible, "con un letto no")
+	main.order = main.Order.NONE
+	main.furniture.erase(hearth)
+
 	# il suggerimento del pulsante dice quanto scalda
 	var tip: Control = main.build_tip(B.HEARTH)
 	var texts: Array = tip.get_children().filter(func(n): return n is Label).map(func(l): return l.text)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=79 format=3]
+[gd_scene load_steps=80 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Texture2D" path="res://art/icon_wood.png" id="2"]
@@ -36,6 +36,7 @@
 [ext_resource type="Texture2D" path="res://art/icon_audio.png" id="audio_icon"]
 [ext_resource type="Texture2D" path="res://art/icon_wiki.png" id="wiki_icon"]
 [ext_resource type="Texture2D" path="res://art/icon_roofs.png" id="roofs_icon"]
+[ext_resource type="Texture2D" path="res://art/icon_heat.png" id="heat_icon"]
 
 [sub_resource type="AtlasTexture" id="HandsSlot"]
 atlas = ExtResource("equipment")
@@ -1080,6 +1081,15 @@ focus_mode = 0
 tooltip_text = "Rooms lens"
 toggle_mode = true
 icon = ExtResource("sign_icon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="HeatLens" type="Button" parent="HUD/Tools/Row"]
+custom_minimum_size = Vector2(38, 38)
+focus_mode = 0
+tooltip_text = "Heat lens"
+toggle_mode = true
+icon = ExtResource("heat_icon")
 icon_alignment = 1
 expand_icon = true
 
