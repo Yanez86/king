@@ -252,7 +252,7 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
 - Edifici MVP: muri, porte, tetto, letto, focolare, cucina, magazzino (zona), banco da lavoro, fornace, fucina.
 - Stanze chiuse con tetto proteggono da pioggia e freddo; il focolare scalda.
 - **Stanze**: zona chiusa da muri con una porta; il cartello sul muro accanto alla porta apre nome e tipo.
-  Tipi: magazzino; camera (1 letto); dormitorio (2 letti); cucina (fuoco da campo, poi anche stufa); forgia (fornace e incudine);
+  Tipi: magazzino; camera (1 letto); dormitorio (2 letti); cucina (fuoco da campo, poi anche focolare e stufa); forgia (fornace e incudine);
   laboratorio (banco da lavoro); falegnameria (banco del falegname).
   Un tipo si sceglie solo se ci sono i mobili (gli altri non compaiono); tolti, la stanza torna senza tipo.
   Ogni tipo ha una categoria:
@@ -270,18 +270,21 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
   (8 ore a comfort 5) e per cucinare, dove cambia anche la probabilità di bruciare il pasto o farlo squisito.
   Sotto le 6 caselle a testa il comfort cala in proporzione.
 - **Tetti**: ogni stanza finita ha il suo, da sé, sopra la stanza e i suoi muri; un pulsante (V) li toglie per guardare dentro.
+  Materiale, forma, degrado e comignoli: vedi 4.4.5.
 - **Freddo e pioggia** tolgono comfort, anche sotto lo 0: −1 ogni 4 °C sotto i 12 °C; fuori, sotto la pioggia, −2.
   La temperatura fuori la danno le stagioni (vedi 4.5), ±5 °C tra mezzanotte e mezzogiorno, e il tempo: pioggia −3,
   nebbia −2, temporale −5, neve −2.
   Sotto un tetto la temperatura va a metà strada verso 15 °C e non piove; ogni fuoco da campo della stanza la alza di 8 °C;
   ogni punto di protezione addosso vale un grado. Da svegli, al freddo o sotto la pioggia, il comfort cala di un punto
   all'ora per ogni punto tolto; risale solo dormendo. Nelle stanze fredde anche lavorare, cucinare e studiare va più piano.
+  Focolare e fornace, calore attraverso i muri, isolamento secondo i muri e la lente del calore: vedi 4.4.5.
 
 ### 4.4.1 Cibo e cucina
 - **Freschezza**: ogni mucchio di cibo ha i giorni che gli restano (mescolando due mucchi, la media pesata).
   A terra fuori il cibo dura 3 giorni, in magazzino il doppio; poi marcisce e sparisce. Il suggerimento sul mucchio
   dice "Fresh / Stale / Almost rotten" e fra quanti giorni marcisce. Col freddo marcisce più piano: sotto i 15 °C in
-  proporzione ai gradi, sotto lo zero per niente (gela, "frozen: it keeps"); un magazzino senza fuoco fa da dispensa.
+  proporzione ai gradi, sotto lo zero per niente (gela, "frozen: it keeps"); un magazzino senza fuoco fa da dispensa. Stanze senza gente più
+  fredde, caldo che fa marcire, cantine e ghiacciaia: vedi 4.4.5.
   Poi: marcio da buttare.
 - **Crudo**: si può mangiare, ma sazia poco e può intossicare (dal crudo appena preso a quello quasi marcio):
 
@@ -533,6 +536,107 @@ racconta il diario al ritorno.
   giusto ci guadagna (cripta, tre di livello 3: 147 monete a casa per 75 di paghe; forte, quattro di livello 5: 268
   per 140); coi talenti a caso i numeri restano questi, più o meno. Manca il resto di "Poi".
 
+### 4.4.5 Tetti, calore e conservazione
+Deciso il 2026-11-18. I tetti cambiano aspetto col materiale e si consumano; i fuochi scaldano anche attraverso i muri
+di legno, la pietra isola; il caldo e il freddo decidono quanto dura il cibo, fino alla ghiacciaia. Numeri da tarare.
+
+- **Materiale del tetto**: segue i muri dell'edificio. Muri di legno → scandole (sprite nuovo); muri di pietra → i coppi
+  di oggi, che diventano il segno della Muratura. Muri misti: decide la maggioranza dei muri dell'edificio (le porte
+  contano come legno). Un tetto è tutto dello stesso materiale.
+- **Forma**: un tetto per edificio, non uno solo per tutte le stanze che si toccano: tra due edifici accostati un
+  compluvio. Il colmo corre lungo il lato lungo; in un edificio più alto che largo è verticale e in facciata si vede il
+  timpano. Le stanze a L si spezzano in rettangoli, ognuno col suo colmo: il colmo non fa più gli scalini. Una leggera
+  differenza di tinta tra un tetto e l'altro.
+- **Neve e pioggia sui tetti**: la neve si scioglie secondo la temperatura della stanza sotto, prima sui tetti delle
+  stanze calde e attorno ai comignoli: si vede a colpo d'occhio dove si sta al caldo. Sotto la pioggia il tetto è più
+  scuro e gocciola dalla gronda; col gelo, ghiaccioli.
+- **Degrado, per casella**: ogni casella di tetto ha il suo stato, in tre stadi: integra; tegole (o scandole) smosse e
+  muschio; buco con le travi a vista. Lo consumano il tempo (poco), i temporali (molto: strappano il tetto in caselle a
+  caso) e la neve pesante sui tetti larghi e freddi; le scandole si consumano il doppio dei coppi. I tetti vecchi
+  prendono muschio e licheni anche se integri. I danni arrivano a ondate col meteo, non come manutenzione continua:
+  senza temporali un tetto regge un anno.
+  Un buco è una casella non più coperta: ci piove e nevica dentro (malus della pioggia, pozzanghere), ha la temperatura
+  di fuori e il cibo che ci sta sotto marcisce come fuori.
+- **Riparare** (abilità costruzione): il lavoro si mette in coda da sé per le caselle danneggiate, come un progetto;
+  1 legna (scandole) o 1 pietra (coppi) a casella. Nella cronaca: "Temporale: il tetto della Cucina ha perso delle
+  tegole".
+- **Fuochi e calore**: ogni fuoco scalda la sua stanza. Focolare e fornace, girati contro un muro di legno, passano
+  metà del calore alla stanza dall'altra parte, se tra le due c'è un muro solo (due file di muri non lo passano); la
+  pietra e la roccia non lo fanno passare. Conta il muro dietro il fuoco, casella per casella: al massimo due stanze per
+  fuoco. Il popup della stanza dice da dove viene il calore ("+6 °C dal focolare della Cucina").
+
+  | Fuoco | Nella sua stanza | Dietro un muro di legno | Rischio d'incendio |
+  |---|---|---|---|
+  | Fuoco da campo | +8 °C (come oggi) | — (il calore sale dal foro nel tetto) | sotto un tetto di scandole |
+  | Focolare | +12 °C | +6 °C | no |
+  | Fornace | +15 °C | +7,5 °C | no |
+
+- **Focolare** (ricerca Muratura): 1×1, di pietra, addossato a un muro (girato verso il muro). Fa quello che fa il fuoco
+  da campo: la cucina chiede l'uno o l'altro; ci si cucina e ci si fanno gallette e affumicati; nel tempo libero ci si
+  sta attorno, il ritrovo al chiuso d'inverno. Comfort 0,5 come il fuoco da campo.
+- **Fuoco da campo**: resta com'è, senza malus per il fumo. In cambio carne e pesce affumicati ci vengono il 25% più
+  svelti che al focolare: lì il fumo serve.
+- **Comignoli**: sul tetto, sopra il muro dietro il focolare (a cavallo dei due tetti se il muro è in comune). La
+  fornace ha il suo, incorporato: sopra il muro se ci è addossata, se no sopra di lei. Il fuoco da campo sotto un tetto
+  ha un foro (sfiatatoio). Il fumo esce da lì e non più dal punto del fuoco, anche dalla fornace, che oggi non fuma; più
+  fitto quando si cucina o si forgia; chiaro in cucina, scuro alla forgia, denso all'affumicatura. Dall'alto si vede
+  quali stanze lavorano. Coi tetti tolti (V) la canna si vede sul focolare stesso.
+- **Isolamento**: sotto un tetto la temperatura va verso quella della stanza (15 °C) di quanto isolano i muri: la media
+  dei muri che la chiudono, legno e porte 50% (come oggi), pietra 70%, roccia 85%; più i pezzi che isolano, fino al 90%.
+  Isola nei due sensi: d'inverno tiene il caldo, d'estate il fresco.
+
+  | Pezzo | Ricerca | Costo | Effetto |
+  |---|---|---|---|
+  | Pelli alle pareti | Caccia | 2 pelli, 1×1 contro un muro | +5% ciascuna, fino a 3 per stanza |
+  | Portiera (tenda di pelle sulla porta) | Caccia | 2 pelli | +10%: la porta è il punto debole |
+  | Intonaco | Muratura | 1 pietra (calce) a casella di muro | i muri di legno valgono 60%; diventano bianchi |
+  | Arazzo | Telaio | tela, 1×1 contro un muro | +5% e 2 di splendore |
+  | Stufa a olle | Stufa a olle | pietra, 1×1 contro un muro | +10 °C alla sua stanza e a quella dietro, anche attraverso la pietra, come nelle stube alpine |
+  | Letto a baldacchino (c'è già) | Arredo fine ✓ | — | le tende: chi ci dorme ha 4 °C in più |
+
+  Le pelli servono già per armature, cappucci, tappeti e pergamena: isolare le contende, e la caccia vale di più.
+- **Stanze senza gente** (da confermare, vedi 6): magazzino e dispensa vanno verso 5 °C invece che 15. Oggi d'inverno un
+  magazzino è più caldo di fuori e il cibo ci marcisce prima; con la pietra che isola, una dispensa di pietra sarebbe
+  ancora peggio. Così la pietra le tiene fresche d'estate e fredde d'inverno.
+- **Il caldo fa marcire** (da confermare, vedi 6): sopra i 15 °C il cibo marcisce più in fretta, il doppio a 30 °C.
+  L'estate diventa la stagione difficile per il cibo, come l'inverno per il freddo; senza questo, rinfrescare non serve.
+- **Rinfrescare**: come nel Medioevo, muri spessi di pietra (sopra); stanze chiuse dalla roccia della mappa, le cantine
+  (la roccia isola all'85%); la fontana in una stanza toglie 3 °C quando fuori fa più di 20 °C; l'intonaco bianco.
+  Poi: l'ombra degli alberi accanto ai muri, le imposte con le finestre (Vetreria), un malus del caldo d'estate (vedi 6).
+- **Ghiacciaia** (ricerca Ghiacciaia): come le neviere e le ghiacciaie di pietra, in parte interrate, riempite d'inverno
+  e buone fino all'estate. Stanza di servizio come la dispensa, solo per il cibo; muri solo di pietra o roccia, nessun
+  fuoco. Dentro la fossa del ghiaccio (2×2: il ghiaccio sotto la paglia).
+  **Tagliare il ghiaccio**: ordine sull'acqua gelata, d'inverno, segnato come la pesca; i blocchi di ghiaccio (nuovo
+  materiale) si portano nella fossa. Finché nella fossa c'è ghiaccio la stanza va verso 0 °C invece che 15, di quanto
+  isolano i muri: a metà estate (23 °C fuori) circa 7 °C coi muri di pietra, 3,5 °C nella roccia; d'inverno sotto lo
+  zero. Il cibo ci dura come in dispensa, e in più per il freddo (vedi 4.4.1). Il ghiaccio si scioglie ogni giorno in
+  proporzione al caldo che entra: i gradi sopra lo zero fuori × (1 − isolamento); una casella di tetto bucata lo
+  scioglie prima. D'inverno si taglia il ghiaccio, d'estate il cibo si conserva: l'inverno ha un lavoro che rende.
+  Poi: spalare la neve per riempire la fossa; il sorbetto (ghiaccio e miele, con Apicoltura) per il Banchetto reale.
+- **Lente del calore**: la seconda lente, accanto a quella delle stanze, col suo pulsante e tasto (liberi N, O, Y).
+  Ogni casella coperta colorata per temperatura, a scalini come il comfort: sopra i 12 °C una tinta calda, poi più fredda
+  ogni 4 °C (−1, −2, −3 di comfort); sotto lo zero una tinta di ghiaccio (lì il cibo non marcisce). I buchi nei tetti si
+  vedono da soli, come macchie fredde. Al centro della stanza gradi e malus ("9 °C · −1"); sopra ogni fuoco il suo
+  calore (+8, +12, +15); dal focolare e dalla fornace una freccia attraverso il muro col calore che passa, o una ✕ se il
+  muro è di pietra. Fuori nessuna tinta, solo i gradi in un angolo. Col mouse sopra una stanza, il conto: fuori,
+  isolamento dei muri, fuochi, calore dai muri, totale. Piazzando un fuoco o un pezzo che isola la lente si accende da
+  sola, con l'anteprima della freccia.
+- **Incendio** (l'evento di 4.6): parte da un fuoco da campo sotto un tetto di scandole (ogni giorno una piccola
+  probabilità) o da un fulmine nel temporale su un tetto di scandole. Si allarga alle caselle di scandole accanto, anche
+  di un altro edificio; i coppi non bruciano. I coloni fanno la catena dei secchi dall'acqua più vicina; le caselle
+  bruciate restano buchi da riparare.
+- Poi: tetti trasparenti sotto il mouse o sopra la stanza del colono scelto (oltre al pulsante V); di notte la luce
+  delle stanze dalle finestre e dagli abbaini (Vetreria); tetti di rango per sala del trono e palazzo (torrette,
+  stendardo coi colori della casata); banderuola che segna il vento; nidi di cicogna sui comignoli in primavera; un
+  terzo tipo di muro (incannucciato) col tetto di paglia; la pioggia dai buchi che rovina i libri dello studio.
+- **Ordine di lavoro** (4.4.5): (1) focolare, comignoli e fumo, fornace che scalda, calore attraverso i muri di legno,
+  pietra e roccia che isolano, stanze senza gente più fredde, affumicati più svelti al fuoco da campo; (2) lente del
+  calore; (3) tetti: uno per edificio, colmo sul lato lungo, scandole e coppi dai muri, neve che si scioglie sulle
+  stanze calde, tetto bagnato; (4) degrado per casella e Riparare; (5) isolamento: pelli alle pareti, portiera, intonaco,
+  letto a baldacchino che scalda, poi arazzo e stufa a olle con le loro ricerche; (6) conservazione: caldo che fa
+  marcire, cantine nella roccia, fontana che rinfresca, ghiacciaia; (7) incendio.
+- **Stato**: ancora niente.
+
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100.
 - Ciclo giorno/notte, quattro stagioni; inverno = freddo e niente raccolti.
@@ -569,7 +673,8 @@ racconta il diario al ritorno.
 ### 4.6 Eventi casuali
 - Un "narratore" pesca eventi con probabilità che dipende dallo stato della colonia.
 - Ogni evento è un file di dati (condizioni, peso, effetti, testi localizzati).
-- Lista da definire. Esempi segnaposto: arrivo di un viandante, malattia, incendio, ondata di freddo, raccolto abbondante.
+- Lista da definire. Esempi segnaposto: arrivo di un viandante, malattia, incendio (vedi 4.4.5), ondata di freddo,
+  raccolto abbondante.
 
 ### 4.7 Ricerca: il sapere e le leggi
 Due ricerche. Il **sapere** (le ricerche) si paga in **studio**, che i coloni scrivono allo scrittoio, e in **libri** che
@@ -645,17 +750,19 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Forno di pietra | II | 300 | Orto | forno 2x1: pane (2 vegetali → 3, sazia 60, dura 8 giorni), stufato |
   | | Apicoltura | III | 450 | Forno di pietra | arnia accanto alle aiuole: miele (non marcisce), cera (candele: si studia di notte) |
   | | Banchetto reale | IV | 1000 | Apicoltura | il banchetto al forno: +15 felicità per 3 giorni, +20 autorità |
-  | | Caccia ✓ | I | 50 | — | *filatoio, corda d'arco, banco del falegname, falegnameria, arco* |
+  | | Caccia ✓ | I | 50 | — | *filatoio, corda d'arco, banco del falegname, falegnameria, arco*; poi pelli alle pareti e portiera (vedi 4.4.5) |
   | | Affumicatoio ✓ | II | 200 | Caccia | al fuoco: carne e pesce affumicati durano quattro volte tanto (scorta 0 dal menu); si mangiano e si cucinano come il crudo |
   | | Dispensa fredda ✓ | I | 100 | — | stanza dispensa, solo per il cibo, che ci va per primo: dura il triplo che fuori (in magazzino il doppio) |
+  | | Ghiacciaia | II | 250 | Dispensa fredda | stanza ghiacciaia (muri di pietra o roccia) e fossa del ghiaccio; Tagliare il ghiaccio d'inverno: col ghiaccio la stanza va verso 0 °C (vedi 4.4.5) |
   | Fuoco | Forgia ✓ | I | 60 | — | *fornace, incudine, forgia, lingotto, piccone, ascia, falcetto* |
   | | Acciaio ✓ | II | 300 | Forgia | acciaio (2 lingotti + 2 carbone, alla fornace): attrezzi e spade si fanno d'acciaio; attrezzi −40% tempo, spada danno 20 (anche quelli di prima, ritemprati) |
   | | Vetreria | III | 500 | Acciaio | vetro: finestre (+1 comfort), occhiali (studiare e cucire −20%) |
   | | Altoforno | IV | 1100 | Vetreria | lingotti e acciaio tre alla volta, con metà carbone |
   | | Sartoria ✓ | I | 50 | — | *banco da lavoro, laboratorio, armatura e cappuccio di cuoio* |
-  | | Telaio | II | 200 | Sartoria | tela: mantello imbottito (freddo), bende |
+  | | Telaio | II | 200 | Sartoria | tela: mantello imbottito (freddo), bende, arazzo (isola la stanza, splendore: vedi 4.4.5) |
   | | Carbonaia ✓ | I | 80 | — | alla fornace 5 legna → 2 carbone (scorta 5 dal menu): il carbone non solo dalle vene |
-  | Pietra | Muratura ✓ | I | 60 | — | *muri e pavimenti di pietra*; poi il camino |
+  | | Stufa a olle | II | 300 | Carbonaia, Muratura | stufa a olle contro un muro: +10 °C alla sua stanza e a quella dietro, anche attraverso la pietra (vedi 4.4.5) |
+  | Pietra | Muratura ✓ | I | 60 | — | *muri e pavimenti di pietra*; poi il focolare col comignolo e l'intonaco (vedi 4.4.5) |
   | | Arredo fine ✓ | II | 250 | Muratura | letto a baldacchino (un letto, comfort 2), tappeto di pelli, armadio (comfort 1): la camera signorile del sovrano |
   | | Statuaria ✓ | III | 500 | Arredo fine | *statua del re*; poi i memoriali dei caduti (lutto un giorno in meno) |
   | | Palazzo ✓ | IV | 1200 | Statuaria | la sala del trono diventa palazzo: udienza +50%, +10 splendore (se ce n'è una) |
@@ -802,6 +909,7 @@ una stagione invernale, salvataggio locale, inglese + italiano.
 5. Umore, relazioni, più talenti
 6. Avventurieri e rovine (vedi 4.4.4)
 7. Ricerca: il sapere e le leggi (vedi 4.7)
+8. Tetti, calore e conservazione (vedi 4.4.5)
 
 ### Fuori scope (per ora)
 Combattimento tattico (oggi i coloni si difendono da soli, vedi 4.4.3), livelli verticali, commercio/diplomazia, mod.
@@ -811,3 +919,9 @@ Combattimento tattico (oggi i coloni si difendono da soli, vedi 4.4.3), livelli 
 - Condizione di sconfitta oltre alla fine della dinastia?
 - Lista degli eventi.
 - Nome definitivo del gioco.
+- Tetti, calore e conservazione (4.4.5):
+  - Magazzino e dispensa vanno verso 5 °C invece che 15? Consigliato: con la pietra che isola, se no le dispense di
+    pietra conservano peggio.
+  - Sopra i 15 °C il cibo marcisce più in fretta (il doppio a 30 °C)? Consigliato: se no rinfrescare non serve.
+  - Un malus di comfort per il caldo d'estate (la forgia d'estate diventa una stanza da gestire)? Meglio aspettare:
+    la stagione ostile è l'inverno.
