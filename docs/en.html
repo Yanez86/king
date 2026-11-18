@@ -123,7 +123,7 @@ pre i { color: #8fb87a; }
 <body>
 <nav>
 <h1>King</h1>
-<small>Mechanics · commit db1db69 · 2026-11-18 · <a class="lang" href="index.html">Italiano</a></small>
+<small>Mechanics · commit eddc281 · 2026-11-18 · <a class="lang" href="index.html">Italiano</a></small>
 <h2>Wiki</h2>
 <a href="#basics"><i class="sp s75" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Basics</a><a href="#controls"><i class="sp s76" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Controls</a><a href="#colonists"><i class="sp s77" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Colonists</a><a href="#skills"><i class="sp s72" style="width:16px;height:16px;background-position:-144px 0px;background-size:208px 16px"></i> Skills</a><a href="#traits"><i class="sp s66" style="width:16px;height:16px;background-position:0px 0px;background-size:240px 16px"></i> Traits</a><a href="#conditions"><i class="sp s67" style="width:16px;height:16px;background-position:-16px 0px;background-size:144px 16px"></i> Conditions</a><a href="#the-ruler-house"><i class="sp s27" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> The Ruler &amp; House</a><a href="#building"><i class="sp s55" style="width:15px;height:15px;background-position:0px 0px;background-size:15px 15px"></i> Building</a><a href="#rooms"><i class="sp s64" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Rooms</a><a href="#food-cooking"><i class="sp s5" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Food &amp; Cooking</a><a href="#gathering"><i class="sp s58" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Gathering</a><a href="#crafting-equipment"><i class="sp s10" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Crafting &amp; Equipment</a><a href="#combat-wolves"><i class="sp s74" style="width:16px;height:16px;background-position:0px -32px;background-size:32px 48px"></i> Combat &amp; Wolves</a><a href="#splendor"><i class="sp s53" style="width:16px;height:16px;background-position:0px -416px;background-size:128px 960px"></i> Splendor</a><a href="#adventurers"><i class="sp s23" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Adventurers</a><a href="#ruins-expeditions"><i class="sp s24" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Ruins &amp; Expeditions</a><a href="#knowledge"><i class="sp s61" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Knowledge</a><a href="#laws"><i class="sp s62" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Laws</a><h2>Development</h2><a href="#todo"><i class="sp s36" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Still to develop</a><h2>Numbers</h2><a href="#main-gd">main.gd</a><a href="#atmosphere-gd">atmosphere.gd</a>
 </nav>
@@ -171,18 +171,11 @@ pre i { color: #8fb87a; }
 <li>Space: pause; 1, 2, 3: speed.</li>
 <li>E and R: turn the next piece of furniture left or right.</li>
 <li>Esc: the options (also the gear at the top right).</li>
-<li>F5: save the game.</li>
 </ul>
 <h3>Options </h3>
 <ul>
-<li>System: language, save, load, back to the main menu, quit the game. Video: window size and fullscreen (also the screen button at the top right).</li>
-<li>Keybindings: click a command's key, then press the new one. Esc cancels, Delete or Backspace leaves it without a key, Reset restores the defaults. Space, 1-3, E, R, F5 and Esc can't be taken. Your keys are saved.</li>
-</ul>
-<h3>Saving </h3>
-<ul>
-<li>Every game has one save file. Save game (System) or F5 writes it again, and the game saves by itself at the start of every new day. "Game saved" shows at the top.</li>
-<li>On the title screen, Continue picks up the latest save and Load Game lists them all, newest first, with the realm, the date, the ruler and the colonists. Load game in the options does the same during a game; Delete asks twice.</li>
-<li>A loaded game starts paused: Space to go on. Main menu and Quit game don't save: what you haven't saved is lost.</li>
+<li>System: language, quit the game. Video: window size and fullscreen (also the screen button at the top right).</li>
+<li>Keybindings: click a command's key, then press the new one. Esc cancels, Delete or Backspace leaves it without a key, Reset restores the defaults. Space, 1-3, E, R and Esc can't be taken. Your keys are saved.</li>
 </ul></section><section id="colonists"><h2><i class="sp s77" style="width:32px;height:32px;background-position:0px 0px;background-size:32px 32px"></i> Colonists</h2><p>Click a colonist for their sheet: health, needs (the arrows show which way each one is going), skills, traits, conditions, equipment and the 24 hours of their routine.</p>
 <h3>Needs </h3>
 <p>All of them go from 0 to 100.</p>
@@ -924,17 +917,7 @@ const <b id="c-SPEEDS">SPEEDS</b> := {"Pause": 0.0, "Play": 1.0, "Fast": 2.0, "F
 const <b id="c-RESOLUTIONS">RESOLUTIONS</b> := [Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440)]</pre>
 <pre><i># tab System delle opzioni: lingue, col nome nella loro lingua; i testi tradotti sono in locale/&lt;lingua&gt;.po (vedi named)</i>
 const <b id="c-LANGUAGES">LANGUAGES</b> := {"en": "English", "it": "Italiano"}
-const <b id="c-FIXED_KEYS">FIXED_KEYS</b> := [KEY_SPACE, KEY_1, KEY_2, KEY_3, KEY_E, KEY_R, KEY_ESCAPE, KEY_F5]  <i># velocità, giro dei mobili, menù, salva</i></pre>
-<pre><i># le variabili della partita che si salvano, così come sono (gli oggetti dentro li impacchetta SAVES.Packer); il resto</i>
-<i># si rifà da queste (vedi restore) o è interfaccia. Una variabile nuova dello stato del gioco va aggiunta qui</i>
-const <b id="c-SAVED">SAVED</b> := ["game_id", "map_seed", "ground_cols", "clock", "today", "hour", "rocks", "boulders", "ores", "water",
-	"trees", "stock", "bushes", "flax", "weeds", "chop_marks", "mine_marks", "uproot_marks", "harvest_marks", "fish_marks",
-	"fish_spots", "items", "fresh", "draft", "blueprints", "built", "furniture_draft", "furniture_plans", "furniture",
-	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
-	"fallen", "animals", "arrows", "next_animal", "next_pack", "guests", "next_guest", "ruins", "expeditions",
-	"chronicle", "chronicle_days", "board_pick", "study", "researched", "authority", "codified", "enacted", "revoked",
-	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero"]
-const <b id="c-TOAST_TIME">TOAST_TIME</b> := 2000    <i># millisecondi: "Game saved" in alto, poi sparisce (vedi show_toast)</i>
+const <b id="c-FIXED_KEYS">FIXED_KEYS</b> := [KEY_SPACE, KEY_1, KEY_2, KEY_3, KEY_E, KEY_R, KEY_ESCAPE]  <i># velocità, giro dei mobili, menù</i>
 const <b id="c-MODIFIER_KEYS">MODIFIER_KEYS</b> := [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]  <i># da soli non sono un tasto</i>
 const <b id="c-BUILD_INFO">BUILD_INFO</b> := {
 	Build.WALL: "Blocks the way. Walls with a door around an area make a room.",
@@ -1398,9 +1381,7 @@ const <b id="c-OVERCAST">OVERCAST</b> := {Weather.CLEAR: 0.0, Weather.RAIN: 0.7,
 const <b id="c-SNOW_HOURS">SNOW_HOURS</b> := 4.0                       <i># ore di neve perché copra tutto</i>
 const <b id="c-MELT_HOURS">MELT_HOURS</b> := 120.0                     <i># ore per grado sopra lo 0 perché si sciolga tutta: a 10 gradi 12 ore</i>
 const <b id="c-WET_HOURS">WET_HOURS</b> := 2.0                        <i># ore di pioggia perché le pozzanghere siano piene</i>
-const <b id="c-DRY_HOURS">DRY_HOURS</b> := 8.0                        <i># ore perché si asciughino</i></pre>
-<pre><i># quello che si salva con la partita (vedi saved): il resto si rifà da sé</i>
-const <b id="c-SAVED">SAVED</b> := ["weather", "forecast", "plan", "weather_strength", "waves", "waves_until", "ice", "frozen", "snow", "wet"]</pre></section>
+const <b id="c-DRY_HOURS">DRY_HOURS</b> := 8.0                        <i># ore perché si asciughino</i></pre></section>
 </main>
 </body>
 </html>
