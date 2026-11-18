@@ -353,9 +353,39 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
   ultimi 60); il primo giorno d'inverno il gelo si prende quello che è rimasto nei campi (lo dice la cronaca).
   Una casella dà mezzo pasto crudo al giorno: 4 caselle a testa, fuori dall'inverno; l'inverno si passa con le scorte.
   Numeri da tarare.
-- Poi: fertilità della terra nascosta (la rivelano le ricerche), rotazione annuale dei campi col cartello del campo
-  (cavoli, rape, fave, maggese; a Capodanno si passa al passo dopo), concimi naturali (cenere, compost, sovescio,
-  letame).
+- **Fertilità e rotazione dei campi** (decise il 2026-11-18; numeri da tarare):
+  - **Fertilità**, per casella, 0–100, nascosta. Viene dalla mappa: tra 30 e 80, +10 entro 3 caselle dall'acqua, −15
+    accanto alla roccia; abbattere un albero lascia l'humus, +15 a quella casella. La resa del raccolto è quella base
+    (30 rape, 45 cavoli) per 0,4 + fertilità/100: a 60 la base, a 100 +40%, a 20 −40%. Ogni raccolto la consuma
+    secondo la coltura; a Capodanno ogni casella d'orto ne riprende 5 (il riposo dell'inverno), 25 in più se l'anno
+    prima era a maggese.
+
+    | Coltura | Matura in | A casella | Fertilità a raccolto | Dura (fuori) |
+    |---|---|---|---|---|
+    | Rape | 60 giorni | 30 | −8 | 10 giorni |
+    | Cavoli | 90 giorni | 45 | −15 | 14 giorni |
+    | Fave (secche) | 100 giorni | 20 | +10 | 60 giorni: il cibo dell'inverno |
+    | Maggese | — | — | +25 l'anno dopo | — |
+
+  - **Campi**: le caselle d'orto che si toccano fanno un campo, col suo cartello (un paletto nella casella più in alto a
+    sinistra). Cliccandolo: la coltura di quest'anno e il piano di rotazione, da 1 a 4 anni (miste a file, rape,
+    cavoli, fave, maggese); "Rotazione classica" mette cavoli → rape → fave → maggese. Il piano parte dall'anno in cui
+    lo si sceglie e a Capodanno si passa all'anno dopo. Le caselle nuove accanto a un campo ne prendono il piano.
+    Quello che è già seminato finisce di crescere.
+  - **Terra stanca**: la stessa coltura sulla stessa casella l'anno dopo rende −25%, il terzo anno di fila −50%.
+  - **Indizi senza ricerche**: su terra povera le piante sono smorte (più è povera, più sono gialle); il cartello dice
+    l'ultimo raccolto a casella; alla Festa del focolare (fine autunno) la cronaca fa il bilancio dell'anno per
+    coltura, a casella, con quello dell'anno prima.
+  - **Il contadino impara**: chi ha almeno 5 in Raccogliere riconosce la terra delle caselle che lavora (seminare o
+    raccogliere): il cartello dice "secondo i contadini" povera, media o ricca, anche senza ricerche.
+  - **Ricerche** (ramo Terra, dopo l'Orto): Saggio del terreno (I, 60): la lente della terra (tasto O) in tre fasce,
+    povera sotto 40, media, ricca da 70; il cartello dice la fascia del campo. Almanacco agrario (II, 250, dopo il
+    Saggio): cinque fasce e se la terra sale o scende rispetto a un anno prima. Catasto (III, 450, dopo l'Almanacco):
+    i numeri esatti, sulla lente e sul cartello, e la previsione del prossimo raccolto.
+  - **Ordine di lavoro**: (1) fertilità, resa, campi col cartello, indizi, bilancio; (2) fave, piano di rotazione,
+    maggese, terra stanca; (3) le tre ricerche, la lente, il contadino che impara.
+  - Poi: concimi naturali (cenere dalla carbonaia, compost dal cibo marcio e dalle erbacce, sovescio delle fave,
+    letame con la stalla).
 
 ### 4.4.2 Forgia, sartoria ed equipaggiamento
 - **Stanze**: forgia (fornace e incudine), laboratorio (banco da lavoro, 15 legna; ci lavora anche il filatoio, 10 legna),
