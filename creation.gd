@@ -435,4 +435,5 @@ func make_setup() -> Dictionary:
 
 func begin() -> void:
 	Main.setup = make_setup()
+	Main.SAVES.founding = Main.SAVES.create(Main.setup["colony"])  # la cartella dei salvataggi della nuova colonia
 	get_tree().change_scene_to_file("res://main.tscn")

@@ -38,8 +38,33 @@
 - Pathfinding: `AStarGrid2D` integrato in Godot.
 
 ## Salvataggio
-- Un unico file per partita: lo stato serializzato (JSON o binario di Godot), compresso.
-- Prima versione: solo salvataggio locale.
+- Una cartella per colonia, `user://saves/<reame>_<secondi>/` (la sceglie `SAVES.create` nella pagina della nuova
+  partita; in `main.gd` è `game_id`), con al più `SAVES.FILES` (3) file: `autosave_1.save` il più recente, poi 2 e 3. Ogni
+  file è compresso (zstd, `FileAccess.open_compressed`); dentro due valori di `store_var`, uno dopo l'altro:
+  l'**intestazione** (reame, sovrano, data, coloni, ora del salvataggio, `version`), che l'elenco legge da sola, e lo
+  **stato**. Si scrive in `writing.tmp` e solo se è andato tutto bene i file scorrono (1 -> 2 -> 3, il 3 esce) e il nuovo
+  diventa l'1: un salvataggio a metà non rovina quello di prima. Caricando, se l'1 non si legge si prova il 2, poi il 3.
+  Si legge con `get_var` senza oggetti: un file non può far girare codice. Il codice è in `saves.gd` (file, elenco,
+  impacchettamento) e `save_list.gd` (l'elenco delle colonie, nel titolo e nelle opzioni).
+- **Cosa si salva**: le variabili di `main.gd` elencate in `SAVED`, così come sono (dizionari con `Vector2i`, colori,
+  enum come interi, `INF`...), più il caso degli animali (`wild`: seme e stato), il meteo (`SAVED` di `atmosphere.gd`) e
+  la telecamera. Gli oggetti delle classi interne (Colonist, Animal, Arrow, Room, Ruin, Expedition) li impacchetta
+  `SAVES.Packer`: ognuno diventa un dizionario coi suoi campi (tutte le variabili dello script, da sole: un campo nuovo
+  si salva senza toccare niente), e i riferimenti tra loro (`ruler`, proprietari delle stanze, `reserved`, prede...)
+  diventano `{"@": classe, "#": indice}`, così dopo il caricamento sono di nuovo lo stesso oggetto.
+- **Cosa si rifà** (`restore`, `resume`): la griglia dei percorsi (`rebuild_grid`: roccia, acqua, muri, strade, ghiaccio),
+  tetti e magazzini (`update_roofs`, `update_stockpile`), il terreno disegnato (dal seme della mappa, `map_seed`, dalle
+  varianti delle caselle, `ground_cols`, e dalla roccia di partenza, `gravel`: dove si è scavato resta ghiaia), i fuochi e le luci (da sé), le finestre.
+- **Una variabile nuova dello stato della partita in `main.gd` va aggiunta a `SAVED`** (in `atmosphere.gd` al suo
+  `SAVED`); quelle delle classi interne no. Un campo che non c'è più nel salvataggio si ignora, uno nuovo resta al valore
+  di partenza. Se cambia il senso dei dati (per esempio un valore nuovo in mezzo a un enum) si alza `SAVES.VERSION` e si
+  converte in `restore`: un salvataggio di una versione più nuova non si carica.
+- Quando (`autosave`): fondata la colonia (fine di `_ready`), all'alba (`AUTOSAVE_HOUR`, finito il tick), tornando al
+  titolo o caricando un'altra colonia (`go_to`), con Quit game e chiudendo la finestra (`NOTIFICATION_WM_CLOSE_REQUEST`).
+  Niente salvataggi a mano. Senza cartella non si salva: nei test, o aprendo `main.tscn` da sola (i test che provano i
+  salvataggi usano un'altra cartella, `SAVES.dir`). Una colonia caduta non si salva. Si carica dal titolo (Continue,
+  Colonies) e dalle opzioni (Load game): `SAVES.pending` porta lo stato letto a `main.tscn`, che in `_ready` lo rimette
+  al posto di una partita nuova. Una partita caricata parte in pausa.
 - Cloud, due opzioni:
   - **Steam Cloud**, se il gioco finisce su Steam (100 $ una tantum): quasi zero lavoro.
   - **Supabase** (piano gratuito): login + upload/download del file via REST (`HTTPRequest`). Indipendente da Steam.

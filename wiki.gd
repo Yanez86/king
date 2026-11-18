@@ -53,8 +53,14 @@ A key works like a click on its button (press it again to close).
 • Esc: the options (also the gear at the top right).
 
 [color=#e8c34a]Options[/color]
-• System: language, quit the game. Video: window size and fullscreen (also the screen button at the top right).
-• Keybindings: click a command's key, then press the new one. Esc cancels, Delete or Backspace leaves it without a key, Reset restores the defaults. Space, 1-3, E, R and Esc can't be taken. Your keys are saved."""],
+• System: language, load another colony, back to the main menu, quit the game. Video: window size and fullscreen (also the screen button at the top right).
+• Keybindings: click a command's key, then press the new one. Esc cancels, Delete or Backspace leaves it without a key, Reset restores the defaults. Space, 1-3, E, R and Esc can't be taken. Your keys are saved.
+
+[color=#e8c34a]Saving[/color]
+• The game saves by itself: when the colony is founded, at every dawn (6:00), and when you go back to the main menu, quit or close the window. "Saved" shows at the top. There is no saving by hand: a colony is one story.
+• Every colony keeps its last 3 saves; if the newest one is damaged, the one before is used.
+• On the title screen, Continue picks up the colony you played last and Colonies lists them all, with the realm, the date, the ruler and the colonists. Load game in the options does the same during a game (this colony is saved first); Delete removes a colony with all its saves and asks twice.
+• A loaded colony starts paused: Space to go on. A fallen colony is not saved: Continue takes you back to its last dawn."""],
 
 	["Colonists", """Click a colonist for their sheet: health, needs (the arrows show which way each one is going), skills, traits, conditions, equipment and the 24 hours of their routine.
 

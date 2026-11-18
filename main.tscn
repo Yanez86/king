@@ -1527,26 +1527,25 @@ focus_mode = 0
 
 [node name="Separator" type="HSeparator" parent="HUD/Options/Window/Box/Body/Pages/System"]
 
-[node name="MainMenu" type="Button" parent="HUD/Options/Window/Box/Body/Pages/System"]
-custom_minimum_size = Vector2(200, 40)
-size_flags_horizontal = 4
-focus_mode = 0
-tooltip_text = "Not available yet"
-disabled = true
-text = "Main menu"
-
 [node name="Load" type="Button" parent="HUD/Options/Window/Box/Body/Pages/System"]
 custom_minimum_size = Vector2(200, 40)
 size_flags_horizontal = 4
 focus_mode = 0
-tooltip_text = "Not available yet"
-disabled = true
+tooltip_text = "The game saves by itself at every dawn"
 text = "Load game"
+
+[node name="MainMenu" type="Button" parent="HUD/Options/Window/Box/Body/Pages/System"]
+custom_minimum_size = Vector2(200, 40)
+size_flags_horizontal = 4
+focus_mode = 0
+tooltip_text = "Saves, then goes back to the title"
+text = "Main menu"
 
 [node name="Quit" type="Button" parent="HUD/Options/Window/Box/Body/Pages/System"]
 custom_minimum_size = Vector2(200, 40)
 size_flags_horizontal = 4
 focus_mode = 0
+tooltip_text = "Saves, then quits"
 text = "Quit game"
 
 [node name="Video" type="VBoxContainer" parent="HUD/Options/Window/Box/Body/Pages"]

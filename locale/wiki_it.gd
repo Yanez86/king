@@ -52,8 +52,14 @@ Un tasto fa come un clic sul suo pulsante (premilo di nuovo per chiudere).
 • Esc: le opzioni (anche l'ingranaggio in alto a destra).
 
 [color=#e8c34a]Opzioni[/color]
-• Sistema: la lingua, l'uscita dal gioco. Video: misura della finestra e schermo intero (anche il pulsante dello schermo in alto a destra).
-• Tasti: clicca il tasto di un comando, poi premi quello nuovo. Esc annulla, Canc o Backspace lo lasciano senza tasto, Ripristina rimette quelli di partenza. Spazio, 1-3, E, R ed Esc non si possono assegnare. I tuoi tasti vengono salvati."""],
+• Sistema: la lingua, carica un'altra colonia, torna al menu principale, esci dal gioco. Video: misura della finestra e schermo intero (anche il pulsante dello schermo in alto a destra).
+• Tasti: clicca il tasto di un comando, poi premi quello nuovo. Esc annulla, Canc o Backspace lo lasciano senza tasto, Ripristina rimette quelli di partenza. Spazio, 1-3, E, R ed Esc non si possono assegnare. I tuoi tasti vengono salvati.
+
+[color=#e8c34a]Salvataggio[/color]
+• La partita si salva da sé: appena fondata la colonia, a ogni alba (le 6:00), e quando torni al menu principale, esci o chiudi la finestra. In alto compare "Salvato". Non si salva a mano: una colonia è una storia sola.
+• Ogni colonia tiene i suoi ultimi 3 salvataggi; se il più recente è rovinato, si usa quello prima.
+• Sulla schermata del titolo, Continua riprende la colonia giocata per ultima e Colonie le elenca tutte, col reame, la data, il sovrano e i coloni. Carica partita nelle opzioni fa lo stesso durante una partita (prima si salva questa); Elimina cancella una colonia con tutti i suoi salvataggi e chiede due volte.
+• Una colonia caricata parte in pausa: Spazio per andare avanti. Una colonia caduta non si salva: Continua ti riporta alla sua ultima alba."""],
 
 	["Coloni", """Clicca un colono per aprire la sua scheda: salute, bisogni (le frecce mostrano se ognuno sale o scende), abilità, talenti, condizioni, equipaggiamento e le 24 ore della sua routine.
 

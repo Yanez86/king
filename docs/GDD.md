@@ -678,6 +678,18 @@ di legno, la pietra isola; il caldo e il freddo decidono quanto dura il cibo, fi
   volta su 33 arriva e per 2–4 giorni fa 10 °C in meno (mezza giornata per arrivare e per andarsene); la annunciano le
   previsioni (vedi sotto) e, quando arriva, la cronaca. Col freddo che porta, pioggia e temporali vengono giù come neve.
 
+### 4.5.1 Salvataggio
+- Solo automatico, solo locale (il cloud dopo l'MVP, vedi docs/TECH.md): una colonia è una storia sola, niente
+  salvataggi a mano. Si salva appena fondata la colonia, a ogni alba (le 6:00), tornando al menu principale, uscendo e
+  chiudendo la finestra. In alto compare "Salvato".
+- Ogni colonia ha la sua cartella con gli ultimi 3 salvataggi a rotazione: se il più recente è rovinato si usa quello
+  prima (una rete di sicurezza, non un modo di tornare indietro).
+- Dal titolo: **Continua** (la colonia giocata per ultima) e **Colonie** (l'elenco, dalla più recente: reame, data,
+  sovrano, coloni, quando è stata salvata; si possono eliminare, con tutti i loro salvataggi). Lo stesso elenco da
+  Carica partita nelle opzioni, salvata prima la colonia di adesso.
+- Una colonia caricata riparte in pausa, esattamente com'era: coloni a metà lavoro, spedizioni in viaggio, meteo.
+- Una colonia caduta non si salva: Continua la riporta all'ultima alba.
+
 ### 4.6 Eventi casuali
 - Un "narratore" pesca eventi con probabilità che dipende dallo stato della colonia.
 - Ogni evento è un file di dati (condizioni, peso, effetti, testi localizzati).

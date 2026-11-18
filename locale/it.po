@@ -56,8 +56,54 @@ msgstr "Carica partita"
 msgid "Quit game"
 msgstr "Esci dal gioco"
 
-msgid "Not available yet"
-msgstr "Non ancora disponibile"
+# --- Salvataggi automatici: menù delle opzioni, titolo, elenco delle colonie (save_list.gd)
+
+msgid "The game saves by itself at every dawn"
+msgstr "La partita si salva da sé a ogni alba"
+
+msgid "Saves, then goes back to the title"
+msgstr "Salva, poi torna al titolo"
+
+msgid "Saves, then quits"
+msgstr "Salva, poi esce"
+
+msgid "Saved"
+msgstr "Salvato"
+
+msgid "Could not save the game (%s)."
+msgstr "Impossibile salvare la partita (%s)."
+
+msgid "Continue"
+msgstr "Continua"
+
+msgid "Colonies"
+msgstr "Colonie"
+
+msgid "Load"
+msgstr "Carica"
+
+msgid "Delete"
+msgstr "Elimina"
+
+msgid "Sure?"
+msgstr "Sicuro?"
+
+msgid "No colonies yet."
+msgstr "Ancora nessuna colonia."
+
+msgid "Ruler: %s"
+msgstr "Sovrano: %s"
+
+msgid "%d colonist"
+msgid_plural "%d colonists"
+msgstr[0] "%d colono"
+msgstr[1] "%d coloni"
+
+msgid "Saved on %s"
+msgstr "Salvata il %s"
+
+msgid "This save can't be read."
+msgstr "Questo salvataggio non si può leggere."
 
 msgid "Resolution"
 msgstr "Risoluzione"
