@@ -41,7 +41,8 @@ Un tasto fa come un clic sul suo pulsante (premilo di nuovo per chiudere).
 [cell]Caccia[/cell][cell]T[/cell][cell]Lavori[/cell][cell]J[/cell]
 [cell]Risorse[/cell][cell]I[/cell][cell]Conoscenza[/cell][cell]K[/cell]
 [cell]Leggi[/cell][cell]G[/cell][cell]Vista stanze[/cell][cell]L[/cell]
-[cell]Wiki[/cell][cell]F1[/cell][cell][/cell][cell][/cell]
+[cell]Vista calore[/cell][cell]N[/cell][cell]Tagliare il ghiaccio[/cell][cell]Y[/cell]
+[cell]Tetti[/cell][cell]V[/cell][cell]Wiki[/cell][cell]F1[/cell]
 [/table]
 • Lavori: il lavoro in attesa, nell'ordine in cui lo prendono i coloni. Risorse: cosa c'è nei magazzini.
 
@@ -185,6 +186,7 @@ Non sull'acqua, sugli alberi, sulla roccia, sui cespugli o sulle erbacce (prima 
 [cell]Pavimento[/cell][cell]2 legna o pietra a casella[/cell][cell]comfort della stanza[/cell]
 [cell]Porta[/cell][cell]5 legna[/cell][cell]ogni stanza ne ha bisogno[/cell]
 [cell]Sentiero[/cell][cell]1 pietra a casella[/cell][cell]terra battuta[/cell]
+[cell]Intonaco[/cell][cell]1 pietra a casella[/cell][cell]su un muro di legno: isola di più[/cell]
 [/table]
 
 [color=#e8c34a]Mobili[/color]
@@ -204,8 +206,14 @@ Non sull'acqua, sugli alberi, sulla roccia, sui cespugli o sulle erbacce (prima 
 [cell]Banco del falegname[/cell][cell]15 legna[/cell][cell]Caccia[/cell]
 [cell]Bacheca[/cell][cell]8 legna[/cell][cell]Locanda[/cell]
 [cell]Libreria[/cell][cell]12 legna[/cell][cell]Libreria[/cell]
+[cell]Focolare[/cell][cell]15 pietra[/cell][cell]Muratura[/cell]
+[cell]Pelli alle pareti[/cell][cell]2 pelli[/cell][cell]Caccia[/cell]
+[cell]Portiera[/cell][cell]2 pelli[/cell][cell]Caccia[/cell]
+[cell]Arazzo[/cell][cell]4 lino[/cell][cell]Telaio[/cell]
+[cell]Stufa a olle[/cell][cell]20 pietra[/cell][cell]Stufa a olle[/cell]
+[cell]Fossa del ghiaccio (2x2)[/cell][cell]20 pietra[/cell][cell]Ghiacciaia[/cell]
 [/table]
-Decorazioni: vedi Splendore."""],
+Focolare, pelli, arazzo e stufa a olle vanno addossati a un muro alle loro spalle, la portiera a una porta: girali verso di lui. Decorazioni: vedi Splendore."""],
 
 	["Stanze", """Una stanza è un'area chiusa da muri (contano anche la roccia e l'acqua profonda) con almeno una porta verso l'esterno, di meno di 400 caselle. Quando è finita, sul muro accanto alla porta compare un cartello: cliccalo per dare un nome alla stanza, vederne il comfort, sceglierne il tipo, bandirla e spuntarne i proprietari o i lavoratori.
 
@@ -216,13 +224,14 @@ L'elenco mostra solo i tipi i cui mobili sono dentro. Se togli quei mobili la st
 [cell]Magazzino[/cell][cell]niente[/cell][cell]servizio[/cell]
 [cell]Camera[/cell][cell]1 letto[/cell][cell]residenza[/cell]
 [cell]Dormitorio[/cell][cell]2 letti[/cell][cell]residenza[/cell]
-[cell]Cucina[/cell][cell]fuoco da campo[/cell][cell]lavoro[/cell]
+[cell]Cucina[/cell][cell]fuoco da campo o focolare[/cell][cell]lavoro[/cell]
 [cell]Forgia[/cell][cell]fornace, incudine[/cell][cell]lavoro[/cell]
 [cell]Laboratorio[/cell][cell]banco da lavoro[/cell][cell]lavoro[/cell]
 [cell]Falegnameria[/cell][cell]banco del falegname[/cell][cell]lavoro[/cell]
 [cell]Locanda[/cell][cell]letto, tavolo, bacheca[/cell][cell]servizio[/cell]
 [cell]Studio[/cell][cell]scrittoio[/cell][cell]lavoro[/cell]
 [cell]Sala del trono[/cell][cell]trono[/cell][cell]lavoro[/cell]
+[cell]Ghiacciaia[/cell][cell]fossa del ghiaccio; muri di pietra, nessun fuoco[/cell][cell]servizio[/cell]
 [/table]
 • Residenza: può avere dei proprietari. Se ne ha, è chiusa a tutti gli altri, anche solo per passarci.
 • Lavoro: può avere dei lavoratori. Per ora contano in uno studio (studiano prima di qualunque altro lavoro) e in una sala del trono (solo il sovrano).
@@ -232,14 +241,47 @@ L'elenco mostra solo i tipi i cui mobili sono dentro. Se togli quei mobili la st
 • I coloni dormono in qualunque letto tranne quelli di una locanda, che sono per gli avventurieri.
 
 [color=#e8c34a]Magazzini[/color]
-I trasportatori portano gli oggetti sparsi nei magazzini, 10 alla volta; senza magazzino nessuno trasporta. Conta come immagazzinato solo quello che è in un magazzino: la barra in alto, Risorse, le monete che paghi, i libri per la ricerca. Una casella tiene un solo tipo di oggetto: 100 legna o monete, 50 per la maggior parte dei materiali e del cibo crudo, 20 pasti, 10 strumenti, armi, armature o libri, 5 cimeli. Dentro, il cibo marcisce a metà velocità.
+I trasportatori portano gli oggetti sparsi nei magazzini, 10 alla volta; senza magazzino nessuno trasporta. Conta come immagazzinato solo quello che è in un magazzino: la barra in alto, Risorse, le monete che paghi, i libri per la ricerca. Una casella tiene un solo tipo di oggetto: 100 legna o monete, 50 per la maggior parte dei materiali e del cibo crudo, 20 pasti, 10 strumenti, armi, armature o libri, 5 cimeli. Dentro, il cibo marcisce a metà velocità, e al freddo ancora più piano (vedi Tetti e calore).
 
 [color=#e8c34a]Comfort[/color]
-0–10, mostrato sul cartello. Letto e tavolo +1; sedia, abat-jour, fuoco da campo e panca +0,5; un pavimento +1 se copre tutta la stanza (metà stanza, mezzo punto); la pietra conta 1,5 volte. All'aperto è 0.
+0–10, mostrato sul cartello. Letto e tavolo +1; sedia, abat-jour, fuoco da campo, focolare e panca +0,5; un pavimento +1 se copre tutta la stanza (metà stanza, mezzo punto); la pietra conta 1,5 volte. All'aperto è 0.
 A 5 non cambia niente. Sotto, sonno, cucina, lavorazioni e studio durano di più (20% a 0); sopra, di meno (20% a 10). Con poco comfort, inoltre, i pasti bruciano e gli oggetti si rovinano più spesso. Con meno di 6 caselle per ogni persona nella stanza, il comfort cala in proporzione.
 
 [color=#e8c34a]Vista stanze[/color]
 La Vista stanze (L) tinge ogni stanza col colore del suo tipo e mostra i proprietari o i lavoratori: passaci sopra col mouse per la loro scheda."""],
+
+	["Tetti e calore", """[color=#e8c34a]Tetti[/color]
+• Ogni stanza finita ha il suo tetto, sopra i muri e le porte; V li toglie tutti per guardare dentro. Una stanza a L ha due tetti; un tetto più alto che largo ha il colmo da nord a sud e il timpano sopra il muro davanti.
+• I tetti seguono i muri: scandole sui muri di legno, coppi su quelli di pietra (la maggioranza dei muri della stanza; le porte contano come legno).
+• La neve si posa sui tetti come per terra, ma il calore che esce da una stanza calda la scioglie, prima attorno ai comignoli. Bagnati i tetti sono più scuri, dalle gronde gocciola quando piove e sotto lo zero pendono i ghiaccioli.
+
+[color=#e8c34a]Usura e riparazioni[/color]
+• Ogni casella di tetto si consuma col tempo, le scandole il doppio dei coppi: prima i licheni, poi tegole smosse e muschio, alla fine un buco con le travi a vista. Senza temporali una casella di scandole dura circa un anno, una di coppi due.
+• I temporali strappano le tegole, e la cronaca lo dice; la neve pesante su un tetto largo che non la scioglie può sfondarlo.
+• Sotto un buco piove e nevica, fa freddo come fuori e il cibo marcisce come all'aperto.
+• Le caselle consumate sono un lavoro dei costruttori (Riparare): 1 legna per le scandole, 1 pietra per i coppi, 3 s ciascuna.
+
+[color=#e8c34a]Temperatura[/color]
+• Sotto un tetto una stanza va dalla temperatura di fuori verso i 15 °C (5 °C nei magazzini e nelle dispense, 0 °C in una ghiacciaia col ghiaccio) di quanto isolano i suoi muri: legno e porte 50%, legno intonacato 60%, pietra 70%, roccia 85%. Le pelli alle pareti (+5% ciascuna, fino a 3), la portiera (+10%) e gli arazzi (+5% ciascuno, fino a 3) aggiungono, fino al 90%.
+• I fuochi scaldano: fuoco da campo +8 °C, focolare +12, fornace +15, stufa a olle +10. Focolare e fornace passano metà del loro calore alla stanza dietro il muro di legno che hanno alle spalle; la pietra lo ferma. La stufa a olle lo passa tutto, anche attraverso la pietra.
+• D'estate una fontana toglie 3 °C alla sua stanza quando fuori ce ne sono più di 20.
+• Sotto i 12 °C, ogni 4 °C tolgono un punto di comfort. Le tende del letto a baldacchino tengono 4 °C in più a chi ci dorme.
+• Il cartello della stanza mostra i gradi; col mouse sopra, il conto.
+
+[color=#e8c34a]Vista calore[/color]
+La vista calore (N) colora le stanze secondo la temperatura: rosso il caldo, giallo il fresco senza malus, poi un blu per ogni punto di comfort che il freddo toglie, bianco sotto lo zero (lì il cibo non marcisce). Mostra i gradi e il malus di ogni stanza, quanto scalda ogni fuoco, una freccia dove il calore passa un muro e una croce dove la pietra lo ferma. Col mouse sopra una stanza, il conto. Si accende da sola quando piazzi un fuoco, un pezzo che isola o l'intonaco.
+
+[color=#e8c34a]Focolare e comignoli[/color]
+• Il focolare (Muratura, 15 pietra) va contro un muro e fa quello che fa il fuoco da campo: la cucina vuole l'uno o l'altro, le stesse ricette, i coloni ci si radunano attorno. Al fuoco da campo, dove il fumo resta, si affumica un quarto più in fretta.
+• Focolari e fornaci hanno un comignolo di pietra sul muro alle spalle, un fuoco da campo sotto un tetto uno sfiatatoio di legno. Il fumo sale da lì: rado se il fuoco è solo acceso, più fitto mentre si cucina, scuro dalla fornace, denso mentre si affumica.
+
+[color=#e8c34a]Il cibo e il freddo[/color]
+• Il cibo marcisce in proporzione alla temperatura: al ritmo pieno a 15 °C, il doppio a 30 °C, per niente a 0 °C o meno. Un magazzino lo dimezza, una dispensa o una ghiacciaia lo riduce a un terzo.
+• La ghiacciaia (ricerca Ghiacciaia): muri di pietra o roccia, nessun fuoco, una fossa del ghiaccio. Segna l'acqua con l'ordine Ghiaccio (Y): quando gela i coloni tagliano i blocchi (Estrarre) finché nelle fosse c'è posto, e i trasportatori ce li portano. Finché c'è ghiaccio la stanza va verso 0 °C. Il ghiaccio si scioglie col calore che passa i muri, e prima sotto un buco nel tetto.
+
+[color=#e8c34a]Incendio[/color]
+• Un fuoco da campo sotto un tetto di scandole può dargli fuoco (2% al giorno), e così un fulmine nel temporale. Una casella brucia per 4 ore e diventa un buco; intanto il fuoco passa alle scandole accanto, anche di altri tetti. I coppi non bruciano.
+• Al fuoco tutti lasciano il resto: prendono un secchio all'acqua e lo gettano, 2 ore di fuoco in meno ciascuno."""],
 
 	["Cibo e cucina", """[color=#e8c34a]Mangiare[/color]
 • I coloni affamati (sotto 30 di cibo; il goloso a 50) prendono il cibo più vicino: prima i pasti squisiti, poi i pasti, il crudo solo quando non ce ne sono (vegetali, poi pesce, poi carne). Nel tempo libero fanno anche uno spuntino sotto 60.
@@ -254,12 +296,12 @@ La Vista stanze (L) tinge ogni stanza col colore del suo tipo e mostra i proprie
 [cell][img=center]res://art/icon_meal.png[/img] Pasto[/cell][cell]100[/cell][cell]3 giorni[/cell][cell]–[/cell]
 [cell][img=center]res://art/icon_fine_meal.png[/img] Pasto squisito[/cell][cell]100[/cell][cell]3 giorni[/cell][cell]–[/cell]
 [/table]
-• Dura: a terra all'aperto; in un magazzino il doppio. Poi il mucchio marcisce e sparisce. I mucchi che si mescolano prendono la freschezza media. Col mouse sopra un mucchio: Fresco, Non più fresco o Quasi marcio, e i giorni che restano.
+• Dura: a terra all'aperto a 15 °C; in un magazzino il doppio. Col caldo marcisce prima, col freddo dopo, sotto lo zero per niente (vedi Tetti e calore). Poi il mucchio marcisce e sparisce. I mucchi che si mescolano prendono la freschezza media. Col mouse sopra un mucchio: Fresco, Non più fresco o Quasi marcio, e i giorni che restano.
 • Chi mangia crudo può restare Intossicato: la probabilità è minima quando il cibo è fresco, massima quando è quasi marcio.
 • Un pasto dà Ben nutrito, un pasto squisito Lauto pasto (vedi Condizioni).
 
 [color=#e8c34a]Cucinare[/color]
-• A un fuoco da campo dentro una cucina. Il cuoco prende 2 crudi da un mucchio (vegetali, pesce o carne), cucina per 8 s e porta il pasto in un magazzino.
+• A un fuoco da campo o a un focolare dentro una cucina. Il cuoco prende 2 crudi da un mucchio (vegetali, pesce o carne), cucina per 8 s e porta il pasto in un magazzino.
 • Clicca il fuoco da campo: Tieni N pasti (6 all'inizio). I cuochi cucinano finché ci sono meno pasti di così, contando quelli a terra, nei magazzini e in mano.
 • Bruciato, e il cibo è perso: 6% per ogni livello di Cucinare sotto il 6, più 3% per ogni punto di comfort della cucina sotto 5 (meno, sopra). A livello 0 in una cucina con comfort 5: 36%.
 • Pasto squisito: 5% per ogni livello sopra il 5, più 2% per ogni punto di comfort sopra 5 (meno, sotto): 25% a livello 10.
@@ -453,10 +495,13 @@ I libri vengono solo dalle rovine (vedi Rovine e spedizioni). Non ci sono ancora
 Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette non compaiono alle postazioni. Dall'inizio hai muri e pavimenti di legno, porte, sentieri, letti, tavoli, sedie, fuochi da campo, stendardi, scrittoi, troni, cimeli e pasti.
 
 [color=#e8c34a]L'albero[/color]
-• [color=#d9c48a]Caccia[/color] (Terra I, 50): filatoio e banco del falegname; corde d'arco e archi.
+• [color=#d9c48a]Caccia[/color] (Terra I, 50): filatoio e banco del falegname; corde d'arco e archi; pelli alle pareti e portiere.
+• [color=#d9c48a]Ghiacciaia[/color] (Terra II, 250 e un quaderno, dopo Dispensa fredda): la ghiacciaia, la fossa del ghiaccio, il taglio del ghiaccio.
 • [color=#d9c48a]Forgia[/color] (Fuoco I, 60): fornace e incudine; lingotti, piccone, ascia, falcetto.
 • [color=#d9c48a]Sartoria[/color] (Fuoco I, 50): banco da lavoro; armatura e cappuccio di cuoio.
-• [color=#d9c48a]Muratura[/color] (Pietra I, 60): muri e pavimenti di pietra.
+• [color=#d9c48a]Telaio[/color] (Fuoco II, 200 e un quaderno, dopo Sartoria): l'arazzo.
+• [color=#d9c48a]Stufa a olle[/color] (Fuoco II, 300 e un quaderno, dopo Carbonaia e Muratura): la stufa a olle.
+• [color=#d9c48a]Muratura[/color] (Pietra I, 60): muri e pavimenti di pietra; il focolare; l'intonaco.
 • [color=#d9c48a]Decorazioni[/color] (Pietra I, 40): aiuola, fioriera, panca.
 • [color=#d9c48a]Fontana[/color] (Pietra II, 250 e un quaderno, dopo Decorazioni): la fontana.
 • [color=#d9c48a]Statuaria[/color] (Pietra III, 500 e un tomo, dopo Muratura): la statua.

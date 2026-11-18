@@ -252,8 +252,9 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
 - Edifici MVP: muri, porte, tetto, letto, focolare, cucina, magazzino (zona), banco da lavoro, fornace, fucina.
 - Stanze chiuse con tetto proteggono da pioggia e freddo; il focolare scalda.
 - **Stanze**: zona chiusa da muri con una porta; il cartello sul muro accanto alla porta apre nome e tipo.
-  Tipi: magazzino; camera (1 letto); dormitorio (2 letti); cucina (fuoco da campo, poi anche focolare e stufa); forgia (fornace e incudine);
-  laboratorio (banco da lavoro); falegnameria (banco del falegname).
+  Tipi: magazzino; camera (1 letto); dormitorio (2 letti); cucina (fuoco da campo o focolare, poi anche stufa); forgia (fornace e incudine);
+  laboratorio (banco da lavoro); falegnameria (banco del falegname); ghiacciaia (fossa del ghiaccio, muri di pietra:
+  vedi 4.4.5).
   Un tipo si sceglie solo se ci sono i mobili (gli altri non compaiono); tolti, la stanza torna senza tipo.
   Ogni tipo ha una categoria:
   - **lavoro** (cucina, forgia, laboratorio, falegnameria): niente proprietari, ma le si assegnano dei lavoratori (per ora senza effetto; poi
@@ -263,8 +264,9 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
   - **servizio** (magazzino): stanze comuni con uno scopo preciso, né proprietari né lavoratori.
   Cambiando tipo (o tornando senza) proprietari e lavoratori che la nuova categoria non prevede si perdono.
   Una stanza **bandita** è vietata a tutti, anche ai proprietari.
-- **Lenti**: evidenziano cose sulla mappa. Prima: la lente delle stanze, ogni stanza finita velata col colore del suo tipo,
-  sotto il tipo i proprietari o i lavoratori (col mouse sopra, la loro scheda).
+- **Lenti**: evidenziano cose sulla mappa, una alla volta. Prima: la lente delle stanze, ogni stanza finita velata col
+  colore del suo tipo, sotto il tipo i proprietari o i lavoratori (col mouse sopra, la loro scheda). Poi la lente del
+  calore (vedi 4.4.5).
 - **Comfort della stanza** (0–10): mobili per pezzo e pavimento, secondo il materiale (pietra ×1,5). A 5 nessun effetto;
   a 0 (anche fuori dalle stanze) le attività durano il 20% in più, a 10 il 20% in meno. Per ora vale per il sonno
   (8 ore a comfort 5) e per cucinare, dove cambia anche la probabilità di bruciare il pasto o farlo squisito.
@@ -590,7 +592,7 @@ di legno, la pietra isola; il caldo e il freddo decidono quanto dura il cibo, fi
   | Pelli alle pareti | Caccia | 2 pelli, 1×1 contro un muro | +5% ciascuna, fino a 3 per stanza |
   | Portiera (tenda di pelle sulla porta) | Caccia | 2 pelli | +10%: la porta è il punto debole |
   | Intonaco | Muratura | 1 pietra (calce) a casella di muro | i muri di legno valgono 60%; diventano bianchi |
-  | Arazzo | Telaio | tela, 1×1 contro un muro | +5% e 2 di splendore |
+  | Arazzo | Telaio | 4 lino (la tela verrà col resto del Telaio), 1×1 contro un muro | +5% e 2 di splendore |
   | Stufa a olle | Stufa a olle | pietra, 1×1 contro un muro | +10 °C alla sua stanza e a quella dietro, anche attraverso la pietra, come nelle stube alpine |
   | Letto a baldacchino (c'è già) | Arredo fine ✓ | — | le tende: chi ci dorme ha 4 °C in più |
 
@@ -618,8 +620,9 @@ di legno, la pietra isola; il caldo e il freddo decidono quanto dura il cibo, fi
   scioglie prima. D'inverno si taglia il ghiaccio, d'estate il cibo si conserva: l'inverno ha un lavoro che rende.
   Poi: spalare la neve per riempire la fossa; il sorbetto (ghiaccio e miele, con Apicoltura) per il Banchetto reale.
 - **Lente del calore**: la seconda lente, accanto a quella delle stanze, col suo pulsante e tasto (liberi N, O, Y).
-  Ogni casella coperta colorata per temperatura, a scalini come il comfort: sopra i 12 °C una tinta calda, poi più fredda
-  ogni 4 °C (−1, −2, −3 di comfort); sotto lo zero una tinta di ghiaccio (lì il cibo non marcisce). I buchi nei tetti si
+  Ogni casella coperta colorata per temperatura, a scalini come il comfort: sopra i 12 °C una tinta calda, sotto ma
+  senza malus una gialla, poi più fredda per ogni punto di comfort tolto (−1, −2, −3); sotto lo zero una tinta di
+  ghiaccio (lì il cibo non marcisce). I buchi nei tetti si
   vedono da soli, come macchie fredde. Al centro della stanza gradi e malus ("9 °C · −1"); sopra ogni fuoco il suo
   calore (+8, +12, +15); dal focolare e dalla fornace una freccia attraverso il muro col calore che passa, o una ✕ se il
   muro è di pietra. Fuori nessuna tinta, solo i gradi in un angolo. Col mouse sopra una stanza, il conto: fuori,
@@ -639,7 +642,8 @@ di legno, la pietra isola; il caldo e il freddo decidono quanto dura il cibo, fi
   stanze calde, tetto bagnato; (4) degrado per casella e Riparare; (5) isolamento: pelli alle pareti, portiera, intonaco,
   letto a baldacchino che scalda, poi arazzo e stufa a olle con le loro ricerche; (6) conservazione: caldo che fa
   marcire, cantine nella roccia, fontana che rinfresca, ghiacciaia; (7) incendio.
-- **Stato**: ancora niente.
+- **Stato**: fatte le fasi 1–7 (test in `tests/test_heat.gd`). Il tasto della lente del calore è N, quello del
+  ghiaccio Y. Fuori la lente non colora niente: i gradi di fuori sono già nella barra in alto (previsioni).
 
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100.
@@ -754,19 +758,19 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Forno di pietra | II | 300 | Orto | forno 2x1: pane (2 vegetali → 3, sazia 60, dura 8 giorni), stufato |
   | | Apicoltura | III | 450 | Forno di pietra | arnia accanto alle aiuole: miele (non marcisce), cera (candele: si studia di notte) |
   | | Banchetto reale | IV | 1000 | Apicoltura | il banchetto al forno: +15 felicità per 3 giorni, +20 autorità |
-  | | Caccia ✓ | I | 50 | — | *filatoio, corda d'arco, banco del falegname, falegnameria, arco*; poi pelli alle pareti e portiera (vedi 4.4.5) |
+  | | Caccia ✓ | I | 50 | — | *filatoio, corda d'arco, banco del falegname, falegnameria, arco, pelli alle pareti, portiera* (vedi 4.4.5) |
   | | Affumicatoio ✓ | II | 200 | Caccia | al fuoco: carne e pesce affumicati durano quattro volte tanto (scorta 0 dal menu); si mangiano e si cucinano come il crudo |
   | | Dispensa fredda ✓ | I | 100 | — | stanza dispensa, solo per il cibo, che ci va per primo: dura il triplo che fuori (in magazzino il doppio) |
-  | | Ghiacciaia | II | 250 | Dispensa fredda | stanza ghiacciaia (muri di pietra o roccia) e fossa del ghiaccio; Tagliare il ghiaccio d'inverno: col ghiaccio la stanza va verso 0 °C (vedi 4.4.5) |
+  | | Ghiacciaia ✓ | II | 250 | Dispensa fredda | *ghiacciaia* (muri di pietra o roccia), *fossa del ghiaccio*; Tagliare il ghiaccio d'inverno: col ghiaccio la stanza va verso 0 °C (vedi 4.4.5) |
   | Fuoco | Forgia ✓ | I | 60 | — | *fornace, incudine, forgia, lingotto, piccone, ascia, falcetto* |
   | | Acciaio ✓ | II | 300 | Forgia | acciaio (2 lingotti + 2 carbone, alla fornace): attrezzi e spade si fanno d'acciaio; attrezzi −40% tempo, spada danno 20 (anche quelli di prima, ritemprati) |
   | | Vetreria | III | 500 | Acciaio | vetro: finestre (+1 comfort), occhiali (studiare e cucire −20%) |
   | | Altoforno | IV | 1100 | Vetreria | lingotti e acciaio tre alla volta, con metà carbone |
   | | Sartoria ✓ | I | 50 | — | *banco da lavoro, laboratorio, armatura e cappuccio di cuoio* |
-  | | Telaio | II | 200 | Sartoria | tela: mantello imbottito (freddo), bende, arazzo (isola la stanza, splendore: vedi 4.4.5) |
+  | | Telaio ✓ | II | 200 | Sartoria | *arazzo* (isola la stanza, splendore: vedi 4.4.5); poi la tela: mantello imbottito (freddo), bende |
   | | Carbonaia ✓ | I | 80 | — | alla fornace 5 legna → 2 carbone (scorta 5 dal menu): il carbone non solo dalle vene |
-  | | Stufa a olle | II | 300 | Carbonaia, Muratura | stufa a olle contro un muro: +10 °C alla sua stanza e a quella dietro, anche attraverso la pietra (vedi 4.4.5) |
-  | Pietra | Muratura ✓ | I | 60 | — | *muri e pavimenti di pietra*; poi il focolare col comignolo e l'intonaco (vedi 4.4.5) |
+  | | Stufa a olle ✓ | II | 300 | Carbonaia, Muratura | *stufa a olle* contro un muro: +10 °C alla sua stanza e a quella dietro, anche attraverso la pietra (vedi 4.4.5) |
+  | Pietra | Muratura ✓ | I | 60 | — | *muri e pavimenti di pietra, focolare col comignolo, intonaco* (vedi 4.4.5) |
   | | Arredo fine ✓ | II | 250 | Muratura | letto a baldacchino (un letto, comfort 2), tappeto di pelli, armadio (comfort 1): la camera signorile del sovrano |
   | | Statuaria ✓ | III | 500 | Arredo fine | *statua del re*; poi i memoriali dei caduti (lutto un giorno in meno) |
   | | Palazzo ✓ | IV | 1200 | Statuaria | la sala del trono diventa palazzo: udienza +50%, +10 splendore (se ce n'è una) |

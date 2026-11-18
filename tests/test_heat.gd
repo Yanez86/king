@@ -1,6 +1,7 @@
 # Esegui: godot --headless --path . -s tests/test_heat.gd
 # Tetti, calore e conservazione (GDD 4.4.5): focolare, fornace, calore attraverso i muri di legno, isolamento dei
-# muri, stanze senza gente, comignoli e fumo, il caldo che fa marcire
+# muri e dei pezzi, stanze senza gente, comignoli e fumo, il caldo che fa marcire, la lente del calore, un tetto per
+# stanza, usura e riparazioni, la ghiacciaia e il ghiaccio, la fontana, l'incendio e i secchi
 extends SceneTree
 
 var main
@@ -431,7 +432,7 @@ func _initialize() -> void:
 	tip.free()
 	check(main.unlocked("builds", B.HEARTH) and main.tech_for("builds", B.HEARTH) == main.Tech.MASONRY, "il focolare viene con la Muratura")
 	sky.climate = false
-	print("OK: focolare, fornace, calore nei muri, isolamento, comignoli")
+	print("OK: focolare, calore nei muri, isolamento, lente, tetti, usura, ghiacciaia, incendio")
 	quit()
 
 

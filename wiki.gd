@@ -42,7 +42,8 @@ A key works like a click on its button (press it again to close).
 [cell]Hunt[/cell][cell]T[/cell][cell]Jobs[/cell][cell]J[/cell]
 [cell]Resources[/cell][cell]I[/cell][cell]Knowledge[/cell][cell]K[/cell]
 [cell]Laws[/cell][cell]G[/cell][cell]Rooms lens[/cell][cell]L[/cell]
-[cell]Wiki[/cell][cell]F1[/cell][cell][/cell][cell][/cell]
+[cell]Heat lens[/cell][cell]N[/cell][cell]Cut ice[/cell][cell]Y[/cell]
+[cell]Roofs[/cell][cell]V[/cell][cell]Wiki[/cell][cell]F1[/cell]
 [/table]
 • Jobs: the work waiting, in the order colonists take it. Resources: what is in your warehouses.
 
@@ -186,6 +187,7 @@ Not on water, trees, rock, bushes or weeds (uproot them first), nor on items lyi
 [cell]Floor[/cell][cell]2 wood or stone a tile[/cell][cell]room comfort[/cell]
 [cell]Door[/cell][cell]5 wood[/cell][cell]rooms need one[/cell]
 [cell]Path[/cell][cell]1 stone a tile[/cell][cell]trodden earth[/cell]
+[cell]Plaster[/cell][cell]1 stone a tile[/cell][cell]over a wooden wall: insulates more[/cell]
 [/table]
 
 [color=#e8c34a]Furniture[/color]
@@ -205,8 +207,14 @@ Not on water, trees, rock, bushes or weeds (uproot them first), nor on items lyi
 [cell]Carpenter bench[/cell][cell]15 wood[/cell][cell]Hunting[/cell]
 [cell]Notice board[/cell][cell]8 wood[/cell][cell]Inn[/cell]
 [cell]Bookshelf[/cell][cell]12 wood[/cell][cell]Bookshelf[/cell]
+[cell]Hearth[/cell][cell]15 stone[/cell][cell]Masonry[/cell]
+[cell]Wall hides[/cell][cell]2 hides[/cell][cell]Hunting[/cell]
+[cell]Door curtain[/cell][cell]2 hides[/cell][cell]Hunting[/cell]
+[cell]Tapestry[/cell][cell]4 flax[/cell][cell]Loom[/cell]
+[cell]Tiled stove[/cell][cell]20 stone[/cell][cell]Tiled stove[/cell]
+[cell]Ice pit (2x2)[/cell][cell]20 stone[/cell][cell]Icehouse[/cell]
 [/table]
-Decorations: see Splendor."""],
+Hearth, hides, tapestry and tiled stove hang against a wall at their back, the curtain against a door: turn them toward it. Decorations: see Splendor."""],
 
 	["Rooms", """A room is an area closed by walls (rock and deep water count too) with at least one door to the outside, smaller than 400 tiles. Once it's finished a sign appears on the wall by the door: click it to name the room, see its comfort, choose its type, ban it and tick its owners or workers.
 
@@ -217,13 +225,14 @@ The list shows only the types whose furniture is inside. Take that furniture awa
 [cell]Warehouse[/cell][cell]nothing[/cell][cell]service[/cell]
 [cell]Bedroom[/cell][cell]1 bed[/cell][cell]residence[/cell]
 [cell]Dormitory[/cell][cell]2 beds[/cell][cell]residence[/cell]
-[cell]Kitchen[/cell][cell]campfire[/cell][cell]work[/cell]
+[cell]Kitchen[/cell][cell]campfire or hearth[/cell][cell]work[/cell]
 [cell]Forge[/cell][cell]furnace, anvil[/cell][cell]work[/cell]
 [cell]Workshop[/cell][cell]workbench[/cell][cell]work[/cell]
 [cell]Carpentry[/cell][cell]carpenter bench[/cell][cell]work[/cell]
 [cell]Inn[/cell][cell]bed, table, notice board[/cell][cell]service[/cell]
 [cell]Study[/cell][cell]desk[/cell][cell]work[/cell]
 [cell]Throne room[/cell][cell]throne[/cell][cell]work[/cell]
+[cell]Icehouse[/cell][cell]ice pit; stone walls, no fire[/cell][cell]service[/cell]
 [/table]
 • Residence: it can have owners. One with owners is closed to everyone else, even just to walk through.
 • Work: it can have workers. For now they matter in a study (they study before any other job) and in a throne room (only the ruler).
@@ -233,14 +242,47 @@ The list shows only the types whose furniture is inside. Take that furniture awa
 • Colonists sleep in any bed but those of an inn, which are for adventurers.
 
 [color=#e8c34a]Warehouses[/color]
-Haulers carry loose items into warehouses, 10 at a time; with no warehouse nobody hauls. Only what is in a warehouse counts as stored: the top bar, Resources, the coins you pay, the books for research. A tile holds one kind of item: 100 wood or coins, 50 of most materials and raw food, 20 meals, 10 tools, weapons, armor or books, 5 relics. Food rots half as fast inside.
+Haulers carry loose items into warehouses, 10 at a time; with no warehouse nobody hauls. Only what is in a warehouse counts as stored: the top bar, Resources, the coins you pay, the books for research. A tile holds one kind of item: 100 wood or coins, 50 of most materials and raw food, 20 meals, 10 tools, weapons, armor or books, 5 relics. Food rots half as fast inside, and slower still in the cold (see Roofs & Heat).
 
 [color=#e8c34a]Comfort[/color]
-0–10, shown on the sign. Bed and table +1; chair, lamp, campfire and bench +0.5; a floor +1 if it paves the whole room (half the room, half a point); stone counts 1.5 times. Outdoors it is 0.
+0–10, shown on the sign. Bed and table +1; chair, lamp, campfire, hearth and bench +0.5; a floor +1 if it paves the whole room (half the room, half a point); stone counts 1.5 times. Outdoors it is 0.
 At 5 nothing changes. Below, sleep, cooking, crafting and study take longer (20% at 0); above, less (20% at 10). Low comfort also burns meals and ruins items more often. With fewer than 6 tiles for each person in the room, comfort drops in proportion.
 
 [color=#e8c34a]Rooms lens[/color]
 The Rooms lens (L) tints every room with the color of its type and shows its owners or workers: hover them for their sheet."""],
+
+	["Roofs & Heat", """[color=#e8c34a]Roofs[/color]
+• Every finished room gets its own roof over its walls and doors; V lifts them all to look inside. An L-shaped room gets two roofs; a roof taller than wide has its ridge north to south and a gable over the front wall.
+• Roofs follow the walls: shingles over wooden walls, clay tiles over stone (the majority of the room's walls; doors count as wood).
+• Snow lies on roofs as on the ground, but the heat leaking out of a warm room melts it, first around the chimneys. Wet roofs are darker, eaves drip in the rain and grow icicles below zero.
+
+[color=#e8c34a]Wear and repairs[/color]
+• Every roof tile wears with time, shingles twice as fast as tiles: lichens first, then shifted tiles and moss, at last a hole with the rafters showing. Without storms a shingle tile lasts about a year, a clay one two.
+• Storms tear tiles off, and the chronicle says so; heavy snow on a wide roof that doesn't melt it can break through.
+• Under a hole it rains and snows, it is as cold as outside and food rots as in the open.
+• Worn tiles are a job for builders (Repair): 1 wood for shingles, 1 stone for tiles, 3 s each.
+
+[color=#e8c34a]Temperature[/color]
+• Under a roof a room moves from the outdoor temperature toward 15 °C (5 °C in warehouses and pantries, 0 °C in an icehouse with ice) as much as its walls insulate: wood and doors 50%, plastered wood 60%, stone 70%, rock 85%. Hides on the walls (+5% each, up to 3), a curtain at the door (+10%) and tapestries (+5% each, up to 3) add to it, up to 90%.
+• Fires add heat: campfire +8 °C, hearth +12, furnace +15, tiled stove +10. The hearth and the furnace pass half their heat to the room behind the wooden wall at their back; stone stops it. The tiled stove passes all of it, through stone too.
+• In summer a fountain takes 3 °C off its room when it's hotter than 20 °C outside.
+• Below 12 °C, every 4 °C take a point of comfort. The canopy bed's curtains keep 4 °C more for whoever sleeps in it.
+• The room sign shows the degrees; hover it for the reckoning.
+
+[color=#e8c34a]Heat lens[/color]
+The Heat lens (N) tints rooms by temperature: red warm, yellow cool without a malus, then blues for every point of comfort the cold takes, white below zero (food doesn't rot there). It shows the degrees and the malus of every room, how much every fire heats, an arrow where heat goes through a wall and a cross where stone stops it. Hover a room for the reckoning. It turns itself on while you place a fire, a piece that insulates or plaster.
+
+[color=#e8c34a]Hearth and chimneys[/color]
+• The hearth (Masonry, 15 stone) goes against a wall and does what a campfire does: a kitchen takes either, the same recipes, colonists gather around it. Smoking is a quarter faster at a campfire, where the smoke stays.
+• Hearths and furnaces have a stone chimney on the wall at their back, a campfire under a roof a wooden vent. Smoke rises from there: thin when the fire is idle, thicker while cooking, dark from the furnace, dense while smoking.
+
+[color=#e8c34a]Food and the cold[/color]
+• Food rots in proportion to the temperature: at full pace at 15 °C, twice as fast at 30 °C, not at all at 0 °C or below. A warehouse halves it, a pantry or an icehouse cuts it to a third.
+• The icehouse (Icehouse research): stone or rock walls, no fire, an ice pit. Mark water with the Ice order (Y): when it freezes, colonists cut blocks (Mining) while the pits have room, and haulers bring them to the pits. While there is ice the room tends to 0 °C. Ice melts with the heat that gets through the walls, and faster under a hole in the roof.
+
+[color=#e8c34a]Fire[/color]
+• A campfire under a shingle roof can set it alight (2% a day), and so can lightning in a storm. A burning tile burns for 4 hours and becomes a hole; meanwhile the fire passes to the shingles beside it, of other roofs too. Clay tiles don't burn.
+• Everyone fights a fire first: they fetch a bucket at the water and throw it, 2 hours off the fire each."""],
 
 	["Food & Cooking", """[color=#e8c34a]Eating[/color]
 • Hungry colonists (under 30 food; the glutton at 50) take the nearest food: fine meals first, then meals, raw food only when there are none (vegetables, then fish, then meat). In free time they also snack under 60.
@@ -255,12 +297,12 @@ The Rooms lens (L) tints every room with the color of its type and shows its own
 [cell][img=center]res://art/icon_meal.png[/img] Meal[/cell][cell]100[/cell][cell]3 days[/cell][cell]–[/cell]
 [cell][img=center]res://art/icon_fine_meal.png[/img] Fine meal[/cell][cell]100[/cell][cell]3 days[/cell][cell]–[/cell]
 [/table]
-• Lasts: on the ground outdoors; in a warehouse twice as long. Then the pile rots away. Piles that mix take the average freshness. Hover a pile: Fresh, Stale or Almost rotten, and the days left.
+• Lasts: on the ground outdoors at 15 °C; in a warehouse twice as long. Warmer it rots faster, colder slower, below zero not at all (see Roofs & Heat). Then the pile rots away. Piles that mix take the average freshness. Hover a pile: Fresh, Stale or Almost rotten, and the days left.
 • Raw food may leave you Poisoned: the lower chance when it's fresh, the higher when it's almost rotten.
 • A meal makes you Well fed, a fine meal Feasted (see Conditions).
 
 [color=#e8c34a]Cooking[/color]
-• At a campfire inside a kitchen. The cook takes 2 raw foods from one pile (vegetables, fish or meat), cooks for 8 s and carries the meal to a warehouse.
+• At a campfire or a hearth inside a kitchen. The cook takes 2 raw foods from one pile (vegetables, fish or meat), cooks for 8 s and carries the meal to a warehouse.
 • Click the campfire: Keep N meals (6 at the start). Cooks cook while there are fewer meals than that, counting those on the ground, in warehouses and in hand.
 • Burnt, and the food is lost: 6% for every Cooking level below 6, plus 3% for every point of kitchen comfort below 5 (minus above). At level 0 in a kitchen of comfort 5: 36%.
 • Fine meal: 5% for every level above 5, plus 2% for every point of comfort above 5 (minus below): 25% at level 10.
@@ -454,10 +496,13 @@ Books come only from ruins (see Ruins & Expeditions). There is no tier IV resear
 What you haven't researched has no build button, and its recipes don't show at the stations. From the start you have wooden walls and floors, doors, paths, beds, tables, chairs, campfires, banners, desks, thrones, relics and meals.
 
 [color=#e8c34a]The tree[/color]
-• [color=#d9c48a]Hunting[/color] (Land I, 50): spinning wheel and carpenter bench; bowstrings and bows.
+• [color=#d9c48a]Hunting[/color] (Land I, 50): spinning wheel and carpenter bench; bowstrings and bows; hides on the walls and door curtains.
+• [color=#d9c48a]Icehouse[/color] (Land II, 250 and a notebook, after Cold store): the icehouse, the ice pit, cutting ice.
 • [color=#d9c48a]Forge[/color] (Fire I, 60): furnace and anvil; ingots, pickaxe, axe, sickle.
 • [color=#d9c48a]Tailoring[/color] (Fire I, 50): workbench; leather armor and hood.
-• [color=#d9c48a]Masonry[/color] (Stone I, 60): stone walls and floors.
+• [color=#d9c48a]Loom[/color] (Fire II, 200 and a notebook, after Tailoring): the tapestry.
+• [color=#d9c48a]Tiled stove[/color] (Fire II, 300 and a notebook, after Charcoal and Masonry): the tiled stove.
+• [color=#d9c48a]Masonry[/color] (Stone I, 60): stone walls and floors; the hearth; plaster.
 • [color=#d9c48a]Decor[/color] (Stone I, 40): flower bed, planter, bench.
 • [color=#d9c48a]Fountain[/color] (Stone II, 250 and a notebook, after Decor): the fountain.
 • [color=#d9c48a]Statuary[/color] (Stone III, 500 and a tome, after Masonry): the statue.
