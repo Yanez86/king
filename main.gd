@@ -8,15 +8,34 @@ const ORE_VEIN := 0.35      # soglia del rumore delle vene: più alta, meno mine
 const UPROOT_TIME := 1.5    # secondi per estirpare un'erbaccia o un cespuglio
 const BERRIES_PER_BUSH := 5 # bacche (vegetali) su un cespuglio maturo
 const BERRY_REGROW := 2.0   # giorni prima che il cespuglio rifaccia le bacche
-# Orto (Tech.GARDEN): caselle di prato segnate con "Garden" (vedi garden), rape e cavoli a file alterne (vedi crop_of).
-# Il contadino (abilità raccogliere) semina, e coi tempi veri (CROP_DAYS) raccoglie CROP_YIELD rape o cavoli, che si
-# conservano a lungo (SHELF_LIFE): mezzo a casella al giorno. Si semina quando la terra è tiepida (SOW_TEMP, la media
-# del giorno) e solo se il raccolto matura prima dell'inverno; il primo giorno d'inverno il gelo si prende quello che è
-# rimasto nei campi
-const CROP_DAYS := [60.0, 90.0]   # per Crop: giorni dalla semina al raccolto
-const CROP_YIELD := [30, 45]      # per Crop: quanti a casella
-const CROP_RES := [Res.TURNIP, Res.CABBAGE]
+# Orto (Tech.GARDEN): caselle di prato segnate con "Garden" (vedi garden). Le caselle che si toccano fanno un campo,
+# col suo cartello (vedi update_fields, open_field): la coltura di ogni anno la dice il piano di rotazione (vedi plans).
+# Il contadino (abilità raccogliere) semina, e coi tempi veri (CROP_DAYS) raccoglie CROP_YIELD a casella secondo la
+# fertilità (vedi soil, crop_yield): a 60, mezzo crudo a casella al giorno. Si semina quando la terra è tiepida
+# (SOW_TEMP, la media del giorno) e solo se il raccolto matura prima dell'inverno; il primo giorno d'inverno il gelo si
+# prende quello che è rimasto nei campi
+const CROP_DAYS := [60.0, 90.0, 100.0]  # per Crop: giorni dalla semina al raccolto
+const CROP_YIELD := [30, 45, 20]        # per Crop: quanti a casella, a fertilità 60
+const CROP_RES := [Res.TURNIP, Res.CABBAGE, Res.BEANS]
+const CROP_SOIL := [-8, -15, 10]        # per Crop: fertilità a raccolto (le fave, legumi, la restituiscono)
 const SOW_TEMP := 6.0       # gradi, la media del giorno: dal tardo Disgelo (vedi atmosphere.mean_temperature)
+# Fertilità per casella, 0-100, nascosta (vedi soil): dalla mappa tra SOIL_RANGE, più ricca vicino all'acqua, più povera
+# accanto alla roccia; un albero abbattuto lascia l'humus. La resa va per 0,4 + fertilità/100. A Capodanno ogni casella
+# d'orto si riposa (SOIL_WINTER), di più dopo un anno a maggese (SOIL_FALLOW)
+const SOIL_RANGE := [30.0, 80.0]
+const SOIL_WATER := 10      # entro 3 caselle dall'acqua
+const SOIL_ROCK := -15      # accanto alla roccia
+const SOIL_HUMUS := 15      # abbattuto un albero, a quella casella
+const SOIL_WINTER := 5
+const SOIL_FALLOW := 25
+const TIRED := [1.0, 0.75, 0.5]  # resa con la stessa coltura per 1, 2, 3 (o più) anni di fila sulla stessa casella
+const SOIL_EYE := 5         # da questo livello di raccogliere il contadino riconosce la terra che lavora (soil_known)
+const SOIL_PALE := Color(0.85, 0.8, 0.45)  # le piante su terra povera: smorte, verso il giallo (vedi draw_garden)
+# piano dei campi (vedi plans): la coltura di un anno; miste, rape e cavoli a file alterne
+enum Sow { MIXED, TURNIP, CABBAGE, BEANS, FALLOW }
+const SOW_NAMES := ["Mixed", "Turnips", "Cabbages", "Beans", "Fallow"]
+const CLASSIC_PLAN := [Sow.CABBAGE, Sow.TURNIP, Sow.BEANS, Sow.FALLOW]  # la rotazione classica, dal cartello
+const PLAN_YEARS := 4
 const FARM_TIME := 4.0      # secondi per seminare o raccogliere una casella, a livello 5 (vedi skill_time)
 const CARRY_MAX := 10       # quantità massima trasportata per viaggio, di una risorsa sola
 const BUILD_TIME := 2.0     # secondi per costruire una casella
@@ -64,14 +83,14 @@ const PRIORITY_COLORS := [Color("c86450"), Color("e8c34a"), Color("e6e2d0"), Col
 enum Res { WOOD, STONE, VEG, IRON, COAL, MEAL, FINE_MEAL, MEAT, FISH, HIDE, INGOT, FLAX, BOWSTRING,
 	PICKAXE, AXE, SICKLE, BOW, LEATHER_ARMOR, LEATHER_HOOD, HELMET, CHAINMAIL, SWORD, GOLD, DAGGER,
 	CHALICE, OLD_BANNER, BUST, CROWN, NOTEBOOK, TOME, CODEX, HARDTACK, SMOKED_MEAT, SMOKED_FISH, SHIELD,
-	STEEL, PARCHMENT, INK, ICE, TURNIP, CABBAGE }  # ICE: blocchi tagliati dall'acqua gelata, per la ghiacciaia (vedi Order.ICE);
-	# TURNIP, CABBAGE: dall'orto (vedi garden), si conservano a lungo
-const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.TURNIP: 50, Res.CABBAGE: 50, Res.IRON: 50, Res.COAL: 50, Res.MEAL: 20, Res.FINE_MEAL: 20,
+	STEEL, PARCHMENT, INK, ICE, TURNIP, CABBAGE, BEANS }  # ICE: blocchi tagliati dall'acqua gelata, per la ghiacciaia (vedi
+	# Order.ICE); TURNIP, CABBAGE, BEANS: dall'orto (vedi garden), si conservano a lungo, le fave secche più di tutto
+const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.TURNIP: 50, Res.CABBAGE: 50, Res.BEANS: 50, Res.IRON: 50, Res.COAL: 50, Res.MEAL: 20, Res.FINE_MEAL: 20,
 	Res.MEAT: 50, Res.FISH: 50, Res.HIDE: 50, Res.INGOT: 50, Res.FLAX: 50, Res.BOWSTRING: 50, Res.PICKAXE: 10, Res.AXE: 10, Res.SICKLE: 10, Res.BOW: 10,
 	Res.LEATHER_ARMOR: 10, Res.LEATHER_HOOD: 10, Res.HELMET: 10, Res.CHAINMAIL: 10, Res.SWORD: 10, Res.GOLD: 100, Res.DAGGER: 10,
 	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5, Res.NOTEBOOK: 10, Res.TOME: 10, Res.CODEX: 10, Res.HARDTACK: 50, Res.SMOKED_MEAT: 50, Res.SMOKED_FISH: 50, Res.SHIELD: 10, Res.STEEL: 50, Res.PARCHMENT: 50, Res.INK: 20, Res.ICE: 50}  # quantità massima per mucchio (casella)
 const MEALS := [Res.FINE_MEAL, Res.MEAL]  # cotti: chi ha fame li prende in quest'ordine, poi il crudo
-const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT, Res.SMOKED_FISH, Res.SMOKED_MEAT, Res.TURNIP, Res.CABBAGE]  # crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti (prima quello che dura meno)
+const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT, Res.SMOKED_FISH, Res.SMOKED_MEAT, Res.TURNIP, Res.CABBAGE, Res.BEANS]  # crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti (prima quello che dura meno)
 const START_GOLD := 60      # monete all'inizio, a terra nella radura: le si spende quando sono in un magazzino
 const COIN := "[img=center]res://art/icon_coin.png[/img]"  # una moneta 16x16 nei testi ricchi (vedi coins)
 # Tipo di ogni oggetto: la sua icona 16x16 (art/kind_*.png, per le monete la moneta) sta davanti al nome, ovunque
@@ -88,7 +107,7 @@ const ITEM_KIND := {
 	Res.WOOD: ItemKind.MATERIAL, Res.STONE: ItemKind.MATERIAL, Res.IRON: ItemKind.MATERIAL, Res.COAL: ItemKind.MATERIAL,
 	Res.HIDE: ItemKind.MATERIAL, Res.INGOT: ItemKind.MATERIAL, Res.FLAX: ItemKind.MATERIAL,
 	Res.BOWSTRING: ItemKind.MATERIAL,
-	Res.VEG: ItemKind.FOOD, Res.TURNIP: ItemKind.FOOD, Res.CABBAGE: ItemKind.FOOD, Res.MEAL: ItemKind.FOOD, Res.FINE_MEAL: ItemKind.FOOD, Res.MEAT: ItemKind.FOOD, Res.FISH: ItemKind.FOOD,
+	Res.VEG: ItemKind.FOOD, Res.TURNIP: ItemKind.FOOD, Res.CABBAGE: ItemKind.FOOD, Res.BEANS: ItemKind.FOOD, Res.MEAL: ItemKind.FOOD, Res.FINE_MEAL: ItemKind.FOOD, Res.MEAT: ItemKind.FOOD, Res.FISH: ItemKind.FOOD,
 	Res.PICKAXE: ItemKind.TOOL, Res.AXE: ItemKind.TOOL, Res.SICKLE: ItemKind.TOOL,
 	Res.BOW: ItemKind.WEAPON, Res.SWORD: ItemKind.WEAPON, Res.DAGGER: ItemKind.WEAPON,
 	Res.LEATHER_ARMOR: ItemKind.ARMOR, Res.LEATHER_HOOD: ItemKind.ARMOR, Res.HELMET: ItemKind.ARMOR, Res.CHAINMAIL: ItemKind.ARMOR,
@@ -100,15 +119,16 @@ const ITEM_KIND := {
 }
 # cibo: quanto sazia (vedi eat) e in quanti giorni marcisce a terra fuori (vedi spoil); in magazzino ci mette il doppio.
 # Il crudo sazia meno e può intossicare (vedi poison_chance), i pasti no e danno un bonus (vedi Cond)
-const FOOD := {Res.VEG: 35.0, Res.TURNIP: 35.0, Res.CABBAGE: 35.0, Res.FISH: 30.0, Res.MEAT: 40.0, Res.MEAL: 100.0, Res.FINE_MEAL: 100.0,
+const FOOD := {Res.VEG: 35.0, Res.TURNIP: 35.0, Res.CABBAGE: 35.0, Res.BEANS: 40.0, Res.FISH: 30.0, Res.MEAT: 40.0, Res.MEAL: 100.0, Res.FINE_MEAL: 100.0,
 	Res.SMOKED_FISH: 30.0, Res.SMOKED_MEAT: 40.0}
 const SHELF_LIFE := {Res.VEG: 3.0, Res.FISH: 1.5, Res.MEAT: 2.0, Res.MEAL: 3.0, Res.FINE_MEAL: 3.0,
-	Res.SMOKED_FISH: 6.0, Res.SMOKED_MEAT: 8.0, Res.TURNIP: 10.0, Res.CABBAGE: 14.0}  # affumicati: quattro volte il fresco
+	Res.SMOKED_FISH: 6.0, Res.SMOKED_MEAT: 8.0, Res.TURNIP: 10.0, Res.CABBAGE: 14.0, Res.BEANS: 60.0}  # affumicati: quattro volte il fresco
 const SPOIL_STORED := 0.5   # in magazzino il cibo marcisce a metà velocità
 const SPOIL_PANTRY := 1.0 / 3  # in dispensa a un terzo: dura il triplo che fuori
 # probabilità di intossicarsi mangiando crudo: [appena preso, quasi marcio], in mezzo in proporzione
 const POISON := {Res.VEG: [0.05, 0.4], Res.FISH: [0.1, 0.5], Res.MEAT: [0.15, 0.6], Res.SMOKED_FISH: [0.05, 0.5],
-	Res.SMOKED_MEAT: [0.05, 0.6], Res.TURNIP: [0.02, 0.3], Res.CABBAGE: [0.02, 0.3]}
+	Res.SMOKED_MEAT: [0.05, 0.6], Res.TURNIP: [0.02, 0.3], Res.CABBAGE: [0.02, 0.3],
+	Res.BEANS: [0.01, 0.15]}
 const FRESH_WORDS := [[0.5, "Fresh"], [0.2, "Stale"], [0.0, "Almost rotten"]]  # sopra quale parte della durata, nel suggerimento
 # cucinare (vedi try_cook): 2 crudi dello stesso mucchio (vegetali, pesce o carne) -> 1 pasto al fuoco da campo di una
 # cucina, finché in giro ci sono meno pasti di quanti chiede il menu del fuoco (all'inizio MEALS_PER_COLONIST a testa)
@@ -544,7 +564,8 @@ const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today"
 	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
 	"fallen", "animals", "arrows", "next_animal", "next_pack", "guests", "next_guest", "ruins", "expeditions",
 	"chronicle", "chronicle_days", "board_pick", "study", "researched", "authority", "codified", "enacted", "revoked",
-	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "wear", "plastered", "burning",
+	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "sown", "plans", "soil", "soil_year_ago", "soil_known", "tired", "last_yield",
+	"harvests", "wear", "plastered", "burning",
 	"fire_noted", "storm_noted", "delivered"]
 const TOAST_TIME := 2000    # millisecondi: "Saved" in alto, poi sparisce (vedi show_toast)
 const AUTOSAVE_HOUR := 6    # all'alba, quando i coloni si alzano: il salvataggio di ogni giorno
@@ -621,7 +642,8 @@ const LOOK_TIME := 3.0            # secondi, in media, tra un'occhiata e l'altra
 const TREES := preload("res://art/trees.png")  # 16x32 ciascuno: la chioma sale nella casella sopra
 const PLANTS := preload("res://art/plants.png")  # 16x16: erbaccia, cespuglio, cespuglio con le bacche, lino, lino in fiore
 const CROPS := preload("res://art/crops.png")  # 16x16: terra lavorata, poi per Crop germoglio, pianta, matura (vedi draw_garden)
-enum Crop { TURNIP, CABBAGE }
+const FIELD_SIGN := preload("res://art/field_sign.png")  # il paletto col cartello di un campo (vedi field_signs)
+enum Crop { TURNIP, CABBAGE, BEANS }
 const BOULDERS := {  # massi: dimensione in caselle -> sprite, dal più grande (ordine usato in generate_map)
 	Vector2i(2, 2): preload("res://art/rock_2x2.png"),
 	Vector2i(2, 1): preload("res://art/rock_2x1.png"),
@@ -709,6 +731,7 @@ const ICONS := {
 	Res.VEG: preload("res://art/icon_veg.png"),
 	Res.TURNIP: preload("res://art/icon_turnip.png"),
 	Res.CABBAGE: preload("res://art/icon_cabbage.png"),
+	Res.BEANS: preload("res://art/icon_beans.png"),
 	Res.IRON: preload("res://art/icon_iron.png"),
 	Res.COAL: preload("res://art/icon_coal.png"),
 	Res.MEAL: preload("res://art/icon_meal.png"),
@@ -1031,7 +1054,7 @@ const TECHS := {
 	Tech.ICEHOUSE: {"branch": Branch.LAND, "tier": 2, "cost": 250, "needs": [Tech.COLD_STORE], "rooms": [RoomKind.ICEHOUSE],
 		"builds": [Build.ICE_PIT], "info": "The icehouse: stone walls, a pit of ice cut from the frozen water in winter. While the ice lasts, food barely spoils."},
 	Tech.GARDEN: {"branch": Branch.LAND, "tier": 1, "cost": 80, "orders": [Order.GARDEN],
-		"info": "The garden: mark plots on open grass. Colonists sow turnips, ripe in 60 days, and cabbages, in 90. They keep for long. Nothing grows in winter."},
+		"info": "The garden: mark plots on open grass. Colonists sow turnips (60 days), cabbages (90) and broad beans (100); each field follows its rotation. Nothing grows in winter."},
 	Tech.LOOM: {"branch": Branch.FIRE, "tier": 2, "cost": 200, "needs": [Tech.TAILORING], "builds": [Build.TAPESTRY],
 		"info": "Woven linen: tapestries for the walls, warmth and splendor."},
 	Tech.TILED_STOVE: {"branch": Branch.FIRE, "tier": 2, "cost": 300, "needs": [Tech.CHARCOAL, Tech.MASONRY], "builds": [Build.TILED_STOVE],
@@ -1284,6 +1307,17 @@ var harvest_marks := {}     # cella -> true: cespugli da cui raccogliere le bacc
 var fish_marks := {}        # cella d'acqua -> true: punti di pesca
 var ice_marks := {}         # cella d'acqua -> true: dove si taglia il ghiaccio, quando gela
 var garden := {}            # casella dell'orto -> `clock` della semina, o -1 se è da seminare (vedi CROP_DAYS)
+var sown := {}              # casella seminata -> Crop
+var plans := {}             # casella dell'orto -> [anno di partenza, [Sow, ...]]: il piano di rotazione (vedi sow_of)
+var soil := PackedByteArray()  # per casella, riga per riga: la fertilità 0-100 (vedi make_soil, soil_at)
+var soil_year_ago := PackedByteArray()  # la stessa all'ultimo Capodanno: l'Almanacco agrario dice se sale o scende
+var soil_known := {}        # casella -> true: un contadino bravo (SOIL_EYE) l'ha lavorata e ne sa la terra
+var tired := {}             # casella -> [Crop, anno, anni di fila]: l'ultimo raccolto (vedi tired_years)
+var last_yield := {}        # casella -> [anno, Crop, quanti]: l'ultimo raccolto, per il cartello del campo
+var harvests := {}          # anno -> {Crop: [quanti, raccolti]}: il bilancio dell'anno (vedi note_harvests)
+var field_signs: Array[Vector2i] = []  # il cartello di ogni campo, nella sua casella più in alto a sinistra (vedi update_fields)
+var field_popup := PanelContainer.new()  # il cartello di un campo aperto (vedi open_field)
+var editing_field := Vector2i.ZERO  # una casella del campo aperto
 var fish_spots := {}        # cella d'acqua -> `clock` da cui ci sono di nuovo pesci (se manca, ci sono)
 var animals: Array[Animal] = []
 var arrows: Array[Arrow] = []  # in volo, vedi shoot
@@ -1646,7 +1680,8 @@ func _ready() -> void:
 					and shown.hero == Hero.NONE:
 				open_gear_menu(slot))
 	$HUD/BoardPanel/Box/ChronicleButton.pressed.connect(open_chronicle)
-	for window in [room_popup, craft_popup, jobs_panel, resources_panel, sheet_panel, $HUD/BoardPanel, $HUD/ReportPanel, $HUD/ChroniclePanel,
+	build_field_popup()
+	for window in [room_popup, field_popup, craft_popup, jobs_panel, resources_panel, sheet_panel, $HUD/BoardPanel, $HUD/ReportPanel, $HUD/ChroniclePanel,
 			$HUD/KnowledgePanel, $HUD/LawsPanel, $HUD/WikiPanel]:  # X in alto a destra, si trascinano
 		window.get_node("Box/Head/Close").pressed.connect(window.hide)
 		window.gui_input.connect(drag_window.bind(window))
@@ -1829,6 +1864,9 @@ func restore(state: Dictionary) -> void:
 			items[res] = {}
 	wild.seed = state["wild"][0]
 	wild.state = state["wild"][1]  # dopo il seme, che lo azzera
+	if soil.size() != MAP_SIZE.x * MAP_SIZE.y:  # un salvataggio di prima della fertilità
+		make_soil()
+	update_fields()
 	rebuild_grid()
 	update_roofs()
 	update_stockpile()
@@ -2211,6 +2249,122 @@ func toggle_order(on: bool, which: Order) -> void:
 		order = which
 	elif order == which:
 		order = Order.NONE
+
+
+# Il cartello di un campo (vedi open_field), come gli altri popup: titolo e X; il piano di rotazione, una tendina per
+# anno da quest'anno (dalla seconda anche "—": finisce lì) e "Rotazione classica"; sotto quello che si sa del campo
+func build_field_popup() -> void:
+	field_popup.name = "FieldPopup"
+	field_popup.visible = false
+	field_popup.custom_minimum_size = Vector2(280, 0)
+	field_popup.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	field_popup.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	field_popup.grow_vertical = Control.GROW_DIRECTION_BOTH
+	var box := VBoxContainer.new()
+	box.name = "Box"
+	box.add_theme_constant_override("separation", 8)
+	field_popup.add_child(box)
+	var head := HBoxContainer.new()
+	head.name = "Head"
+	box.add_child(head)
+	var title := Label.new()
+	title.name = "Title"
+	title.text = "Field"
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	head.add_child(title)
+	var close: Button = $HUD/RoomPopup/Box/Head/Close.duplicate()
+	close.name = "Close"
+	head.add_child(close)
+	var size_label := Label.new()
+	size_label.name = "Size"
+	size_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(size_label)
+	var plan_title := Label.new()
+	plan_title.text = "Rotation, from this year:"
+	box.add_child(plan_title)
+	var row := HBoxContainer.new()
+	row.name = "Plan"
+	box.add_child(row)
+	for i in PLAN_YEARS:
+		var pick := OptionButton.new()
+		pick.focus_mode = Control.FOCUS_NONE
+		if i > 0:
+			pick.add_item("—", -1)
+		for sow in Sow.values():
+			pick.add_item(SOW_NAMES[sow], sow)
+		pick.item_selected.connect(func(_i): set_field_plan())
+		row.add_child(pick)
+	var classic := Button.new()
+	classic.name = "Classic"
+	classic.text = "Classic rotation"
+	classic.tooltip_text = "Cabbages, turnips, beans, fallow"
+	classic.focus_mode = Control.FOCUS_NONE
+	classic.pressed.connect(set_field_plan.bind(CLASSIC_PLAN))
+	box.add_child(classic)
+	for name in ["Years", "Last", "Soil"]:
+		var label := Label.new()
+		label.name = name
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.custom_minimum_size = Vector2(360, 0)  # andando a capo, senza una larghezza sarebbe una lettera per riga
+		box.add_child(label)
+	$HUD.add_child(field_popup)
+
+
+func open_field(cell: Vector2i) -> void:
+	editing_field = cell
+	refresh_field()
+	field_popup.show()
+	field_popup.reset_size()
+
+
+# Il campo aperto: quante caselle, il piano da quest'anno nelle tendine, quest'anno e il prossimo, l'ultimo raccolto
+# a casella, e la terra se la si conosce (vedi soil_words)
+func refresh_field() -> void:
+	var field := field_of(editing_field)
+	if field.is_empty():
+		field_popup.hide()
+		return
+	var box: Control = field_popup.get_node("Box")
+	var y := year_of(today)
+	var sign_cell: Vector2i = field.min()
+	box.get_node("Size").text = tr_n("%d plot", "%d plots", field.size()) % field.size()
+	var plan := plan_from(sign_cell, y)
+	for i in PLAN_YEARS:
+		var pick: OptionButton = box.get_node("Plan").get_child(i)
+		pick.select(pick.get_item_index(plan[i] if i < plan.size() else -1))
+	box.get_node("Years").text = tr("This year: %s. Next year: %s.") % [tr(SOW_NAMES[sow_of(sign_cell, y)]), tr(SOW_NAMES[sow_of(sign_cell, y + 1)])]
+	var latest := -1
+	for k in field:
+		latest = maxi(latest, last_yield.get(k, [-1])[0])
+	var last := field.filter(func(k): return last_yield.get(k, [-1])[0] == latest and latest >= 0).map(func(k): return last_yield[k])
+	if last.is_empty():
+		box.get_node("Last").text = tr("No harvest yet.")
+	else:
+		var crop: int = last[-1][1]
+		var same := last.filter(func(e): return e[1] == crop)
+		var avg := roundi(same.reduce(func(n, e): return n + e[2], 0) / float(same.size()))
+		box.get_node("Last").text = tr("Last harvest: %s, %d a plot.") % [tr(SOW_NAMES[crop + 1]).to_lower(), avg]
+	box.get_node("Soil").text = soil_words(field)
+	box.get_node("Soil").visible = box.get_node("Soil").text != ""
+
+
+# quello che si sa della terra del campo `field` (vedi le ricerche della terra); per ora niente
+func soil_words(_field: Array) -> String:
+	return ""
+
+
+# il piano del campo aperto: `preset`, o quello delle tendine fino al primo "—"; parte da quest'anno
+func set_field_plan(preset := []) -> void:
+	var list := preset.duplicate()
+	if list.is_empty():
+		for pick: OptionButton in field_popup.get_node("Box/Plan").get_children():
+			if pick.get_selected_id() < 0:
+				break
+			list.append(pick.get_selected_id())
+	for k in field_of(editing_field):
+		plans[k] = [year_of(today), list.duplicate()]
+	refresh_field()
 
 
 # cartello di una stanza: popup con nome, comfort, tipo, divieto e, secondo la categoria del tipo, proprietari
@@ -2896,6 +3050,7 @@ func generate_map() -> void:
 				spots.append(cell)
 		if not spots.is_empty():
 			drop(FOUND_WEAPONS.pick_random(), spots.pick_random(), 1)
+	make_soil()
 	gravel = rocks.duplicate()
 	bake_ground(noise)
 
@@ -3140,6 +3295,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 				Job.CHOP:
 					trees.erase(c.target)
 					chop_marks.erase(c.target)
+					add_soil(c.target, SOIL_HUMUS)  # l'humus del bosco
 				Job.MINE:
 					for cell in cells:
 						rocks.erase(cell)
@@ -3159,18 +3315,21 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			c.work_left -= delta
 			if c.work_left > 0:
 				return
-			var sown: float = garden.get(c.target, -1.0)
 			var crop := crop_of(c.target)
-			if sown >= 0 and ripe(c.target):
+			if ripe(c.target):
 				var here := cell_of(c.pos)
-				produce(CROP_RES[crop], here, CROP_YIELD[crop])
-				garden[c.target] = -1.0
+				var amount := crop_yield(c.target, crop)
+				produce(CROP_RES[crop], here, amount)
+				harvested(c.target, crop, amount)
+				learn_soil(c, c.target)
 				c.xp[Skill.GATHERING] += 1
 				end_job(c)
 				try_haul(c, CROP_RES[crop], [here])  # porta subito via il raccolto
 				return
-			if garden.has(c.target) and sown < 0 and sowing_season(crop):
+			if garden.get(c.target, 0.0) < 0 and crop >= 0 and sowing_season(crop):
 				garden[c.target] = clock
+				sown[c.target] = crop
+				learn_soil(c, c.target)
 				c.xp[Skill.GATHERING] += 1
 			end_job(c)
 		Job.UPROOT:
@@ -3738,12 +3897,98 @@ func ice_space() -> int:
 # caselle dell'orto dove c'è da fare: mature da raccogliere, o vuote da seminare se si è in tempo (sowing_season)
 func farm_ready() -> Array:
 	var sow := Crop.values().map(sowing_season)
-	return garden.keys().filter(func(k): return (garden[k] < 0 and sow[crop_of(k)]) or (garden[k] >= 0 and ripe(k)))
+	return garden.keys().filter(func(k): return (garden[k] < 0 and crop_of(k) >= 0 and sow[crop_of(k)]) or ripe(k))
 
 
 # quello che cresce in `cell` è maturo
 func ripe(cell: Vector2i) -> bool:
-	return garden[cell] >= 0 and clock - garden[cell] >= CROP_DAYS[crop_of(cell)]
+	return garden.get(cell, -1.0) >= 0 and crop_of(cell) >= 0 and clock - garden[cell] >= CROP_DAYS[crop_of(cell)]
+
+
+# Raccolto `amount` di `crop` in `cell`: la terra ne paga il prezzo (CROP_SOIL); si segnano gli anni di fila con la
+# stessa coltura, l'ultimo raccolto per il cartello e il bilancio dell'anno; la casella torna da seminare
+func harvested(cell: Vector2i, crop: Crop, amount: int) -> void:
+	var y := year_of(today)
+	tired[cell] = [crop, y, tired_years(cell, crop)]
+	add_soil(cell, CROP_SOIL[crop])
+	last_yield[cell] = [y, crop, amount]
+	var book: Dictionary = harvests.get(y, {})
+	var sum: Array = book.get(crop, [0, 0])
+	book[crop] = [sum[0] + amount, sum[1] + 1]
+	harvests[y] = book
+	garden[cell] = -1.0
+	sown.erase(cell)
+
+
+# quanti anni di fila sarebbero con `crop` in `cell`, raccogliendolo quest'anno (vedi TIRED)
+func tired_years(cell: Vector2i, crop: Crop) -> int:
+	var rec: Array = tired.get(cell, [-1, -10, 0])
+	if rec[0] != crop:
+		return 1
+	var y := year_of(today)
+	return rec[2] if rec[1] == y else (rec[2] + 1 if rec[1] == y - 1 else 1)
+
+
+# quanti ne dà `crop` in `cell`: la base per 0,4 + fertilità/100, meno la terra stanca; almeno uno
+func crop_yield(cell: Vector2i, crop: Crop) -> int:
+	var f: float = (0.4 + soil_at(cell) / 100.0) * TIRED[mini(tired_years(cell, crop), TIRED.size()) - 1]
+	return maxi(1, roundi(CROP_YIELD[crop] * f))
+
+
+# chi è bravo a raccogliere (SOIL_EYE) lavorando una casella ne riconosce la terra
+func learn_soil(c: Colonist, cell: Vector2i) -> void:
+	if c.skills[Skill.GATHERING] >= SOIL_EYE:
+		soil_known[cell] = true
+
+
+# Fertilità di partenza di ogni casella: il rumore della mappa tra SOIL_RANGE, più l'acqua vicina, meno la roccia
+func make_soil() -> void:
+	var noise := FastNoiseLite.new()
+	noise.seed = map_seed + 5
+	noise.frequency = 0.06
+	var wet := {}
+	for w in water:
+		for k in cells_in(Rect2i(w - Vector2i(3, 3), Vector2i(7, 7))):
+			wet[k] = true
+	soil.resize(MAP_SIZE.x * MAP_SIZE.y)
+	for y in MAP_SIZE.y:
+		for x in MAP_SIZE.x:
+			var cell := Vector2i(x, y)
+			var f := lerpf(SOIL_RANGE[0], SOIL_RANGE[1], clampf(0.5 + noise.get_noise_2d(x, y), 0.0, 1.0))
+			if wet.has(cell):
+				f += SOIL_WATER
+			if cells_in(Rect2i(cell - Vector2i.ONE, Vector2i(3, 3))).any(func(k): return rocks.has(k) and k != cell):
+				f += SOIL_ROCK
+			soil[y * MAP_SIZE.x + x] = clampi(roundi(f), 0, 100)
+	soil_year_ago = soil.duplicate()
+
+
+func soil_at(cell: Vector2i) -> int:
+	return soil[cell.y * MAP_SIZE.x + cell.x]
+
+
+func add_soil(cell: Vector2i, amount: int) -> void:
+	var i := cell.y * MAP_SIZE.x + cell.x
+	soil[i] = clampi(soil[i] + amount, 0, 100)
+
+
+# l'anno del giorno `day`, da 0
+@warning_ignore("integer_division")
+func year_of(day: int) -> int:
+	return day / YEAR_DAYS
+
+
+# la coltura del piano di `cell` nell'anno `y` (vedi plans); senza piano, miste
+func sow_of(cell: Vector2i, y: int) -> Sow:
+	var plan: Array = plans.get(cell, [y, [Sow.MIXED]])
+	return plan[1][posmod(y - plan[0], plan[1].size())]
+
+
+# il piano di `cell` a partire dall'anno `y`
+func plan_from(cell: Vector2i, y: int) -> Array:
+	var plan: Array = plans.get(cell, [y, [Sow.MIXED]])
+	var at := posmod(y - plan[0], plan[1].size())
+	return plan[1].slice(at) + plan[1].slice(0, at)
 
 
 # si semina `crop` se la terra è tiepida (SOW_TEMP) e se matura prima dell'inverno: fuori dall'inverno, e almeno
@@ -3759,9 +4004,54 @@ func can_plant(cell: Vector2i) -> bool:
 	return not garden.has(cell) and can_build(cell, Build.WALL) and ground_of(cell) == Ground.GRASS and not roofed.has(cell)
 
 
-# rape e cavoli a file alterne
-func crop_of(cell: Vector2i) -> Crop:
-	return Crop.TURNIP if posmod(cell.y, 2) == 0 else Crop.CABBAGE
+# quello che cresce in `cell`, o che ci si semina quest'anno secondo il piano; -1 a maggese
+func crop_of(cell: Vector2i) -> int:
+	if sown.has(cell):
+		return sown[cell]
+	match sow_of(cell, year_of(today)):
+		Sow.MIXED:  # rape e cavoli a file alterne
+			return Crop.TURNIP if posmod(cell.y, 2) == 0 else Crop.CABBAGE
+		Sow.TURNIP:
+			return Crop.TURNIP
+		Sow.CABBAGE:
+			return Crop.CABBAGE
+		Sow.BEANS:
+			return Crop.BEANS
+	return -1
+
+
+# I campi: le caselle d'orto che si toccano. Il cartello sta nella più in alto a sinistra; le caselle senza piano
+# prendono quello del loro campo
+func update_fields() -> void:
+	field_signs.clear()
+	var seen := {}
+	for cell in garden:
+		if seen.has(cell):
+			continue
+		var field := field_of(cell)
+		for k in field:
+			seen[k] = true
+		field_signs.append(field.min())
+		var planned := field.filter(func(k): return plans.has(k))
+		if not planned.is_empty():
+			var plan: Array = plans[planned.min()]
+			for k in field:
+				if not plans.has(k):
+					plans[k] = plan.duplicate(true)
+
+
+# le caselle del campo di `cell`
+func field_of(cell: Vector2i) -> Array:
+	var out := {}
+	var todo := [cell]
+	while not todo.is_empty():
+		var k: Vector2i = todo.pop_back()
+		if out.has(k) or not garden.has(k):
+			continue
+		out[k] = true
+		for side in SIDES:
+			todo.append(k + side)
+	return out.keys()
 
 
 # acqua segnata dove tagliare il ghiaccio: solo se è gelata e se nelle fosse c'è posto
@@ -5778,11 +6068,34 @@ func holiday() -> bool:
 		or (enacted.has(Law.HARVEST_FEAST) and feast(day))
 
 
+# Alla Festa del focolare, nella cronaca, i raccolti dell'anno a casella per coltura, con quelli dell'anno prima
+func note_harvests() -> void:
+	var y := year_of(today)
+	var book: Dictionary = harvests.get(y, {})
+	if book.is_empty():
+		return
+	var before: Dictionary = harvests.get(y - 1, {})
+	var parts := PackedStringArray()
+	for crop in Crop.values():
+		if book.has(crop):
+			var part: String = tr("%s %d a plot") % [tr(SOW_NAMES[crop + 1]).to_lower(), roundi(float(book[crop][0]) / book[crop][1])]
+			if before.has(crop):
+				part += tr(" (last year %d)") % roundi(float(before[crop][0]) / before[crop][1])
+			parts.append(part)
+	note(tr("%s: the harvest of the year: %s.") % [date(today), ", ".join(parts)])
+
+
 # All'alba di ogni giorno (a mezzanotte): la tassa di soggiorno di chi aspetta alla locanda, una moneta lì dov'è;
 # chi è scontento toglie autorità. D'inverno niente raccolti: i cespugli perdono bacche e fiori di lino e li rifanno
 # BERRY_REGROW giorni dopo Capodanno, nell'orto il gelo si prende quello che c'era. Finito un giorno di festa del calendario: la felicità e l'autorità della festa del
 # raccolto; col granaio aperto un pasto a tutti, un pezzo del granaio a testa finché ce n'è
 func new_day() -> void:
+	if posmod(today, YEAR_DAYS) == 0 and today > 0:  # Capodanno: la terra dell'orto si riposa, di più dopo il maggese
+		for cell in garden:
+			add_soil(cell, SOIL_WINTER + (SOIL_FALLOW if sow_of(cell, year_of(today) - 1) == Sow.FALLOW else 0))
+		soil_year_ago = soil.duplicate()
+	if feast(today) and season(today) == WINTER - 1:  # la Festa del focolare: il bilancio dei raccolti dell'anno
+		note_harvests()
 	if season(today) == WINTER:
 		var spring: float = today - posmod(today, YEAR_DAYS) + YEAR_DAYS + BERRY_REGROW
 		for cell in bushes:
@@ -5790,6 +6103,7 @@ func new_day() -> void:
 		var frozen := garden.keys().filter(func(k): return garden[k] >= 0)
 		for cell in frozen:  # il gelo si prende quello che è rimasto nei campi
 			garden[cell] = -1.0
+			sown.erase(cell)
 		if not frozen.is_empty():
 			note(tr_n("%s: the frost took %d plot of the garden.", "%s: the frost took %d plots of the garden.", frozen.size())
 				% [date(today), frozen.size()])
@@ -6712,6 +7026,7 @@ func mark(rect: Rect2i) -> void:
 			for cell in cells_in(rect):
 				if can_plant(cell):
 					garden[cell] = -1.0
+			update_fields()
 		Order.HUNT:  # una casella di margine: si muovono
 			for a in animals:
 				if rect.grow(1).has_point(cell_of(a.pos)):
@@ -6734,7 +7049,10 @@ func mark(rect: Rect2i) -> void:
 		Order.DEMOLISH:  # subito, senza recuperare il materiale; anche l'orto, con quello che ci cresce
 			for cell in garden.keys().filter(func(k): return rect.has_point(k)):
 				garden.erase(cell)
+				sown.erase(cell)
+				plans.erase(cell)
 				drop_job(cell, Job.FARM)
+			update_fields()
 			for cell in built.keys().filter(func(k): return rect.has_point(k)):
 				if built[cell][0] in BARRIERS:
 					astar.set_point_solid(cell, false)
@@ -7231,6 +7549,8 @@ func _unhandled_input(event: InputEvent) -> void:
 						tool.button_pressed = true
 					elif not signed.is_empty():
 						open_room(signed[0])
+					elif garden.has(cell):
+						open_field(cell)
 					elif pieces_at(furniture, cell).any(func(o): return STATION_ROOM.has(furniture[o][0])):
 						open_craft(pieces_at(furniture, cell)[0])
 					else:
@@ -7344,7 +7664,8 @@ func draw_garden() -> void:
 		if garden[cell] >= 0:
 			var grown: float = (clock - garden[cell]) / CROP_DAYS[crop_of(cell)]
 			var stage := 2 if grown >= 1.0 else (1 if grown >= 1.0 / 3.0 else 0)
-			flat.draw_texture_rect_region(CROPS, r, tile_rect(1 + crop_of(cell) * 3 + stage, 0))
+			var poor := clampf((50.0 - soil_at(cell)) / 50.0, 0.0, 1.0)  # su terra povera, smorte
+			flat.draw_texture_rect_region(CROPS, r, tile_rect(1 + crop_of(cell) * 3 + stage, 0), Color.WHITE.lerp(SOIL_PALE, poor))
 
 
 # L'erba dei prati vicini sborda sul pavimento in `cell`, così non finisce di netto: lati, e angoli se nessun lato
@@ -7431,6 +7752,8 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 			draw_texture_rect_region(banner_tex, r[0], Rect2(r[1].position.x / 32 * TILE, 0, TILE, TILE))
 	for room in rooms:  # cartelli: si cliccano per nome e tipo della stanza
 		draw_texture(SIGN, Vector2(room.sign) * TILE)
+	for cell in field_signs:  # e quelli dei campi: coltura e rotazione
+		draw_texture(FIELD_SIGN, Vector2(cell) * TILE + Vector2(0, -6))
 
 	# alberi, coloni e tetti dall'alto in basso: chi sta più giù copre chi gli sta dietro
 	# ponytail: si affida a `trees` già in ordine di riga; se gli alberi ricrescono, ordinarli o passare a nodi con y_sort

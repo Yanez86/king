@@ -299,7 +299,7 @@ The Heat lens (N) tints rooms by temperature: red warm, yellow cool without a ma
 • Everyone fights a fire first: they fetch a bucket at the water and throw it, 2 hours off the fire each."""],
 
 	["Food & Cooking", """[color=#e8c34a]Eating[/color]
-• Hungry colonists (under 30 food; the glutton at 50) take the nearest food: fine meals first, then meals, raw food only when there are none (vegetables, fish, meat, smoked, then turnips and cabbages, which keep longer). In free time they also snack under 60.
+• Hungry colonists (under 30 food; the glutton at 50) take the nearest food: fine meals first, then meals, raw food only when there are none (vegetables, fish, meat, smoked, then turnips, cabbages and beans, which keep longer). In free time they also snack under 60.
 • If a chair beside a table is free within 20 tiles, they carry the food there and eat sitting: +5 happiness (At table).
 
 [color=#e8c34a]Food[/color]
@@ -310,6 +310,7 @@ The Heat lens (N) tints rooms by temperature: red warm, yellow cool without a ma
 [cell][img=center]res://art/icon_meat.png[/img] Meat[/cell][cell]40[/cell][cell]2 days[/cell][cell]15–60%[/cell]
 [cell][img=center]res://art/icon_turnip.png[/img] Turnip[/cell][cell]35[/cell][cell]10 days[/cell][cell]2–30%[/cell]
 [cell][img=center]res://art/icon_cabbage.png[/img] Cabbage[/cell][cell]35[/cell][cell]14 days[/cell][cell]2–30%[/cell]
+[cell][img=center]res://art/icon_beans.png[/img] Beans[/cell][cell]40[/cell][cell]60 days[/cell][cell]1–15%[/cell]
 [cell][img=center]res://art/icon_meal.png[/img] Meal[/cell][cell]100[/cell][cell]3 days[/cell][cell]–[/cell]
 [cell][img=center]res://art/icon_fine_meal.png[/img] Fine meal[/cell][cell]100[/cell][cell]3 days[/cell][cell]–[/cell]
 [/table]
@@ -340,8 +341,18 @@ Bushes and flax. A ripe bush has 5 berries (vegetables), flowering flax 5 flax, 
 
 [color=#e8c34a]Garden (P)[/color] [img=center]res://art/icon_veg.png[/img]
 • After the Garden research. Drag over open grass, outside rooms, to make garden plots: weeds and bushes have to go first, and nothing can be built on a plot. Turnips and cabbages grow in alternate rows.
-• A colonist sows a plot in 4 s (Gathering, like every job time). Turnips ripen in 60 days, 30 to a plot; cabbages in 90, 45 to a plot. Then the plot is sown again.
-• Turnips and cabbages keep far longer than berries (see Food), so a harvest can last into the winter.
+• A colonist sows a plot in 4 s (Gathering, like every job time). Turnips ripen in 60 days, cabbages in 90, broad beans in 100; then the plot is sown again. On average soil a plot gives 30 turnips, 45 cabbages or 20 beans.
+• Turnips and cabbages keep far longer than berries, dried beans longest of all: the winter food (see Food).
+
+[color=#e8c34a]Fields and rotation[/color]
+• Garden plots that touch make a field, with a sign on its top left plot. Click the field: what it grows this year and the rotation plan, one to four years, from this year on (mixed, turnips, cabbages, beans, fallow; a "—" ends the plan). Classic rotation is cabbages, turnips, beans, fallow. At New Year every field moves to the next year of its plan. What is already sown finishes growing; new plots next to a field take its plan.
+• Mixed: turnips and cabbages in alternate rows, every year.
+
+[color=#e8c34a]The soil[/color]
+• Every tile has its own fertility, which you can't see. It is richer near water and poorer beside rock; felling a tree leaves rich humus. The richer the soil, the bigger the harvest.
+• Every harvest tires the soil: cabbages most, turnips less, while beans give it back. At New Year the garden rests, and a field left fallow for a year recovers a lot.
+• The same crop on the same plot the next year gives a quarter less, the third year in a row half: rotate.
+• Hints: on poor soil the plants grow pale and yellowish; the sign says the last harvest a plot; at the Hearth Feast the chronicle sums up the year's harvest, with the year before.
 • Sowing starts when the ground is mild (a daily average of 6 °C, from late Thaw) and only if the crop ripens before winter: cabbages are not sown in the last 90 days before winter, turnips in the last 60. On the first day of winter the frost takes whatever is still in the fields.
 • Destroy (X) removes plots.
 
@@ -519,7 +530,7 @@ Books come only from ruins (see Ruins & Expeditions). There is no tier IV resear
 What you haven't researched has no build button, and its recipes don't show at the stations. From the start you have wooden walls and floors, doors, paths, beds, tables, chairs, campfires, banners, desks, thrones, relics and meals.
 
 [color=#e8c34a]The tree[/color]
-• [color=#d9c48a]Garden[/color] (Land I, 80): garden plots; turnips in 60 days, cabbages in 90.
+• [color=#d9c48a]Garden[/color] (Land I, 80): garden plots and fields with their rotation; turnips in 60 days, cabbages in 90, broad beans in 100.
 • [color=#d9c48a]Hunting[/color] (Land I, 50): spinning wheel and carpenter bench; bowstrings and bows; hides on the walls and door curtains.
 • [color=#d9c48a]Icehouse[/color] (Land II, 250 and a notebook, after Cold store): the icehouse, the ice pit, cutting ice.
 • [color=#d9c48a]Forge[/color] (Fire I, 60): furnace and anvil; ingots, pickaxe, axe, sickle.

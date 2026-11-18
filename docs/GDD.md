@@ -364,7 +364,7 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
     |---|---|---|---|---|
     | Rape | 60 giorni | 30 | −8 | 10 giorni |
     | Cavoli | 90 giorni | 45 | −15 | 14 giorni |
-    | Fave (secche) | 100 giorni | 20 | +10 | 60 giorni: il cibo dell'inverno |
+    | Fave (secche) | 100 giorni | 20 | +10 | 60 giorni: il cibo dell'inverno; saziano 40 |
     | Maggese | — | — | +25 l'anno dopo | — |
 
   - **Campi**: le caselle d'orto che si toccano fanno un campo, col suo cartello (un paletto nella casella più in alto a
@@ -384,6 +384,8 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
     i numeri esatti, sulla lente e sul cartello, e la previsione del prossimo raccolto.
   - **Ordine di lavoro**: (1) fertilità, resa, campi col cartello, indizi, bilancio; (2) fave, piano di rotazione,
     maggese, terra stanca; (3) le tre ricerche, la lente, il contadino che impara.
+  - **Stato**: fatte le fasi 1 e 2 (test in `tests/test_food.gd`). Il contadino che impara si segna già (le caselle
+    lavorate da chi ha almeno 5 in Raccogliere), si vedrà con la fase 3.
   - Poi: concimi naturali (cenere dalla carbonaia, compost dal cibo marcio e dalle erbacce, sovescio delle fave,
     letame con la stalla).
 

@@ -385,8 +385,9 @@ func _initialize() -> void:
 		var b: Button = main.get_node("HUD/Tools/Row/" + name)
 		check(b.icon != null and b.button_group == main.order_group, "tasto %s nel gruppo delle azioni" % name)
 
-	# orto: col tasto Garden si segna il prato libero; il contadino semina, coi tempi veri (CROP_DAYS) raccoglie CROP_YIELD
-	# rape o cavoli, che durano a lungo, e risemina. Si semina con la terra tiepida e solo se si fa in tempo prima
+	# orto: col tasto Garden si segna il prato libero; le caselle che si toccano fanno un campo col suo cartello. Il
+	# contadino semina e, coi tempi veri (CROP_DAYS), raccoglie secondo la fertilità della casella; la coltura dell'anno
+	# la dice il piano di rotazione del campo. Si semina con la terra tiepida e solo se si fa in tempo prima
 	# dell'inverno; il primo giorno d'inverno il gelo si prende quello che è nei campi
 	var garden_button: Button = main.get_node("HUD/Tools/Row/Garden")
 	check(garden_button.visible and garden_button.button_group == main.order_group, "tasto Garden nel gruppo delle azioni")
@@ -395,26 +396,48 @@ func _initialize() -> void:
 	check(not garden_button.visible, "senza la ricerca Orto niente tasto")
 	main.researched[main.Tech.GARDEN] = true
 	main.refresh_unlocks()
+	# la fertilità: dalla mappa, più ricca vicino all'acqua che accanto alla roccia
+	var wet_soil := []
+	var rocky_soil := []
+	for k in main.cells_in(Rect2i(Vector2i.ZERO, main.MAP_SIZE)):
+		if main.water.has(k) or main.rocks.has(k):
+			continue
+		if main.cells_in(Rect2i(k - Vector2i.ONE, Vector2i(3, 3))).any(func(n): return main.rocks.has(n)):
+			rocky_soil.append(main.soil_at(k))
+		elif main.cells_in(Rect2i(k - Vector2i(2, 2), Vector2i(5, 5))).any(func(n): return main.water.has(n)):
+			wet_soil.append(main.soil_at(k))
+	var mean := func(list: Array) -> float: return list.reduce(func(a, b): return a + b, 0) / float(list.size())
+	check(main.soil.size() == main.MAP_SIZE.x * main.MAP_SIZE.y and Array(main.soil).max() <= 100, "una fertilità per casella")
+	check(mean.call(wet_soil) > mean.call(rocky_soil) + 15, "vicino all'acqua la terra è più ricca che accanto alla roccia")
 	var year_start: int = int(main.clock) - posmod(int(main.clock), main.YEAR_DAYS) + main.YEAR_DAYS
 	main.clock = year_start + 5.5  # primavera, a mezzogiorno
 	main.tick(0.0)
+	var year: int = main.year_of(main.today)
 	var plot := Vector2i(-1, -1)
 	for k in main.cells_in(area):
-		if main.can_plant(k) and main.can_plant(k + Vector2i.RIGHT) and main.can_plant(k + Vector2i.DOWN):
+		if [0, 1, 2, 3].all(func(dx): return main.can_plant(k + Vector2i(dx, 0))):
 			plot = k
 			break
 	check(plot.x >= 0, "c'è prato libero per l'orto")
 	var field := Rect2i(plot, Vector2i(2, 1))
 	main.order = main.Order.GARDEN
 	main.mark(field)
+	main.mark(Rect2i(plot + Vector2i(3, 0), Vector2i.ONE))  # un altro campo, staccato
 	main.order = main.Order.NONE
-	check(main.garden.size() == 2 and main.garden.values().all(func(t): return t < 0), "due caselle d'orto, da seminare")
+	check(main.garden.size() == 3 and main.garden.values().all(func(t): return t < 0), "tre caselle d'orto, da seminare")
+	check(main.field_signs.size() == 2 and plot in main.field_signs and main.field_of(plot).size() == 2, "due campi, ognuno col cartello")
 	check(not main.can_build(plot) and not main.can_plant(plot), "sull'orto non si costruisce")
-	check(main.crop_of(plot) != main.crop_of(plot + Vector2i.DOWN), "rape e cavoli a file alterne")
+	main.order = main.Order.DEMOLISH
+	main.mark(Rect2i(plot + Vector2i(3, 0), Vector2i.ONE))
+	main.order = main.Order.NONE
+	check(main.garden.size() == 2 and main.field_signs == [plot], "Destroy toglie l'orto")
+	check(main.crop_of(plot) == main.crop_of(plot + Vector2i.RIGHT) and main.crop_of(plot) != main.crop_of(plot + Vector2i.DOWN),
+		"senza piano miste: rape e cavoli a file alterne")
 	var crop: int = main.crop_of(plot)
 	var harvest: int = main.CROP_RES[crop]
-	check(main.CROP_DAYS == [60.0, 90.0] and main.SHELF_LIFE[main.Res.TURNIP] == 10.0 and main.SHELF_LIFE[main.Res.CABBAGE] == 14.0
-		and harvest in main.RAW_FOOD, "rape in 60 giorni, cavoli in 90; si conservano 10 e 14 giorni, si cucinano")
+	check(main.CROP_DAYS == [60.0, 90.0, 100.0] and main.SHELF_LIFE[main.Res.TURNIP] == 10.0 and main.SHELF_LIFE[main.Res.CABBAGE] == 14.0
+		and main.SHELF_LIFE[main.Res.BEANS] == 60.0 and [main.Res.TURNIP, main.Res.CABBAGE, main.Res.BEANS].all(func(r): return r in main.RAW_FOOD),
+		"rape in 60 giorni, cavoli in 90, fave in 100; si conservano 10, 14 e 60 giorni, si cucinano")
 	main.atmosphere.climate = true  # all'inizio della primavera la terra è ancora fredda
 	check(not main.sowing_season(crop), "a inizio primavera è presto per seminare")
 	main.clock = year_start + 40.5
@@ -422,42 +445,110 @@ func _initialize() -> void:
 	check(main.sowing_season(crop) and main.atmosphere.mean_temperature() >= main.SOW_TEMP, "dal tardo Disgelo si semina")
 	main.atmosphere.climate = false
 	check(main.farm_ready().size() == 2, "in primavera si semina")
-	var farmer = main.colonists[0]
-	var gathering: int = farmer.xp[main.Skill.GATHERING]
+	for k in main.garden:
+		main.add_soil(k, 60 - main.soil_at(k))  # a 60 la resa di base
 	for c in main.colonists:
 		c.pos = main.center(plot + Vector2i(0, 1))
 	for i in 2000:
 		main.tick(0.05)
 		if main.garden.values().all(func(t): return t >= 0):
 			break
-	check(main.garden.values().all(func(t): return t >= 0 and main.clock - t < 1.0), "seminato")
+	check(main.garden.values().all(func(t): return t >= 0 and main.clock - t < 1.0) and main.sown.size() == 2, "seminato")
 	check(main.colonists.any(func(c): return c.xp[main.Skill.GATHERING] > 0) and main.farm_ready().is_empty(), "esperienza; poi si aspetta")
 	for k in main.garden:  # CROP_DAYS dopo: maturo
 		main.garden[k] = main.clock - main.CROP_DAYS[crop]
 	var crop_before: int = main.total(harvest)
 	for i in 4000:
 		main.tick(0.05)
-		if main.total(harvest) >= crop_before + 2 * main.CROP_YIELD[crop]:
+		if main.harvests.get(year, {}).get(crop, [0, 0])[1] == 2:
 			break
-	check(main.total(harvest) >= crop_before + 2 * main.CROP_YIELD[crop], "raccolti %d a casella" % main.CROP_YIELD[crop])
+	check(main.total(harvest) >= crop_before + 2 * main.CROP_YIELD[crop], "a fertilità 60, %d a casella" % main.CROP_YIELD[crop])
+	check(main.harvests[year][crop] == [2 * main.CROP_YIELD[crop], 2] and main.last_yield[plot] == [year, crop, main.CROP_YIELD[crop]],
+		"il bilancio dell'anno e l'ultimo raccolto")
+	check(main.soil_at(plot) == 60 + main.CROP_SOIL[crop] and main.tired[plot] == [crop, year, 1], "la terra paga il raccolto")
 	for i in 2000:  # e si risemina
 		main.tick(0.05)
 		if main.garden.values().all(func(t): return t >= 0):
 			break
 	check(main.garden.values().all(func(t): return t >= 0 and main.clock - t < 1.0), "e risemina")
-	var winter_starts: int = year_start + 1 + main.WINTER * main.SEASON_DAYS
-	main.clock = winter_starts - main.CROP_DAYS[crop] + 0.5  # non si fa più in tempo
+	# la resa: per 0,4 + fertilità/100; la stessa coltura l'anno dopo -25%, il terzo anno -50%
+	main.add_soil(plot, 100 - main.soil_at(plot))
+	check(main.crop_yield(plot, crop) == roundi(main.CROP_YIELD[crop] * 1.4), "a 100 il 40% in più")
+	main.add_soil(plot, 20 - main.soil_at(plot))
+	check(main.crop_yield(plot, crop) == roundi(main.CROP_YIELD[crop] * 0.6), "a 20 il 40% in meno")
+	main.add_soil(plot, 60 - main.soil_at(plot))
+	main.tired[plot] = [crop, year - 1, 1]
+	check(main.crop_yield(plot, crop) == roundi(main.CROP_YIELD[crop] * 0.75), "terra stanca: -25%")
+	main.tired[plot] = [crop, year - 1, 2]
+	check(main.crop_yield(plot, crop) == roundi(main.CROP_YIELD[crop] * 0.5), "il terzo anno -50%")
+	main.tired[plot] = [1 - crop, year - 1, 3]
+	check(main.crop_yield(plot, crop) == main.CROP_YIELD[crop], "cambiando coltura la terra non è stanca")
+	# il cartello: il piano di rotazione da quest'anno; la rotazione classica; a Capodanno si passa all'anno dopo
+	main.open_field(plot + Vector2i.RIGHT)
+	var box: Control = main.field_popup.get_node("Box")
+	check(main.field_popup.visible and box.get_node("Size").text == "2 plots" and box.get_node("Years").text == "This year: Mixed. Next year: Mixed.",
+		"il cartello del campo")
+	check(box.get_node("Last").text == "Last harvest: %s, %d a plot." % [main.SOW_NAMES[crop + 1].to_lower(), main.CROP_YIELD[crop]],
+		"col suo ultimo raccolto")
+	box.get_node("Classic").pressed.emit()
+	var S = main.Sow
+	check(main.plans[plot] == [year, main.CLASSIC_PLAN] and main.plans[plot + Vector2i.RIGHT] == [year, main.CLASSIC_PLAN],
+		"rotazione classica, per tutto il campo")
+	check(box.get_node("Years").text == "This year: Cabbages. Next year: Turnips." and box.get_node("Plan").get_child(3).get_selected_id() == S.FALLOW,
+		"quest'anno cavoli, poi rape, fave e maggese")
+	check(main.crop_of(plot) == crop, "quello che è già seminato finisce di crescere")
+	var pick: OptionButton = box.get_node("Plan").get_child(1)
+	pick.select(pick.get_item_index(-1))
+	pick.item_selected.emit(pick.selected)
+	check(main.plans[plot] == [year, [S.CABBAGE]] and box.get_node("Years").text == "This year: Cabbages. Next year: Cabbages.",
+		"il piano finisce al primo —")
+	main.field_popup.hide()
+	main.order = main.Order.GARDEN
+	main.mark(Rect2i(plot + Vector2i(2, 0), Vector2i.ONE))  # una casella accanto: prende il piano del campo
+	main.order = main.Order.NONE
+	check(main.plans.get(plot + Vector2i(2, 0)) == main.plans[plot] and main.field_signs == [plot], "le caselle nuove prendono il piano del campo")
+	for k in main.garden:  # niente in campo: il piano dice cosa si semina
+		main.garden[k] = -1.0
+		main.sown.erase(k)
+		main.plans[k] = [year, [S.BEANS, S.FALLOW]]
+	check(main.crop_of(plot) == main.Crop.BEANS, "fave")
+	main.garden[plot] = main.clock - main.CROP_DAYS[main.Crop.BEANS]
+	main.sown[plot] = main.Crop.BEANS
+	main.add_soil(plot, 50 - main.soil_at(plot))
+	var beans: int = main.crop_yield(plot, main.Crop.BEANS)
+	main.harvested(plot, main.Crop.BEANS, beans)
+	check(beans == roundi(main.CROP_YIELD[main.Crop.BEANS] * 0.9) and main.soil_at(plot) == 60, "le fave restituiscono fertilità")
+	# la Festa del focolare: il bilancio dei raccolti nella cronaca
+	main.clock = year_start + main.WINTER * main.SEASON_DAYS  # mezzanotte della festa che chiude l'autunno
 	main.tick(0.0)
-	main.garden[plot] = -1.0
-	check(not main.sowing_season(crop) and not main.farm_ready().has(plot), "troppo vicino all'inverno: non si semina")
+	check(main.feast(main.today) and Array(main.chronicle).any(func(line): return "harvest of the year" in line and "beans %d a plot" % beans in line),
+		"il bilancio dell'anno nella cronaca")
+	var winter_starts: int = year_start + 1 + main.WINTER * main.SEASON_DAYS
+	main.clock = winter_starts - main.CROP_DAYS[main.Crop.TURNIP] + 0.5  # non si fa più in tempo
+	main.tick(0.0)
+	main.plans[plot] = [year, [S.TURNIP]]
+	check(not main.sowing_season(main.Crop.TURNIP) and not main.farm_ready().has(plot), "troppo vicino all'inverno: non si semina")
+	main.garden[plot] = main.clock
+	main.sown[plot] = main.Crop.TURNIP
 	main.clock = winter_starts  # mezzanotte del primo giorno d'inverno
 	main.tick(0.0)
-	check(main.garden.values().all(func(t): return t < 0), "il gelo si prende quello che c'era")
+	check(main.garden.values().all(func(t): return t < 0) and main.sown.is_empty(), "il gelo si prende quello che c'era")
 	check(Array(main.chronicle).any(func(line): return "frost took 1 plot of" in line), "e la cronaca lo dice")
+	# Capodanno: la terra dell'orto si riposa, dopo il maggese di più; il piano passa all'anno dopo
+	main.plans[plot] = [year, [S.FALLOW, S.BEANS]]
+	main.plans[plot + Vector2i.RIGHT] = [year, [S.BEANS, S.FALLOW]]
+	main.add_soil(plot, 40 - main.soil_at(plot))
+	main.add_soil(plot + Vector2i.RIGHT, 40 - main.soil_at(plot + Vector2i.RIGHT))
+	main.clock = year_start + main.YEAR_DAYS + 0.25  # Capodanno dell'anno dopo
+	main.tick(0.0)
+	check(main.soil_at(plot) == 40 + main.SOIL_WINTER + main.SOIL_FALLOW and main.soil_at(plot + Vector2i.RIGHT) == 40 + main.SOIL_WINTER,
+		"a Capodanno la terra si riposa, dopo il maggese di più")
+	check(main.crop_of(plot) == main.Crop.BEANS and main.crop_of(plot + Vector2i.RIGHT) == -1, "e il piano passa all'anno dopo")
+	check(main.soil_year_ago == main.soil, "la fertilità di Capodanno, per l'anno dopo")
 	main.order = main.Order.DEMOLISH
-	main.mark(field)
+	main.mark(Rect2i(plot, Vector2i(3, 1)))
 	main.order = main.Order.NONE
-	check(main.garden.is_empty() and main.can_plant(plot), "Destroy toglie l'orto")
+	check(main.garden.is_empty() and main.field_signs.is_empty() and main.plans.is_empty(), "Destroy toglie l'orto")
 
 	# inverno: i cespugli perdono le bacche e le rifanno dopo Capodanno; al fresco il cibo marcisce più piano, sotto lo
 	# zero per niente (gela)
