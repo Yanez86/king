@@ -123,9 +123,11 @@ func _initialize() -> void:
 	check(r.door == entrance and r.sign in [entrance + across, entrance - across] and main.built[r.sign][0] == main.Build.WALL,
 		"cartello sul muro accanto alla porta")
 	check(r.cells.size() == 6 and r.cells.has(room.position + Vector2i(2, 1)), "dentro ci sono le 3x2 caselle")
-	check(main.roofed.size() == room.size.x * room.size.y and main.roofed.has(room.position)
-		and main.roofed[entrance] == ((room.position.y + room.end.y) * main.TILE - main.WALL_FRONT) / 2,
+	check(main.roofed.size() == room.size.x * room.size.y and main.roofed.has(room.position) and main.roofs.size() == 1
+		and main.roofed[entrance].rect == room and not main.roofed[entrance].vertical
+		and main.ridge_of(main.roofed[entrance]) == ((room.position.y + room.end.y) * main.TILE - main.WALL_FRONT) / 2,
 		"tetto su stanza, muri e porta; colmo a metà tra cima e gronda (che lascia la facciata)")
+	check(main.roofed[entrance].material == W, "muri di legno: tetto di scandole")
 	check(r.name == "Structure1" and r.kind == main.RoomKind.NONE, "nome e tipo di default")
 
 	# fase 3: dal cartello diventa un magazzino, e i coloni ci portano la legna

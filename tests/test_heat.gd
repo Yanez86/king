@@ -36,6 +36,18 @@ func _initialize() -> void:
 	var bedroom = main.room_at(Vector2i(19, 12))
 	check(kitchen != null and bedroom != null and kitchen != bedroom, "due stanze accanto")
 	check(main.insulation(kitchen) == main.WALL_INSULATION[R.WOOD], "muri di legno: isolano a metà")
+
+	# un tetto per stanza: il muro in comune sotto tutti e due, scandole sui muri di legno, il colmo sul lato lungo
+	var plain := func(r): return r.rect.has_point(Vector2i(16, 12)) and not r.vertical and r.material == R.WOOD
+	check(main.roofs.size() == 2 and main.roofs.all(plain), "due tetti di scandole, col colmo da est a ovest, che coprono il muro in comune")
+	var l_shape := {}
+	for k in main.cells_in(Rect2i(0, 0, 5, 2)) + main.cells_in(Rect2i(0, 2, 2, 4)):
+		l_shape[k] = true
+	check(main.rectangles(l_shape) == [Rect2i(0, 0, 5, 2), Rect2i(0, 2, 2, 4)], "una stanza a L: due rettangoli, due colmi")
+	var narrow = main.Roof.new()
+	narrow.rect = Rect2i(0, 0, 5, 9)
+	narrow.vertical = true
+	check(main.ridge_of(narrow) == 2.5 * main.TILE, "più alta che larga: il colmo da nord a sud, a metà")
 	var cold: float = main.temperature_at(Vector2i(12, 12))
 	check(is_equal_approx(cold, lerpf(out, main.ROOM_TEMP, 0.5)), "sotto il tetto a metà strada verso ROOM_TEMP")
 
@@ -59,6 +71,8 @@ func _initialize() -> void:
 	check(is_equal_approx(main.temperature_at(Vector2i(19, 12)), cold + main.HEAT[B.HEARTH] * main.THROUGH_WALL),
 		"e passa metà del calore alla stanza dietro il muro di legno")
 	check(main.heat_lines(bedroom).has("Hearth of %s: +6 °C" % kitchen.name), "il cartello della camera dice da dove viene il calore")
+	check(main.roof_snow(main.roofed[Vector2i(12, 12)]) < main.roof_snow(main.roofed[Vector2i(19, 12)]),
+		"sul tetto della stanza più calda la neve si scioglie prima")
 	main.open_room(bedroom)
 	check(main.get_node("HUD/RoomPopup/Box/Comfort").tooltip_text.contains("Hearth of"), "nel suggerimento del cartello")
 	main.room_popup.hide()
@@ -145,6 +159,8 @@ func _initialize() -> void:
 	check(is_equal_approx(main.insulation(bedroom), ((walls.size() - doors) * 0.7 + doors * 0.5) / walls.size()),
 		"di pietra isola di più: la media dei muri, la porta come il legno")
 	var stone: float = main.temperature_at(Vector2i(19, 12))
+	main.update_roofs()
+	check(main.roofed[Vector2i(19, 12)].material == R.STONE, "muri di pietra, più della porta: tetto di coppi")
 	check(stone > cold, "d'inverno la stanza di pietra è più calda di quella di legno")
 
 	# magazzino e dispensa vanno verso STORE_TEMP: d'estate li tiene freschi

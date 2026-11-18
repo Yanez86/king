@@ -553,10 +553,18 @@ const FURNITURE_SHEET := preload("res://art/furniture.png")
 const FURNITURE_NIGHT := preload("res://art/furniture_night.png")  # abat-jour e lampioni accesi
 const FURNITURE_GLOW := preload("res://art/furniture_glow.png")    # solo le luci accese, per `lights`
 const SIGN := preload("res://art/sign.png")  # sul muro accanto alla porta d'ingresso di una stanza finita
-const ROOF := preload("res://art/roof.png")  # 32x16: tegole, poi le stesse innevate (vedi draw_roofs)
+const ROOF := preload("res://art/roof.png")  # 32x64: coppi e scandole, col colmo nei due versi; innevati a destra (vedi draw_roofs)
 const CHIMNEYS := preload("res://art/chimneys.png")  # 32x16: comignolo di pietra, sfiatatoio di legno (vedi chimney_of)
 enum Chimney { NONE = -1, STONE, VENT }  # colonne di CHIMNEYS
 const OUTLINE := Color("1f1a24")             # contorno, come la "o" degli sprite
+const ROOF_TINT := 0.08      # differenza di luce, al massimo, tra un tetto e l'altro
+const ROOF_MELT := 10.0      # gradi di calore che passa il tetto e ci sciolgono tutta la neve (vedi roof_snow)
+const CHIMNEY_SNOW := 0.3    # attorno ai comignoli resta questa parte della neve
+const WET_ROOF := 0.25       # quanto scurisce il tetto bagnato (atmosphere.wet)
+const GABLE_MAX := 10.0      # pixel: altezza del timpano dei tetti col colmo da nord a sud
+const GABLE_COLORS := {Res.WOOD: Color("9a6b40"), Res.STONE: Color("9a99a6")}  # come le assi e la pietra dei muri
+const DRIP_COLOR := Color("a8c8e0")
+const ICE_COLOR := Color("e8f4ff")
 const DAY_LENGTH := 240.0   # secondi per giorno a velocità 1x
 # Calendario: l'anno si apre col Capodanno (NEW_YEAR), poi quattro stagioni di 3 mesi da MONTH_DAYS giorni, ognuna
 # chiusa da un giorno di festa fuori dai mesi (FEASTS): 1 + 4 × 91 = 365 giorni. Il giorno 0 di `clock` è il Capodanno
@@ -1113,6 +1121,15 @@ class Room:
 
 
 
+# Un tetto: un rettangolo di caselle sopra una stanza e i suoi muri (una stanza a L ne ha più d'uno, vedi rectangles)
+class Roof:
+	var rect := Rect2i()
+	var vertical := false     # colmo da nord a sud: il rettangolo è più alto che largo (vedi ridge_of)
+	var material := 0         # Res.WOOD scandole, Res.STONE coppi: la maggioranza dei muri della stanza (roof_material)
+	var tint := Color.WHITE   # una leggera differenza tra un tetto e l'altro
+	var room: Room
+
+
 var astar := AStarGrid2D.new()
 var rocks := {}             # cella -> true (non attraversabile)
 var boulders := {}          # cella in alto a sinistra -> dimensione del masso che copre quelle rocce
@@ -1171,7 +1188,8 @@ var fresh := {}             # cella -> giorni (a terra fuori) prima che il mucch
 var stockpile := {}         # cella -> true: dentro le stanze di tipo magazzino o dispensa, vedi update_stockpile
 var pantry := {}            # cella -> true: le caselle di stockpile nelle dispense, solo per il cibo
 var rooms: Array[Room] = []  # stanze finite, vedi update_rooms
-var roofed := {}            # casella sotto un tetto (stanze coi loro muri e porte) -> riga in pixel del colmo; vedi update_rooms
+var roofed := {}            # casella sotto un tetto (stanze coi loro muri e porte) -> il suo Roof; vedi update_roofs
+var roofs: Array[Roof] = []  # i tetti, uno per rettangolo di stanza (vedi rectangles)
 var roofs_shown := true     # il pulsante Roofs li toglie, per guardare dentro
 var atmosphere := preload("res://atmosphere.gd").new()  # luci, fuochi, nuvole, meteo; neve e pozzanghere a terra
 var forecast_strip = preload("res://forecast.gd").new()  # in alto accanto alla data: il meteo di adesso e le previsioni
@@ -6140,24 +6158,85 @@ func update_rooms() -> void:
 # metà di ogni colonna di tetto (fino alla gronda, che lascia scoperta la facciata del muro in fondo): sopra la falda
 # al sole, sotto quella in ombra (vedi draw_roofs).
 func update_roofs() -> void:
-	var covered := {}
+	var cover := {}  # nuovo ogni volta: atmosphere.gd se ne accorge e rifà la maschera della neve
+	var made: Array[Roof] = []
 	for room in rooms:
+		var cells := {}  # un muro in comune lo coprono i tetti di tutte e due le stanze (vedi draw_roofs)
 		for cell in room.cells:
 			for dx in [-1, 0, 1]:
 				for dy in [-1, 0, 1]:
 					var k: Vector2i = cell + Vector2i(dx, dy)
 					if room.cells.has(k) or built.get(k, [Build.FLOOR])[0] not in PAVING:
-						covered[k] = true
-	var ridges := {}  # nuovo ogni volta: atmosphere.gd se ne accorge e rifà la maschera della neve
-	for cell in covered:
-		var top: Vector2i = cell
-		while covered.has(top + Vector2i.UP):
-			top += Vector2i.UP
-		var bottom: Vector2i = cell
-		while covered.has(bottom + Vector2i.DOWN):
-			bottom += Vector2i.DOWN
-		ridges[cell] = (top.y * TILE + eave_y(bottom)) / 2
-	roofed = ridges
+						cells[k] = true
+		var spot: int = absi(hash(room.cells.keys().min()))
+		var shade := 1.0 - ROOF_TINT * (spot % 5) / 4.0
+		for rect in rectangles(cells):
+			var roof := Roof.new()
+			roof.rect = rect
+			roof.vertical = rect.size.y > rect.size.x
+			roof.material = roof_material(room)
+			roof.tint = Color(shade, shade * (1.0 - ROOF_TINT / 4.0 * (spot / 5 % 3)), shade)
+			roof.room = room
+			for k in cells_in(rect):
+				if not cover.has(k):  # per i conti basta un tetto; il muro in comune va alla prima stanza
+					cover[k] = roof
+			made.append(roof)
+	made.sort_custom(func(a, b): return a.rect.position.y < b.rect.position.y)  # sopra il muro in comune quello più a sud
+	roofs = made
+	roofed = cover
+
+
+# Le caselle `cells` in rettangoli: dall'alto a sinistra, ognuno largo quanto la sua prima riga e giù finché le righe
+# sono piene. Una stanza rettangolare coi suoi muri è un rettangolo solo, una a L due
+func rectangles(cells: Dictionary) -> Array[Rect2i]:
+	var left := cells.duplicate()
+	var order := cells.keys()
+	order.sort_custom(func(a, b): return a.y < b.y or (a.y == b.y and a.x < b.x))
+	var out: Array[Rect2i] = []
+	for start in order:
+		if not left.has(start):
+			continue
+		var w := 1
+		while left.has(start + Vector2i(w, 0)):
+			w += 1
+		var h := 1
+		while range(w).all(func(dx): return left.has(start + Vector2i(dx, h))):
+			h += 1
+		var rect := Rect2i(start, Vector2i(w, h))
+		for k in cells_in(rect):
+			left.erase(k)
+		out.append(rect)
+	return out
+
+
+# il materiale del tetto: quello della maggioranza dei muri della stanza (le porte contano come legno), alla pari legno
+func roof_material(room: Room) -> Res:
+	var stone := 0
+	var wood := 0
+	for k in room_walls(room):
+		var b: Array = built.get(k, [-1, -1])
+		if b[0] == Build.WALL and b[1] == Res.STONE:
+			stone += 1
+		elif b[0] in [Build.WALL, Build.DOOR]:
+			wood += 1
+	return Res.STONE if stone > wood else Res.WOOD
+
+
+# Il colmo del tetto, in pixel: col colmo da est a ovest la riga a metà tra la cima e la gronda (che lascia la
+# facciata del muro), da nord a sud la colonna a metà
+func ridge_of(roof: Roof) -> float:
+	if roof.vertical:
+		return (roof.rect.position.x + roof.rect.end.x) * TILE / 2.0
+	return (roof.rect.position.y * TILE + eave_y(Vector2i(roof.rect.position.x, roof.rect.end.y - 1))) / 2.0
+
+
+# 0..1, quanta della neve di fuori resta sul tetto: il calore che sale dalla stanza (quanto è più calda di fuori, per
+# quanto poco isola) la scioglie; ROOF_MELT gradi di calore che passa la sciolgono tutta
+func roof_snow(roof: Roof) -> float:
+	if roof.room == null or not atmosphere.climate:
+		return 1.0
+	var leak := (room_temperature(roof.room) - atmosphere.temperature()) * (1.0 - insulation(roof.room))
+	return clampf(1.0 - leak / ROOF_MELT, 0.0, 1.0)
 
 
 # riga in pixel della gronda del tetto che finisce in `cell`: sopra un muro (o una porta) se ne vede la facciata
@@ -6513,34 +6592,79 @@ func fire_use(origin: Vector2i) -> int:
 	return use
 
 
-# Tetti (vedi update_roofs): coprono chi sta dentro. Tegole, innevate quanto la neve a terra; la falda sotto il colmo
-# un po' in ombra, una riga di luce sul colmo, il contorno sui bordi; sotto la gronda la facciata del muro, con l'ombra
-# del tetto. Poi di nuovo i cartelli: restano sopra e si cliccano.
+# Tetti (vedi update_roofs): coprono chi sta dentro. Scandole o coppi (roof_material), con le file che scendono dal
+# colmo; innevati quanto la neve a terra, meno quanto la stanza sotto la scioglie (roof_snow) e attorno ai comignoli;
+# più scuri bagnati. La falda dopo il colmo un po' in ombra, una riga di luce sul colmo, il contorno sui bordi e tra un
+# tetto e l'altro; sotto la gronda la facciata del muro, con l'ombra del tetto, le gocce se piove, i ghiaccioli sotto
+# lo zero. Col colmo da nord a sud, in fondo il timpano. Poi i comignoli, e di nuovo i cartelli: restano sopra e si cliccano.
 func draw_roofs() -> void:
-	var snow: float = atmosphere.snow
-	for cell in roofed:
-		var eave := not roofed.has(cell + Vector2i.DOWN)
-		var r := Rect2(tile_rect(cell.x, cell.y))
-		if eave:  # sotto la gronda si vede la facciata del muro
-			r.size.y = eave_y(cell) - r.position.y
-		draw_texture_rect_region(ROOF, r, Rect2(Vector2.ZERO, r.size))
-		if snow > 0:
-			draw_texture_rect_region(ROOF, r, Rect2(Vector2(TILE, 0), r.size), Color(1, 1, 1, snow))
-		var ridge: float = roofed[cell]
-		if ridge < r.end.y:
-			var from := maxf(r.position.y, ridge)
-			draw_rect(Rect2(r.position.x, from, TILE, r.end.y - from), Color(OUTLINE, 0.22))
-		if ridge - 1 >= r.position.y and ridge - 1 < r.end.y:
-			draw_rect(Rect2(r.position.x, ridge - 1, TILE, 1), Color(1, 1, 1, 0.3))
-		if not roofed.has(cell + Vector2i.UP):
-			draw_rect(Rect2(r.position, Vector2(TILE, 1)), OUTLINE)
-		if not roofed.has(cell + Vector2i.LEFT):
-			draw_rect(Rect2(r.position, Vector2(1, r.size.y)), OUTLINE)
-		if not roofed.has(cell + Vector2i.RIGHT):
-			draw_rect(Rect2(r.end.x - 1, r.position.y, 1, r.size.y), OUTLINE)
-		if eave:
-			draw_rect(Rect2(r.position.x, r.end.y - 1, TILE, 1), OUTLINE)
+	var outside_snow: float = atmosphere.snow
+	var wet: float = atmosphere.wet
+	var rain: float = atmosphere.raining()
+	var icy: bool = atmosphere.climate and atmosphere.temperature() < 0.0
+	var seconds := clock * DAY_LENGTH
+	var warm := {}  # attorno ai comignoli la neve si scioglie prima
+	for origin in furniture:
+		if HEAT.has(furniture[origin][0]) and chimney_of(origin)[1] != Chimney.NONE:
+			for k in cells_in(Rect2i(chimney_of(origin)[0] - Vector2i.ONE, Vector2i(3, 3))):
+				warm[k] = true
+	for roof in roofs:
+		var snow := outside_snow * roof_snow(roof) if outside_snow > 0 else 0.0
+		var row := (0 if roof.material == Res.STONE else 2) + (1 if roof.vertical else 0)  # righe di ROOF
+		var ridge := ridge_of(roof)
+		for cell in cells_in(roof.rect):
+			var eave := not roofed.has(cell + Vector2i.DOWN)
+			var r := Rect2(tile_rect(cell.x, cell.y))
+			if eave:  # sotto la gronda si vede la facciata del muro
+				r.size.y = eave_y(cell) - r.position.y
+			draw_texture_rect_region(ROOF, r, Rect2(Vector2(0, row * TILE), r.size), roof.tint)
+			var white := snow * (CHIMNEY_SNOW if warm.has(cell) else 1.0)
+			if white > 0:
+				draw_texture_rect_region(ROOF, r, Rect2(Vector2(TILE, row * TILE), r.size), Color(1, 1, 1, white))
+			if wet > 0:
+				draw_rect(r, Color(OUTLINE, WET_ROOF * wet * (1.0 - white)))
+			if roof.vertical:  # la falda a est in ombra
+				if ridge < r.end.x:
+					var from := maxf(r.position.x, ridge)
+					draw_rect(Rect2(from, r.position.y, r.end.x - from, r.size.y), Color(OUTLINE, 0.22))
+				if ridge - 1 >= r.position.x and ridge - 1 < r.end.x:
+					draw_rect(Rect2(ridge - 1, r.position.y, 1, r.size.y), Color(1, 1, 1, 0.3))
+			else:  # la falda a sud in ombra
+				if ridge < r.end.y:
+					var from := maxf(r.position.y, ridge)
+					draw_rect(Rect2(r.position.x, from, TILE, r.end.y - from), Color(OUTLINE, 0.22))
+				if ridge - 1 >= r.position.y and ridge - 1 < r.end.y:
+					draw_rect(Rect2(r.position.x, ridge - 1, TILE, 1), Color(1, 1, 1, 0.3))
+			if not roof.rect.has_point(cell + Vector2i.UP):
+				draw_rect(Rect2(r.position, Vector2(TILE, 1)), OUTLINE)
+			if not roof.rect.has_point(cell + Vector2i.LEFT):
+				draw_rect(Rect2(r.position, Vector2(1, r.size.y)), OUTLINE)
+			if not roof.rect.has_point(cell + Vector2i.RIGHT):
+				draw_rect(Rect2(r.end.x - 1, r.position.y, 1, r.size.y), OUTLINE)
+			if eave or not roof.rect.has_point(cell + Vector2i.DOWN):
+				draw_rect(Rect2(r.position.x, r.end.y - 1, TILE, 1), OUTLINE)
+			if not eave:
+				continue
 			draw_rect(Rect2(r.position.x, r.end.y, TILE, 3), SHADOW)
+			var spot: int = absi(hash(cell))
+			if rain > 0:  # gocce dalla gronda
+				for i in 2:
+					var x: int = (spot >> (i * 4)) % 14 + 1
+					var fall := fmod(seconds * 30.0 + x * 7.0, 12.0)
+					draw_rect(Rect2(r.position.x + x, r.end.y + fall, 1, 2), Color(DRIP_COLOR, rain * (1.0 - fall / 12.0)))
+			if icy:  # ghiaccioli
+				for i in 3:
+					var x := r.position.x + 2 + i * 5 + (spot >> i) % 2
+					var length := 2 + (spot >> (i + 2)) % 3
+					draw_colored_polygon(PackedVector2Array([Vector2(x, r.end.y), Vector2(x + 2, r.end.y),
+						Vector2(x + 1, r.end.y + length)]), ICE_COLOR)
+		if roof.vertical and not roofed.has(Vector2i(roof.rect.position.x, roof.rect.end.y)):  # il timpano in facciata
+			var base := float(eave_y(Vector2i(roof.rect.position.x, roof.rect.end.y - 1)))
+			var height := minf(roof.rect.size.x * TILE / 2.0 - 3.0, GABLE_MAX)
+			var gable := PackedVector2Array([Vector2(roof.rect.position.x * TILE + 1, base), Vector2(ridge, base - height),
+				Vector2(roof.rect.end.x * TILE - 1, base)])
+			draw_colored_polygon(gable, GABLE_COLORS[roof.material])
+			draw_polyline(gable, OUTLINE, 1.0)
 	for origin in furniture:  # sopra le tegole i comignoli
 		if HEAT.has(furniture[origin][0]):
 			var chimney := chimney_of(origin)
