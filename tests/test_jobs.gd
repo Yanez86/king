@@ -321,6 +321,38 @@ func _initialize() -> void:
 	main.order = main.Order.DEMOLISH
 	main.mark(Rect2i(at + Vector2i.DOWN, Vector2i.ONE))
 	check(main.furniture.is_empty(), "Destroy toglie anche i mobili")
+	# abat-jour: 2 legna e 1 carbone, un viaggio per materiale; quello già portato aspetta al cantiere
+	check(tip_texts(main, "FurnitureBar/Row/Lamp").slice(0, 3) == ["Lamp", "2", "1"], "abat-jour: legna e carbone")
+	var C: int = main.Res.COAL
+	main.drop(C, at + Vector2i(0, 3), 3)
+	var lamp := [main.Build.LAMP, W, 0]
+	var wood_lamp: int = main.total(W)
+	var coal_lamp: int = main.total(C)
+	main.furniture_plans[at] = lamp
+	var halfway := false
+	for i in 2000:
+		main.tick(0.05)
+		check_work(main)
+		halfway = halfway or main.delivered.get([main.Job.FURNISH, at], {}).size() == 1
+		if main.furniture.has(at):
+			break
+	check(halfway and main.furniture.get(at) == lamp and main.delivered.is_empty(), "abat-jour fatto in due viaggi")
+	check(main.total(W) == wood_lamp - 2 and main.total(C) == coal_lamp - 1, "consuma 2 legna e 1 carbone")
+	main.furniture.erase(at)
+	main.furniture_plans[at] = lamp  # di nuovo, e annullato appena portato il primo materiale: torna a terra
+	for i in 2000:
+		main.tick(0.05)
+		if not main.delivered.is_empty():
+			break
+	var lamp_got: Dictionary = main.delivered.get([main.Job.FURNISH, at], {})
+	check(lamp_got.size() == 1, "un materiale al cantiere")
+	var lamp_res: int = lamp_got.keys()[0]
+	var lamp_before: int = main.items[lamp_res].get(at, 0)
+	main.erase_plan(at)
+	check(main.delivered.is_empty() and main.furniture_plans.is_empty() and main.items[lamp_res].get(at, 0) == lamp_before + lamp_got[lamp_res],
+		"annullato: il materiale portato torna a terra")
+	main.items[lamp_res].erase(at)  # via, che qui sotto si costruisce ancora
+	main.items[C].erase(at + Vector2i(0, 3))
 	# fuoco da campo: quinta riga del foglio; al posto dei quarti di giro, le colonne sono i fotogrammi della fiamma
 	check(tip_texts(main, "FurnitureBar/Row/Campfire").slice(0, 2) == ["Campfire", "5"], "tasto del fuoco da campo")
 	var fire := [main.Build.CAMPFIRE, W, 0]

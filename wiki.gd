@@ -180,7 +180,7 @@ The other two colonists come at random: skills at 0, 0–2 traits.
 • Drag on the map: the plan shows in blue. Walls go only along the border of the rectangle, so one drag outlines a room; floors, paths and doors fill it. Drawing over your unconfirmed plan replaces it: that is how to put a door into a wall you are planning.
 • Furniture goes one piece at a time, where you let go of the button. E and R (or the arrows in the bar) turn it; the preview is red where it doesn't fit.
 • Press Build in the middle of the bottom to confirm: only then do colonists start. The red X erases cells from the plan, even confirmed ones. Closing Build without confirming throws the plan away.
-• The builder fetches the material from a pile (on the ground or in a warehouse) and needs 2 s a tile or a piece.
+• The builder fetches the material from a pile (on the ground or in a warehouse) and needs 2 s a tile or a piece. A piece made of two materials (lamp, lantern) takes a trip for each: what is already there waits at the site, and goes back on the ground if you cancel the plan.
 • Destroy (X): drag over structures and furniture to pull them down at once. The material is lost.
 • Pieces you haven't researched yet have no button.
 
@@ -205,7 +205,7 @@ Not on water, trees, rock, bushes or weeds (uproot them first), nor on items lyi
 [cell]Campfire[/cell][cell]5 wood[/cell][cell]–[/cell]
 [cell]Desk[/cell][cell]10 wood[/cell][cell]–[/cell]
 [cell]Throne[/cell][cell]12 wood[/cell][cell]–[/cell]
-[cell]Lamp[/cell][cell]3 wood[/cell][cell]Lanterns[/cell]
+[cell]Lamp[/cell][cell]2 wood, 1 coal[/cell][cell]Lanterns[/cell]
 [cell]Furnace[/cell][cell]20 stone[/cell][cell]Forge[/cell]
 [cell]Anvil[/cell][cell]10 iron[/cell][cell]Forge[/cell]
 [cell]Workbench[/cell][cell]15 wood[/cell][cell]Tailoring[/cell]
@@ -405,7 +405,7 @@ For now it does two things:
 [cell]Flower bed[/cell][cell]1[/cell][cell]3 wood[/cell][cell]Decor[/cell]
 [cell]Planter[/cell][cell]1[/cell][cell]5 stone[/cell][cell]Decor[/cell]
 [cell]Bench[/cell][cell]1[/cell][cell]6 wood[/cell][cell]Decor[/cell]
-[cell]Lantern[/cell][cell]1[/cell][cell]4 wood[/cell][cell]Lanterns[/cell]
+[cell]Lantern[/cell][cell]1[/cell][cell]3 wood, 1 coal[/cell][cell]Lanterns[/cell]
 [cell]Banner[/cell][cell]2[/cell][cell]4 wood[/cell][cell]–[/cell]
 [cell]Fountain[/cell][cell]6[/cell][cell]30 stone[/cell][cell]Fountain[/cell]
 [cell]Statue[/cell][cell]8[/cell][cell]40 stone[/cell][cell]Statuary[/cell]

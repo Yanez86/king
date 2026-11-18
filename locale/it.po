@@ -141,6 +141,15 @@ msgstr "Schermo intero / finestra"
 msgid "Options (Esc)"
 msgstr "Opzioni (Esc)"
 
+msgid "Debug"
+msgstr "Debug"
+
+msgid "To try the game out"
+msgstr "Per provare il gioco"
+
+msgid "Advance 12 hours"
+msgstr "Avanti di 12 ore"
+
 msgid "Resources in warehouses"
 msgstr "Risorse nei magazzini"
 

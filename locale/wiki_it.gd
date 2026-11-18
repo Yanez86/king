@@ -179,7 +179,7 @@ Gli altri due coloni vengono a caso: abilità a 0, 0–2 talenti.
 • Trascina sulla mappa: il progetto si vede in blu. I muri vanno solo lungo il bordo del rettangolo, così con un solo trascinamento tracci il contorno di una stanza; pavimenti, sentieri e porte lo riempiono. Disegnare sopra il tuo progetto non ancora confermato lo sostituisce: è così che metti una porta in un muro che stai progettando.
 • I mobili si mettono un pezzo alla volta, dove rilasci il tasto. E e R (o le frecce nella barra) girano il pezzo; l'anteprima è rossa dove non ci sta.
 • Premi Costruisci in basso al centro per confermare: solo allora i coloni cominciano. La X rossa cancella caselle dal progetto, anche quelle confermate. Se chiudi Costruisci senza confermare, il progetto si butta via.
-• Il costruttore va a prendere il materiale da un mucchio (a terra o in un magazzino) e ci mette 2 s a casella o a pezzo.
+• Il costruttore va a prendere il materiale da un mucchio (a terra o in un magazzino) e ci mette 2 s a casella o a pezzo. Un pezzo di due materiali (abat-jour, lampione) vuole un viaggio per ciascuno: quello già portato aspetta al cantiere, e torna a terra se annulli il progetto.
 • Distruggi (X): trascina sopra strutture e mobili per buttarli giù subito. Il materiale si perde.
 • I pezzi che non hai ancora ricercato non hanno un pulsante.
 
@@ -204,7 +204,7 @@ Non sull'acqua, sugli alberi, sulla roccia, sui cespugli o sulle erbacce (prima 
 [cell]Fuoco da campo[/cell][cell]5 legna[/cell][cell]–[/cell]
 [cell]Scrittoio[/cell][cell]10 legna[/cell][cell]–[/cell]
 [cell]Trono[/cell][cell]12 legna[/cell][cell]–[/cell]
-[cell]Abat-jour[/cell][cell]3 legna[/cell][cell]Lanterne[/cell]
+[cell]Abat-jour[/cell][cell]2 legna, 1 carbone[/cell][cell]Lanterne[/cell]
 [cell]Fornace[/cell][cell]20 pietra[/cell][cell]Forgia[/cell]
 [cell]Incudine[/cell][cell]10 ferro[/cell][cell]Forgia[/cell]
 [cell]Banco da lavoro[/cell][cell]15 legna[/cell][cell]Sartoria[/cell]
@@ -404,7 +404,7 @@ Per ora fa due cose:
 [cell]Aiuola[/cell][cell]1[/cell][cell]3 legna[/cell][cell]Decorazioni[/cell]
 [cell]Fioriera[/cell][cell]1[/cell][cell]5 pietra[/cell][cell]Decorazioni[/cell]
 [cell]Panca[/cell][cell]1[/cell][cell]6 legna[/cell][cell]Decorazioni[/cell]
-[cell]Lampione[/cell][cell]1[/cell][cell]4 legna[/cell][cell]Lanterne[/cell]
+[cell]Lampione[/cell][cell]1[/cell][cell]3 legna, 1 carbone[/cell][cell]Lanterne[/cell]
 [cell]Stendardo[/cell][cell]2[/cell][cell]4 legna[/cell][cell]–[/cell]
 [cell]Fontana[/cell][cell]6[/cell][cell]30 pietra[/cell][cell]Fontana[/cell]
 [cell]Statua[/cell][cell]8[/cell][cell]40 pietra[/cell][cell]Statuaria[/cell]

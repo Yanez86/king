@@ -161,6 +161,12 @@ func _initialize() -> void:
 		"la lingua si salva accanto ai tasti")
 	TranslationServer.set_locale("en")
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVED))
+	# Debug, in alto: Advance 12 hours fa andare avanti la partita davvero, mezza giornata di tick
+	var debug: PopupMenu = main.get_node("HUD/TopBar/Row/Debug").get_popup()
+	check(debug.item_count == 1 and debug.get_item_text(0) == "Advance 12 hours", "menu Debug")
+	var day: float = main.clock
+	debug.id_pressed.emit(0)
+	check(is_equal_approx(main.clock, day + 0.5), "avanti di 12 ore")
 	print("OK: menù delle opzioni e tasti")
 	quit()
 

@@ -361,6 +361,13 @@ icon = ExtResource("fastest_icon")
 icon_alignment = 1
 expand_icon = true
 
+[node name="Debug" type="MenuButton" parent="HUD/TopBar/Row"]
+custom_minimum_size = Vector2(0, 32)
+focus_mode = 0
+tooltip_text = "To try the game out"
+text = "Debug"
+flat = false
+
 [node name="Screen" type="Button" parent="HUD/TopBar/Row"]
 custom_minimum_size = Vector2(32, 32)
 focus_mode = 0

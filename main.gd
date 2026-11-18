@@ -378,11 +378,12 @@ enum Build { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE
 	ROAD,  # strada lastricata: ci si cammina più svelti (vedi ROAD_SPEED)
 	PALISADE, GATE,  # palizzata e cancello: i lupi non passano; non fanno stanze (vedi update_rooms, beast_path)
 	PLASTER }  # intonaco su un muro di legno già fatto: isola di più (PLASTER_INSULATION), diventa bianco (vedi plastered)
-# materiale per casella; per i mobili, per pezzo
+# materiale per casella; per i mobili, per pezzo. Un numero: del materiale del progetto; se no risorsa -> quantità, e
+# ogni viaggio porta tutta una risorsa (vedi cost_of, delivered)
 const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3,
-	Build.LAMP: 3, Build.CAMPFIRE: 5, Build.FURNACE: 20, Build.ANVIL: 10, Build.WORKBENCH: 15, Build.SPINNING_WHEEL: 10,
+	Build.LAMP: {Res.WOOD: 2, Res.COAL: 1}, Build.CAMPFIRE: 5, Build.FURNACE: 20, Build.ANVIL: 10, Build.WORKBENCH: 15, Build.SPINNING_WHEEL: 10,
 	Build.CARPENTER_BENCH: 15, Build.FLOWER_BED: 3, Build.PLANTER: 5,
-	Build.BENCH: 6, Build.BANNER: 4, Build.LANTERN: 4, Build.FOUNTAIN: 30, Build.STATUE: 40, Build.NOTICE_BOARD: 8,
+	Build.BENCH: 6, Build.BANNER: 4, Build.LANTERN: {Res.WOOD: 3, Res.COAL: 1}, Build.FOUNTAIN: 30, Build.STATUE: 40, Build.NOTICE_BOARD: 8,
 	Build.CHALICE: 1, Build.OLD_BANNER: 1, Build.BUST: 1, Build.CROWN: 1, Build.DESK: 10, Build.BOOKSHELF: 12, Build.THRONE: 12, Build.ROAD: 2, Build.DUMMY: 6, Build.WATCHTOWER: 20,
 	Build.CANOPY_BED: 20, Build.RUG: 4, Build.WARDROBE: 12, Build.HEARTH: 15,
 	Build.WALL_HIDES: 2, Build.DOOR_CURTAIN: 2, Build.TAPESTRY: 4, Build.TILED_STOVE: 20, Build.ICE_PIT: 20,
@@ -517,7 +518,7 @@ const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today"
 	"fallen", "animals", "arrows", "next_animal", "next_pack", "guests", "next_guest", "ruins", "expeditions",
 	"chronicle", "chronicle_days", "board_pick", "study", "researched", "authority", "codified", "enacted", "revoked",
 	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "wear", "plastered", "burning",
-	"fire_noted", "storm_noted"]
+	"fire_noted", "storm_noted", "delivered"]
 const TOAST_TIME := 2000    # millisecondi: "Saved" in alto, poi sparisce (vedi show_toast)
 const AUTOSAVE_HOUR := 6    # all'alba, quando i coloni si alzano: il salvataggio di ogni giorno
 const MODIFIER_KEYS := [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]  # da soli non sono un tasto
@@ -1232,6 +1233,7 @@ var ground_texture: ImageTexture  # tutto il terreno già disegnato, vedi bake_g
 var map_seed := 0           # del rumore della mappa: col salvataggio, rifà le chiazze di erba sassosa (vedi ground_noise)
 var ground_cols := PackedByteArray()  # per casella, riga per riga: la variante del terreno (colonna di GROUND, vedi bake_ground)
 var gravel := {}            # cella -> true: la roccia com'era all'inizio; il terreno disegnato resta ghiaia anche dove si scava
+var delivered := {}         # [Job, cella d'origine] -> {Res: quantità} già al cantiere, per chi vuole più materiali
 var game_id := ""           # la cartella dei salvataggi della colonia (vedi SAVES.create); vuota: non si salva
 var autosave_due := false   # è l'alba: si salva finito il tick (vedi _process)
 var save_list               # la pagina dei salvataggi nel menù delle opzioni (save_list.gd), dopo Load game
@@ -1461,6 +1463,9 @@ func _ready() -> void:
 	$HUD/TopBar/Row/Screen.pressed.connect(func():
 		set_fullscreen(DisplayServer.window_get_mode() != DisplayServer.WINDOW_MODE_FULLSCREEN))
 	$HUD/TopBar/Row/Options.pressed.connect(toggle_options)
+	var debug: PopupMenu = $HUD/TopBar/Row/Debug.get_popup()  # per provare il gioco: una voce per id (vedi debug_pressed)
+	debug.add_item("Advance 12 hours", 0)
+	debug.id_pressed.connect(debug_pressed)
 	setup_options()
 	build_button.toggled.connect(toggle_build)
 	structures_button.toggled.connect(toggle_category.bind(build_bar))
@@ -1718,6 +1723,19 @@ func save_game() -> Error:
 	if game_id == "" or fallen:
 		return ERR_UNAVAILABLE
 	return SAVES.write(game_id, header(), game_state())
+
+
+# le voci del menu Debug, in alto (vedi _ready)
+func debug_pressed(id: int) -> void:
+	match id:
+		0:
+			advance(0.5)
+
+
+# debug: `days` giorni simulati, non saltati, così bisogni e lavori vanno avanti davvero
+func advance(days: float) -> void:
+	for i in roundi(days * DAY_LENGTH / 0.05):
+		tick(0.05)
 
 
 # il salvataggio automatico; lo dice in alto (`quiet`: solo se non riesce, uscendo non lo si vedrebbe)
@@ -2047,7 +2065,7 @@ func choose_kind(kind: Build) -> void:
 
 
 # nome in alto a sinistra, a destra i materiali in colonna (muri e pavimenti: legno o pietra, per casella; il resto
-# il suo materiale, per pezzo); sotto il comfort che dà, una riga e la descrizione colorata
+# i suoi materiali, per pezzo); sotto il comfort che dà, una riga e la descrizione colorata
 func build_tip(kind: Build) -> Control:
 	var box := VBoxContainer.new()
 	var head := HBoxContainer.new()
@@ -2057,11 +2075,14 @@ func build_tip(kind: Build) -> Control:
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	var costs := VBoxContainer.new()
-	for res in [Res.WOOD, Res.STONE] if kind in ANY_MATERIAL else [BUILD_RES.get(kind, Res.WOOD)]:
+	var cost := cost_of([kind, BUILD_RES.get(kind, Res.WOOD)])
+	if kind in ANY_MATERIAL:
+		cost[Res.STONE] = cost[Res.WOOD]
+	for res in cost:
 		var row := HBoxContainer.new()
 		row.alignment = BoxContainer.ALIGNMENT_END
 		var amount := Label.new()
-		amount.text = "%s%d%s" % [tr("or ") if res == Res.STONE and kind in ANY_MATERIAL else "", BUILD_COST[kind], "" if FURNITURE.has(kind) else tr("/tile")]
+		amount.text = "%s%d%s" % [tr("or ") if res == Res.STONE and kind in ANY_MATERIAL else "", cost[res], "" if FURNITURE.has(kind) else tr("/tile")]
 		row.add_child(amount)
 		row.add_child(ui_icon(ICONS[res], Rect2(), Vector2(16, 16)))
 		costs.add_child(row)
@@ -3046,16 +3067,22 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			var plan: Array = plans[c.target]
 			if c.carrying == 0:     # arrivato al mucchio (a terra o in magazzino): prende il materiale e va al cantiere
 				var here := cell_of(c.pos)
-				var cost: int = BUILD_COST[plan[0]]
-				if items[plan[1]].get(here, 0) < cost:
+				var cost: int = missing(c.job, c.target).get(c.carry_res, 0)
+				if cost == 0 or items[c.carry_res].get(here, 0) < cost:  # già portato da un altro, o il mucchio non basta
 					end_job(c)
 					return
-				add_item(plan[1], here, -cost)
+				add_item(c.carry_res, here, -cost)
 				reserved.erase(here)
 				c.carrying = cost
 				c.path = path_of(c, here, c.dest)
 				if c.path.is_empty():  # cantiere in una stanza dove nel frattempo non entra più: rimette giù il materiale
 					quit_job(c)
+				return
+			if missing(c.job, c.target).size() > 1:  # manca altro materiale: lascia questo al cantiere, poi si vedrà
+				var key := [c.job, c.target]
+				delivered[key] = delivered.get(key, {}).merged({c.carry_res: c.carrying})
+				c.carrying = 0
+				end_job(c)
 				return
 			var cells := cells_in(piece_rect(c.target, plan))
 			sort_by_distance(cells, c.pos)
@@ -3069,6 +3096,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 					plans.erase(c.target)
 					if RELICS.has(plan[0]):
 						gain(RELIC_AUTHORITY)
+				delivered.erase([c.job, c.target])
 				c.carrying = 0
 				c.xp[Skill.CONSTRUCTION] += 1
 				end_job(c)
@@ -3881,14 +3909,15 @@ func find_work(c: Colonist) -> bool:
 		var plans := plans_of(job)
 		var stands := {}  # casella libera accanto a un progetto per cui c'è un mucchio di materiale -> progetto
 		for cell in plans:
-			if is_free(cell) and not sources(plans[cell]).is_empty():
+			if is_free(cell) and not sources(job, cell).is_empty():
 				add_stands(stands, cells_in(piece_rect(cell, plans[cell])), cell, SIDES)
 		var path := path_to_nearest(c, stands.keys())
-		var to_source := [] if path.is_empty() else path_to_nearest(c, sources(plans[stands[path.back()]]))
+		var piles := {} if path.is_empty() else sources(job, stands[path.back()])
+		var to_source := path_to_nearest(c, piles.keys())
 		if not to_source.is_empty():  # prima al mucchio a prendere il materiale, poi al cantiere
 			start_job(c, job, to_source, stands[path.back()], BUILD_TIME * skill_time(c.skills[Skill.CONSTRUCTION]) * work_factor(c, job))
 			c.dest = path.back()
-			c.carry_res = plans[c.target][1]
+			c.carry_res = piles[to_source.back()]
 			reserved[to_source.back()] = c  # intanto nessun altro prende da quel mucchio
 			return true
 
@@ -6167,10 +6196,30 @@ func plans_of(job: Job) -> Dictionary:
 	return furniture_plans if job == Job.FURNISH else blueprints
 
 
-# mucchi (a terra o in magazzino) da cui prendere il materiale per `plan`, non prenotati da altri
-func sources(plan: Array) -> Array:
-	var ground: Dictionary = items[plan[1]]
-	return ground.keys().filter(func(cell): return ground[cell] >= BUILD_COST[plan[0]] and is_free(cell))
+# mucchi (a terra o in magazzino), non prenotati da altri, da cui prendere un materiale che manca al progetto in
+# `origin` di `job`: cella del mucchio -> risorsa
+func sources(job: Job, origin: Vector2i) -> Dictionary:
+	var found := {}
+	var need := missing(job, origin)
+	for res in need:
+		for cell in items[res]:
+			if items[res][cell] >= need[res] and is_free(cell):
+				found[cell] = res
+	return found
+
+
+# materiale che serve a `plan`: risorsa -> quantità
+func cost_of(plan: Array) -> Dictionary:
+	var cost = BUILD_COST[plan[0]]
+	return cost.duplicate() if cost is Dictionary else {plan[1]: cost}
+
+
+# materiale che manca al progetto in `origin` di `job`: ogni viaggio porta tutto quello di una risorsa
+func missing(job: Job, origin: Vector2i) -> Dictionary:
+	var need := cost_of(plans_of(job)[origin])
+	for res in delivered.get([job, origin], {}):
+		need.erase(res)
+	return need
 
 
 # avvia il trasporto del mucchio di `res` più vicino tra `piles`; false se non c'è posto o strada
@@ -6481,11 +6530,21 @@ func erase_plan(cell: Vector2i) -> void:
 	draft.erase(cell)
 	if blueprints.erase(cell):
 		drop_job(cell, Job.BUILD)
+		give_back_delivered(Job.BUILD, cell)
 	for origin in pieces_at(furniture_draft, cell):
 		furniture_draft.erase(origin)
 	for origin in pieces_at(furniture_plans, cell):
 		furniture_plans.erase(origin)
 		drop_job(origin, Job.FURNISH)
+		give_back_delivered(Job.FURNISH, origin)
+
+
+# progetto tolto: il materiale già portato al cantiere torna a terra, i trasportatori lo riportano in magazzino
+func give_back_delivered(job: Job, origin: Vector2i) -> void:
+	var got: Dictionary = delivered.get([job, origin], {})
+	for res in got:
+		drop(res, origin, got[res])
+	delivered.erase([job, origin])
 
 
 # chi stava facendo `job` su `target` lascia a terra il materiale e torna libero
