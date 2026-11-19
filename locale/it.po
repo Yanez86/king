@@ -3265,3 +3265,53 @@ msgstr "Nozze"
 
 msgid "Celebrated the ruler's wedding."
 msgstr "Ha festeggiato le nozze del sovrano."
+
+# --- Dinastia: i figli
+
+msgid "Cradle"
+msgstr "Culla"
+
+msgid "A rocking cradle. A baby sleeps here instead of in their parents' arms."
+msgstr "Una culla a dondolo. Un neonato ci dorme invece di stare in braccio ai genitori."
+
+msgid "Pregnant"
+msgstr "Incinta"
+
+msgid "Expecting a child. In the last months works more slowly."
+msgstr "Aspetta un figlio. Negli ultimi mesi lavora più piano."
+
+msgid "Children: %s"
+msgstr "Figli: %s"
+
+msgid "Parents: %s and %s"
+msgstr "Genitori: %s e %s"
+
+msgid "Mother: %s"
+msgstr "Madre: %s"
+
+msgid "a boy"
+msgstr "un maschio"
+
+msgid "a girl"
+msgstr "una femmina"
+
+msgid "%s and %s have a child: %s."
+msgstr "%s e %s hanno avuto %s."
+
+msgid "%s has a child: %s."
+msgstr "%s ha avuto %s."
+
+msgid "%s: %s is born, child of %s and %s."
+msgstr "%s: nasce %s, da %s e %s."
+
+msgid "%s: %s is born, child of %s."
+msgstr "%s: nasce %s, da %s."
+
+msgid "A birth"
+msgstr "Una nascita"
+
+msgid "Random name"
+msgstr "Nome a caso"
+
+msgid "Name the child"
+msgstr "Dai il nome"

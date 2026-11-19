@@ -1,4 +1,4 @@
-[gd_scene load_steps=90 format=3]
+[gd_scene load_steps=92 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Texture2D" path="res://art/icon_wood.png" id="2"]
@@ -40,6 +40,7 @@
 [ext_resource type="Texture2D" path="res://art/icon_roofs.png" id="roofs_icon"]
 [ext_resource type="Texture2D" path="res://art/icon_heat.png" id="heat_icon"]
 [ext_resource type="Texture2D" path="res://art/icon_soil.png" id="soil_icon"]
+[ext_resource type="Texture2D" path="res://art/icon_dice.png" id="dice_icon"]
 
 [sub_resource type="AtlasTexture" id="HandsSlot"]
 atlas = ExtResource("equipment")
@@ -204,6 +205,10 @@ region = Rect2(0, 1120, 32, 32)
 [sub_resource type="AtlasTexture" id="CompostHeapIcon"]
 atlas = ExtResource("8")
 region = Rect2(0, 1280, 16, 16)
+
+[sub_resource type="AtlasTexture" id="CradleIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 1312, 16, 16)
 
 [sub_resource type="AtlasTexture" id="PlasterIcon"]
 atlas = ExtResource("5")
@@ -618,6 +623,15 @@ focus_mode = 0
 toggle_mode = true
 button_group = SubResource("Kinds")
 icon = SubResource("WardrobeIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Cradle" type="Button" parent="HUD/FurnitureBar/Row/Home"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("CradleIcon")
 icon_alignment = 1
 expand_icon = true
 
@@ -1419,6 +1433,11 @@ visible = false
 focus_mode = 0
 text = "Arrange a marriage…"
 
+[node name="Kin" type="Label" parent="HUD/ColonistSheet/Box"]
+visible = false
+custom_minimum_size = Vector2(300, 0)
+autowrap_mode = 3
+
 [node name="Health" type="Label" parent="HUD/ColonistSheet/Box"]
 
 [node name="Needs" type="GridContainer" parent="HUD/ColonistSheet/Box"]
@@ -1957,6 +1976,58 @@ custom_minimum_size = Vector2(400, 0)
 bbcode_enabled = true
 fit_content = true
 scroll_active = false
+
+[node name="BirthPanel" type="PanelContainer" parent="HUD"]
+visible = false
+custom_minimum_size = Vector2(420, 0)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Box" type="VBoxContainer" parent="HUD/BirthPanel"]
+theme_override_constants/separation = 8
+
+[node name="Head" type="HBoxContainer" parent="HUD/BirthPanel/Box"]
+
+[node name="Title" type="Label" parent="HUD/BirthPanel/Box/Head"]
+size_flags_horizontal = 3
+text = "A birth"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Close" type="Button" parent="HUD/BirthPanel/Box/Head"]
+custom_minimum_size = Vector2(32, 32)
+focus_mode = 0
+tooltip_text = "Close"
+icon = ExtResource("6")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Text" type="Label" parent="HUD/BirthPanel/Box"]
+custom_minimum_size = Vector2(400, 0)
+autowrap_mode = 3
+
+[node name="Row" type="HBoxContainer" parent="HUD/BirthPanel/Box"]
+
+[node name="Name" type="LineEdit" parent="HUD/BirthPanel/Box/Row"]
+size_flags_horizontal = 3
+max_length = 20
+
+[node name="Dice" type="Button" parent="HUD/BirthPanel/Box/Row"]
+custom_minimum_size = Vector2(32, 32)
+focus_mode = 0
+tooltip_text = "Random name"
+icon = ExtResource("dice_icon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Ok" type="Button" parent="HUD/BirthPanel/Box"]
+focus_mode = 0
+text = "Name the child"
 
 [node name="Fallen" type="PanelContainer" parent="HUD"]
 visible = false

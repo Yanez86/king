@@ -457,7 +457,8 @@ enum Build { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE
 	ROAD,  # strada lastricata: ci si cammina più svelti (vedi ROAD_SPEED)
 	PALISADE, GATE,  # palizzata e cancello: i lupi non passano; non fanno stanze (vedi update_rooms, beast_path)
 	PLASTER,  # intonaco su un muro di legno già fatto: isola di più (PLASTER_INSULATION), diventa bianco (vedi plastered)
-	COMPOST_HEAP }  # il cumulo del compost: ci si porta il marcio, che diventa compost (vedi make_compost)
+	COMPOST_HEAP,  # il cumulo del compost: ci si porta il marcio, che diventa compost (vedi make_compost)
+	CRADLE }  # la culla: ci dorme un neonato, invece di stare in braccio (vedi place_babies)
 # materiale per casella; per i mobili, per pezzo. Un numero: del materiale del progetto; se no risorsa -> quantità, e
 # ogni viaggio porta tutta una risorsa (vedi cost_of, delivered)
 const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3,
@@ -466,7 +467,7 @@ const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1
 	Build.BENCH: 6, Build.BANNER: 4, Build.LANTERN: {Res.WOOD: 3, Res.COAL: 1}, Build.FOUNTAIN: 30, Build.STATUE: 40, Build.NOTICE_BOARD: 8,
 	Build.CHALICE: 1, Build.OLD_BANNER: 1, Build.BUST: 1, Build.CROWN: 1, Build.DESK: 10, Build.BOOKSHELF: 12, Build.THRONE: 12, Build.ROAD: 2, Build.DUMMY: 6, Build.WATCHTOWER: 20,
 	Build.CANOPY_BED: 20, Build.RUG: 4, Build.WARDROBE: 12, Build.HEARTH: 15,
-	Build.WALL_HIDES: 2, Build.DOOR_CURTAIN: 2, Build.TAPESTRY: 4, Build.TILED_STOVE: 20, Build.ICE_PIT: 20, Build.COMPOST_HEAP: 6,
+	Build.WALL_HIDES: 2, Build.DOOR_CURTAIN: 2, Build.TAPESTRY: 4, Build.TILED_STOVE: 20, Build.ICE_PIT: 20, Build.COMPOST_HEAP: 6, Build.CRADLE: 4,
 	Build.PALISADE: 4, Build.GATE: 6, Build.PLASTER: 1}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
 const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
@@ -478,7 +479,8 @@ const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Buil
 	Build.DESK: Vector2i.ONE, Build.BOOKSHELF: Vector2i.ONE, Build.THRONE: Vector2i.ONE, Build.DUMMY: Vector2i.ONE,
 	Build.WATCHTOWER: Vector2i.ONE, Build.CANOPY_BED: Vector2i(2, 1), Build.RUG: Vector2i(2, 1), Build.WARDROBE: Vector2i.ONE,
 	Build.HEARTH: Vector2i.ONE, Build.WALL_HIDES: Vector2i.ONE, Build.DOOR_CURTAIN: Vector2i.ONE, Build.TAPESTRY: Vector2i.ONE,
-	Build.TILED_STOVE: Vector2i.ONE, Build.ICE_PIT: Vector2i(2, 2), Build.COMPOST_HEAP: Vector2i.ONE}
+	Build.TILED_STOVE: Vector2i.ONE, Build.ICE_PIT: Vector2i(2, 2), Build.COMPOST_HEAP: Vector2i.ONE,
+	Build.CRADLE: Vector2i.ONE}
 # mobili animati: secondi per fotogramma; i fotogrammi stanno nelle colonne dei quarti di giro (sono simmetrici)
 const ANIMATED := {Build.CAMPFIRE: 0.15, Build.BANNER: 0.3, Build.FOUNTAIN: 0.2}
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
@@ -597,7 +599,7 @@ const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today"
 	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
 	"fallen", "animals", "arrows", "next_animal", "next_pack", "guests", "next_guest", "ruins", "expeditions",
 	"chronicle", "chronicle_days", "board_pick", "study", "researched", "authority", "codified", "enacted", "revoked",
-	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "sown", "plans", "slot_done", "soil", "soil_year_ago", "soil_known", "compost_since", "manured", "no_manure", "tired", "last_yield",
+	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "sown", "plans", "slot_done", "soil", "soil_year_ago", "soil_known", "compost_since", "manured", "no_manure", "babies", "tired", "last_yield",
 	"harvests", "wear", "plastered", "burning",
 	"fire_noted", "storm_noted", "delivered"]
 const TOAST_TIME := 2000    # millisecondi: "Saved" in alto, poi sparisce (vedi show_toast)
@@ -626,6 +628,7 @@ const BUILD_INFO := {
 	Build.PLASTER: "Lime plaster over a wooden wall: it keeps the heat in better, and turns the wall white.",
 	Build.ICE_PIT: "A stone pit lined with straw, for blocks of ice. An icehouse needs one, stone walls and no fire: while it holds ice, the room tends to 0 °C.",
 	Build.COMPOST_HEAP: "Rotten food and uprooted weeds are brought here: in 10 days every 4 become compost, to fertilize the garden.",
+	Build.CRADLE: "A rocking cradle. A baby sleeps here instead of in their parents' arms.",
 	Build.HEARTH: "A stone fireplace with a chimney, set against a wall. Cooks and warms like a campfire, more. Half its heat goes through a wooden wall at its back, none through stone.",
 	Build.ANVIL: "An iron anvil on a stump. A forge needs one, and a furnace. Tools and metal armor are made here.",
 	Build.WORKBENCH: "A sturdy bench. A workshop needs one. Leather armor is made here.",
@@ -750,6 +753,21 @@ const OLD_AGE_RISK := 0.02
 const ADULT := 16
 const MARRY_HAPPY := 50.0
 const WEDDING_AUTHORITY := 10
+# Figli (vedi conceive, give_birth): una coppia sposata che dorme nella stessa stanza, ogni notte CONCEIVE_CHANCE (la
+# donna in FERTILE_AGE, da LATE_FERTILE la metà). La gravidanza dura PREGNANCY giorni (nell'ultimo terzo il lavoro
+# PREGNANT_SLOW), poi per un anno niente. Ogni talento dei genitori passa al figlio con TRAIT_INHERIT, al più due.
+# Fino a CHILD_AGE è un neonato (in `babies`: nella culla o in braccio), poi un bambino, da YOUTH_AGE un ragazzo, da
+# ADULT un adulto
+const CONCEIVE_CHANCE := 0.01
+const CONCEIVE_HOUR := 2
+const FERTILE_AGE := [16, 40]
+const LATE_FERTILE := 35
+const PREGNANCY := 0.75 * LIFE_YEAR
+const PREGNANT_SLOW := 1.2
+const TRAIT_INHERIT := 0.5
+const CHILD_AGE := 4
+const YOUTH_AGE := 12
+const BABY := preload("res://art/baby.png")
 const SEASONS := ["Spring", "Summer", "Autumn", "Winter"]
 const WINTER := 3  # in SEASONS: niente bacche né lino (vedi new_day)
 const MONTHS := ["Thaw", "Sowing", "Blossom", "Highsun", "Haying", "Ripening", "Reaping", "Leaffall", "Mists",
@@ -878,7 +896,7 @@ const TRAIT_INFO := {  # suggerimento col mouse sopra il talento: com'è, poi co
 }
 # condizioni: effetti a tempo, con un'icona 16x16 nella scheda (colonne di CONDITIONS_SHEET nell'ordine di Cond).
 # Dati: [giorni, tempo di lavoro x, stress da lavoro x, felicità +, descrizione]. Vedi add_cond, work_factor, update_needs
-enum Cond { POISONED, WELL_FED, FEASTED, AT_TABLE, ATE_RAW, MOURNING, FESTIVE, PILLORIED, HEARD, WEDDING }
+enum Cond { POISONED, WELL_FED, FEASTED, AT_TABLE, ATE_RAW, MOURNING, FESTIVE, PILLORIED, HEARD, WEDDING, PREGNANT }
 const CONDITIONS_SHEET := preload("res://art/conditions.png")
 const COND_INFO := {
 	Cond.POISONED: [1.0, 1.5, 1.0, -20.0, "Ate raw food that was going bad. Works slowly."],
@@ -891,6 +909,7 @@ const COND_INFO := {
 	Cond.PILLORIED: [1.0, 1.0, 1.0, -10.0, "Put in the stocks for a tantrum or a protest."],
 	Cond.HEARD: [0.5, 1.0, 1.0, 10.0, "The ruler listened to their complaint."],
 	Cond.WEDDING: [2.0, 1.0, 1.0, 10.0, "Celebrated the ruler's wedding."],
+	Cond.PREGNANT: [PREGNANCY, 1.0, 1.0, 0.0, "Expecting a child. In the last months works more slowly."],
 }
 const GLUTTON_MOOD := 2.0  # il goloso: tanta felicità in più (o in meno) da quello che mangia
 const FOOD_CONDS := [Cond.WELL_FED, Cond.FEASTED, Cond.AT_TABLE, Cond.ATE_RAW]
@@ -1271,6 +1290,11 @@ class Colonist:
 	var died := 0.0               # `clock` della morte (vedi corpses)
 	var born := INF               # `clock` della nascita (vedi age_of); INF: da dare, salvataggio di prima delle età
 	var spouse = null             # Colonist: il coniuge, anche morto (vedi married)
+	var mother = null             # Colonist: i genitori, anche morti (vedi give_birth)
+	var father = null
+	var due := 0.0                # incinta: `clock` del parto; 0 se no (vedi conceive)
+	var fertile_from := 0.0       # `clock` da cui può restare incinta di nuovo: un anno dopo il parto
+	var cradle := Vector2i(-1, -1)  # neonato: la culla dove sta; (-1, -1) in braccio (vedi place_babies)
 	# avventurieri (vedi HEROES): per i coloni hero è NONE e il resto non conta
 	var hero := Hero.NONE
 	var level := 0                # 1-HERO_LEVEL_MAX
@@ -1377,6 +1401,9 @@ var soil_year_ago := PackedByteArray()  # la stessa all'ultimo Capodanno: l'Alma
 var soil_known := {}        # casella -> true: un contadino bravo (SOIL_EYE) l'ha lavorata e ne sa la terra
 var compost_since := {}     # casella di un cumulo del compost -> `clock` da cui ci matura il marcio (vedi make_compost)
 var manured := {}           # casella d'orto -> true: già concimata per la prossima semina
+var babies: Array[Colonist] = []  # i neonati, fino a CHILD_AGE: non sono ancora coloni (vedi give_birth, place_babies)
+var naming = null           # Colonist: il neonato a cui la finestra della nascita dà il nome
+var naming_line := -1       # la voce della cronaca della sua nascita, che cambia col nome
 var no_manure := {}         # casella d'orto -> true: il suo campo non si concima (dal cartello)
 var tired := {}             # casella -> [Crop, quante volte di fila]: l'ultimo raccolto (vedi tired_count)
 var last_yield := {}        # casella -> [anno, Crop, quanti]: l'ultimo raccolto, per il cartello del campo
@@ -1759,6 +1786,9 @@ func _ready() -> void:
 	$HUD.add_child(gear_menu)
 	gear_menu.id_pressed.connect(choose_gear)
 	$HUD.add_child(marriage_menu)
+	$HUD/BirthPanel/Box/Row/Name.text_changed.connect(name_child)
+	$HUD/BirthPanel/Box/Row/Dice.pressed.connect(roll_child_name)
+	$HUD/BirthPanel/Box/Ok.pressed.connect($HUD/BirthPanel.hide)
 	marriage_menu.id_pressed.connect(marriage_pressed)
 	$HUD/ColonistSheet/Box/Family/Marry.pressed.connect(open_marriage_menu)
 	for slot in Slot.values():
@@ -1772,7 +1802,7 @@ func _ready() -> void:
 	build_field_popup()
 	build_plan_panel()
 	for window in [room_popup, field_popup, plan_panel, craft_popup, jobs_panel, resources_panel, sheet_panel, $HUD/BoardPanel, $HUD/ReportPanel, $HUD/ChroniclePanel,
-			$HUD/KnowledgePanel, $HUD/LawsPanel, $HUD/WikiPanel]:  # X in alto a destra, si trascinano
+			$HUD/KnowledgePanel, $HUD/LawsPanel, $HUD/WikiPanel, $HUD/BirthPanel]:  # X in alto a destra, si trascinano
 		window.get_node("Box/Head/Close").pressed.connect(window.hide)
 		window.gui_input.connect(drag_window.bind(window))
 		window.visibility_changed.connect(window.move_to_front, CONNECT_DEFERRED)  # l'ultima aperta sta sopra
@@ -2904,6 +2934,11 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 	if c.spouse != null:  # la croce: vedovo
 		box.get_node("Family/Spouse").text = tr("Spouse: %s") % full_name(c.spouse) + (" †" if c.spouse.died > 0.0 else "")
 	box.get_node("Family/Marry").visible = c == ruler and can_marry() and box == $HUD/ColonistSheet/Box
+	var kin: Array = children_of(c).map(func(o): return tr("%s, %d years old") % [o.first_name, age_of(o)] + (" †" if o.died > 0.0 else ""))
+	box.get_node("Kin").visible = not kin.is_empty() or c.mother != null
+	box.get_node("Kin").text = tr("Children: %s") % ", ".join(kin) if not kin.is_empty() else (tr("Parents: %s and %s") \
+		% [full_name(c.mother), full_name(c.father)] if c.father != null else tr("Mother: %s") % full_name(c.mother)) \
+		if c.mother != null else ""
 	box.get_node("Head/Arms").visible = c == ruler  # lo stemma lo mette show_title
 	box.get_node("Hero").visible = c.hero != Hero.NONE or c == ruler
 	box.get_node("Hero").text = tr_n("%s, fee %s, %d expedition", "%s, fee %s, %d expeditions", c.trips) % [hero_name(c), coins(fee(c)), c.trips] \
@@ -5021,6 +5056,8 @@ func skill_time(level: int) -> float:
 # quello che ha addosso (vedi GEAR: "time" per quel lavoro, "slow" per tutti)
 func work_factor(c: Colonist, job := Job.NONE) -> float:
 	var f := cond_product(c, 1)
+	if c.due > 0.0 and c.due - clock < PREGNANCY / 3.0:  # gli ultimi mesi
+		f *= PREGNANT_SLOW
 	for g in c.gear.values():
 		f *= (STEEL_TIME if steel(g) and GEAR[g].get("time", {}).has(job) else GEAR[g].get("time", {}).get(job, 1.0)) * GEAR[g].get("slow", 1.0)
 	return f
@@ -5820,6 +5857,134 @@ func marriage_pressed(id: int) -> void:
 	if id >= 0 and can_marry():
 		marry(ruler, colonists[id])
 		open_sheet(ruler)
+
+
+# Di notte (CONCEIVE_HOUR), una donna sposata che dorme nella stessa stanza del marito può restare incinta: in età
+# (FERTILE_AGE, da LATE_FERTILE la metà), non già incinta, passato un anno dall'ultimo parto
+func conceive(c: Colonist) -> void:
+	var years := age_of(c)
+	if c.sex != Sex.FEMALE or not married(c) or c.spouse not in colonists or c.due > 0.0 or clock < c.fertile_from \
+			or years < FERTILE_AGE[0] or years > FERTILE_AGE[1]:
+		return
+	var room := room_at(cell_of(c.pos))
+	if c.job != Job.SLEEP or c.spouse.job != Job.SLEEP or room == null or room != room_at(cell_of(c.spouse.pos)):
+		return
+	if randf() < CONCEIVE_CHANCE * (0.5 if years >= LATE_FERTILE else 1.0):
+		c.due = clock + PREGNANCY
+		add_cond(c, Cond.PREGNANT)
+
+
+# Il parto: un neonato in `babies`, figlio di `mother` e del marito. Il cognome e i colori della casata (se uno dei
+# due è della casata del sovrano, se no del padre); capelli da uno dei due; ogni loro talento al TRAIT_INHERIT, al più
+# due, mai in contrasto. La cronaca lo scrive, la finestra della nascita chiede il nome
+func give_birth(mother: Colonist) -> void:
+	var father = mother.spouse
+	var parents: Array = [mother] + ([father] if father != null else [])
+	var house: Colonist = parents[-1]  # il genitore della casata del sovrano, se c'è; se no il padre
+	for p in parents:
+		if ruler != null and p.last_name == ruler.last_name:
+			house = p
+			break
+	var child := Colonist.new()
+	dress(child, people().map(func(o): return o.first_name) + babies.map(func(o): return o.first_name))
+	child.nickname = ""
+	child.beard = false  # la barba, forse, da adulto (vedi new_day)
+	child.last_name = house.last_name
+	child.tunic = house.tunic
+	child.cape = house.cape
+	child.hair = parents.pick_random().hair
+	child.born = clock
+	child.mother = mother
+	child.father = father
+	var pool: Array = []
+	for p in parents:
+		pool.append_array(p.traits.filter(func(t): return t not in pool))
+	pool.shuffle()
+	for t in pool:
+		if child.traits.size() < 2 and randf() < TRAIT_INHERIT and not child.traits.any(func(o): return clash(o, t)):
+			child.traits.append(t)
+	child.skills = Skill.values().map(func(_s): return 0)
+	child.xp = Skill.values().map(func(_s): return 0)
+	child.needs = Need.values().map(func(n): return 0.0 if n == Need.STRESS else NEED_MAX * 0.8)
+	child.trend = child.needs.map(func(_v): return 0.0)
+	child.pos = mother.pos
+	mother.due = 0.0
+	mother.conds.erase(Cond.PREGNANT)
+	mother.fertile_from = clock + LIFE_YEAR
+	babies.append(child)
+	place_babies()
+	note(birth_line(child))
+	naming = child
+	naming_line = chronicle.size() - 1
+	var panel: Control = $HUD/BirthPanel
+	var what := tr("a boy") if child.sex == Sex.MALE else tr("a girl")
+	panel.get_node("Box/Text").text = tr("%s and %s have a child: %s.") % [full_name(mother), full_name(father), what] \
+		if father != null else tr("%s has a child: %s.") % [full_name(mother), what]
+	panel.get_node("Box/Row/Name").text = child.first_name
+	panel.show()
+	panel.reset_size()
+
+
+# la voce della cronaca per la nascita di `child`
+func birth_line(child: Colonist) -> String:
+	return tr("%s: %s is born, child of %s and %s.") % [date(int(child.born)), full_name(child), full_name(child.mother),
+		full_name(child.father)] if child.father != null else tr("%s: %s is born, child of %s.") % [date(int(child.born)),
+		full_name(child), full_name(child.mother)]
+
+
+# il nome del neonato, dalla finestra della nascita (vuoto: resta quello di prima); cambia anche la cronaca
+func name_child(text: String) -> void:
+	if naming == null or text.strip_edges() == "":
+		return
+	naming.first_name = text.strip_edges()
+	if naming_line >= 0 and naming_line < chronicle.size():
+		chronicle[naming_line] = birth_line(naming)
+
+
+func roll_child_name() -> void:
+	if naming == null:
+		return
+	var taken: Array = people().map(func(o): return o.first_name) + babies.map(func(o): return o.first_name)
+	var free: Array = FIRST_NAMES[naming.sex].filter(func(n): return n not in taken)
+	$HUD/BirthPanel/Box/Row/Name.text = (free if not free.is_empty() else FIRST_NAMES[naming.sex]).pick_random()
+	name_child($HUD/BirthPanel/Box/Row/Name.text)
+
+
+# Ogni neonato in una culla libera (prima quelle nelle stanze dei genitori, i più piccoli per primi); chi resta senza
+# sta in braccio (vedi carrier_of)
+func place_babies() -> void:
+	var cradles: Array = furniture.keys().filter(func(k): return furniture[k][0] == Build.CRADLE)
+	var order := babies.duplicate()
+	order.sort_custom(func(a, b): return a.born > b.born)
+	for b in order:
+		b.cradle = Vector2i(-1, -1)
+	for b in order:
+		var mine := cradles.filter(func(k): return room_at(k) != null and [b.mother, b.father].any(func(p): return p in room_at(k).owners))
+		var pick: Array = mine if not mine.is_empty() else cradles
+		if not pick.is_empty():
+			b.cradle = pick[0]
+			cradles.erase(pick[0])
+
+
+# chi tiene in braccio il neonato `b` senza culla: la madre, se no il padre, se no il primo adulto della colonia
+func carrier_of(b: Colonist):
+	for p in [b.mother, b.father]:
+		if p != null and p in colonists:
+			return p
+	for c in colonists:
+		if age_of(c) >= ADULT:
+			return c
+	return null
+
+
+# i figli di `c`, vivi o morti, neonati compresi, dal più grande
+func children_of(c: Colonist) -> Array:
+	var all: Array = []
+	for o in colonists + babies + corpses:
+		if (o.mother == c or o.father == c) and o not in all:
+			all.append(o)
+	all.sort_custom(func(a, b): return a.born < b.born)
+	return all
 
 
 # gli anni di `c`, compiuti: uno a stagione (LIFE_YEAR giorni)
@@ -6735,6 +6900,13 @@ func new_day() -> void:
 # ponytail: un'ora di attesa al più; un giorno di scorta alla volta
 func new_hour() -> void:
 	make_compost()
+	for c in colonists.duplicate():  # i parti, poi di notte il concepimento
+		if c.due > 0.0 and clock >= c.due:
+			give_birth(c)
+	if hour % 24 == CONCEIVE_HOUR:
+		for c in colonists:
+			conceive(c)
+	place_babies()
 	wear_roofs()
 	melt_ice()
 	ignite_roofs()
@@ -8400,6 +8572,9 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 	for cell in bushes:  # bassi, dentro la loro casella come i massi; con le bacche (o i fiori) se sono maturi
 		draw_texture_rect_region(PLANTS, tile_rect(cell.x, cell.y), tile_rect(plant_col(cell) + (1 if bushes[cell] <= clock else 0), 0))
 	draw_pieces(self, FURNITURE_NIGHT if sun_height() < 0 else FURNITURE_SHEET, furniture)
+	for b in babies:  # nella culla
+		if b.cradle.x >= 0 and furniture.get(b.cradle, [-1])[0] == Build.CRADLE:
+			draw_texture_rect(BABY, tile_rect(b.cradle.x, b.cradle.y), false)
 	for origin in furniture:  # stendardi: sopra il drappo rosso, quello della casata (stesso fotogramma)
 		if furniture[origin][0] == Build.BANNER:
 			var r := piece_rects(origin, furniture[origin])
@@ -8897,6 +9072,9 @@ func draw_colonist(c: Colonist) -> void:
 		draw_figure(self, Rect2(at, Vector2.ONE * TILE), src, c)
 	if c.hp < MAX_HP:
 		draw_health(c.pos, c.hp / MAX_HP)
+	for b in babies:  # in braccio, senza culla
+		if (b.cradle.x < 0 or furniture.get(b.cradle, [-1])[0] != Build.CRADLE) and carrier_of(b) == c:
+			draw_texture_rect(BABY, Rect2(at + Vector2(0, 5), Vector2(10, 10)), false)
 	if c.carrying > 0:
 		draw_texture_rect(ICONS[c.carry_res], Rect2(at + Vector2(8, 6), Vector2(8, 8)), false)
 	elif c.bucket:

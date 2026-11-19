@@ -116,8 +116,116 @@ func _initialize() -> void:
 	check(copy.age_of(copy.ruler) <= 30, "il sovrano al più 30 anni")
 	Engine.time_scale = 1.0  # caricata riparte in pausa
 
-	print("OK: età, vecchiaia e matrimonio")
+	# figli: la coppia sposata che dorme nella stessa stanza; di notte l'1%
+	copy.queue_free()
+	var wife = sad
+	wife.needs[main.Need.HAPPINESS] = 80.0
+	main.marry(ruler, wife)
+	var room = build_room(main)
+	check(room != null, "una stanza per la coppia")
+	var beds: Array = room.cells.keys()
+	ruler.pos = main.center(beds[0])
+	wife.pos = main.center(beds[1])
+	ruler.job = main.Job.SLEEP
+	wife.job = main.Job.SLEEP
+	wife.born = main.clock - 25.5 * main.LIFE_YEAR
+	main.conceive(ruler)
+	check(ruler.due == 0.0, "il marito non resta incinto")
+	wife.job = main.Job.NONE
+	for i in 2000:
+		main.conceive(wife)
+	check(wife.due == 0.0, "sveglia, niente")
+	wife.job = main.Job.SLEEP
+	wife.pos = main.center(main.MAP_SIZE / 2 + Vector2i(30, 30))
+	for i in 2000:
+		main.conceive(wife)
+	check(wife.due == 0.0, "in un'altra stanza, niente")
+	wife.pos = main.center(beds[1])
+	wife.born = main.clock - 41.5 * main.LIFE_YEAR
+	for i in 2000:
+		main.conceive(wife)
+	check(wife.due == 0.0, "dopo i 40 anni, niente")
+	wife.born = main.clock - 25.5 * main.LIFE_YEAR
+	var tries := 0
+	while wife.due == 0.0 and tries < 3000:
+		main.conceive(wife)
+		tries += 1
+	check(wife.due > 0.0 and tries > 10 and tries < 1000, "insieme nella stanza, di notte: incinta dopo %d notti" % tries)
+	check(is_equal_approx(wife.due, main.clock + main.PREGNANCY) and wife.conds.has(main.Cond.PREGNANT), "incinta per tre quarti d'anno")
+	var early: float = main.work_factor(wife)
+	main.clock = wife.due - main.PREGNANCY / 4.0
+	check(is_equal_approx(main.work_factor(wife), early * main.PREGNANT_SLOW), "negli ultimi mesi lavora più piano")
+	# il parto: un neonato della casata, col nome dalla finestra
+	wife.traits = [main.Trait.GLUTTON]
+	ruler.traits = [main.Trait.EARLY_BIRD]
+	main.clock = wife.due
+	main.hour = int(main.clock * 24)
+	main.new_hour()
+	check(main.babies.size() == 1 and wife.due == 0.0 and not wife.conds.has(main.Cond.PREGNANT), "è nato")
+	var baby = main.babies[0]
+	check(baby.mother == wife and baby.father == ruler and baby.last_name == ruler.last_name and baby.tunic == ruler.tunic,
+		"figlio dei due, col cognome e i colori della casata")
+	check(main.age_of(baby) == 0 and baby not in main.colonists and not baby.beard, "un neonato, non ancora un colono")
+	check(is_equal_approx(wife.fertile_from, main.clock + main.LIFE_YEAR), "per un anno niente altri figli")
+	var panel: Control = main.get_node("HUD/BirthPanel")
+	check(panel.visible and panel.get_node("Box/Row/Name").text == baby.first_name, "la finestra chiede il nome")
+	check(Array(main.chronicle).any(func(line): return "%s is born, child of" % main.full_name(baby) in line), "la cronaca")
+	panel.get_node("Box/Row/Name").text_changed.emit("Arnolfo")
+	check(baby.first_name == "Arnolfo" and main.chronicle[main.chronicle.size() - 1].contains("Arnolfo"), "il nome scelto, anche nella cronaca")
+	panel.get_node("Box/Row/Dice").pressed.emit()
+	check(baby.first_name in main.FIRST_NAMES[baby.sex], "il dado: un nome a caso")
+	panel.get_node("Box/Ok").pressed.emit()
+	check(not panel.visible, "e si chiude")
+	main.open_sheet(ruler)
+	check(main.get_node("HUD/ColonistSheet/Box/Kin").text == "Children: %s, 0 years old" % baby.first_name, "nella scheda i figli")
+	# in braccio alla madre, o nella culla della stanza
+	check(baby.cradle == Vector2i(-1, -1) and main.carrier_of(baby) == wife, "senza culla, in braccio alla madre")
+	main.furniture[beds[2]] = [main.Build.CRADLE, main.Res.WOOD, 0]
+	main.place_babies()
+	check(baby.cradle == beds[2], "nella culla")
+	main.furniture.erase(beds[2])
+	main.place_babies()
+	check(baby.cradle == Vector2i(-1, -1), "tolta la culla, di nuovo in braccio")
+	# i talenti: ognuno al 50%, al più due, mai in contrasto
+	var got := {main.Trait.GLUTTON: 0, main.Trait.EARLY_BIRD: 0}
+	for i in 300:
+		wife.spouse = ruler
+		main.give_birth(wife)
+		var b = main.babies.pop_back()
+		for t in b.traits:
+			got[t] += 1
+	check(got.values().all(func(n): return n > 110 and n < 190), "ogni talento passa una volta su due: %s" % got)
+	main.get_node("HUD/BirthPanel").hide()
+
+	print("OK: età, vecchiaia, matrimonio e figli")
 	quit()
+
+
+# una stanza 5x5 (3x3 dentro) sul prato libero vicino al centro, la porta in basso
+func build_room(main):
+	var mid: Vector2i = main.MAP_SIZE / 2
+	for y in range(mid.y - 20, mid.y + 20):
+		for x in range(mid.x - 20, mid.x + 20):
+			var spot := Rect2i(x, y, 5, 5)
+			if spot.grow(1).has_point(mid) or not main.cells_in(spot.grow(1)).all(func(k): return (not main.water.has(k)
+					and not main.rocks.has(k) and not main.boulders.has(k) and not main.built.has(k)
+					and main.items.values().all(func(ground): return not ground.has(k)))):
+				continue
+			for k in main.cells_in(spot.grow(1)):
+				for plants in [main.trees, main.bushes, main.weeds, main.flax]:
+					plants.erase(k)
+				main.astar.set_point_solid(k, false)
+			for k in main.cells_in(spot):
+				if k == spot.position + Vector2i(2, 4):
+					main.built[k] = [main.Build.DOOR, main.Res.WOOD]
+				elif not spot.grow(-1).has_point(k):
+					main.built[k] = [main.Build.WALL, main.Res.WOOD]
+					main.astar.set_point_solid(k)
+			main.update_rooms()
+			for room in main.rooms:
+				if room.cells.has(spot.position + Vector2i(2, 2)):
+					return room
+	return null
 
 
 # un colono in più, adulto, accanto al centro
