@@ -432,8 +432,9 @@ func _initialize() -> void:
 	worker.downed = false
 	worker.job = main.Job.NONE
 	# il nome apre la scheda
-	var grid = census.get_node("Box/Scroll/List").get_children().filter(func(n): return n is GridContainer)[0]
-	var button: Button = grid.get_child(1).get_child(0)
+	var cards: Array = census.get_node("Box/Scroll/List").get_children().filter(func(n): return n is PanelContainer)
+	check(cards.size() == main.census_rows.size(), "un riquadro per persona")
+	var button: Button = cards[0].get_child(0).get_child(1).get_child(0)
 	button.pressed.emit()
 	check(main.sheet_panel.visible and main.shown == groups["colonists"][0], "il nome apre la scheda")
 	main.toggle_census()

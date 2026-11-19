@@ -22,7 +22,7 @@ King è un gestionale di colonia medievale. Sei il sovrano di una piccola signor
 Il tuo stemma e il nome del tuo reame (clic: la scheda del sovrano), gli oggetti nei magazzini, i coloni (anche quelli in spedizione), i letti e lo splendore; poi LUPI e SPEDIZIONI quando ce ne sono, la stagione, la data, l'ora e l'ordine che stai dando.
 
 [color=#e8c34a]Abitanti[/color]
-Clicca il numero dei coloni (o la sua icona) per l'elenco di tutti, gruppo per gruppo, ognuno col sesso, l'età e cosa sta facendo in quel momento:
+Clicca il numero dei coloni (o la sua icona) per l'elenco di tutti, gruppo per gruppo, ognuno in un riquadro col colore del gruppo: sesso, età e cosa sta facendo in quel momento.
 • Coloni, prima il sovrano, e i neonati.
 • Forestieri: i nuovi coloni ancora Forestieri (e per quanto), i viandanti venuti a chiedere di restare, i pretendenti.
 • Alla locanda: gli avventurieri, con classe, livello, paga e spedizioni, e quando se ne vanno se nessuno li ingaggia.

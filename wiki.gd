@@ -23,7 +23,7 @@ King is a medieval colony sim. You are the ruler of a small lordship, but you ne
 Your arms and the name of your realm (click: the ruler's sheet), the items in your warehouses, colonists (those away on expeditions too), beds and splendor; then WOLVES and EXPEDITION when there are any, the season, the date, the hour and the order you are giving.
 
 [color=#e8c34a]Inhabitants[/color]
-Click the number of colonists (or its icon) for the list of everyone, group by group, each with sex, age and what they are doing right now:
+Click the number of colonists (or its icon) for the list of everyone, group by group, each in a box with the group's color: sex, age and what they are doing right now.
 • Colonists, your ruler first, and the babies.
 • Foreigners: new colonists still Foreigner (and for how long), wanderers who came to ask to stay, suitors.
 • At the inn: the adventurers, with class, level, fee and expeditions, and when they leave if nobody hires them.

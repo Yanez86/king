@@ -246,7 +246,13 @@ const DOING := {Job.CHOP: "Chopping a tree", Job.MINE: "Mining", Job.UPROOT: "Up
 	Job.GOVERN: "Holding audience", Job.PROTEST: "Protesting in the throne room", Job.REPAIR: "Repairing a roof",
 	Job.CUT_ICE: "Cutting ice", Job.DOUSE: "Putting out a fire", Job.FARM: "Tending the garden",
 	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne"}
-const CENSUS_COLUMNS := [300, 100, 250]  # px: chi è, l'età, cosa fa; uguali in tutti i gruppi dell'elenco, così si allineano
+const CENSUS_COLUMNS := [280, 120, 250]  # px: chi è, l'età, cosa fa; uguali in tutti i riquadri dell'elenco, così si allineano
+const CENSUS_FONT := [18, 18, 22]  # dimensioni del testo nell'elenco: sotto il nome, nome età e cosa fa, titoli dei gruppi (a 16 il 3 sembra un 8)
+const CENSUS_CARD := Color(0.17, 0.15, 0.2, 0.92)  # fondo dei riquadri
+const CENSUS_BORDER := Color("6b5236")             # bordo, color legno
+const CENSUS_DIM := Color(0.75, 0.72, 0.68)        # chi è, sotto il nome
+# il colore di ogni gruppo: coloni, forestieri, alla locanda, in spedizione
+const CENSUS_ACCENTS := [Color("e8c34a"), Color("8fbf4f"), Color("6a9ad8"), Color("d8784a")]
 const ERRAND_DOING := {Errand.ARRIVE: "Coming to the inn", Errand.LEAVE: "Leaving", Errand.DEPART: "Setting out on an expedition",
 	Errand.RETURN: "Back from an expedition: to the inn", Errand.VISIT: "Coming to ask to stay"}
 # "skills": abilità -> livello per livello dell'avventuriero; "weapon": l'abilità con cui combatte nella rovina; "gear" e
@@ -7407,14 +7413,15 @@ func pick_row(g: Colonist, text: String) -> HBoxContainer:
 	return row
 
 
-# la figurina di `c`, al doppio, di fronte; col mouse sopra la sua scheda (bacheca, finestra della domanda)
-func figure_icon(c: Colonist) -> Control:
+# la figurina di `c`, ingrandita `scale` volte (di solito al doppio), di fronte; col mouse sopra la sua scheda
+# (bacheca, finestra della domanda, elenco degli abitanti)
+func figure_icon(c: Colonist, scale := 2) -> Control:
 	var icon := Control.new()
-	icon.custom_minimum_size = Vector2.ONE * TILE * 2
+	icon.custom_minimum_size = Vector2.ONE * TILE * scale
 	icon.set_script(TIP)
 	icon.set("make_tip", colonist_tip.bind(c))
 	icon.tooltip_text = full_name(c)
-	icon.draw.connect(draw_figure.bind(icon, Rect2(Vector2.ZERO, Vector2.ONE * TILE * 2), Rect2(0, 0, TILE, TILE), c))
+	icon.draw.connect(draw_figure.bind(icon, Rect2(Vector2.ZERO, Vector2.ONE * TILE * scale), Rect2(0, 0, TILE, TILE), c))
 	return icon
 
 
@@ -7462,72 +7469,102 @@ func fill_census() -> void:
 	for child in list.get_children():
 		child.free()
 	var settled: Array = groups["colonists"]
-	census_section(list, tr("Colonists (%d)") % settled.size(), settled, "")
-	census_section(list, tr("Foreigners (%d)") % groups["strangers"].size(), groups["strangers"], tr("No foreigners."))
-	census_section(list, tr("At the inn (%d)") % groups["inn"].size(), groups["inn"], tr("Nobody at the inn."))
+	census_section(list, tr("Colonists (%d)") % settled.size(), settled, CENSUS_ACCENTS[0], "")
+	census_section(list, tr("Foreigners (%d)") % groups["strangers"].size(), groups["strangers"], CENSUS_ACCENTS[1], tr("No foreigners."))
+	census_section(list, tr("At the inn (%d)") % groups["inn"].size(), groups["inn"], CENSUS_ACCENTS[2], tr("Nobody at the inn."))
 	var away: int = groups["trips"].reduce(func(n, t): return n + t[1].size(), 0)
-	census_section(list, tr("On expeditions (%d)") % away, [], tr("Nobody away.") if groups["trips"].is_empty() else "")
+	census_section(list, tr("On expeditions (%d)") % away, [], CENSUS_ACCENTS[3], tr("Nobody away.") if groups["trips"].is_empty() else "")
 	for trip in groups["trips"]:
 		var exp: Expedition = trip[0]
 		var where := tr(RUINS[exp.ruin.kind]["name"])
 		census_section(list, tr("Setting out for the %s") % where if exp.left_at < 0
-			else tr("At the %s, due back by day %d") % [where, int(exp.due) + 1], trip[1], "", true)
+			else tr("At the %s, due back by day %d") % [where, int(exp.due) + 1], trip[1], CENSUS_ACCENTS[3], "", true)
 	$HUD/CensusPanel.reset_size()
 
 
-# un gruppo dell'elenco: il titolo, poi una riga per persona (`nobody`: il testo se non c'è nessuno; `sub`: un
-# sottogruppo, la spedizione, col titolo più piccolo)
-func census_section(list: Control, title: String, people_of: Array, nobody: String, sub := false) -> void:
+# un gruppo dell'elenco: il titolo, poi un riquadro per persona (vedi census_card). `accent`: il colore del gruppo, sul
+# titolo e sulla striscia a sinistra dei riquadri; `nobody`: il testo se non c'è nessuno; `sub`: un sottogruppo, la
+# spedizione, col titolo più piccolo
+func census_section(list: Control, title: String, people_of: Array, accent: Color, nobody: String, sub := false) -> void:
 	var head := Label.new()
 	head.text = title
-	head.add_theme_color_override("font_color", BUILD_INFO_COLOR if sub else SPLENDOR_COLOR)
+	head.add_theme_color_override("font_color", accent.lightened(0.25) if sub else accent)
+	head.add_theme_font_size_override("font_size", CENSUS_FONT[1] if sub else CENSUS_FONT[2])
 	list.add_child(head)
 	if people_of.is_empty():
 		if nobody != "":
 			var none := Label.new()
 			none.text = nobody
+			none.add_theme_color_override("font_color", CENSUS_DIM)
 			list.add_child(none)
 		return
-	var grid := GridContainer.new()
-	grid.columns = 4
-	grid.add_theme_constant_override("h_separation", 12)
 	for c in people_of:
-		grid.add_child(ui_icon(BABY, Rect2(), Vector2(32, 32)) if c in babies else figure_icon(c))
-		var who := VBoxContainer.new()
-		who.add_theme_constant_override("separation", 0)
-		who.custom_minimum_size.x = CENSUS_COLUMNS[0]
-		var name := Button.new()
-		name.flat = true
-		name.focus_mode = Control.FOCUS_NONE
-		name.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		name.text = full_name(c)
-		name.tooltip_text = "Open the sheet"
-		if c == ruler:
-			name.icon = ICONS[Res.CROWN]
-		name.pressed.connect(open_sheet.bind(c))
-		who.add_child(name)
-		var role := census_role(c)
-		if role != "":
-			var label := rich(role)
-			label.autowrap_mode = TextServer.AUTOWRAP_WORD  # largo quanto la colonna: le colonne dei gruppi restano allineate
-			label.custom_minimum_size.x = CENSUS_COLUMNS[0]
-			label.add_theme_color_override("default_color", Color(0.75, 0.72, 0.68))
-			who.add_child(label)
-		grid.add_child(who)
-		var sex := HBoxContainer.new()
-		sex.add_child(ui_icon(SEX_ICONS[c.sex], Rect2(), Vector2(16, 16)))
-		var age := Label.new()
-		age.text = tr("%d years old") % age_of(c)
-		age.custom_minimum_size.x = CENSUS_COLUMNS[1]
-		sex.add_child(age)
-		grid.add_child(sex)
-		var now := Label.new()
-		now.text = census_doing(c)
-		now.custom_minimum_size.x = CENSUS_COLUMNS[2]
-		now.autowrap_mode = TextServer.AUTOWRAP_WORD
-		grid.add_child(now)
-		census_rows.append([c, now])
-	list.add_child(grid)
+		list.add_child(census_card(c, accent))
+
+
+# Il riquadro di `c` nell'elenco degli abitanti: fondo scuro, bordo di legno, a sinistra la striscia del gruppo. Dentro
+# la figurina grande (col mouse sopra la scheda), il nome (cliccato apre la scheda) e sotto chi è; sesso ed età; cosa fa
+# (si aggiorna a ogni fotogramma, vedi census_rows). Le colonne hanno la stessa larghezza in tutti i riquadri
+func census_card(c: Colonist, accent: Color) -> PanelContainer:
+	var card := PanelContainer.new()
+	var style := StyleBoxFlat.new()
+	style.bg_color = CENSUS_CARD
+	style.border_color = CENSUS_BORDER
+	style.set_border_width_all(2)
+	style.border_width_left = 6
+	style.set_content_margin_all(6)
+	style.content_margin_left = 10
+	card.add_theme_stylebox_override("panel", style)
+	card.draw.connect(func():  # la striscia del gruppo, sopra il bordo di sinistra
+		card.draw_rect(Rect2(0, 0, 6, card.size.y), accent))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	card.add_child(row)
+	var face: Control = ui_icon(BABY, Rect2(), Vector2(48, 48)) if c in babies else figure_icon(c, 3)
+	face.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(face)
+	var who := VBoxContainer.new()
+	who.add_theme_constant_override("separation", 2)
+	who.custom_minimum_size.x = CENSUS_COLUMNS[0]
+	who.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var name := Button.new()
+	name.flat = true
+	name.focus_mode = Control.FOCUS_NONE
+	name.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	name.text = full_name(c)
+	name.tooltip_text = "Open the sheet"
+	name.add_theme_font_size_override("font_size", CENSUS_FONT[1])
+	if c == ruler:
+		name.icon = ICONS[Res.CROWN]
+	name.pressed.connect(open_sheet.bind(c))
+	who.add_child(name)
+	var role := census_role(c)
+	if role != "":
+		var label := rich(role)
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD
+		label.custom_minimum_size.x = CENSUS_COLUMNS[0]
+		label.add_theme_color_override("default_color", CENSUS_DIM)
+		label.add_theme_font_size_override("normal_font_size", CENSUS_FONT[0])
+		who.add_child(label)
+	row.add_child(who)
+	var sex := HBoxContainer.new()
+	sex.custom_minimum_size.x = CENSUS_COLUMNS[1]
+	sex.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	sex.add_child(ui_icon(SEX_ICONS[c.sex], Rect2(), Vector2(16, 16)))
+	var age := Label.new()
+	age.text = tr("%d years old") % age_of(c)
+	age.add_theme_font_size_override("font_size", CENSUS_FONT[1])
+	sex.add_child(age)
+	row.add_child(sex)
+	var now := Label.new()
+	now.text = census_doing(c)
+	now.custom_minimum_size.x = CENSUS_COLUMNS[2]
+	now.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	now.autowrap_mode = TextServer.AUTOWRAP_WORD
+	now.add_theme_font_size_override("font_size", CENSUS_FONT[1])
+	row.add_child(now)
+	census_rows.append([c, now])
+	return card
 
 
 # sotto il nome, chi è: il titolo del sovrano, l'erede, chi era avventuriero, il viandante, il pretendente,
