@@ -10,8 +10,9 @@
 | Sistema | GDD | A che punto è | Il pezzo grosso che manca |
 |---|---|---|---|
 | Lavori e priorità | 4.1 | fatto | i lavoratori delle stanze non contano ancora |
-| Coloni | 4.2 | quasi tutto | medico, tombe; malattie che si attaccano; relazioni e umore |
+| Coloni | 4.2 | quasi tutto | malattie che si attaccano; relazioni e umore |
 | Nuovi coloni | 4.2.1 | fatto | tarare i numeri |
+| Medicina e morte | 4.2.2 | deciso | tutto: le fasi 1–4 |
 | Sovrano e dinastia | 4.3 | dinastia fatta (4.3.3); del sovrano fasi 1, 2, 6 e mezza 5 | sovrano sereno/cupo, stile di regno, sguardo, epiteti |
 | Stemma | 4.3.2 | base | linee, pellicce, ornamenti, motto, blasonatura |
 | Risorse ed edifici | 4.4 | fatto | vene d'oro, commercio |
@@ -33,8 +34,9 @@ La dinastia c'è (4.3.3), la colonia cresce (4.2.1: avventurieri che restano, vi
 Compagnia della corona, il titolo che vuole anche i coloni) e il narratore manda gli eventi (4.6: lupi, visite, fortune,
 sfortune, la tregua). Ora si possono fare anche le leggi della dinastia (vedi Leggi).
 
-1. **Medicina e morte** — Erboristeria, Medicina (il medico cura anche la febbre del narratore), tombe e cimitero,
-   funerali (legge Funerali).
+1. **Medicina e morte** (4.2.2, deciso, in corso) — l'abilità Medicina, erbe e unguento (Erboristeria); infermeria,
+   riposo e il medico che soccorre e cura (Medicina, anche la febbre del narratore); tombe e sepoltura; la legge
+   Funerali e il memoriale dei caduti. Il lutto si accorcia.
 2. **Cucina e animali** — Forno di pietra, stufato, conserve; poi Apicoltura e Banchetto reale; animali da allevare e
    la stalla, col letame.
 
@@ -47,7 +49,6 @@ sfortune, la tregua). Ora si possono fare anche le leggi della dinastia (vedi Le
 
 - [ ] Soglie di livello delle abilità da definire.
 - [ ] Altri effetti dello stress, oltre alla felicità.
-- [ ] Morte: tombe e cimitero, funerali, il medico che cura chi è a terra.
 - [ ] Condizioni nuove: malattie che si attaccano (la febbre del narratore c'è), perdita di punti ferita.
 - [ ] Talenti nuovi: Robusto (resiste al freddo), Pirofobo (non cucina); più talenti in generale (dopo-MVP n. 5).
 - [ ] Scheda: bisogni e relazioni.
@@ -59,6 +60,16 @@ sfortune, la tregua). Ora si possono fare anche le leggi della dinastia (vedi Le
 
 - [ ] Tarare i numeri: l'attesa dei viandanti (30 giorni, splendore, affollamento sopra 8 coloni), quanti in famiglia,
   dopo quante spedizioni chiede di restare un avventuriero e con quanta felicità, i giorni da forestiero.
+
+## Medicina e morte (4.2.2)
+
+Deciso il 2026-11-19. Fasi ancora da fare:
+
+- [ ] (1) Erboristeria: l'abilità Medicina, le erbe medicinali nei prati, l'unguento al fuoco, spalmarselo.
+- [ ] (2) Medicina: armadio dei rimedi e infermeria, il riposo a letto, il lavoro Curare (soccorrere chi è a terra,
+  curare, la febbre).
+- [ ] (3) Tombe e sepoltura: il corpo che aspetta (2 giorni), il tumulo col nome, il lutto un giorno più corto.
+- [ ] (4) La legge Funerali e il memoriale dei caduti (Statuaria).
 
 ## Sovrano e dinastia (4.3, 4.3.1)
 
@@ -123,12 +134,10 @@ Dinastia (4.3.3, fatta): quello che resta.
 ## Combattimento e splendore (4.4.3)
 
 - [ ] Predoni (umani).
-- [ ] Medico e cure; funerali.
 - [ ] Animali che fuggono o si difendono.
 - [ ] Ordini di combattimento dati dal re (il combattimento tattico resta fuori scope).
 - [ ] L'arciere che sale da sé sulla torre di guardia.
 - [ ] Splendore: strade che collegano le case, alberi piantati, feste; i sentieri tra le case danno splendore.
-- [ ] Statuaria: i memoriali dei caduti (lutto un giorno in meno).
 
 ## Avventurieri e rovine (4.4.4)
 

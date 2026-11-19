@@ -63,7 +63,7 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   - Il corpo resta dove è caduto per un giorno, poi sparisce; l'equipaggiamento cade a terra lì accanto e si riporta in
     magazzino. Gli altri coloni prendono *lutto* (vedi Condizioni).
   - Il re che muore lascia la corona all'erede (vedi 4.3). Se muoiono tutti i coloni, la partita finisce.
-  - Poi: tombe e cimitero, funerali, medico che cura chi è a terra.
+  - Tombe e cimitero, funerali, il medico che cura chi è a terra: vedi 4.2.2.
 - **Sesso**: uomo o donna, a caso (metà e metà); il nome viene dalla lista del suo sesso. Nella scheda, sotto il nome,
   l'icona (♂ azzurro, ♀ rosa) e la parola. Per ora non cambia abilità né bisogni; servirà alla dinastia (matrimonio, figli, 4.3).
 - **Aspetto**: lo sprite è fatto di livelli, uno sull'altro:
@@ -109,8 +109,8 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   | Ispirato (evento del narratore, 4.6) | 1 giorno | −20% tempo | — | +5 |
   | Febbre (evento del narratore, 4.6; si stanca il doppio) | 3 giorni | +50% tempo | — | −10 |
 
-  Ben nutrito e pasto squisito si escludono: vale l'ultimo pasto. La febbre è la prima malattia. Poi: malattie che si
-  attaccano, il medico che le cura (Medicina), perdita di punti ferita.
+  Ben nutrito e pasto squisito si escludono: vale l'ultimo pasto. La febbre è la prima malattia; il medico la cura (4.2.2).
+  Poi: malattie che si attaccano, perdita di punti ferita.
 - **Scheda** (clic sul colono): nome, soprannome (facoltativo), cognome, sesso, punti ferita, abilità (ognuna con un'icona 8×8), talenti (solo icone, il nome col mouse sopra), equipaggiamento (4 slot: mani, corpo, testa, scudo). Poi bisogni, relazioni.
 - **Abitanti** (clic sul numero dei coloni in alto, o sulla sua icona; deciso il 2026-11-19): una finestra con tutti,
   gruppo per gruppo, ognuno nel suo riquadro (con la striscia del colore del gruppo a sinistra): figurina grande, nome
@@ -157,6 +157,50 @@ i viandanti. Il valore della colonia (lo splendore) attira gente; i tanti coloni
   la finestra si riapre. Chi giura va nella sala del trono prima di ogni altra cosa. Il contatore dei coloni nella barra
   in alto conta anche chi è in spedizione. Da tarare: l'attesa dei viandanti e quante volte chiedono di restare gli
   avventurieri.
+
+### 4.2.2 Medicina e morte
+Deciso il 2026-11-19. Numeri da tarare. Due ricerche del Sapere (4.7.3) curano i vivi, le tombe e una legge (4.7.7)
+accompagnano i morti.
+- **Medicina** (abilità nuova, dopo la ricerca): fare l'unguento e curare; +1 esperienza a unguento fatto e a cura,
+  il tempo ×1,5 a livello 0 e ×0,5 a 10, come le altre. I coloni partono da 0; il sovrano può metterci i suoi punti.
+- **Erbe medicinali**: piantine fiorite sparse nei prati (circa una ogni 150 caselle di prato, fuori dalla radura), come
+  il lino. Si raccolgono col segno Harvest (lavoro Raccogliere): 5 erbe per pianta, che rifiorisce dopo 2 giorni; d'inverno
+  no. Le erbe non marciscono. Ci sono dall'inizio; servono con l'Erboristeria.
+- **Erboristeria** (Sapere I, 100): l'**unguento**, al fuoco da campo (o al focolare) di una cucina: 2 erbe, 10 s a
+  livello 5, abilità Medicina; nel menu della postazione quanti tenerne (all'inizio 3). Chi è in piedi e ha meno di 60
+  punti ferita, se c'è un unguento in un mucchio, va a prenderlo e se lo spalma (3 s): **+30 punti ferita**. Viene dopo
+  la fame e prima del lavoro; non lo fanno gli ospiti né chi combatte.
+- **Medicina** (Sapere II, 300 e un quaderno, dopo l'Erboristeria):
+  - **Armadio dei rimedi** (1x1, 8 legna) e nuovo tipo di stanza **Infermeria** (servizio): almeno un letto e l'armadio.
+    I suoi letti sono solo per chi sta male: chi è a terra, chi ha meno di 50 punti ferita, chi ha la febbre. In un letto
+    dell'infermeria si guarisce il 50% più in fretta (a terra 60 al giorno invece di 40, dormendo 90 invece di 60).
+  - **Riposo**: chi ha meno di 50 punti ferita o la febbre, se c'è un letto libero in infermeria, ci va e resta a letto
+    (anche nelle ore di lavoro) finché non torna a 80 e la febbre è passata. Prima del lavoro, come l'unguento.
+  - **Curare** (lavoro nuovo, con la croce rossa, la prima colonna della tabella; c'è solo con la Medicina). Il medico,
+    in quest'ordine:
+    1. **Soccorre** chi è a terra fuori da un letto: se c'è un letto libero in infermeria se lo carica in spalla e ce lo
+       porta. Se no lo cura dove si trova.
+    2. **Cura** chi è a terra, chi è a letto in infermeria (sotto 80 o con la febbre) o ha la febbre, se non è già
+       medicato: prende un unguento da un mucchio, se c'è, va da lui e lo cura (8 s a livello 5). Il malato è
+       **Medicato** (condizione, 1 giorno): i punti ferita tornano il doppio più in fretta; con l'unguento +30 subito. La
+       febbre medicata passa entro mezza giornata.
+    Il medico non cura sé stesso: si spalma l'unguento da solo.
+- **Il corpo**: chi muore resta dove è caduto finché qualcuno non lo seppellisce, al più 2 giorni (prima uno); poi
+  sparisce, come oggi. L'equipaggiamento cade lì accanto.
+- **Tomba** (1x2, 4 legna, dall'inizio): una fossa con la croce di legno, solo all'aperto. Con un corpo a terra e una
+  tomba vuota, un trasportatore (lavoro Trasportare) se lo carica in spalla, lo porta alla tomba e lo seppellisce (5 s):
+  la fossa diventa un tumulo, e col mouse sopra dice chi c'è sepolto, gli anni, il giorno e come è morto. Le tombe vicine
+  sono il **cimitero** (non è una stanza: nessun cartello). Chi muore in spedizione non ha un corpo, né una tomba.
+- **Il lutto** (4.2, Condizioni) oggi: 3 giorni, −15; il lutto regale 7 giorni, −20 (4.3.3). Ognuno si accorcia:
+  - **sepolto**: un giorno in meno (2; il regale 6, e l'incoronazione si anticipa con lui);
+  - **Funerali** (legge, Feste, signoria, 30; serve una tomba): il giorno della sepoltura alle 18 (subito, se è già sera;
+    dopo le 22 il giorno dopo) chi è in colonia, sveglio e in piedi, lascia quello che fa e va alla tomba: due ore attorno
+    al tumulo. Chi c'è stato ha il lutto a −10 invece di −15 (il regale −15 invece di −20);
+  - **Memoriale dei caduti** (Statuaria, 4.7.3): una stele di pietra (1x1, 10 pietra), splendore 2; con un memoriale il
+    lutto dura un altro giorno in meno (anche il regale).
+- **Ordine di lavoro**: (1) Erboristeria: l'abilità Medicina, le erbe, l'unguento, spalmarselo; (2) Medicina: infermeria
+  e armadio, il riposo, il medico (soccorrere, curare, la febbre); (3) tombe e sepoltura, il corpo che aspetta, il lutto
+  più corto; (4) la legge Funerali e il memoriale dei caduti.
 
 ### 4.3 Il re e la dinastia
 - Il **sovrano** (re solo alla fine, vedi Titolo) è un colono come gli altri: lavori e priorità, bisogni, routine, abilità che
@@ -581,7 +625,8 @@ Decisa il 2026-11-19. Numeri da tarare.
   - **Protezione**: −6% di danno per punto (cotta ed elmo, 8 punti: −48%), al massimo −80%.
 - Un lupo segnato da cacciare, colpito o mancato, attacca il cacciatore invece di scappare.
 - Si muore: vedi Morte in 4.2. Un lupo senza nessuno in piedi da inseguire morde chi è a terra.
-- Poi: predoni (umani), funerali, medico e cure, animali che fuggono o si difendono, ordini di combattimento dati dal re.
+- Medico, cure e funerali: vedi 4.2.2. Poi: predoni (umani), animali che fuggono o si difendono, ordini di combattimento
+  dati dal re.
 
 - **Splendore** della colonia (termine provvisorio; alternative: decoro, prestigio, lustro): tiene felici i coloni e
   sblocca cose. Lo danno le decorazioni finite, ovunque stiano (il totale in alto). Primo effetto: attira avventurieri
@@ -923,7 +968,7 @@ Deciso il 2026-11-19. Numeri da tarare. Un **narratore** solo (niente carattere 
 | Dono del pellegrino | fortuna | con una sala del trono | 30 giorni | un pellegrino arriva dal bordo, va al trono, lascia 20–40 monete e se ne va; +5 autorità |
 | Topi nel magazzino | sfortuna | almeno 20 di cibo crudo nei magazzini | 25 giorni, pausa 15 | un quarto del cibo crudo del magazzino che ne ha di più va perso |
 | Ladro di notte | sfortuna | dal giorno 15, almeno 20 monete in magazzino; di notte | 30 giorni | col Turno di guardia e chi fa la guardia sveglio lo prendono: +5 autorità; se no sparisce un quarto delle monete (al più 50) |
-| Febbre | sfortuna | dal giorno 10; d'inverno ogni 10 giorni | 20 giorni | un colono a caso: **Febbre** (condizione) per 3 giorni, lavora il 50% più lento, si stanca il doppio, −10 felicità; non si attacca. Poi la cura il medico (Medicina, 4.7.3) |
+| Febbre | sfortuna | dal giorno 10; d'inverno ogni 10 giorni | 20 giorni | un colono a caso: **Febbre** (condizione) per 3 giorni, lavora il 50% più lento, si stanca il doppio, −10 felicità; non si attacca. Poi la cura il medico (Medicina, 4.2.2) |
 
 - **Ordine di lavoro**: (1) il narratore e la tabella, con dentro viandanti ed erudito errante (gli stessi ritmi di
   oggi), la cronaca e il salvataggio; (2) le minacce: il branco di lupi nel narratore, la tregua, il branco che cresce
@@ -1029,7 +1074,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Stufa a olle ✓ | II | 300 | Carbonaia, Muratura | *stufa a olle* contro un muro: +10 °C alla sua stanza e a quella dietro, anche attraverso la pietra (vedi 4.4.5) |
   | Pietra | Muratura ✓ | I | 60 | — | *muri e pavimenti di pietra, focolare col comignolo, intonaco* (vedi 4.4.5) |
   | | Arredo fine ✓ | II | 250 | Muratura | letto a baldacchino (un letto, comfort 2), tappeto di pelli, armadio (comfort 1): la camera signorile del sovrano |
-  | | Statuaria ✓ | III | 500 | Arredo fine | *statua del re*; poi i memoriali dei caduti (lutto un giorno in meno) |
+  | | Statuaria ✓ | III | 500 | Arredo fine | *statua del re*; poi il memoriale dei caduti (lutto un giorno in meno, 4.2.2) |
   | | Palazzo ✓ | IV | 1200 | Statuaria | la sala del trono diventa palazzo: udienza +50%, +10 splendore (se ce n'è una) |
   | | Decorazioni ✓ | I | 40 | — | *aiuola, fioriera, panca* |
   | | Fontana ✓ | II | 250 | Decorazioni | *fontana* |
@@ -1054,8 +1099,8 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Scriptorium ✓ | II | 250 | Libreria | pergamena (1 pelle → 2) e inchiostro (carbone e bacche → 2) al banco da lavoro: allo scrittoio si copiano i quaderni (3 pergamene, 1 inchiostro, 150 studio; quanti tenerne nella finestra Knowledge) |
   | | Astronomia ✓ | III | 500 | Scriptorium | le previsioni del tempo arrivano un giorno più in là (poi: sfera armillare, stagioni un giorno prima) |
   | | Biblioteca reale | IV | 1200 | Astronomia | si rilegano i tomi (2 quaderni + 400 studio); +2 autorità al giorno |
-  | | Erboristeria | I | 100 | — | erbe medicinali, unguento (+30 punti ferita) |
-  | | Medicina | II | 300 | Erboristeria | infermeria e medico: cura chi è a terra |
+  | | Erboristeria | I | 100 | — | l'unguento dalle erbe medicinali, al fuoco: +30 punti ferita (4.2.2) |
+  | | Medicina | II | 300 | Erboristeria | armadio dei rimedi e infermeria; il lavoro Curare: il medico soccorre e cura chi è a terra, i feriti e la febbre (4.2.2) |
   | | Lanterne ✓ | I | 40 | — | *abat-jour, lampione* |
 
 #### 4.7.4 L'autorità
@@ -1131,7 +1176,7 @@ Quattro fasce, una per titolo; sei categorie. ✓ = c'è nel gioco.
 | | Successione elettiva | contea | 150 | Successione | la colonia sceglie l'erede tra coniuge e figli; lutto regale 4 giorni | tutti +2 |
 | | Assolutismo | regno | 300 | Corona finale | le leggi non danno più né approvazione né disapprovazione; udienza +100% | — |
 | Feste | Festa del raccolto ✓ | signoria | 40 | — | i cinque giorni di festa del calendario si cucina e basta; poi +10 felicità per 3 giorni, +5 autorità | — |
-| | Funerali | signoria | 30 | cimitero | due ore di funerale: lutto di 2 giorni, −10 | — |
+| | Funerali | signoria | 30 | una tomba | sepolto un colono, alle 18 due ore attorno alla tomba: lutto −10 invece di −15 (4.2.2) | — |
 | | Torneo | baronia | 100 | Fantoccio | gare a stagione; quel giorno gli avventurieri arrivano di un livello in più | tutti +3; iracondo +5 |
 | | Cronista di corte | baronia | 80 | Scriptorium | +1 autorità per spedizione raccontata, epiteti più ricchi | il cronista +3 |
 | | Mecenatismo | contea | 150 | — | decorazioni +25% splendore (Mecenate +50%); 2 monete al giorno agli artisti | tutti +2 |
