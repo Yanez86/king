@@ -405,7 +405,7 @@ func _initialize() -> void:
 	check(main.next_chamber(crypt) == ahead, "la prossima stanza resta quella")
 	main.board_key = ""
 	main.fill_board()
-	var rows: Array = main.get_node("HUD/BoardPanel/Box/Ruins").find_children("*", "Label", true, false).map(func(l): return l.text)
+	var rows: Array = main.get_node("HUD/BoardPanel/Box/Columns/Right/Places/List/Ruins").find_children("*", "Label", true, false).map(func(l): return l.text)
 	check(rows.any(func(t): return t.contains("next: " + main.CHAMBER_NAMES[ahead])), "sulla bacheca la prossima stanza")
 	crypt.next = main.Chamber.COLLAPSE
 	var dig = main.Expedition.new()

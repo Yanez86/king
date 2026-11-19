@@ -562,7 +562,7 @@ With a medic standing, whoever falls is carried home. Stealth doesn't work on th
 • For 5 days they are a Foreigner: -5 happiness, work 10% slower."""],
 
 	["Ruins & Expeditions", """[color=#e8c34a]The notice board[/color]
-Click it: the coins and provisions in store, who waits at the inn (Pick up to 4), the ruins you know, the expeditions away and the last page of the chronicle. Every ruin has its Send button, with the fees and provisions it takes; hover it for the days of the trip.
+Click it: the coins and provisions in store, then everything in boxes. On the left who waits at the inn, two boxes a row: class and level, traits, fee (and the colonists of the crown's company, if you have it). Click a box, or its Pick, to choose who goes, up to 4: the box lights up. On the right the ruins you know, each with its danger, the rooms cleared and, once you have picked someone, what the trip costs (fees, provisions, days) and its Send button; below them the expeditions away, with their figures and the day they are due back. At the bottom the last page of the chronicle.
 
 [color=#e8c34a]Expeditions[/color]
 • Provisions: one a head for every day of the trip (there, ½ day for every room left, back), first from the crown's granary, then from warehouses, meals before raw food. Short of them, the party leaves anyway and goes hungry: -20 health a day each.

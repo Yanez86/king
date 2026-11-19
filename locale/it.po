@@ -3794,3 +3794,34 @@ msgstr "Di ritorno da una spedizione: alla locanda"
 msgctxt "doing"
 msgid "Coming to ask to stay"
 msgstr "Viene a chiedere di restare"
+
+# --- La bacheca a riquadri
+
+msgid "At the inn"
+msgstr "Alla locanda"
+
+msgid "Ruins"
+msgstr "Rovine"
+
+msgid "Away"
+msgstr "In viaggio"
+
+msgid "Ruins (%d)"
+msgstr "Rovine (%d)"
+
+msgid "Colonist"
+msgstr "Colono"
+
+msgid "armor %d"
+msgstr "protezione %d"
+
+msgid "danger %d"
+msgstr "pericolo %d"
+
+msgid "Fee"
+msgstr "Paga"
+
+msgid "%d day"
+msgid_plural "%d days"
+msgstr[0] "%d giorno"
+msgstr[1] "%d giorni"

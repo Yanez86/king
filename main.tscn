@@ -1798,39 +1798,72 @@ text = "Notice: wanted at the inn"
 [node name="Class" type="OptionButton" parent="HUD/BoardPanel/Box/Notice"]
 focus_mode = 0
 
-[node name="Waiting" type="ScrollContainer" parent="HUD/BoardPanel/Box"]
+[node name="Columns" type="HBoxContainer" parent="HUD/BoardPanel/Box"]
+theme_override_constants/separation = 16
+
+[node name="Left" type="VBoxContainer" parent="HUD/BoardPanel/Box/Columns"]
+theme_override_constants/separation = 6
+
+[node name="InnTitle" type="Label" parent="HUD/BoardPanel/Box/Columns/Left"]
+text = "At the inn"
+
+[node name="Waiting" type="ScrollContainer" parent="HUD/BoardPanel/Box/Columns/Left"]
 horizontal_scroll_mode = 0
 
-[node name="People" type="VBoxContainer" parent="HUD/BoardPanel/Box/Waiting"]
+[node name="People" type="VBoxContainer" parent="HUD/BoardPanel/Box/Columns/Left/Waiting"]
 size_flags_horizontal = 3
-theme_override_constants/separation = 6
+theme_override_constants/separation = 8
 
-[node name="Heroes" type="VBoxContainer" parent="HUD/BoardPanel/Box/Waiting/People"]
-theme_override_constants/separation = 6
+[node name="Heroes" type="HFlowContainer" parent="HUD/BoardPanel/Box/Columns/Left/Waiting/People"]
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
 
-[node name="Company" type="VBoxContainer" parent="HUD/BoardPanel/Box/Waiting/People"]
+[node name="Company" type="VBoxContainer" parent="HUD/BoardPanel/Box/Columns/Left/Waiting/People"]
 visible = false
 theme_override_constants/separation = 6
 
-[node name="Title" type="Label" parent="HUD/BoardPanel/Box/Waiting/People/Company"]
+[node name="Title" type="Label" parent="HUD/BoardPanel/Box/Columns/Left/Waiting/People/Company"]
 text = "The crown's company: colonists who can go along"
 
-[node name="List" type="VBoxContainer" parent="HUD/BoardPanel/Box/Waiting/People/Company"]
+[node name="List" type="HFlowContainer" parent="HUD/BoardPanel/Box/Columns/Left/Waiting/People/Company"]
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="Right" type="VBoxContainer" parent="HUD/BoardPanel/Box/Columns"]
 theme_override_constants/separation = 6
 
-[node name="Separator" type="HSeparator" parent="HUD/BoardPanel/Box"]
+[node name="RuinsTitle" type="Label" parent="HUD/BoardPanel/Box/Columns/Right"]
+text = "Ruins"
 
-[node name="Ruins" type="VBoxContainer" parent="HUD/BoardPanel/Box"]
+[node name="Places" type="ScrollContainer" parent="HUD/BoardPanel/Box/Columns/Right"]
+horizontal_scroll_mode = 0
 
-[node name="Away" type="Label" parent="HUD/BoardPanel/Box"]
+[node name="List" type="VBoxContainer" parent="HUD/BoardPanel/Box/Columns/Right/Places"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
 
-[node name="Chronicle" type="RichTextLabel" parent="HUD/BoardPanel/Box"]
-custom_minimum_size = Vector2(400, 0)
+[node name="Ruins" type="VBoxContainer" parent="HUD/BoardPanel/Box/Columns/Right/Places/List"]
+theme_override_constants/separation = 8
+
+[node name="AwayTitle" type="Label" parent="HUD/BoardPanel/Box/Columns/Right/Places/List"]
+text = "Away"
+
+[node name="Away" type="VBoxContainer" parent="HUD/BoardPanel/Box/Columns/Right/Places/List"]
+theme_override_constants/separation = 8
+
+[node name="Foot" type="HBoxContainer" parent="HUD/BoardPanel/Box"]
+theme_override_constants/separation = 12
+
+[node name="Chronicle" type="RichTextLabel" parent="HUD/BoardPanel/Box/Foot"]
+size_flags_horizontal = 3
+size_flags_vertical = 4
 bbcode_enabled = true
 fit_content = true
 scroll_active = false
+autowrap_mode = 0
+text_overrun_behavior = 3
 
-[node name="ChronicleButton" type="Button" parent="HUD/BoardPanel/Box"]
+[node name="ChronicleButton" type="Button" parent="HUD/BoardPanel/Box/Foot"]
 focus_mode = 0
 text = "Chronicle"
 

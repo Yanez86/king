@@ -247,7 +247,11 @@ const DOING := {Job.CHOP: "Chopping a tree", Job.MINE: "Mining", Job.UPROOT: "Up
 	Job.GOVERN: "Holding audience", Job.PROTEST: "Protesting in the throne room", Job.REPAIR: "Repairing a roof",
 	Job.CUT_ICE: "Cutting ice", Job.DOUSE: "Putting out a fire", Job.FARM: "Tending the garden",
 	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne"}
-const BOARD_LIST := 280.0  # pixel: la lista di chi aspetta sulla bacheca, al più; poi scorre
+const BOARD_LIST := 400.0  # pixel: le due colonne della bacheca, al più; poi scorrono
+const BOARD_CARD := 320    # pixel: il riquadro di chi può partire, due per riga
+const BOARD_RUIN := 520    # pixel: il riquadro di una rovina o di una spedizione
+const EQUIPMENT_SHEET := preload("res://art/equipment.png")  # le sagome degli slot, 16x16 nell'ordine di Slot
+const DANGER_COLORS := [Color("8fbf4f"), Color("e8c34a"), Color("d8784a"), Color("d84a3a"), Color("a050c0")]  # pericolo 1-5
 const CENSUS_COLUMNS := [320, 130, 290]  # px: chi è, l'età, cosa fa; uguali in tutti i riquadri dell'elenco, così si allineano
 const CENSUS_FONT := [22, 22, 22]  # dimensioni del testo nell'elenco: sotto il nome, nome età e cosa fa, titoli dei
 # gruppi. Come il tema: il font è nitido del tutto solo a 11, 22, 33 (un suo pixel è 1/11 della grandezza)
@@ -1914,7 +1918,7 @@ func _ready() -> void:
 			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT \
 					and shown.hero == Hero.NONE:
 				open_gear_menu(slot))
-	$HUD/BoardPanel/Box/ChronicleButton.pressed.connect(open_chronicle)
+	$HUD/BoardPanel/Box/Foot/ChronicleButton.pressed.connect(open_chronicle)
 	build_field_popup()
 	build_plan_panel()
 	for window in [room_popup, field_popup, plan_panel, craft_popup, jobs_panel, resources_panel, sheet_panel, $HUD/BoardPanel, $HUD/ReportPanel, $HUD/ChroniclePanel,
@@ -7313,10 +7317,11 @@ func open_board() -> void:
 	$HUD/BoardPanel.show()
 
 
-# Finestra della bacheca: oro e provviste nei magazzini, chi aspetta alla locanda (da spuntare per la spedizione, al
-# più MAX_PARTY), le rovine conosciute (ognuna col tasto per mandarci gli spuntati: paghe e provviste), le spedizioni
-# in corso e il titolo dell'ultima pagina della cronaca (tutta col tasto Chronicle). Si rifà solo quando cambia
-# qualcosa, se no i tasti non si premono
+# Finestra della bacheca, in riquadri: in alto oro e provviste, l'avviso alla locanda; a sinistra chi aspetta alla
+# locanda e i coloni della compagnia, due riquadri per riga (si spuntano per la prossima spedizione, al più MAX_PARTY:
+# il riquadro si illumina); a destra le rovine conosciute, ognuna col suo riquadro (le paghe e le provviste del gruppo
+# spuntato, il tasto per mandarlo) e le spedizioni in viaggio; in fondo l'ultima pagina della cronaca. Le due colonne
+# scorrono oltre BOARD_LIST. Si rifà solo quando cambia qualcosa, se no i tasti non si premono
 func fill_board() -> void:
 	var waiting := guests.filter(func(g): return g.hero != Hero.NONE and not g.hired and g.errand != Errand.LEAVE)
 	var company := volunteers()  # Compagnia della corona: i coloni che possono andare con loro
@@ -7324,7 +7329,7 @@ func fill_board() -> void:
 		if g not in waiting and g not in company:
 			board_pick.erase(g)
 	var key := str([stored(Res.GOLD), food_stored(), waiting, company, board_pick, ruins.map(func(r): return r.cleared),
-		expeditions.map(func(exp): return exp.left_at), chronicle.size()])
+		expeditions.map(func(exp): return exp.left_at), chronicle.size(), TranslationServer.get_locale()])
 	if key == board_key:
 		return
 	board_key = key
@@ -7338,97 +7343,235 @@ func fill_board() -> void:
 	notice.select(notice.get_item_index(wanted_hero))
 	box.get_node("Gold").text = tr("%s    %d %s provisions (meals, raw food, hardtack)") % [coins(stored(Res.GOLD)), food_stored(),
 		"[img=center]%s[/img]" % KIND_ICONS[ItemKind.FOOD].resource_path]
-	var list: Control = box.get_node("Waiting/People/Heroes")  # chi aspetta e i coloni scorrono: la bacheca resta nello schermo
-	var crew: Control = box.get_node("Waiting/People/Company/List")
-	for child in list.get_children() + box.get_node("Ruins").get_children() + crew.get_children():
+	var left: Control = box.get_node("Columns/Left")
+	var list: Control = left.get_node("Waiting/People/Heroes")
+	var crew: Control = left.get_node("Waiting/People/Company/List")
+	var places: Control = box.get_node("Columns/Right/Places/List")
+	for child in list.get_children() + crew.get_children() + places.get_node("Ruins").get_children() + places.get_node("Away").get_children():
 		child.free()
+	left.get_node("InnTitle").text = tr("At the inn (%d)") % waiting.size()
 	for g in waiting:
-		list.add_child(pick_row(g, "%s\n%s, %s, %s" % [full_name(g), hero_name(g), gift_names(g), coins(fee(g))]))
+		list.add_child(board_card(g))
 	if waiting.is_empty():
-		var nobody := Label.new()
-		nobody.text = "Nobody is waiting at the inn." if inn_beds() > 0 else "Nobody will come without an inn: a room with a bed, a table and this board."
-		nobody.autowrap_mode = TextServer.AUTOWRAP_WORD
-		list.add_child(nobody)
-	box.get_node("Waiting/People/Company").visible = researched.has(Tech.CROWN_COMPANY)
+		list.add_child(board_note("Nobody is waiting at the inn." if inn_beds() > 0
+			else "Nobody will come without an inn: a room with a bed, a table and this board."))
+	left.get_node("Waiting/People/Company").visible = researched.has(Tech.CROWN_COMPANY)
 	for c in company:
-		crew.add_child(pick_row(c, "%s\n%s" % [full_name(c), tr("Melee %d, ranged %d, armor %d") % [c.skills[Skill.MELEE],
-			c.skills[Skill.RANGED], gear_sum(c, "armor")]]))
+		crew.add_child(board_card(c))
 	if company.is_empty():
-		var nobody := Label.new()
-		nobody.text = "Nobody can go: adults only, not the ruler, nobody downed or pregnant."
-		nobody.autowrap_mode = TextServer.AUTOWRAP_WORD
-		crew.add_child(nobody)
-	var cost: int = board_pick.reduce(func(n, g): return n + fee(g), 0)
-	var anyone := board_pick.any(func(g): return g.hero != Hero.NONE)  # ci vuole almeno un avventuriero
+		crew.add_child(board_note("Nobody can go: adults only, not the ruler, nobody downed or pregnant."))
+	box.get_node("Columns/Right/RuinsTitle").text = tr("Ruins (%d)") % ruins.size()
 	for ruin in ruins:
-		var data: Dictionary = RUINS[ruin.kind]
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 16)
-		var label := Label.new()
-		label.text = tr("%s, danger %d: %s") % [tr(data["name"]), data["danger"],
-			tr("explored") if explored(ruin) else tr("rooms %d / %d") % [ruin.cleared, data["rooms"]]]
-		if researched.has(Tech.CARTOGRAPHY) and not explored(ruin):
-			label.text += tr(", next: %s") % (tr("the treasure") if ruin.cleared == data["rooms"] - 1 else tr(CHAMBER_NAMES[next_chamber(ruin)]))
-		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(label)
-		if not explored(ruin):
-			var food := provisions(board_pick, ruin)
-			if not board_pick.is_empty():  # quanto costa mandarci gli spuntati
-				var price := rich("%s, %d [img=center]%s[/img]" % [coins(cost), food, KIND_ICONS[ItemKind.FOOD].resource_path])
-				price.custom_minimum_size.x = 110
-				price.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-				row.add_child(price)
-			var send_button := Button.new()
-			send_button.text = "Send"
-			send_button.focus_mode = Control.FOCUS_NONE
-			send_button.disabled = board_pick.is_empty() or stored(Res.GOLD) < cost or not anyone
-			send_button.tooltip_text = "Pick who goes" if board_pick.is_empty() else ("At least one adventurer must go" if not anyone
-				else "Not enough gold" if stored(Res.GOLD) < cost
-				else (tr("Only %d of %d provisions: they will go hungry") % [food_stored(), food] if food_stored() < food
-				else tr("%d days there and back") % ceili(trip_days(ruin, board_pick))))
-			send_button.pressed.connect(func(): send(board_pick.duplicate(), ruin))
-			row.add_child(send_button)
-		box.get_node("Ruins").add_child(row)
-	box.get_node("Away").text = "\n".join(expeditions.map(func(exp): return "%s: %s" % [", ".join(exp.party.map(func(c): return c.first_name)),
-		tr("on the way out") if exp.left_at < 0 else tr("at the %s, due back by day %d") % [tr(RUINS[exp.ruin.kind]["name"]), int(exp.due) + 1]]))
-	box.get_node("Away").visible = not expeditions.is_empty()
-	box.get_node("Chronicle").text = tr("Last: ") + chronicle[-1].get_slice("\n", 0) if not chronicle.is_empty() else ""  # il resto nella cronaca
-	box.get_node("Chronicle").visible = not chronicle.is_empty()
-	box.get_node("ChronicleButton").text = tr("Chronicle (%d)") % chronicle.size()
+		places.get_node("Ruins").add_child(ruin_card(ruin))
+	places.get_node("AwayTitle").visible = not expeditions.is_empty()
+	places.get_node("AwayTitle").text = tr("On expeditions (%d)") % expeditions.size()
+	for exp in expeditions:
+		places.get_node("Away").add_child(trip_card(exp))
+	box.get_node("Foot/Chronicle").text = tr("Last: ") + chronicle[-1].get_slice("\n", 0) if not chronicle.is_empty() else ""  # il resto nella cronaca
+	box.get_node("Foot/ChronicleButton").text = tr("Chronicle (%d)") % chronicle.size()
 	$HUD/BoardPanel.reset_size()
-	fit_board_list.call_deferred()  # le righe nuove si misurano a fine fotogramma
+	fit_board_list.call_deferred()  # i riquadri nuovi si misurano a fine fotogramma
 
 
-# la lista di chi aspetta sulla bacheca: alta quanto serve, al più BOARD_LIST (poi scorre); la bacheca si rifà della misura
+# Le due colonne della bacheca: alte quanto serve, al più BOARD_LIST (poi scorrono); la bacheca si rifà della misura.
+# Appena aperta va al centro; poi resta dove la si trascina, ma dentro lo schermo
 func fit_board_list() -> void:
-	var people: Control = $HUD/BoardPanel/Box/Waiting/People
-	$HUD/BoardPanel/Box/Waiting.custom_minimum_size = Vector2(people.get_combined_minimum_size().x,
-		minf(people.get_combined_minimum_size().y, BOARD_LIST))
+	var box: Control = $HUD/BoardPanel/Box/Columns
+	for pair in [["Left/Waiting", "Left/Waiting/People", BOARD_CARD * 2 + 8], ["Right/Places", "Right/Places/List", BOARD_RUIN]]:
+		var inner: Control = box.get_node(pair[1])  # più il posto della barra per scorrere
+		box.get_node(pair[0]).custom_minimum_size = Vector2(pair[2] + 20, minf(inner.get_combined_minimum_size().y, BOARD_LIST))
 	var panel: Control = $HUD/BoardPanel
 	panel.reset_size()
-	if panel.has_meta("center"):  # appena aperta: al centro; poi dove la si trascina, ma dentro lo schermo
+	if panel.has_meta("center"):
 		panel.remove_meta("center")
 		panel.position = ((get_viewport_rect().size - panel.size) / 2).floor()
 	panel.position = panel.position.clamp(Vector2.ZERO, (get_viewport_rect().size - panel.size).max(Vector2.ZERO))
 
 
-# una riga della bacheca: la figurina di `g`, il testo, la casella per spuntarlo per la prossima spedizione
-func pick_row(g: Colonist, text: String) -> HBoxContainer:
-	var row := HBoxContainer.new()
-	row.add_child(figure_icon(g))
-	var label := rich(text)
-	label.custom_minimum_size.x = 280
-	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	row.add_child(label)
+# un riquadro con lo sfondo scuro, il bordo di legno e a sinistra la striscia `accent`; `lit`: scelto, col bordo d'oro
+func make_card(accent: Color, lit := false) -> PanelContainer:
+	var card := PanelContainer.new()
+	var style := StyleBoxFlat.new()
+	style.bg_color = CENSUS_CARD.lightened(0.1) if lit else CENSUS_CARD
+	style.border_color = SPLENDOR_COLOR if lit else CENSUS_BORDER
+	style.set_border_width_all(2)
+	style.border_width_left = 6
+	style.set_content_margin_all(6)
+	style.content_margin_left = 12
+	card.add_theme_stylebox_override("panel", style)
+	card.draw.connect(func(): card.draw_rect(Rect2(0, 0, 6, card.size.y), accent))  # la striscia, sopra il bordo
+	return card
+
+
+# una riga di testo smorzato sulla bacheca, al posto dei riquadri che non ci sono
+func board_note(text: String) -> Label:
+	var note_label := Label.new()
+	note_label.text = text
+	note_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	note_label.custom_minimum_size.x = BOARD_CARD * 2
+	note_label.add_theme_color_override("font_color", CENSUS_DIM)
+	return note_label
+
+
+# Il riquadro di chi può partire: l'avventuriero (la striscia del colore della sua classe; i talenti, la paga) o il
+# colono della compagnia (mischia, distanza, protezione). La figurina (col mouse sopra la scheda), nome e chi è, la
+# casella per spuntarlo; anche un clic sul riquadro lo spunta. Spuntato, il riquadro si illumina
+func board_card(g: Colonist) -> PanelContainer:
+	var picked := g in board_pick
+	var hero := g.hero != Hero.NONE
+	var card := make_card(Color(HEROES[g.hero]["tunic"]).lightened(0.35) if hero else CENSUS_ACCENTS[0], picked)
+	card.custom_minimum_size.x = BOARD_CARD
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 4)
+	card.add_child(box)
+	var top := HBoxContainer.new()
+	top.add_theme_constant_override("separation", 10)
+	top.add_child(figure_icon(g, 3))
+	var who := VBoxContainer.new()
+	who.add_theme_constant_override("separation", 0)
+	who.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	who.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	for line in ["%s %s" % [g.first_name, g.last_name], hero_name(g) if hero
+			else (tr("Once a %s") % named(Hero, g.former).to_lower() if g.former != Hero.NONE else tr("Colonist"))]:
+		var label := Label.new()
+		label.text = line
+		label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		label.custom_minimum_size.x = 160  # se no il nome lungo allarga il riquadro: lo si legge intero col mouse sopra
+		label.tooltip_text = full_name(g)
+		label.mouse_filter = Control.MOUSE_FILTER_PASS
+		if who.get_child_count() > 0:
+			label.add_theme_color_override("font_color", CENSUS_DIM)
+		who.add_child(label)
+	top.add_child(who)
+	box.add_child(top)
+	var bottom := HBoxContainer.new()
+	bottom.add_theme_constant_override("separation", 6)
+	if hero:
+		for gift_kind in g.gifts:
+			var icon := ui_icon(HERO_TRAITS_SHEET, Rect2(tile_rect(gift_kind, 0)), Vector2(32, 32))
+			icon.tooltip_text = "%s\n%s" % [named(Gift, gift_kind), tr(GIFT_INFO[gift_kind])]
+			bottom.add_child(icon)
+		for t in g.traits:
+			var icon := ui_icon(TRAITS_SHEET, Rect2(tile_rect(t, 0)), Vector2(32, 32))
+			icon.tooltip_text = "%s\n%s" % [named(Trait, t), tr(TRAIT_INFO[t])]
+			bottom.add_child(icon)
+		var price := rich(coins(fee(g)))
+		price.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		price.tooltip_text = "Fee"
+		bottom.add_child(price)
+	else:
+		for s in [Skill.MELEE, Skill.RANGED]:
+			var icon := ui_icon(SKILLS_SHEET, Rect2(s * 8, 0, 8, 8), Vector2(16, 16))
+			icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			icon.tooltip_text = named(Skill, s, "skill")
+			bottom.add_child(icon)
+			var level := Label.new()
+			level.text = str(g.skills[s])
+			bottom.add_child(level)
+		var shield := ui_icon(EQUIPMENT_SHEET, Rect2(Slot.BODY * 16, 0, 16, 16), Vector2(24, 24))  # la protezione
+		shield.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		shield.tooltip_text = tr("armor %d") % gear_sum(g, "armor")
+		bottom.add_child(shield)
+		var armor := Label.new()
+		armor.text = str(int(gear_sum(g, "armor")))
+		bottom.add_child(armor)
+	var gap := Control.new()
+	gap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bottom.add_child(gap)
 	var pick := CheckBox.new()
+	pick.name = "Pick"
 	pick.text = "Pick"
 	pick.focus_mode = Control.FOCUS_NONE
-	pick.button_pressed = g in board_pick
-	pick.disabled = g not in board_pick and board_pick.size() >= MAX_PARTY
+	pick.button_pressed = picked
+	pick.disabled = not picked and board_pick.size() >= MAX_PARTY
 	pick.toggled.connect(toggle_pick.bind(g))
-	row.add_child(pick)
-	return row
+	bottom.add_child(pick)
+	box.add_child(bottom)
+	card.gui_input.connect(func(event):  # un clic sul riquadro lo spunta, come la casella
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and not pick.disabled:
+			pick.button_pressed = not pick.button_pressed)
+	return card
+
+
+# Il riquadro di una rovina: il nome e il pericolo (la striscia va dal verde al rosso), le stanze ripulite (con la
+# prossima, con la cartografia); se non è esplorata, quanto costa mandarci gli spuntati (paga, provviste, giorni) e il
+# tasto Send, spento col perché. Esplorata, sbiadita
+func ruin_card(ruin: Ruin) -> PanelContainer:
+	var data: Dictionary = RUINS[ruin.kind]
+	var done := explored(ruin)
+	var card := make_card(DANGER_COLORS[clampi(data["danger"] - 1, 0, DANGER_COLORS.size() - 1)])
+	card.custom_minimum_size.x = BOARD_RUIN
+	if done:
+		card.modulate.a = 0.6
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 4)
+	card.add_child(box)
+	var head := HBoxContainer.new()
+	var name_label := Label.new()
+	name_label.text = tr(data["name"])
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_label.add_theme_color_override("font_color", BUILD_INFO_COLOR)
+	head.add_child(name_label)
+	var danger := Label.new()
+	danger.text = tr("danger %d") % data["danger"]
+	head.add_child(danger)
+	box.add_child(head)
+	var rooms_label := Label.new()
+	rooms_label.text = tr("explored") if done else tr("rooms %d / %d") % [ruin.cleared, data["rooms"]]
+	if researched.has(Tech.CARTOGRAPHY) and not done:
+		rooms_label.text += tr(", next: %s") % (tr("the treasure") if ruin.cleared == data["rooms"] - 1 else tr(CHAMBER_NAMES[next_chamber(ruin)]))
+	rooms_label.add_theme_color_override("font_color", CENSUS_DIM)
+	rooms_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(rooms_label)
+	if done:
+		return card
+	var cost: int = board_pick.reduce(func(n, g): return n + fee(g), 0)
+	var anyone := board_pick.any(func(g): return g.hero != Hero.NONE)  # ci vuole almeno un avventuriero
+	var food := provisions(board_pick, ruin)
+	var days := ceili(trip_days(ruin, board_pick))
+	var foot := HBoxContainer.new()
+	foot.add_theme_constant_override("separation", 12)
+	var price := rich("%s   %d [img=center]%s[/img]   %s" % [coins(cost), food, KIND_ICONS[ItemKind.FOOD].resource_path,
+		tr_n("%d day", "%d days", days) % days] if not board_pick.is_empty() else tr("Pick who goes"))
+	price.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	price.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	if board_pick.is_empty():
+		price.add_theme_color_override("default_color", CENSUS_DIM)
+	foot.add_child(price)
+	var send_button := Button.new()
+	send_button.name = "Send"
+	send_button.text = "Send"
+	send_button.focus_mode = Control.FOCUS_NONE
+	send_button.disabled = board_pick.is_empty() or stored(Res.GOLD) < cost or not anyone
+	send_button.tooltip_text = "Pick who goes" if board_pick.is_empty() else ("At least one adventurer must go" if not anyone
+		else "Not enough gold" if stored(Res.GOLD) < cost
+		else (tr("Only %d of %d provisions: they will go hungry") % [food_stored(), food] if food_stored() < food
+		else tr("%d days there and back") % days))
+	send_button.pressed.connect(func(): send(board_pick.duplicate(), ruin))
+	foot.add_child(send_button)
+	box.add_child(foot)
+	return card
+
+
+# Il riquadro di una spedizione in viaggio: le figurine del gruppo, dove va o dov'è e quando torna
+func trip_card(exp: Expedition) -> PanelContainer:
+	var card := make_card(CENSUS_ACCENTS[3])
+	card.custom_minimum_size.x = BOARD_RUIN
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 4)
+	for c in (exp.left if not exp.left.is_empty() else exp.party):
+		var face := figure_icon(c)
+		face.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		row.add_child(face)
+	var label := Label.new()
+	label.text = tr("on the way out") if exp.left_at < 0 else tr("at the %s, due back by day %d") % [tr(RUINS[exp.ruin.kind]["name"]), int(exp.due) + 1]
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.custom_minimum_size.x = 200
+	row.add_child(label)
+	card.add_child(row)
+	return card
 
 
 # la figurina di `c`, ingrandita `scale` volte (di solito al doppio), di fronte; col mouse sopra la sua scheda
@@ -7524,17 +7667,7 @@ func census_section(list: Control, title: String, people_of: Array, accent: Colo
 # la figurina grande (col mouse sopra la scheda), il nome (cliccato apre la scheda) e sotto chi è; sesso ed età; cosa fa
 # (si aggiorna a ogni fotogramma, vedi census_rows). Le colonne hanno la stessa larghezza in tutti i riquadri
 func census_card(c: Colonist, accent: Color) -> PanelContainer:
-	var card := PanelContainer.new()
-	var style := StyleBoxFlat.new()
-	style.bg_color = CENSUS_CARD
-	style.border_color = CENSUS_BORDER
-	style.set_border_width_all(2)
-	style.border_width_left = 6
-	style.set_content_margin_all(6)
-	style.content_margin_left = 10
-	card.add_theme_stylebox_override("panel", style)
-	card.draw.connect(func():  # la striscia del gruppo, sopra il bordo di sinistra
-		card.draw_rect(Rect2(0, 0, 6, card.size.y), accent))
+	var card := make_card(accent)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
 	card.add_child(row)

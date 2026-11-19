@@ -197,7 +197,7 @@ func _initialize() -> void:
 	check(head.job not in main.WORK_JOBS and main.free_beds(head).all(func(o): return main.is_inn(main.room_at(o))),
 		"intanto non lavorano, e dormono alla locanda")
 	main.open_board()
-	var rows: int = main.get_node("HUD/BoardPanel/Box/Waiting/People/Heroes").get_children().filter(func(r): return r is HBoxContainer).size()
+	var rows: int = main.get_node("HUD/BoardPanel/Box/Columns/Left/Waiting/People/Heroes").get_children().filter(func(r): return r is PanelContainer).size()
 	check(rows == main.guests.filter(func(g): return g.hero != main.Hero.NONE and g.errand != main.Errand.LEAVE).size()
 		and rows < main.guests.size(), "non sono sulla bacheca")
 	main.get_node("HUD/BoardPanel").hide()
@@ -313,11 +313,23 @@ func _initialize() -> void:
 	main.board_pick.clear()
 	main.open_board()
 	var board = main.get_node("HUD/BoardPanel/Box")
-	check(board.get_node("Waiting/People/Company").visible and board.get_node("Waiting/People/Company/List").get_child_count() == main.volunteers().size(),
+	check(board.get_node("Columns/Left/Waiting/People/Company").visible and board.get_node("Columns/Left/Waiting/People/Company/List").get_child_count() == main.volunteers().size(),
 		"la bacheca mostra i coloni che possono partire")
+	# un clic sul riquadro lo spunta, e il riquadro si illumina
+	var card_of := func(o): return board.get_node("Columns/Left/Waiting/People/Heroes").get_children().filter(func(n): return n is PanelContainer \
+		and n.find_children("*", "Label", true, false).any(func(l): return l.text == "%s %s" % [o.first_name, o.last_name]))[0]
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	card_of.call(leader).gui_input.emit(click)
+	main.fill_board()
+	check(main.board_pick == [leader] and card_of.call(leader).get_theme_stylebox("panel").border_color == main.SPLENDOR_COLOR,
+		"un clic sul riquadro lo spunta, e si illumina")
+	card_of.call(leader).gui_input.emit(click)
+	check(main.board_pick.is_empty(), "un altro clic lo toglie")
 	main.toggle_pick(true, farmer)
 	main.fill_board()
-	var send_button: Button = board.get_node("Ruins").get_child(0).get_child(-1)
+	var send_button: Button = board.get_node("Columns/Right/Places/List/Ruins").get_child(0).find_child("Send", true, false)
 	check(send_button.disabled and send_button.tooltip_text == "At least one adventurer must go", "un colono da solo non parte")
 	check(not main.send([farmer], main.ruins[0]), "un colono da solo non parte")
 	main.get_node("HUD/BoardPanel").hide()

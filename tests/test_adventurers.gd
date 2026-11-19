@@ -83,13 +83,13 @@ func _initialize() -> void:
 	# la bacheca: chi aspetta, da spuntare; le rovine col tasto per mandarci gli spuntati; l'oro non basta
 	main.open_board()
 	var box = main.get_node("HUD/BoardPanel/Box")
-	check(main.get_node("HUD/BoardPanel").visible and box.get_node("Waiting/People/Heroes").get_child_count() == 1, "la bacheca mostra chi aspetta")
-	var pick: CheckBox = box.get_node("Waiting/People/Heroes").get_child(0).get_child(2)
-	var send: Button = box.get_node("Ruins").get_child(0).get_child(-1)
+	check(main.get_node("HUD/BoardPanel").visible and box.get_node("Columns/Left/Waiting/People/Heroes").get_child_count() == 1, "la bacheca mostra chi aspetta")
+	var pick: CheckBox = box.get_node("Columns/Left/Waiting/People/Heroes").get_child(0).find_child("Pick", true, false)
+	var send: Button = box.get_node("Columns/Right/Places/List/Ruins").get_child(0).find_child("Send", true, false)
 	check(send.disabled, "senza nessuno spuntato non si manda nessuno")
 	pick.button_pressed = true
 	main.fill_board()
-	send = box.get_node("Ruins").get_child(0).get_child(-1)
+	send = box.get_node("Columns/Right/Places/List/Ruins").get_child(0).find_child("Send", true, false)
 	check(main.board_pick == [g] and send.disabled == (main.fee(g) > 12), "spuntato; senza abbastanza oro non si parte")
 	check(not main.send([g], tower) or main.fee(g) <= 12, "ingaggio rifiutato")
 	main.add_item(R.GOLD, store, 50)
@@ -230,7 +230,7 @@ func _initialize() -> void:
 	main.update_expeditions()
 	check(main.ruins.map(func(r): return r.kind) == [main.RuinKind.TOWER, main.RuinKind.MINE], "la miniera sulla bacheca")
 	main.fill_board()
-	check(box.get_node("Ruins").get_child_count() == 2, "due rovine sulla bacheca")
+	check(box.get_node("Columns/Right/Places/List/Ruins").get_child_count() == 2, "due rovine sulla bacheca")
 	main.guests.erase(mapped.party[0])
 
 	# livelli: ogni 2 spedizioni tornate
@@ -340,7 +340,7 @@ func _initialize() -> void:
 	# la cronaca: tutto, dal più recente
 	main.open_board()
 	main.fill_board()
-	main.get_node("HUD/BoardPanel/Box/ChronicleButton").pressed.emit()
+	main.get_node("HUD/BoardPanel/Box/Foot/ChronicleButton").pressed.emit()
 	var pages: String = main.get_node("HUD/ChroniclePanel/Box/Scroll/Text").text
 	check(main.get_node("HUD/ChroniclePanel").visible and pages.begins_with(main.chronicle[-1]) and main.chronicle[0] in pages,
 		"la cronaca intera, dal più recente")
