@@ -326,7 +326,7 @@ def phases(blocks):
         steps = re.findall(r"\((\d+)\)\s*(.*?)(?=;?\s*\(\d+\)\s|$)", m.group(2))
         state = next((t for _, t in blocks[i + 1:i + 3] if "**Stato**" in t), "")
         done = set()
-        if f := re.search(r"fatte le fasi ([\d–, e-]+)", state):
+        if f := re.search(r"fatt[ae] (?:le fasi|la fase) ([\d–, e-]+)", state):
             for a, b in re.findall(r"(\d+)(?:[–-](\d+))?", f.group(1)):
                 done.update(range(int(a), int(b or a) + 1))
         part = {int(n) for n in re.findall(r"della (\d+)", state)}

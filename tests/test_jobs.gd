@@ -73,13 +73,15 @@ func _initialize() -> void:
 	for c in main.colonists:  # un colpo ogni 5 secondi, se no il taglio dura troppo
 		c.skills[main.Skill.WOODCUTTING] = main.SKILL_MAX
 	var wood: int = main.chop_marks.keys().reduce(func(sum, k): return sum + main.full_stock(k), 0)
+	var swings: int = main.chop_marks.keys().reduce(func(sum, k): return sum + ceili(main.full_stock(k) / 5.0), 0)
 	for i in 20000:  # 1000 secondi simulati
 		main.tick(0.05)
 		check_work(main)
 	var chopped: int = trees_before - main.trees.size()
 	check(chopped == marked, "tagliati tutti gli alberi segnati")
 	check(main.total(W) == wood, "nessuna legna persa o creata")
-	check(main.colonists.reduce(func(sum, c): return sum + c.xp[main.Skill.WOODCUTTING], 0) == marked, "1 punto esperienza per albero abbattuto, non per colpo")
+	var chop_xp: float = main.colonists.reduce(func(sum, c): return sum + c.xp[main.Skill.WOODCUTTING], 0.0)
+	check(absf(chop_xp - swings * 10.0 * main.XP_PER_SECOND) < 0.01, "esperienza a ogni colpo d'ascia, in proporzione: %.2f" % chop_xp)
 	check(main.stored(W) == 0, "senza magazzino non si trasporta niente")
 	for c in main.colonists:
 		check(c.job == main.Job.NONE, "coloni liberi a fine lavoro")
@@ -159,6 +161,7 @@ func _initialize() -> void:
 	main.order = main.Order.MINE
 	main.mark(area)
 	var boulders_marked: int = main.mine_marks.size()
+	var blows: int = main.mine_marks.keys().reduce(func(sum, k): return sum + ceili(main.full_stock(k) / 5.0), 0)
 	check(boulders_marked > 0, "ci sono massi segnati vicino alla partenza")
 	for c in main.colonists:  # da livello 0 un colpo ogni 22,5 secondi: troppo lento per la prova
 		c.skills[main.Skill.MINING] = main.SKILL_MAX
@@ -167,7 +170,8 @@ func _initialize() -> void:
 		check_work(main)
 	var mined: int = rocks_before - main.rocks.size()
 	check(mined > 0 and main.mine_marks.is_empty(), "scavati tutti i massi segnati")
-	check(main.colonists.reduce(func(sum, c): return sum + c.xp[main.Skill.MINING], 0) == boulders_marked, "1 punto esperienza per masso scavato")
+	var mine_xp: float = main.colonists.reduce(func(sum, c): return sum + c.xp[main.Skill.MINING], 0.0)
+	check(absf(mine_xp - blows * 15.0 * main.XP_PER_SECOND) < 0.01, "esperienza a ogni colpo di piccone: %.2f" % mine_xp)
 	for cell in main.boulders:
 		for k in main.boulder_cells(cell):
 			check(main.astar.is_point_solid(k), "roccia rimasta ancora solida")
@@ -401,9 +405,39 @@ func _initialize() -> void:
 	main.clock += 1.5 * main.ANIMATED[main.Build.FOUNTAIN] / main.DAY_LENGTH
 	check(main.piece_rects(at, [main.Build.FOUNTAIN, main.Res.STONE, 0])[1].position.x != water.position.x, "la fontana zampilla")
 	check(main.colony_splendor() == 0, "niente splendore senza decorazioni")
+	# lo splendore conta solo nella colonia (qui vicino alle stanze, e lungo un sentiero)
 	main.furniture[at] = [main.Build.STATUE, main.Res.STONE, 0]
+	var lane: Array = range(-1, 13).map(func(i): return at + Vector2i(i, -2))
+	for k in lane:
+		main.built[k] = [main.Build.PATH, main.Res.STONE]
+	check(main.colony_splendor() == 8 and main.describe(at)[1] == "+8 colony splendor", "nella colonia sì")
 	main.furniture[at + Vector2i(3, 0)] = [main.Build.FLOWER_BED, W, 0]
 	check(main.colony_splendor() == main.SPLENDOR[main.Build.STATUE] + main.SPLENDOR[main.Build.FLOWER_BED], "splendore sommato")
+	# un'aiuola dà splendore solo senza un'altra entro 4 caselle che già lo dà (vale la più vecchia)
+	main.furniture[at + Vector2i(5, 0)] = [main.Build.FLOWER_BED, W, 0]
+	check(main.colony_splendor() == 9 and main.describe(at + Vector2i(5, 0))[1] == "No splendor: another flower bed within 4 tiles",
+		"un'aiuola troppo vicina: niente")
+	main.furniture[at + Vector2i(8, 0)] = [main.Build.FLOWER_BED, W, 0]
+	check(main.colony_splendor() == 10, "a 5 caselle sì")
+	# lo stendardo conta una volta sola: il primo +2, gli altri niente
+	main.furniture[at + Vector2i(10, 0)] = [main.Build.BANNER, W, 0]
+	main.furniture[at + Vector2i(11, 0)] = [main.Build.BANNER, W, 0]
+	main.furniture[at + Vector2i(12, 0)] = [main.Build.BANNER, W, 0]
+	check(main.colony_splendor() == 12 and main.describe(at + Vector2i(12, 0))[1] == "No splendor: only the first one counts",
+		"lo stendardo: +2, solo il primo")
+	for k in lane:
+		main.built.erase(k)
+	main.furniture.clear()
+	# dentro la palizzata conta anche lontano dai sentieri
+	var pen: Array = main.cells_in(Rect2i(3, 3, 9, 9)).filter(func(k): return k.x in [3, 11] or k.y in [3, 11])
+	main.furniture[Vector2i(7, 7)] = [main.Build.FLOWER_BED, W, 0]
+	check(main.colony_splendor() == 0 and main.decor_about(Vector2i(7, 7)).begins_with("No splendor: outside the colony"),
+		"nel prato, lontano da tutto, niente")
+	for k in pen:
+		main.built[k] = [main.Build.PALISADE, W]
+	check(main.colony_splendor() == 1, "dentro la palizzata sì")
+	for k in pen:
+		main.built.erase(k)
 	main.furniture.clear()
 
 	var c = main.colonists[0]
@@ -520,7 +554,7 @@ func _initialize() -> void:
 		and not main.trees.has(k) and not main.water.has(k) and main.items.values().all(func(g): return not g.has(k)))[0]
 	axe.pos = main.center(stand)
 	axe.skills[main.Skill.WOODCUTTING] = 3
-	var xp: int = axe.xp[main.Skill.WOODCUTTING]
+	axe.xp[main.Skill.WOODCUTTING] = 0.0
 	var no_path: Array[Vector2i] = []
 	var swing: float = main.gather_time(axe, main.Job.CHOP)
 	check(is_equal_approx(swing, 12.0), "a livello 3 un colpo d'ascia ogni 12 secondi")
@@ -528,7 +562,8 @@ func _initialize() -> void:
 	for i in int(swing / 0.05) + 1:
 		main.tick(0.05)
 	check(main.stock[tree] == full - 5 and main.items[W].get(stand, 0) == 5, "un colpo stacca 5 tronchi")
-	check(axe.xp[main.Skill.WOODCUTTING] == xp, "un colpo solo non dà esperienza: solo l'albero abbattuto")
+	check(is_equal_approx(axe.xp[main.Skill.WOODCUTTING], 10.0 * main.XP_PER_SECOND) and axe.skills[main.Skill.WOODCUTTING] == 3,
+		"un colpo d'ascia: 2,8 punti, ancora livello 3")
 	main.show_tip(tree)
 	check(main.get_node("HUD/ObjectSheet/Box/Info").text == "Logs left: %d / %d" % [full - 5, full], "il suggerimento segue i tronchi che calano")
 	main.show_tip(Vector2i(-1, -1))
@@ -1044,6 +1079,40 @@ func _initialize() -> void:
 	game.mark(Rect2i(bed_spot, Vector2i.ONE))
 	check(hall.kind == game.RoomKind.NONE and hall.owners.is_empty(), "senza letto non è più una residenza: niente proprietari")
 	game.queue_free()
+
+	# i livelli (GDD 4.2): dal livello n al n+1 servono 10 × (n+1) punti, 150 fino al 5; i punti avanzati restano
+	var pupil = main.colonists[0]
+	var K = main.Skill.FISHING
+	pupil.skills[K] = 0
+	pupil.xp[K] = 0.0
+	main.learn(pupil, K, 9.0 / main.XP_PER_SECOND)
+	check(pupil.skills[K] == 0 and is_equal_approx(pupil.xp[K], 9.0), "9 punti: ancora livello 0")
+	main.learn(pupil, K, 3.0 / main.XP_PER_SECOND)
+	check(pupil.skills[K] == 1 and is_equal_approx(pupil.xp[K], 2.0), "12 punti: livello 1, ne avanzano 2")
+	main.learn(pupil, K, 138.0 / main.XP_PER_SECOND)
+	check(pupil.skills[K] == 5 and is_equal_approx(pupil.xp[K], 0.0) and is_equal_approx(main.xp_total(pupil, K), 150.0), "150 punti: livello 5")
+	main.learn(pupil, K, 1000.0 / main.XP_PER_SECOND)
+	check(pupil.skills[K] == main.SKILL_MAX and main.xp_total(pupil, K) > 550.0, "al 10 si ferma")
+	main.open_sheet(pupil)
+	var tips: Array = []
+	for n in main.get_node("HUD/ColonistSheet/Box").find_children("*", "Label", true, false):
+		tips.append(n.tooltip_text)
+	check(tips.has("Top level"), "sulla scheda: livello massimo")
+	# un turno di 8 ore a livello 0: circa 15 punti
+	check(absf(8 * main.DAY_LENGTH / 24.0 / main.skill_time(0) * main.XP_PER_SECOND - 15.0) < 0.1, "un turno a livello 0: 15 punti")
+	# i ragazzi imparano il doppio; gli avventurieri contano i punti ma crescono con le spedizioni
+	var lad = main.colonists[1]
+	var born: float = lad.born
+	lad.born = main.clock - 13 * main.life_year()
+	lad.skills[K] = 0
+	lad.xp[K] = 0.0
+	main.learn(lad, K, 5.0 / main.XP_PER_SECOND)
+	check(lad.skills[K] == 1 and is_equal_approx(lad.xp[K], 0.0), "a 13 anni 5 punti valgono 10: livello 1")
+	lad.born = born
+	var hero = main.new_hero(main.Hero.ARCHER, 1)
+	var aim: int = hero.skills[main.Skill.RANGED]
+	main.learn(hero, main.Skill.RANGED, 100.0 / main.XP_PER_SECOND)
+	check(hero.skills[main.Skill.RANGED] == aim and is_equal_approx(hero.xp[main.Skill.RANGED], 100.0), "l'avventuriero: punti sì, livello no")
 
 	print("OK: %d alberi, %d caselle di roccia; legna %d, pietra %d" % [chopped, mined, main.total(W), main.total(S)])
 	quit()

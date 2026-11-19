@@ -53,7 +53,21 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   - Tempo libero: mangia anche senza fame (sotto 60), poi si svaga: attorno al fuoco da campo, se no a passeggio.
   - Sempre: stanco va a letto, affamato mangia, annoiato si prende una pausa (controllato a ogni ora).
 - **Abilità** (livelli 0–10, al 10 una stellina; tutti i coloni partono da 0): raccogliere, estrarre, tagliare legna, costruire, forgiare, cucire, cucinare, pescare, cacciare, armi da mischia, armi a distanza, ricerca (lista provvisoria). Velocità e qualità del lavoro; crescono con l'uso.
-  Nella raccolta (tagliare, estrarre, raccogliere) 1 punto esperienza a raccolta finita (albero abbattuto, masso scavato, cespuglio spogliato), non a colpo; negli altri lavori +1 per pezzo costruito, lancio, tiro o oggetto fatto. Soglie di livello da definire.
+  **Esperienza in proporzione al lavoro** (fatto il 2026-11-19): 0,28 punti per ogni secondo di lavoro, contato a
+  livello 5 (un colpo d'ascia 10 s, di piccone 15 s, una bacca 5 s, una semina 4 s, un lancio 10 s, un pezzo costruito
+  2 s, una riparazione 3 s, un pasto 8 s, un oggetto il tempo della sua ricetta, una pagina 2,5 s, un tiro di caccia 4 s
+  per cacciare e per tirare, un colpo in battaglia 1,5 s, un tiro 2 s, un colpo al fantoccio 2,5 s; una stanza coi
+  mostri in spedizione 18 s nell'arma), a ogni colpo, anche a vuoto. Un turno di 8 ore a livello 0 fa 15 punti di
+  lavoro; in una giornata vera, col tempo per camminare: taglio 11, raccolta 13–15, scavo 8.
+  **Soglie** (decise il 2026-11-19, da tarare): dal livello n al n+1 servono 10 × (n+1) punti, cioè 10 per il primo
+  livello e 100 per l'ultimo; 150 punti fino al 5, 550 fino al 10. Ogni lavoro dovrebbe dare circa 15 punti in una
+  giornata di 8 ore (oggi lo studio ne dà circa 32, la raccolta meno): i punti dei lavori si pesano con le simulazioni,
+  così chi fa sempre la stessa cosa arriva al 5 in una decina di giorni e al 10 in una quarantina. Sulla scheda, col
+  mouse sopra il livello, i punti e quanti ne mancano al prossimo. La caserma insegna più in fretta (4.4.6).
+  **Stato**: fatto il 2026-11-19 (`learn` in `main.gd`, test in `tests/test_jobs.gd`). I punti avanzati restano per il
+  livello dopo; i ragazzi (12–15) imparano il doppio; gli avventurieri contano i punti ma il livello lo prendono dalle
+  spedizioni. Un salvataggio di prima tiene i punti contati alla vecchia maniera (uno a raccolta): salgono di livello
+  al primo punto nuovo.
   Tempo di un lavoro: ×1,5 a livello 0, ×1 a livello 5, ×0,5 a livello 10. Ricerca: studiare allo scrittoio (vedi 4.7).
 - **Punti ferita** (0–100): si curano da soli, 30 al giorno (60 dormendo). A 0 il colono resta **a terra** (sdraiato,
   non fa niente) e si cura di 40 al giorno; a 30 si rialza. Sopra la testa, una barretta se è ferito.
@@ -161,8 +175,8 @@ i viandanti. Il valore della colonia (lo splendore) attira gente; i tanti coloni
 ### 4.2.2 Medicina e morte
 Deciso il 2026-11-19. Numeri da tarare. Due ricerche del Sapere (4.7.3) curano i vivi, le tombe e una legge (4.7.7)
 accompagnano i morti.
-- **Medicina** (abilità nuova, dopo la ricerca): fare l'unguento e curare; +1 esperienza a unguento fatto e a cura,
-  il tempo ×1,5 a livello 0 e ×0,5 a 10, come le altre. I coloni partono da 0; il sovrano può metterci i suoi punti.
+- **Medicina** (abilità nuova, dopo la ricerca): fare l'unguento e curare; si impara facendolo, come le altre
+  (vedi Abilità in 4.2), e il tempo è ×1,5 a livello 0 e ×0,5 a 10. I coloni partono da 0; il sovrano può metterci i suoi punti.
 - **Erbe medicinali**: piantine fiorite sparse nei prati (circa una ogni 150 caselle di prato, fuori dalla radura), come
   il lino. Si raccolgono col segno Harvest (lavoro Raccogliere): 5 erbe per pianta, che rifiorisce dopo 2 giorni; d'inverno
   no. Le erbe non marciscono. Ci sono dall'inizio; servono con l'Erboristeria.
@@ -359,8 +373,7 @@ Decisa il 2026-11-19. Numeri da tarare.
   - **Neonato** (0–3 anni): sta nella culla (mobile nuovo, in Casa, 4 legna) della stanza dei genitori; non lavora.
   - **Bambino** (4–11): aiuta a raccogliere e a trasportare, a metà velocità; niente armi né armature; scappa
     sempre dai lupi. Bambini e ragazzi si vedono più piccoli.
-  - **Ragazzo** (12–15): i lavori leggeri (non costruire, scavare, tagliare, cacciare); poi esperienza doppia,
-    quando ci saranno le soglie di livello (4.2).
+  - **Ragazzo** (12–15): i lavori leggeri (non costruire, scavare, tagliare, cacciare); esperienza doppia (4.2).
   - **Adulto** (16).
 - **Successione**: alla morte del sovrano eredita il **primo figlio vivo, maschio o femmina**; senza figli il coniuge,
   poi un fratello o una sorella. Se non c'è nessuno, la colonia sceglie un nuovo sovrano tra i coloni adulti (lo indica
@@ -640,15 +653,43 @@ Decisa il 2026-11-19. Numeri da tarare.
   - **Protezione**: −6% di danno per punto (cotta ed elmo, 8 punti: −48%), al massimo −80%.
 - Un lupo segnato da cacciare, colpito o mancato, attacca il cacciatore invece di scappare.
 - Si muore: vedi Morte in 4.2. Un lupo senza nessuno in piedi da inseguire morde chi è a terra.
+- Chi ha una **classe** (guerriero, arciere, scassinatore: vedi 4.4.6) combatte a modo suo: il guerriero va incontro ai
+  lupi e copre chi gli sta vicino, l'arciere tiene la distanza e sale sulla torre di guardia, lo scassinatore schiva.
 - Medico, cure e funerali: vedi 4.2.2. Poi: predoni (umani), animali che fuggono o si difendono, ordini di combattimento
   dati dal re.
 
 - **Splendore** della colonia (termine provvisorio; alternative: decoro, prestigio, lustro): tiene felici i coloni e
-  sblocca cose. Lo danno le decorazioni finite, ovunque stiano (il totale in alto). Primo effetto: attira avventurieri
+  sblocca cose. Lo danno le decorazioni finite (il totale in alto), dove e quanto vedi sotto. Primo effetto: attira avventurieri
   più forti (vedi 4.4.4).
   Decorazioni (+splendore): aiuola 1, fioriera di pietra 1, panca 1 (anche +0,5 comfort), lampione 1 (si accende di
-  notte), stendardo 2 (sventola), fontana 6 (2x2, zampilla), statua del re 8 (2x2).
+  notte), stendardo 2 ma una volta sola (sventola; deciso il 2026-11-19: prima ne bastavano 30 da 4 legna per il
+  Regno), fontana 6 (2x2, zampilla), statua del re 8 (2x2), memoriale dei caduti 2 (4.2.2).
   Poi: strade che collegano le case, alberi piantati, feste.
+- **Splendore: dove conta e quanto costa** (deciso il 2026-11-19; numeri da tarare). Il giocatore deve essere spinto a
+  costruire decorazioni, non a riempire la mappa per accumulare splendore.
+  - **Vicinanza**: aiuola, fioriera, panca e lampione danno splendore solo se entro 4 caselle non ce n'è un'altra dello
+    stesso tipo che già lo dà (vale la più vecchia). Fontana, statua, arazzi e cimeli no: costano già tanto, o sono
+    unici. Lo stendardo conta una volta sola (sopra).
+  - **Nella colonia**: una decorazione conta solo in una stanza, entro 2 caselle da un muro, una porta, un pavimento o
+    un sentiero, o dentro la palizzata (un'area che muri, palizzata, roccia e acqua profonda chiudono). Fuori, niente.
+  - **Manutenzione, in oro**: a ogni festa di fine stagione (Fiori, Falce, Focolare, Candele) si paga mezza moneta per
+    ogni punto di splendore oltre i primi 15 (gratis: quanto basta per la Baronia), dai magazzini; la cronaca lo dice. I
+    primi 15 punti coprono le decorazioni che valgono di più; le altre pagano. Se le monete non bastano si pagano prima
+    quelle che valgono di più, e le altre si **trascurano**: metà splendore. Una trascurata che alla festa dopo non è
+    ancora pagata è **diroccata**: niente splendore, finché un costruttore non la ripara (1 del suo materiale, come un
+    tetto: torna trascurata). Alla festa, una trascurata pagata torna a posto. I cimeli non costano e non si rovinano.
+  - **Si vede**: col mouse sullo splendore in alto, la manutenzione della prossima festa e le monete in magazzino; sul
+    riquadro in basso a destra di ogni decorazione, quanto splendore dà e perché (un'altra uguale vicino, fuori dalla
+    colonia, trascurata, diroccata); le trascurate più spente, le diroccate grigie.
+  - **Ordine di lavoro**: (1) vicinanza e colonia, col riquadro in basso a destra; (2) la manutenzione alle feste, le
+    trascurate e le diroccate, la riparazione, la barra in alto e l'aspetto.
+  - **Stato**: fatte le fasi 1 e 2 il 2026-11-19 (test in `tests/test_jobs.gd` e `tests/test_splendor.gd`):
+    `decor_splendor` in `main.gd`, rifatto solo quando cambiano mobili, strutture, stanze o manutenzione; le caselle
+    dentro la palizzata solo quando cambiano muri, porte, palizzata, cancelli o roccia (12 ms la mappa intera). La
+    manutenzione si paga alla mezzanotte della festa (`pay_upkeep`); a parità di valore paga prima la decorazione più
+    vecchia; lo splendore delle trascurate si somma e si arrotonda per difetto. La riparazione è quella dei tetti
+    (`Job.REPAIR`, col colono che sa se è una decorazione). Trascurate e diroccate hanno solo una tinta, più spenta o
+    grigia: una patina vera (crepe, erba secca) resta da disegnare.
 - **Sentiero**: pavimento di terra battuta e sassolini (1 pietra a casella); i mobili ci stanno sopra.
   Su tutti i pavimenti l'erba dei prati vicini sborda, frastagliata, così non finiscono di netto; contro muri, porte
   e altri pavimenti il bordo resta netto. Poi: i sentieri che collegano le case danno splendore.
@@ -761,9 +802,9 @@ racconta il diario al ritorno.
 - **Chi resta**: un avventuriero contento dopo 3 spedizioni chiede di **restare come colono** (vedi 4.2.1).
 - **Coloni in spedizione** (ricerca Compagnia della corona, 4.7.3): sulla bacheca, sotto chi aspetta alla locanda, i
   coloni che possono partire (adulti, non il sovrano né il reggente, non a terra né incinte); vanno nella squadra come
-  gli avventurieri, ma nel gruppo ci vuole almeno un avventuriero. Non hanno paga né quota. Nella rovina combattono con la
-  loro abilità migliore tra armi da mischia e a distanza (chi era avventuriero, con la sua classe) e prendono la parte
-  media dei colpi; +1 esperienza nell'arma per ogni stanza coi mostri. Fuori dalla mappa non lavorano. Chi muore nella
+  gli avventurieri, ma nel gruppo ci vuole almeno un avventuriero (o un colono con una classe, 4.4.6). Non hanno paga né
+  quota. Nella rovina combattono con la loro abilità migliore tra armi da mischia e a distanza (chi era avventuriero o ha
+  una classe, come la sua classe) e prendono la parte media dei colpi; +1 esperienza nell'arma per ogni stanza coi mostri. Fuori dalla mappa non lavorano. Chi muore nella
   rovina, la colonia lo sa al ritorno (o quando la spedizione si dà per persa): lutto e −5 autorità, come per ogni
   colono morto. Al ritorno escono dal bordo e tornano al lavoro; il bottino lo porta un avventuriero alla locanda.
 - Poi: vene d'oro e commercio; una rovina sulla mappa da esplorare davvero.
@@ -898,6 +939,57 @@ di legno, la pietra isola; il caldo e il freddo decidono quanto dura il cibo, fi
 - **Stato**: fatte le fasi 1–7 (test in `tests/test_heat.gd`), coi tetti con l'altezza e la facciata di roofs.gd. Il
   tasto della lente del calore è N, quello del ghiaccio Y. Fuori la lente non colora niente: i gradi di fuori sono già
   nella barra in alto (previsioni).
+
+### 4.4.6 Caserma e classi dei coloni
+Decisa il 2026-11-19. Numeri da tarare. Il giocatore può dare a un colono una **classe**, la stessa degli avventurieri
+(guerriero, arciere, scassinatore: 4.4.4), e farlo allenare in caserma. Serve la ricerca **Caserma** (Ferro II, 250
+studio e un quaderno, dopo Fantoccio). Si appoggia alle soglie di livello delle abilità (4.2).
+- **La caserma**: non è una stanza sola ma le sue stanze di lavoro, ognuna per una classe.
+
+  | Stanza | Serve | Per | Ci si allena |
+  |---|---|---|---|
+  | Sala d'armi | almeno 2 fantocci e una rastrelliera (mobile nuovo, 6 legna e 1 lingotto: spade e scudi appesi) | guerriero, scassinatore | il guerriero a un fantoccio; lo scassinatore al banco degli scassi (mobile nuovo, 4 legna e 2 lingotti: una cassa piena di serrature) |
+  | Tiro a segno | almeno 2 bersagli (mobile nuovo: un paglione rotondo su un cavalletto, 4 legna e 2 lino); lunga almeno 8 caselle | arciere | a un bersaglio, da almeno 5 caselle |
+
+  Senza la stanza della sua classe un colono non si allena (vedi Esercitazione) ma la classe la tiene.
+- **Dare la classe**: dalla scheda del colono, "Classe…": nessuna, guerriero, arciere, scassinatore. Quelle che non si
+  possono dare sono spente, col perché. Serve un adulto, la stanza della classe, e almeno 3 nell'arma della classe
+  (guerriero: armi da mischia; arciere: armi a distanza; scassinatore: 2 in armi da mischia, perché scassinare lo impara
+  solo con la classe). Anche il sovrano può averne una (in spedizione non va). Toglierla o cambiarla è gratis: il livello
+  viene dall'abilità, che resta.
+- **Livello della classe**: come per gli avventurieri, metà dell'abilità della classe (mischia per il guerriero, distanza
+  per l'arciere, scassinare per lo scassinatore), da 1 a 5. Sulla scheda: "Arciere della colonia, livello 2"; anche
+  nell'elenco degli abitanti e sulla bacheca.
+- **Corredo**: con una classe l'equipaggiamento automatico prende quello della classe: il guerriero spada, scudo, la
+  migliore armatura e l'elmo; l'arciere l'arco, l'armatura e il cappuccio di cuoio; lo scassinatore il pugnale (si fa
+  all'incudine con la ricerca Caserma: 1 lingotto e 1 legna), l'armatura e il cappuccio di cuoio. Faretra, maschera e
+  sacca sono il corredo della classe: si vedono, non si fabbricano. Il cappuccio prende il colore della classe (verde
+  l'arciere, scuro lo scassinatore).
+- **Esercitazione**: ogni giorno la prima ora di lavoro (una casella colorata nella routine) il colono si allena nella
+  stanza della sua classe: un colpo, un tiro o una serratura ogni 2,5 s, +1,5 esperienza (al fantoccio di fuori +1).
+  Nella tabella delle priorità c'è il lavoro **Esercitarsi**: chi ha una classe si allena anche quando non ha altro da
+  fare, e i **lavoratori** della stanza (dal cartello) si allenano tutto il turno, come allo studio: soldati a tempo
+  pieno, che però non lavorano. Con la Milizia (4.7.7) chi ha una classe fa la sua ora in caserma, e vale come
+  esercitazione. Nell'ultimo terzo della gravidanza niente esercitazione.
+- **In battaglia** (4.4.3), secondo la classe:
+  - **Guerriero**: va contro i lupi entro 16 caselle (non 12) e scappa solo sotto 20 punti ferita (non 40). Copre chi
+    gli sta vicino: un lupo che morde qualcuno entro 2 caselle da un guerriero in piedi passa a lui. +10% a segno in
+    mischia.
+  - **Arciere**: tiene la distanza: se un lupo gli arriva entro 3 caselle arretra (se può) e tira di nuovo. Quando i lupi
+    sono in vista sale da sé sulla torre di guardia più vicina (entro 15 caselle) e ci resta finché il pericolo non
+    passa. +10% a segno a distanza, +1 casella di gittata.
+  - **Scassinatore**: svelto, i lupi lo mordono a segno il 15% in meno; scappa sotto 30 punti ferita (non 40).
+- **In spedizione** (Compagnia della corona, 4.4.4): conta come la sua classe (i colpi che prende, l'arciere che tira
+  per primo, la sacca dello scassinatore) e come un avventuriero per la regola della squadra: un gruppo di soli coloni con
+  una classe può partire. Senza paga né quota, come gli altri coloni.
+- **Ordine di lavoro**: (1) le soglie di livello delle abilità (4.2), coi punti sulla scheda; (2) ricerca Caserma, sala
+  d'armi e tiro a segno coi loro mobili, la classe dalla scheda, il corredo e il cappuccio, il pugnale all'incudine; (3)
+  l'esercitazione: l'ora nella routine, il lavoro Esercitarsi, i lavoratori della stanza, la milizia; (4) in battaglia
+  secondo la classe; (5) in spedizione come la sua classe, e la regola della squadra.
+- **Stato**: fatte le fasi 1 e 2 il 2026-11-19: le soglie di livello (vedi 4.2); la ricerca Caserma, sala d'armi e
+  tiro a segno coi loro mobili, la classe dalla scheda (col perché, quando non si può), il livello, il corredo e il
+  cappuccio, il pugnale all'incudine. Il guerriero prende lo scudo solo con la spada in mano. Sulla bacheca la classe
+  arriva con la fase 5. Il resto è solo design.
 
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100.
@@ -1057,7 +1149,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | III | 450–500 | tomo rosso | 14–16 giorni |
   | IV | 1000–1200 | codice di porpora | 31–38 giorni |
 
-  L'albero intero (50 ricerche) vuole circa 15.800 punti: con tre studiosi bravi 100 giorni. Si sceglie, non si finisce.
+  L'albero intero (51 ricerche) vuole circa 16.000 punti: con tre studiosi bravi 100 giorni. Si sceglie, non si finisce.
 - **Dall'inizio**, senza ricerca: muro e pavimento di legno, porta, sentiero, letto, tavolo, sedia, fuoco da campo,
   stendardo, scrittoio, trono; il pasto; tagliare, scavare, estirpare, raccogliere, pescare, costruire, distruggere, e
   cacciare con un arco; stanze magazzino, camera, dormitorio, cucina, studio, sala del trono. Tutto il resto, anche
@@ -1103,6 +1195,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Cotta di maglia ✓ | II | 300 | Armi di ferro | *cotta di maglia* |
   | | Fantoccio ✓ | I | 60 | — | allenamento nel tempo libero: svago e +1 esperienza in mischia a colpo (uno ogni 2,5 s) |
   | | Scudo ✓ | II | 250 | Fantoccio | scudo tondo all'incudine (3 legna, 1 lingotto), nel suo slot: +3 protezione con spada o pugnale |
+  | | Caserma ✓ | II | 250 | Fantoccio | sala d'armi e tiro a segno, rastrelliera, bersaglio, banco degli scassi; le classi dei coloni; il pugnale all'incudine (vedi 4.4.6) |
   | Strada | Locanda ✓ | I | 40 | — | *bacheca degli incarichi, locanda, ingaggi e spedizioni* |
   | | Locanda rinomata ✓ | II | 250 | Locanda | arrivi ogni giorno e mezzo, restano 5 giorni; avviso per la classe (sulla bacheca) |
   | | Compagnia della corona ✓ | III | 500 | Locanda rinomata | i coloni partono con gli avventurieri (vedi 4.4.4) |
@@ -1215,7 +1308,7 @@ IV, regno, leggi finali, cittadella.
 **Stato**: fatte le fasi 1–4; della 5 una parte dei nodi, l'erudito errante e la protesta. Nel gioco: scrittoio,
 libreria e trono; stanze Studio e Sala del trono; lavori Studiare e Governare; studio e autorità (nelle finestre
 Knowledge e Laws, tasti K e G, o clic su scrittoio e trono; tutte e due scorrono); i tre libri, nei forzieri e nei
-tesori, col monastero; le 40 ricerche segnate ✓; le 23 leggi segnate ✓; il titolo cresce con lo splendore e i coloni (4.3) e dà i
+tesori, col monastero; le 41 ricerche segnate ✓; le 23 leggi segnate ✓; il titolo cresce con lo splendore e i coloni (4.3) e dà i
 sigilli (2–5), le fasce delle leggi e l'autorità di ogni giorno; gli eventi d'autorità del 4.7.4 tranne
 l'incoronazione (manca la successione), mai sotto zero. Il granaio è un conto, non una stanza, e niente ci marcisce;
 paga le provviste, poi (Granaio aperto) l'ora senza cibo in magazzino e il pasto di ogni stagione; la festa del

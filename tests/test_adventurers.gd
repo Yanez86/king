@@ -338,6 +338,7 @@ func _initialize() -> void:
 	main.add_item(R.CROWN, shelf, 1)
 	var before: int = main.colony_splendor()
 	var power: float = main.authority
+	main.built[plinth] = [B.PATH, R.STONE]  # su un sentiero: nella colonia
 	main.furniture_plans[plinth] = [B.CROWN, R.CROWN, 0]
 	walk_until(func(): return main.furniture.has(plinth), 6000)
 	check(main.furniture[plinth][0] == B.CROWN and main.colony_splendor() == before + main.SPLENDOR[B.CROWN] and main.total(R.CROWN) == 0,

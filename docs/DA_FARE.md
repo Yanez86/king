@@ -24,7 +24,8 @@
 | Mondo e tempo | 4.5 | fatto | — |
 | Salvataggio | 4.5.1 | locale fatto | il cloud |
 | Eventi casuali | 4.6 | fatto: il narratore e 11 eventi | tarare i numeri; eventi nuovi coi sistemi nuovi |
-| Ricerca | 4.7.3 | 40 ricerche su 50 | 10 ricerche, il livello IV |
+| Caserma e classi | 4.4.6 | fasi 1–2 (le abilità salgono di livello; caserma, classi, corredo) | l'esercitazione, in battaglia, in spedizione |
+| Ricerca | 4.7.3 | 41 ricerche su 51 | 10 ricerche, il livello IV |
 | Leggi | 4.7.7 | 23 leggi su 38 | 15 leggi: quelle della dinastia si possono fare ora |
 | Interfaccia | [TECH](TECH.md) | testo a 22, elenco degli abitanti, bacheca con la squadra | provarla in inglese e ad altre risoluzioni |
 
@@ -48,7 +49,8 @@ Medicina e morte è fatta (4.2.2: erbe e unguento, infermeria e medico, tombe, F
 
 ## Coloni (4.2)
 
-- [ ] Soglie di livello delle abilità da definire.
+- [ ] Tarare l'esperienza (le soglie ci sono: un punto ogni 3,6 secondi di lavoro). In una giornata vera, a livello 0:
+  taglio 11, raccolta 13–15, scavo 8 (i massi sono più lontani).
 - [ ] Altri effetti dello stress, oltre alla felicità.
 - [ ] Condizioni nuove: malattie che si attaccano (la febbre del narratore c'è), perdita di punti ferita.
 - [ ] Talenti nuovi: Robusto (resiste al freddo), Pirofobo (non cucina); più talenti in generale (dopo-MVP n. 5).
@@ -88,7 +90,6 @@ Dinastia (4.3.3, fatta): quello che resta.
 
 - [ ] All'incoronazione si sceglie lo stile di regno dell'erede (quando ci sarà lo stile di regno).
 - [ ] Matrimoni anche tra gli altri coloni, non solo del sovrano, e i loro figli.
-- [ ] I ragazzi imparano il doppio, quando ci saranno le soglie di livello delle abilità.
 - [ ] Una casata nuova sceglie il suo stemma (oggi è a caso): l'editor dello stemma in partita.
 - [ ] Gli effetti della vecchiaia (oltre alla morte): più lenti, più saggi.
 - [ ] Tarare i numeri: figli a notte, età, vecchiaia, pretendenti, dote.
@@ -136,8 +137,25 @@ Dinastia (4.3.3, fatta): quello che resta.
 - [ ] Predoni (umani).
 - [ ] Animali che fuggono o si difendono.
 - [ ] Ordini di combattimento dati dal re (il combattimento tattico resta fuori scope).
-- [ ] L'arciere che sale da sé sulla torre di guardia.
+- [ ] L'arciere che sale da sé sulla torre di guardia: lo fa chi ha la classe arciere (4.4.6).
 - [ ] Splendore: strade che collegano le case, alberi piantati, feste; i sentieri tra le case danno splendore.
+- [ ] Splendore: tarare la manutenzione (mezza moneta a punto oltre i primi 15, a ogni festa di stagione), la
+  vicinanza (4 caselle) e la colonia (2 caselle); disegnare la patina delle decorazioni trascurate e diroccate (oggi
+  solo una tinta).
+
+## Caserma e classi dei coloni (4.4.6)
+
+Deciso il 2026-11-19: il giocatore dà a un colono la classe di un avventuriero (guerriero, arciere, scassinatore) dalla
+sua scheda, e il colono si allena nelle stanze della caserma (sala d'armi, tiro a segno). Fatte le fasi 1 (le abilità
+salgono di livello) e 2 (la ricerca Caserma, le sue stanze e i mobili, la classe dalla scheda, il corredo, il pugnale).
+Fasi ancora da fare:
+
+- [ ] (3) L'esercitazione: un'ora al giorno nella routine, il lavoro Esercitarsi, i lavoratori della stanza a tempo
+  pieno, la milizia in caserma.
+- [ ] (4) In battaglia secondo la classe: il guerriero che copre, l'arciere che tiene la distanza e sale sulla torre, lo
+  scassinatore che schiva.
+- [ ] (5) In spedizione come la sua classe; un gruppo di soli coloni con una classe può partire; la classe sulla
+  bacheca.
 
 ## Avventurieri e rovine (4.4.4)
 

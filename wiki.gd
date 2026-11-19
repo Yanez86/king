@@ -121,7 +121,7 @@ The colony grows with children (see The Ruler & House), with adventurers who sta
 • They walk in from the map edge to the throne room (or to a fire, or to the clearing) and ask to stay: Welcome or Send away. Close the window and the question waits on their sheet (Answer…) for 2 days, then they leave. Meanwhile they don't work, eat from your warehouses and sleep at the inn (or on the ground).
 • Welcomed, they are colonists, Foreigner for 5 days (-5 happiness, work 10% slower). A family keeps its ties: the couple is married, the child has their parents."""],
 
-	["Skills", """Fourteen skills, with levels from 0 to 10 (a star at 10). Colonists start at 0; your ruler gets 12 points on the new-game page.
+	["Skills", """Fourteen skills, with levels from 0 to 10 (a star at 10). Colonists start at 0 and rise by working; your ruler gets 12 points on the new-game page.
 
 [color=#e8c34a]Speed[/color]
 A job takes 1.5 times as long at level 0, the normal time at level 5 and half at level 10 (1.4 at level 1, 1.3 at level 2...). Most work also depends on conditions, and sleep, cooking, crafting and study on room comfort.
@@ -146,7 +146,10 @@ A job takes 1.5 times as long at level 0, the normal time at level 5 and half at
 With a bow a hunter aims with the better of Hunting and Ranged. At a workstation a low level ruins more items, at the campfire it burns more meals.
 
 [color=#e8c34a]Experience[/color]
-+1 XP (hover the level to see it) for every tree felled, boulder mined or bush picked clean, every cast, piece built, meal cooked, item made, page written, shot or blow. A hunting shot counts for Hunting and Ranged. For now experience is only counted: levels don't rise with it yet."""],
+You learn by working, in proportion to the work: 0.28 experience points (XP) for every second of work in this wiki, at every swing of the axe or the pickaxe, berry picked, sowing, cast (even an empty one), piece built or repaired, meal, item, page, shot or blow. A hunting shot counts for Hunting and Ranged. In an 8-hour shift a colonist at level 0 gets about 15 points (fewer when they walk a lot).
+• From level n to n+1 takes 10 × (n+1) points: 10 for the first, 150 up to 5, 550 up to 10. Points left over count toward the next level.
+• Hover the level on the sheet: the points, and how many are missing for the next.
+• Youths (12–15) learn twice as fast. Adventurers grow with their expeditions, not this way."""],
 
 	["Traits", """Colonists have 0–2 traits, never two that clash. Hover a trait in the sheet for its effect.
 [table=3]
@@ -304,6 +307,10 @@ Not on water, trees, rock, bushes or weeds (uproot them first), nor on items lyi
 [cell]Ice pit (2x2)[/cell][cell]20 stone[/cell][cell]Icehouse[/cell]
 [cell]Compost heap[/cell][cell]6 wood[/cell][cell]Manuring[/cell]
 [cell]Cradle[/cell][cell]4 wood[/cell][cell]–[/cell]
+[cell]Training dummy[/cell][cell]6 wood[/cell][cell]Training dummy[/cell]
+[cell]Weapon rack[/cell][cell]6 wood, 1 ingot[/cell][cell]Barracks[/cell]
+[cell]Target[/cell][cell]4 wood, 2 flax[/cell][cell]Barracks[/cell]
+[cell]Lock bench[/cell][cell]4 wood, 2 ingots[/cell][cell]Barracks[/cell]
 [cell]Medicine chest[/cell][cell]8 wood[/cell][cell]Medicine[/cell]
 [cell]Grave (1x2)[/cell][cell]4 wood[/cell][cell]–[/cell]
 [/table]
@@ -326,6 +333,8 @@ The list shows only the types whose furniture is inside. Take that furniture awa
 [cell]Study[/cell][cell]desk[/cell][cell]work[/cell]
 [cell]Throne room[/cell][cell]throne[/cell][cell]work[/cell]
 [cell]Icehouse[/cell][cell]ice pit; stone walls, no fire[/cell][cell]service[/cell]
+[cell]Armory[/cell][cell]2 training dummies, weapon rack[/cell][cell]work[/cell]
+[cell]Archery range[/cell][cell]2 targets; at least 8 tiles long[/cell][cell]work[/cell]
 [cell]Infirmary[/cell][cell]bed, medicine chest[/cell][cell]service[/cell]
 [/table]
 • Residence: it can have owners. One with owners is closed to everyone else, even just to walk through.
@@ -478,6 +487,7 @@ The crafter brings the ingredients one by one, then works. The time depends on s
 [cell]Helmet[/cell][cell]anvil[/cell][cell]3 ingots[/cell][cell]20 s[/cell]
 [cell]Chainmail[/cell][cell]anvil[/cell][cell]6 ingots[/cell][cell]30 s[/cell]
 [cell]Sword[/cell][cell]anvil[/cell][cell]3 ingots, 1 wood[/cell][cell]20 s[/cell]
+[cell]Dagger[/cell][cell]anvil[/cell][cell]1 ingot, 1 wood[/cell][cell]12 s[/cell]
 [cell]Ointment[/cell][cell]campfire[/cell][cell]2 herbs[/cell][cell]10 s[/cell]
 [/table]
 Skill: Smithing at furnace and anvil, Tailoring at spinning wheel and workbench, Ranged at the carpenter bench, Medicine for the ointment.
@@ -491,12 +501,14 @@ Three slots: hands, body, head. A colonist with an empty slot fetches a piece by
 [cell]Sickle[/cell][cell]hands[/cell][cell]–[/cell][cell]picking, uprooting 25% faster[/cell]
 [cell]Bow[/cell][cell]hands[/cell][cell]–[/cell][cell]to hunt; shoots in a fight[/cell]
 [cell]Sword[/cell][cell]hands[/cell][cell]–[/cell][cell]melee damage 15[/cell]
+[cell]Dagger[/cell][cell]hands[/cell][cell]–[/cell][cell]melee damage 10; the burglar's[/cell]
 [cell]Leather armor[/cell][cell]body[/cell][cell]2[/cell][cell]-25% stress outdoors[/cell]
 [cell]Chainmail[/cell][cell]body[/cell][cell]5[/cell][cell]all work 10% slower[/cell]
 [cell]Leather hood[/cell][cell]head[/cell][cell]1[/cell][cell]+5% to hit with a bow[/cell]
 [cell]Helmet[/cell][cell]head[/cell][cell]3[/cell][cell]mining 10% faster[/cell]
 [/table]
-Tools hit too: pickaxe 10, axe 12, sickle 8, bare hands 5. Armor: see Combat & Wolves."""],
+Tools hit too: pickaxe 10, axe 12, sickle 8, bare hands 5. Armor: see Combat & Wolves.
+A colonist with a class takes the gear of their class instead, even in place of a tool: see Combat & Wolves."""],
 
 	["Combat & Wolves", """[color=#e8c34a]Wolves[/color]
 • The first pack can come on day 10. A pack announces itself: at midnight the howling (in the chronicle, and in the forecast: Wolves in N h, with a paw print), then at 22:00 the wolves, almost a day to call everyone in and shut the doors. Then one every 15 days on average and never within a week of the last one, nor within 3 days of another threat or misfortune, nor while someone lies downed or wolves are still around: 2–3 wolves from a map edge, one more for every 5 colonists. They smell the colony from 70 tiles away. Under the top bar you see WOLVES while they are around.
@@ -514,7 +526,14 @@ Tools hit too: pickaxe 10, axe 12, sickle 8, bare hands 5. Armor: see Combat & W
 [color=#e8c34a]Downed and dead[/color]
 • At 0 health a colonist falls. The bite that downs them kills 25% of the time, -3% for every point of armor (at least 5%).
 • Downed, they heal 40 a day and stand up at 30. A wolf that finds them outdoors, with nobody else standing, kills them with the first bite.
-• The dead drop their gear; the body stays 2 days, unless it is buried (see Medicine & Death). The other colonists mourn for 3 days (Mourning). If every colonist dies, the colony has fallen."""],
+• The dead drop their gear; the body stays 2 days, unless it is buried (see Medicine & Death). The other colonists mourn for 3 days (Mourning). If every colonist dies, the colony has fallen.
+
+[color=#e8c34a]The barracks and classes[/color]
+• With the Barracks research a colonist can take the class of an adventurer: Class… on their sheet. The classes that can't be given are greyed out, with the reason.
+• It takes a grown-up colonist (adventurers already have theirs), the room of the class and enough in its weapon: warrior 3 Melee and an armory; archer 3 Ranged and an archery range; burglar 2 Melee and an armory (Lockpicking is learned only with the class).
+• The level is half the skill of the class (Melee, Ranged, Lockpicking), from 1 to 5. The sheet and the census say "Archer of the colony, level 2". Taking the class off or changing it is free: the skill stays.
+• The gear of the class, fetched by themselves, even in place of a tool: the warrior a sword, then a shield, chainmail (or leather armor) and a helmet; the archer a bow, leather armor and hood; the burglar a dagger, leather armor and hood. Equipment that is missing gets made at the stations.
+• Quiver, mask and sack are the kit of the class: you see them, nobody makes them. The hood takes the color of the class: green the archer, dark the burglar."""],
 
 	["Medicine & Death", """[color=#e8c34a]Medicinal herbs[/color] [img=center]res://art/icon_herbs.png[/img]
 Small plants with white flowers scattered in the meadows (hover: Medicinal herbs), about one every 150 tiles of grass. Mark them with Harvest (H): 5 herbs a plant, picked like berries; they flower again in 2 days, never in winter. Herbs don't spoil.
@@ -531,7 +550,7 @@ Small plants with white flowers scattered in the meadows (hover: Medicinal herbs
 [color=#e8c34a]Doctors[/color]
 The Doctor column, the first of the table (Jobs, J): whoever has it does, in this order, nearest first:
 • Rescue: a colonist downed outside a bed, if an infirmary bed is free. The doctor carries them on their shoulders and lays them in the bed. With no free bed, they treat them where they lie.
-• Treat: whoever is downed, or in bed wounded (under 80) or with a fever, and not yet treated. First the doctor fetches an ointment from a pile, if there is one; then 8 s beside the patient (Medicine skill, +1 XP). Treated, for a day health comes back twice as fast; with the ointment also +30 at once (a downed colonist stands up). A treated fever passes within half a day.
+• Treat: whoever is downed, or in bed wounded (under 80) or with a fever, and not yet treated. First the doctor fetches an ointment from a pile, if there is one; then 8 s beside the patient (Medicine skill, which it teaches). Treated, for a day health comes back twice as fast; with the ointment also +30 at once (a downed colonist stands up). A treated fever passes within half a day.
 • A doctor doesn't treat themselves (they spread their own ointment), and two doctors never go to the same patient. At the end of the shift a doctor carrying someone carries them to the bed first.
 
 [color=#e8c34a]Graves[/color]
@@ -544,7 +563,11 @@ The Doctor column, the first of the table (Jobs, J): whoever has it does, in thi
 • With the Funerals law (Feasts, 30, a grave on the map): when one of the colony is buried, at 18 that day (at once if it's already evening, the next day if they were buried after 22) every colonist who is awake, standing and not fighting drops what they do and gathers around the grave for two hours. Afterwards they have Farewell: as long as that mourning lasts it weighs 5 less (Mourning -10, Royal mourning -15). The chronicle tells of it.
 • The memorial of the fallen (Statuary): a stone stele, 10 stone, 2 splendor. While there is one on the map, every new mourning is a day shorter (2 days, or 1 once buried; the royal one 6, or 5)."""],
 
-	["Splendor", """Splendor is the sum of every finished decoration on the map, inside rooms or out, plus 5 for every famous adventurer around. The total is in the top bar.
+	["Splendor", """Splendor is the sum of the finished decorations that count, plus 5 for every famous adventurer around. The total is in the top bar.
+• Only inside the colony: in a room, within 2 tiles of a wall, a door, a floor or a path, or inside the palisade. Out in the fields a decoration gives nothing.
+• Flower beds, planters, benches and lanterns count only with no other of the same kind within 4 tiles (the oldest wins); the banner only once. Build different decorations, not many of the same.
+• Hover a decoration: how much splendor it gives, or why it gives none.
+• Upkeep: at every season's feast (Flower, Sickle, Hearth, Candle) the colony pays half a coin for every point of splendor beyond the first 15, from the warehouses, the most precious decorations first. An unpaid one is neglected: half its splendor, duller. Unpaid again at the next feast, it falls into ruin: no splendor, grey, until a builder repairs it with 1 of its material (then it is neglected until paid). Relics cost nothing and never decay. Hover the splendor in the top bar for the next upkeep.
 For now it does two things:
 • Adventurers arrive stronger: level 1, +1 for every 10 splendor, ±1 at random (from 1 to 5).
 • +1 authority a day for every 20 splendor.
@@ -554,7 +577,7 @@ For now it does two things:
 [cell]Planter[/cell][cell]1[/cell][cell]5 stone[/cell][cell]Decor[/cell]
 [cell]Bench[/cell][cell]1[/cell][cell]6 wood[/cell][cell]Decor[/cell]
 [cell]Lantern[/cell][cell]1[/cell][cell]3 wood, 1 coal[/cell][cell]Lanterns[/cell]
-[cell]Banner[/cell][cell]2[/cell][cell]4 wood[/cell][cell]–[/cell]
+[cell]Banner[/cell][cell]2, once[/cell][cell]4 wood[/cell][cell]–[/cell]
 [cell]Fountain[/cell][cell]6[/cell][cell]30 stone[/cell][cell]Fountain[/cell]
 [cell]Statue[/cell][cell]8[/cell][cell]40 stone[/cell][cell]Statuary[/cell]
 [cell]Memorial[/cell][cell]2[/cell][cell]10 stone[/cell][cell]Statuary[/cell]
@@ -563,7 +586,7 @@ For now it does two things:
 [cell]Bust[/cell][cell]5[/cell][cell]the relic[/cell][cell]–[/cell]
 [cell]Crown[/cell][cell]6[/cell][cell]the relic[/cell][cell]–[/cell]
 [/table]
-• The bench (2x1) also gives +0.5 room comfort. The lantern lights the roads at night. The banner flies the arms of your house. Fountain and statue take 2x2 tiles.
+• The bench (2x1) also gives +0.5 room comfort. The lantern lights the roads at night. The banner flies the arms of your house; only the first gives splendor, the others are just decoration. Fountain and statue take 2x2 tiles.
 • Relics are found only by adventurers, in ruins. They come home as items: build them from the furniture bar, one relic for each piece."""],
 
 	["Adventurers", """[color=#e8c34a]The inn[/color]
@@ -681,6 +704,7 @@ What you haven't researched has no build button, and its recipes don't show at t
 • [color=#d9c48a]Statuary[/color] (Stone III, 500 and a tome, after Masonry): the statue and the memorial of the fallen.
 • [color=#d9c48a]Iron arms[/color] (Iron I, 80, after Forge): sword and helmet.
 • [color=#d9c48a]Chainmail[/color] (Iron II, 300 and a notebook, after Iron arms): chainmail.
+• [color=#d9c48a]Barracks[/color] (Iron II, 250 and a notebook, after Training dummy): weapon rack, target and lock bench; armory and archery range; the classes of the colonists; the dagger.
 • [color=#d9c48a]Inn[/color] (Road I, 40): the notice board; the laws Loot tax and Lodging tax.
 • [color=#d9c48a]Crown company[/color] (Road III, 500 and a tome, after Renowned inn): colonists go on expeditions with the adventurers.
 • [color=#d9c48a]Bookshelf[/color] (Lore I, 60): the bookshelf.

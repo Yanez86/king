@@ -41,7 +41,8 @@ func _initialize() -> void:
 				started = true
 				check(is_equal_approx(c.work_total, main.BUILD_TIME * 1.4), "costruire a livello 1: 40% di tempo in più")
 	check(started and main.built.has(free[3]), "pavimento fatto")
-	check(main.colonists.reduce(func(n, c): return n + c.xp[main.Skill.CONSTRUCTION], 0) == 1, "1 punto esperienza per pezzo costruito")
+	check(is_equal_approx(main.colonists.reduce(func(n, c): return n + c.xp[main.Skill.CONSTRUCTION], 0.0), main.BUILD_TIME * main.XP_PER_SECOND),
+		"esperienza per pezzo costruito: i suoi 2 secondi di lavoro")
 	main.built.erase(free[3])
 	main.add_item(W, free[0], -main.items[W].get(free[0], 0))
 	for k in main.items[W].keys():
@@ -132,7 +133,7 @@ func _initialize() -> void:
 	check(main.job_list().contains("Make %s: 10" % main.item_name(I)) and main.job_list().contains("Make %s: 1" % main.item_name(main.Res.PICKAXE)),
 		"finestra Jobs: cosa si fa, col tipo davanti al nome")
 	main.open_craft(anvil)
-	check(main.get_node("HUD/CraftPopup/Box/List").get_child_count() == 7, "menu dell'incudine: sette ricette (con lo scudo)")
+	check(main.get_node("HUD/CraftPopup/Box/List").get_child_count() == 8, "menu dell'incudine: otto ricette (con lo scudo e il pugnale)")
 	main.keep[main.Res.SWORD] = 2
 	check(main.gear_wanted(main.Res.SWORD) == 2, "spade di scorta chieste dal menu")
 	main.keep.erase(main.Res.SWORD)

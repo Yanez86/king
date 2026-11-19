@@ -120,7 +120,7 @@ La colonia cresce coi figli (vedi Il sovrano e la casata), con gli avventurieri 
 • Entrano dal bordo della mappa, vanno nella sala del trono (o a un fuoco, o nella radura) e chiedono di restare: Accogli o Manda via. Chiusa la finestra, la domanda aspetta sulla loro scheda (Rispondi…) per 2 giorni, poi se ne vanno. Intanto non lavorano, mangiano dai tuoi magazzini e dormono alla locanda (o per terra).
 • Accolti, sono coloni, Forestieri per 5 giorni (-5 felicità, lavorano il 10% più piano). Una famiglia resta tale: la coppia è sposata, il figlio ha i suoi genitori."""],
 
-	["Abilità", """Quattordici abilità, con livelli da 0 a 10 (una stellina al 10). I coloni partono da 0; il tuo sovrano ha 12 punti nella pagina della nuova partita.
+	["Abilità", """Quattordici abilità, con livelli da 0 a 10 (una stellina al 10). I coloni partono da 0 e salgono lavorando; il tuo sovrano ha 12 punti nella pagina della nuova partita.
 
 [color=#e8c34a]Velocità[/color]
 Un lavoro dura 1,5 volte tanto a livello 0, il tempo normale a livello 5 e la metà a livello 10 (1,4 a livello 1, 1,3 a livello 2...). Quasi tutti i lavori dipendono anche dalle condizioni, e sonno, cucina, lavorazioni e studio dal comfort della stanza.
@@ -145,7 +145,10 @@ Un lavoro dura 1,5 volte tanto a livello 0, il tempo normale a livello 5 e la me
 Con l'arco un cacciatore mira col migliore tra Cacciare e Tiro. A una postazione un livello basso rovina più oggetti, al fuoco da campo brucia più pasti.
 
 [color=#e8c34a]Esperienza[/color]
-+1 XP (passa il mouse sul livello per vederla) per ogni albero abbattuto, masso scavato o cespuglio spogliato, ogni lancio, pezzo costruito, pasto cucinato, oggetto fatto, pagina scritta, tiro o colpo. Un tiro di caccia conta per Cacciare e per Tiro. Per ora l'esperienza viene solo contata: non fa ancora salire i livelli."""],
+Si impara lavorando, in proporzione al lavoro: 0,28 punti esperienza (XP) per ogni secondo di lavoro di questa wiki, a ogni colpo d'ascia o di piccone, bacca colta, semina, lancio (anche a vuoto), pezzo costruito o riparato, pasto, oggetto, pagina, tiro o colpo. Un tiro di caccia conta per Cacciare e per Tiro. In un turno di 8 ore un colono a livello 0 prende circa 15 punti (meno, quando cammina tanto).
+• Dal livello n al n+1 servono 10 × (n+1) punti: 10 per il primo, 150 fino al 5, 550 fino al 10. Quelli avanzati restano per il livello dopo.
+• Col mouse sul livello, nella scheda: i punti e quanti ne mancano al prossimo.
+• I ragazzi (12–15 anni) imparano il doppio. Gli avventurieri crescono con le spedizioni, non così."""],
 
 	["Talenti", """I coloni hanno 0–2 talenti, mai due in contrasto. Passa il mouse su un talento nella scheda per vederne l'effetto.
 [table=3]
@@ -303,6 +306,10 @@ Non sull'acqua, sugli alberi, sulla roccia, sui cespugli o sulle erbacce (prima 
 [cell]Fossa del ghiaccio (2x2)[/cell][cell]20 pietra[/cell][cell]Ghiacciaia[/cell]
 [cell]Cumulo del compost[/cell][cell]6 legna[/cell][cell]Concimazione[/cell]
 [cell]Culla[/cell][cell]4 legna[/cell][cell]–[/cell]
+[cell]Fantoccio[/cell][cell]6 legna[/cell][cell]Fantoccio[/cell]
+[cell]Rastrelliera[/cell][cell]6 legna, 1 lingotto[/cell][cell]Caserma[/cell]
+[cell]Bersaglio[/cell][cell]4 legna, 2 lino[/cell][cell]Caserma[/cell]
+[cell]Banco degli scassi[/cell][cell]4 legna, 2 lingotti[/cell][cell]Caserma[/cell]
 [cell]Armadio dei rimedi[/cell][cell]8 legna[/cell][cell]Medicina[/cell]
 [cell]Tomba (1x2)[/cell][cell]4 legna[/cell][cell]–[/cell]
 [/table]
@@ -325,6 +332,8 @@ L'elenco mostra solo i tipi i cui mobili sono dentro. Se togli quei mobili la st
 [cell]Studio[/cell][cell]scrittoio[/cell][cell]lavoro[/cell]
 [cell]Sala del trono[/cell][cell]trono[/cell][cell]lavoro[/cell]
 [cell]Ghiacciaia[/cell][cell]fossa del ghiaccio; muri di pietra, nessun fuoco[/cell][cell]servizio[/cell]
+[cell]Sala d'armi[/cell][cell]2 fantocci, rastrelliera[/cell][cell]lavoro[/cell]
+[cell]Tiro a segno[/cell][cell]2 bersagli; lunga almeno 8 caselle[/cell][cell]lavoro[/cell]
 [cell]Infermeria[/cell][cell]letto, armadio dei rimedi[/cell][cell]servizio[/cell]
 [/table]
 • Residenza: può avere dei proprietari. Se ne ha, è chiusa a tutti gli altri, anche solo per passarci.
@@ -477,6 +486,7 @@ L'artigiano porta gli ingredienti uno alla volta, poi lavora. Il tempo dipende d
 [cell]Elmo[/cell][cell]incudine[/cell][cell]3 lingotti[/cell][cell]20 s[/cell]
 [cell]Cotta di maglia[/cell][cell]incudine[/cell][cell]6 lingotti[/cell][cell]30 s[/cell]
 [cell]Spada[/cell][cell]incudine[/cell][cell]3 lingotti, 1 legna[/cell][cell]20 s[/cell]
+[cell]Pugnale[/cell][cell]incudine[/cell][cell]1 lingotto, 1 legna[/cell][cell]12 s[/cell]
 [cell]Unguento[/cell][cell]fuoco da campo[/cell][cell]2 erbe[/cell][cell]10 s[/cell]
 [/table]
 Abilità: Forgiare a fornace e incudine, Cucire a filatoio e banco da lavoro, Tiro al banco del falegname, Medicina per l'unguento.
@@ -490,12 +500,14 @@ Tre slot: mani, corpo, testa. Un colono con uno slot vuoto va da sé a prendere 
 [cell]Falcetto[/cell][cell]mani[/cell][cell]–[/cell][cell]raccolta ed estirpazione 25% più rapide[/cell]
 [cell]Arco[/cell][cell]mani[/cell][cell]–[/cell][cell]per cacciare; tira in combattimento[/cell]
 [cell]Spada[/cell][cell]mani[/cell][cell]–[/cell][cell]danno in mischia 15[/cell]
+[cell]Pugnale[/cell][cell]mani[/cell][cell]–[/cell][cell]danno in mischia 10; dello scassinatore[/cell]
 [cell]Armatura di cuoio[/cell][cell]corpo[/cell][cell]2[/cell][cell]-25% stress all'aperto[/cell]
 [cell]Cotta di maglia[/cell][cell]corpo[/cell][cell]5[/cell][cell]ogni lavoro 10% più lento[/cell]
 [cell]Cappuccio di cuoio[/cell][cell]testa[/cell][cell]1[/cell][cell]+5% a segno con l'arco[/cell]
 [cell]Elmo[/cell][cell]testa[/cell][cell]3[/cell][cell]scavo 10% più rapido[/cell]
 [/table]
-Anche gli attrezzi colpiscono: piccone 10, ascia 12, falcetto 8, mani nude 5. Protezione: vedi Combattimento e lupi."""],
+Anche gli attrezzi colpiscono: piccone 10, ascia 12, falcetto 8, mani nude 5. Protezione: vedi Combattimento e lupi.
+Un colono con una classe prende invece il corredo della sua classe, anche al posto di un attrezzo: vedi Combattimento e lupi."""],
 
 	["Combattimento e lupi", """[color=#e8c34a]Lupi[/color]
 • Il primo branco può arrivare il giorno 10. Il branco si annuncia: a mezzanotte gli ululati (nella cronaca, e nelle previsioni: Lupi tra N h, con l'impronta di una zampa), poi alle 22 i lupi, quasi un giorno per richiamare tutti e chiudere le porte. Poi uno ogni 15 giorni in media e mai prima di una settimana dall'ultimo, né a meno di 3 giorni da un'altra minaccia o sfortuna, né mentre qualcuno è a terra o i lupi sono ancora in giro: 2–3 lupi da un bordo della mappa, uno in più ogni 5 coloni. Fiutano la colonia da 70 caselle di distanza. Sotto la barra in alto compare LUPI finché sono in giro.
@@ -513,7 +525,14 @@ Anche gli attrezzi colpiscono: piccone 10, ascia 12, falcetto 8, mani nude 5. Pr
 [color=#e8c34a]A terra e morti[/color]
 • A 0 punti ferita un colono cade. Il morso che lo manda a terra uccide il 25% delle volte, -3% per ogni punto di protezione (almeno il 5%).
 • A terra guarisce 40 al giorno e si rialza a 30. Un lupo che lo trova all'aperto, senza nessun altro in piedi, lo uccide al primo morso.
-• I morti lasciano cadere il loro equipaggiamento; il corpo resta per 2 giorni, se nessuno lo seppellisce (vedi Medicina e morte). Gli altri coloni portano il lutto per 3 giorni (Lutto). Se muoiono tutti i coloni, la colonia è caduta."""],
+• I morti lasciano cadere il loro equipaggiamento; il corpo resta per 2 giorni, se nessuno lo seppellisce (vedi Medicina e morte). Gli altri coloni portano il lutto per 3 giorni (Lutto). Se muoiono tutti i coloni, la colonia è caduta.
+
+[color=#e8c34a]La caserma e le classi[/color]
+• Con la ricerca Caserma un colono può prendere la classe di un avventuriero: Classe… nella sua scheda. Le classi che non si possono dare sono spente, col perché.
+• Serve un colono adulto (gli avventurieri hanno già la loro), la stanza della classe e abbastanza nella sua arma: guerriero 3 in Mischia e una sala d'armi; arciere 3 in Distanza e un tiro a segno; scassinatore 2 in Mischia e una sala d'armi (Scassinare lo impara solo con la classe).
+• Il livello è metà dell'abilità della classe (Mischia, Distanza, Scassinare), da 1 a 5. La scheda e l'elenco degli abitanti dicono "Arciere della colonia, livello 2". Toglierla o cambiarla è gratis: l'abilità resta.
+• Il corredo della classe, che va a prendere da sé, anche al posto di un attrezzo: il guerriero spada, poi scudo, cotta di maglia (o armatura di cuoio) ed elmo; l'arciere arco, armatura e cappuccio di cuoio; lo scassinatore pugnale, armatura e cappuccio di cuoio. Quello che manca si fa alle postazioni.
+• Faretra, maschera e sacca sono il corredo della classe: si vedono, non le fa nessuno. Il cappuccio prende il colore della classe: verde l'arciere, scuro lo scassinatore."""],
 
 	["Medicina e morte", """[color=#e8c34a]Erbe medicinali[/color] [img=center]res://art/icon_herbs.png[/img]
 Piantine coi fiori bianchi sparse nei prati (col mouse sopra: Erbe medicinali), circa una ogni 150 caselle di prato. Segnale con Raccogli (H): 5 erbe a pianta, colte come le bacche; rifioriscono in 2 giorni, mai d'inverno. Le erbe non marciscono.
@@ -530,7 +549,7 @@ Piantine coi fiori bianchi sparse nei prati (col mouse sopra: Erbe medicinali), 
 [color=#e8c34a]I medici[/color]
 La colonna Curare, la prima della tabella (Lavori, J): chi ce l'ha fa, in quest'ordine, prima il più vicino:
 • Soccorrere: un colono a terra fuori da un letto, se c'è un letto libero in infermeria. Il medico se lo carica in spalla e lo mette a letto. Senza letti liberi lo cura dove si trova.
-• Curare: chi è a terra, o a letto ferito (sotto 80) o con la febbre, e non è già medicato. Prima il medico prende un unguento da un mucchio, se ce n'è uno; poi 8 s accanto al malato (abilità Medicina, +1 esperienza). Medicato, per un giorno i punti ferita tornano il doppio più in fretta; con l'unguento anche +30 subito (chi è a terra si rialza). La febbre medicata passa entro mezza giornata.
+• Curare: chi è a terra, o a letto ferito (sotto 80) o con la febbre, e non è già medicato. Prima il medico prende un unguento da un mucchio, se ce n'è uno; poi 8 s accanto al malato (abilità Medicina, che così si impara). Medicato, per un giorno i punti ferita tornano il doppio più in fretta; con l'unguento anche +30 subito (chi è a terra si rialza). La febbre medicata passa entro mezza giornata.
 • Un medico non cura sé stesso (l'unguento se lo spalma da solo), e due medici non vanno mai dallo stesso malato. A fine turno chi ha qualcuno in spalla lo porta prima a letto.
 
 [color=#e8c34a]Le tombe[/color]
@@ -543,7 +562,11 @@ La colonna Curare, la prima della tabella (Lavori, J): chi ce l'ha fa, in quest'
 • Con la legge Funerali (Feste, 30, una tomba sulla mappa): quando si seppellisce uno della colonia, alle 18 di quel giorno (subito se è già sera, il giorno dopo se è sepolto dopo le 22) ogni colono sveglio, in piedi e che non combatte lascia quello che fa e si raccoglie attorno alla tomba per due ore. Poi ha l'Ultimo saluto: finché dura quel lutto pesa 5 in meno (Lutto -10, Lutto regale -15). La cronaca lo racconta.
 • Il memoriale dei caduti (Statuaria): una stele di pietra, 10 pietra, splendore 2. Finché ce n'è uno sulla mappa, ogni lutto nuovo dura un giorno in meno (2 giorni, o 1 da sepolto; il regale 6, o 5)."""],
 
-	["Splendore", """Lo splendore è la somma di tutte le decorazioni finite sulla mappa, dentro o fuori dalle stanze, più 5 per ogni avventuriero famoso presente. Il totale è nella barra in alto.
+	["Splendore", """Lo splendore è la somma delle decorazioni finite che contano, più 5 per ogni avventuriero famoso presente. Il totale è nella barra in alto.
+• Solo nella colonia: in una stanza, entro 2 caselle da un muro, una porta, un pavimento o un sentiero, o dentro la palizzata. Fuori, nei prati, una decorazione non dà niente.
+• Aiuole, fioriere, panche e lampioni contano solo senza un'altra uguale entro 4 caselle (vale la più vecchia); lo stendardo una volta sola. Conviene costruire decorazioni diverse, non tante uguali.
+• Col mouse sopra una decorazione: quanto splendore dà, o perché niente.
+• Manutenzione: a ogni festa di fine stagione (Fiori, Falce, Focolare, Candele) la colonia paga mezza moneta per ogni punto di splendore oltre i primi 15, dai magazzini, prima per le decorazioni più preziose. Una non pagata è trascurata: metà del suo splendore, più spenta. Non pagata nemmeno alla festa dopo, è diroccata: niente splendore, grigia, finché un costruttore non la ripara con 1 del suo materiale (poi è trascurata finché non si paga). I cimeli non costano e non si rovinano. Col mouse sullo splendore in alto, la manutenzione della prossima festa.
 Per ora fa due cose:
 • Gli avventurieri arrivano più forti: livello 1, +1 ogni 10 di splendore, ±1 a caso (da 1 a 5).
 • +1 autorità al giorno ogni 20 di splendore.
@@ -553,7 +576,7 @@ Per ora fa due cose:
 [cell]Fioriera[/cell][cell]1[/cell][cell]5 pietra[/cell][cell]Decorazioni[/cell]
 [cell]Panca[/cell][cell]1[/cell][cell]6 legna[/cell][cell]Decorazioni[/cell]
 [cell]Lampione[/cell][cell]1[/cell][cell]3 legna, 1 carbone[/cell][cell]Lanterne[/cell]
-[cell]Stendardo[/cell][cell]2[/cell][cell]4 legna[/cell][cell]–[/cell]
+[cell]Stendardo[/cell][cell]2, una volta[/cell][cell]4 legna[/cell][cell]–[/cell]
 [cell]Fontana[/cell][cell]6[/cell][cell]30 pietra[/cell][cell]Fontana[/cell]
 [cell]Statua[/cell][cell]8[/cell][cell]40 pietra[/cell][cell]Statuaria[/cell]
 [cell]Memoriale dei caduti[/cell][cell]2[/cell][cell]10 pietra[/cell][cell]Statuaria[/cell]
@@ -562,7 +585,7 @@ Per ora fa due cose:
 [cell]Busto[/cell][cell]5[/cell][cell]il cimelio[/cell][cell]–[/cell]
 [cell]Corona[/cell][cell]6[/cell][cell]il cimelio[/cell][cell]–[/cell]
 [/table]
-• La panca (2x1) dà anche +0,5 di comfort alla stanza. Il lampione illumina le strade di notte. Lo stendardo sventola lo stemma della tua casata. Fontana e statua occupano 2x2 caselle.
+• La panca (2x1) dà anche +0,5 di comfort alla stanza. Il lampione illumina le strade di notte. Lo stendardo sventola lo stemma della tua casata; solo il primo dà splendore, gli altri sono solo decorazione. Fontana e statua occupano 2x2 caselle.
 • I cimeli li trovano solo gli avventurieri, nelle rovine. Arrivano a casa come oggetti: costruiscili dalla barra dei mobili, un cimelio per ogni pezzo."""],
 
 	["Avventurieri", """[color=#e8c34a]La locanda[/color]
@@ -680,6 +703,7 @@ Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette 
 • [color=#d9c48a]Statuaria[/color] (Pietra III, 500 e un tomo, dopo Muratura): la statua e il memoriale dei caduti.
 • [color=#d9c48a]Armi di ferro[/color] (Ferro I, 80, dopo Forgia): spada ed elmo.
 • [color=#d9c48a]Cotta di maglia[/color] (Ferro II, 300 e un quaderno, dopo Armi di ferro): la cotta di maglia.
+• [color=#d9c48a]Caserma[/color] (Ferro II, 250 e un quaderno, dopo Fantoccio): rastrelliera, bersaglio e banco degli scassi; sala d'armi e tiro a segno; le classi dei coloni; il pugnale.
 • [color=#d9c48a]Locanda[/color] (Strada I, 40): la bacheca; le leggi Gabella sul bottino e Tassa di soggiorno.
 • [color=#d9c48a]Compagnia della corona[/color] (Strada III, 500 e un tomo, dopo Locanda rinomata): i coloni partono in spedizione con gli avventurieri.
 • [color=#d9c48a]Libreria[/color] (Sapere I, 60): la libreria.

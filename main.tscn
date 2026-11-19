@@ -1,4 +1,4 @@
-[gd_scene load_steps=95 format=3]
+[gd_scene load_steps=98 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Script" path="res://columns.gd" id="columns"]
@@ -167,6 +167,18 @@ region = Rect2(0, 768, 16, 16)
 atlas = ExtResource("8")
 region = Rect2(0, 832, 16, 16)
 
+[sub_resource type="AtlasTexture" id="WeaponRackIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 1344, 16, 16)
+
+[sub_resource type="AtlasTexture" id="TargetIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 1376, 16, 16)
+
+[sub_resource type="AtlasTexture" id="LockBenchIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 1408, 16, 16)
+
 [sub_resource type="AtlasTexture" id="CanopyBedIcon"]
 atlas = ExtResource("8")
 region = Rect2(0, 864, 32, 16)
@@ -213,15 +225,15 @@ region = Rect2(0, 1312, 16, 16)
 
 [sub_resource type="AtlasTexture" id="MedicineChestIcon"]
 atlas = ExtResource("8")
-region = Rect2(0, 1344, 16, 16)
+region = Rect2(0, 1440, 16, 16)
 
 [sub_resource type="AtlasTexture" id="GraveIcon"]
 atlas = ExtResource("8")
-region = Rect2(64, 1376, 16, 32)
+region = Rect2(64, 1472, 16, 32)
 
 [sub_resource type="AtlasTexture" id="MemorialIcon"]
 atlas = ExtResource("8")
-region = Rect2(0, 1408, 16, 16)
+region = Rect2(0, 1504, 16, 16)
 
 [sub_resource type="AtlasTexture" id="PlasterIcon"]
 atlas = ExtResource("5")
@@ -892,6 +904,33 @@ icon = SubResource("WatchtowerIcon")
 icon_alignment = 1
 expand_icon = true
 
+[node name="Weapon Rack" type="Button" parent="HUD/FurnitureBar/Row/Court"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("WeaponRackIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Target" type="Button" parent="HUD/FurnitureBar/Row/Court"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("TargetIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Lock Bench" type="Button" parent="HUD/FurnitureBar/Row/Court"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("LockBenchIcon")
+icon_alignment = 1
+expand_icon = true
+
 [node name="Decor" type="HBoxContainer" parent="HUD/FurnitureBar/Row"]
 visible = false
 theme_override_constants/separation = 6
@@ -1498,6 +1537,11 @@ text = "The house…"
 visible = false
 focus_mode = 0
 text = "Answer…"
+
+[node name="Class" type="Button" parent="HUD/ColonistSheet/Box/Family"]
+visible = false
+focus_mode = 0
+text = "Class…"
 
 [node name="Kin" type="Label" parent="HUD/ColonistSheet/Box"]
 visible = false

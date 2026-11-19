@@ -92,7 +92,8 @@ func _initialize() -> void:
 	check(main.try_craft(a) and main.RECIPES[a.recipe][0] == R.OINTMENT and a.target == fire, "con l'Erboristeria sì")
 	walk_until(func(): return a.job == main.Job.NONE, 4000)
 	check(main.total(R.OINTMENT) == 1 or main.total(R.HERBS) == 0, "fatto (o rovinato)")
-	check(a.xp[main.Skill.MEDICINE] == 1, "+1 esperienza in Medicina")
+	var learned: float = main.xp_total(a, main.Skill.MEDICINE)
+	check(learned > 0.0, "impara la Medicina (%.2f)" % learned)
 	main.keep[R.OINTMENT] = 0
 	for res in [R.OINTMENT, R.HERBS]:
 		main.items[res].clear()
@@ -112,7 +113,7 @@ func _initialize() -> void:
 	check(main.DOING[main.Job.SALVE] == "Tending a wound", "cosa fa")
 	walk_until(func(): return a.job == main.Job.NONE, 400)
 	check(is_equal_approx(a.hp, 70.0) and a.carrying == 0, "+30 punti ferita (%.1f)" % a.hp)
-	check(a.xp[main.Skill.MEDICINE] == 1, "spalmarselo non insegna niente")
+	check(main.xp_total(a, main.Skill.MEDICINE) == learned, "spalmarselo non insegna niente")
 	main.find_job(a)
 	check(a.job != main.Job.SALVE, "a 70 basta")
 	main.quit_job(a)
@@ -250,7 +251,8 @@ func _initialize() -> void:
 	walk_until(func(): return a.job != main.Job.TREAT, 3000)
 	check(c.conds.has(main.Cond.TREATED) and is_equal_approx(c.hp, main.SALVE_HEAL) and main.total(R.OINTMENT) == 0,
 		"medicato con l'unguento: %.1f" % c.hp)
-	check(a.xp[main.Skill.MEDICINE] == 2, "+1 esperienza in Medicina")
+	check(is_equal_approx(main.xp_total(a, main.Skill.MEDICINE), learned + main.TREAT_TIME * main.XP_PER_SECOND),
+		"curando impara la Medicina")
 	main.tick(0.05)
 	check(not c.downed and c.job == main.Job.SLEEP and main.resting(c), "si rialza, ma resta a letto in infermeria")
 	check(not main.treatable(c), "medicato non lo si cura di nuovo")

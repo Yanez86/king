@@ -228,12 +228,13 @@ func _initialize() -> void:
 			c.pos = main.center(Vector2i(2, 2))
 			c.downed = true  # fermi: lavora solo lui
 	main.drop(R.WOOD, Vector2i(14, 17), 3)
-	var xp: int = mason.xp[main.Skill.CONSTRUCTION]
+	var xp: float = main.xp_total(mason, main.Skill.CONSTRUCTION)
 	for i in 600:
 		main.tick(0.05)
 		if not main.wear.has(spot):
 			break
-	check(not main.wear.has(spot) and main.items[R.WOOD].get(Vector2i(14, 17), 0) == 2 and mason.xp[main.Skill.CONSTRUCTION] == xp + 1,
+	check(not main.wear.has(spot) and main.items[R.WOOD].get(Vector2i(14, 17), 0) == 2
+		and is_equal_approx(main.xp_total(mason, main.Skill.CONSTRUCTION), xp + main.REPAIR_TIME * main.XP_PER_SECOND),
 		"riparato con una legna (scandole): l'esperienza da costruttore")
 	check(main.sheltered(spot), "di nuovo al coperto")
 	for c in main.colonists:

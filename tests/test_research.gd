@@ -109,8 +109,8 @@ func _initialize() -> void:
 	main.authority = 0.0
 	for i in 600:
 		main.tick(0.05)
-	check(main.study >= 3 and scholar.xp[main.Skill.RESEARCH] == main.study and other.xp[main.Skill.RESEARCH] == 0,
-		"studia il lavoratore dello studio, una pagina un punto e un'esperienza")
+	check(main.study >= 3 and is_equal_approx(main.xp_total(scholar, main.Skill.RESEARCH), main.study * main.PAGE_TIME * main.XP_PER_SECOND)
+		and other.xp[main.Skill.RESEARCH] == 0, "studia il lavoratore dello studio, una pagina un punto e la sua esperienza")
 	check(main.authority >= 1.0 and main.ruler.job in [main.Job.GOVERN, main.Job.NONE], "il sovrano, senza altro da fare, governa")
 	# di notte senza lampada più piano, con le librerie più in fretta
 	var day_time: float = main.page_time(scholar, study_room)
@@ -225,6 +225,7 @@ func _initialize() -> void:
 	var statues: Array = [free[10], free[11]]  # 8 di splendore l'una
 	for k in statues:
 		main.furniture[k] = [B.STATUE, R.STONE, 0]
+		main.built[k] = [B.PATH, R.STONE]  # su un sentiero: nella colonia
 	main.tick(0.0)
 	check(main.rank == 0 and main.colonists.size() == 3, "16 di splendore ma 3 coloni: ancora signoria")
 	main.fill_laws()
@@ -247,6 +248,7 @@ func _initialize() -> void:
 	check(main.codify_block(L.TRIBUTE) == "Needs a county", "il tributo vuole la contea")
 	for k in [free[12], free[13], free[14]]:
 		main.furniture[k] = [B.STATUE, R.STONE, 0]
+		main.built[k] = [B.PATH, R.STONE]  # su un sentiero: nella colonia
 		statues.append(k)
 	while main.colonists.size() < 9:
 		crowd.append(person(main))
@@ -426,10 +428,11 @@ func _initialize() -> void:
 	trainee.pos = main.center(post + Vector2i.LEFT)
 	main.relax(trainee)
 	check(trainee.job == main.Job.RELAX and trainee.target == post and trainee.work_total > 0, "svago al fantoccio, prenotato")
-	var melee: int = trainee.xp[main.Skill.MELEE]
+	var melee: float = main.xp_total(trainee, main.Skill.MELEE)
 	for i in 30:
 		main.update_colonist(trainee, 0.1)
-	check(trainee.xp[main.Skill.MELEE] == melee + 1 and main.is_working(trainee), "tre secondi: un colpo, +1 esperienza")
+	check(is_equal_approx(main.xp_total(trainee, main.Skill.MELEE), melee + main.TRAIN_HIT * main.XP_PER_SECOND) and main.is_working(trainee),
+		"tre secondi: un colpo e la sua esperienza")
 	main.quit_job(trainee)
 
 	# milizia: la prima ora libera del giorno al fantoccio, e si scappa solo sotto 30
