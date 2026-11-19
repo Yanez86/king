@@ -1,10 +1,10 @@
 # Il meteo in alto, accanto alla data (vedi main.forecast_strip): icona e gradi di adesso e le icone delle prossime
 # quattro fasce di sei ore, dentro un tamburo che sembra girare (ombre a scalini ai lati, vedi drum_shade); fuori, a
-# destra, quelle degli avvisi (ondata di freddo, gelata, acqua gelata, temporale). Cliccata apre il pannello delle
+# destra, quelle degli avvisi (ondata di freddo, gelata, acqua gelata, temporale, i lupi annunciati dal narratore). Cliccata apre il pannello delle
 # previsioni: 24 ore, un giorno in più con la ricerca Astronomia. Legge tutto da main.atmosphere.
 extends HBoxContainer
 
-enum Icon { SUN, MOON, RAIN, SNOW, FOG, STORM, COLD, FROST, ICE }  # colonne di SHEET
+enum Icon { SUN, MOON, RAIN, SNOW, FOG, STORM, COLD, FROST, ICE, WOLVES }  # colonne di SHEET
 const SHEET := preload("res://art/weather.png")
 const CLOSE := preload("res://art/icon_cancel.png")
 const NAMES := ["Clear", "Rain", "Snow", "Fog", "Storm"]  # per atmosphere.Weather
@@ -158,11 +158,14 @@ func fill() -> void:
 	panel.reset_size()
 
 
-# Avvisi fino a horizon(): [Icon, testo]. Ondata di freddo (in corso o in arrivo), gelata (la prima ora sotto lo zero e
-# il freddo più forte), acqua gelata o che gela o sgela, temporale
+# Avvisi fino a horizon(): [Icon, testo]. I lupi annunciati (vedi main.narrator.warned), ondata di freddo (in corso o
+# in arrivo), gelata (la prima ora sotto lo zero e il freddo più forte), acqua gelata o che gela o sgela, temporale
 func alerts() -> Array:
 	var sky = main.atmosphere
 	var out := []
+	for w in main.narrator.warned():
+		if w[0] == main.narrator.Event.WOLVES:
+			out.append([Icon.WOLVES, tr("Wolves in %d h") % ceili((w[1] - main.clock) * 24)])
 	var hours := roundi(horizon() * 24)
 	for w in sky.waves:
 		if w[0] <= main.clock and main.clock < w[1]:

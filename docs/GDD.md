@@ -567,6 +567,7 @@ Decisa il 2026-11-19. Numeri da tarare.
 - **Lupi**: dal giorno 10 un branco di 2–3 lupi (uno in più ogni 5 coloni) entra da un bordo della mappa e punta alla
   colonia; quando, lo decide il narratore (4.6): rari, in media ogni 15 giorni e almeno 7 tra un branco e l'altro
   (deciso il 2026-11-19: lo scopo è far crescere la colonia, non solo difenderla; tra un branco e l'altro si costruisce).
+  Il branco si annuncia: a mezzanotte gli ululati (nella cronaca e nelle previsioni), alle 22 arrivano.
   Inseguono il colono in piedi più vicino che sta **fuori dalle stanze** (nelle stanze non entrano: i muri proteggono) e lo
   mordono (danno 8, ogni 1,5 s; a segno 70% − 3% per livello di mischia di chi è morso; ogni morso +5 stress).
   Senza nessuno da inseguire, dopo un giorno se ne vanno. Abbattuti lasciano 5 carne e 2 pelli. Nella barra in alto "WOLVES: n".
@@ -859,7 +860,8 @@ di legno, la pietra isola; il caldo e il freddo decidono quanto dura il cibo, fi
   quattro fasce di sei ore e quelle degli avvisi (col mouse sopra, il testo). Cliccata apre il pannello: adesso, una
   riga per fascia (tempo, gradi più bassi e più alti) per 24 ore, un giorno in più con la ricerca Astronomia, e gli
   avvisi: ondata di freddo (in corso, fino a quando; in arrivo, fra quante ore), gelata (fra quante ore si va sotto lo
-  zero e fin dove), acqua che gela, gelata o che sgela, temporale.
+  zero e fin dove), acqua che gela, gelata o che sgela, temporale; i lupi annunciati dal narratore (4.6), fra quante
+  ore, con l'impronta di una zampa.
 - **Acqua che gela** ✓: sotto lo zero gela, tanto più in fretta quanto fa freddo (a −5 °C in un giorno), e sgela allo
   stesso modo; si vede ghiacciare a chiazze. Gelata del tutto regge: si cammina sull'acqua alta, quella bassa non
   rallenta, non si pesca, la neve ci si posa. Torna acqua quando è sciolta a metà: chi sta sull'acqua alta torna a riva.
@@ -899,6 +901,11 @@ Deciso il 2026-11-19. Numeri da tarare. Un **narratore** solo (niente carattere 
   un colono è a terra o i lupi sono ancora sulla mappa. Quando la colonia è in difficoltà (il cibo in magazzino
   basta per meno di 3 giorni, o la felicità media è sotto 40) le fortune hanno la fetta doppia.
 - Ogni evento lo racconta la cronaca, e il calendario lo segna nel suo giorno.
+- **Gli annunci**, per pianificare: un evento può annunciarsi appena scelto, a mezzanotte, e venire più tardi. Il branco
+  di lupi: gli ululati nella cronaca e nelle previsioni ("Lupi tra N h", con l'impronta di una zampa), poi alle 22 i
+  lupi; quasi un giorno per richiamare i coloni e chiudere le porte. Una minaccia scelta tiene già la tregua (il meteo
+  non le mette accanto un'ondata di freddo). Se alle 22 non può più venire (qualcuno a terra, i lupi ancora in giro),
+  gli ululati si allontanano.
 - **Restano fuori**: l'incendio (4.4.5), che viene da dove si mette il fuoco e dai temporali: si può evitare, non lo
   decide il narratore; i pretendenti (4.3.3), il ritmo della dinastia.
 - **Gli eventi**:
@@ -907,7 +914,7 @@ Deciso il 2026-11-19. Numeri da tarare. Un **narratore** solo (niente carattere 
 |---|---|---|---|---|
 | Viandanti | visita | dal giorno 10; uno alla volta; non con Porte chiuse | 30 giorni ÷ (1 + splendore / 20), ×2 ogni 4 coloni sopra 8; la metà con Porte aperte | come in 4.2.1; pausa 5 giorni dalla risposta (o da quando se ne sono andati) |
 | Erudito errante | visita | dal giorno 5, con una locanda | 10 giorni, pausa 5 | un giorno alla locanda, vende 1–2 libri (4.7.2) |
-| Branco di lupi | minaccia | dal giorno 10 (il decimo), a mezzanotte | 15 giorni, pausa 7 | 2–3 lupi, uno in più ogni 5 coloni |
+| Branco di lupi | minaccia | dal giorno 10 (il decimo); annunciato a mezzanotte, arriva alle 22 | 15 giorni, pausa 7 | 2–3 lupi, uno in più ogni 5 coloni |
 | Ondata di freddo | minaccia | la media del giorno sotto 8 °C | 33 giorni | la decide il meteo 2 giorni e mezzo prima, perché le previsioni la vedano (4.5); rispetta la tregua e la fa partire |
 | Raccolto abbondante | fortuna | estate e autunno, con l'orto seminato | 40 giorni, pausa 30 | per 10 giorni i campi rendono il 50% in più |
 | Branco di cervi | fortuna | non d'inverno | 25 giorni | 4–6 cervi arrivano dal bordo della mappa; dopo 2 giorni quelli rimasti se ne vanno |

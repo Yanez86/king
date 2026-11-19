@@ -3875,3 +3875,14 @@ msgstr "%s, notte: un ladro ruba %d monete dal magazzino."
 
 msgid "%s: %s has a fever."
 msgstr "%s: %s ha la febbre."
+
+# --- Il narratore: i lupi annunciati
+
+msgid "%s: howling in the hills. A pack of wolves will come tonight."
+msgstr "%s: ululati sulle colline. Stanotte verrà un branco di lupi."
+
+msgid "%s: the howling fades away; the wolves went elsewhere."
+msgstr "%s: gli ululati si allontanano; i lupi sono andati altrove."
+
+msgid "Wolves in %d h"
+msgstr "Lupi tra %d h"

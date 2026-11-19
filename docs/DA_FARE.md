@@ -158,8 +158,8 @@ Fatto il 2026-11-19 (fasi 1–4, la tabella degli eventi è nel GDD): il narrato
 
 - [ ] Tarare i numeri: quanto spesso, la tregua, quando la colonia è in difficoltà. I lupi sono rari (ogni 15 giorni,
   almeno 7 tra due): con tutti gli eventi un branco ogni 20 giorni circa, il primo verso il giorno 17–29.
-- [ ] Gli eventi annunciati prima, per pianificarli: per esempio gli ululati la sera prima del branco (come l'ondata di
-  freddo nelle previsioni).
+- [ ] Altri annunci (oggi si annuncia solo il branco di lupi): per esempio i viandanti visti sulla strada, il ladro
+  che si aggira (per mettere il turno di guardia).
 - [ ] Eventi nuovi quando ci saranno i sistemi: predoni, malattie che si attaccano, mercanti.
 
 ## Ricerca (4.7.3)

@@ -118,10 +118,11 @@ func _initialize() -> void:
 	main.colonists[1].downed = true
 	check(not N.can_happen(E.WOLVES) and N.can_happen(E.SCHOLAR), "con un colono a terra niente minacce (le visite sì)")
 	main.colonists[1].downed = false
-	# la tregua di ieri l'altro passa: a mezzanotte si dimentica
+	# la tregua del branco di qualche giorno fa passa: a mezzanotte si dimentica
 	N.new_day()
-	check(N.bad.is_empty(), "a mezzanotte la tregua passata si toglie")
+	check(not N.bad.has(20), "a mezzanotte la tregua passata si toglie")
 	N.planned = -1
+	N.bad.clear()
 	# con più coloni il branco è più grosso: con 10, due lupi in più
 	var people: int = main.colonists.size()
 	while main.colony_size() < 10:
@@ -131,6 +132,37 @@ func _initialize() -> void:
 	check(pack.size() >= main.PACK[0] + 2 and pack.size() <= main.PACK[1] + 2, "con 10 coloni %d lupi" % pack.size())
 	main.colonists.resize(people)
 	main.animals.clear()
+
+	# l'annuncio: scelto a mezzanotte, il branco lo dicono gli ululati (nella cronaca e nelle previsioni) e arriva alle
+	# 22; intanto tiene già la tregua. Se alle 22 non può più venire, gli ululati si allontanano
+	N.last.clear()
+	main.today = 60
+	pick_wolves()
+	check(main.chronicle[-1].contains("howling in the hills") and N.bad == [main.today], "gli ululati nella cronaca; la tregua già presa")
+	check(N.warned().size() == 1 and N.warned()[0][0] == E.WOLVES and is_equal_approx(N.warned()[0][1], main.today + 22.0 / 24.0),
+		"annunciato per le 22")
+	main.clock = main.today + 8.0 / 24.0
+	var alerts: Array = main.forecast_strip.alerts()
+	check(alerts[0][0] == main.forecast_strip.Icon.WOLVES and alerts[0][1].begins_with("Wolves in 1"), "nelle previsioni: %s" % str(alerts[0]))
+	main.hour = main.today * 24 + 21
+	N.new_hour()
+	check(main.animals.is_empty() and N.planned == E.WOLVES, "alle 21 non ancora")
+	main.hour += 1
+	main.clock = main.today + 22.0 / 24.0
+	N.new_hour()
+	check(main.animals.any(func(a): return main.hostile(a)) and N.planned == -1 and N.warned().is_empty() and N.bad == [main.today],
+		"alle 22 arrivano")
+	main.animals.clear()
+	main.today += 10
+	pick_wolves()
+	main.colonists[1].downed = true
+	main.hour = main.today * 24 + 22
+	N.new_hour()
+	check(main.animals.is_empty() and N.planned == -1 and main.chronicle[-1].contains("fades away"),
+		"annunciati, ma alle 22 qualcuno è a terra: non vengono")
+	main.colonists[1].downed = false
+	N.bad.clear()
+	N.last.clear()
 
 	# l'ondata di freddo la decide il meteo, fuori dalla tregua, e la fa partire
 	var sky = main.atmosphere
@@ -334,6 +366,17 @@ func _initialize() -> void:
 
 	print("OK: il narratore (la tabella, il tiro del giorno, l'ora, la pausa, le minacce e la tregua, le fortune e le sfortune, il salvataggio)")
 	quit()
+
+
+# mezzanotte dopo mezzanotte (lo stesso giorno, senza la tregua di un'altra scelta) finché il narratore sceglie un branco
+func pick_wolves() -> void:
+	var N = main.narrator
+	for i in 1000:
+		N.bad.clear()
+		N.new_day()
+		if N.planned == N.Event.WOLVES:
+			return
+	check(false, "il narratore sceglie un branco")
 
 
 # `n` tiri del giorno: quante volte ogni evento (-1: niente)

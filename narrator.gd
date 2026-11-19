@@ -23,8 +23,9 @@ enum Event { WANDERERS, SCHOLAR, WOLVES, BUMPER, HERD, INSPIRATION, PILGRIM, RAT
 # dipende dallo stato della colonia. "pause": giorni almeno tra uno e l'altro, contati dall'ultimo giorno in cui c'era.
 # "hour": l'ora del giorno in cui avviene. "can": funzione di questo script, se serve: quando è possibile, oltre a
 # "from" e "pause". "busy": funzione di questo script, vera finché è in corso: intanto non ne viene un altro e la pausa
-# riparte ogni giorno. "do": l'effetto, una funzione di questo script (la cronaca la scrive main). I testi sono nel .po,
-# come tutti gli altri
+# riparte ogni giorno. "do": l'effetto, una funzione di questo script (la cronaca la scrive main). "warn": funzione di
+# questo script, se c'è: l'annuncio, appena scelto a mezzanotte (lo vedono anche le previsioni, vedi warned); "missed":
+# quella dell'evento annunciato che alla sua ora non si può più. I testi sono nel .po, come tutti gli altri
 const EVENTS := {
 	# GDD 4.2.1: uno alla volta, non con Porte chiuse; più spesso con lo splendore, meno con tanti coloni (wander_wait)
 	Event.WANDERERS: {"kind": Kind.VISIT, "from": 10, "every": "wander_wait", "pause": 5.0, "hour": 10,
@@ -32,10 +33,11 @@ const EVENTS := {
 	# GDD 4.7.2: con una locanda, per un giorno; vende 1-2 libri (vedi main.scholar_arrives)
 	Event.SCHOLAR: {"kind": Kind.VISIT, "from": 5, "every": 10.0, "pause": 5.0, "hour": 9,
 		"can": "scholar_can", "busy": "scholar_here", "do": "scholar_comes"},
-	# GDD 4.4.3: dal decimo giorno, a mezzanotte, rari (si cresce, non ci si difende e basta): almeno una settimana tra
-	# un branco e l'altro; 2-3 lupi, uno in più ogni main.PACK_GROW coloni (vedi main.spawn_pack)
-	Event.WOLVES: {"kind": Kind.THREAT, "from": 9, "every": 15.0, "pause": 7.0, "hour": 0, "can": "threat_can",
-		"do": "wolves_come"},
+	# GDD 4.4.3: dal decimo giorno, rari (si cresce, non ci si difende e basta): almeno una settimana tra un branco e
+	# l'altro; annunciati a mezzanotte dagli ululati, arrivano alle 22; 2-3 lupi, uno in più ogni main.PACK_GROW coloni
+	# (vedi main.spawn_pack)
+	Event.WOLVES: {"kind": Kind.THREAT, "from": 9, "every": 15.0, "pause": 7.0, "hour": 22, "can": "threat_can",
+		"do": "wolves_come", "warn": "wolves_warn", "missed": "wolves_missed"},
 	# le fortune (main.BUMPER e seguenti): raccolto abbondante d'estate e d'autunno, con l'orto seminato
 	Event.BUMPER: {"kind": Kind.BOON, "every": 40.0, "pause": 30.0, "hour": 7, "can": "bumper_can",
 		"do": "bumper_comes"},
@@ -65,13 +67,21 @@ var last := {}      # Event -> l'ultimo giorno (main.today) in cui c'era: la pau
 var bad := []       # i giorni di minacce e sfortune recenti e delle ondate di freddo già decise: la tregua (vedi calm)
 
 
-# A mezzanotte (main.new_day): chi è ancora in corso fa ripartire la sua pausa, poi si sceglie l'evento di oggi
+# A mezzanotte (main.new_day): chi è ancora in corso fa ripartire la sua pausa, poi si sceglie l'evento di oggi. Una
+# minaccia o una sfortuna scelta tiene già la tregua (il meteo non ci mette un'ondata di freddo); se ha un annuncio,
+# lo fa
 func new_day() -> void:
 	bad = bad.filter(func(day): return day > main.today - TRUCE)
 	for e in EVENTS:
 		if busy(e):
 			last[e] = main.today
 	planned = pick()
+	if planned < 0:
+		return
+	if EVENTS[planned]["kind"] in BAD:
+		bad.append(main.today)
+	if EVENTS[planned].has("warn"):
+		call(EVENTS[planned]["warn"])
 
 
 # A ogni ora (main.new_hour): l'evento di oggi, venuta la sua ora
@@ -80,7 +90,7 @@ func new_hour() -> void:
 		return
 	var e := planned
 	planned = -1
-	happen(e)
+	happen(e, true)
 
 
 # Il tiro del giorno: tra gli eventi possibili, ognuno con la sua fetta (vedi chance), uno o nessuno. -1: nessuno, e
@@ -134,10 +144,11 @@ func every(e: int) -> float:
 	return float(days)
 
 
-# `e` può capitare oggi: dal suo giorno, non in corso, passata la pausa (e la tregua), e quando lo dice la sua "can"
-func can_happen(e: int) -> bool:
+# `e` può capitare oggi: dal suo giorno, non in corso, passata la pausa (e la tregua), e quando lo dice la sua "can".
+# `chosen`: scelto a mezzanotte, la tregua l'ha già presa lui
+func can_happen(e: int, chosen := false) -> bool:
 	var row: Dictionary = EVENTS[e]
-	if main.today < row.get("from", 0) or busy(e) or (row["kind"] in BAD and not calm(main.today)):
+	if main.today < row.get("from", 0) or busy(e) or (row["kind"] in BAD and not chosen and not calm(main.today)):
 		return false
 	if last.has(e) and main.today - last[e] < row.get("pause", 0.0):
 		return false
@@ -148,15 +159,25 @@ func busy(e: int) -> bool:
 	return EVENTS[e].has("busy") and call(EVENTS[e]["busy"])
 
 
-# `e` adesso, se si può: l'effetto, e la pausa parte da oggi. false se non si può
-func happen(e: int) -> bool:
-	if not can_happen(e):
+# `e` adesso, se si può: l'effetto, e la pausa parte da oggi. false se non si può (`chosen`: lo aveva scelto il tiro di
+# mezzanotte; se era annunciato, si dice che non viene più)
+func happen(e: int, chosen := false) -> bool:
+	if not can_happen(e, chosen):
+		if chosen and EVENTS[e].has("missed"):
+			call(EVENTS[e]["missed"])
 		return false
 	call(EVENTS[e]["do"])
 	last[e] = main.today
-	if EVENTS[e]["kind"] in BAD:
+	if EVENTS[e]["kind"] in BAD and not bad.has(main.today):
 		bad.append(main.today)
 	return true
+
+
+# gli eventi annunciati che devono ancora venire: [Event, `clock` dell'arrivo] (per le previsioni, vedi forecast.gd)
+func warned() -> Array:
+	if planned < 0 or not EVENTS[planned].has("warn"):
+		return []
+	return [[planned, main.today + EVENTS[planned]["hour"] / 24.0]]
 
 
 # il giorno `day` è fuori dalla tregua: almeno TRUCE giorni da ogni minaccia o sfortuna, passata o già decisa (le ondate
@@ -219,6 +240,14 @@ func threat_can() -> bool:
 
 func wolves_come() -> void:
 	main.spawn_pack()
+
+
+func wolves_warn() -> void:
+	main.note(tr("%s: howling in the hills. A pack of wolves will come tonight.") % main.date(main.today))
+
+
+func wolves_missed() -> void:
+	main.note(tr("%s: the howling fades away; the wolves went elsewhere.") % main.date(main.today))
 
 
 func bumper_can() -> bool:
