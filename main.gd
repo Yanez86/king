@@ -91,7 +91,8 @@ const SIDES := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 const TREE_SIDES := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  # da sopra la chioma coprirebbe chi taglia
 
 enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE,
-	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE, DOUSE, FARM, FERTILIZE, OATH, SALVE, RESCUE, TREAT, BURY }
+	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE, DOUSE, FARM, FERTILIZE, OATH, SALVE, RESCUE, TREAT, BURY,
+	FUNERAL }
 const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FURNISH, Job.HARVEST, Job.COOK, Job.FISH,
 	Job.HUNT, Job.CRAFT, Job.STUDY, Job.GOVERN, Job.REPAIR, Job.CUT_ICE, Job.FARM, Job.FERTILIZE, Job.RESCUE,
 	Job.TREAT, Job.BURY]  # contano come ore di lavoro
@@ -257,6 +258,11 @@ const DEATH_MIN := 0.05
 const CORPSE_DAYS := 2.0    # il corpo resta a terra due giorni, se nessuno lo seppellisce; poi sparisce (vedi corpses)
 const BURY_TIME := 5.0      # secondi per seppellire un corpo nella tomba (vedi Job.BURY)
 const BURIED_LESS := 1.0    # giorni di lutto in meno quando il morto è sepolto (vedi bury)
+const MEMORIAL_LESS := 1.0  # e con un memoriale dei caduti (vedi mourning_days)
+const FUNERAL_HOUR := 18    # con la legge Funerali: il funerale, il giorno della sepoltura (vedi funeral_time)
+const FUNERAL_LATE := 22    # sepolto da quest'ora in poi, il funerale è il giorno dopo
+const FUNERAL_HOURS := 2.0  # attorno alla tomba
+const FUNERAL_REACH := 3    # caselle attorno alla tomba dove si sta
 
 # --- Avventurieri (vedi GDD 4.4.4): arrivano alla locanda, si ingaggiano con l'oro alla bacheca, esplorano le rovine ---
 enum Hero { NONE, WARRIOR, ARCHER, BURGLAR }  # classe; NONE: un colono
@@ -269,7 +275,8 @@ const DOING := {Job.CHOP: "Chopping a tree", Job.MINE: "Mining", Job.UPROOT: "Up
 	Job.GOVERN: "Holding audience", Job.PROTEST: "Protesting in the throne room", Job.REPAIR: "Repairing a roof",
 	Job.CUT_ICE: "Cutting ice", Job.DOUSE: "Putting out a fire", Job.FARM: "Tending the garden",
 	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne", Job.SALVE: "Tending a wound",
-	Job.RESCUE: "Rescuing the wounded", Job.TREAT: "Treating a patient", Job.BURY: "Burying the dead"}
+	Job.RESCUE: "Rescuing the wounded", Job.TREAT: "Treating a patient", Job.BURY: "Burying the dead",
+	Job.FUNERAL: "At a funeral"}
 const BOARD_LIST := 400.0  # pixel: la lista di chi può partire sulla bacheca, al più; poi scorre
 const BOARD_PLACES := 230.0  # pixel: le rovine e le spedizioni, sotto la squadra, al più; poi scorrono
 const BOARD_SLOT := 122    # pixel: un posto della squadra (MAX_PARTY in fila)
@@ -558,7 +565,8 @@ enum Build { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE
 	COMPOST_HEAP,  # il cumulo del compost: ci si porta il marcio, che diventa compost (vedi make_compost)
 	CRADLE,  # la culla: ci dorme un neonato, invece di stare in braccio (vedi place_babies)
 	MEDICINE_CHEST,  # l'armadio dei rimedi: con un letto, la stanza è un'infermeria (vedi Tech.MEDICINE)
-	GRAVE }  # la tomba, all'aperto: ci si seppellisce un morto (vedi graves, Job.BURY)
+	GRAVE,  # la tomba, all'aperto: ci si seppellisce un morto (vedi graves, Job.BURY)
+	MEMORIAL }  # il memoriale dei caduti (Statuaria): il lutto un giorno in meno (vedi mourning_days)
 # materiale per casella; per i mobili, per pezzo. Un numero: del materiale del progetto; se no risorsa -> quantità, e
 # ogni viaggio porta tutta una risorsa (vedi cost_of, delivered)
 const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3,
@@ -567,7 +575,7 @@ const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1
 	Build.BENCH: 6, Build.BANNER: 4, Build.LANTERN: {Res.WOOD: 3, Res.COAL: 1}, Build.FOUNTAIN: 30, Build.STATUE: 40, Build.NOTICE_BOARD: 8,
 	Build.CHALICE: 1, Build.OLD_BANNER: 1, Build.BUST: 1, Build.CROWN: 1, Build.DESK: 10, Build.BOOKSHELF: 12, Build.THRONE: 12, Build.ROAD: 2, Build.DUMMY: 6, Build.WATCHTOWER: 20,
 	Build.CANOPY_BED: 20, Build.RUG: 4, Build.WARDROBE: 12, Build.HEARTH: 15,
-	Build.WALL_HIDES: 2, Build.DOOR_CURTAIN: 2, Build.TAPESTRY: 4, Build.TILED_STOVE: 20, Build.ICE_PIT: 20, Build.COMPOST_HEAP: 6, Build.CRADLE: 4, Build.MEDICINE_CHEST: 8, Build.GRAVE: 4,
+	Build.WALL_HIDES: 2, Build.DOOR_CURTAIN: 2, Build.TAPESTRY: 4, Build.TILED_STOVE: 20, Build.ICE_PIT: 20, Build.COMPOST_HEAP: 6, Build.CRADLE: 4, Build.MEDICINE_CHEST: 8, Build.GRAVE: 4, Build.MEMORIAL: 10,
 	Build.PALISADE: 4, Build.GATE: 6, Build.PLASTER: 1}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
 const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
@@ -580,7 +588,7 @@ const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Buil
 	Build.WATCHTOWER: Vector2i.ONE, Build.CANOPY_BED: Vector2i(2, 1), Build.RUG: Vector2i(2, 1), Build.WARDROBE: Vector2i.ONE,
 	Build.HEARTH: Vector2i.ONE, Build.WALL_HIDES: Vector2i.ONE, Build.DOOR_CURTAIN: Vector2i.ONE, Build.TAPESTRY: Vector2i.ONE,
 	Build.TILED_STOVE: Vector2i.ONE, Build.ICE_PIT: Vector2i(2, 2), Build.COMPOST_HEAP: Vector2i.ONE,
-	Build.CRADLE: Vector2i.ONE, Build.MEDICINE_CHEST: Vector2i.ONE, Build.GRAVE: Vector2i(1, 2)}
+	Build.CRADLE: Vector2i.ONE, Build.MEDICINE_CHEST: Vector2i.ONE, Build.GRAVE: Vector2i(1, 2), Build.MEMORIAL: Vector2i.ONE}
 # mobili animati: secondi per fotogramma; i fotogrammi stanno nelle colonne dei quarti di giro (sono simmetrici)
 const ANIMATED := {Build.CAMPFIRE: 0.15, Build.BANNER: 0.3, Build.FOUNTAIN: 0.2}
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
@@ -593,7 +601,7 @@ const RELICS := {Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, B
 const BUILD_RES := {Build.PATH: Res.STONE, Build.ROAD: Res.STONE, Build.RUG: Res.HIDE, Build.FURNACE: Res.STONE, Build.HEARTH: Res.STONE,
 	Build.WALL_HIDES: Res.HIDE, Build.DOOR_CURTAIN: Res.HIDE, Build.TAPESTRY: Res.FLAX, Build.TILED_STOVE: Res.STONE, Build.PLASTER: Res.STONE,
 	Build.ICE_PIT: Res.STONE, Build.ANVIL: Res.IRON, Build.PLANTER: Res.STONE, Build.FOUNTAIN: Res.STONE,
-	Build.STATUE: Res.STONE, Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}
+	Build.STATUE: Res.STONE, Build.MEMORIAL: Res.STONE, Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}
 # mobili che servono perché il cartello lasci scegliere il tipo di stanza: tipo -> {mobile: almeno quanti}
 # ponytail: la cucina accetterà anche la stufa, quando ci sarà: allora "uno tra" invece di "tutti"
 const ROOM_NEEDS := {
@@ -668,7 +676,8 @@ const DISCOMFORT_DROP := 24.0  # uno all'ora per punto
 # splendore della colonia: lo danno le decorazioni finite, dentro e fuori dalle stanze (vedi colony_splendor).
 # ponytail: per ora solo il totale in alto; poi terrà felici i coloni e sbloccherà cose (strade, feste: vedi GDD)
 const SPLENDOR := {Build.FLOWER_BED: 1, Build.PLANTER: 1, Build.BENCH: 1, Build.BANNER: 2, Build.LANTERN: 1,
-	Build.FOUNTAIN: 6, Build.STATUE: 8, Build.TAPESTRY: 2, Build.CHALICE: 3, Build.OLD_BANNER: 4, Build.BUST: 5, Build.CROWN: 6}
+	Build.FOUNTAIN: 6, Build.STATUE: 8, Build.TAPESTRY: 2, Build.CHALICE: 3, Build.OLD_BANNER: 4, Build.BUST: 5, Build.CROWN: 6,
+	Build.MEMORIAL: 2}
 const SPLENDOR_COLOR := Color("e8c34a")
 const HEAT_COLOR := Color("f2a03a")
 # lente del calore: sopra COLD_FROM, sotto ma senza malus, poi per punti di comfort tolti dal freddo (1, 2, 3 e più)
@@ -697,7 +706,7 @@ const SAVE_LIST := preload("res://save_list.gd")
 # le variabili della partita che si salvano, così come sono (gli oggetti dentro li impacchetta SAVES.Packer); il resto
 # si rifà da queste (vedi restore) o è interfaccia. Una variabile nuova dello stato del gioco va aggiunta qui
 const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today", "hour", "rocks", "boulders", "ores", "water",
-	"trees", "stock", "bushes", "flax", "herbs", "graves", "weeds", "chop_marks", "mine_marks", "uproot_marks", "harvest_marks", "fish_marks",
+	"trees", "stock", "bushes", "flax", "herbs", "graves", "funerals", "weeds", "chop_marks", "mine_marks", "uproot_marks", "harvest_marks", "fish_marks",
 	"fish_spots", "items", "fresh", "draft", "blueprints", "built", "furniture_draft", "furniture_plans", "furniture",
 	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
 	"fallen", "animals", "arrows", "next_animal", "guests", "next_guest", "ruins", "expeditions",
@@ -735,6 +744,7 @@ const BUILD_INFO := {
 	Build.CRADLE: "A rocking cradle. A baby sleeps here instead of in their parents' arms.",
 	Build.MEDICINE_CHEST: "Herbs, ointments and bandages. With a bed, the room can be an infirmary, where the sick heal faster.",
 	Build.GRAVE: "A grave with a wooden cross, on open ground. The haulers bury the dead here: their mourning is a day shorter.",
+	Build.MEMORIAL: "A stone stele for the fallen. With a memorial, every mourning is a day shorter.",
 	Build.HEARTH: "A stone fireplace with a chimney, set against a wall. Cooks and warms like a campfire, more. Half its heat goes through a wooden wall at its back, none through stone.",
 	Build.ANVIL: "An iron anvil on a stump. A forge needs one, and a furnace. Tools and metal armor are made here.",
 	Build.WORKBENCH: "A sturdy bench. A workshop needs one. Leather armor is made here.",
@@ -1027,7 +1037,7 @@ const TRAIT_INFO := {  # suggerimento col mouse sopra il talento: com'è, poi co
 # condizioni: effetti a tempo, con un'icona 16x16 nella scheda (colonne di CONDITIONS_SHEET nell'ordine di Cond).
 # Dati: [giorni, tempo di lavoro x, stress da lavoro x, felicità +, descrizione]. Vedi add_cond, work_factor, update_needs
 enum Cond { POISONED, WELL_FED, FEASTED, AT_TABLE, ATE_RAW, MOURNING, FESTIVE, PILLORIED, HEARD, WEDDING, PREGNANT,
-	ROYAL_MOURNING, CORONATION, FOREIGNER, INSPIRED, FEVER, TREATED }
+	ROYAL_MOURNING, CORONATION, FOREIGNER, INSPIRED, FEVER, TREATED, FAREWELL }
 const CONDITIONS_SHEET := preload("res://art/conditions.png")
 const COND_INFO := {
 	Cond.POISONED: [1.0, 1.5, 1.0, -20.0, "Ate raw food that was going bad. Works slowly."],
@@ -1047,6 +1057,7 @@ const COND_INFO := {
 	Cond.INSPIRED: [1.0, 0.8, 1.0, 5.0, "Had a bright idea. Works much faster."],
 	Cond.FEVER: [3.0, 1.5, 1.0, -10.0, "Has a fever. Works slowly and tires twice as fast."],
 	Cond.TREATED: [1.0, 1.0, 1.0, 0.0, "Treated by a doctor: heals twice as fast."],
+	Cond.FAREWELL: [2.0, 1.0, 1.0, 5.0, "Said farewell at the funeral: the mourning weighs less."],  # quanto il lutto (vedi farewell)
 }
 const GLUTTON_MOOD := 2.0  # il goloso: tanta felicità in più (o in meno) da quello che mangia
 const FOOD_CONDS := [Cond.WELL_FED, Cond.FEASTED, Cond.AT_TABLE, Cond.ATE_RAW]
@@ -1224,8 +1235,8 @@ const TECHS := {
 		"info": "At the anvil: chainmail."},
 	Tech.FOUNTAIN: {"branch": Branch.STONE, "tier": 2, "cost": 250, "needs": [Tech.DECOR], "builds": [Build.FOUNTAIN],
 		"info": "The fountain, the pride of the square."},
-	Tech.STATUARY: {"branch": Branch.STONE, "tier": 3, "cost": 500, "needs": [Tech.FINE_FURNITURE], "builds": [Build.STATUE],
-		"info": "The king in stone, on a gilded plinth."},
+	Tech.STATUARY: {"branch": Branch.STONE, "tier": 3, "cost": 500, "needs": [Tech.FINE_FURNITURE], "builds": [Build.STATUE, Build.MEMORIAL],
+		"info": "The king in stone, on a gilded plinth. The memorial of the fallen: every mourning a day shorter."},
 	Tech.ASTRONOMY: {"branch": Branch.LORE, "tier": 3, "cost": 500, "needs": [Tech.SCRIPTORIUM],
 		"info": "Reading the sky: the weather forecast reaches one more day."},
 	Tech.CHARCOAL: {"branch": Branch.FIRE, "tier": 1, "cost": 80, "makes": [Res.COAL],
@@ -1299,11 +1310,12 @@ const ENACT_COST := 10.0
 const REVOKE_WAIT := 3.0    # giorni prima di poter ripromulgare una legge revocata
 enum Law { EXEMPTION, TITHE, LOOT_TAX, LODGING_TAX, LONG_SHIFTS, SHORT_DAY, DAY_OF_REST, CURFEW, HARVEST_FEAST, TALLAGE, TRIBUTE, OPEN_GRANARY,
 	TOLL, NIGHT_WATCH, MILITIA,
-	HARSH_PUNISHMENT, CLEMENCY, HUNTING_RESERVE, COURT, CLOSED_GATES, OPEN_GATES, OATH }
+	HARSH_PUNISHMENT, CLEMENCY, HUNTING_RESERVE, COURT, CLOSED_GATES, OPEN_GATES, OATH, FUNERALS }
 const LAWS_SHEET := preload("res://art/laws.png")  # colonne nell'ordine di Law
 enum LawKind { TREASURY, WORK, ORDER, PEOPLE, CROWN, FEASTS }
 # Leggi: "kind" categoria; "cost" autorità per codificarla; "tier" il titolo che serve (di TITLES, se no la signoria);
-# "group" in vigore una sola dello stesso gruppo; "needs" la ricerca che serve; "after" la legge da codificare prima.
+# "group" in vigore una sola dello stesso gruppo; "needs" la ricerca che serve; "after" la legge da codificare prima;
+# "piece" il mobile che deve esserci sulla mappa.
 # "mood": felicità di chi è in colonia finché è in vigore (vedi law_mood): "all" a tutti i coloni, un Trait al posto di
 # "all" a chi ce l'ha, "guests" agli avventurieri, "ruler" al sovrano, "hunters" a chi ha l'arco, "foreigners" ai
 # forestieri, "sworn" a chi ha giurato (vedi law_mood_of).
@@ -1355,6 +1367,8 @@ const LAWS := {
 		"info": "Whoever stays swears loyalty before the throne (an hour, 10 authority) and is no foreigner. Without enough authority they stay a foreigner."},
 	Law.HARVEST_FEAST: {"kind": LawKind.FEASTS, "cost": 40,
 		"info": "The five feast days of the calendar are holidays: nobody works but the cooks. Then +10 happiness for 3 days, +5 authority."},
+	Law.FUNERALS: {"kind": LawKind.FEASTS, "cost": 30, "piece": Build.GRAVE,
+		"info": "When one of the colony is buried, at 18 everyone gathers at the grave for two hours: then their mourning weighs 5 less."},
 }
 const SHIFTS := {Law.LONG_SHIFTS: [10.0, 1.25], Law.SHORT_DAY: [6.0, 0.75]}  # ore di lavoro al giorno, stress da lavoro x
 const TAXES := {Law.TITHE: 0.1, Law.TALLAGE: 0.2}  # parte di quello che si produce che va al granaio della corona (vedi produce)
@@ -1605,6 +1619,7 @@ var events := true          # false nei test: il narratore tace (vedi narrator.g
 var deaths := true          # false nei test: a 0 punti ferita si resta a terra, nessuno muore
 var corpses: Array[Colonist] = []  # morti: restano a terra CORPSE_DAYS, se nessuno li seppellisce (vedi die, bury)
 var graves := {}            # tomba (la sua casella d'origine) -> Colonist sepolto lì; le tombe vuote non ci sono
+var funerals := []          # [tomba, `clock` d'inizio, Colonist sepolto]: i funerali che aspettano la loro ora (Law.FUNERALS)
 var fallen := false         # sono morti tutti i coloni
 var guests: Array[Colonist] = []   # avventurieri sulla mappa: alla locanda, per strada, di ritorno (vedi update_guests)
 var next_guest := GUEST_EVERY      # `clock` del prossimo arrivo alla locanda
@@ -3910,6 +3925,8 @@ func tick(delta: float) -> void:
 		hour = int(clock * 24)
 		new_hour()
 		autosave_due = autosave_due or hour % 24 == AUTOSAVE_HOUR
+	while not funerals.is_empty() and clock >= funerals[0][1]:
+		hold_funeral(funerals.pop_front())
 	for c in people():
 		if c.died == 0.0:  # morto durante il giro
 			update_colonist(c, delta)
@@ -4279,6 +4296,13 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			c.patient = null
 			end_job(c)
 			c.path = path_to_nearest(c, stands_of(d))  # si fa da parte: la tomba è chiusa
+		Job.FUNERAL:  # attorno alla tomba, rivolto verso di lei, fino alla fine; poi l'ultimo saluto
+			face(c, center(c.dest) - c.pos)
+			c.work_left -= delta
+			if c.work_left > 0:
+				return
+			farewell(c, c.patient)
+			end_job(c)
 		Job.SALVE:  # al mucchio prende l'unguento (carry_res) e se lo spalma lì
 			if c.carrying == 0:
 				if not items[Res.OINTMENT].has(c.target):  # preso da altri
@@ -4545,7 +4569,7 @@ func update_needs(c: Colonist, delta: float) -> void:
 		c.needs[Need.FUN] -= FUN_DROP * fx(c, "fun", 1.0) * day
 	if fx(c, "fun", 1.0) == 0:  # non gli serve: sempre a posto
 		c.needs[Need.FUN] = NEED_MAX
-	if c.job not in [Job.NONE, Job.SLEEP, Job.EAT, Job.RELAX, Job.TANTRUM, Job.PROTEST, Job.OATH]:  # lavori, ma anche combattere e scappare
+	if c.job not in [Job.NONE, Job.SLEEP, Job.EAT, Job.RELAX, Job.TANTRUM, Job.PROTEST, Job.OATH, Job.FUNERAL]:  # lavori, ma anche combattere e scappare
 		c.needs[Need.STRESS] += STRESS_WORK * fx(c, "stress", 1.0) * cond_product(c, 2) * outdoor_stress(c) * shift_stress() * day \
 			* (HARSH_STRESS if enacted.has(Law.HARSH_PUNISHMENT) and Trait.HOTHEAD in c.traits else 1.0)
 	else:
@@ -6429,9 +6453,14 @@ func die(c: Colonist, why: String, away := false) -> void:
 		heir_died()
 
 
-# i giorni del lutto (regale, se `royal`) per un morto di adesso
+# i giorni del lutto (regale, se `royal`) per un morto di adesso: uno in meno con un memoriale dei caduti
 func mourning_days(royal: bool) -> float:
-	return COND_INFO[Cond.ROYAL_MOURNING if royal else Cond.MOURNING][0]
+	return COND_INFO[Cond.ROYAL_MOURNING if royal else Cond.MOURNING][0] - (MEMORIAL_LESS if has_piece(Build.MEMORIAL) else 0.0)
+
+
+# c'è almeno un mobile `kind` sulla mappa
+func has_piece(kind: Build) -> bool:
+	return furniture.values().any(func(p): return p[0] == kind)
 
 
 # Il morto `c` è sepolto nella tomba `grave`: il corpo non c'è più, la tomba ha il suo nome. Il lutto che ha lasciato
@@ -6450,6 +6479,53 @@ func bury(c: Colonist, grave: Vector2i) -> void:
 	if coronation_at == c.mourned:
 		coronation_at -= BURIED_LESS
 	c.mourned -= BURIED_LESS
+	if enacted.has(Law.FUNERALS):
+		funerals.append([grave, funeral_time(), c])
+
+
+# quando si fa il funerale di chi è sepolto adesso: alle FUNERAL_HOUR di oggi, subito se è già sera, domani se è tardi
+func funeral_time() -> float:
+	var now := hour_now()
+	if now >= FUNERAL_LATE:
+		return floorf(clock) + 1.0 + FUNERAL_HOUR / 24.0
+	return clock if now >= FUNERAL_HOUR else floorf(clock) + FUNERAL_HOUR / 24.0
+
+
+# Il funerale di `f` ([tomba, inizio, morto]): chi è in colonia, sveglio, in piedi e non combatte lascia quello che fa e
+# va attorno alla tomba (Job.FUNERAL), FUNERAL_HOURS ore; poi l'ultimo saluto (vedi farewell). Nella cronaca. Niente,
+# se la tomba non c'è più
+func hold_funeral(f: Array) -> void:
+	var grave: Vector2i = f[0]
+	if furniture.get(grave, [-1])[0] != Build.GRAVE or graves.get(grave) != f[2]:
+		return
+	note(tr("%s: the funeral of %s.") % [date(today), full_name(f[2])])
+	var rings := []  # le caselle libere attorno alla tomba, anello per anello: prima si riempie quello più vicino
+	var tomb := piece_rect(grave, furniture[grave])
+	for r in range(1, FUNERAL_REACH + 1):
+		rings.append(cells_in(tomb.grow(r)).filter(func(k): return not tomb.grow(r - 1).has_point(k) \
+			and astar.is_in_boundsv(k) and not astar.is_point_solid(k) and not water.has(k) and not trees.has(k) \
+			and pieces_at(furniture, k).is_empty()))
+	for o in colonists:
+		if o.downed or o.carried_by != null or o.job in [Job.SLEEP, Job.FIGHT, Job.FLEE]:
+			continue
+		quit_job(o)
+		var path: Array[Vector2i] = []
+		for ring in rings:
+			path = path_to_nearest(o, ring)
+			if not path.is_empty():
+				break
+		if path.is_empty():
+			continue
+		start_job(o, Job.FUNERAL, path, path.back(), 0.0)  # come lo svago: niente barra
+		o.work_left = FUNERAL_HOURS * DAY_LENGTH / 24
+		o.patient = f[2]
+		o.dest = grave
+
+
+# chi è stato al funerale di `dead`: finché dura il lutto che ha lasciato, l'ultimo saluto (Cond.FAREWELL) lo alleggerisce
+func farewell(o: Colonist, dead: Colonist) -> void:
+	if dead.mourned > clock and (o.conds.has(Cond.MOURNING) or o.conds.has(Cond.ROYAL_MOURNING)):
+		add_cond(o, Cond.FAREWELL, dead.mourned - clock)
 
 
 # le tombe vuote dove si può portare un morto
@@ -8412,6 +8488,8 @@ func doing(c: Colonist) -> String:
 			return tr(ERRAND_DOING.get(c.errand, "Walking"), "doing")
 		Job.BURY:
 			return tr("Burying %s", "doing") % c.patient.first_name if c.patient != null else tr("Burying the dead", "doing")
+		Job.FUNERAL:
+			return tr("At the funeral of %s", "doing") % c.patient.first_name if c.patient != null else tr("At a funeral", "doing")
 		Job.SLEEP:
 			if in_bed(c) and is_infirmary(room_at(cell_of(c.pos))):
 				return tr("Resting in the infirmary", "doing")
@@ -8931,6 +9009,8 @@ func codify_block(law: Law) -> String:
 		return tr("First: %s") % law_name(LAWS[law]["after"])
 	if LAWS[law].has("needs") and not researched.has(LAWS[law]["needs"]):
 		return tr("Needs the research %s") % tech_name(LAWS[law]["needs"])
+	if LAWS[law].has("piece") and not has_piece(LAWS[law]["piece"]):
+		return tr("Needs a %s") % named(Build, LAWS[law]["piece"]).to_lower()
 	if authority < LAWS[law]["cost"]:
 		return tr("%d more authority") % ceili(LAWS[law]["cost"] - authority)
 	return ""
@@ -8999,7 +9079,8 @@ func law_tip(law: Law) -> String:
 	return tr(LAWS[law]["info"]) + (tr("\nHappiness: ") + ", ".join(who) if not who.is_empty() else "") \
 		+ (tr("\nNeeds a %s") % tr(TITLES[LAWS[law]["tier"]]["realm"]).to_lower() if LAWS[law].get("tier", 0) > 0 else "") \
 		+ (tr("\nAfter %s") % law_name(LAWS[law]["after"]) if LAWS[law].has("after") else "") \
-		+ (tr("\nNeeds the research %s") % tech_name(LAWS[law]["needs"]) if LAWS[law].has("needs") else "")
+		+ (tr("\nNeeds the research %s") % tech_name(LAWS[law]["needs"]) if LAWS[law].has("needs") else "") \
+		+ (tr("\nNeeds a %s") % named(Build, LAWS[law]["piece"]).to_lower() if LAWS[law].has("piece") else "")
 
 
 # Finestra Knowledge (tasto in basso, o clic su uno scrittoio): studio e libri, poi l'albero, una riga per ramo e una
@@ -9108,7 +9189,8 @@ func tech_button(t: Tech) -> Button:
 func fill_laws() -> void:
 	var thrones := rooms.filter(func(r): return r.kind == RoomKind.THRONE_ROOM).size()
 	var splendor := colony_splendor()
-	var key := str([floori(authority), codified.keys(), enacted, revoked, granary, researched.keys(), thrones, floori(clock), rank, splendor, colony_size()])
+	var key := str([floori(authority), codified.keys(), enacted, revoked, granary, researched.keys(), thrones, floori(clock), rank, splendor, colony_size(),
+		has_piece(Build.GRAVE)])
 	if key == laws_key:
 		return
 	laws_key = key

@@ -1,4 +1,4 @@
-[gd_scene load_steps=94 format=3]
+[gd_scene load_steps=95 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Script" path="res://columns.gd" id="columns"]
@@ -218,6 +218,10 @@ region = Rect2(0, 1344, 16, 16)
 [sub_resource type="AtlasTexture" id="GraveIcon"]
 atlas = ExtResource("8")
 region = Rect2(64, 1376, 16, 32)
+
+[sub_resource type="AtlasTexture" id="MemorialIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 1408, 16, 16)
 
 [sub_resource type="AtlasTexture" id="PlasterIcon"]
 atlas = ExtResource("5")
@@ -961,6 +965,15 @@ focus_mode = 0
 toggle_mode = true
 button_group = SubResource("Kinds")
 icon = SubResource("GraveIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Memorial" type="Button" parent="HUD/FurnitureBar/Row/Decor"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("MemorialIcon")
 icon_alignment = 1
 expand_icon = true
 

@@ -196,6 +196,7 @@ Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleep
 [cell]Inspired[/cell][cell]1 day[/cell][cell]20% faster[/cell][cell]+5[/cell]
 [cell]Fever[/cell][cell]3 days[/cell][cell]50% slower[/cell][cell]-10[/cell]
 [cell]Treated[/cell][cell]1 day[/cell][cell]–[/cell][cell]–[/cell]
+[cell]Farewell[/cell][cell]as the mourning[/cell][cell]–[/cell][cell]+5[/cell]
 [/table]
 • Poisoned: from raw food, more likely the closer it is to rotting.
 • Well fed: after a meal; stress from work -25%. Feasted: after a fine meal; stress from work -50%. A new meal replaces the condition of the last one.
@@ -210,6 +211,7 @@ Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleep
 • Inspired: now and then a grown-up colonist with at least 60 happiness has a bright idea (see Basics, Events).
 • Fever: now and then a colonist falls ill (see Basics, Events) and tires twice as fast. It doesn't spread; a doctor cures it within half a day.
 • Treated: a doctor took care of them; health comes back twice as fast (see Medicine & Death).
+• Farewell: they went to the funeral, with the Funerals law: as long as that mourning lasts, it weighs 5 less (see Medicine & Death).
 The laws in force that a colonist likes or dislikes show here too, with their icon."""],
 
 	["The Ruler & House", """[color=#e8c34a]New game[/color]
@@ -536,7 +538,11 @@ The Doctor column, the first of the table (Jobs, J): whoever has it does, in thi
 • A grave (1x2, 4 wood, from the start) is an open pit with a wooden cross, on open ground only: not in a room, not on a floor or a path.
 • The dead stay where they fell for 2 days. With an empty grave, a hauler (not a child) carries the body there on their shoulders and buries it (5 s): the pit becomes a mound. Hover the grave: who lies there, the day they died, their age, how they died.
 • Buried, the mourning they left is a day shorter: 2 days instead of 3, and the royal mourning 6 instead of 7 (the coronation comes a day earlier). A later death keeps its full mourning.
-• Nobody buries those who die on an expedition: there is no body."""],
+• Nobody buries those who die on an expedition: there is no body.
+
+[color=#e8c34a]Funerals and the memorial[/color]
+• With the Funerals law (Feasts, 30, a grave on the map): when one of the colony is buried, at 18 that day (at once if it's already evening, the next day if they were buried after 22) every colonist who is awake, standing and not fighting drops what they do and gathers around the grave for two hours. Afterwards they have Farewell: as long as that mourning lasts it weighs 5 less (Mourning -10, Royal mourning -15). The chronicle tells of it.
+• The memorial of the fallen (Statuary): a stone stele, 10 stone, 2 splendor. While there is one on the map, every new mourning is a day shorter (2 days, or 1 once buried; the royal one 6, or 5)."""],
 
 	["Splendor", """Splendor is the sum of every finished decoration on the map, inside rooms or out, plus 5 for every famous adventurer around. The total is in the top bar.
 For now it does two things:
@@ -551,6 +557,7 @@ For now it does two things:
 [cell]Banner[/cell][cell]2[/cell][cell]4 wood[/cell][cell]–[/cell]
 [cell]Fountain[/cell][cell]6[/cell][cell]30 stone[/cell][cell]Fountain[/cell]
 [cell]Statue[/cell][cell]8[/cell][cell]40 stone[/cell][cell]Statuary[/cell]
+[cell]Memorial[/cell][cell]2[/cell][cell]10 stone[/cell][cell]Statuary[/cell]
 [cell]Chalice[/cell][cell]3[/cell][cell]the relic[/cell][cell]–[/cell]
 [cell]Old banner[/cell][cell]4[/cell][cell]the relic[/cell][cell]–[/cell]
 [cell]Bust[/cell][cell]5[/cell][cell]the relic[/cell][cell]–[/cell]
@@ -671,7 +678,7 @@ What you haven't researched has no build button, and its recipes don't show at t
 • [color=#d9c48a]Masonry[/color] (Stone I, 60): stone walls and floors; the hearth; plaster.
 • [color=#d9c48a]Decor[/color] (Stone I, 40): flower bed, planter, bench.
 • [color=#d9c48a]Fountain[/color] (Stone II, 250 and a notebook, after Decor): the fountain.
-• [color=#d9c48a]Statuary[/color] (Stone III, 500 and a tome, after Masonry): the statue.
+• [color=#d9c48a]Statuary[/color] (Stone III, 500 and a tome, after Masonry): the statue and the memorial of the fallen.
 • [color=#d9c48a]Iron arms[/color] (Iron I, 80, after Forge): sword and helmet.
 • [color=#d9c48a]Chainmail[/color] (Iron II, 300 and a notebook, after Iron arms): chainmail.
 • [color=#d9c48a]Inn[/color] (Road I, 40): the notice board; the laws Loot tax and Lodging tax.
@@ -710,7 +717,8 @@ Press G or click the throne: authority, seals, the crown's granary, then the law
 • Open gates (40, welcome): adventurers ask to stay after 2 expeditions, wanderers come twice as often; newcomers are Foreigners for 10 days, not 5. Foreigners -5.
 • Oath (80, a Barony): whoever stays goes to the throne room and kneels an hour, then swears loyalty: 10 authority, and they are no foreigner (without a throne room, they swear where they stand; without the authority, they stay a foreigner). The sworn +5.
 [color=#d9c48a]Feasts[/color]
-• Harvest feast (40): on the five feast days of the calendar (see Time) nobody works but the cooks. The next day every colonist is Festive (+10 happiness for 3 days) and you get 5 authority."""],
+• Harvest feast (40): on the five feast days of the calendar (see Time) nobody works but the cooks. The next day every colonist is Festive (+10 happiness for 3 days) and you get 5 authority.
+• Funerals (30; needs a grave on the map): when one of the colony is buried, the funeral at 18 (see Medicine & Death)."""],
 ]
 
 

@@ -12,7 +12,7 @@
 | Lavori e priorità | 4.1 | fatto | i lavoratori delle stanze non contano ancora |
 | Coloni | 4.2 | quasi tutto | malattie che si attaccano; relazioni e umore |
 | Nuovi coloni | 4.2.1 | fatto | tarare i numeri |
-| Medicina e morte | 4.2.2 | fasi 1–3 (Erboristeria, Medicina, tombe) | la fase 4: Funerali e memoriale |
+| Medicina e morte | 4.2.2 | fatto | tarare i numeri |
 | Sovrano e dinastia | 4.3 | dinastia fatta (4.3.3); del sovrano fasi 1, 2, 6 e mezza 5 | sovrano sereno/cupo, stile di regno, sguardo, epiteti |
 | Stemma | 4.3.2 | base | linee, pellicce, ornamenti, motto, blasonatura |
 | Risorse ed edifici | 4.4 | fatto | vene d'oro, commercio |
@@ -25,7 +25,7 @@
 | Salvataggio | 4.5.1 | locale fatto | il cloud |
 | Eventi casuali | 4.6 | fatto: il narratore e 11 eventi | tarare i numeri; eventi nuovi coi sistemi nuovi |
 | Ricerca | 4.7.3 | 40 ricerche su 50 | 10 ricerche, il livello IV |
-| Leggi | 4.7.7 | 22 leggi su 38 | 16 leggi: quelle della dinastia si possono fare ora |
+| Leggi | 4.7.7 | 23 leggi su 38 | 15 leggi: quelle della dinastia si possono fare ora |
 | Interfaccia | [TECH](TECH.md) | testo a 22, elenco degli abitanti, bacheca con la squadra | provarla in inglese e ad altre risoluzioni |
 
 ## Da dove partire (proposta)
@@ -34,11 +34,12 @@ La dinastia c'è (4.3.3), la colonia cresce (4.2.1: avventurieri che restano, vi
 Compagnia della corona, il titolo che vuole anche i coloni) e il narratore manda gli eventi (4.6: lupi, visite, fortune,
 sfortune, la tregua). Ora si possono fare anche le leggi della dinastia (vedi Leggi).
 
-1. **Medicina e morte** (4.2.2, deciso, in corso) — l'abilità Medicina, erbe e unguento (Erboristeria); infermeria,
-   riposo e il medico che soccorre e cura (Medicina, anche la febbre del narratore); tombe e sepoltura; la legge
-   Funerali e il memoriale dei caduti. Il lutto si accorcia.
-2. **Cucina e animali** — Forno di pietra, stufato, conserve; poi Apicoltura e Banchetto reale; animali da allevare e
+Medicina e morte è fatta (4.2.2: erbe e unguento, infermeria e medico, tombe, Funerali e memoriale).
+
+1. **Cucina e animali** — Forno di pietra, stufato, conserve; poi Apicoltura e Banchetto reale; animali da allevare e
    la stalla, col letame.
+2. **Le leggi della dinastia** — Primogenitura (manca solo nella finestra), Successione elettiva, Matrimoni misti,
+   Scuola: i loro sistemi ci sono già (vedi Leggi).
 
 ## Lavori e priorità (4.1)
 
@@ -63,9 +64,12 @@ sfortune, la tregua). Ora si possono fare anche le leggi della dinastia (vedi Le
 
 ## Medicina e morte (4.2.2)
 
-Deciso il 2026-11-19; fatte le fasi 1–3 (Erboristeria, Medicina, tombe e sepoltura). Fase ancora da fare:
+Fatto il 2026-11-19 (fasi 1–4: Erboristeria, Medicina, tombe e sepoltura, Funerali e memoriale). Quello che resta:
 
-- [ ] (4) La legge Funerali e il memoriale dei caduti (Statuaria).
+- [ ] Tarare i numeri: il corpo che aspetta 2 giorni, le soglie del riposo (50 e 80), quanto guarisce l'infermeria, la
+  cura del medico, quanto dura e quanto pesa il lutto, quante erbe nei prati.
+- [ ] Malattie che si attaccano (vedi Coloni): il medico c'è.
+- [ ] Gli epiteti alla morte del sovrano sulla sua tomba (vedi Sovrano, fase 8).
 
 ## Sovrano e dinastia (4.3, 4.3.1)
 
@@ -205,7 +209,7 @@ Leggi senza ✓ (tra parentesi quello che aspettano):
 | Ordine | Legge marziale |
 | Popolo | Padrinato; Matrimoni misti, Scuola (si possono fare: ci sono la dinastia e i forestieri); Carta delle libertà (regno) |
 | Corona | Primogenitura (la regola c'è già, dall'inizio: manca solo la legge nella finestra), Successione elettiva (si può fare: c'è la successione); Guardia del corpo; Assolutismo (regno) |
-| Feste | Funerali (cimitero), Torneo, Cronista di corte, Mecenatismo, Calendario delle feste |
+| Feste | Torneo, Cronista di corte, Mecenatismo, Calendario delle feste |
 
 - [ ] Corte: lo sguardo del sovrano a 12 caselle, quando ci sarà lo sguardo.
 

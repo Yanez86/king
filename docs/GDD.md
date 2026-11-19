@@ -201,7 +201,7 @@ accompagnano i morti.
 - **Ordine di lavoro**: (1) Erboristeria: l'abilità Medicina, le erbe, l'unguento, spalmarselo; (2) Medicina: infermeria
   e armadio, il riposo, il medico (soccorrere, curare, la febbre); (3) tombe e sepoltura, il corpo che aspetta, il lutto
   più corto; (4) la legge Funerali e il memoriale dei caduti.
-- **Stato**: fatte le fasi 1–3 il 2026-11-19 (test in `tests/test_medicine.gd`). Le erbe sono un cespuglio come il lino
+- **Stato**: fatte le fasi 1–4 il 2026-11-19 (test in `tests/test_medicine.gd`). Le erbe sono un cespuglio come il lino
   (`herbs`), sparse con un caso loro dal seme della mappa; caricando una partita di prima spuntano sul prato libero. Le
   partite di prima hanno la Medicina a 0 e la scorta di 3 unguenti. Nella wiki la pagina "Medicina e morte". La colonna
   Curare è l'ultimo valore di `Work` (le priorità salvate restano giuste) ma la prima in `WORK_ORDER`, che dà le colonne
@@ -211,7 +211,11 @@ accompagnano i morti.
   letto. Le tombe sono un mobile (`graves`: tomba -> chi c'è sepolto); il trasportatore usa lo stesso `patient` e
   `carried_by` del medico. Ogni morto ricorda quando finisce il lutto che ha lasciato (`mourned`): la sepoltura accorcia
   solo quello, non un lutto venuto dopo; l'incoronazione si anticipa se cade lì. Il morto a terra e la tomba dicono il
-  loro nome col mouse sopra.
+  loro nome col mouse sopra. Il funerale aspetta la sua ora in `funerals` (salvato); chi c'è si mette attorno alla tomba,
+  prima l'anello più vicino. Il −10 invece di −15 è una condizione a parte, **Ultimo saluto** (+5), che dura quanto il
+  lutto lasciato da quel morto: un lutto venuto dopo pesa di nuovo intero. Il memoriale conta quando uno muore: i giorni
+  del lutto si decidono allora (`mourning_days`). Da tarare: il corpo che aspetta 2 giorni, le soglie del riposo (50 e
+  80), quanto guarisce l'infermeria, quanto dura e quanto pesa il lutto.
 
 ### 4.3 Il re e la dinastia
 - Il **sovrano** (re solo alla fine, vedi Titolo) è un colono come gli altri: lavori e priorità, bisogni, routine, abilità che
@@ -1085,7 +1089,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Stufa a olle ✓ | II | 300 | Carbonaia, Muratura | *stufa a olle* contro un muro: +10 °C alla sua stanza e a quella dietro, anche attraverso la pietra (vedi 4.4.5) |
   | Pietra | Muratura ✓ | I | 60 | — | *muri e pavimenti di pietra, focolare col comignolo, intonaco* (vedi 4.4.5) |
   | | Arredo fine ✓ | II | 250 | Muratura | letto a baldacchino (un letto, comfort 2), tappeto di pelli, armadio (comfort 1): la camera signorile del sovrano |
-  | | Statuaria ✓ | III | 500 | Arredo fine | *statua del re*; poi il memoriale dei caduti (lutto un giorno in meno, 4.2.2) |
+  | | Statuaria ✓ | III | 500 | Arredo fine | *statua del re*; il memoriale dei caduti (lutto un giorno in meno, 4.2.2) |
   | | Palazzo ✓ | IV | 1200 | Statuaria | la sala del trono diventa palazzo: udienza +50%, +10 splendore (se ce n'è una) |
   | | Decorazioni ✓ | I | 40 | — | *aiuola, fioriera, panca* |
   | | Fontana ✓ | II | 250 | Decorazioni | *fontana* |
@@ -1187,7 +1191,7 @@ Quattro fasce, una per titolo; sei categorie. ✓ = c'è nel gioco.
 | | Successione elettiva | contea | 150 | Successione | la colonia sceglie l'erede tra coniuge e figli; lutto regale 4 giorni | tutti +2 |
 | | Assolutismo | regno | 300 | Corona finale | le leggi non danno più né approvazione né disapprovazione; udienza +100% | — |
 | Feste | Festa del raccolto ✓ | signoria | 40 | — | i cinque giorni di festa del calendario si cucina e basta; poi +10 felicità per 3 giorni, +5 autorità | — |
-| | Funerali | signoria | 30 | una tomba | sepolto un colono, alle 18 due ore attorno alla tomba: lutto −10 invece di −15 (4.2.2) | — |
+| | Funerali ✓ | signoria | 30 | una tomba | sepolto un colono, alle 18 due ore attorno alla tomba: lutto −10 invece di −15 (4.2.2) | — |
 | | Torneo | baronia | 100 | Fantoccio | gare a stagione; quel giorno gli avventurieri arrivano di un livello in più | tutti +3; iracondo +5 |
 | | Cronista di corte | baronia | 80 | Scriptorium | +1 autorità per spedizione raccontata, epiteti più ricchi | il cronista +3 |
 | | Mecenatismo | contea | 150 | — | decorazioni +25% splendore (Mecenate +50%); 2 monete al giorno agli artisti | tutti +2 |
@@ -1211,7 +1215,7 @@ IV, regno, leggi finali, cittadella.
 **Stato**: fatte le fasi 1–4; della 5 una parte dei nodi, l'erudito errante e la protesta. Nel gioco: scrittoio,
 libreria e trono; stanze Studio e Sala del trono; lavori Studiare e Governare; studio e autorità (nelle finestre
 Knowledge e Laws, tasti K e G, o clic su scrittoio e trono; tutte e due scorrono); i tre libri, nei forzieri e nei
-tesori, col monastero; le 40 ricerche segnate ✓; le 22 leggi segnate ✓; il titolo cresce con lo splendore e i coloni (4.3) e dà i
+tesori, col monastero; le 40 ricerche segnate ✓; le 23 leggi segnate ✓; il titolo cresce con lo splendore e i coloni (4.3) e dà i
 sigilli (2–5), le fasce delle leggi e l'autorità di ogni giorno; gli eventi d'autorità del 4.7.4 tranne
 l'incoronazione (manca la successione), mai sotto zero. Il granaio è un conto, non una stanza, e niente ci marcisce;
 paga le provviste, poi (Granaio aperto) l'ora senza cibo in magazzino e il pasto di ogni stagione; la festa del

@@ -1,7 +1,7 @@
 # Esegui: godot --headless --path . -s tests/test_medicine.gd
 # Medicina e morte (GDD 4.2.2): le erbe medicinali nei prati, l'unguento al fuoco e chi se lo spalma, l'abilità
 # Medicina; l'infermeria, il riposo a letto, il medico che soccorre e cura, la febbre; le tombe, la sepoltura e il lutto
-# più corto; il salvataggio
+# più corto; la legge Funerali e il memoriale dei caduti; il salvataggio
 extends SceneTree
 
 const SAVES := preload("res://saves.gd")
@@ -386,6 +386,94 @@ func _initialize() -> void:
 	copy3.free()
 	Engine.time_scale = 1.0
 
+	# --- Funerali e memoriale ---
+
+	var L = main.Law.FUNERALS
+	var law: Dictionary = main.LAWS[L]
+	check(law["kind"] == main.LawKind.FEASTS and law["cost"] == 30 and law["piece"] == B.GRAVE and law.get("tier", 0) == 0,
+		"la legge Funerali: Feste, signoria, 30, serve una tomba")
+	var kept: Dictionary = main.furniture.duplicate()
+	for o in main.furniture.keys():
+		if main.furniture[o][0] == B.GRAVE:
+			main.furniture.erase(o)
+	main.authority = 100.0
+	check(main.codify_block(L) == "Needs a grave" and main.law_tip(L).ends_with("Needs a grave"), "senza tombe non si codifica: %s" % main.codify_block(L))
+	main.furniture = kept
+	check(main.codify(L) and main.enact(L), "con una tomba sì")
+
+	# il funerale: sepolto la mattina, alle 18; la sera subito; dopo le 22 il giorno dopo
+	var day: float = floorf(main.clock) + 1.0
+	main.clock = day + 10.0 / 24
+	check(is_equal_approx(main.funeral_time(), day + 18.0 / 24), "sepolto alle 10: alle 18")
+	main.clock = day + 19.0 / 24
+	check(main.funeral_time() == main.clock, "alle 19: subito")
+	main.clock = day + 23.0 / 24
+	check(is_equal_approx(main.funeral_time(), day + 1.0 + 18.0 / 24), "alle 23: domani alle 18")
+	main.clock = day + 10.0 / 24
+	main.tick(0.0)
+	var mourned = person()
+	main.die(mourned, "drowned.")
+	var grave3: Vector2i = yard + Vector2i(0, 3)
+	main.furniture[grave3] = [B.GRAVE, R.WOOD, 0]
+	main.bury(mourned, grave3)
+	check(main.funerals.size() == 1 and main.funerals[0][0] == grave3 and main.funerals[0][2] == mourned, "un funerale in attesa")
+
+	# salvato col funerale in attesa
+	var waiting: Dictionary = main.game_state()
+	SAVES.pending = waiting
+	var copy4 = load("res://main.tscn").instantiate()
+	copy4.game_start = false
+	copy4.settings_file = ""
+	root.add_child(copy4)
+	await process_frame
+	check(copy4.funerals.size() == 1 and copy4.funerals[0][2] == copy4.graves[grave3], "ricaricata: il funerale aspetta ancora")
+	copy4.free()
+	Engine.time_scale = 1.0
+
+	# alle 18 chi è in colonia va attorno alla tomba; chi dorme no
+	var sleeper = person()
+	main.start_job(sleeper, main.Job.SLEEP, none, main.cell_of(sleeper.pos), 0.0)
+	for o in main.colonists:
+		if o != sleeper:
+			o.pos = main.center(mid + Vector2i(main.colonists.find(o) - 3, 2))
+	main.clock = day + 18.0 / 24 - 0.0001
+	main.tick(0.05)
+	main.tick(0.05)
+	check(main.funerals.is_empty(), "è l'ora")
+	var mourners: Array = main.colonists.filter(func(o): return o.job == main.Job.FUNERAL)
+	check(mourners.size() == main.colonists.size() - 1 and sleeper.job == main.Job.SLEEP, "vanno tutti, tranne chi dorme")
+	check(mourners.all(func(o): return o.patient == mourned and o.dest == grave3), "alla sua tomba")
+	check(main.chronicle[-1].ends_with("the funeral of %s." % main.full_name(mourned)), "nella cronaca")
+	check(main.doing(mourners[0]) == "At the funeral of %s" % mourned.first_name, "cosa fanno: %s" % main.doing(mourners[0]))
+	walk_until(func(): return mourners.all(func(o): return o.path.is_empty()), 2000)
+	check(mourners.all(func(o): return Vector2(main.cell_of(o.pos) - grave3).length() <= main.FUNERAL_REACH * 1.5), "attorno alla tomba")
+	var cells := {}
+	for o in mourners:
+		cells[main.cell_of(o.pos)] = true
+	check(cells.size() == mourners.size(), "ognuno al suo posto")
+	walk_until(func(): return mourners.all(func(o): return o.job != main.Job.FUNERAL), 1000)
+	check(mourners.all(func(o): return o.conds.get(main.Cond.FAREWELL, -1.0) == mourned.mourned), "l'ultimo saluto, quanto il lutto")
+	check(main.COND_INFO[main.Cond.FAREWELL][3] == 5.0 and main.COND_INFO[MOURN][3] == -15.0, "il lutto pesa 5 in meno: -10")
+	check(not sleeper.conds.has(main.Cond.FAREWELL), "chi dormiva no")
+	for o in main.colonists:
+		o.conds.clear()
+	main.revoke(L)
+
+	# il memoriale dei caduti: dalla Statuaria, di pietra, splendore; il lutto un giorno in meno
+	check(main.TECHS[main.Tech.STATUARY]["builds"].has(B.MEMORIAL) and main.BUILD_RES[B.MEMORIAL] == R.STONE
+		and main.SPLENDOR[B.MEMORIAL] == 2 and main.FURNITURE[B.MEMORIAL] == Vector2i.ONE, "il memoriale")
+	check(main.mourning_days(false) == 3.0 and main.mourning_days(true) == 7.0, "senza: 3 giorni, il regale 7")
+	main.furniture[mid + Vector2i(4, -6)] = [B.MEMORIAL, R.STONE, 0]
+	check(main.mourning_days(false) == 2.0 and main.mourning_days(true) == 6.0, "col memoriale: 2, il regale 6")
+	var remembered = person()
+	main.die(remembered, "drowned.")
+	check(a.conds[MOURN] == main.clock + 2.0, "il lutto di 2 giorni")
+	main.bury(remembered, yard + Vector2i(2, 3))
+	check(a.conds[MOURN] == remembered.died + 1.0, "sepolto: uno")
+	main.furniture.erase(mid + Vector2i(4, -6))
+	for o in main.colonists:
+		o.conds.clear()
+
 	# --- Salvataggio ---
 
 	# una partita di prima delle erbe e dell'abilità: caricata, le erbe spuntano sul prato e la Medicina è a 0
@@ -412,7 +500,7 @@ func _initialize() -> void:
 	copy.free()
 	Engine.time_scale = 1.0
 
-	print("OK: medicina e morte (erbe e unguento, infermeria e medico, tombe)")
+	print("OK: medicina e morte (erbe e unguento, infermeria e medico, tombe, funerali e memoriale)")
 	quit()
 
 

@@ -1079,8 +1079,8 @@ msgstr "All'incudine: cotta di maglia."
 msgid "The fountain, the pride of the square."
 msgstr "La fontana, l'orgoglio della piazza."
 
-msgid "The king in stone, on a gilded plinth."
-msgstr "Il re in pietra, su un basamento dorato."
+msgid "The king in stone, on a gilded plinth. The memorial of the fallen: every mourning a day shorter."
+msgstr "Il re in pietra, su un basamento dorato. Il memoriale dei caduti: ogni lutto un giorno più corto."
 
 msgid "Reading the sky: the weather forecast reaches one more day."
 msgstr "Leggere il cielo: le previsioni del tempo arrivano un giorno più in là."
@@ -1189,6 +1189,9 @@ msgstr "Dalle 21 tutti a letto: niente serate al fuoco da campo, meno prede per 
 
 msgid "The five feast days of the calendar are holidays: nobody works but the cooks. Then +10 happiness for 3 days, +5 authority."
 msgstr "I cinque giorni di festa del calendario sono festivi: non lavora nessuno tranne i cuochi. Poi +10 felicità per 3 giorni, +5 autorità."
+
+msgid "When one of the colony is buried, at 18 everyone gathers at the grave for two hours: then their mourning weighs 5 less."
+msgstr "Quando si seppellisce uno della colonia, alle 18 tutti si ritrovano alla tomba per due ore: poi il loro lutto pesa 5 in meno."
 
 # --- main.gd: interfaccia (opzioni, costruzione, cartello, scheda, finestre)
 
@@ -2218,6 +2221,9 @@ msgstr "Fontana"
 msgid "Statue"
 msgstr "Statua"
 
+msgid "Memorial"
+msgstr "Memoriale dei caduti"
+
 msgid "Notice Board"
 msgstr "Bacheca"
 
@@ -2598,6 +2604,9 @@ msgstr "Coprifuoco"
 
 msgid "Harvest Feast"
 msgstr "Festa del raccolto"
+
+msgid "Funerals"
+msgstr "Funerali"
 
 msgid "Tallage"
 msgstr "Taglia"
@@ -3311,6 +3320,9 @@ msgstr "Tomba"
 msgid "A grave with a wooden cross, on open ground. The haulers bury the dead here: their mourning is a day shorter."
 msgstr "Una tomba con la croce di legno, all'aperto. I trasportatori ci seppelliscono i morti: il loro lutto dura un giorno in meno."
 
+msgid "A stone stele for the fallen. With a memorial, every mourning is a day shorter."
+msgstr "Una stele di pietra per i caduti. Con un memoriale, ogni lutto dura un giorno in meno."
+
 msgid "Dead. Gone in %.1f days, unless buried in a grave."
 msgstr "Morto. Sparirà tra %.1f giorni, se non lo seppelliscono in una tomba."
 
@@ -3733,6 +3745,14 @@ msgid "Burying the dead"
 msgstr "Seppellisce un morto"
 
 msgctxt "doing"
+msgid "At the funeral of %s"
+msgstr "Al funerale di %s"
+
+msgctxt "doing"
+msgid "At a funeral"
+msgstr "A un funerale"
+
+msgctxt "doing"
 msgid "Making %s"
 msgstr "Fabbrica: %s"
 
@@ -3966,6 +3986,12 @@ msgstr "Medicato"
 msgid "Treated by a doctor: heals twice as fast."
 msgstr "Curato da un medico: guarisce il doppio più in fretta."
 
+msgid "Farewell"
+msgstr "Ultimo saluto"
+
+msgid "Said farewell at the funeral: the mourning weighs less."
+msgstr "Ha dato l'ultimo saluto al funerale: il lutto pesa meno."
+
 msgid "%s: a bumper year. For %d days the fields yield half as much again."
 msgstr "%s: un'annata d'oro. Per %d giorni i campi rendono la metà in più."
 
@@ -4001,6 +4027,9 @@ msgstr "%s, notte: un ladro ruba %d monete dal magazzino."
 
 msgid "%s: %s has a fever."
 msgstr "%s: %s ha la febbre."
+
+msgid "%s: the funeral of %s."
+msgstr "%s: il funerale di %s."
 
 # --- Il narratore: i lupi annunciati
 

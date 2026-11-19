@@ -195,6 +195,7 @@ Goloso e Di poco appetito, Pigro e Stacanovista, Mattiniero e Nottambulo, Dormig
 [cell]Ispirato[/cell][cell]1 giorno[/cell][cell]20% più veloce[/cell][cell]+5[/cell]
 [cell]Febbre[/cell][cell]3 giorni[/cell][cell]50% più lento[/cell][cell]-10[/cell]
 [cell]Medicato[/cell][cell]1 giorno[/cell][cell]–[/cell][cell]–[/cell]
+[cell]Ultimo saluto[/cell][cell]quanto il lutto[/cell][cell]–[/cell][cell]+5[/cell]
 [/table]
 • Intossicato: dal cibo crudo, tanto più probabile quanto più è vicino a marcire.
 • Ben nutrito: dopo un pasto; stress dal lavoro -25%. Lauto pasto: dopo un pasto squisito; stress dal lavoro -50%. Un pasto nuovo sostituisce la condizione di quello prima.
@@ -209,6 +210,7 @@ Goloso e Di poco appetito, Pigro e Stacanovista, Mattiniero e Nottambulo, Dormig
 • Ispirato: ogni tanto un colono adulto con almeno 60 di felicità ha un'idea brillante (vedi Le basi, Gli eventi).
 • Febbre: ogni tanto un colono si ammala (vedi Le basi, Gli eventi) e si stanca il doppio. Non si attacca; un medico la fa passare entro mezza giornata.
 • Medicato: un medico l'ha curato; i punti ferita tornano il doppio più in fretta (vedi Medicina e morte).
+• Ultimo saluto: è andato al funerale, con la legge Funerali: finché dura quel lutto, pesa 5 in meno (vedi Medicina e morte).
 Qui compaiono anche le leggi in vigore che a un colono piacciono o non piacciono, con la loro icona."""],
 
 	["Il sovrano e la casata", """[color=#e8c34a]Nuova partita[/color]
@@ -535,7 +537,11 @@ La colonna Curare, la prima della tabella (Lavori, J): chi ce l'ha fa, in quest'
 • Una tomba (1x2, 4 legna, dall'inizio) è una fossa con la croce di legno, solo all'aperto: non in una stanza, non su un pavimento o un sentiero.
 • I morti restano dove sono caduti per 2 giorni. Con una tomba vuota, un trasportatore (non un bambino) si carica il corpo in spalla, lo porta lì e lo seppellisce (5 s): la fossa diventa un tumulo. Col mouse sopra la tomba: chi ci giace, il giorno della morte, gli anni, com'è morto.
 • Sepolto, il lutto che ha lasciato dura un giorno in meno: 2 giorni invece di 3, e il lutto regale 6 invece di 7 (l'incoronazione viene un giorno prima). Una morte venuta dopo tiene il suo lutto intero.
-• Chi muore in spedizione nessuno lo seppellisce: non c'è il corpo."""],
+• Chi muore in spedizione nessuno lo seppellisce: non c'è il corpo.
+
+[color=#e8c34a]Funerali e memoriale[/color]
+• Con la legge Funerali (Feste, 30, una tomba sulla mappa): quando si seppellisce uno della colonia, alle 18 di quel giorno (subito se è già sera, il giorno dopo se è sepolto dopo le 22) ogni colono sveglio, in piedi e che non combatte lascia quello che fa e si raccoglie attorno alla tomba per due ore. Poi ha l'Ultimo saluto: finché dura quel lutto pesa 5 in meno (Lutto -10, Lutto regale -15). La cronaca lo racconta.
+• Il memoriale dei caduti (Statuaria): una stele di pietra, 10 pietra, splendore 2. Finché ce n'è uno sulla mappa, ogni lutto nuovo dura un giorno in meno (2 giorni, o 1 da sepolto; il regale 6, o 5)."""],
 
 	["Splendore", """Lo splendore è la somma di tutte le decorazioni finite sulla mappa, dentro o fuori dalle stanze, più 5 per ogni avventuriero famoso presente. Il totale è nella barra in alto.
 Per ora fa due cose:
@@ -550,6 +556,7 @@ Per ora fa due cose:
 [cell]Stendardo[/cell][cell]2[/cell][cell]4 legna[/cell][cell]–[/cell]
 [cell]Fontana[/cell][cell]6[/cell][cell]30 pietra[/cell][cell]Fontana[/cell]
 [cell]Statua[/cell][cell]8[/cell][cell]40 pietra[/cell][cell]Statuaria[/cell]
+[cell]Memoriale dei caduti[/cell][cell]2[/cell][cell]10 pietra[/cell][cell]Statuaria[/cell]
 [cell]Calice[/cell][cell]3[/cell][cell]il cimelio[/cell][cell]–[/cell]
 [cell]Stendardo antico[/cell][cell]4[/cell][cell]il cimelio[/cell][cell]–[/cell]
 [cell]Busto[/cell][cell]5[/cell][cell]il cimelio[/cell][cell]–[/cell]
@@ -670,7 +677,7 @@ Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette 
 • [color=#d9c48a]Muratura[/color] (Pietra I, 60): muri e pavimenti di pietra; il focolare; l'intonaco.
 • [color=#d9c48a]Decorazioni[/color] (Pietra I, 40): aiuola, fioriera, panca.
 • [color=#d9c48a]Fontana[/color] (Pietra II, 250 e un quaderno, dopo Decorazioni): la fontana.
-• [color=#d9c48a]Statuaria[/color] (Pietra III, 500 e un tomo, dopo Muratura): la statua.
+• [color=#d9c48a]Statuaria[/color] (Pietra III, 500 e un tomo, dopo Muratura): la statua e il memoriale dei caduti.
 • [color=#d9c48a]Armi di ferro[/color] (Ferro I, 80, dopo Forgia): spada ed elmo.
 • [color=#d9c48a]Cotta di maglia[/color] (Ferro II, 300 e un quaderno, dopo Armi di ferro): la cotta di maglia.
 • [color=#d9c48a]Locanda[/color] (Strada I, 40): la bacheca; le leggi Gabella sul bottino e Tassa di soggiorno.
@@ -709,5 +716,6 @@ Premi G o clicca il trono: autorità, sigilli, il granaio della corona, poi le l
 • Porte aperte (40, accoglienza): gli avventurieri chiedono di restare dopo 2 spedizioni, i viandanti vengono il doppio delle volte; chi arriva è Forestiero per 10 giorni, non 5. Forestieri -5.
 • Giuramento (80, una baronia): chi resta va nella sala del trono e sta un'ora in ginocchio, poi giura fedeltà: 10 autorità, e non è forestiero (senza sala del trono giura dove si trova; senza l'autorità resta forestiero). Chi ha giurato +5.
 [color=#d9c48a]Feste[/color]
-• Festa del raccolto (40): nei cinque giorni di festa del calendario (vedi Il tempo, in Le basi) non lavora nessuno tranne i cuochi. Il giorno dopo ogni colono è In festa (+10 felicità per 3 giorni) e ricevi 5 autorità."""],
+• Festa del raccolto (40): nei cinque giorni di festa del calendario (vedi Il tempo, in Le basi) non lavora nessuno tranne i cuochi. Il giorno dopo ogni colono è In festa (+10 felicità per 3 giorni) e ricevi 5 autorità.
+• Funerali (30; serve una tomba sulla mappa): quando si seppellisce uno della colonia, il funerale alle 18 (vedi Medicina e morte)."""],
 ]
