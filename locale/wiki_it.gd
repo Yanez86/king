@@ -197,7 +197,15 @@ Gli altri due coloni vengono a caso: abilità a 0, 0–2 talenti.
 • Il sovrano è il primo colono e vive come gli altri: bisogni, routine, lavoro, combattimenti. Può morire.
 • Titolo: Signore o Signora. La barra in alto mostra "Signoria di" e il nome della tua colonia, accanto al tuo stemma: cliccaci sopra per la scheda del sovrano. Sugli stendardi sventola il tuo stemma.
 • Solo il sovrano governa: su un trono, in una sala del trono, raccoglie autorità per le leggi (vedi Leggi). Un sovrano sereno (70 o più) ne raccoglie il 25% in più, uno cupo (30 o meno) la metà.
-• Per ora il titolo resta quello della Signoria: +1 autorità al giorno e 2 sigilli per le leggi.
+• Il titolo cresce con la colonia, non cala mai e passa all'erede. Vuole sia lo splendore sia i coloni (contano i figli e chi è in spedizione; i neonati e gli avventurieri no):
+[table=5]
+[cell][color=#d9c48a]Titolo[/color][/cell][cell][color=#d9c48a]Splendore[/color][/cell][cell][color=#d9c48a]Coloni[/color][/cell][cell][color=#d9c48a]Sigilli[/color][/cell][cell][color=#d9c48a]Autorità al giorno[/color][/cell]
+[cell]Signoria[/cell][cell]–[/cell][cell]–[/cell][cell]2[/cell][cell]+1[/cell]
+[cell]Baronia[/cell][cell]15[/cell][cell]6[/cell][cell]3[/cell][cell]+2[/cell]
+[cell]Contea[/cell][cell]35[/cell][cell]10[/cell][cell]4[/cell][cell]+3[/cell]
+[cell]Regno[/cell][cell]60[/cell][cell]15[/cell][cell]5[/cell][cell]+4[/cell]
+[/table]
+Lo annunciano una finestra e la cronaca; cambiano il nome del reame, il titolo del sovrano e la corona sullo stemma. La finestra delle leggi dice cosa serve per il titolo dopo.
 
 [color=#e8c34a]Matrimonio[/color]
 • Un sovrano adulto (16 anni o più) senza coniuge vivo si può sposare: "Combina un matrimonio…" nella scheda del sovrano elenca i coloni adulti dell'altro sesso senza coniuge. Chi ha meno di 50 di felicità dice di no, e l'elenco dice perché.

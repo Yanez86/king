@@ -1046,15 +1046,16 @@ const RULER_POINTS := 12
 const RULER_SKILL_CAP := 3
 const RULER_TRAITS := 2     # talenti che si scelgono al massimo, mai due in contrasto (vedi TRAIT_CLASH)
 # Titolo (GDD 4.3), indice di TITLES: signoria, baronia, contea, regno. È della casata e cresce, mai cala, quando lo
-# splendore della colonia arriva a "splendor" (vedi tick, rise): cambiano il nome del reame, il titolo del sovrano (per
+# splendore della colonia arriva a "splendor" e i coloni a "colonists", tutti e due (vedi colony_size, tick, rise):
+# cambiano il nome del reame, il titolo del sovrano (per
 # Sex), la corona sullo stemma (vedi arms_texture), i sigilli delle leggi e l'autorità di ogni giorno (AUTHORITY_DAILY
 # a titolo). Le leggi di una fascia ("tier" in LAWS) si codificano da quel titolo in su.
-# ponytail: soglie provvisorie, e solo lo splendore: anche il numero di coloni quando la colonia potrà crescere
+# ponytail: soglie provvisorie
 const TITLES := [
-	{"realm": "Lordship", "ruler": ["Lord", "Lady"], "splendor": 0, "seals": 2},
-	{"realm": "Barony", "ruler": ["Baron", "Baroness"], "splendor": 15, "seals": 3},
-	{"realm": "County", "ruler": ["Count", "Countess"], "splendor": 35, "seals": 4},
-	{"realm": "Kingdom", "ruler": ["King", "Queen"], "splendor": 60, "seals": 5},
+	{"realm": "Lordship", "ruler": ["Lord", "Lady"], "splendor": 0, "colonists": 0, "seals": 2},
+	{"realm": "Barony", "ruler": ["Baron", "Baroness"], "splendor": 15, "colonists": 6, "seals": 3},
+	{"realm": "County", "ruler": ["Count", "Countess"], "splendor": 35, "colonists": 10, "seals": 4},
+	{"realm": "Kingdom", "ruler": ["King", "Queen"], "splendor": 60, "colonists": 15, "seals": 5},
 ]
 const CROWN_IMG := "[img=center]res://art/icon_crown.png[/img]"
 # Stemma della casata (GDD 4.3.2): {"shape", "division", "field", "field2", "ordinary", "ordinary_tincture", "charge",
@@ -3748,7 +3749,7 @@ func tick(delta: float) -> void:
 	var splendor := colony_splendor()
 	authority += (AUTHORITY_DAILY * (rank + 1) + floorf(splendor / float(SPLENDOR_PER_AUTHORITY))
 		+ (colonists.size() if enacted.has(Law.TRIBUTE) else 0)) * delta / DAY_LENGTH
-	while rank < TITLES.size() - 1 and splendor >= TITLES[rank + 1]["splendor"]:
+	while rank < TITLES.size() - 1 and splendor >= TITLES[rank + 1]["splendor"] and colony_size() >= TITLES[rank + 1]["colonists"]:
 		rise()
 	if int(clock) != today:
 		today = int(clock)
@@ -7780,7 +7781,14 @@ func show_title() -> void:
 	realm_button.tooltip_text = "%s %s" % [ruler_title(ruler), full_name(ruler)]
 
 
-# Lo splendore è arrivato al titolo dopo: sale (mai giù). Nella cronaca e in una finestra al centro, coi sigilli in più
+# i coloni che contano per il titolo: quelli in colonia, figli compresi, e quelli in spedizione (non i neonati, che
+# stanno in `babies`, né gli avventurieri)
+func colony_size() -> int:
+	return colonists.size() + expeditions.reduce(func(n, exp): return n + exp.party.filter(
+		func(c): return c.hero == Hero.NONE and c not in colonists).size(), 0)
+
+
+# Lo splendore e i coloni sono arrivati al titolo dopo: sale (mai giù). Nella cronaca e in una finestra al centro, coi sigilli in più
 func rise() -> void:
 	var was := realm_name()
 	rank += 1
@@ -7992,14 +8000,14 @@ func tech_button(t: Tech) -> Button:
 func fill_laws() -> void:
 	var thrones := rooms.filter(func(r): return r.kind == RoomKind.THRONE_ROOM).size()
 	var splendor := colony_splendor()
-	var key := str([floori(authority), codified.keys(), enacted, revoked, granary, researched.keys(), thrones, floori(clock), rank, splendor])
+	var key := str([floori(authority), codified.keys(), enacted, revoked, granary, researched.keys(), thrones, floori(clock), rank, splendor, colony_size()])
 	if key == laws_key:
 		return
 	laws_key = key
 	var box: Control = $HUD/LawsPanel/Box
 	var stock := granary.keys().filter(func(r): return granary[r] > 0).map(func(r): return amount_text(r, granary[r]))
-	var next := "" if rank == TITLES.size() - 1 else tr(": a %s at %d splendor (now %d)") % [tr(TITLES[rank + 1]["realm"]).to_lower(),
-		TITLES[rank + 1]["splendor"], splendor]
+	var next := "" if rank == TITLES.size() - 1 else tr(": a %s at %d splendor and %d colonists (now %d and %d)") % [
+		tr(TITLES[rank + 1]["realm"]).to_lower(), TITLES[rank + 1]["splendor"], TITLES[rank + 1]["colonists"], splendor, colony_size()]
 	box.get_node("Authority").text = tr("%s%s\n%d [img=center]%s[/img] authority    Seals: %d / %d\nGranary: %s") % [realm_name(), next,
 		floori(authority), AUTHORITY_ICON.resource_path, enacted.size(), TITLES[rank]["seals"], ", ".join(stock) if not stock.is_empty() else tr("empty")]
 	box.get_node("Hint").visible = thrones == 0

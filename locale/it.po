@@ -1759,8 +1759,8 @@ msgstr "%d studio%s"
 msgid "studied"
 msgstr "studiata"
 
-msgid ": a %s at %d splendor (now %d)"
-msgstr ": %s a splendore %d (ora %d)"
+msgid ": a %s at %d splendor and %d colonists (now %d and %d)"
+msgstr ": %s a splendore %d e %d coloni (ora %d e %d)"
 
 msgid ""
 "%s%s\n"

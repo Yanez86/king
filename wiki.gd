@@ -198,7 +198,15 @@ The other two colonists come at random: skills at 0, 0–2 traits.
 • The ruler is the first colonist and lives like the others: needs, routine, work, fights. They can die.
 • Title: Lord or Lady. The top bar shows "Lordship of" your colony, beside your arms: click it for the ruler's sheet. Banners fly your arms.
 • Only the ruler governs: on a throne, in a throne room, they gather authority for the laws (see Laws). A happy ruler (70 or more) gathers 25% more, a gloomy one (30 or less) half.
-• For now the title stays a Lordship: +1 authority a day and 2 seals for the laws.
+• The title grows with the colony, never goes down, and passes to the heir. It needs both splendor and colonists (children and those on expeditions count; babies and adventurers don't):
+[table=5]
+[cell][color=#d9c48a]Title[/color][/cell][cell][color=#d9c48a]Splendor[/color][/cell][cell][color=#d9c48a]Colonists[/color][/cell][cell][color=#d9c48a]Seals[/color][/cell][cell][color=#d9c48a]Authority a day[/color][/cell]
+[cell]Lordship[/cell][cell]–[/cell][cell]–[/cell][cell]2[/cell][cell]+1[/cell]
+[cell]Barony[/cell][cell]15[/cell][cell]6[/cell][cell]3[/cell][cell]+2[/cell]
+[cell]County[/cell][cell]35[/cell][cell]10[/cell][cell]4[/cell][cell]+3[/cell]
+[cell]Kingdom[/cell][cell]60[/cell][cell]15[/cell][cell]5[/cell][cell]+4[/cell]
+[/table]
+A window and the chronicle announce it; the realm's name, the ruler's title and the crown on the arms change. The Laws window shows what the next title needs.
 
 [color=#e8c34a]Marriage[/color]
 • An adult ruler (16 or older) without a living spouse can marry: "Arrange a marriage…" on the ruler's sheet lists the adult colonists of the other sex without a spouse. Those with less than 50 happiness say no, and the list tells you why.

@@ -217,7 +217,8 @@ func _initialize() -> void:
 		"dopo la festa: felici, e più autorità")
 	main.guests.clear()
 
-	# il titolo: sale con lo splendore, mai giù; sigilli, nome del reame, corona sullo stemma; le leggi delle fasce
+	# il titolo: sale con lo splendore e i coloni, tutti e due; mai giù; sigilli, nome del reame, corona sullo stemma; le
+	# leggi delle fasce
 	check(main.rank == 0 and main.realm_button.text.begins_with("Lordship of") and main.arms_tex.get_height() == 16, "si parte signori")
 	main.authority = 1000.0
 	check(main.codify_block(L.TALLAGE) == "Needs a barony", "la taglia vuole la baronia")
@@ -225,8 +226,16 @@ func _initialize() -> void:
 	for k in statues:
 		main.furniture[k] = [B.STATUE, R.STONE, 0]
 	main.tick(0.0)
+	check(main.rank == 0 and main.colonists.size() == 3, "16 di splendore ma 3 coloni: ancora signoria")
+	main.fill_laws()
+	check(main.get_node("HUD/LawsPanel/Box/Authority").text.begins_with("Lordship of %s: a barony at 15 splendor and 6 colonists (now 16 and 3)" % main.realm),
+		"la prossima soglia nella finestra: splendore e coloni")
+	var crowd := []
+	while main.colonists.size() < 6:
+		crowd.append(person(main))
+	main.tick(0.0)
 	check(main.rank == 1 and main.realm_button.text.begins_with("Barony of") and main.chronicle[-1].begins_with("Barony of"),
-		"16 di splendore: baronia, nella cronaca")
+		"16 di splendore e 6 coloni: baronia, nella cronaca")
 	check(main.arms_tex.get_height() == 16 + main.CROWN_RISE
 		and main.get_node("HUD/TopBar/Row/RealmIcon").custom_minimum_size == Vector2(32, 42), "la corona sopra lo stemma")
 	main.codified.erase(L.TITHE)
@@ -239,12 +248,23 @@ func _initialize() -> void:
 	for k in [free[12], free[13], free[14]]:
 		main.furniture[k] = [B.STATUE, R.STONE, 0]
 		statues.append(k)
+	while main.colonists.size() < 9:
+		crowd.append(person(main))
 	main.tick(0.0)
-	check(main.rank == 2 and main.codify(L.TRIBUTE), "40 di splendore: contea, e il tributo")
+	check(main.rank == 1, "40 di splendore ma 9 coloni: ancora baronia")
+	var away = main.Expedition.new()  # chi è in spedizione conta
+	away.party.append(person(main))
+	main.colonists.erase(away.party[0])
+	main.expeditions.append(away)
+	main.tick(0.0)
+	check(main.rank == 2 and main.colony_size() == 10 and main.codify(L.TRIBUTE), "40 di splendore e 10 coloni (uno in spedizione): contea, e il tributo")
+	main.expeditions.erase(away)
 	main.fill_laws()
 	check(main.get_node("HUD/LawsPanel/Box/Authority").text.begins_with("County of %s: a kingdom at 60" % main.realm), "la prossima soglia nella finestra")
 	for k in statues:
 		main.furniture.erase(k)
+	for o in crowd:
+		main.colonists.erase(o)
 	main.tick(0.0)
 	check(main.rank == 2, "il titolo non cala")
 
@@ -365,6 +385,7 @@ func _initialize() -> void:
 	main.add_item(R.MEAL, free[23], 4)
 	check(main.food_stored() == 1 + 6 + 4, "nelle provviste la galletta conta due")
 	var hiker = main.new_hero(main.Hero.ARCHER, 1)
+	hiker.gifts = []  # niente talenti: una guida o un raccoglitore cambierebbero le provviste
 	main.guests.append(hiker)
 	main.add_item(R.GOLD, free[28], main.fee(hiker))
 	main.stockpile[free[28]] = true
@@ -768,6 +789,20 @@ func _initialize() -> void:
 
 	print("OK: ricerca, studio, governo, leggi e libri")
 	quit()
+
+
+# un colono in più, adulto, accanto al centro
+func person(main) -> Variant:
+	var c = main.Colonist.new()
+	main.dress(c, main.people().map(func(o): return o.first_name))
+	c.pos = main.center(main.MAP_SIZE / 2 + Vector2i(main.colonists.size(), 1))
+	c.skills = main.Skill.values().map(func(_s): return 0)
+	c.xp = main.Skill.values().map(func(_s): return 0)
+	c.needs = main.Need.values().map(func(_n): return 60.0)
+	c.trend = c.needs.map(func(_v): return 0.0)
+	main.give_age(c, main.ADULT_AGE)
+	main.colonists.append(c)
+	return c
 
 
 func check(ok: bool, what: String) -> void:
