@@ -154,9 +154,7 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 
 - **Epiteto**: alla morte la cronaca gli dà un soprannome secondo il regno, per esempio "il Costruttore" (più edifici finiti),
   "il Lupo" (più lupi abbattuti), "il Breve" (meno di 10 giorni). Lista da definire.
-- Può sposarsi, avere figli; i figli crescono, prendono il cognome della casata e ereditano parte dei talenti.
-- Alla morte del sovrano: successione all'erede (regola semplice: primogenito). Nessun erede → game over (o fine della dinastia).
-- MVP: solo matrimonio, figli, successione. Intrighi/vassalli fuori scope.
+- Età, matrimonio, figli e successione: vedi 4.3.3. Intrighi e vassalli fuori scope.
 
 ### 4.3.1 Nuova partita: casata e sovrano
 Quattro pagine, in quest'ordine (lo stemma prima del sovrano, perché gli dà i colori). Accanto a ogni nome un dado che
@@ -230,6 +228,42 @@ sulle pezze che passano dal centro. Lo stemma sta nella barra in alto (al posto 
 sovrano davanti al nome e sul drappo degli stendardi (ombreggiato dalle pieghe che ondeggiano).
 Fase 6: il titolo sale con lo splendore (soglie sopra); la corona (16x6, in fondo a art/arms.png) sta sopra lo scudo
 nella barra in alto e nella scheda del sovrano, che con lei diventano più alti; "Barony of …", "Baron …".
+
+### 4.3.3 Dinastia: età, matrimonio, figli, successione
+Decisa il 2026-11-19. Numeri da tarare.
+- **Età**: ogni persona ha un'età (nella scheda, accanto al sesso). Si invecchia di **un anno a stagione** (91 giorni):
+  quattro volte il calendario, così in una partita lunga passano le generazioni. Il sovrano parte tra 20 e 30 anni, gli
+  altri coloni e gli avventurieri tra 18 e 40.
+- **Vecchiaia**: dai 60 anni, a ogni compleanno muore con probabilità (età − 58) × 2%: 4% a 60, 24% a 70, 44% a 80.
+- **Matrimonio**: dalla scheda del sovrano, "Combina un matrimonio": una persona adulta dell'altro sesso, non sposata.
+  - Tra i **coloni**: accetta se la sua felicità è almeno 50.
+  - **Pretendenti di altre casate**: finché il sovrano è adulto e non sposato, ogni 20 giorni circa ne arriva uno alla
+    locanda (se c'è) e aspetta 5 giorni; ha il suo stemma, l'età (16–30), qualche talento e abilità, e la **dote**
+    (monete, a volte un oggetto). Sposato, diventa un colono.
+  - Le nozze: *nozze* a tutti (+10 felicità per 2 giorni), +10 autorità; la cronaca lo scrive. Il coniuge tiene il suo
+    cognome; i figli prendono quello della casata.
+- **Figli**: una coppia sposata che dorme nella stessa stanza può averne. Ogni notte l'1% (la donna tra 16 e 40 anni;
+  dai 35 la metà). La gravidanza dura tre quarti d'anno (68 giorni; *incinta*: nell'ultimo terzo +20% tempo di
+  lavoro), poi per un anno (91 giorni) niente. Alla nascita il giocatore sceglie il nome (col dado); pelle e capelli
+  da uno dei genitori; ogni talento dei genitori passa al 50%, al più due, mai in contrasto.
+  - **Neonato** (0–3 anni): sta nella culla (mobile nuovo, in Casa, 4 legna) della stanza dei genitori; non lavora.
+  - **Bambino** (4–11): gioca e aiuta a raccogliere e a trasportare, a metà velocità; non combatte, scappa.
+  - **Ragazzo** (12–15): i lavori leggeri (non costruire, scavare, tagliare, cacciare), esperienza doppia.
+  - **Adulto** (16).
+- **Successione**: alla morte del sovrano eredita il **primo figlio vivo, maschio o femmina**; senza figli il coniuge,
+  poi un fratello o una sorella. Se non c'è nessuno, la colonia sceglie un nuovo sovrano tra i coloni adulti (lo indica
+  il giocatore) e nasce una nuova casata, col suo stemma; il titolo resta al reame.
+  - **Lutto regale**: 7 giorni (al posto del lutto), −20 felicità, +25% stress da lavoro.
+  - **Reggenza**: se l'erede ha meno di 16 anni regna un reggente (il coniuge del sovrano morto, se no il colono adulto
+    con più abilità): governa sul trono come il sovrano; a 16 anni l'erede è incoronato.
+  - **Incoronazione**: finito il lutto (o la reggenza), 2 giorni a tutti +10 felicità; +20 autorità. Si sceglie lo stile
+    di regno del nuovo sovrano (quando ci sarà, 4.3).
+  - Titolo e stemma passano all'erede.
+- **La casata**: una finestra con l'albero genealogico (sovrani, coniugi, figli), gli anni di regno e gli epiteti.
+- **Ordine di lavoro**: (1) età e vecchiaia; (2) matrimonio coi coloni; (3) gravidanza, nascita e crescita; (4)
+  successione, reggenza, lutto regale e incoronazione; (5) pretendenti di altre casate con la dote; (6) la finestra
+  della casata.
+- **Stato**: fatta la fase 1 (test in `tests/test_dynasty.gd`).
 
 ### 4.4 Risorse ed edifici
 - Materie prime: legname, pietra, ferro, carbone, oro, cibo crudo. Ferro e carbone vengono dalle vene nella roccia (massi 1x1).

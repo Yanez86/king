@@ -38,11 +38,11 @@ func _initialize() -> void:
 	c.sex = main.Sex.FEMALE
 	main.open_sheet(c)
 	var box = main.get_node("HUD/ColonistSheet/Box")
-	check(box.get_node("Sex/Label").text == "Female", "la scheda dice il sesso")
+	check(box.get_node("Sex/Label").text == "Female, %d years old" % main.age_of(c), "la scheda dice il sesso e l'età")
 	check(box.get_node("Sex/Icon").texture == main.SEX_ICONS[main.Sex.FEMALE], "e ne mostra l'icona")
 	c.sex = main.Sex.MALE
 	main.open_sheet(c)
-	check(box.get_node("Sex/Label").text == "Male", "uomo")
+	check(box.get_node("Sex/Label").text.begins_with("Male, "), "uomo")
 
 	# livelli: a mani vuote l'attrezzo qualunque, niente armatura né copricapo
 	c.gear.clear()

@@ -737,6 +737,14 @@ const DAY_LENGTH := 240.0   # secondi per giorno a velocità 1x
 const MONTH_DAYS := 30
 const SEASON_DAYS := 3 * MONTH_DAYS + 1
 const YEAR_DAYS := 1 + 4 * SEASON_DAYS
+# Età (vedi age_of): si invecchia di un anno a stagione, quattro volte il calendario, così passano le generazioni.
+# All'arrivo il sovrano ha RULER_AGE anni, gli altri ADULT_AGE; dai OLD_AGE, a ogni compleanno si muore con
+# probabilità (età - OLD_AGE + 2) × OLD_AGE_RISK: 4% a 60, 24% a 70, 44% a 80
+const LIFE_YEAR := YEAR_DAYS / 4.0
+const RULER_AGE := [20, 30]
+const ADULT_AGE := [18, 40]
+const OLD_AGE := 60
+const OLD_AGE_RISK := 0.02
 const SEASONS := ["Spring", "Summer", "Autumn", "Winter"]
 const WINTER := 3  # in SEASONS: niente bacche né lino (vedi new_day)
 const MONTHS := ["Thaw", "Sowing", "Blossom", "Highsun", "Haying", "Ripening", "Reaping", "Leaffall", "Mists",
@@ -1255,6 +1263,7 @@ class Colonist:
 	var pause_until := 0.0        # `clock` fino a cui non lavora: è in pausa (vedi "streak" in TRAIT_FX)
 	var hour := -1                # ultima ora vista, per accorgersi di quando scocca la successiva
 	var died := 0.0               # `clock` della morte (vedi corpses)
+	var born := INF               # `clock` della nascita (vedi age_of); INF: da dare, salvataggio di prima delle età
 	# avventurieri (vedi HEROES): per i coloni hero è NONE e il resto non conta
 	var hero := Hero.NONE
 	var level := 0                # 1-HERO_LEVEL_MAX
@@ -1781,6 +1790,7 @@ func new_people() -> void:
 		var made: Dictionary = setup.get("ruler", {}) if i == 0 else {}
 		for key in made:  # il sovrano, come l'ha fatto il giocatore: gli altri evitano il suo nome
 			c.set(key, made[key])
+		give_age(c, RULER_AGE if i == 0 else ADULT_AGE)
 		# sfalsati: non dormono tutti insieme; lo stress parte basso
 		c.needs = Need.values().map(func(n): return randf_range(0, 40) if n == Need.STRESS else randf_range(60, NEED_MAX))
 		c.trend = c.needs.map(func(_v): return 0.0)
@@ -1929,6 +1939,9 @@ func restore(state: Dictionary) -> void:
 	var unpacker := SAVES.Unpacker.new(saved_classes(), state["objects"])
 	for name in state["main"]:
 		SAVES.Unpacker.put(self, name, unpacker.unpack(state["main"][name]))
+	for c in unpacker.objects[saved_classes().find(Colonist)]:  # di prima delle età: adulti, a caso
+		if c.born == INF:
+			give_age(c, RULER_AGE if c == ruler else ADULT_AGE)
 	for res in Res.values():  # un oggetto nuovo, che il salvataggio non conosceva: nessuno a terra
 		if not items.has(res):
 			items[res] = {}
@@ -2875,7 +2888,7 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 	var traits_box: Control = box.get_node("Traits/Icons")  # solo icone: il nome è nel suggerimento
 	box.get_node("Head/Name").text = full_name(c)
 	box.get_node("Sex/Icon").texture = SEX_ICONS[c.sex]
-	box.get_node("Sex/Label").text = SEX_NAMES[c.sex]
+	box.get_node("Sex/Label").text = tr("%s, %d years old") % [tr(SEX_NAMES[c.sex]), age_of(c)]
 	box.get_node("Head/Arms").visible = c == ruler  # lo stemma lo mette show_title
 	box.get_node("Hero").visible = c.hero != Hero.NONE or c == ruler
 	box.get_node("Hero").text = tr_n("%s, fee %s, %d expedition", "%s, fee %s, %d expeditions", c.trips) % [hero_name(c), coins(fee(c)), c.trips] \
@@ -5738,6 +5751,16 @@ func inn_beds() -> int:
 
 
 # avventuriero `kind` di livello `level`, col suo nome, aspetto, abilità ed equipaggiamento
+# gli anni di `c`, compiuti: uno a stagione (LIFE_YEAR giorni)
+func age_of(c: Colonist) -> int:
+	return floori((clock - c.born) / LIFE_YEAR)
+
+
+# un'età a caso tra `ages[0]` e `ages[1]` anni (compresi), con un giorno di nascita a caso
+func give_age(c: Colonist, ages: Array) -> void:
+	c.born = clock - randf_range(ages[0], ages[1] + 1) * LIFE_YEAR
+
+
 func new_hero(kind: Hero, level: int) -> Colonist:
 	var c := Colonist.new()
 	dress(c, people().map(func(o): return o.first_name))
@@ -5752,6 +5775,7 @@ func new_hero(kind: Hero, level: int) -> Colonist:
 	c.needs = Need.values().map(func(n): return 0.0 if n == Need.STRESS else NEED_MAX * 0.8)
 	c.trend = c.needs.map(func(_v): return 0.0)
 	c.gifts = [Gift.values().pick_random()]
+	give_age(c, ADULT_AGE)
 	if randf() < HERO_TRAIT_CHANCE:
 		c.traits = [Trait.values().pick_random()]
 	set_level(c, level)
@@ -6593,6 +6617,11 @@ func note_harvests() -> void:
 # BERRY_REGROW giorni dopo Capodanno, nell'orto il gelo si prende quello che c'era. Finito un giorno di festa del calendario: la felicità e l'autorità della festa del
 # raccolto; col granaio aperto un pasto a tutti, un pezzo del granaio a testa finché ce n'è
 func new_day() -> void:
+	for c in colonists.duplicate():  # i compleanni; dai OLD_AGE si può morire di vecchiaia
+		var years := age_of(c)
+		if years > floori((today - 1 - c.born) / LIFE_YEAR) and years >= OLD_AGE and deaths \
+				and randf() < (years - OLD_AGE + 2) * OLD_AGE_RISK:
+			die(c, tr("died of old age, at %d.") % years)
 	if posmod(today, YEAR_DAYS) == 0 and today > 0:  # Capodanno: la terra dell'orto si riposa, di più dopo un anno senza raccolti
 		for cell in garden:
 			add_soil(cell, SOIL_WINTER + (SOIL_FALLOW if last_yield.get(cell, [-1])[0] < year_of(today) - 1 else 0))

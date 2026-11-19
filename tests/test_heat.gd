@@ -396,7 +396,7 @@ func _initialize() -> void:
 			spread_ok = true
 			break
 	check(spread_ok, "il fuoco passa alle scandole accanto")
-	for i in 200:
+	for i in 2000:  # finché non ha bruciato tutto quello che poteva: quanto, lo decide il caso
 		main.burn(main.DAY_LENGTH / 24.0 / 10.0)
 		if main.burning.is_empty():
 			break

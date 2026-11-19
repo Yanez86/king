@@ -3234,3 +3234,11 @@ msgstr "Sovescio"
 
 msgid "Last: green manure, ploughed in."
 msgstr "L'ultimo: sovescio, interrato."
+
+# --- Dinastia: età e vecchiaia
+
+msgid "%s, %d years old"
+msgstr "%s, %d anni"
+
+msgid "died of old age, at %d."
+msgstr "ha finito i suoi giorni, di vecchiaia, a %d anni."

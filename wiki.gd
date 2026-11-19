@@ -89,7 +89,12 @@ The table at the top of Jobs (J): one row per colonist, one column per kind of w
 [color=#e8c34a]Health[/color]
 • 0–100, healing 30 a day (60 asleep). A bar over the head shows the wounded.
 • At 0 a colonist is downed: on the ground, doing nothing, healing 40 a day. At 30 they stand up.
-• The dead stay on the ground for a day; their gear drops beside them and the others mourn for 3 days."""],
+• The dead stay on the ground for a day; their gear drops beside them and the others mourn for 3 days.
+
+[color=#e8c34a]Age[/color]
+• The sheet shows each colonist's age, next to their sex. People grow a year older every season, four times as fast as the calendar, so generations go by.
+• Your ruler starts between 20 and 30, the other colonists and the adventurers between 18 and 40.
+• From 60, on every birthday they may die of old age: 4% at 60, 24% at 70, 44% at 80."""],
 
 	["Skills", """Thirteen skills, with levels from 0 to 10 (a star at 10). Colonists start at 0; your ruler gets 12 points on the new-game page.
 

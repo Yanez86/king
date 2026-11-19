@@ -88,7 +88,12 @@ La tabella in cima a Lavori (J): una riga per colono, una colonna per tipo di la
 [color=#e8c34a]Salute[/color]
 • 0–100; risale di 30 al giorno (60 dormendo). Una barretta sopra la testa mostra i feriti.
 • A 0 un colono è a terra: sdraiato, non fa niente e risale di 40 al giorno. A 30 si rialza.
-• I morti restano a terra per un giorno; il loro equipaggiamento cade lì accanto e gli altri sono in lutto per 3 giorni."""],
+• I morti restano a terra per un giorno; il loro equipaggiamento cade lì accanto e gli altri sono in lutto per 3 giorni.
+
+[color=#e8c34a]Età[/color]
+• La scheda dice l'età di ogni colono, accanto al sesso. Si invecchia di un anno a stagione, quattro volte più in fretta del calendario, così passano le generazioni.
+• Il sovrano parte tra 20 e 30 anni, gli altri coloni e gli avventurieri tra 18 e 40.
+• Dai 60 anni, a ogni compleanno si può morire di vecchiaia: il 4% a 60, il 24% a 70, il 44% a 80."""],
 
 	["Abilità", """Tredici abilità, con livelli da 0 a 10 (una stellina al 10). I coloni partono da 0; il tuo sovrano ha 12 punti nella pagina della nuova partita.
 
