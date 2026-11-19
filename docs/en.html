@@ -135,7 +135,7 @@ pre i { color: #8fb87a; }
 <body>
 <nav>
 <h1>King</h1>
-<small>Mechanics · commit 6a868f2 · 2026-11-19 · <a class="lang" href="index.html">Italiano</a></small>
+<small>Mechanics · commit 0b20a0c · 2026-11-19 · <a class="lang" href="index.html">Italiano</a></small>
 <h2>Wiki</h2>
 <a href="#basics"><i class="sp s86" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Basics</a><a href="#controls"><i class="sp s87" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Controls</a><a href="#colonists"><i class="sp s88" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Colonists</a><a href="#skills"><i class="sp s83" style="width:16px;height:16px;background-position:-144px 0px;background-size:208px 16px"></i> Skills</a><a href="#traits"><i class="sp s77" style="width:16px;height:16px;background-position:0px 0px;background-size:240px 16px"></i> Traits</a><a href="#conditions"><i class="sp s78" style="width:16px;height:16px;background-position:-16px 0px;background-size:224px 16px"></i> Conditions</a><a href="#the-ruler-house"><i class="sp s33" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> The Ruler &amp; House</a><a href="#building"><i class="sp s62" style="width:15px;height:15px;background-position:0px 0px;background-size:15px 15px"></i> Building</a><a href="#rooms"><i class="sp s73" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Rooms</a><a href="#roofs-heat"><i class="sp s74" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Roofs &amp; Heat</a><a href="#food-cooking"><i class="sp s11" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Food &amp; Cooking</a><a href="#gathering"><i class="sp s65" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Gathering</a><a href="#crafting-equipment"><i class="sp s16" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Crafting &amp; Equipment</a><a href="#combat-wolves"><i class="sp s85" style="width:16px;height:16px;background-position:0px -32px;background-size:32px 48px"></i> Combat &amp; Wolves</a><a href="#splendor"><i class="sp s60" style="width:16px;height:16px;background-position:0px -416px;background-size:128px 1344px"></i> Splendor</a><a href="#adventurers"><i class="sp s29" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Adventurers</a><a href="#ruins-expeditions"><i class="sp s30" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Ruins &amp; Expeditions</a><a href="#knowledge"><i class="sp s70" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Knowledge</a><a href="#laws"><i class="sp s71" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Laws</a><h2>Development</h2><a href="#todo"><i class="sp s42" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Still to develop</a><h2>Numbers</h2><a href="#main-gd">main.gd</a><a href="#atmosphere-gd">atmosphere.gd</a>
 </nav>
@@ -153,14 +153,15 @@ pre i { color: #8fb87a; }
 </ul>
 <h3>Time </h3>
 <ul>
-<li>The season, the date and the hour are in the top bar. The game starts at 8:00 on Crown Day, Year 1; a day lasts 4 minutes at normal speed, an hour 10 seconds.</li>
+<li>The day and the hour are under the top bar, in the middle (hover them for the season and the year). The game starts at 8:00 on Crown Day, Year 1; a day lasts 4 minutes at normal speed, an hour 10 seconds.</li>
 <li>The year has 365 days: Crown Day (New Year), then four seasons of three 30-day months, each closed by a feast day outside the months. Spring: Thaw, Sowing, Blossom, then the Flower Feast. Summer: Highsun, Haying, Ripening, then the Sickle Feast. Autumn: Reaping, Leaffall, Mists, then the Hearth Feast. Winter: Frost, Deepsnow, Longnight, then the Candle Feast.</li>
 <li>Night lasts from 18:00 to 6:00: lamps and lanterns light up.</li>
 <li>The speed buttons at the top right: pause, 1x, 2x, 3x. Or the keys: Space pauses (and from pause goes back to 1x), 1, 2 and 3 set the speed. The options menu pauses the game too.</li>
 <li>Times in this wiki are seconds at 1x, for a worker of skill level 5 (see Skills).</li>
 </ul>
 <h3>Top bar </h3>
-<p>Your arms and the name of your realm (click: the ruler's sheet), the items in your warehouses, colonists (those away on expeditions too), beds and splendor; then WOLVES and EXPEDITION when there are any, the season, the date, the hour and the order you are giving.</p>
+<p>Your arms and the name of your realm (click: the ruler's sheet), the items in your warehouses, colonists (those away on expeditions too), beds and splendor; on the right the speed buttons, Debug, full screen and the options.</p>
+<p>Under it, in the middle: WOLVES and EXPEDITION when there are any, the day and the hour (hover: season, year and the order you are giving; click: the calendar) and the weather.</p>
 <h3>Inhabitants </h3>
 <p>Click the number of colonists (or its icon) for the list of everyone, group by group, each in a box with the group's color: sex, age and what they are doing right now.</p>
 <ul>
@@ -472,7 +473,7 @@ pre i { color: #8fb87a; }
 <table><tr><td><span style="color:#d9c48a">Piece</span></td><td><span style="color:#d9c48a">Slot</span></td><td><span style="color:#d9c48a">Armor</span></td><td><span style="color:#d9c48a">Effect</span></td></tr><tr><td><i class="sp s19" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Pickaxe</td><td><i class="sp s84" style="width:16px;height:16px;background-position:0px 0px;background-size:64px 16px"></i> hands</td><td>–</td><td>mining 25% faster</td></tr><tr><td><i class="sp s20" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Axe</td><td><i class="sp s84" style="width:16px;height:16px;background-position:0px 0px;background-size:64px 16px"></i> hands</td><td>–</td><td>chopping 25% faster</td></tr><tr><td><i class="sp s21" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Sickle</td><td><i class="sp s84" style="width:16px;height:16px;background-position:0px 0px;background-size:64px 16px"></i> hands</td><td>–</td><td>picking, uprooting 25% faster</td></tr><tr><td><i class="sp s22" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Bow</td><td><i class="sp s84" style="width:16px;height:16px;background-position:0px 0px;background-size:64px 16px"></i> hands</td><td>–</td><td>to hunt; shoots in a fight</td></tr><tr><td><i class="sp s27" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Sword</td><td><i class="sp s84" style="width:16px;height:16px;background-position:0px 0px;background-size:64px 16px"></i> hands</td><td>–</td><td>melee damage 15</td></tr><tr><td><i class="sp s23" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Leather armor</td><td><i class="sp s84" style="width:16px;height:16px;background-position:-16px 0px;background-size:64px 16px"></i> body</td><td>2</td><td>-25% stress outdoors</td></tr><tr><td><i class="sp s26" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Chainmail</td><td><i class="sp s84" style="width:16px;height:16px;background-position:-16px 0px;background-size:64px 16px"></i> body</td><td>5</td><td>all work 10% slower</td></tr><tr><td><i class="sp s24" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Leather hood</td><td><i class="sp s84" style="width:16px;height:16px;background-position:-32px 0px;background-size:64px 16px"></i> head</td><td>1</td><td>+5% to hit with a bow</td></tr><tr><td><i class="sp s25" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Helmet</td><td><i class="sp s84" style="width:16px;height:16px;background-position:-32px 0px;background-size:64px 16px"></i> head</td><td>3</td><td>mining 10% faster</td></tr></table>
 <p>Tools hit too: pickaxe 10, axe 12, sickle 8, bare hands 5. Armor: see Combat &amp; Wolves.</p></section><section id="combat-wolves"><h2><i class="sp s85" style="width:32px;height:32px;background-position:0px -64px;background-size:64px 96px"></i> Combat &amp; Wolves</h2><h3>Wolves </h3>
 <ul>
-<li>The first pack comes on day 5, then one every 3 days: 2–3 wolves from a map edge. They smell the colony from 70 tiles away. The top bar shows WOLVES while they are around.</li>
+<li>The first pack comes on day 5, then one every 3 days: 2–3 wolves from a map edge. They smell the colony from 70 tiles away. Under the top bar you see WOLVES while they are around.</li>
 <li>They chase the nearest colonist or adventurer standing outside the rooms: walls protect, wolves never come in. With nobody standing outside, they go for whoever lies downed outdoors.</li>
 <li>A bite every 1.5 s does 8 damage and lands 70% of the time, -3% for every Melee level of the victim. Every bite also gives +5 stress.</li>
 <li>A pack with nobody to chase leaves after a day.</li>
@@ -535,7 +536,7 @@ pre i { color: #8fb87a; }
 <h3>Expeditions </h3>
 <ul>
 <li>Provisions: one a head for every day of the trip (there, ½ day for every room left, back), first from the crown's granary, then from warehouses, meals before raw food. Short of them, the party leaves anyway and goes hungry: -20 health a day each.</li>
-<li>They walk to the map edge and leave together; the top bar shows EXPEDITION. You read how it went in their diary when they're back (and in the Chronicle, with hirings and deaths).</li>
+<li>They walk to the map edge and leave together; under the top bar you see EXPEDITION. You read how it went in their diary when they're back (and in the Chronicle, with hirings and deaths).</li>
 <li>In the ruin, a room every ½ day: empty (25%), a trap (20%), monsters (35%), a chest (15%) or a collapse (5%: they turn back).</li>
 <li>Monsters: strength 5 for every point of danger. The weaker the party (weapon skill plus armor of each), the deeper the wounds; then each one's armor softens them.</li>
 <li>Traps: the best lockpicker disarms one 20% of the time, +8% a level; if not, someone takes 15 damage for every point of danger.</li>
@@ -720,9 +721,10 @@ const <b id="c-CLASSIC_PLAN">CLASSIC_PLAN</b> := [[[Crop.CABBAGE, 22], [Crop.CAB
 	[[Crop.TURNIP, 22], [Crop.TURNIP, 82], [Crop.TURNIP, 142], [Crop.TURNIP, 202]], [[Crop.BEANS, 22], [Crop.BEANS, 122]], []]
 const <b id="c-PLAN_YEARS">PLAN_YEARS</b> := 4
 const <b id="c-PLAN_DAY">PLAN_DAY</b> := 2.0       <i># pixel per giorno nella pianificazione</i>
-const <b id="c-PLAN_NAME">PLAN_NAME</b> := 200      <i># pixel: la colonna coi nomi dei campi</i>
-const <b id="c-PLAN_AXIS">PLAN_AXIS</b> := 36       <i># pixel: stagioni e mesi in testa</i>
-const <b id="c-PLAN_ROW">PLAN_ROW</b> := 40        <i># pixel: una riga per campo</i></pre>
+const <b id="c-PLAN_NAME">PLAN_NAME</b> := 300      <i># pixel: la colonna coi nomi dei campi</i>
+const <b id="c-PLAN_AXIS">PLAN_AXIS</b> := 54       <i># pixel: stagioni e mesi in testa</i>
+const <b id="c-PLAN_ROW">PLAN_ROW</b> := 60        <i># pixel: una riga per campo</i>
+const <b id="c-PLAN_FONT">PLAN_FONT</b> := 22       <i># il testo del gantt, come il tema: il font è nitido solo a 11, 22, 33</i></pre>
 <pre><i># Ricerche della terra: Saggio del terreno, la lente (vedi draw_soil_lens) in tre fasce; Almanacco agrario cinque fasce e</i>
 <i># la tendenza (rispetto a soil_year_ago, oltre SOIL_TREND); Catasto i numeri e la previsione. Fasce: sotto ogni soglia</i>
 const <b id="c-SOIL_BANDS">SOIL_BANDS</b> := [[40, 70], [20, 40, 60, 80]]
@@ -890,8 +892,9 @@ const <b id="c-DOING">DOING</b> := {Job.CHOP: "Chopping a tree", Job.MINE: "Mini
 	Job.GOVERN: "Holding audience", Job.PROTEST: "Protesting in the throne room", Job.REPAIR: "Repairing a roof",
 	Job.CUT_ICE: "Cutting ice", Job.DOUSE: "Putting out a fire", Job.FARM: "Tending the garden",
 	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne"}
-const <b id="c-CENSUS_COLUMNS">CENSUS_COLUMNS</b> := [280, 120, 250]  <i># px: chi è, l'età, cosa fa; uguali in tutti i riquadri dell'elenco, così si allineano</i>
-const <b id="c-CENSUS_FONT">CENSUS_FONT</b> := [18, 18, 22]  <i># dimensioni del testo nell'elenco: sotto il nome, nome età e cosa fa, titoli dei gruppi (a 16 il 3 sembra un 8)</i></pre>
+const <b id="c-BOARD_LIST">BOARD_LIST</b> := 280.0  <i># pixel: la lista di chi aspetta sulla bacheca, al più; poi scorre</i>
+const <b id="c-CENSUS_COLUMNS">CENSUS_COLUMNS</b> := [320, 130, 290]  <i># px: chi è, l'età, cosa fa; uguali in tutti i riquadri dell'elenco, così si allineano</i>
+const <b id="c-CENSUS_FONT">CENSUS_FONT</b> := [22, 22, 22]  <i># dimensioni del testo nell'elenco: sotto il nome, nome età e cosa fa, titoli dei</i></pre>
 <pre><i># il colore di ogni gruppo: coloni, forestieri, alla locanda, in spedizione</i>
 const <b id="c-ERRAND_DOING">ERRAND_DOING</b> := {Errand.ARRIVE: "Coming to the inn", Errand.LEAVE: "Leaving", Errand.DEPART: "Setting out on an expedition",
 	Errand.RETURN: "Back from an expedition: to the inn", Errand.VISIT: "Coming to ask to stay"}</pre>
