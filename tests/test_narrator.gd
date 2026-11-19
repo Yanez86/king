@@ -30,24 +30,25 @@ func _initialize() -> void:
 		check((not row.has("can") or N.has_method(row["can"])) and (not row.has("busy") or N.has_method(row["busy"])),
 			"le sue funzioni: %s" % label)
 
-	# il primo giorno non può capitare niente: i lupi dal quinto (il giorno 4, contato da 0), l'erudito dal giorno 5 (con
+	# il primo giorno non può capitare niente: i lupi dal decimo (il giorno 9, contato da 0), l'erudito dal giorno 5 (con
 	# una locanda), i viandanti dal 10
 	main.today = 0
 	check(N.pick() == -1, "il primo giorno niente")
-	main.today = 3
-	check(not N.can_happen(E.WOLVES), "i lupi non prima del quinto giorno")
-	main.today = 4
-	check(N.can_happen(E.WOLVES), "dal quinto sì")
+	main.today = 8
+	check(not N.can_happen(E.WOLVES), "i lupi non prima del decimo giorno")
+	main.today = 9
+	check(N.can_happen(E.WOLVES), "dal decimo sì")
 	var inn = main.Room.new()
 	inn.kind = main.RoomKind.INN
 	main.rooms.append(inn)
+	main.today = 4
 	check(not N.can_happen(E.SCHOLAR), "l'erudito non prima del giorno 5")
 	# le fette: dopo P giorni di pausa (o di tregua) senza tiri, una fetta di 1 / (giorni - P + 1) dà in media quei giorni.
 	# Dal giorno 10, con la locanda: l'erudito 1/6 (10 giorni, 5 di pausa), i viandanti 1/26 (30 giorni, 5 di pausa), i
-	# lupi 1/2 (4 giorni, 3 di tregua); un tiro solo, al più un evento, ognuno quanto la sua fetta
+	# lupi 1/9 (15 giorni, 7 di pausa); un tiro solo, al più un evento, ognuno quanto la sua fetta
 	main.today = 10
 	check(is_equal_approx(N.chance(E.SCHOLAR), 1.0 / 6.0) and is_equal_approx(N.chance(E.WANDERERS), 1.0 / 26.0)
-		and is_equal_approx(N.chance(E.WOLVES), 0.5), "le fette")
+		and is_equal_approx(N.chance(E.WOLVES), 1.0 / 9.0), "le fette")
 	var counts := tally(20000)
 	check(fair(counts, 20000, 0.015), "il tiro: %s" % str(counts))
 
@@ -102,14 +103,18 @@ func _initialize() -> void:
 	check(pack.size() >= main.PACK[0] and pack.size() <= main.PACK[1] and main.colony_size() < main.PACK_GROW,
 		"%d lupi, con %d coloni" % [pack.size(), main.colony_size()])
 	check(N.bad == [main.today] and not N.calm(main.today + 2) and N.calm(main.today + 3) and N.calm(main.today - 3), "la tregua")
-	# poi niente minacce: per la tregua, e finché i lupi sono sulla mappa
+	# la tregua vale anche per le sfortune: la febbre non prima di 3 giorni
+	main.today += 2
+	check(not N.can_happen(E.FEVER), "nella tregua niente sfortune")
+	main.today += 1
+	check(N.can_happen(E.FEVER), "passata la tregua sì")
+	# un altro branco: almeno 7 giorni dopo, e non finché i lupi sono sulla mappa
 	main.today += 3
+	check(not N.can_happen(E.WOLVES), "6 giorni dopo no")
+	main.today += 1
 	check(not N.can_happen(E.WOLVES), "i lupi sono ancora qui")
 	main.animals.clear()
-	check(N.can_happen(E.WOLVES), "se ne sono andati, passata la tregua")
-	main.today -= 1
-	check(not N.can_happen(E.WOLVES), "nella tregua no")
-	main.today += 1
+	check(N.can_happen(E.WOLVES), "se ne sono andati, passata la settimana")
 	main.colonists[1].downed = true
 	check(not N.can_happen(E.WOLVES) and N.can_happen(E.SCHOLAR), "con un colono a terra niente minacce (le visite sì)")
 	main.colonists[1].downed = false

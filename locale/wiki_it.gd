@@ -8,7 +8,7 @@ King è un gestionale di colonia medievale. Sei il sovrano di una piccola signor
 • Il tuo sovrano, creato nella pagina della nuova partita, e tre coloni stanno in una radura. Non c'è ancora niente di costruito: né stanze né magazzino.
 • Accanto a loro, 60 [img=center]res://art/icon_coin.png[/img] sono a terra nell'erba: costruisci un magazzino e i trasportatori ce le portano (si spende solo quello che è in magazzino).
 • Un'arma abbandonata (una spada, un'ascia o un arco) giace nell'erba a 15–25 caselle dalla radura.
-• Dal giorno 5 arrivano i lupi (vedi Combattimento e lupi).
+• Dal giorno 10 possono arrivare i lupi, di rado (vedi Combattimento e lupi).
 • Se muoiono tutti i coloni, la colonia è caduta.
 
 [color=#e8c34a]Gli eventi[/color]
@@ -488,7 +488,7 @@ Tre slot: mani, corpo, testa. Un colono con uno slot vuoto va da sé a prendere 
 Anche gli attrezzi colpiscono: piccone 10, ascia 12, falcetto 8, mani nude 5. Protezione: vedi Combattimento e lupi."""],
 
 	["Combattimento e lupi", """[color=#e8c34a]Lupi[/color]
-• Il primo branco può arrivare il giorno 5, a mezzanotte; poi uno ogni 4 giorni in media, mai a meno di 3 giorni da un'altra minaccia, e non mentre qualcuno è a terra o i lupi sono ancora in giro: 2–3 lupi da un bordo della mappa, uno in più ogni 5 coloni. Fiutano la colonia da 70 caselle di distanza. Sotto la barra in alto compare LUPI finché sono in giro.
+• Il primo branco può arrivare il giorno 10, a mezzanotte; poi uno ogni 15 giorni in media e mai prima di una settimana dall'ultimo, né a meno di 3 giorni da un'altra minaccia o sfortuna, né mentre qualcuno è a terra o i lupi sono ancora in giro: 2–3 lupi da un bordo della mappa, uno in più ogni 5 coloni. Fiutano la colonia da 70 caselle di distanza. Sotto la barra in alto compare LUPI finché sono in giro.
 • Inseguono il colono o l'avventuriero in piedi più vicino che sta fuori dalle stanze: i muri proteggono, i lupi non entrano mai. Se fuori non c'è nessuno in piedi, se la prendono con chi è a terra all'aperto.
 • Un morso ogni 1,5 s fa 8 danni e va a segno il 70% delle volte, -3% per ogni livello di Mischia della vittima. Ogni morso dà anche +5 stress.
 • Un branco senza nessuno da inseguire se ne va dopo un giorno.

@@ -564,8 +564,9 @@ Decisa il 2026-11-19. Numeri da tarare.
   attrezzo qualunque. Da fermo e camminando la spada sta al fianco e l'arco sulla schiena; gli attrezzi non si vedono.
 
 ### 4.4.3 Combattimento
-- **Lupi**: dal giorno 5 un branco di 2–3 lupi (uno in più ogni 5 coloni) entra da un bordo della mappa e punta alla
-  colonia; quando, lo decide il narratore (4.6): in media ogni 4 giorni, almeno 3 dopo un'altra minaccia.
+- **Lupi**: dal giorno 10 un branco di 2–3 lupi (uno in più ogni 5 coloni) entra da un bordo della mappa e punta alla
+  colonia; quando, lo decide il narratore (4.6): rari, in media ogni 15 giorni e almeno 7 tra un branco e l'altro
+  (deciso il 2026-11-19: lo scopo è far crescere la colonia, non solo difenderla; tra un branco e l'altro si costruisce).
   Inseguono il colono in piedi più vicino che sta **fuori dalle stanze** (nelle stanze non entrano: i muri proteggono) e lo
   mordono (danno 8, ogni 1,5 s; a segno 70% − 3% per livello di mischia di chi è morso; ogni morso +5 stress).
   Senza nessuno da inseguire, dopo un giorno se ne vanno. Abbattuti lasciano 5 carne e 2 pelli. Nella barra in alto "WOLVES: n".
@@ -892,8 +893,8 @@ Deciso il 2026-11-19. Numeri da tarare. Un **narratore** solo (niente carattere 
   fortuna, sfortuna), da che giorno, le condizioni (stagione, una stanza, una legge), ogni quanti giorni in media (anche
   secondo lo stato della colonia), la pausa minima tra due uguali, l'ora, l'effetto (una funzione) e i testi (tradotti
   nel `.po`, come tutti gli altri). La media comprende la pausa (e la tregua): dopo `P` giorni senza tiri, la fetta è
-  1 / (giorni − P + 1). L'erudito (10 giorni, pausa 5) ha 1/6; il branco (4 giorni, tregua 3) 1/2, così arriva dopo 3,
-  4, 5... giorni, in media 4.
+  1 / (giorni − P + 1). L'erudito (10 giorni, pausa 5) ha 1/6; il branco (15 giorni, pausa 7) 1/9: arriva almeno una
+  settimana dopo l'ultimo, in media due.
 - **Il respiro**: tra una minaccia o una sfortuna e la successiva almeno 3 giorni (la **tregua**); niente minacce mentre
   un colono è a terra o i lupi sono ancora sulla mappa. Quando la colonia è in difficoltà (il cibo in magazzino
   basta per meno di 3 giorni, o la felicità media è sotto 40) le fortune hanno la fetta doppia.
@@ -906,7 +907,7 @@ Deciso il 2026-11-19. Numeri da tarare. Un **narratore** solo (niente carattere 
 |---|---|---|---|---|
 | Viandanti | visita | dal giorno 10; uno alla volta; non con Porte chiuse | 30 giorni ÷ (1 + splendore / 20), ×2 ogni 4 coloni sopra 8; la metà con Porte aperte | come in 4.2.1; pausa 5 giorni dalla risposta (o da quando se ne sono andati) |
 | Erudito errante | visita | dal giorno 5, con una locanda | 10 giorni, pausa 5 | un giorno alla locanda, vende 1–2 libri (4.7.2) |
-| Branco di lupi | minaccia | dal giorno 5 (il quinto), a mezzanotte | 4 giorni | 2–3 lupi, uno in più ogni 5 coloni |
+| Branco di lupi | minaccia | dal giorno 10 (il decimo), a mezzanotte | 15 giorni, pausa 7 | 2–3 lupi, uno in più ogni 5 coloni |
 | Ondata di freddo | minaccia | la media del giorno sotto 8 °C | 33 giorni | la decide il meteo 2 giorni e mezzo prima, perché le previsioni la vedano (4.5); rispetta la tregua e la fa partire |
 | Raccolto abbondante | fortuna | estate e autunno, con l'orto seminato | 40 giorni, pausa 30 | per 10 giorni i campi rendono il 50% in più |
 | Branco di cervi | fortuna | non d'inverno | 25 giorni | 4–6 cervi arrivano dal bordo della mappa; dopo 2 giorni quelli rimasti se ne vanno |
@@ -923,11 +924,10 @@ Deciso il 2026-11-19. Numeri da tarare. Un **narratore** solo (niente carattere 
 - **Stato**: fatte le fasi 1–4 il 2026-11-19 (test in `tests/test_narrator.gd`). Il narratore è un figlio di `main`
   (`narrator.gd`), salvato con la partita. Nei test tace (`main.events`). Il pellegrino è un ospite (`pilgrim`) che va
   dove vanno i viandanti (la sala del trono), lascia le monete a terra lì e riparte; nell'elenco degli abitanti sta coi
-  forestieri. Ispirato e Febbre hanno la loro icona. Nella wiki la sezione "Gli eventi" (Le basi). Un anno simulato
-  con solo lupi, erudito e viandanti: lupi ogni 3,9 giorni (mai meno di 3), erudito ogni 9,8, viandanti ogni 26. Con
-  tutti gli eventi possibili (locanda, sala del trono, orto, cibo e monete in magazzino): 105 minacce e sfortune
-  l'anno, una ogni 3,5 giorni (prima i lupi da soli erano uno ogni 3); i lupi ogni 4,9 giorni, perché le sfortune
-  prendono la loro parte della tregua; topi ogni 34, ladro ogni 44, febbre ogni 26.
+  forestieri. Ispirato e Febbre hanno la loro icona. Nella wiki la sezione "Gli eventi" (Le basi). Tre anni simulati
+  con tutti gli eventi possibili (locanda, sala del trono, orto, cibo e monete in magazzino): i lupi 18 volte l'anno,
+  in media ogni 20 giorni (mai meno di 7, al più una cinquantina), il primo intorno al giorno 17–29; erudito ogni 10,
+  viandanti ogni 22, febbre ogni 18, topi ogni 30, ladro ogni 40. Prima del narratore i lupi venivano ogni 3 giorni.
 
 ### 4.7 Ricerca: il sapere e le leggi
 Due ricerche. Il **sapere** (le ricerche) si paga in **studio**, che i coloni scrivono allo scrittoio, e in **libri** che

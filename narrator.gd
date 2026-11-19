@@ -32,8 +32,10 @@ const EVENTS := {
 	# GDD 4.7.2: con una locanda, per un giorno; vende 1-2 libri (vedi main.scholar_arrives)
 	Event.SCHOLAR: {"kind": Kind.VISIT, "from": 5, "every": 10.0, "pause": 5.0, "hour": 9,
 		"can": "scholar_can", "busy": "scholar_here", "do": "scholar_comes"},
-	# GDD 4.4.3: dal quinto giorno, a mezzanotte; 2-3 lupi, uno in più ogni main.PACK_GROW coloni (vedi main.spawn_pack)
-	Event.WOLVES: {"kind": Kind.THREAT, "from": 4, "every": 4.0, "hour": 0, "can": "threat_can", "do": "wolves_come"},
+	# GDD 4.4.3: dal decimo giorno, a mezzanotte, rari (si cresce, non ci si difende e basta): almeno una settimana tra
+	# un branco e l'altro; 2-3 lupi, uno in più ogni main.PACK_GROW coloni (vedi main.spawn_pack)
+	Event.WOLVES: {"kind": Kind.THREAT, "from": 9, "every": 15.0, "pause": 7.0, "hour": 0, "can": "threat_can",
+		"do": "wolves_come"},
 	# le fortune (main.BUMPER e seguenti): raccolto abbondante d'estate e d'autunno, con l'orto seminato
 	Event.BUMPER: {"kind": Kind.BOON, "every": 40.0, "pause": 30.0, "hour": 7, "can": "bumper_can",
 		"do": "bumper_comes"},

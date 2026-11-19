@@ -27,9 +27,9 @@ func _initialize() -> void:
 	# vanno. Il narratore poi tace: qui gli altri eventi non servono
 	var N = main.narrator
 	main.events = false
-	main.clock = 4.0
+	main.clock = 9.0
 	main.tick(0.0)
-	check(N.happen(N.Event.WOLVES), "il quinto giorno può arrivare un branco")
+	check(N.happen(N.Event.WOLVES), "il decimo giorno può arrivare un branco")
 	var pack: Array = main.animals.filter(func(w): return main.hostile(w))
 	check(pack.size() >= main.PACK[0] and pack.size() <= main.PACK[1], "arriva un branco di %d lupi" % pack.size())
 	for w in pack:

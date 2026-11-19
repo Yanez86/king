@@ -784,13 +784,13 @@ func _initialize() -> void:
 	main.researched[T.PALACE] = true
 	check(main.colony_splendor() == bare, "senza sala del trono niente palazzo")
 
-	# una partita vera: niente studiato, lupi dal quinto giorno, un'arma abbandonata sulla mappa
+	# una partita vera: niente studiato, lupi dal decimo giorno, un'arma abbandonata sulla mappa
 	main.queue_free()
 	var real = load("res://main.tscn").instantiate()
 	root.add_child(real)
 	await process_frame
 	check(real.researched.is_empty() and not real.kind_buttons[real.Build.FURNACE].visible, "si parte senza ricerche")
-	check(real.narrator.EVENTS[real.narrator.Event.WOLVES]["from"] == 4, "il primo branco il quinto giorno")
+	check(real.narrator.EVENTS[real.narrator.Event.WOLVES]["from"] == 9, "il primo branco il decimo giorno")
 	var found := []
 	for res in real.FOUND_WEAPONS:
 		for cell in real.items[res]:

@@ -9,7 +9,7 @@ King is a medieval colony sim. You are the ruler of a small lordship, but you ne
 • Your ruler, made on the new-game page, and three colonists stand in a clearing. Nothing is built yet: no rooms, no warehouse.
 • Next to them, 60 [img=center]res://art/icon_coin.png[/img] lie on the grass: build a warehouse and haulers carry them in (you can only spend what is in a warehouse).
 • An abandoned weapon (a sword, an axe or a bow) lies in the grass 15–25 tiles from the clearing.
-• From day 5 wolves come (see Combat & Wolves).
+• From day 10 wolves may come, rarely (see Combat & Wolves).
 • If every colonist dies, the colony has fallen.
 
 [color=#e8c34a]Events[/color]
@@ -489,7 +489,7 @@ Three slots: hands, body, head. A colonist with an empty slot fetches a piece by
 Tools hit too: pickaxe 10, axe 12, sickle 8, bare hands 5. Armor: see Combat & Wolves."""],
 
 	["Combat & Wolves", """[color=#e8c34a]Wolves[/color]
-• The first pack can come on day 5, at midnight; then one every 4 days on average, never within 3 days of another threat, and not while someone lies downed or wolves are still around: 2–3 wolves from a map edge, one more for every 5 colonists. They smell the colony from 70 tiles away. Under the top bar you see WOLVES while they are around.
+• The first pack can come on day 10, at midnight; then one every 15 days on average and never within a week of the last one, nor within 3 days of another threat or misfortune, nor while someone lies downed or wolves are still around: 2–3 wolves from a map edge, one more for every 5 colonists. They smell the colony from 70 tiles away. Under the top bar you see WOLVES while they are around.
 • They chase the nearest colonist or adventurer standing outside the rooms: walls protect, wolves never come in. With nobody standing outside, they go for whoever lies downed outdoors.
 • A bite every 1.5 s does 8 damage and lands 70% of the time, -3% for every Melee level of the victim. Every bite also gives +5 stress.
 • A pack with nobody to chase leaves after a day.
