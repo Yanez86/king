@@ -3455,7 +3455,9 @@ msgid "They will ask again after %d more expeditions."
 msgstr "Lo chiederà di nuovo dopo altre %d spedizioni."
 
 msgid "%s: %s stays in the colony."
-msgstr "%s: %s resta nella colonia."
+msgid_plural "%s: %s stay in the colony."
+msgstr[0] "%s: %s resta nella colonia."
+msgstr[1] "%s: %s restano nella colonia."
 
 msgid "Once a %s, level %d, %d expedition"
 msgid_plural "Once a %s, level %d, %d expeditions"
@@ -3464,3 +3466,27 @@ msgstr[1] "Un tempo %s, livello %d, %d spedizioni"
 
 msgid "Asks to stay in the colony."
 msgstr "Chiede di restare nella colonia."
+
+# --- Nuovi coloni: i viandanti
+
+msgid "A wanderer asks to stay in the colony: %s."
+msgid_plural "Wanderers ask to stay in the colony: %s."
+msgstr[0] "Un viandante chiede di restare nella colonia: %s."
+msgstr[1] "Dei viandanti chiedono di restare nella colonia: %s."
+
+msgid "They bring: %s."
+msgstr "Portano: %s."
+
+msgid "They leave."
+msgstr "Se ne vanno."
+
+msgid "Send away"
+msgstr "Manda via"
+
+msgid "%s and %s"
+msgstr "%s e %s"
+
+msgid "%s: %s, a wanderer, is coming to ask to stay."
+msgid_plural "%s: %s, wanderers, are coming to ask to stay."
+msgstr[0] "%s: %s, un viandante, viene a chiedere di restare."
+msgstr[1] "%s: %s, viandanti, vengono a chiedere di restare."

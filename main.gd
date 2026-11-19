@@ -238,7 +238,7 @@ const CORPSE_DAYS := 1.0    # il corpo resta a terra un giorno, poi sparisce (ve
 # --- Avventurieri (vedi GDD 4.4.4): arrivano alla locanda, si ingaggiano con l'oro alla bacheca, esplorano le rovine ---
 enum Hero { NONE, WARRIOR, ARCHER, BURGLAR }  # classe; NONE: un colono
 # dove va un avventuriero col Job.TRAVEL: alla locanda, via per sempre, al bordo per partire, alla locanda di ritorno
-enum Errand { NONE, ARRIVE, LEAVE, DEPART, RETURN }
+enum Errand { NONE, ARRIVE, LEAVE, DEPART, RETURN, VISIT }  # VISIT: il viandante, al trono (vedi visit_cells)
 # "skills": abilità -> livello per livello dell'avventuriero; "weapon": l'abilità con cui combatte nella rovina; "gear" e
 # "kit" quello che porta ("heavy": l'armatura da HEAVY_LEVEL); "hurt": quanti colpi prende nella rovina, rispetto agli
 # altri del gruppo; "cover": i danni al gruppo, se c'è lui (tira per primo); "haul": il bottino, se c'è lui (la sacca)
@@ -317,6 +317,25 @@ const TRIPS_PER_LEVEL := 2  # spedizioni tornate per salire di un livello
 const STAY_TRIPS := 3
 const STAY_HAPPY := 60.0
 const FOREIGNER_DAYS := 5.0
+# Viandanti (GDD 4.2.1): uno alla volta, dal giorno WANDERER_FROM, in media ogni WANDERER_EVERY giorni diviso
+# (1 + splendore / WANDERER_SPLENDOR); sopra CROWD coloni l'attesa raddoppia ogni CROWD_DOUBLE coloni in più; ±
+# WANDERER_JITTER (vedi wander_wait). Una persona sola, una coppia sposata o una famiglia (WANDERER_GROUPS): adulti di
+# WANDERER_AGE anni con WANDERER_SKILLS punti abilità (al più 3 per abilità), i figli di WANDERER_CHILD; uno su
+# WANDERER_TOOL porta un attrezzo. Vanno nella sala del trono (se no a un fuoco, se no nella radura), chiedono di restare
+# e aspettano la risposta WANDERER_WAIT giorni
+const WANDERER_FROM := 10.0
+const WANDERER_EVERY := 30.0
+const WANDERER_SPLENDOR := 20.0
+const CROWD := 8
+const CROWD_DOUBLE := 4.0
+const WANDERER_JITTER := 0.3
+const WANDERER_GROUPS := [0.7, 0.15, 0.15]  # solo, coppia, famiglia (un genitore o una coppia, con un figlio)
+const WANDERER_AGE := [16, 45]
+const WANDERER_CHILD := [4, 11]
+const WANDERER_SKILLS := 4
+const WANDERER_TOOL := 0.25
+const WANDERER_TOOLS := [Res.PICKAXE, Res.AXE, Res.SICKLE, Res.BOW]
+const WANDERER_WAIT := 2.0
 # Rovine, fuori dalla mappa: "danger" pericolo, "rooms" stanze, "travel" giorni di viaggio (andata), "gold" monete per
 # forziere (da-a), "finds" un oggetto per forziere, a caso tra questi [risorsa, quantità]; "books" il libro che c'è al
 # posto dell'oggetto, una volta su BOOK_CHANCE (sempre, con "always"), a caso tra questi; "treasure" i libri che ci sono
@@ -608,7 +627,7 @@ const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today"
 	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "sown", "plans", "slot_done", "soil", "soil_year_ago", "soil_known", "compost_since", "manured", "no_manure", "babies",
 	"house_name", "regent_for", "coronation_at", "reigns", "next_suitor", "pace", "tired", "last_yield",
 	"harvests", "wear", "plastered", "burning",
-	"fire_noted", "storm_noted", "delivered", "requests"]
+	"fire_noted", "storm_noted", "delivered", "requests", "next_wanderer"]
 const TOAST_TIME := 2000    # millisecondi: "Saved" in alto, poi sparisce (vedi show_toast)
 const AUTOSAVE_HOUR := 6    # all'alba, quando i coloni si alzano: il salvataggio di ogni giorno
 const MODIFIER_KEYS := [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]  # da soli non sono un tasto
@@ -1347,6 +1366,8 @@ class Colonist:
 	var gifts := []               # Gift: i talenti da avventuriero
 	var refused_at := 0           # le spedizioni che aveva quando gli hanno detto di no l'ultima volta (vedi wants_to_stay)
 	var former := Hero.NONE       # rimasto come colono: la classe che aveva (vedi welcome)
+	var wanderer := false         # viandante, finché non resta o se ne va (vedi update_wanderers)
+	var fellows := []             # il viandante: il suo gruppo, lui compreso (la famiglia); chiedono insieme
 
 
 # Animale selvatico: gira da solo per la mappa, fuori dalle stanze (vedi update_animal); si caccia (vedi try_hunt).
@@ -1449,6 +1470,7 @@ var reigns := []            # [sovrano, `clock` d'inizio, di fine (-1 finché re
 var founding_line := -1     # la voce della cronaca della casata nuova, che cambia se il giocatore sceglie un altro
 var founding_from := ""     # la casata finita, per quella voce
 var next_suitor := 0.0      # `clock` del prossimo pretendente alla locanda; 0: da fissare (vedi update_suitors)
+var next_wanderer := 0.0    # `clock` del prossimo viandante; 0: da fissare (vedi update_wanderers)
 var naming_line := -1       # la voce della cronaca della sua nascita, che cambia col nome
 var no_manure := {}         # casella d'orto -> true: il suo campo non si concima (dal cartello)
 var tired := {}             # casella -> [Crop, quante volte di fila]: l'ultimo raccolto (vedi tired_count)
@@ -3728,6 +3750,7 @@ func tick(delta: float) -> void:
 		fly(arrow, delta)
 	update_guests()
 	update_suitors()
+	update_wanderers()
 	update_expeditions()
 	update_scholar()
 	for c in corpses.duplicate():
@@ -4872,7 +4895,7 @@ func find_job(c: Colonist) -> void:
 	if c.errand != Errand.NONE:  # avventuriero per strada, interrotto: riprende la strada
 		travel(c)
 		return
-	if c.hero == Hero.NONE and not c.suitor and try_douse(c):  # un tetto brucia: tutti col secchio
+	if not visitor(c) and try_douse(c):  # un tetto brucia: tutti col secchio (i coloni)
 		return
 	var peckish: bool = act == Act.FREE and c.needs[Need.FOOD] < fx(c, "snack", SNACK)
 	if c.needs[Need.FOOD] < (GLUTTON_HUNGER if Trait.GLUTTON in c.traits else NEED_LOW) or peckish:
@@ -4890,7 +4913,7 @@ func find_job(c: Colonist) -> void:
 	if routines and c.needs[Need.FUN] < NEED_LOW:
 		relax(c)
 		return
-	if c.hero != Hero.NONE or c.suitor:  # avventurieri e pretendenti non lavorano: aspettano svagandosi
+	if visitor(c):  # avventurieri, pretendenti e viandanti non lavorano: aspettano svagandosi
 		relax(c)
 		return
 	if may_work(c):
@@ -5889,10 +5912,15 @@ func is_inn(room: Room) -> bool:
 	return room != null and room.kind == RoomKind.INN
 
 
-# letti liberi per `c`: ad avventurieri e pretendenti quelli della locanda, ai coloni tutti gli altri
+# letti liberi per `c`: agli ospiti (vedi visitor) quelli della locanda, ai coloni tutti gli altri
 func free_beds(c: Colonist) -> Array:
 	return furniture.keys().filter(func(o): return furniture[o][0] in BEDS and is_free(o) \
-		and is_inn(room_at(o)) == (c.hero != Hero.NONE or c.suitor))
+		and is_inn(room_at(o)) == visitor(c))
+
+
+# ospite, non colono: avventuriero, pretendente o viandante. Non lavora, dorme alla locanda
+func visitor(c: Colonist) -> bool:
+	return c.hero != Hero.NONE or c.suitor or c.wanderer
 
 
 func inn_beds() -> int:
@@ -6465,6 +6493,9 @@ func update_guests() -> void:
 			travel(g)
 	for g in guests:
 		if not g.hired and g.errand == Errand.NONE and clock >= g.stay_until:
+			if g.wanderer:  # nessuna risposta: il viandante se ne va, con la sua famiglia
+				send_away(g.fellows)
+				continue
 			withdraw(g)  # se aspettava la risposta, non aspetta più
 			g.errand = Errand.LEAVE
 			quit_job(g)
@@ -6482,6 +6513,8 @@ func travel(c: Colonist) -> void:
 				goals.append_array(room.cells.keys().filter(func(k): return not astar.is_point_solid(k)))
 	elif c.errand == Errand.DEPART and exp != null and exp.edge.x >= 0:
 		goals = [exp.edge]
+	elif c.errand == Errand.VISIT:
+		goals = visit_cells()
 	else:
 		goals = border_cells()
 	var path := path_to_nearest(c, goals)
@@ -6506,6 +6539,11 @@ func arrive(c: Colonist) -> void:
 				ask([c])
 		Errand.LEAVE:
 			guests.erase(c)
+		Errand.VISIT:  # il viandante arrivato: col primo del gruppo comincia l'attesa della risposta
+			if request_of(c).is_empty() and c.stay_until == 0.0:
+				for o in c.fellows:
+					o.stay_until = clock + WANDERER_WAIT
+				ask(c.fellows)
 		Errand.DEPART:
 			guests.erase(c)
 			var exp := trip_of(c)
@@ -6901,12 +6939,19 @@ func show_request(group: Array) -> void:
 	for o in group:
 		people_row.add_child(figure_icon(o))
 	var days := foreigner_days()
-	panel.get_node("Box/Text").text = tr_n("%s (%s), back from %d expedition, asks to stay in the colony.",
+	var tools := PackedStringArray()
+	for o in group:
+		if c.wanderer and o.gear.has(Slot.HANDS):
+			tools.append(res_name(o.gear[Slot.HANDS]))
+	panel.get_node("Box/Text").text = (tr_n("%s (%s), back from %d expedition, asks to stay in the colony.",
 		"%s (%s), back from %d expeditions, asks to stay in the colony.", c.trips) % [full_name(c), hero_name(c), c.trips] \
+		if not c.wanderer else tr_n("A wanderer asks to stay in the colony: %s.", "Wanderers ask to stay in the colony: %s.", group.size())
+		% names_list(group.map(func(o): return tr("%s, %d years old") % [full_name(o), age_of(o)]))
+		+ (" " + tr("They bring: %s.") % ", ".join(tools) if not tools.is_empty() else "")) \
 		+ "\n" + tr("Welcomed, they work like the others and keep their gear. For %d days they are a foreigner: -5 happiness, work 10%% slower.") % days
 	panel.get_node("Box/Row/Yes").text = "Welcome"
-	panel.get_node("Box/Row/No").text = "No"
-	panel.get_node("Box/Row/No").tooltip_text = tr("They will ask again after %d more expeditions.") % stay_trips()
+	panel.get_node("Box/Row/No").text = "Send away" if c.wanderer else "No"
+	panel.get_node("Box/Row/No").tooltip_text = tr("They leave.") if c.wanderer else tr("They will ask again after %d more expeditions.") % stay_trips()
 	panel.show()
 	panel.reset_size()
 
@@ -6946,6 +6991,8 @@ func welcome(group: Array) -> void:
 					c.gear[Slot.SHIELD] = Res.SHIELD
 			c.kit.erase(Look.MASK)
 			c.kit.erase(Look.PACK)
+		c.wanderer = false
+		c.fellows = []
 		c.stay_until = 0.0
 		c.errand = Errand.NONE
 		guests.erase(c)
@@ -6954,14 +7001,152 @@ func welcome(group: Array) -> void:
 			colonists.append(c)
 		quit_job(c)
 		add_cond(c, Cond.FOREIGNER, foreigner_days())
-	note(tr("%s: %s stays in the colony.") % [date(today), tr(" and ").join(group.map(full_name))])
+	note(tr_n("%s: %s stays in the colony.", "%s: %s stay in the colony.", group.size()) % [date(today), names_list(group.map(full_name))])
 	board_key = ""
 
 
-# No: l'avventuriero lo richiederà dopo altre stay_trips() spedizioni
+# No: l'avventuriero lo richiederà dopo altre stay_trips() spedizioni; i viandanti se ne vanno
 func refuse(group: Array) -> void:
 	for c in group:
 		c.refused_at = c.trips
+	if group[0].wanderer:
+		send_away(group)
+
+
+# "Anna, Berto and Carla": i nomi uno dopo l'altro, l'ultimo con "and"
+func names_list(names: Array) -> String:
+	return names[0] if names.size() == 1 else tr("%s and %s") % [", ".join(names.slice(0, -1)), names[-1]]
+
+
+# --- Viandanti (GDD 4.2.1) ---
+
+# giorni di attesa, in media, prima del prossimo viandante: lo splendore attira, i tanti coloni frenano
+func wander_wait() -> float:
+	return WANDERER_EVERY / (1.0 + colony_splendor() / WANDERER_SPLENDOR) \
+		* pow(2.0, maxi(colonists.size() - CROWD, 0) / CROWD_DOUBLE)
+
+
+# Uno alla volta: con un viandante sulla mappa l'attesa del prossimo si ferma, e riparte da capo quando è rimasto o
+# se n'è andato. Arriva da un bordo con il suo gruppo e va dove chiederà di restare (vedi visit_cells, arrive)
+func update_wanderers() -> void:
+	if guests.any(func(g): return g.wanderer):
+		next_wanderer = 0.0
+		return
+	if next_wanderer == 0.0:
+		next_wanderer = maxf(clock + wander_wait() * randf_range(1.0 - WANDERER_JITTER, 1.0 + WANDERER_JITTER), WANDERER_FROM)
+	if clock < next_wanderer:
+		return
+	next_wanderer = 0.0
+	come(wanderer_group())
+
+
+# i viandanti `group` arrivano insieme da un bordo e vanno a chiedere di restare (vedi visit_cells, arrive)
+func come(group: Array) -> void:
+	var edges := border_cells()
+	if edges.is_empty():
+		return
+	var start: Vector2i = edges.pick_random()
+	for c in group:
+		c.pos = center(start)
+		c.errand = Errand.VISIT
+		guests.append(c)
+		travel(c)
+	note(tr_n("%s: %s, a wanderer, is coming to ask to stay.", "%s: %s, wanderers, are coming to ask to stay.", group.size())
+		% [date(today), names_list(group.map(full_name))])
+
+
+# Un gruppo di viandanti, `kind` di WANDERER_GROUPS (se no a caso): uno solo, una coppia sposata, o un genitore (o una
+# coppia) con un figlio, tutti col cognome del primo. Uno su WANDERER_TOOL porta un attrezzo
+func wanderer_group(kind := -1) -> Array:
+	if kind < 0:
+		var roll := randf()
+		kind = 0 if roll < WANDERER_GROUPS[0] else (1 if roll < WANDERER_GROUPS[0] + WANDERER_GROUPS[1] else 2)
+	var child_age := randi_range(WANDERER_CHILD[0], WANDERER_CHILD[1])
+	var ages: Array = WANDERER_AGE if kind < 2 else [maxi(WANDERER_AGE[0], child_age + ADULT + 2), WANDERER_AGE[1]]
+	var first := new_wanderer(Sex.values().pick_random(), ages, true)
+	var group := [first]
+	if kind == 1 or (kind == 2 and randf() < 0.5):  # la coppia, sposata
+		var other := new_wanderer(Sex.FEMALE if first.sex == Sex.MALE else Sex.MALE, ages, true)
+		other.last_name = first.last_name
+		first.spouse = other
+		other.spouse = first
+		group.append(other)
+	if kind == 2:
+		var child := new_wanderer(Sex.values().pick_random(), [child_age, child_age], false)
+		child.last_name = first.last_name
+		for parent in group:
+			if parent.sex == Sex.FEMALE:
+				child.mother = parent
+			else:
+				child.father = parent
+		child.hair = group.pick_random().hair
+		group.append(child)
+	if randf() < WANDERER_TOOL:
+		first.gear[Slot.HANDS] = WANDERER_TOOLS.pick_random()
+	for c in group:
+		c.fellows = group
+	return group
+
+
+# un viandante del sesso `sex`, di `ages` anni; `skilled`: con qualche punto abilità e talento (gli adulti)
+func new_wanderer(sex: Sex, ages: Array, skilled: bool) -> Colonist:
+	var c := Colonist.new()
+	var taken: Array = people().map(func(o): return o.first_name)
+	dress(c, taken)
+	c.sex = sex
+	c.hair_style = HAIR_STYLES[sex].pick_random()
+	c.beard = sex == Sex.MALE and skilled and randf() < BEARD_CHANCE
+	var free: Array = FIRST_NAMES[sex].filter(func(n): return n not in taken)
+	c.first_name = (free if not free.is_empty() else FIRST_NAMES[sex]).pick_random()
+	c.last_name = LAST_NAMES.filter(func(n): return n != house_name).pick_random()
+	c.tunic = TUNIC_COLORS.pick_random()
+	give_age(c, ages)
+	c.skills = Skill.values().map(func(_s): return 0)
+	c.xp = Skill.values().map(func(_s): return 0)
+	if skilled:
+		for i in WANDERER_SKILLS:
+			var open: Array = Skill.values().filter(func(k): return c.skills[k] < 3 and k != Skill.LOCKPICKING)
+			c.skills[open.pick_random()] += 1
+		var pool := Trait.values()
+		pool.shuffle()
+		for t in pool.slice(0, randi_range(0, 2)):
+			if not c.traits.any(func(o): return clash(o, t)):
+				c.traits.append(t)
+	c.needs = Need.values().map(func(n): return 0.0 if n == Need.STRESS else NEED_MAX * 0.8)
+	c.trend = c.needs.map(func(_v): return 0.0)
+	c.wanderer = true
+	return c
+
+
+# dove vanno i viandanti a chiedere: la sala del trono; se non c'è, attorno a un fuoco; se no la radura al centro
+func visit_cells() -> Array:
+	var goals := []
+	for room in rooms:
+		if room.kind == RoomKind.THRONE_ROOM:
+			goals.append_array(room.cells.keys().filter(func(k): return not astar.is_point_solid(k)))
+	if goals.is_empty():
+		for origin in furniture:
+			if role(furniture[origin][0]) == Build.CAMPFIRE:
+				for d in EDGE_SIDES + EDGE_CORNERS:
+					var k: Vector2i = origin + d
+					if astar.is_in_boundsv(k) and not astar.is_point_solid(k):
+						goals.append(k)
+	if goals.is_empty():
+		var mid: Vector2i = MAP_SIZE / 2
+		for k in cells_in(Rect2i(mid - Vector2i(3, 3), Vector2i(7, 7))):
+			if not astar.is_point_solid(k) and not water.has(k):
+				goals.append(k)
+	return goals
+
+
+# I viandanti `group` se ne vanno: non aspettano più la risposta, via dal bordo più vicino
+func send_away(group: Array) -> void:
+	for c in group:
+		withdraw(c)
+		if c in guests:
+			c.errand = Errand.LEAVE
+			quit_job(c)
+			travel(c)
 
 
 # nome di una risorsa nei testi: "leather armor"; le monete con la loro icona (vedi coins)
@@ -7022,7 +7207,7 @@ func open_board() -> void:
 # in corso e il titolo dell'ultima pagina della cronaca (tutta col tasto Chronicle). Si rifà solo quando cambia
 # qualcosa, se no i tasti non si premono
 func fill_board() -> void:
-	var waiting := guests.filter(func(g): return not g.hired and g.errand != Errand.LEAVE and not g.suitor)
+	var waiting := guests.filter(func(g): return g.hero != Hero.NONE and not g.hired and g.errand != Errand.LEAVE)
 	for g in board_pick.duplicate():
 		if g not in waiting:
 			board_pick.erase(g)
@@ -7395,7 +7580,7 @@ func new_day() -> void:
 				% [date(today), frozen.size()])
 	if enacted.has(Law.LODGING_TAX):
 		for g in guests:
-			if not g.hired and g.errand == Errand.NONE:
+			if not g.wanderer and not g.hired and g.errand == Errand.NONE:  # i viandanti non hanno monete
 				drop(Res.GOLD, cell_of(g.pos), 1)
 	gain(-colonists.filter(func(c): return c.needs[Need.HAPPINESS] < UNHAPPY).size())
 	if not feast(today - 1):

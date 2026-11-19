@@ -94,7 +94,14 @@ The table at the top of Jobs (J): one row per colonist, one column per kind of w
 [color=#e8c34a]Age[/color]
 • The sheet shows each colonist's age, next to their sex. The pace of life is chosen on the new-game page: Fast, a year older every season, four times as fast as the calendar, so generations go by (children grow up in 4 years); or Real, a year older every year, like the calendar (16 years to grow up, a pregnancy of 9 true months). The numbers below are in years of life, whichever the pace.
 • Your ruler starts between 20 and 30, the other colonists and the adventurers between 18 and 40.
-• From 60, on every birthday they may die of old age: 4% at 60, 24% at 70, 44% at 80."""],
+• From 60, on every birthday they may die of old age: 4% at 60, 24% at 70, 44% at 80.
+
+[color=#e8c34a]New colonists[/color]
+The colony grows with children (see The Ruler & House), with adventurers who stay (see Adventurers) and with wanderers. Splendor draws people; a crowded colony draws fewer.
+• Wanderers come one group at a time from day 10: on average every 30 days, divided by (1 + splendor / 20); above 8 colonists the wait doubles for every 4 more (twice as long at 12, four times at 16). At 15 splendor about every 17 days.
+• Alone (70%), a married couple (15%) or a family (15%: a parent or a couple, with a child of 4–11). Adults are 16–45, with 4 skill points and 0–2 traits; one group in four brings a tool (pickaxe, axe, sickle or bow).
+• They walk in from the map edge to the throne room (or to a fire, or to the clearing) and ask to stay: Welcome or Send away. Close the window and the question waits on their sheet (Answer…) for 2 days, then they leave. Meanwhile they don't work, eat from your warehouses and sleep at the inn (or on the ground).
+• Welcomed, they are colonists, Foreigner for 5 days (-5 happiness, work 10% slower). A family keeps its ties: the couple is married, the child has their parents."""],
 
 	["Skills", """Thirteen skills, with levels from 0 to 10 (a star at 10). Colonists start at 0; your ruler gets 12 points on the new-game page.
 

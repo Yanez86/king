@@ -130,8 +130,121 @@ func _initialize() -> void:
 	check(a.kit == [main.Look.QUIVER] and a.gear[main.Slot.HANDS] == R.BOW, "l'arciere con la faretra")
 	check(main.requests.is_empty() and not panel.visible, "finite le domande")
 
-	print("OK: nuovi coloni (l'avventuriero che resta)")
+	# --- Viandanti ---
+	main.next_guest = INF  # niente altri arrivi alla locanda durante le prove
+	main.next_suitor = INF
+	w.gifts = []
+	# l'attesa: in media 30 giorni; lo splendore attira (+15: 30 / 1,75); sopra 8 coloni frena (16: ×4)
+	check(main.colony_splendor() == 0 and main.colonists.size() <= main.CROWD and is_equal_approx(main.wander_wait(), 30.0),
+		"senza splendore uno ogni 30 giorni")
+	for o in [w, b, a]:
+		o.gifts = [main.Gift.FAMOUS]
+	check(is_equal_approx(main.wander_wait(), 30.0 / 1.75), "a 15 di splendore uno ogni 17")
+	var extra := []
+	while main.colonists.size() < 16:
+		extra.append(person())
+	check(is_equal_approx(main.wander_wait(), 30.0 / 1.75 * 4.0), "a 16 coloni l'attesa è 4 volte tanto")
+	for o in extra:
+		main.colonists.erase(o)
+	for o in [w, b, a]:
+		o.gifts = []
+	# non prima del giorno 10
+	main.next_wanderer = 0.0
+	main.update_wanderers()
+	check(main.next_wanderer >= main.WANDERER_FROM and not main.guests.any(func(g): return g.wanderer), "dal giorno 10")
+
+	# chi arriva: 70% soli, 15% coppie, 15% famiglie; uno su quattro con un attrezzo
+	var kinds := [0, 0, 0]
+	var tools := 0
+	for i in 2000:
+		var group: Array = main.wanderer_group()
+		kinds[2 if group.any(func(o): return main.age_of(o) < main.ADULT) else group.size() - 1] += 1
+		tools += 1 if group[0].gear.has(main.Slot.HANDS) else 0
+	check(kinds[0] > 1300 and kinds[0] < 1500 and kinds[1] > 220 and kinds[1] < 380 and kinds[2] > 220 and kinds[2] < 380,
+		"soli, coppie, famiglie: %s" % str(kinds))
+	check(tools > 420 and tools < 580, "attrezzi: %d su 2000" % tools)
+	var couple: Array = main.wanderer_group(1)
+	check(couple.size() == 2 and couple[0].spouse == couple[1] and couple[1].spouse == couple[0] and couple[0].sex != couple[1].sex
+		and couple[0].last_name == couple[1].last_name, "la coppia: sposata, lo stesso cognome")
+	var lone: Array = main.wanderer_group(0)
+	var adult = lone[0]
+	check(lone.size() == 1 and adult.wanderer and main.age_of(adult) >= 16 and main.age_of(adult) <= 45
+		and adult.skills.reduce(func(n, v): return n + v, 0) == 4 and adult.skills.max() <= 3 and adult.traits.size() <= 2,
+		"uno solo: 16-45 anni, 4 punti abilità, al più 2 talenti")
+
+	# una famiglia arriva dal bordo e va nella radura (né sala del trono né fuoco): lì chiede di restare
+	var family: Array = main.wanderer_group(2)
+	var kid = family[-1]
+	check(main.age_of(kid) >= 4 and main.age_of(kid) <= 11 and kid.skills.max() == 0 and kid.traits.is_empty()
+		and family.all(func(o): return o.last_name == family[0].last_name and o.fellows == family), "il figlio, 4-11 anni")
+	check((kid.mother in family or kid.father in family) and family.slice(0, -1).all(func(p): return main.age_of(p) >= main.age_of(kid) + 16),
+		"i genitori, abbastanza grandi")
+	main.come(family)
+	check(family.all(func(o): return o in main.guests and o.errand == main.Errand.VISIT and o.job == main.Job.TRAVEL), "arrivano")
+	main.update_wanderers()
+	check(main.next_wanderer == 0.0 and main.guests.filter(func(g): return g.wanderer).size() == family.size(), "uno alla volta")
+	walk_until(func(): return not main.requests.is_empty(), 8000)
+	var head = main.requests[0][0]
+	check(main.requests[0] == family and panel.visible and main.cell_of(head.pos).distance_to(mid) <= 5.0, "nella radura, chiedono")
+	check(family.all(func(o): return is_equal_approx(o.stay_until, main.clock + main.WANDERER_WAIT)), "aspettano 2 giorni")
+	text = panel.get_node("Box/Text").text
+	check(text.begins_with("Wanderers ask to stay in the colony: ") and main.full_name(kid) in text
+		and panel.get_node("Box/Row/No").text == "Send away", "la domanda dei viandanti: %s" % text)
+	main.find_job(head)
+	check(head.job not in main.WORK_JOBS and main.free_beds(head).all(func(o): return main.is_inn(main.room_at(o))),
+		"intanto non lavorano, e dormono alla locanda")
+	main.open_board()
+	var rows: int = main.get_node("HUD/BoardPanel/Box/Heroes").get_children().filter(func(r): return r is HBoxContainer).size()
+	check(rows == main.guests.filter(func(g): return g.hero != main.Hero.NONE and g.errand != main.Errand.LEAVE).size()
+		and rows < main.guests.size(), "non sono sulla bacheca")
+	main.get_node("HUD/BoardPanel").hide()
+	main.answer(true)
+	check(family.all(func(o): return o in main.colonists and o not in main.guests and not o.wanderer and o.conds.has(main.Cond.FOREIGNER)),
+		"accolti: coloni, forestieri")
+	check(not main.can_do(kid, main.Work.BUILD) and main.children_of(kid.mother if kid.mother != null else kid.father).has(kid),
+		"il figlio è un bambino della colonia, coi suoi genitori")
+	check(Array(main.chronicle)[-1].ends_with(" stay in the colony."), "la cronaca: restano")
+
+	# Manda via: se ne vanno; senza risposta per 2 giorni, lo stesso
+	main.come(main.wanderer_group(0))
+	walk_until(func(): return not main.requests.is_empty(), 8000)
+	var gone = main.requests[0][0]
+	main.answer(false)
+	check(gone.errand == main.Errand.LEAVE and main.requests.is_empty() and gone not in main.colonists, "mandato via, se ne va")
+	walk_until(func(): return gone not in main.guests, 8000)
+	main.come(main.wanderer_group(1))
+	walk_until(func(): return not main.requests.is_empty(), 8000)
+	var pair: Array = main.requests[0]
+	main.clock = pair[0].stay_until
+	main.update_guests()
+	check(pair.all(func(o): return o.errand == main.Errand.LEAVE) and main.requests.is_empty() and not panel.visible,
+		"nessuna risposta in 2 giorni: se ne vanno insieme")
+
+	print("OK: nuovi coloni (l'avventuriero che resta, i viandanti)")
 	quit()
+
+
+# un colono in più, adulto, accanto al centro
+func person():
+	var c = main.Colonist.new()
+	main.dress(c, main.people().map(func(o): return o.first_name))
+	c.pos = main.center(main.MAP_SIZE / 2 + Vector2i(main.colonists.size(), 1))
+	c.skills = main.Skill.values().map(func(_s): return 0)
+	c.xp = main.Skill.values().map(func(_s): return 0)
+	c.needs = main.Need.values().map(func(_n): return 60.0)
+	c.trend = c.needs.map(func(_v): return 0.0)
+	main.give_age(c, main.ADULT_AGE)
+	main.colonists.append(c)
+	return c
+
+
+# fa andare avanti il gioco finché `done` non è vero (al massimo `ticks` giri da 0,05 s)
+func walk_until(done: Callable, ticks: int) -> void:
+	for i in ticks:
+		if done.call():
+			return
+		main.tick(0.05)
+	check(done.call(), "arrivato in tempo")
 
 
 # un avventuriero alla locanda, senza talenti, contento

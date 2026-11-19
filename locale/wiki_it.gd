@@ -93,7 +93,14 @@ La tabella in cima a Lavori (J): una riga per colono, una colonna per tipo di la
 [color=#e8c34a]Età[/color]
 • La scheda dice l'età di ogni colono, accanto al sesso. Il ritmo della vita si sceglie nella pagina della nuova partita: Veloce, un anno di vita a stagione, quattro volte più in fretta del calendario, così passano le generazioni (i figli crescono in 4 anni); o Reale, un anno all'anno, come il calendario (16 anni per crescere, una gravidanza di 9 mesi veri). I numeri qui sotto sono in anni di vita, qualunque sia il ritmo.
 • Il sovrano parte tra 20 e 30 anni, gli altri coloni e gli avventurieri tra 18 e 40.
-• Dai 60 anni, a ogni compleanno si può morire di vecchiaia: il 4% a 60, il 24% a 70, il 44% a 80."""],
+• Dai 60 anni, a ogni compleanno si può morire di vecchiaia: il 4% a 60, il 24% a 70, il 44% a 80.
+
+[color=#e8c34a]Nuovi coloni[/color]
+La colonia cresce coi figli (vedi Il sovrano e la casata), con gli avventurieri che restano (vedi Avventurieri) e coi viandanti. Lo splendore attira gente; una colonia affollata ne attira meno.
+• I viandanti arrivano un gruppo alla volta, dal giorno 10: in media ogni 30 giorni, diviso (1 + splendore / 20); sopra 8 coloni l'attesa raddoppia ogni 4 coloni in più (il doppio a 12, il quadruplo a 16). A 15 di splendore uno ogni 17 giorni circa.
+• Da soli (70%), una coppia sposata (15%) o una famiglia (15%: un genitore o una coppia, con un figlio di 4–11 anni). Gli adulti hanno 16–45 anni, 4 punti abilità e 0–2 talenti; un gruppo su quattro porta un attrezzo (piccone, ascia, falcetto o arco).
+• Entrano dal bordo della mappa, vanno nella sala del trono (o a un fuoco, o nella radura) e chiedono di restare: Accogli o Manda via. Chiusa la finestra, la domanda aspetta sulla loro scheda (Rispondi…) per 2 giorni, poi se ne vanno. Intanto non lavorano, mangiano dai tuoi magazzini e dormono alla locanda (o per terra).
+• Accolti, sono coloni, Forestieri per 5 giorni (-5 felicità, lavorano il 10% più piano). Una famiglia resta tale: la coppia è sposata, il figlio ha i suoi genitori."""],
 
 	["Abilità", """Tredici abilità, con livelli da 0 a 10 (una stellina al 10). I coloni partono da 0; il tuo sovrano ha 12 punti nella pagina della nuova partita.
 
