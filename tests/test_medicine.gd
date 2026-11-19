@@ -207,6 +207,15 @@ func _initialize() -> void:
 	main.researched.erase(M)
 	check(not main.try_doctor(a), "senza la Medicina nessun medico")
 	main.researched[M] = true
+	var beside: Vector2i = main.stands_of(c)[0]
+	b.pos = main.center(beside + (beside - field))  # uno sano, sdraiato a letto accanto alla stessa casella
+	var none_b: Array[Vector2i] = []
+	main.start_job(b, main.Job.SLEEP, none_b, main.cell_of(b.pos), 0.0)
+	main.furniture[main.cell_of(b.pos)] = [B.BED, R.WOOD, 0]
+	check(main.stand_owner([c], beside) == c, "il malato è quello cercato, non chi dorme lì accanto")
+	main.furniture.erase(main.cell_of(b.pos))
+	main.quit_job(b)
+	b.pos = main.center(mid + Vector2i(0, 2))
 	check(main.try_doctor(a) and a.job == main.Job.RESCUE and a.patient == c, "il medico va a soccorrerlo")
 	check(not main.try_doctor(b) or b.patient != c, "un altro medico non va dallo stesso")
 	main.quit_job(b)

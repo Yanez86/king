@@ -5266,22 +5266,24 @@ func try_doctor(c: Colonist) -> bool:
 		if o != c and o.job in [Job.RESCUE, Job.TREAT] and o.patient != null:
 			tended[o.patient] = true
 	var others := colonists.filter(func(p): return p != c and not tended.has(p) and p.carried_by == null)
-	if not infirmary_beds().is_empty():
-		var to_down := path_to_patient(c, others.filter(func(p): return p.downed and not on_bed(p)))
+	var down := others.filter(func(p): return p.downed and not on_bed(p))
+	if not down.is_empty() and not infirmary_beds().is_empty():
+		var to_down := path_to_patient(c, down)
 		if not to_down.is_empty():
-			start_rescue(c, Job.RESCUE, to_down, 0.0)
+			start_rescue(c, Job.RESCUE, to_down, stand_owner(down, to_down.back()), 0.0)
 			return true
-	var path := path_to_patient(c, others.filter(treatable))
+	var sick_ones := others.filter(treatable)
+	var path := path_to_patient(c, sick_ones)
 	if path.is_empty():
 		return false
+	var p = stand_owner(sick_ones, path.back())
 	var piles: Array = items[Res.OINTMENT].keys().filter(func(cell): return is_free(cell))
 	var to_pile: Array[Vector2i] = []
 	if not piles.is_empty():
 		to_pile = path_to_nearest(c, piles)
 	if to_pile.is_empty():
-		start_rescue(c, Job.TREAT, path, treat_time(c))
+		start_rescue(c, Job.TREAT, path, p, treat_time(c))
 	else:  # prima al mucchio: work_total 0 finché non ha l'unguento (vedi Job.TREAT)
-		var p = stand_owner(c, path.back())
 		start_job(c, Job.TREAT, to_pile, to_pile.back(), 0.0)
 		c.patient = p
 		c.dest = cell_of(p.pos)
@@ -5317,15 +5319,14 @@ func path_to_patient(c: Colonist, patients: Array) -> Array[Vector2i]:
 	return path_to_nearest(c, stands)
 
 
-# il malato accanto al quale si ferma chi arriva in `stand` (il più vicino, se due ce l'hanno accanto)
-func stand_owner(c: Colonist, stand: Vector2i):
-	var near := colonists.filter(func(p): return p != c and stands_of(p).has(stand) and (p.downed or in_bed(p)))
+# tra `patients`, quello accanto al quale si ferma chi arriva in `stand` (il più vicino, se due ce l'hanno accanto)
+func stand_owner(patients: Array, stand: Vector2i):
+	var near := patients.filter(func(p): return stands_of(p).has(stand))
 	near.sort_custom(func(a, b): return a.pos.distance_squared_to(center(stand)) < b.pos.distance_squared_to(center(stand)))
 	return near[0]
 
 
-func start_rescue(c: Colonist, job: Job, path: Array[Vector2i], time: float) -> void:
-	var p = stand_owner(c, path.back())
+func start_rescue(c: Colonist, job: Job, path: Array[Vector2i], p: Colonist, time: float) -> void:
 	start_job(c, job, path, path.back(), time)
 	c.patient = p
 	c.dest = cell_of(p.pos)
@@ -6506,8 +6507,8 @@ func hold_funeral(f: Array) -> void:
 			and astar.is_in_boundsv(k) and not astar.is_point_solid(k) and not water.has(k) and not trees.has(k) \
 			and pieces_at(furniture, k).is_empty()))
 	for o in colonists:
-		if o.downed or o.carried_by != null or o.job in [Job.SLEEP, Job.FIGHT, Job.FLEE]:
-			continue
+		if o.downed or o.carried_by != null or o.job in [Job.SLEEP, Job.FIGHT, Job.FLEE, Job.RESCUE, Job.TREAT, Job.BURY]:
+			continue  # chi dorme, combatte, scappa, ha un malato o un morto per le mani
 		quit_job(o)
 		var path: Array[Vector2i] = []
 		for ring in rings:
@@ -6536,7 +6537,7 @@ func empty_graves() -> Array:
 # Il trasportatore (Work.HAUL, non i bambini) porta un morto in una tomba vuota (Job.BURY): accanto al corpo se lo
 # carica in spalla, alla tomba lo seppellisce. Il più vicino. false se non ci sono morti, tombe vuote o non ci arriva
 func try_bury(c: Colonist) -> bool:
-	if stage_of(c) == 0 or empty_graves().is_empty():
+	if corpses.is_empty() or stage_of(c) == 0 or empty_graves().is_empty():
 		return false
 	var taken := {}
 	for o in colonists:
@@ -6546,11 +6547,7 @@ func try_bury(c: Colonist) -> bool:
 	var path := path_to_patient(c, dead)
 	if path.is_empty():
 		return false
-	var near := dead.filter(func(d): return stands_of(d).has(path.back()))
-	near.sort_custom(func(x, y): return x.pos.distance_squared_to(center(path.back())) < y.pos.distance_squared_to(center(path.back())))
-	start_job(c, Job.BURY, path, path.back(), 0.0)
-	c.patient = near[0]
-	c.dest = cell_of(near[0].pos)
+	start_rescue(c, Job.BURY, path, stand_owner(dead, path.back()), 0.0)
 	return true
 
 
