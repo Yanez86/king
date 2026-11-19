@@ -1,6 +1,7 @@
 extends Node2D
 
 const MAP_SIZE := Vector2i(100, 100)
+const CLEARING := [8.0, 14.0]  # radura di partenza: entro [0] caselle dal centro solo prato, a [1] la mappa è piena
 const TILE := 16            # pixel per tile
 const SPEED := 4.0          # tile al secondo
 const STONE_PER_CELL := 5   # pietra (o ferro, carbone) in un masso, per casella (un 2x2 ne ha 20): vedi full_stock
@@ -3757,23 +3758,26 @@ func generate_map() -> void:
 	for y in MAP_SIZE.y:  # per righe, così `trees` resta ordinato dall'alto in basso
 		for x in MAP_SIZE.x:
 			var cell := Vector2i(x, y)
-			if (cell - MAP_SIZE / 2).length() < 4:
-				continue  # radura di partenza
-			var n := noise.get_noise_2d(x, y)
-			var w := lakes.get_noise_2d(x, y)
+			# radura di partenza: 0 al centro (solo prato), 1 dove la mappa è di nuovo piena; il rumore e le piante si
+			# smorzano verso il centro, così il bordo della radura è irregolare
+			var open := clampf(((cell - MAP_SIZE / 2).length() - CLEARING[0]) / (CLEARING[1] - CLEARING[0]), 0.0, 1.0)
+			if open == 0.0:
+				continue
+			var n := noise.get_noise_2d(x, y) * open
+			var w := lakes.get_noise_2d(x, y) * open
 			if w > 0.3:  # laghi: al centro acqua alta, attorno una fascia di acqua bassa
 				water[cell] = Ground.DEEP if w > 0.4 else Ground.SHALLOW
 			elif n > 0.3:
 				rocks[cell] = true
 				astar.set_point_solid(cell)
-			elif n < -0.15 and randf() < 0.6:  # pini nel fitto del bosco, querce e qualche betulla ai margini
+			elif n < -0.15 and randf() < 0.45:  # pini nel fitto del bosco, querce e qualche betulla ai margini
 				trees[cell] = TreeKind.PINE if n < -0.4 else (TreeKind.BIRCH if randf() < 0.2 else TreeKind.OAK)
-			elif n < -0.05 and randf() < 0.1:  # cespugli nel sottobosco e ai margini, con le bacche già mature
+			elif n < -0.05 and randf() < 0.1 * open:  # cespugli nel sottobosco e ai margini, con le bacche già mature
 				bushes[cell] = 0.0
-			elif randf() < 0.01:  # lino sparso nei prati, già in fiore
+			elif randf() < 0.01 * open:  # lino sparso nei prati, già in fiore
 				bushes[cell] = 0.0
 				flax[cell] = true
-			elif randf() < 0.03:  # erbacce sparse nei prati
+			elif randf() < 0.015 * open:  # erbacce sparse nei prati
 				weeds[cell] = true
 
 	for cell in water:  # l'acqua alta non tocca mai la riva, neanche in diagonale: in mezzo c'è sempre quella bassa
@@ -10288,7 +10292,7 @@ func build(cell: Vector2i) -> void:
 				if out.is_empty():
 					continue
 				sort_by_distance(out, o.pos)
-				var after: Array[Vector2i] = [] if o.path.is_empty() else path_of(o, out[0], o.path.back())
+				var after: Array = [] if o.path.is_empty() else path_of(o, out[0], o.path.back())
 				o.path.assign([out[0]] + after.slice(1))
 			elif o.path.has(cell):  # chi doveva passare di qui cerca un'altra strada
 				o.path = path_of(o, cell_of(o.pos), o.path.back())

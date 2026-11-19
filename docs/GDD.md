@@ -1292,6 +1292,8 @@ Quattro fasce, una per titolo; sei categorie. ✓ = c'è nel gioco.
 
 #### 4.7.8 All'inizio della partita
 - Il sovrano e 3 coloni (a caso) in una radura al centro della mappa, senza niente di costruito: né stanze né magazzino.
+  La radura (`CLEARING`) è solo prato per 8 caselle attorno al centro; da lì il bosco, la roccia e l'acqua tornano
+  pian piano, a bordo irregolare, e a 14 la mappa è piena: c'è posto per le prime stanze senza dover sgomberare.
   Accanto a loro le 60 monete di partenza, a terra; il resto si raccoglie. (Le tre stanzette di legno e il magazzino con
   la scorta di prova non ci sono più.)
 - I lupi arrivano dal giorno 5 (vedi 4.4.3).

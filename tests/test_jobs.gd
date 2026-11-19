@@ -63,7 +63,7 @@ func _initialize() -> void:
 	var S: int = main.Res.STONE
 	var trees_before: int = main.trees.size()
 	var rocks_before: int = main.rocks.size()
-	var area := Rect2i(main.MAP_SIZE / 2 - Vector2i(8, 8), Vector2i(16, 16))
+	var area := Rect2i(main.MAP_SIZE / 2 - Vector2i(12, 12), Vector2i(24, 24))  # fino al bordo della radura, tra alberi e massi
 
 	# fase 1: taglio; senza magazzino la legna resta dove cade l'albero
 	main.order = main.Order.CHOP

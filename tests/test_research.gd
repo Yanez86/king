@@ -439,15 +439,16 @@ func _initialize() -> void:
 	main.enacted.clear()
 	main.authority = 1000.0
 	check(main.codify(L.MILITIA) and main.enact(L.MILITIA), "milizia promulgata")
-	main.furniture[free[31]] = [B.CAMPFIRE, R.WOOD, 0]
-	trainee.pos = main.center(free[31] + Vector2i.DOWN)  # accanto al fuoco: senza milizia starebbe lì
+	var fire: Vector2i = free.slice(31).filter(func(k): return (k - post).length() > 2)[0]  # non sul fantoccio né accanto
+	main.furniture[fire] = [B.CAMPFIRE, R.WOOD, 0]
+	trainee.pos = main.center(fire + Vector2i.DOWN)  # accanto al fuoco: senza milizia starebbe lì
 	main.relax(trainee)
 	check(trainee.target == post and trainee.drilled == main.today, "con la milizia al fantoccio, anche col fuoco vicino")
 	main.quit_job(trainee)
 	main.relax(trainee)
 	check(trainee.target != post, "l'ora del giorno è fatta: poi svago dove capita")
 	main.quit_job(trainee)
-	main.furniture.erase(free[31])
+	main.furniture.erase(fire)
 	check(main.flee_hp() == main.MILITIA_FLEE, "con la milizia si scappa solo sotto 30")
 	main.revoke(L.MILITIA)
 	check(main.flee_hp() == main.FLEE_HP, "senza, sotto 40")
