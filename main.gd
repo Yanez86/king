@@ -600,7 +600,7 @@ const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today"
 	"fallen", "animals", "arrows", "next_animal", "next_pack", "guests", "next_guest", "ruins", "expeditions",
 	"chronicle", "chronicle_days", "board_pick", "study", "researched", "authority", "codified", "enacted", "revoked",
 	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "sown", "plans", "slot_done", "soil", "soil_year_ago", "soil_known", "compost_since", "manured", "no_manure", "babies",
-	"house_name", "regent_for", "coronation_at", "reigns", "tired", "last_yield",
+	"house_name", "regent_for", "coronation_at", "reigns", "next_suitor", "tired", "last_yield",
 	"harvests", "wear", "plastered", "burning",
 	"fire_noted", "storm_noted", "delivered"]
 const TOAST_TIME := 2000    # millisecondi: "Saved" in alto, poi sparisce (vedi show_toast)
@@ -778,6 +778,17 @@ const BABY := preload("res://art/baby.png")
 # poi l'incoronazione (CORONATION_AUTHORITY). Un erede minorenne aspetta i 16 anni: intanto regna un reggente
 const ROYAL_MOURNING_DAYS := 7.0
 const CORONATION_AUTHORITY := 20
+# Pretendenti (vedi update_suitors): finché il sovrano può sposarsi e c'è una locanda, ogni SUITOR_EVERY giorni circa
+# arriva una persona dell'altro sesso di un'altra casata, col suo stemma e la dote; aspetta SUITOR_STAY giorni. Sposata
+# diventa un colono e la dote resta a terra, dove si trova
+const SUITOR_EVERY := 20.0
+const SUITOR_JITTER := 4.0
+const SUITOR_STAY := 5.0
+const SUITOR_AGE := [16, 30]
+const SUITOR_SKILLS := 6       # punti abilità, al più 3 per abilità
+const DOWRY_GOLD := [20, 80]
+const DOWRY_ITEM_CHANCE := 0.3
+const DOWRY_ITEMS := [[Res.NOTEBOOK, 1], [Res.INGOT, 5], [Res.STEEL, 2]]
 const SEASONS := ["Spring", "Summer", "Autumn", "Winter"]
 const WINTER := 3  # in SEASONS: niente bacche né lino (vedi new_day)
 const MONTHS := ["Thaw", "Sowing", "Blossom", "Highsun", "Haying", "Ripening", "Reaping", "Leaffall", "Mists",
@@ -1308,6 +1319,9 @@ class Colonist:
 	var due := 0.0                # incinta: `clock` del parto; 0 se no (vedi conceive)
 	var fertile_from := 0.0       # `clock` da cui può restare incinta di nuovo: un anno dopo il parto
 	var cradle := Vector2i(-1, -1)  # neonato: la culla dove sta; (-1, -1) in braccio (vedi place_babies)
+	var suitor := false           # pretendente alla locanda, finché non si sposa o se ne va (vedi update_suitors)
+	var dowry := {}               # Res -> quantità: la dote del pretendente
+	var house_arms := {}          # lo stemma della sua casata, se è di un'altra (pretendenti)
 	# avventurieri (vedi HEROES): per i coloni hero è NONE e il resto non conta
 	var hero := Hero.NONE
 	var level := 0                # 1-HERO_LEVEL_MAX
@@ -1422,6 +1436,7 @@ var coronation_at := 0.0    # `clock` dell'incoronazione di `ruler`, finito il l
 var reigns := []            # [sovrano, `clock` d'inizio, di fine (-1 finché regna)]: i sovrani, in ordine
 var founding_line := -1     # la voce della cronaca della casata nuova, che cambia se il giocatore sceglie un altro
 var founding_from := ""     # la casata finita, per quella voce
+var next_suitor := 0.0      # `clock` del prossimo pretendente alla locanda; 0: da fissare (vedi update_suitors)
 var naming_line := -1       # la voce della cronaca della sua nascita, che cambia col nome
 var no_manure := {}         # casella d'orto -> true: il suo campo non si concima (dal cartello)
 var tired := {}             # casella -> [Crop, quante volte di fila]: l'ultimo raccolto (vedi tired_count)
@@ -2963,11 +2978,16 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 	box.get_node("Kin").text = tr("Children: %s") % ", ".join(kin) if not kin.is_empty() else (tr("Parents: %s and %s") \
 		% [full_name(c.mother), full_name(c.father)] if c.father != null else tr("Mother: %s") % full_name(c.mother)) \
 		if c.mother != null else ""
-	box.get_node("Head/Arms").visible = c == ruler  # lo stemma lo mette show_title
-	box.get_node("Hero").visible = c.hero != Hero.NONE or c == ruler or c == regent_for
+	box.get_node("Head/Arms").visible = c == ruler or c.suitor  # quello della casata lo mette show_title
+	if c.suitor:
+		box.get_node("Head/Arms").texture = arms_texture(c.house_arms)
+	elif c == ruler:
+		box.get_node("Head/Arms").texture = arms_tex
+	box.get_node("Hero").visible = c.hero != Hero.NONE or c == ruler or c == regent_for or c.suitor
 	box.get_node("Hero").text = tr_n("%s, fee %s, %d expedition", "%s, fee %s, %d expeditions", c.trips) % [hero_name(c), coins(fee(c)), c.trips] \
 		if c.hero != Hero.NONE else (tr("%s %s of %s") % [CROWN_IMG, ruler_title(c), realm] if c == ruler
-		else (tr("%s Heir of %s") % [CROWN_IMG, realm] if c == regent_for else ""))
+		else (tr("%s Heir of %s") % [CROWN_IMG, realm] if c == regent_for
+		else (tr("Suitor from the house of %s. Dowry: %s.") % [c.last_name, dowry_words(c)] if c.suitor else "")))
 	box.get_node("Health").text = health_text(c)
 	for child in needs_grid.get_children() + skills_grid.get_children() + traits_box.get_children():
 		child.free()
@@ -3679,6 +3699,7 @@ func tick(delta: float) -> void:
 	for arrow in arrows.duplicate():  # una freccia può abbattere un animale
 		fly(arrow, delta)
 	update_guests()
+	update_suitors()
 	update_expeditions()
 	update_scholar()
 	for c in corpses.duplicate():
@@ -4823,7 +4844,7 @@ func find_job(c: Colonist) -> void:
 	if c.errand != Errand.NONE:  # avventuriero per strada, interrotto: riprende la strada
 		travel(c)
 		return
-	if c.hero == Hero.NONE and try_douse(c):  # un tetto brucia: tutti col secchio
+	if c.hero == Hero.NONE and not c.suitor and try_douse(c):  # un tetto brucia: tutti col secchio
 		return
 	var peckish: bool = act == Act.FREE and c.needs[Need.FOOD] < fx(c, "snack", SNACK)
 	if c.needs[Need.FOOD] < (GLUTTON_HUNGER if Trait.GLUTTON in c.traits else NEED_LOW) or peckish:
@@ -4841,7 +4862,7 @@ func find_job(c: Colonist) -> void:
 	if routines and c.needs[Need.FUN] < NEED_LOW:
 		relax(c)
 		return
-	if c.hero != Hero.NONE:  # gli avventurieri non lavorano: aspettano svagandosi
+	if c.hero != Hero.NONE or c.suitor:  # avventurieri e pretendenti non lavorano: aspettano svagandosi
 		relax(c)
 		return
 	if may_work(c):
@@ -5839,10 +5860,10 @@ func is_inn(room: Room) -> bool:
 	return room != null and room.kind == RoomKind.INN
 
 
-# letti liberi per `c`: agli avventurieri quelli della locanda, ai coloni tutti gli altri
+# letti liberi per `c`: ad avventurieri e pretendenti quelli della locanda, ai coloni tutti gli altri
 func free_beds(c: Colonist) -> Array:
 	return furniture.keys().filter(func(o): return furniture[o][0] in BEDS and is_free(o) \
-		and is_inn(room_at(o)) == (c.hero != Hero.NONE))
+		and is_inn(room_at(o)) == (c.hero != Hero.NONE or c.suitor))
 
 
 func inn_beds() -> int:
@@ -5867,11 +5888,27 @@ func suitors() -> Array:
 	for o in colonists:
 		if o != ruler and o.sex != ruler.sex and age_of(o) >= ADULT and not married(o):
 			out.append([o, "" if o.needs[Need.HAPPINESS] >= MARRY_HAPPY else tr("not happy enough")])
+	for g in guests:  # i pretendenti arrivati alla locanda accettano sempre
+		if g.suitor and g.errand == Errand.NONE:
+			out.append([g, ""])
 	return out
 
 
 # le nozze di `a` e `b`: a tutti Cond.WEDDING, autorità, la cronaca; ognuno entra nelle stanze dell'altro
 func marry(a: Colonist, b: Colonist) -> void:
+	for o in [a, b]:
+		if o.suitor:  # il pretendente diventa un colono; la dote resta dove si trova
+			o.suitor = false
+			guests.erase(o)
+			board_pick.erase(o)
+			colonists.append(o)
+			for res in o.dowry:
+				drop(res, cell_of(o.pos), o.dowry[res])
+			if not o.dowry.is_empty():
+				note(tr("%s: %s brings a dowry: %s.") % [date(today), full_name(o), dowry_words(o)])
+	for g in guests:  # gli altri pretendenti se ne vanno
+		if g.suitor:
+			g.stay_until = clock
 	a.spouse = b
 	b.spouse = a
 	for c in colonists:
@@ -5891,7 +5928,8 @@ func open_marriage_menu() -> void:
 	for i in options.size():
 		var o: Colonist = options[i][0]
 		marriage_menu.add_item(tr("%s, %d years old") % [full_name(o), age_of(o)]
-			+ (" – " + options[i][1] if options[i][1] != "" else ""), colonists.find(o))
+			+ (" – " + options[i][1] if options[i][1] != "" else "")
+			+ (" – " + tr("dowry: %s") % dowry_words(o, false) if o.suitor else ""), people().find(o))
 		marriage_menu.set_item_disabled(i, options[i][1] != "")
 	if options.is_empty():
 		marriage_menu.add_item(tr("Nobody to marry."), -1)
@@ -5902,7 +5940,7 @@ func open_marriage_menu() -> void:
 
 func marriage_pressed(id: int) -> void:
 	if id >= 0 and can_marry():
-		marry(ruler, colonists[id])
+		marry(ruler, people()[id])
 		open_sheet(ruler)
 
 
@@ -6182,6 +6220,71 @@ func founding_text(c: Colonist) -> String:
 	return tr("%s: the house of %s has no heirs. %s begins the house of %s.") % [date(today), founding_from, full_name(c), c.last_name]
 
 
+# la dote di `c` a parole: monete (con la monetina, se `rich`) e oggetti
+func dowry_words(c: Colonist, rich := true) -> String:
+	var parts := []
+	for res in c.dowry:
+		parts.append((coins(c.dowry[res]) if rich else tr("%d coins") % c.dowry[res]) if res == Res.GOLD
+			else "%d %s" % [c.dowry[res], item_title(res).to_lower()])
+	return ", ".join(parts)
+
+
+# I pretendenti: finché il sovrano può sposarsi e c'è una locanda, ogni SUITOR_EVERY giorni circa ne arriva uno dal
+# bordo della mappa, come gli avventurieri; aspetta SUITOR_STAY giorni, poi se ne va (vedi update_guests)
+func update_suitors() -> void:
+	if next_suitor == 0.0:
+		next_suitor = clock + SUITOR_EVERY
+	if clock < next_suitor:
+		return
+	next_suitor = clock + SUITOR_EVERY + randf_range(-SUITOR_JITTER, SUITOR_JITTER)
+	var edges := border_cells()
+	if not can_marry() or not rooms.any(is_inn) or guests.any(func(g): return g.suitor) or edges.is_empty():
+		return
+	var c := new_suitor(Sex.FEMALE if ruler.sex == Sex.MALE else Sex.MALE)
+	c.pos = center(edges.pick_random())
+	c.errand = Errand.ARRIVE
+	guests.append(c)
+	travel(c)
+	note(tr("%s: %s, of the house of %s, is coming to the inn to ask for the hand of %s.") % [date(today), full_name(c), c.last_name,
+		full_name(ruler)])
+
+
+# un pretendente del sesso `sex`, di un'altra casata: età, qualche abilità e talento, lo stemma (e i colori), la dote
+func new_suitor(sex: Sex) -> Colonist:
+	var c := Colonist.new()
+	var taken: Array = people().map(func(o): return o.first_name)
+	dress(c, taken)
+	c.sex = sex
+	c.hair_style = HAIR_STYLES[sex].pick_random()
+	c.beard = sex == Sex.MALE and randf() < BEARD_CHANCE
+	var free: Array = FIRST_NAMES[sex].filter(func(n): return n not in taken)
+	c.first_name = (free if not free.is_empty() else FIRST_NAMES[sex]).pick_random()
+	c.nickname = ""
+	c.last_name = LAST_NAMES.filter(func(n): return n != house_name).pick_random()
+	give_age(c, SUITOR_AGE)
+	c.skills = Skill.values().map(func(_s): return 0)
+	for i in SUITOR_SKILLS:
+		var open: Array = Skill.values().filter(func(k): return c.skills[k] < 3)
+		c.skills[open.pick_random()] += 1
+	c.xp = Skill.values().map(func(_s): return 0)
+	c.needs = Need.values().map(func(n): return 0.0 if n == Need.STRESS else NEED_MAX * 0.8)
+	c.trend = c.needs.map(func(_v): return 0.0)
+	var pool := Trait.values()
+	pool.shuffle()
+	for t in pool.slice(0, randi_range(0, 2)):
+		if not c.traits.any(func(o): return clash(o, t)):
+			c.traits.append(t)
+	c.house_arms = random_arms()
+	c.tunic = TINCTURE_COLORS[c.house_arms.field]
+	c.cape = TINCTURE_COLORS[c.house_arms.field2]
+	c.dowry = {Res.GOLD: randi_range(DOWRY_GOLD[0], DOWRY_GOLD[1])}
+	if randf() < DOWRY_ITEM_CHANCE:
+		var item: Array = DOWRY_ITEMS.pick_random()
+		c.dowry[item[0]] = item[1]
+	c.suitor = true
+	return c
+
+
 # gli anni di `c`, compiuti: uno a stagione (LIFE_YEAR giorni)
 func age_of(c: Colonist) -> int:
 	if c.born == INF:  # senza nascita (fatto a mano, nelle prove): adulto
@@ -6317,7 +6420,8 @@ func arrive(c: Colonist) -> void:
 	end_job(c)
 	match c.errand:
 		Errand.ARRIVE:
-			c.stay_until = clock + (RENOWNED_GUESTS[1] if researched.has(Tech.RENOWNED_INN) else GUEST_STAY) - (1.0 if enacted.has(Law.LODGING_TAX) else 0.0)
+			c.stay_until = clock + (SUITOR_STAY if c.suitor else (RENOWNED_GUESTS[1] if researched.has(Tech.RENOWNED_INN) else GUEST_STAY)
+				- (1.0 if enacted.has(Law.LODGING_TAX) else 0.0))
 		Errand.RETURN:
 			c.stay_until = clock + GUEST_REST
 			c.hired = false
@@ -6725,7 +6829,7 @@ func open_board() -> void:
 # in corso e il titolo dell'ultima pagina della cronaca (tutta col tasto Chronicle). Si rifà solo quando cambia
 # qualcosa, se no i tasti non si premono
 func fill_board() -> void:
-	var waiting := guests.filter(func(g): return not g.hired and g.errand != Errand.LEAVE)
+	var waiting := guests.filter(func(g): return not g.hired and g.errand != Errand.LEAVE and not g.suitor)
 	for g in board_pick.duplicate():
 		if g not in waiting:
 			board_pick.erase(g)

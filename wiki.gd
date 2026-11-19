@@ -195,6 +195,7 @@ The other two colonists come at random: skills at 0, 0–2 traits.
 • An adult ruler (16 or older) without a living spouse can marry: "Arrange a marriage…" on the ruler's sheet lists the adult colonists of the other sex without a spouse. Those with less than 50 happiness say no, and the list tells you why.
 • The wedding: everyone gets Wedding (+10 happiness for 2 days), +10 authority, and the chronicle tells it. Each spouse may enter the other's rooms. The sheet shows the spouse, with a cross once they have died: a widowed ruler can marry again.
 • Give the couple a room with two beds: children will come from sharing it.
+• Suitors: while the ruler can marry and there is an inn, about every 20 days someone of the other sex from another house comes to the inn, with their arms and a dowry (20–80 coins, sometimes a notebook, ingots or steel). They wait 5 days and always say yes: married, they become a colonist and the dowry stays in the colony. They sleep in the inn's beds and don't work.
 
 [color=#e8c34a]Children[/color] [img=center]res://art/baby.png[/img]
 • A married couple sleeping in the same room may have a child: 1% a night, while she is 16 to 40 (half from 35). She is Pregnant for 68 days, working more slowly in the last third, then for a year no other child.

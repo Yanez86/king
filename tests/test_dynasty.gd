@@ -286,7 +286,47 @@ func _initialize() -> void:
 		"scelto un altro: regna lui, con la sua casata")
 	check(main.chronicle[main.founding_line].contains(main.full_name(chosen)), "anche nella cronaca")
 
-	print("OK: età, vecchiaia, matrimonio, figli, crescita e successione")
+	# pretendenti: con una locanda, ogni 20 giorni circa una persona dell'altro sesso di un'altra casata, con la dote
+	main.get_node("HUD/SuccessionPanel").hide()
+	var lord = main.ruler
+	lord.spouse = null
+	check(main.can_marry(), "il sovrano nuovo si può sposare")
+	main.next_suitor = 0.0
+	main.update_suitors()
+	check(is_equal_approx(main.next_suitor, main.clock + main.SUITOR_EVERY), "il primo fra 20 giorni")
+	main.clock = main.next_suitor
+	main.update_suitors()
+	check(not main.guests.any(func(g): return g.suitor), "senza locanda nessuno")
+	room.kind = main.RoomKind.INN
+	main.next_suitor = main.clock
+	main.update_suitors()
+	var suitor = main.guests.filter(func(g): return g.suitor).front()
+	check(suitor != null and suitor.sex != lord.sex and suitor.errand == main.Errand.ARRIVE, "arriva, dell'altro sesso")
+	check(main.age_of(suitor) >= 16 and main.age_of(suitor) <= 30 and suitor.last_name != main.house_name
+		and not suitor.house_arms.is_empty() and suitor.skills.reduce(func(n, v): return n + v, 0) == main.SUITOR_SKILLS,
+		"16-30 anni, un'altra casata col suo stemma, qualche abilità")
+	check(suitor.dowry[main.Res.GOLD] >= 20 and suitor.dowry[main.Res.GOLD] <= 80, "la dote: 20-80 monete")
+	check(Array(main.chronicle).any(func(line): return "ask for the hand of %s" % main.full_name(lord) in line), "la cronaca")
+	check(not main.suitors().any(func(o): return o[0] == suitor), "per strada non si sposa")
+	main.arrive(suitor)
+	check(is_equal_approx(suitor.stay_until, main.clock + main.SUITOR_STAY), "alla locanda aspetta 5 giorni")
+	main.update_suitors()
+	check(main.guests.filter(func(g): return g.suitor).size() == 1, "uno alla volta")
+	main.open_sheet(suitor)
+	check(main.get_node("HUD/ColonistSheet/Box/Hero").text.begins_with("Suitor from the house of %s" % suitor.last_name)
+		and main.get_node("HUD/ColonistSheet/Box/Head/Arms").visible, "la scheda: pretendente, col suo stemma")
+	var offer: Array = main.suitors().filter(func(o): return o[0] == suitor)
+	check(offer.size() == 1 and offer[0][1] == "", "accetta sempre")
+	main.open_marriage_menu()
+	var item: int = main.marriage_menu.get_item_index(main.people().find(suitor))
+	check(main.marriage_menu.get_item_text(item).contains("dowry: %d coins" % suitor.dowry[main.Res.GOLD]), "nel menu, con la dote")
+	var gold: int = main.total(main.Res.GOLD)
+	main.marriage_menu.id_pressed.emit(main.people().find(suitor))
+	check(lord.spouse == suitor and suitor in main.colonists and suitor not in main.guests and not suitor.suitor, "sposato: un colono")
+	check(main.total(main.Res.GOLD) == gold + suitor.dowry[main.Res.GOLD], "la dote resta in colonia")
+	check(Array(main.chronicle).any(func(line): return "brings a dowry" in line), "la cronaca")
+
+	print("OK: età, vecchiaia, matrimonio, figli, crescita, successione e pretendenti")
 	quit()
 
 

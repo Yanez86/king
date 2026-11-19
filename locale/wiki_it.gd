@@ -194,6 +194,7 @@ Gli altri due coloni vengono a caso: abilità a 0, 0–2 talenti.
 • Un sovrano adulto (16 anni o più) senza coniuge vivo si può sposare: "Combina un matrimonio…" nella scheda del sovrano elenca i coloni adulti dell'altro sesso senza coniuge. Chi ha meno di 50 di felicità dice di no, e l'elenco dice perché.
 • Le nozze: tutti prendono Nozze (+10 felicità per 2 giorni), +10 autorità, e la cronaca lo racconta. Ognuno dei due sposi entra nelle stanze dell'altro. La scheda mostra il coniuge, con una croce quando è morto: un sovrano vedovo si può risposare.
 • Dai alla coppia una stanza con due letti: i figli verranno dal dividerla.
+• Pretendenti: finché il sovrano si può sposare e c'è una locanda, ogni 20 giorni circa arriva alla locanda una persona dell'altro sesso di un'altra casata, col suo stemma e la dote (20–80 monete, a volte un quaderno, lingotti o acciaio). Aspetta 5 giorni e dice sempre di sì: sposata, diventa un colono e la dote resta in colonia. Dorme nei letti della locanda e non lavora.
 
 [color=#e8c34a]Figli[/color] [img=center]res://art/baby.png[/img]
 • Una coppia sposata che dorme nella stessa stanza può avere un figlio: l'1% a notte, finché lei ha da 16 a 40 anni (dai 35 la metà). Resta Incinta per 68 giorni, e nell'ultimo terzo lavora più piano; poi per un anno niente altri figli.

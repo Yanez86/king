@@ -3359,3 +3359,20 @@ msgstr "%s: la casata %s non ha eredi. %s fonda la casata %s."
 
 msgid "A new house"
 msgstr "Una casata nuova"
+
+# --- Dinastia: i pretendenti
+
+msgid "Suitor from the house of %s. Dowry: %s."
+msgstr "Pretendente della casata %s. Dote: %s."
+
+msgid "%s: %s brings a dowry: %s."
+msgstr "%s: %s porta in dote %s."
+
+msgid "dowry: %s"
+msgstr "dote: %s"
+
+msgid "%d coins"
+msgstr "%d monete"
+
+msgid "%s: %s, of the house of %s, is coming to the inn to ask for the hand of %s."
+msgstr "%s: %s, della casata %s, viene alla locanda a chiedere la mano di %s."
