@@ -162,7 +162,7 @@ Goloso e Di poco appetito, Pigro e Stacanovista, Mattiniero e Nottambulo, Dormig
 [cell]Lutto[/cell][cell]3 giorni[/cell][cell]–[/cell][cell]-15[/cell]
 [cell]In festa[/cell][cell]3 giorni[/cell][cell]–[/cell][cell]+10[/cell]
 [cell]Nozze[/cell][cell]2 giorni[/cell][cell]–[/cell][cell]+10[/cell]
-[cell]Incinta[/cell][cell]68 giorni[/cell][cell]20% più piano alla fine[/cell][cell]–[/cell]
+[cell]Incinta[/cell][cell]¾ d'anno di vita[/cell][cell]20% più piano alla fine[/cell][cell]–[/cell]
 [cell]Lutto regale[/cell][cell]7 giorni[/cell][cell]–[/cell][cell]-20[/cell]
 [cell]Incoronazione[/cell][cell]2 giorni[/cell][cell]–[/cell][cell]+10[/cell]
 [/table]
@@ -173,7 +173,7 @@ Goloso e Di poco appetito, Pigro e Stacanovista, Mattiniero e Nottambulo, Dormig
 • Lutto: è morto un colono; stress dal lavoro +25%.
 • In festa: dopo un giorno di festa, con la legge Festa del raccolto (vedi Leggi).
 • Nozze: tutti, quando il sovrano si sposa.
-• Incinta: negli ultimi 23 dei 68 giorni lavora il 20% più piano.
+• Incinta: nell'ultimo terzo lavora il 20% più piano.
 • Lutto regale: è morto il sovrano, al posto del Lutto; stress dal lavoro +25%. Incoronazione: tutti, quando il nuovo sovrano è incoronato.
 Qui compaiono anche le leggi in vigore che a un colono piacciono o non piacciono, con la loro icona."""],
 
@@ -197,7 +197,7 @@ Gli altri due coloni vengono a caso: abilità a 0, 0–2 talenti.
 • Pretendenti: finché il sovrano si può sposare e c'è una locanda, ogni 20 giorni circa arriva alla locanda una persona dell'altro sesso di un'altra casata, col suo stemma e la dote (20–80 monete, a volte un quaderno, lingotti o acciaio). Aspetta 5 giorni e dice sempre di sì: sposata, diventa un colono e la dote resta in colonia. Dorme nei letti della locanda e non lavora.
 
 [color=#e8c34a]Figli[/color] [img=center]res://art/baby.png[/img]
-• Una coppia sposata che dorme nella stessa stanza può avere un figlio: l'1% a notte, finché lei ha da 16 a 40 anni (dai 35 la metà). Resta Incinta per 68 giorni, e nell'ultimo terzo lavora più piano; poi per un anno niente altri figli.
+• Una coppia sposata che dorme nella stessa stanza può avere un figlio: l'1% a notte, finché lei ha da 16 a 40 anni (dai 35 la metà). Resta Incinta per tre quarti d'anno di vita (68 giorni col ritmo veloce, 274 con quello reale), e nell'ultimo terzo lavora più piano; poi per un anno di vita niente altri figli.
 • La cronaca racconta la nascita e una finestra chiede il nome (il dado ne tira uno). Il figlio prende il cognome e i colori della casata, i capelli di un genitore e ognuno dei loro talenti al 50% (al più due, mai in contrasto).
 • Fino a 3 anni è un neonato: non è ancora un colono. Dorme in una culla (Casa, 4 legna), prima quelle dei genitori, o la madre lo tiene in braccio.
 • Dai 4 è un bambino: raccoglie e trasporta e basta, a metà velocità, non prende armi né armature e scappa sempre dai lupi. Si vede più piccolo.

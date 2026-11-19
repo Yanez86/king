@@ -23,12 +23,13 @@
 | Salvataggio | 4.5.1 | locale fatto | il cloud |
 | Eventi casuali | 4.6 | quasi niente | **il narratore** e la lista degli eventi |
 | Ricerca | 4.7.3 | 37 ricerche su 50 | 13 ricerche, il livello IV |
-| Leggi | 4.7.7 | 19 leggi su 38 | 19 leggi, molte aspettano dinastia e coloni nuovi |
+| Leggi | 4.7.7 | 19 leggi su 38 | 19 leggi: quelle della dinastia si possono fare ora, altre aspettano i coloni nuovi |
 
 ## Da dove partire (proposta)
 
-La dinastia c'è (4.3.3: età, matrimonio, figli, successione, pretendenti, la finestra della casata). Molte cose
-aspettano ancora **i coloni nuovi**: conviene farli adesso.
+La dinastia c'è (4.3.3: età, matrimonio, figli, successione, pretendenti, la finestra della casata; il ritmo della vita,
+veloce o reale, si sceglie nella nuova partita). Molte cose aspettano ancora **i coloni nuovi**: conviene farli adesso.
+Ora che c'è la dinastia si possono fare anche le sue leggi (vedi Leggi).
 
 1. **La colonia che cresce** — avventurieri che restano come coloni, viandanti (4.4.4). Sblocca: Porte aperte e Porte
    chiuse, Giuramento, Compagnia della corona, il titolo che sale anche col numero di coloni.
@@ -52,7 +53,8 @@ aspettano ancora **i coloni nuovi**: conviene farli adesso.
 - [ ] Talenti nuovi: Robusto (resiste al freddo), Pirofobo (non cucina); più talenti in generale (dopo-MVP n. 5).
 - [ ] Scheda: bisogni e relazioni.
 - [ ] Umore e relazioni tra coloni (dopo-MVP n. 5).
-- [ ] Tono della pelle anche per gli altri coloni (oggi solo il sovrano lo sceglie).
+- [ ] Tono della pelle (3–4 toni, un livello tinto nuovo): nella pagina del sovrano, per gli altri coloni a caso, e i
+  figli lo prendono dai genitori. Oggi non c'è: la pelle è uguale per tutti.
 
 ## Sovrano e dinastia (4.3, 4.3.1)
 
@@ -194,8 +196,8 @@ Leggi senza ✓ (tra parentesi quello che aspettano):
 |---|---|
 | Lavoro | Corvée (la quarta casella colorata nella routine), Corporazioni (i lavoratori delle stanze) |
 | Ordine | Legge marziale |
-| Popolo | Porte chiuse, Porte aperte, Giuramento (coloni nuovi); Padrinato; Matrimoni misti, Scuola (dinastia); Carta delle libertà (regno) |
-| Corona | Primogenitura, Successione elettiva (successione); Guardia del corpo; Assolutismo (regno) |
+| Popolo | Porte chiuse, Porte aperte, Giuramento (coloni nuovi); Padrinato; Matrimoni misti, Scuola (si possono fare: c'è la dinastia); Carta delle libertà (regno) |
+| Corona | Primogenitura (la regola c'è già, dall'inizio: manca solo la legge nella finestra), Successione elettiva (si può fare: c'è la successione); Guardia del corpo; Assolutismo (regno) |
 | Feste | Funerali (cimitero), Torneo, Cronista di corte, Mecenatismo, Calendario delle feste |
 
 - [ ] Corte: lo sguardo del sovrano a 12 caselle, quando ci sarà lo sguardo.
@@ -211,7 +213,8 @@ Leggi senza ✓ (tra parentesi quello che aspettano):
 ## Domande aperte (6)
 
 - [ ] Dimensione dei tile: 16×16 o 32×32?
-- [ ] Condizione di sconfitta oltre alla fine della dinastia?
+- [ ] Condizione di sconfitta: oggi la partita finisce solo quando muoiono tutti i coloni (finita la dinastia ne nasce
+  una nuova). Basta così?
 - [ ] La lista degli eventi.
 - [ ] Il nome definitivo del gioco.
 - [ ] Il nome dello "splendore" (alternative: decoro, prestigio, lustro).

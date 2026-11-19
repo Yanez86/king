@@ -245,9 +245,9 @@ Decisa il 2026-11-19. Numeri da tarare.
   - Le nozze: *nozze* a tutti (+10 felicità per 2 giorni), +10 autorità; la cronaca lo scrive. Il coniuge tiene il suo
     cognome; i figli prendono quello della casata.
 - **Figli**: una coppia sposata che dorme nella stessa stanza può averne. Ogni notte l'1% (la donna tra 16 e 40 anni;
-  dai 35 la metà). La gravidanza dura tre quarti d'anno (68 giorni; *incinta*: nell'ultimo terzo +20% tempo di
-  lavoro), poi per un anno (91 giorni) niente. Alla nascita il giocatore sceglie il nome (col dado); pelle e capelli
-  da uno dei genitori; ogni talento dei genitori passa al 50%, al più due, mai in contrasto.
+  dai 35 la metà). La gravidanza dura tre quarti d'anno di vita (68 giorni col ritmo veloce, 274 con quello reale;
+  *incinta*: nell'ultimo terzo +20% tempo di lavoro), poi per un anno di vita niente. Alla nascita il giocatore sceglie il nome (col dado); i capelli da
+  uno dei genitori (la pelle quando ci sarà); ogni talento dei genitori passa al 50%, al più due, mai in contrasto.
   - **Neonato** (0–3 anni): sta nella culla (mobile nuovo, in Casa, 4 legna) della stanza dei genitori; non lavora.
   - **Bambino** (4–11): aiuta a raccogliere e a trasportare, a metà velocità; niente armi né armature; scappa
     sempre dai lupi. Bambini e ragazzi si vedono più piccoli.
@@ -1078,6 +1078,7 @@ Combattimento tattico (oggi i coloni si difendono da soli, vedi 4.4.3), livelli 
 
 ## 6. Domande aperte
 - Dimensione dei tile: 16×16 o 32×32?
-- Condizione di sconfitta oltre alla fine della dinastia?
+- Condizione di sconfitta: oggi la partita finisce solo quando muoiono tutti i coloni (finita la dinastia ne nasce
+  una nuova, 4.3.3). Basta così?
 - Lista degli eventi.
 - Nome definitivo del gioco.

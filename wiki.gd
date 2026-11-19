@@ -163,7 +163,7 @@ Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleep
 [cell]Mourning[/cell][cell]3 days[/cell][cell]–[/cell][cell]-15[/cell]
 [cell]Festive[/cell][cell]3 days[/cell][cell]–[/cell][cell]+10[/cell]
 [cell]Wedding[/cell][cell]2 days[/cell][cell]–[/cell][cell]+10[/cell]
-[cell]Pregnant[/cell][cell]68 days[/cell][cell]20% slower at the end[/cell][cell]–[/cell]
+[cell]Pregnant[/cell][cell]¾ year of life[/cell][cell]20% slower at the end[/cell][cell]–[/cell]
 [cell]Royal mourning[/cell][cell]7 days[/cell][cell]–[/cell][cell]-20[/cell]
 [cell]Coronation[/cell][cell]2 days[/cell][cell]–[/cell][cell]+10[/cell]
 [/table]
@@ -174,7 +174,7 @@ Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleep
 • Mourning: a colonist has died; stress from work +25%.
 • Festive: after a feast day, with the Harvest feast law (see Laws).
 • Wedding: everyone, when the ruler marries.
-• Pregnant: for the last 23 days of the 68 she works 20% more slowly.
+• Pregnant: in the last third she works 20% more slowly.
 • Royal mourning: the ruler has died, instead of Mourning; stress from work +25%. Coronation: everyone, when the new ruler is crowned.
 The laws in force that a colonist likes or dislikes show here too, with their icon."""],
 
@@ -198,7 +198,7 @@ The other two colonists come at random: skills at 0, 0–2 traits.
 • Suitors: while the ruler can marry and there is an inn, about every 20 days someone of the other sex from another house comes to the inn, with their arms and a dowry (20–80 coins, sometimes a notebook, ingots or steel). They wait 5 days and always say yes: married, they become a colonist and the dowry stays in the colony. They sleep in the inn's beds and don't work.
 
 [color=#e8c34a]Children[/color] [img=center]res://art/baby.png[/img]
-• A married couple sleeping in the same room may have a child: 1% a night, while she is 16 to 40 (half from 35). She is Pregnant for 68 days, working more slowly in the last third, then for a year no other child.
+• A married couple sleeping in the same room may have a child: 1% a night, while she is 16 to 40 (half from 35). She is Pregnant for three quarters of a year of life (68 days at the fast pace, 274 at the real one), working more slowly in the last third, then for a year of life no other child.
 • The chronicle tells the birth and a window asks for the name (the dice rolls one). The child takes the house's name and colors, the hair of a parent, and each of their traits at 50% (at most two, never clashing).
 • Up to 3 a baby: not a colonist yet. They sleep in a cradle (Home, 4 wood), their parents' first, or the mother carries them.
 • From 4 a child: they only gather and haul, at half speed, take no weapons or armor and always run from wolves. They look smaller.
