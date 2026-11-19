@@ -3825,3 +3825,38 @@ msgid "%d day"
 msgid_plural "%d days"
 msgstr[0] "%d giorno"
 msgstr[1] "%d giorni"
+
+# --- La bacheca: la squadra
+
+msgid "Party"
+msgstr "Squadra"
+
+msgid "Party (%d / %d)"
+msgstr "Squadra (%d / %d)"
+
+msgid "Click or drag here who goes."
+msgstr "Clicca o trascina qui chi parte."
+
+msgid "Fees: %s"
+msgstr "Paghe: %s"
+
+msgid "The party is empty"
+msgstr "La squadra è vuota"
+
+msgid "Put who goes in the party"
+msgstr "Metti nella squadra chi parte"
+
+msgid "Click or drag into the party"
+msgstr "Clicca o trascina nella squadra"
+
+msgid "Click or drag back to leave them home"
+msgstr "Clicca o trascina indietro per lasciarlo a casa"
+
+msgid "Free"
+msgstr "Libero"
+
+msgid "Everyone at the inn is in the party."
+msgstr "Tutti quelli alla locanda sono nella squadra."
+
+msgid "Every colonist who can go is in the party."
+msgstr "Tutti i coloni che possono partire sono nella squadra."

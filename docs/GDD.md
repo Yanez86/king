@@ -654,7 +654,8 @@ racconta il diario al ritorno.
   libri (vedi 4.7.2) e la **mappa** della rovina dopo (in quest'ordine: il forte porta al monastero); a volte (15%) un forziere qualunque ha la mappa di una rovina che non
   si conosce ancora. Le mappe le portano a casa: si conoscono al ritorno (e si perdono con una spedizione persa).
   Le stanze ripulite restano ripulite: la spedizione dopo riparte da lì. Finite le stanze, la rovina è esaurita.
-- **Spedizione** (dalla bacheca): si spuntano 1–4 avventurieri tra chi aspetta alla locanda; ogni rovina ha il suo tasto
+- **Spedizione** (dalla bacheca): si mettono 1–4 avventurieri nella **squadra** (un riquadro con 4 posti: clic o
+  trascinamento dalla lista di chi aspetta alla locanda; lo stesso per toglierli); ogni rovina ha il suo tasto
   "Send", con la somma delle paghe e le provviste che servono: una a testa per ogni giorno del viaggio intero (andata,
   ½ giorno per ogni stanza che resta, ritorno), prese dal magazzino, prima i pasti poi il crudo. Se non bastano partono
   con quelle che ci sono (il tasto avvisa). Ognuno va al bordo più vicino; il primo che esce fissa il punto, gli altri
@@ -693,8 +694,8 @@ racconta il diario al ritorno.
   | Corona (su un cuscino di velluto) | forte | 6 |
 - **Chi resta**: un avventuriero contento dopo 3 spedizioni chiede di **restare come colono** (vedi 4.2.1).
 - **Coloni in spedizione** (ricerca Compagnia della corona, 4.7.3): sulla bacheca, sotto chi aspetta alla locanda, i
-  coloni che possono partire (adulti, non il sovrano né il reggente, non a terra né incinte); si spuntano come gli
-  avventurieri, ma nel gruppo ci vuole almeno un avventuriero. Non hanno paga né quota. Nella rovina combattono con la
+  coloni che possono partire (adulti, non il sovrano né il reggente, non a terra né incinte); vanno nella squadra come
+  gli avventurieri, ma nel gruppo ci vuole almeno un avventuriero. Non hanno paga né quota. Nella rovina combattono con la
   loro abilità migliore tra armi da mischia e a distanza (chi era avventuriero, con la sua classe) e prendono la parte
   media dei colpi; +1 esperienza nell'arma per ogni stanza coi mostri. Fuori dalla mappa non lavorano. Chi muore nella
   rovina, la colonia lo sa al ritorno (o quando la spedizione si dà per persa): lutto e −5 autorità, come per ogni

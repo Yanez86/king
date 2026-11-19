@@ -247,7 +247,9 @@ const DOING := {Job.CHOP: "Chopping a tree", Job.MINE: "Mining", Job.UPROOT: "Up
 	Job.GOVERN: "Holding audience", Job.PROTEST: "Protesting in the throne room", Job.REPAIR: "Repairing a roof",
 	Job.CUT_ICE: "Cutting ice", Job.DOUSE: "Putting out a fire", Job.FARM: "Tending the garden",
 	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne"}
-const BOARD_LIST := 400.0  # pixel: le due colonne della bacheca, al più; poi scorrono
+const BOARD_LIST := 400.0  # pixel: la lista di chi può partire sulla bacheca, al più; poi scorre
+const BOARD_PLACES := 230.0  # pixel: le rovine e le spedizioni, sotto la squadra, al più; poi scorrono
+const BOARD_SLOT := 122    # pixel: un posto della squadra (MAX_PARTY in fila)
 const BOARD_CARD := 320    # pixel: il riquadro di chi può partire, due per riga
 const BOARD_RUIN := 520    # pixel: il riquadro di una rovina o di una spedizione
 const EQUIPMENT_SHEET := preload("res://art/equipment.png")  # le sagome degli slot, 16x16 nell'ordine di Slot
@@ -7312,16 +7314,17 @@ func report(title: String, lines: PackedStringArray) -> void:
 
 func open_board() -> void:
 	board_key = ""
-	$HUD/BoardPanel.set_meta("center", true)
+	$HUD/BoardPanel.set_meta("center", 2)  # vedi fit_board_list
 	fill_board()
 	$HUD/BoardPanel.show()
 
 
-# Finestra della bacheca, in riquadri: in alto oro e provviste, l'avviso alla locanda; a sinistra chi aspetta alla
-# locanda e i coloni della compagnia, due riquadri per riga (si spuntano per la prossima spedizione, al più MAX_PARTY:
-# il riquadro si illumina); a destra le rovine conosciute, ognuna col suo riquadro (le paghe e le provviste del gruppo
-# spuntato, il tasto per mandarlo) e le spedizioni in viaggio; in fondo l'ultima pagina della cronaca. Le due colonne
-# scorrono oltre BOARD_LIST. Si rifà solo quando cambia qualcosa, se no i tasti non si premono
+# Finestra della bacheca, in riquadri: in alto oro e provviste, l'avviso alla locanda. A sinistra chi può partire: chi
+# aspetta alla locanda e i coloni della compagnia, due riquadri per riga. A destra la squadra (al più MAX_PARTY posti):
+# ci si mette chi parte cliccandolo o trascinandolo dalla sinistra, e lo si toglie allo stesso modo (vedi board_drop);
+# sotto, le rovine conosciute, ognuna col costo del viaggio per la squadra e il tasto per mandarla, e le spedizioni in
+# viaggio. In fondo l'ultima pagina della cronaca. Le liste scorrono oltre la loro altezza (BOARD_LIST, BOARD_PLACES).
+# Si rifà solo quando cambia qualcosa, se no i tasti non si premono
 func fill_board() -> void:
 	var waiting := guests.filter(func(g): return g.hero != Hero.NONE and not g.hired and g.errand != Errand.LEAVE)
 	var company := volunteers()  # Compagnia della corona: i coloni che possono andare con loro
@@ -7334,33 +7337,57 @@ func fill_board() -> void:
 		return
 	board_key = key
 	var box: Control = $HUD/BoardPanel/Box
-	var notice: OptionButton = box.get_node("Notice/Class")
-	box.get_node("Notice").visible = researched.has(Tech.RENOWNED_INN)
+	var notice: OptionButton = box.get_node("Top/Notice/Class")
+	box.get_node("Top/Notice").visible = researched.has(Tech.RENOWNED_INN)
 	if notice.item_count == 0:
 		for kind in Hero.values():  # in inglese: le voci si traducono da sole, anche cambiando lingua
 			notice.add_item("Anyone" if kind == Hero.NONE else Hero.keys()[kind].capitalize(), kind)
 		notice.item_selected.connect(func(i): wanted_hero = notice.get_item_id(i))
 	notice.select(notice.get_item_index(wanted_hero))
-	box.get_node("Gold").text = tr("%s    %d %s provisions (meals, raw food, hardtack)") % [coins(stored(Res.GOLD)), food_stored(),
+	box.get_node("Top/Gold").text = tr("%s    %d %s provisions (meals, raw food, hardtack)") % [coins(stored(Res.GOLD)), food_stored(),
 		"[img=center]%s[/img]" % KIND_ICONS[ItemKind.FOOD].resource_path]
 	var left: Control = box.get_node("Columns/Left")
+	var right: Control = box.get_node("Columns/Right")
 	var list: Control = left.get_node("Waiting/People/Heroes")
 	var crew: Control = left.get_node("Waiting/People/Company/List")
-	var places: Control = box.get_node("Columns/Right/Places/List")
-	for child in list.get_children() + crew.get_children() + places.get_node("Ruins").get_children() + places.get_node("Away").get_children():
+	var slots: Control = right.get_node("Party/Box/Slots")
+	var places: Control = right.get_node("Places/List")
+	for child in list.get_children() + crew.get_children() + slots.get_children() + places.get_node("Ruins").get_children() \
+			+ places.get_node("Away").get_children():
 		child.free()
+	var free_heroes := waiting.filter(func(g): return g not in board_pick)  # chi è in squadra sta a destra
 	left.get_node("InnTitle").text = tr("At the inn (%d)") % waiting.size()
-	for g in waiting:
+	for g in free_heroes:
 		list.add_child(board_card(g))
-	if waiting.is_empty():
-		list.add_child(board_note("Nobody is waiting at the inn." if inn_beds() > 0
-			else "Nobody will come without an inn: a room with a bed, a table and this board."))
+	if free_heroes.is_empty():
+		list.add_child(board_note("Nobody is waiting at the inn." if waiting.is_empty() and inn_beds() > 0
+			else ("Everyone at the inn is in the party." if not waiting.is_empty()
+			else "Nobody will come without an inn: a room with a bed, a table and this board.")))
 	left.get_node("Waiting/People/Company").visible = researched.has(Tech.CROWN_COMPANY)
-	for c in company:
+	var free_crew := company.filter(func(c): return c not in board_pick)
+	for c in free_crew:
 		crew.add_child(board_card(c))
-	if company.is_empty():
-		crew.add_child(board_note("Nobody can go: adults only, not the ruler, nobody downed or pregnant."))
-	box.get_node("Columns/Right/RuinsTitle").text = tr("Ruins (%d)") % ruins.size()
+	if free_crew.is_empty():
+		crew.add_child(board_note("Nobody can go: adults only, not the ruler, nobody downed or pregnant." if company.is_empty()
+			else "Every colonist who can go is in the party."))
+	# la squadra: un posto per chi parte, gli altri vuoti; sotto la paga di tutti
+	right.get_node("PartyTitle").text = tr("Party (%d / %d)") % [board_pick.size(), MAX_PARTY]
+	for i in MAX_PARTY:
+		slots.add_child(party_slot(board_pick[i] if i < board_pick.size() else null))
+	var cost: int = board_pick.reduce(func(n, g): return n + fee(g), 0)
+	right.get_node("Party/Box/Summary").text = tr("Click or drag here who goes.") if board_pick.is_empty() \
+		else (tr("Fees: %s") % coins(cost) + ("" if board_pick.any(func(g): return g.hero != Hero.NONE)
+			else "    " + tr("At least one adventurer must go")))
+	var zone: Control = right.get_node("Party")
+	var lit := card_style(true)  # la squadra: bordo d'oro tutto attorno
+	lit.border_width_left = 2
+	lit.set_content_margin_all(8)
+	zone.add_theme_stylebox_override("panel", lit)
+	if zone.get_meta("ready", false) == false:  # una volta sola: ci si lascia cadere chi parte; a sinistra chi resta
+		zone.set_meta("ready", true)
+		zone.set_drag_forwarding(Callable(), board_can_drop.bind(true), board_drop.bind(true))
+		left.get_node("Waiting").set_drag_forwarding(Callable(), board_can_drop.bind(false), board_drop.bind(false))
+	right.get_node("RuinsTitle").text = tr("Ruins (%d)") % ruins.size()
 	for ruin in ruins:
 		places.get_node("Ruins").add_child(ruin_card(ruin))
 	places.get_node("AwayTitle").visible = not expeditions.is_empty()
@@ -7373,24 +7400,98 @@ func fill_board() -> void:
 	fit_board_list.call_deferred()  # i riquadri nuovi si misurano a fine fotogramma
 
 
-# Le due colonne della bacheca: alte quanto serve, al più BOARD_LIST (poi scorrono); la bacheca si rifà della misura.
-# Appena aperta va al centro; poi resta dove la si trascina, ma dentro lo schermo
+# Le liste della bacheca: alte quanto serve, al più BOARD_LIST a sinistra e BOARD_PLACES a destra (poi scorrono); la
+# bacheca si rifà della misura. Appena aperta va al centro; poi resta dove la si trascina, ma dentro lo schermo
 func fit_board_list() -> void:
 	var box: Control = $HUD/BoardPanel/Box/Columns
-	for pair in [["Left/Waiting", "Left/Waiting/People", BOARD_CARD * 2 + 8], ["Right/Places", "Right/Places/List", BOARD_RUIN]]:
-		var inner: Control = box.get_node(pair[1])  # più il posto della barra per scorrere
-		box.get_node(pair[0]).custom_minimum_size = Vector2(pair[2] + 20, minf(inner.get_combined_minimum_size().y, BOARD_LIST))
+	for part in [["Left/Waiting", "Left/Waiting/People", BOARD_CARD * 2 + 8, BOARD_LIST],
+			["Right/Places", "Right/Places/List", BOARD_RUIN, BOARD_PLACES]]:
+		var inner: Control = box.get_node(part[1])  # più il posto della barra per scorrere
+		box.get_node(part[0]).custom_minimum_size = Vector2(part[2] + 20, minf(inner.get_combined_minimum_size().y, part[3]))
 	var panel: Control = $HUD/BoardPanel
 	panel.reset_size()
-	if panel.has_meta("center"):
-		panel.remove_meta("center")
+	if panel.get_meta("center", 0) > 0:  # al centro anche al fotogramma dopo: i riquadri che vanno a capo si misurano tardi
+		panel.set_meta("center", panel.get_meta("center") - 1)
 		panel.position = ((get_viewport_rect().size - panel.size) / 2).floor()
+		if panel.get_meta("center") > 0:
+			(func(): fit_board_list()).call_deferred.call_deferred()
 	panel.position = panel.position.clamp(Vector2.ZERO, (get_viewport_rect().size - panel.size).max(Vector2.ZERO))
+
+
+# Trascinare dalla bacheca: chi può partire (dalla sinistra) o chi è in squadra (`in_party`); la figurina segue il mouse
+func board_drag(_at: Vector2, from: Control, g: Colonist, in_party: bool) -> Variant:
+	from.set_drag_preview(figure_icon(g, 3))
+	return {"board": g, "party": in_party}
+
+
+# si può lasciare cadere `data` nella squadra (`to_party`) se è uno della sinistra e c'è posto; a sinistra se è in squadra
+func board_can_drop(_at: Vector2, data: Variant, to_party: bool) -> bool:
+	if not (data is Dictionary and data.has("board")):
+		return false
+	return data["party"] != to_party and (not to_party or board_pick.size() < MAX_PARTY)
+
+
+func board_drop(at: Vector2, data: Variant, to_party: bool) -> void:
+	if board_can_drop(at, data, to_party):
+		toggle_pick(to_party, data["board"])
+
+
+# Un posto della squadra: chi parte, con la figurina grande e il nome (cliccato o trascinato a sinistra, resta a casa);
+# se è vuoto, un riquadro spento
+func party_slot(g) -> PanelContainer:
+	var slot := make_card(Color(HEROES[g.hero]["tunic"]).lightened(0.35) if g != null and g.hero != Hero.NONE
+		else (CENSUS_ACCENTS[0] if g != null else CENSUS_BORDER))
+	slot.custom_minimum_size = Vector2(BOARD_SLOT, 100)
+	slot.mouse_filter = Control.MOUSE_FILTER_PASS  # quello che ci cade sopra lo prende la squadra
+	if g == null:
+		slot.modulate.a = 0.45
+		var empty := Label.new()
+		empty.text = "Free"
+		empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		empty.add_theme_color_override("font_color", CENSUS_DIM)
+		slot.add_child(empty)
+		return slot
+	var box := VBoxContainer.new()
+	box.alignment = BoxContainer.ALIGNMENT_CENTER
+	box.mouse_filter = Control.MOUSE_FILTER_PASS
+	var face := figure_icon(g, 3)
+	face.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	face.mouse_filter = Control.MOUSE_FILTER_PASS
+	box.add_child(face)
+	var name_label := Label.new()
+	name_label.text = g.first_name
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	name_label.custom_minimum_size.x = BOARD_SLOT - 24
+	name_label.tooltip_text = "%s\n%s" % [full_name(g), hero_name(g) if g.hero != Hero.NONE else tr("Colonist")]
+	name_label.mouse_filter = Control.MOUSE_FILTER_PASS
+	box.add_child(name_label)
+	slot.add_child(box)
+	slot.tooltip_text = "Click or drag back to leave them home"
+	slot.set_drag_forwarding(board_drag.bind(slot, g, true), Callable(), Callable())
+	slot.gui_input.connect(board_click.bind(g, false))
+	return slot
+
+
+# un clic (lasciato il tasto: se si trascina non conta) su un riquadro della bacheca: chi parte va in squadra (`join`),
+# chi è in squadra torna a sinistra
+func board_click(event: InputEvent, g: Colonist, join: bool) -> void:
+	if event is InputEventMouseButton and not event.pressed and event.button_index == MOUSE_BUTTON_LEFT \
+			and (not join or board_pick.size() < MAX_PARTY):
+		toggle_pick(join, g)
 
 
 # un riquadro con lo sfondo scuro, il bordo di legno e a sinistra la striscia `accent`; `lit`: scelto, col bordo d'oro
 func make_card(accent: Color, lit := false) -> PanelContainer:
 	var card := PanelContainer.new()
+	card.add_theme_stylebox_override("panel", card_style(lit))
+	card.draw.connect(func(): card.draw_rect(Rect2(0, 0, 6, card.size.y), accent))  # la striscia, sopra il bordo
+	return card
+
+
+# lo stile dei riquadri: fondo scuro, bordo di legno (d'oro se `lit`), il posto a sinistra per la striscia
+func card_style(lit := false) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = CENSUS_CARD.lightened(0.1) if lit else CENSUS_CARD
 	style.border_color = SPLENDOR_COLOR if lit else CENSUS_BORDER
@@ -7398,9 +7499,7 @@ func make_card(accent: Color, lit := false) -> PanelContainer:
 	style.border_width_left = 6
 	style.set_content_margin_all(6)
 	style.content_margin_left = 12
-	card.add_theme_stylebox_override("panel", style)
-	card.draw.connect(func(): card.draw_rect(Rect2(0, 0, 6, card.size.y), accent))  # la striscia, sopra il bordo
-	return card
+	return style
 
 
 # una riga di testo smorzato sulla bacheca, al posto dei riquadri che non ci sono
@@ -7414,23 +7513,28 @@ func board_note(text: String) -> Label:
 
 
 # Il riquadro di chi può partire: l'avventuriero (la striscia del colore della sua classe; i talenti, la paga) o il
-# colono della compagnia (mischia, distanza, protezione). La figurina (col mouse sopra la scheda), nome e chi è, la
-# casella per spuntarlo; anche un clic sul riquadro lo spunta. Spuntato, il riquadro si illumina
+# colono della compagnia (mischia, distanza, protezione). La figurina (col mouse sopra la scheda), nome e chi è. Cliccato
+# o trascinato nella squadra, parte (vedi board_click, board_drop)
 func board_card(g: Colonist) -> PanelContainer:
-	var picked := g in board_pick
 	var hero := g.hero != Hero.NONE
-	var card := make_card(Color(HEROES[g.hero]["tunic"]).lightened(0.35) if hero else CENSUS_ACCENTS[0], picked)
+	var card := make_card(Color(HEROES[g.hero]["tunic"]).lightened(0.35) if hero else CENSUS_ACCENTS[0])
 	card.custom_minimum_size.x = BOARD_CARD
+	card.tooltip_text = "Click or drag into the party"
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 4)
+	box.mouse_filter = Control.MOUSE_FILTER_PASS
 	card.add_child(box)
 	var top := HBoxContainer.new()
 	top.add_theme_constant_override("separation", 10)
-	top.add_child(figure_icon(g, 3))
+	top.mouse_filter = Control.MOUSE_FILTER_PASS
+	var face := figure_icon(g, 3)
+	face.mouse_filter = Control.MOUSE_FILTER_PASS  # il clic e il trascinamento arrivano al riquadro
+	top.add_child(face)
 	var who := VBoxContainer.new()
 	who.add_theme_constant_override("separation", 0)
 	who.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	who.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	who.mouse_filter = Control.MOUSE_FILTER_PASS
 	for line in ["%s %s" % [g.first_name, g.last_name], hero_name(g) if hero
 			else (tr("Once a %s") % named(Hero, g.former).to_lower() if g.former != Hero.NONE else tr("Colonist"))]:
 		var label := Label.new()
@@ -7446,24 +7550,33 @@ func board_card(g: Colonist) -> PanelContainer:
 	box.add_child(top)
 	var bottom := HBoxContainer.new()
 	bottom.add_theme_constant_override("separation", 6)
+	bottom.mouse_filter = Control.MOUSE_FILTER_PASS
 	if hero:
 		for gift_kind in g.gifts:
 			var icon := ui_icon(HERO_TRAITS_SHEET, Rect2(tile_rect(gift_kind, 0)), Vector2(32, 32))
 			icon.tooltip_text = "%s\n%s" % [named(Gift, gift_kind), tr(GIFT_INFO[gift_kind])]
+			icon.mouse_filter = Control.MOUSE_FILTER_PASS
 			bottom.add_child(icon)
 		for t in g.traits:
 			var icon := ui_icon(TRAITS_SHEET, Rect2(tile_rect(t, 0)), Vector2(32, 32))
 			icon.tooltip_text = "%s\n%s" % [named(Trait, t), tr(TRAIT_INFO[t])]
+			icon.mouse_filter = Control.MOUSE_FILTER_PASS
 			bottom.add_child(icon)
+		var gap := Control.new()
+		gap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		gap.mouse_filter = Control.MOUSE_FILTER_PASS
+		bottom.add_child(gap)
 		var price := rich(coins(fee(g)))
 		price.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		price.tooltip_text = "Fee"
+		price.mouse_filter = Control.MOUSE_FILTER_PASS
 		bottom.add_child(price)
 	else:
 		for s in [Skill.MELEE, Skill.RANGED]:
 			var icon := ui_icon(SKILLS_SHEET, Rect2(s * 8, 0, 8, 8), Vector2(16, 16))
 			icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 			icon.tooltip_text = named(Skill, s, "skill")
+			icon.mouse_filter = Control.MOUSE_FILTER_PASS
 			bottom.add_child(icon)
 			var level := Label.new()
 			level.text = str(g.skills[s])
@@ -7471,26 +7584,14 @@ func board_card(g: Colonist) -> PanelContainer:
 		var shield := ui_icon(EQUIPMENT_SHEET, Rect2(Slot.BODY * 16, 0, 16, 16), Vector2(24, 24))  # la protezione
 		shield.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		shield.tooltip_text = tr("armor %d") % gear_sum(g, "armor")
+		shield.mouse_filter = Control.MOUSE_FILTER_PASS
 		bottom.add_child(shield)
 		var armor := Label.new()
 		armor.text = str(int(gear_sum(g, "armor")))
 		bottom.add_child(armor)
-	var gap := Control.new()
-	gap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	bottom.add_child(gap)
-	var pick := CheckBox.new()
-	pick.name = "Pick"
-	pick.text = "Pick"
-	pick.focus_mode = Control.FOCUS_NONE
-	pick.button_pressed = picked
-	pick.disabled = not picked and board_pick.size() >= MAX_PARTY
-	pick.toggled.connect(toggle_pick.bind(g))
-	bottom.add_child(pick)
 	box.add_child(bottom)
-	card.gui_input.connect(func(event):  # un clic sul riquadro lo spunta, come la casella
-		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and not pick.disabled:
-			pick.button_pressed = not pick.button_pressed)
+	card.set_drag_forwarding(board_drag.bind(card, g, false), Callable(), Callable())
+	card.gui_input.connect(board_click.bind(g, true))
 	return card
 
 
@@ -7533,7 +7634,7 @@ func ruin_card(ruin: Ruin) -> PanelContainer:
 	var foot := HBoxContainer.new()
 	foot.add_theme_constant_override("separation", 12)
 	var price := rich("%s   %d [img=center]%s[/img]   %s" % [coins(cost), food, KIND_ICONS[ItemKind.FOOD].resource_path,
-		tr_n("%d day", "%d days", days) % days] if not board_pick.is_empty() else tr("Pick who goes"))
+		tr_n("%d day", "%d days", days) % days] if not board_pick.is_empty() else tr("The party is empty"))
 	price.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	price.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	if board_pick.is_empty():
@@ -7544,7 +7645,7 @@ func ruin_card(ruin: Ruin) -> PanelContainer:
 	send_button.text = "Send"
 	send_button.focus_mode = Control.FOCUS_NONE
 	send_button.disabled = board_pick.is_empty() or stored(Res.GOLD) < cost or not anyone
-	send_button.tooltip_text = "Pick who goes" if board_pick.is_empty() else ("At least one adventurer must go" if not anyone
+	send_button.tooltip_text = "Put who goes in the party" if board_pick.is_empty() else ("At least one adventurer must go" if not anyone
 		else "Not enough gold" if stored(Res.GOLD) < cost
 		else (tr("Only %d of %d provisions: they will go hungry") % [food_stored(), food] if food_stored() < food
 		else tr("%d days there and back") % days))

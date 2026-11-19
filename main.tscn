@@ -1784,18 +1784,23 @@ icon = ExtResource("6")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Gold" type="RichTextLabel" parent="HUD/BoardPanel/Box"]
+[node name="Top" type="HBoxContainer" parent="HUD/BoardPanel/Box"]
+theme_override_constants/separation = 16
+
+[node name="Gold" type="RichTextLabel" parent="HUD/BoardPanel/Box/Top"]
+size_flags_horizontal = 3
+size_flags_vertical = 4
 bbcode_enabled = true
 fit_content = true
 scroll_active = false
 
-[node name="Notice" type="HBoxContainer" parent="HUD/BoardPanel/Box"]
+[node name="Notice" type="HBoxContainer" parent="HUD/BoardPanel/Box/Top"]
 visible = false
 
-[node name="Label" type="Label" parent="HUD/BoardPanel/Box/Notice"]
+[node name="Label" type="Label" parent="HUD/BoardPanel/Box/Top/Notice"]
 text = "Notice: wanted at the inn"
 
-[node name="Class" type="OptionButton" parent="HUD/BoardPanel/Box/Notice"]
+[node name="Class" type="OptionButton" parent="HUD/BoardPanel/Box/Top/Notice"]
 focus_mode = 0
 
 [node name="Columns" type="HBoxContainer" parent="HUD/BoardPanel/Box"]
@@ -1812,25 +1817,48 @@ horizontal_scroll_mode = 0
 
 [node name="People" type="VBoxContainer" parent="HUD/BoardPanel/Box/Columns/Left/Waiting"]
 size_flags_horizontal = 3
+mouse_filter = 1
 theme_override_constants/separation = 8
 
 [node name="Heroes" type="HFlowContainer" parent="HUD/BoardPanel/Box/Columns/Left/Waiting/People"]
+mouse_filter = 1
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 
 [node name="Company" type="VBoxContainer" parent="HUD/BoardPanel/Box/Columns/Left/Waiting/People"]
 visible = false
+mouse_filter = 1
 theme_override_constants/separation = 6
 
 [node name="Title" type="Label" parent="HUD/BoardPanel/Box/Columns/Left/Waiting/People/Company"]
 text = "The crown's company: colonists who can go along"
 
 [node name="List" type="HFlowContainer" parent="HUD/BoardPanel/Box/Columns/Left/Waiting/People/Company"]
+mouse_filter = 1
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 
 [node name="Right" type="VBoxContainer" parent="HUD/BoardPanel/Box/Columns"]
 theme_override_constants/separation = 6
+
+[node name="PartyTitle" type="Label" parent="HUD/BoardPanel/Box/Columns/Right"]
+text = "Party"
+
+[node name="Party" type="PanelContainer" parent="HUD/BoardPanel/Box/Columns/Right"]
+
+[node name="Box" type="VBoxContainer" parent="HUD/BoardPanel/Box/Columns/Right/Party"]
+mouse_filter = 1
+theme_override_constants/separation = 6
+
+[node name="Slots" type="HBoxContainer" parent="HUD/BoardPanel/Box/Columns/Right/Party/Box"]
+mouse_filter = 1
+theme_override_constants/separation = 8
+
+[node name="Summary" type="RichTextLabel" parent="HUD/BoardPanel/Box/Columns/Right/Party/Box"]
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+mouse_filter = 1
 
 [node name="RuinsTitle" type="Label" parent="HUD/BoardPanel/Box/Columns/Right"]
 text = "Ruins"
