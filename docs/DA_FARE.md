@@ -10,7 +10,7 @@
 | Sistema | GDD | A che punto è | Il pezzo grosso che manca |
 |---|---|---|---|
 | Lavori e priorità | 4.1 | fatto | i lavoratori delle stanze non contano ancora |
-| Coloni | 4.2 | quasi tutto | malattie, medico, tombe; relazioni e umore |
+| Coloni | 4.2 | quasi tutto | medico, tombe; malattie che si attaccano; relazioni e umore |
 | Nuovi coloni | 4.2.1 | fatto | tarare i numeri |
 | Sovrano e dinastia | 4.3 | dinastia fatta (4.3.3); del sovrano fasi 1, 2, 6 e mezza 5 | sovrano sereno/cupo, stile di regno, sguardo, epiteti |
 | Stemma | 4.3.2 | base | linee, pellicce, ornamenti, motto, blasonatura |
@@ -22,20 +22,19 @@
 | Tetti, calore, conservazione | 4.4.5 | fasi 1–7 | rifiniture grafiche |
 | Mondo e tempo | 4.5 | fatto | — |
 | Salvataggio | 4.5.1 | locale fatto | il cloud |
-| Eventi casuali | 4.6 | il narratore, fasi 1–3 (8 eventi su 11) | le sfortune (fase 4) |
+| Eventi casuali | 4.6 | fatto: il narratore e 11 eventi | tarare i numeri; eventi nuovi coi sistemi nuovi |
 | Ricerca | 4.7.3 | 38 ricerche su 50 | 12 ricerche, il livello IV |
 | Leggi | 4.7.7 | 22 leggi su 38 | 16 leggi: quelle della dinastia si possono fare ora |
 
 ## Da dove partire (proposta)
 
-La dinastia c'è (4.3.3) e la colonia cresce (4.2.1: avventurieri che restano, viandanti, le leggi dell'Accoglienza, la
-Compagnia della corona, il titolo che vuole anche i coloni). Ora si possono fare anche le leggi della dinastia (vedi
-Leggi).
+La dinastia c'è (4.3.3), la colonia cresce (4.2.1: avventurieri che restano, viandanti, le leggi dell'Accoglienza, la
+Compagnia della corona, il titolo che vuole anche i coloni) e il narratore manda gli eventi (4.6: lupi, visite, fortune,
+sfortune, la tregua). Ora si possono fare anche le leggi della dinastia (vedi Leggi).
 
-1. **Il narratore** (4.6, fasi 1–3 fatte) — il dado del giorno e la tregua ci sono, con viandanti, erudito, lupi, ondata
-   di freddo e le fortune. Mancano le sfortune (topi, ladro, febbre: la prima malattia, che poi cura il medico).
-2. **Medicina e morte** — Erboristeria, Medicina, tombe e cimitero, funerali (legge Funerali).
-3. **Cucina e animali** — Forno di pietra, stufato, conserve; poi Apicoltura e Banchetto reale; animali da allevare e
+1. **Medicina e morte** — Erboristeria, Medicina (il medico cura anche la febbre del narratore), tombe e cimitero,
+   funerali (legge Funerali).
+2. **Cucina e animali** — Forno di pietra, stufato, conserve; poi Apicoltura e Banchetto reale; animali da allevare e
    la stalla, col letame.
 
 ## Lavori e priorità (4.1)
@@ -48,7 +47,7 @@ Leggi).
 - [ ] Soglie di livello delle abilità da definire.
 - [ ] Altri effetti dello stress, oltre alla felicità.
 - [ ] Morte: tombe e cimitero, funerali, il medico che cura chi è a terra.
-- [ ] Condizioni nuove: malattie (dal narratore), perdita di punti ferita.
+- [ ] Condizioni nuove: malattie che si attaccano (la febbre del narratore c'è), perdita di punti ferita.
 - [ ] Talenti nuovi: Robusto (resiste al freddo), Pirofobo (non cucina); più talenti in generale (dopo-MVP n. 5).
 - [ ] Scheda: bisogni e relazioni.
 - [ ] Umore e relazioni tra coloni (dopo-MVP n. 5).
@@ -155,11 +154,10 @@ Dinastia (4.3.3, fatta): quello che resta.
 
 ## Eventi casuali: il narratore (4.6)
 
-Deciso il 2026-11-19 (la tabella degli eventi è nel GDD); fatte le fasi 1–3 (il narratore, viandanti, erudito, lupi,
-ondata di freddo, la tregua, le fortune). Fasi ancora da fare:
+Fatto il 2026-11-19 (fasi 1–4, la tabella degli eventi è nel GDD): il narratore con 11 eventi. Quello che resta:
 
-- [ ] (4) Le sfortune: topi nel magazzino, ladro di notte, febbre.
-- [ ] Tarare i numeri: quanto spesso, la tregua, quando la colonia è in difficoltà.
+- [ ] Tarare i numeri: quanto spesso, la tregua, quando la colonia è in difficoltà. Con tutti gli eventi le sfortune
+  prendono parte della tregua dei lupi (un branco ogni 4,9 giorni invece di 4).
 - [ ] Eventi nuovi quando ci saranno i sistemi: predoni, malattie che si attaccano, mercanti.
 
 ## Ricerca (4.7.3)

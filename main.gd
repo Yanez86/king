@@ -369,6 +369,17 @@ const HERD_STAY := 2.0
 const INSPIRED_HAPPY := 60.0
 const PILGRIM_GOLD := [20, 40]
 const PILGRIM_AUTHORITY := 5.0
+# Le sfortune del narratore (narrator.gd, GDD 4.6). Topi: nel magazzino (o dispensa) con più cibo crudo, se ne ha almeno
+# RATS_FROM, se ne mangiano RATS_SHARE. Ladro di notte: con almeno THIEF_FROM monete in magazzino; col Turno di guardia e
+# chi fa la guardia sveglio lo prendono (THIEF_AUTHORITY di autorità), se no si porta via THIEF_SHARE delle monete, al
+# più THIEF_MAX. Febbre: Cond.FEVER a un colono a caso; intanto si stanca FEVER_REST volte più in fretta
+const RATS_FROM := 20
+const RATS_SHARE := 0.25
+const THIEF_FROM := 20
+const THIEF_SHARE := 0.25
+const THIEF_MAX := 50
+const THIEF_AUTHORITY := 5.0
+const FEVER_REST := 2.0
 # Rovine, fuori dalla mappa: "danger" pericolo, "rooms" stanze, "travel" giorni di viaggio (andata), "gold" monete per
 # forziere (da-a), "finds" un oggetto per forziere, a caso tra questi [risorsa, quantità]; "books" il libro che c'è al
 # posto dell'oggetto, una volta su BOOK_CHANCE (sempre, con "always"), a caso tra questi; "treasure" i libri che ci sono
@@ -4340,7 +4351,7 @@ func update_needs(c: Colonist, delta: float) -> void:
 		c.needs[Need.REST] += gain
 		c.needs[Need.COMFORT] = move_toward(c.needs[Need.COMFORT], NEED_MAX * comfort / COMFORT_MAX, gain)
 	else:
-		c.needs[Need.REST] -= REST_DROP * fx(c, "rest", 1.0) * day
+		c.needs[Need.REST] -= REST_DROP * fx(c, "rest", 1.0) * (FEVER_REST if c.conds.has(Cond.FEVER) else 1.0) * day
 		c.needs[Need.COMFORT] += DISCOMFORT_DROP * weather_comfort(cell_of(c.pos), gear_sum(c, "armor")) * day
 	if c.job == Job.RELAX:
 		c.needs[Need.FUN] += FUN_GAIN * day
@@ -5976,6 +5987,65 @@ func offer(c: Colonist) -> void:
 	note(tr("%s: %s, the pilgrim, leaves %d coins for the crown and goes on their way.") % [date(today), full_name(c), gold])
 	c.errand = Errand.LEAVE
 	travel(c)
+
+
+# --- Le sfortune del narratore (GDD 4.6, vedi narrator.gd) ---
+
+# il magazzino (o la dispensa) con più cibo crudo, se ne ha almeno RATS_FROM; se no null
+func rats_target() -> Room:
+	var best: Room = null
+	var most := RATS_FROM - 1
+	for room in rooms:
+		if room.kind not in [RoomKind.WAREHOUSE, RoomKind.PANTRY]:
+			continue
+		var n := 0
+		for res in RAW_FOOD:
+			for cell in items[res]:
+				if room.cells.has(cell):
+					n += items[res][cell]
+		if n > most:
+			best = room
+			most = n
+	return best
+
+
+# i topi nel magazzino con più cibo crudo: se ne mangiano RATS_SHARE, mucchio per mucchio
+func rats() -> void:
+	var room := rats_target()
+	if room == null:
+		return
+	var eaten := 0
+	for res in RAW_FOOD:
+		for cell in items[res].keys():
+			if room.cells.has(cell):
+				var n: int = ceili(items[res][cell] * RATS_SHARE)
+				add_item(res, cell, -n)
+				eaten += n
+	note(tr("%s: rats got into %s and ate %d pieces of food.") % [date(today), room.name, eaten])
+
+
+# il ladro di notte: col Turno di guardia e chi fa la guardia sveglio lo prendono; se no si porta via una parte delle
+# monete del magazzino
+func thief() -> void:
+	if on_watch():
+		gain(THIEF_AUTHORITY)
+		note(tr("%s, night: the watch catches a thief in the warehouse.") % date(today))
+		return
+	var n := mini(floori(stored(Res.GOLD) * THIEF_SHARE), THIEF_MAX)
+	take_stored(Res.GOLD, n)
+	note(tr("%s, night: a thief steals %d coins from the warehouse.") % [date(today), n])
+
+
+# chi può prendere la febbre: i coloni che non ce l'hanno già
+func feverish() -> Array:
+	return colonists.filter(func(c): return not c.conds.has(Cond.FEVER))
+
+
+# uno di loro, a caso, ha la febbre (Cond.FEVER): lavora più piano e si stanca il doppio
+func fever() -> void:
+	var c: Colonist = feverish().pick_random()
+	add_cond(c, Cond.FEVER)
+	note(tr("%s: %s has a fever.") % [date(today), full_name(c)])
 
 
 # --- Morte ---

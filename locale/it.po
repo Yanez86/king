@@ -3861,3 +3861,17 @@ msgstr "Pellegrino"
 msgctxt "doing"
 msgid "Bringing a gift to the crown"
 msgstr "Porta un dono alla corona"
+
+# --- Il narratore: le sfortune
+
+msgid "%s: rats got into %s and ate %d pieces of food."
+msgstr "%s: i topi sono entrati in %s e si sono mangiati %d pezzi di cibo."
+
+msgid "%s, night: the watch catches a thief in the warehouse."
+msgstr "%s, notte: la guardia prende un ladro nel magazzino."
+
+msgid "%s, night: a thief steals %d coins from the warehouse."
+msgstr "%s, notte: un ladro ruba %d monete dal magazzino."
+
+msgid "%s: %s has a fever."
+msgstr "%s: %s ha la febbre."

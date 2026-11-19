@@ -17,6 +17,7 @@ At midnight the narrator picks at most one event for the day, each as often as i
 • Threats: the wolves (see Combat & Wolves), and the cold wave, which the weather decides two and a half days ahead (see the forecast). Between a threat or a misfortune and the next there are at least 3 days of truce; no threats while someone lies downed or wolves are still around.
 • Visits: the wanderers (see Colonists), the wandering scholar (see Knowledge), the pilgrim.
 • Good fortune: a bumper harvest (summer and autumn, with sown fields, every 40 days on average and never within 30: for 10 days the fields yield half as much again); a herd of 4–6 deer (not in winter, every 25 days: those nobody hunts leave after 2 days); inspiration (a grown-up colonist with at least 60 happiness is Inspired for a day, every 15 days); the pilgrim's gift (with a throne room, every 30 days: a pilgrim walks to the throne, leaves 20–40 [img=center]res://art/icon_coin.png[/img] and +5 authority, then goes).
+• Misfortunes: rats (every 25 days and never within 15, when a warehouse or pantry holds at least 20 raw food: they eat a quarter of it, in the one that holds the most); a thief at night (from day 15, every 30 days, with at least 20 [img=center]res://art/icon_coin.png[/img] in the warehouses: with the Night Watch law and the watch awake the thief is caught, +5 authority; otherwise a quarter of the coins go, at most 50); a fever (from day 10, every 20 days, every 10 in winter: a colonist has a Fever for 3 days).
 • When the colony struggles (the food in the warehouses lasts less than 3 days, or the average happiness is under 40) good fortune comes twice as often.
 
 [color=#e8c34a]Time[/color]
@@ -191,6 +192,7 @@ Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleep
 [cell]Coronation[/cell][cell]2 days[/cell][cell]–[/cell][cell]+10[/cell]
 [cell]Foreigner[/cell][cell]5 days[/cell][cell]10% slower[/cell][cell]-5[/cell]
 [cell]Inspired[/cell][cell]1 day[/cell][cell]20% faster[/cell][cell]+5[/cell]
+[cell]Fever[/cell][cell]3 days[/cell][cell]50% slower[/cell][cell]-10[/cell]
 [/table]
 • Poisoned: from raw food, more likely the closer it is to rotting.
 • Well fed: after a meal; stress from work -25%. Feasted: after a fine meal; stress from work -50%. A new meal replaces the condition of the last one.
@@ -203,6 +205,7 @@ Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleep
 • Royal mourning: the ruler has died, instead of Mourning; stress from work +25%. Coronation: everyone, when the new ruler is crowned.
 • Foreigner: whoever came from outside and stayed, an adventurer or a wanderer (see Adventurers).
 • Inspired: now and then a grown-up colonist with at least 60 happiness has a bright idea (see Basics, Events).
+• Fever: now and then a colonist falls ill (see Basics, Events) and tires twice as fast. It doesn't spread.
 The laws in force that a colonist likes or dislikes show here too, with their icon."""],
 
 	["The Ruler & House", """[color=#e8c34a]New game[/color]

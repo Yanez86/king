@@ -16,14 +16,15 @@ const STRUGGLE_FOOD := 3.0   # in difficoltà: il cibo in magazzino basta per me
 const STRUGGLE_HAPPY := 40.0  # o la felicità media è sotto
 const SUMMER := 1    # in main.SEASONS
 const AUTUMN := 2
-enum Event { WANDERERS, SCHOLAR, WOLVES, BUMPER, HERD, INSPIRATION, PILGRIM }
+enum Event { WANDERERS, SCHOLAR, WOLVES, BUMPER, HERD, INSPIRATION, PILGRIM, RATS, THIEF, FEVER }
 # Gli eventi, una riga per evento.
 # "kind": Kind. "from": giorno da cui può capitare, contato da 0 come main.today. "every": giorni in media tra uno e
-# l'altro, pausa (o tregua) compresa: un numero, o il nome di una funzione di main quando dipende dallo stato della
-# colonia. "pause": giorni almeno tra uno e l'altro, contati dall'ultimo giorno in cui c'era. "hour": l'ora del giorno
-# in cui avviene. "can": funzione di questo script, se serve: quando è possibile, oltre a "from" e "pause". "busy":
-# funzione di questo script, vera finché è in corso: intanto non ne viene un altro e la pausa riparte ogni giorno. "do":
-# l'effetto, una funzione di questo script (la cronaca la scrive main). I testi sono nel .po, come tutti gli altri
+# l'altro, pausa (o tregua) compresa: un numero, o il nome di una funzione (di questo script, se no di main) quando
+# dipende dallo stato della colonia. "pause": giorni almeno tra uno e l'altro, contati dall'ultimo giorno in cui c'era.
+# "hour": l'ora del giorno in cui avviene. "can": funzione di questo script, se serve: quando è possibile, oltre a
+# "from" e "pause". "busy": funzione di questo script, vera finché è in corso: intanto non ne viene un altro e la pausa
+# riparte ogni giorno. "do": l'effetto, una funzione di questo script (la cronaca la scrive main). I testi sono nel .po,
+# come tutti gli altri
 const EVENTS := {
 	# GDD 4.2.1: uno alla volta, non con Porte chiuse; più spesso con lo splendore, meno con tanti coloni (wander_wait)
 	Event.WANDERERS: {"kind": Kind.VISIT, "from": 10, "every": "wander_wait", "pause": 5.0, "hour": 10,
@@ -44,7 +45,16 @@ const EVENTS := {
 	# il pellegrino, con una sala del trono: uno alla volta
 	Event.PILGRIM: {"kind": Kind.BOON, "every": 30.0, "hour": 11, "can": "pilgrim_can", "busy": "pilgrim_here",
 		"do": "pilgrim_comes"},
+	# le sfortune (main.RATS_FROM e seguenti): i topi nel magazzino con più cibo crudo
+	Event.RATS: {"kind": Kind.BANE, "every": 25.0, "pause": 15.0, "hour": 3, "can": "rats_can", "do": "rats_come"},
+	# il ladro di notte, dal giorno 15, con le monete in magazzino
+	Event.THIEF: {"kind": Kind.BANE, "from": 15, "every": 30.0, "hour": 2, "can": "thief_can", "do": "thief_comes"},
+	# la febbre, dal giorno 10; d'inverno il doppio delle volte (vedi fever_every)
+	Event.FEVER: {"kind": Kind.BANE, "from": 10, "every": "fever_every", "hour": 7, "can": "fever_can",
+		"do": "fever_comes"},
 }
+const FEVER_EVERY := 20.0
+const FEVER_WINTER := 10.0
 const SAVED := ["planned", "last", "bad"]
 
 @onready var main = get_parent()
@@ -117,7 +127,9 @@ func struggling() -> bool:
 # giorni in media tra un `e` e l'altro, adesso
 func every(e: int) -> float:
 	var days = EVENTS[e]["every"]
-	return main.call(days) if days is String else float(days)
+	if days is String:
+		return call(days) if has_method(days) else main.call(days)
+	return float(days)
 
 
 # `e` può capitare oggi: dal suo giorno, non in corso, passata la pausa (e la tregua), e quando lo dice la sua "can"
@@ -241,3 +253,31 @@ func pilgrim_here() -> bool:
 
 func pilgrim_comes() -> void:
 	main.pilgrim_comes()
+
+
+func rats_can() -> bool:
+	return main.rats_target() != null
+
+
+func rats_come() -> void:
+	main.rats()
+
+
+func thief_can() -> bool:
+	return main.stored(main.Res.GOLD) >= main.THIEF_FROM
+
+
+func thief_comes() -> void:
+	main.thief()
+
+
+func fever_every() -> float:
+	return FEVER_WINTER if main.season(main.today) == main.WINTER else FEVER_EVERY
+
+
+func fever_can() -> bool:
+	return not main.feverish().is_empty()
+
+
+func fever_comes() -> void:
+	main.fever()

@@ -106,8 +106,11 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   | Mangiato al tavolo | ½ giorno | — | — | +5 |
   | Mangiato crudo (solo il goloso) | ½ giorno | — | — | −10 |
   | Lutto (è morto un colono) | 3 giorni | — | +25% | −15 |
+  | Ispirato (evento del narratore, 4.6) | 1 giorno | −20% tempo | — | +5 |
+  | Febbre (evento del narratore, 4.6; si stanca il doppio) | 3 giorni | +50% tempo | — | −10 |
 
-  Ben nutrito e pasto squisito si escludono: vale l'ultimo pasto. Poi: malattie dal narratore, perdita di punti ferita.
+  Ben nutrito e pasto squisito si escludono: vale l'ultimo pasto. La febbre è la prima malattia. Poi: malattie che si
+  attaccano, il medico che le cura (Medicina), perdita di punti ferita.
 - **Scheda** (clic sul colono): nome, soprannome (facoltativo), cognome, sesso, punti ferita, abilità (ognuna con un'icona 8×8), talenti (solo icone, il nome col mouse sopra), equipaggiamento (4 slot: mani, corpo, testa, scudo). Poi bisogni, relazioni.
 - **Abitanti** (clic sul numero dei coloni in alto, o sulla sua icona; deciso il 2026-11-19): una finestra con tutti,
   gruppo per gruppo, ognuno nel suo riquadro (con la striscia del colore del gruppo a sinistra): figurina grande, nome
@@ -917,11 +920,14 @@ Deciso il 2026-11-19. Numeri da tarare. Un **narratore** solo (niente carattere 
   oggi), la cronaca e il salvataggio; (2) le minacce: il branco di lupi nel narratore, la tregua, il branco che cresce
   coi coloni, l'ondata di freddo che chiede al narratore; (3) le fortune: raccolto abbondante, branco di cervi,
   ispirazione, dono del pellegrino; (4) le sfortune: topi nel magazzino, ladro di notte, febbre.
-- **Stato**: fatte le fasi 1–3 il 2026-11-19 (test in `tests/test_narrator.gd`). Il narratore è un figlio di `main`
-  (`narrator.gd`), salvato con la partita. Nei test tace (`main.events`). Un anno simulato: lupi ogni 3,9 giorni (mai
-  meno di 3), erudito ogni 9,8, viandanti ogni 26. Il pellegrino è un ospite (`pilgrim`) che va dove vanno i viandanti
-  (la sala del trono), lascia le monete a terra lì e riparte; nell'elenco degli abitanti sta coi forestieri. Le condizioni
-  Ispirato e Febbre hanno la loro icona (Febbre è pronta per la fase 4). Nella wiki la sezione "Gli eventi" (Le basi).
+- **Stato**: fatte le fasi 1–4 il 2026-11-19 (test in `tests/test_narrator.gd`). Il narratore è un figlio di `main`
+  (`narrator.gd`), salvato con la partita. Nei test tace (`main.events`). Il pellegrino è un ospite (`pilgrim`) che va
+  dove vanno i viandanti (la sala del trono), lascia le monete a terra lì e riparte; nell'elenco degli abitanti sta coi
+  forestieri. Ispirato e Febbre hanno la loro icona. Nella wiki la sezione "Gli eventi" (Le basi). Un anno simulato
+  con solo lupi, erudito e viandanti: lupi ogni 3,9 giorni (mai meno di 3), erudito ogni 9,8, viandanti ogni 26. Con
+  tutti gli eventi possibili (locanda, sala del trono, orto, cibo e monete in magazzino): 105 minacce e sfortune
+  l'anno, una ogni 3,5 giorni (prima i lupi da soli erano uno ogni 3); i lupi ogni 4,9 giorni, perché le sfortune
+  prendono la loro parte della tregua; topi ogni 34, ladro ogni 44, febbre ogni 26.
 
 ### 4.7 Ricerca: il sapere e le leggi
 Due ricerche. Il **sapere** (le ricerche) si paga in **studio**, che i coloni scrivono allo scrittoio, e in **libri** che

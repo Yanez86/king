@@ -26,7 +26,7 @@ func _initialize() -> void:
 		var label: String = E.keys()[e]
 		check(row.has("kind") and row.has("hour") and row["hour"] >= 0 and row["hour"] < 24 and N.has_method(row["do"]),
 			"la riga di %s" % label)
-		check(row["every"] is float or main.has_method(row["every"]), "ogni quanto: %s" % label)
+		check(row["every"] is float or N.has_method(row["every"]) or main.has_method(row["every"]), "ogni quanto: %s" % label)
 		check((not row.has("can") or N.has_method(row["can"])) and (not row.has("busy") or N.has_method(row["busy"])),
 			"le sue funzioni: %s" % label)
 
@@ -237,6 +237,73 @@ func _initialize() -> void:
 	main.events = true
 	main.rooms.erase(hall)
 
+	# --- Le sfortune ---
+	# i topi: nel magazzino con più cibo crudo (almeno 20) se ne mangiano un quarto, mucchio per mucchio; poi la tregua
+	main.today = 40
+	N.bad.clear()
+	N.last.clear()
+	var barn = main.Room.new()
+	barn.kind = main.RoomKind.WAREHOUSE
+	barn.name = "Barn"
+	barn.cells = {open[4]: true, open[5]: true}
+	var shed = main.Room.new()
+	shed.kind = main.RoomKind.WAREHOUSE
+	shed.name = "Shed"
+	shed.cells = {open[6]: true}
+	main.rooms.append_array([barn, shed])
+	main.update_stockpile()
+	check(not N.can_happen(E.RATS), "senza cibo crudo niente topi")
+	main.add_item(R.VEG, open[4], 12)
+	main.add_item(R.FISH, open[5], 8)
+	main.add_item(R.MEAT, open[6], 19)
+	check(main.rats_target() == barn and N.can_happen(E.RATS), "nel magazzino con più cibo crudo, se ne ha almeno 20")
+	check(N.happen(E.RATS) and main.items[R.VEG][open[4]] == 9 and main.items[R.FISH][open[5]] == 6
+		and main.items[R.MEAT][open[6]] == 19, "se ne mangiano un quarto, nel magazzino con più cibo")
+	check(main.chronicle[-1].contains("Barn") and main.chronicle[-1].contains(" 5 "), "nella cronaca: %s" % main.chronicle[-1])
+	check(N.bad == [main.today] and not N.can_happen(E.WOLVES) and not N.can_happen(E.FEVER), "dopo una sfortuna la tregua")
+
+	# il ladro di notte, dal giorno 15, con almeno 20 monete in magazzino: un quarto, al più 50; la guardia lo prende
+	main.today += 3
+	for cell in main.items[R.GOLD].keys():
+		main.items[R.GOLD].erase(cell)
+	main.add_item(R.GOLD, open[4], 19)
+	check(not N.can_happen(E.THIEF), "con 19 monete no")
+	main.add_item(R.GOLD, open[4], 281)
+	main.clock = floorf(main.clock) + 2.5 / 24.0  # di notte
+	check(N.can_happen(E.THIEF) and N.happen(E.THIEF) and main.stored(R.GOLD) == 250
+		and main.chronicle[-1].contains("steals 50 coins"), "si porta via un quarto, al più 50")
+	main.today += 3
+	main.enacted.append(main.Law.NIGHT_WATCH)
+	for c in main.colonists:
+		c.job = main.Job.NONE
+	var before: float = main.authority
+	check(main.on_watch() and N.happen(E.THIEF) and main.stored(R.GOLD) == 250 and is_equal_approx(main.authority, before + 5.0)
+		and main.chronicle[-1].contains("catches a thief"), "col turno di guardia lo prendono: +5 autorità")
+	main.enacted.erase(main.Law.NIGHT_WATCH)
+
+	# la febbre, dal giorno 10 (d'inverno il doppio delle volte): a un colono per 3 giorni, lavora piano e si stanca il doppio
+	main.today += 3
+	check(is_equal_approx(N.every(E.FEVER), 20.0), "la febbre ogni 20 giorni")
+	var spring: int = main.today
+	main.today = main.YEAR_DAYS - 20
+	check(is_equal_approx(N.every(E.FEVER), 10.0), "d'inverno ogni 10")
+	main.today = spring
+	check(N.happen(E.FEVER), "la febbre")
+	var sick: Array = main.colonists.filter(func(c): return c.conds.has(main.Cond.FEVER))
+	check(sick.size() == 1 and is_equal_approx(sick[0].conds[main.Cond.FEVER], main.clock + 3.0)
+		and is_equal_approx(main.COND_INFO[main.Cond.FEVER][1], 1.5) and main.chronicle[-1].contains("has a fever"), "a un colono, per 3 giorni")
+	var patient = sick[0]
+	main.needs_rate = 1.0
+	patient.needs[main.Need.REST] = 80.0
+	main.update_needs(patient, 10.0)
+	var weary: float = 80.0 - patient.needs[main.Need.REST]
+	patient.conds.erase(main.Cond.FEVER)
+	patient.needs[main.Need.REST] = 80.0
+	main.update_needs(patient, 10.0)
+	check(weary > 0.0 and is_equal_approx(weary, (80.0 - patient.needs[main.Need.REST]) * 2.0), "con la febbre si stanca il doppio")
+	main.needs_rate = 0.0
+	N.bad.clear()
+
 	# nei test il narratore tace (main.events)
 	main.events = false
 	check(range(500).all(func(i): return N.pick() == -1), "con events = false niente")
@@ -260,7 +327,7 @@ func _initialize() -> void:
 	check(old.planned == -1 and old.last.is_empty() and old.bad.is_empty(), "di prima del narratore: niente in attesa, nessuna pausa")
 	old.free()
 
-	print("OK: il narratore (la tabella, il tiro del giorno, l'ora, la pausa, le minacce e la tregua, le fortune, il salvataggio)")
+	print("OK: il narratore (la tabella, il tiro del giorno, l'ora, la pausa, le minacce e la tregua, le fortune e le sfortune, il salvataggio)")
 	quit()
 
 
