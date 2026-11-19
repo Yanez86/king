@@ -23,8 +23,8 @@
 | Mondo e tempo | 4.5 | fatto | — |
 | Salvataggio | 4.5.1 | locale fatto | il cloud |
 | Eventi casuali | 4.6 | fatto: il narratore e 11 eventi | tarare i numeri; eventi nuovi coi sistemi nuovi |
-| Caserma e classi | 4.4.6 | fase 1 (le abilità salgono di livello) | la caserma, le classi, l'esercitazione |
-| Ricerca | 4.7.3 | 38 ricerche su 51 | 13 ricerche, il livello IV |
+| Caserma e classi | 4.4.6 | fasi 1–2 (le abilità salgono di livello; caserma, classi, corredo) | l'esercitazione, in battaglia, in spedizione |
+| Ricerca | 4.7.3 | 39 ricerche su 51 | 12 ricerche, il livello IV |
 | Leggi | 4.7.7 | 22 leggi su 38 | 16 leggi: quelle della dinastia si possono fare ora |
 | Interfaccia | [TECH](TECH.md) | testo a 22, elenco degli abitanti, bacheca con la squadra | provarla in inglese e ad altre risoluzioni |
 
@@ -137,16 +137,16 @@ Dinastia (4.3.3, fatta): quello che resta.
 ## Caserma e classi dei coloni (4.4.6)
 
 Deciso il 2026-11-19: il giocatore dà a un colono la classe di un avventuriero (guerriero, arciere, scassinatore) dalla
-sua scheda, e il colono si allena nelle stanze della caserma (sala d'armi, tiro a segno). Fatta la fase 1 (le abilità
-salgono di livello). Fasi ancora da fare:
+sua scheda, e il colono si allena nelle stanze della caserma (sala d'armi, tiro a segno). Fatte le fasi 1 (le abilità
+salgono di livello) e 2 (la ricerca Caserma, le sue stanze e i mobili, la classe dalla scheda, il corredo, il pugnale).
+Fasi ancora da fare:
 
-- [ ] (2) Ricerca Caserma; sala d'armi e tiro a segno, con rastrelliera, bersaglio e banco degli scassi; la classe dalla
-  scheda (requisiti, perché no); il corredo della classe e il cappuccio colorato; il pugnale all'incudine.
 - [ ] (3) L'esercitazione: un'ora al giorno nella routine, il lavoro Esercitarsi, i lavoratori della stanza a tempo
   pieno, la milizia in caserma.
 - [ ] (4) In battaglia secondo la classe: il guerriero che copre, l'arciere che tiene la distanza e sale sulla torre, lo
   scassinatore che schiva.
-- [ ] (5) In spedizione come la sua classe; un gruppo di soli coloni con una classe può partire.
+- [ ] (5) In spedizione come la sua classe; un gruppo di soli coloni con una classe può partire; la classe sulla
+  bacheca.
 
 ## Avventurieri e rovine (4.4.4)
 
@@ -194,8 +194,7 @@ Cittadella.
 | Fuoco | Vetreria | III | Acciaio | finestre, occhiali |
 | | Altoforno | IV | Vetreria | lingotti e acciaio tre alla volta |
 | Pietra | Ponte | II | Strada lastricata | si attraversa l'acqua alta, si pesca dal ponte |
-| Ferro | Caserma | II | Fantoccio | sala d'armi, tiro a segno, le classi dei coloni, il pugnale (4.4.6) |
-| | Balestra | III | Torre di guardia | danno 22, +15% a segno |
+| Ferro | Balestra | III | Torre di guardia | danno 22, +15% a segno |
 | | Armatura a piastre | IV | Balestra, Cotta di maglia, Acciaio | protezione 7 |
 | Strada | Mappa del Re Dimenticato | IV | Compagnia, Cartografia | la Cittadella |
 | Sapere | Biblioteca reale | IV | Astronomia | si rilegano i tomi; +2 autorità al giorno |

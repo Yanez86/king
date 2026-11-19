@@ -926,7 +926,10 @@ studio e un quaderno, dopo Fantoccio). Si appoggia alle soglie di livello delle 
   d'armi e tiro a segno coi loro mobili, la classe dalla scheda, il corredo e il cappuccio, il pugnale all'incudine; (3)
   l'esercitazione: l'ora nella routine, il lavoro Esercitarsi, i lavoratori della stanza, la milizia; (4) in battaglia
   secondo la classe; (5) in spedizione come la sua classe, e la regola della squadra.
-- **Stato**: fatta la fase 1 il 2026-11-19 (le soglie di livello, vedi 4.2); il resto è solo design.
+- **Stato**: fatte le fasi 1 e 2 il 2026-11-19: le soglie di livello (vedi 4.2); la ricerca Caserma, sala d'armi e
+  tiro a segno coi loro mobili, la classe dalla scheda (col perché, quando non si può), il livello, il corredo e il
+  cappuccio, il pugnale all'incudine. Il guerriero prende lo scudo solo con la spada in mano. Sulla bacheca la classe
+  arriva con la fase 5. Il resto è solo design.
 
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100.
@@ -1132,7 +1135,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Cotta di maglia ✓ | II | 300 | Armi di ferro | *cotta di maglia* |
   | | Fantoccio ✓ | I | 60 | — | allenamento nel tempo libero: svago e +1 esperienza in mischia a colpo (uno ogni 2,5 s) |
   | | Scudo ✓ | II | 250 | Fantoccio | scudo tondo all'incudine (3 legna, 1 lingotto), nel suo slot: +3 protezione con spada o pugnale |
-  | | Caserma | II | 250 | Fantoccio | sala d'armi e tiro a segno, rastrelliera, bersaglio, banco degli scassi; le classi dei coloni; il pugnale all'incudine (vedi 4.4.6) |
+  | | Caserma ✓ | II | 250 | Fantoccio | sala d'armi e tiro a segno, rastrelliera, bersaglio, banco degli scassi; le classi dei coloni; il pugnale all'incudine (vedi 4.4.6) |
   | Strada | Locanda ✓ | I | 40 | — | *bacheca degli incarichi, locanda, ingaggi e spedizioni* |
   | | Locanda rinomata ✓ | II | 250 | Locanda | arrivi ogni giorno e mezzo, restano 5 giorni; avviso per la classe (sulla bacheca) |
   | | Compagnia della corona ✓ | III | 500 | Locanda rinomata | i coloni partono con gli avventurieri (vedi 4.4.4) |
@@ -1245,7 +1248,7 @@ IV, regno, leggi finali, cittadella.
 **Stato**: fatte le fasi 1–4; della 5 una parte dei nodi, l'erudito errante e la protesta. Nel gioco: scrittoio,
 libreria e trono; stanze Studio e Sala del trono; lavori Studiare e Governare; studio e autorità (nelle finestre
 Knowledge e Laws, tasti K e G, o clic su scrittoio e trono; tutte e due scorrono); i tre libri, nei forzieri e nei
-tesori, col monastero; le 38 ricerche segnate ✓; le 22 leggi segnate ✓; il titolo cresce con lo splendore e i coloni (4.3) e dà i
+tesori, col monastero; le 39 ricerche segnate ✓; le 22 leggi segnate ✓; il titolo cresce con lo splendore e i coloni (4.3) e dà i
 sigilli (2–5), le fasce delle leggi e l'autorità di ogni giorno; gli eventi d'autorità del 4.7.4 tranne
 l'incoronazione (manca la successione), mai sotto zero. Il granaio è un conto, non una stanza, e niente ci marcisce;
 paga le provviste, poi (Granaio aperto) l'ora senza cibo in magazzino e il pasto di ogni stagione; la festa del

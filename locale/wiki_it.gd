@@ -300,6 +300,10 @@ Non sull'acqua, sugli alberi, sulla roccia, sui cespugli o sulle erbacce (prima 
 [cell]Fossa del ghiaccio (2x2)[/cell][cell]20 pietra[/cell][cell]Ghiacciaia[/cell]
 [cell]Cumulo del compost[/cell][cell]6 legna[/cell][cell]Concimazione[/cell]
 [cell]Culla[/cell][cell]4 legna[/cell][cell]–[/cell]
+[cell]Fantoccio[/cell][cell]6 legna[/cell][cell]Fantoccio[/cell]
+[cell]Rastrelliera[/cell][cell]6 legna, 1 lingotto[/cell][cell]Caserma[/cell]
+[cell]Bersaglio[/cell][cell]4 legna, 2 lino[/cell][cell]Caserma[/cell]
+[cell]Banco degli scassi[/cell][cell]4 legna, 2 lingotti[/cell][cell]Caserma[/cell]
 [/table]
 Focolare, pelli, arazzo e stufa a olle vanno addossati a un muro alle loro spalle, la portiera a una porta: girali verso di lui. Decorazioni: vedi Splendore."""],
 
@@ -320,6 +324,8 @@ L'elenco mostra solo i tipi i cui mobili sono dentro. Se togli quei mobili la st
 [cell]Studio[/cell][cell]scrittoio[/cell][cell]lavoro[/cell]
 [cell]Sala del trono[/cell][cell]trono[/cell][cell]lavoro[/cell]
 [cell]Ghiacciaia[/cell][cell]fossa del ghiaccio; muri di pietra, nessun fuoco[/cell][cell]servizio[/cell]
+[cell]Sala d'armi[/cell][cell]2 fantocci, rastrelliera[/cell][cell]lavoro[/cell]
+[cell]Tiro a segno[/cell][cell]2 bersagli; lunga almeno 8 caselle[/cell][cell]lavoro[/cell]
 [/table]
 • Residenza: può avere dei proprietari. Se ne ha, è chiusa a tutti gli altri, anche solo per passarci.
 • Lavoro: può avere dei lavoratori. Per ora contano in uno studio (studiano prima di qualunque altro lavoro) e in una sala del trono (solo il sovrano).
@@ -471,6 +477,7 @@ L'artigiano porta gli ingredienti uno alla volta, poi lavora. Il tempo dipende d
 [cell]Elmo[/cell][cell]incudine[/cell][cell]3 lingotti[/cell][cell]20 s[/cell]
 [cell]Cotta di maglia[/cell][cell]incudine[/cell][cell]6 lingotti[/cell][cell]30 s[/cell]
 [cell]Spada[/cell][cell]incudine[/cell][cell]3 lingotti, 1 legna[/cell][cell]20 s[/cell]
+[cell]Pugnale[/cell][cell]incudine[/cell][cell]1 lingotto, 1 legna[/cell][cell]12 s[/cell]
 [/table]
 Abilità: Forgiare a fornace e incudine, Cucire a filatoio e banco da lavoro, Tiro al banco del falegname.
 
@@ -483,12 +490,14 @@ Tre slot: mani, corpo, testa. Un colono con uno slot vuoto va da sé a prendere 
 [cell]Falcetto[/cell][cell]mani[/cell][cell]–[/cell][cell]raccolta ed estirpazione 25% più rapide[/cell]
 [cell]Arco[/cell][cell]mani[/cell][cell]–[/cell][cell]per cacciare; tira in combattimento[/cell]
 [cell]Spada[/cell][cell]mani[/cell][cell]–[/cell][cell]danno in mischia 15[/cell]
+[cell]Pugnale[/cell][cell]mani[/cell][cell]–[/cell][cell]danno in mischia 10; dello scassinatore[/cell]
 [cell]Armatura di cuoio[/cell][cell]corpo[/cell][cell]2[/cell][cell]-25% stress all'aperto[/cell]
 [cell]Cotta di maglia[/cell][cell]corpo[/cell][cell]5[/cell][cell]ogni lavoro 10% più lento[/cell]
 [cell]Cappuccio di cuoio[/cell][cell]testa[/cell][cell]1[/cell][cell]+5% a segno con l'arco[/cell]
 [cell]Elmo[/cell][cell]testa[/cell][cell]3[/cell][cell]scavo 10% più rapido[/cell]
 [/table]
-Anche gli attrezzi colpiscono: piccone 10, ascia 12, falcetto 8, mani nude 5. Protezione: vedi Combattimento e lupi."""],
+Anche gli attrezzi colpiscono: piccone 10, ascia 12, falcetto 8, mani nude 5. Protezione: vedi Combattimento e lupi.
+Un colono con una classe prende invece il corredo della sua classe, anche al posto di un attrezzo: vedi Combattimento e lupi."""],
 
 	["Combattimento e lupi", """[color=#e8c34a]Lupi[/color]
 • Il primo branco può arrivare il giorno 10. Il branco si annuncia: a mezzanotte gli ululati (nella cronaca, e nelle previsioni: Lupi tra N h, con l'impronta di una zampa), poi alle 22 i lupi, quasi un giorno per richiamare tutti e chiudere le porte. Poi uno ogni 15 giorni in media e mai prima di una settimana dall'ultimo, né a meno di 3 giorni da un'altra minaccia o sfortuna, né mentre qualcuno è a terra o i lupi sono ancora in giro: 2–3 lupi da un bordo della mappa, uno in più ogni 5 coloni. Fiutano la colonia da 70 caselle di distanza. Sotto la barra in alto compare LUPI finché sono in giro.
@@ -506,7 +515,14 @@ Anche gli attrezzi colpiscono: piccone 10, ascia 12, falcetto 8, mani nude 5. Pr
 [color=#e8c34a]A terra e morti[/color]
 • A 0 punti ferita un colono cade. Il morso che lo manda a terra uccide il 25% delle volte, -3% per ogni punto di protezione (almeno il 5%).
 • A terra guarisce 40 al giorno e si rialza a 30. Un lupo che lo trova all'aperto, senza nessun altro in piedi, lo uccide al primo morso.
-• I morti lasciano cadere il loro equipaggiamento; il corpo resta per un giorno. Gli altri coloni portano il lutto per 3 giorni (Lutto). Se muoiono tutti i coloni, la colonia è caduta."""],
+• I morti lasciano cadere il loro equipaggiamento; il corpo resta per un giorno. Gli altri coloni portano il lutto per 3 giorni (Lutto). Se muoiono tutti i coloni, la colonia è caduta.
+
+[color=#e8c34a]La caserma e le classi[/color]
+• Con la ricerca Caserma un colono può prendere la classe di un avventuriero: Classe… nella sua scheda. Le classi che non si possono dare sono spente, col perché.
+• Serve un colono adulto (gli avventurieri hanno già la loro), la stanza della classe e abbastanza nella sua arma: guerriero 3 in Mischia e una sala d'armi; arciere 3 in Distanza e un tiro a segno; scassinatore 2 in Mischia e una sala d'armi (Scassinare lo impara solo con la classe).
+• Il livello è metà dell'abilità della classe (Mischia, Distanza, Scassinare), da 1 a 5. La scheda e l'elenco degli abitanti dicono "Arciere della colonia, livello 2". Toglierla o cambiarla è gratis: l'abilità resta.
+• Il corredo della classe, che va a prendere da sé, anche al posto di un attrezzo: il guerriero spada, poi scudo, cotta di maglia (o armatura di cuoio) ed elmo; l'arciere arco, armatura e cappuccio di cuoio; lo scassinatore pugnale, armatura e cappuccio di cuoio. Quello che manca si fa alle postazioni.
+• Faretra, maschera e sacca sono il corredo della classe: si vedono, non le fa nessuno. Il cappuccio prende il colore della classe: verde l'arciere, scuro lo scassinatore."""],
 
 	["Splendore", """Lo splendore è la somma delle decorazioni finite che contano, più 5 per ogni avventuriero famoso presente. Il totale è nella barra in alto.
 • Solo nella colonia: in una stanza, entro 2 caselle da un muro, una porta, un pavimento o un sentiero, o dentro la palizzata. Fuori, nei prati, una decorazione non dà niente.
@@ -648,6 +664,7 @@ Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette 
 • [color=#d9c48a]Statuaria[/color] (Pietra III, 500 e un tomo, dopo Muratura): la statua.
 • [color=#d9c48a]Armi di ferro[/color] (Ferro I, 80, dopo Forgia): spada ed elmo.
 • [color=#d9c48a]Cotta di maglia[/color] (Ferro II, 300 e un quaderno, dopo Armi di ferro): la cotta di maglia.
+• [color=#d9c48a]Caserma[/color] (Ferro II, 250 e un quaderno, dopo Fantoccio): rastrelliera, bersaglio e banco degli scassi; sala d'armi e tiro a segno; le classi dei coloni; il pugnale.
 • [color=#d9c48a]Locanda[/color] (Strada I, 40): la bacheca; le leggi Gabella sul bottino e Tassa di soggiorno.
 • [color=#d9c48a]Compagnia della corona[/color] (Strada III, 500 e un tomo, dopo Locanda rinomata): i coloni partono in spedizione con gli avventurieri.
 • [color=#d9c48a]Libreria[/color] (Sapere I, 60): la libreria.

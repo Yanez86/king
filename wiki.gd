@@ -301,6 +301,10 @@ Not on water, trees, rock, bushes or weeds (uproot them first), nor on items lyi
 [cell]Ice pit (2x2)[/cell][cell]20 stone[/cell][cell]Icehouse[/cell]
 [cell]Compost heap[/cell][cell]6 wood[/cell][cell]Manuring[/cell]
 [cell]Cradle[/cell][cell]4 wood[/cell][cell]–[/cell]
+[cell]Training dummy[/cell][cell]6 wood[/cell][cell]Training dummy[/cell]
+[cell]Weapon rack[/cell][cell]6 wood, 1 ingot[/cell][cell]Barracks[/cell]
+[cell]Target[/cell][cell]4 wood, 2 flax[/cell][cell]Barracks[/cell]
+[cell]Lock bench[/cell][cell]4 wood, 2 ingots[/cell][cell]Barracks[/cell]
 [/table]
 Hearth, hides, tapestry and tiled stove hang against a wall at their back, the curtain against a door: turn them toward it. Decorations: see Splendor."""],
 
@@ -321,6 +325,8 @@ The list shows only the types whose furniture is inside. Take that furniture awa
 [cell]Study[/cell][cell]desk[/cell][cell]work[/cell]
 [cell]Throne room[/cell][cell]throne[/cell][cell]work[/cell]
 [cell]Icehouse[/cell][cell]ice pit; stone walls, no fire[/cell][cell]service[/cell]
+[cell]Armory[/cell][cell]2 training dummies, weapon rack[/cell][cell]work[/cell]
+[cell]Archery range[/cell][cell]2 targets; at least 8 tiles long[/cell][cell]work[/cell]
 [/table]
 • Residence: it can have owners. One with owners is closed to everyone else, even just to walk through.
 • Work: it can have workers. For now they matter in a study (they study before any other job) and in a throne room (only the ruler).
@@ -472,6 +478,7 @@ The crafter brings the ingredients one by one, then works. The time depends on s
 [cell]Helmet[/cell][cell]anvil[/cell][cell]3 ingots[/cell][cell]20 s[/cell]
 [cell]Chainmail[/cell][cell]anvil[/cell][cell]6 ingots[/cell][cell]30 s[/cell]
 [cell]Sword[/cell][cell]anvil[/cell][cell]3 ingots, 1 wood[/cell][cell]20 s[/cell]
+[cell]Dagger[/cell][cell]anvil[/cell][cell]1 ingot, 1 wood[/cell][cell]12 s[/cell]
 [/table]
 Skill: Smithing at furnace and anvil, Tailoring at spinning wheel and workbench, Ranged at the carpenter bench.
 
@@ -484,12 +491,14 @@ Three slots: hands, body, head. A colonist with an empty slot fetches a piece by
 [cell]Sickle[/cell][cell]hands[/cell][cell]–[/cell][cell]picking, uprooting 25% faster[/cell]
 [cell]Bow[/cell][cell]hands[/cell][cell]–[/cell][cell]to hunt; shoots in a fight[/cell]
 [cell]Sword[/cell][cell]hands[/cell][cell]–[/cell][cell]melee damage 15[/cell]
+[cell]Dagger[/cell][cell]hands[/cell][cell]–[/cell][cell]melee damage 10; the burglar's[/cell]
 [cell]Leather armor[/cell][cell]body[/cell][cell]2[/cell][cell]-25% stress outdoors[/cell]
 [cell]Chainmail[/cell][cell]body[/cell][cell]5[/cell][cell]all work 10% slower[/cell]
 [cell]Leather hood[/cell][cell]head[/cell][cell]1[/cell][cell]+5% to hit with a bow[/cell]
 [cell]Helmet[/cell][cell]head[/cell][cell]3[/cell][cell]mining 10% faster[/cell]
 [/table]
-Tools hit too: pickaxe 10, axe 12, sickle 8, bare hands 5. Armor: see Combat & Wolves."""],
+Tools hit too: pickaxe 10, axe 12, sickle 8, bare hands 5. Armor: see Combat & Wolves.
+A colonist with a class takes the gear of their class instead, even in place of a tool: see Combat & Wolves."""],
 
 	["Combat & Wolves", """[color=#e8c34a]Wolves[/color]
 • The first pack can come on day 10. A pack announces itself: at midnight the howling (in the chronicle, and in the forecast: Wolves in N h, with a paw print), then at 22:00 the wolves, almost a day to call everyone in and shut the doors. Then one every 15 days on average and never within a week of the last one, nor within 3 days of another threat or misfortune, nor while someone lies downed or wolves are still around: 2–3 wolves from a map edge, one more for every 5 colonists. They smell the colony from 70 tiles away. Under the top bar you see WOLVES while they are around.
@@ -507,7 +516,14 @@ Tools hit too: pickaxe 10, axe 12, sickle 8, bare hands 5. Armor: see Combat & W
 [color=#e8c34a]Downed and dead[/color]
 • At 0 health a colonist falls. The bite that downs them kills 25% of the time, -3% for every point of armor (at least 5%).
 • Downed, they heal 40 a day and stand up at 30. A wolf that finds them outdoors, with nobody else standing, kills them with the first bite.
-• The dead drop their gear; the body stays a day. The other colonists mourn for 3 days (Mourning). If every colonist dies, the colony has fallen."""],
+• The dead drop their gear; the body stays a day. The other colonists mourn for 3 days (Mourning). If every colonist dies, the colony has fallen.
+
+[color=#e8c34a]The barracks and classes[/color]
+• With the Barracks research a colonist can take the class of an adventurer: Class… on their sheet. The classes that can't be given are greyed out, with the reason.
+• It takes a grown-up colonist (adventurers already have theirs), the room of the class and enough in its weapon: warrior 3 Melee and an armory; archer 3 Ranged and an archery range; burglar 2 Melee and an armory (Lockpicking is learned only with the class).
+• The level is half the skill of the class (Melee, Ranged, Lockpicking), from 1 to 5. The sheet and the census say "Archer of the colony, level 2". Taking the class off or changing it is free: the skill stays.
+• The gear of the class, fetched by themselves, even in place of a tool: the warrior a sword, then a shield, chainmail (or leather armor) and a helmet; the archer a bow, leather armor and hood; the burglar a dagger, leather armor and hood. Equipment that is missing gets made at the stations.
+• Quiver, mask and sack are the kit of the class: you see them, nobody makes them. The hood takes the color of the class: green the archer, dark the burglar."""],
 
 	["Splendor", """Splendor is the sum of the finished decorations that count, plus 5 for every famous adventurer around. The total is in the top bar.
 • Only inside the colony: in a room, within 2 tiles of a wall, a door, a floor or a path, or inside the palisade. Out in the fields a decoration gives nothing.
@@ -649,6 +665,7 @@ What you haven't researched has no build button, and its recipes don't show at t
 • [color=#d9c48a]Statuary[/color] (Stone III, 500 and a tome, after Masonry): the statue.
 • [color=#d9c48a]Iron arms[/color] (Iron I, 80, after Forge): sword and helmet.
 • [color=#d9c48a]Chainmail[/color] (Iron II, 300 and a notebook, after Iron arms): chainmail.
+• [color=#d9c48a]Barracks[/color] (Iron II, 250 and a notebook, after Training dummy): weapon rack, target and lock bench; armory and archery range; the classes of the colonists; the dagger.
 • [color=#d9c48a]Inn[/color] (Road I, 40): the notice board; the laws Loot tax and Lodging tax.
 • [color=#d9c48a]Crown company[/color] (Road III, 500 and a tome, after Renowned inn): colonists go on expeditions with the adventurers.
 • [color=#d9c48a]Bookshelf[/color] (Lore I, 60): the bookshelf.

@@ -451,6 +451,21 @@ const GEAR := {
 		"info": "A burglar's knife. Melee damage 10."},
 }
 const KIT_ARMOR := {Look.SHIELD: 3}  # protezione del corredo degli avventurieri (vedi gear_sum)
+# La classe dei coloni (GDD 4.4.6): quella di un avventuriero, data dalla scheda (vedi set_calling, calling_block).
+# CLASS_ROOM: la stanza dove si allena, che deve esserci; CLASS_NEEDS: [abilità, almeno]; il livello è metà di
+# CLASS_SKILL, da 1 a 5 (vedi calling_level); CLASS_GEAR: per slot, i pezzi che l'equipaggiamento automatico prende
+# (il primo che c'è); il corredo che si vede (faretra, maschera e sacca) e il cappuccio vengono da HEROES
+const CLASS_ROOM := {Hero.WARRIOR: RoomKind.ARMORY, Hero.ARCHER: RoomKind.ARCHERY_RANGE, Hero.BURGLAR: RoomKind.ARMORY}
+const CLASS_NEEDS := {Hero.WARRIOR: [Skill.MELEE, 3], Hero.ARCHER: [Skill.RANGED, 3], Hero.BURGLAR: [Skill.MELEE, 2]}
+const CLASS_SKILL := {Hero.WARRIOR: Skill.MELEE, Hero.ARCHER: Skill.RANGED, Hero.BURGLAR: Skill.LOCKPICKING}
+const CLASS_GEAR := {
+	Hero.WARRIOR: {Slot.HANDS: [Res.SWORD], Slot.BODY: [Res.CHAINMAIL, Res.LEATHER_ARMOR], Slot.HEAD: [Res.HELMET],
+		Slot.SHIELD: [Res.SHIELD]},
+	Hero.ARCHER: {Slot.HANDS: [Res.BOW], Slot.BODY: [Res.LEATHER_ARMOR], Slot.HEAD: [Res.LEATHER_HOOD]},
+	Hero.BURGLAR: {Slot.HANDS: [Res.DAGGER], Slot.BODY: [Res.LEATHER_ARMOR], Slot.HEAD: [Res.LEATHER_HOOD]},
+}
+const CLASS_KIT := {Hero.WARRIOR: [], Hero.ARCHER: [Look.QUIVER], Hero.BURGLAR: [Look.MASK, Look.PACK]}
+const RANGE_LENGTH := 8     # caselle: il tiro a segno, da un capo all'altro
 # Produzione (vedi try_craft): [prodotto, mobile, abilità, ingredienti, secondi a livello 5, pezzi (se no 1)]. Il mobile dentro una stanza
 # del tipo STATION_ROOM. Si fa ogni prodotto finché ce ne sono meno di quanti chiede il menu della postazione (vedi keep,
 # open_craft), e i pezzi che mancano perché ogni colono abbia pieni i suoi slot (vedi gear_wanted); per uno slot, il
@@ -469,6 +484,7 @@ const RECIPES := [
 	[Res.CHAINMAIL, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 6}, 30.0],
 	[Res.SWORD, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 3, Res.WOOD: 1}, 20.0],
 	[Res.SHIELD, Build.ANVIL, Skill.SMITHING, {Res.WOOD: 3, Res.INGOT: 1}, 15.0],
+	[Res.DAGGER, Build.ANVIL, Skill.SMITHING, {Res.INGOT: 1, Res.WOOD: 1}, 12.0],  # lo scassinatore della colonia
 	[Res.STEEL, Build.FURNACE, Skill.SMITHING, {Res.INGOT: 2, Res.COAL: 2}, 12.0],
 	[Res.PARCHMENT, Build.WORKBENCH, Skill.TAILORING, {Res.HIDE: 1}, 10.0, 2],  # pelle raschiata e tesa
 	[Res.INK, Build.WORKBENCH, Skill.RESEARCH, {Res.COAL: 1, Res.VEG: 1}, 8.0, 2],  # nerofumo e succo di bacche
@@ -493,7 +509,8 @@ const ORDER_ICONS := {Order.CHOP: preload("res://art/icon_chop.png"), Order.MINE
 	Order.UPROOT: preload("res://art/icon_uproot.png"), Order.HARVEST: preload("res://art/icon_harvest.png"),
 	Order.FISH: preload("res://art/icon_fishing.png"), Order.HUNT: preload("res://art/icon_hunting.png"),
 	Order.ICE: preload("res://art/icon_ice.png"), Order.GARDEN: preload("res://art/icon_garden.png")}  # le stesse dei tasti: piccole e velate sopra ciò che è segnato
-enum RoomKind { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE, WORKSHOP, CARPENTRY, INN, STUDY, THRONE_ROOM, PANTRY, ICEHOUSE }  # tipo di stanza, scelto dal cartello
+enum RoomKind { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE, WORKSHOP, CARPENTRY, INN, STUDY, THRONE_ROOM, PANTRY, ICEHOUSE,
+	ARMORY, ARCHERY_RANGE }  # tipo di stanza, scelto dal cartello; le ultime due: la caserma (vedi CLASS_ROOM)
 # categoria del tipo: lavoro (niente proprietari, gli si assegnano dei lavoratori), residenza (può avere dei proprietari),
 # servizio (comune a tutti, con uno scopo preciso: magazzino, locanda). Senza tipo: nessuna, né proprietari né lavoratori
 enum RoomClass { NONE, WORK, RESIDENCE, SERVICE }
@@ -510,6 +527,8 @@ const ROOM_CLASS := {
 	RoomKind.THRONE_ROOM: RoomClass.WORK,  # un solo lavoratore possibile: il sovrano (vedi fill_people)
 	RoomKind.PANTRY: RoomClass.SERVICE,  # un magazzino solo per il cibo, che ci dura di più (vedi spoil_rate)
 	RoomKind.ICEHOUSE: RoomClass.SERVICE,  # una dispensa di pietra col ghiaccio: col freddo il cibo non marcisce (vedi room_base)
+	RoomKind.ARMORY: RoomClass.WORK,  # la sala d'armi: ci si allenano guerrieri e scassinatori (GDD 4.4.6)
+	RoomKind.ARCHERY_RANGE: RoomClass.WORK,  # il tiro a segno: ci si allenano gli arcieri
 }
 # titolo della lista di coloni da spuntare nel popup del cartello, per RoomClass (le altre non ce l'hanno)
 const ROOM_PEOPLE := {RoomClass.WORK: "Workers", RoomClass.RESIDENCE: "Owners"}
@@ -529,7 +548,8 @@ enum Build { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE
 	PALISADE, GATE,  # palizzata e cancello: i lupi non passano; non fanno stanze (vedi update_rooms, beast_path)
 	PLASTER,  # intonaco su un muro di legno già fatto: isola di più (PLASTER_INSULATION), diventa bianco (vedi plastered)
 	COMPOST_HEAP,  # il cumulo del compost: ci si porta il marcio, che diventa compost (vedi make_compost)
-	CRADLE }  # la culla: ci dorme un neonato, invece di stare in braccio (vedi place_babies)
+	CRADLE,  # la culla: ci dorme un neonato, invece di stare in braccio (vedi place_babies)
+	WEAPON_RACK, TARGET, LOCK_BENCH }  # la caserma (Tech.BARRACKS): rastrelliera, bersaglio, banco degli scassi
 # materiale per casella; per i mobili, per pezzo. Un numero: del materiale del progetto; se no risorsa -> quantità, e
 # ogni viaggio porta tutta una risorsa (vedi cost_of, delivered)
 const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3,
@@ -539,6 +559,7 @@ const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1
 	Build.CHALICE: 1, Build.OLD_BANNER: 1, Build.BUST: 1, Build.CROWN: 1, Build.DESK: 10, Build.BOOKSHELF: 12, Build.THRONE: 12, Build.ROAD: 2, Build.DUMMY: 6, Build.WATCHTOWER: 20,
 	Build.CANOPY_BED: 20, Build.RUG: 4, Build.WARDROBE: 12, Build.HEARTH: 15,
 	Build.WALL_HIDES: 2, Build.DOOR_CURTAIN: 2, Build.TAPESTRY: 4, Build.TILED_STOVE: 20, Build.ICE_PIT: 20, Build.COMPOST_HEAP: 6, Build.CRADLE: 4,
+	Build.WEAPON_RACK: {Res.WOOD: 6, Res.INGOT: 1}, Build.TARGET: {Res.WOOD: 4, Res.FLAX: 2}, Build.LOCK_BENCH: {Res.WOOD: 4, Res.INGOT: 2},
 	Build.PALISADE: 4, Build.GATE: 6, Build.PLASTER: 1}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
 const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
@@ -551,7 +572,7 @@ const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Buil
 	Build.WATCHTOWER: Vector2i.ONE, Build.CANOPY_BED: Vector2i(2, 1), Build.RUG: Vector2i(2, 1), Build.WARDROBE: Vector2i.ONE,
 	Build.HEARTH: Vector2i.ONE, Build.WALL_HIDES: Vector2i.ONE, Build.DOOR_CURTAIN: Vector2i.ONE, Build.TAPESTRY: Vector2i.ONE,
 	Build.TILED_STOVE: Vector2i.ONE, Build.ICE_PIT: Vector2i(2, 2), Build.COMPOST_HEAP: Vector2i.ONE,
-	Build.CRADLE: Vector2i.ONE}
+	Build.CRADLE: Vector2i.ONE, Build.WEAPON_RACK: Vector2i.ONE, Build.TARGET: Vector2i.ONE, Build.LOCK_BENCH: Vector2i.ONE}
 # mobili animati: secondi per fotogramma; i fotogrammi stanno nelle colonne dei quarti di giro (sono simmetrici)
 const ANIMATED := {Build.CAMPFIRE: 0.15, Build.BANNER: 0.3, Build.FOUNTAIN: 0.2}
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
@@ -577,10 +598,13 @@ const ROOM_NEEDS := {
 	RoomKind.STUDY: {Build.DESK: 1},
 	RoomKind.THRONE_ROOM: {Build.THRONE: 1},
 	RoomKind.ICEHOUSE: {Build.ICE_PIT: 1},  # e solo muri di pietra o roccia, nessun fuoco (vedi room_meets)
+	RoomKind.ARMORY: {Build.DUMMY: 2, Build.WEAPON_RACK: 1},
+	RoomKind.ARCHERY_RANGE: {Build.TARGET: 2},  # e lunga almeno RANGE_LENGTH caselle (vedi room_meets)
 }
 # lente delle stanze (tasto col cartello in basso): le stanze finite velate col colore del loro tipo, per RoomKind
 const ROOM_COLORS := [Color("e6e2d0"), Color("c9a23b"), Color("3b8fd3"), Color("8a5ad3"), Color("e0703a"), Color("d33b3b"),
-	Color("3bb08a"), Color("9be36a"), Color("d38a3b"), Color("6a9ae0"), Color("c48ad8"), Color("8fd8e8"), Color("dff2fa")]
+	Color("3bb08a"), Color("9be36a"), Color("d38a3b"), Color("6a9ae0"), Color("c48ad8"), Color("8fd8e8"), Color("dff2fa"),
+	Color("a8a49a"), Color("6f8a4a")]
 # comfort di una stanza, 0-COMFORT_MAX: lo danno i mobili (per pezzo) e il pavimento (tutto se copre la stanza intera),
 # per il materiale. A metà né bonus né malus; fuori dalle stanze è 0. Vedi room_comfort e comfort_of
 const COMFORT_MAX := 10
@@ -719,6 +743,9 @@ const BUILD_INFO := {
 	Build.ICE_PIT: "A stone pit lined with straw, for blocks of ice. An icehouse needs one, stone walls and no fire: while it holds ice, the room tends to 0 °C.",
 	Build.COMPOST_HEAP: "Rotten food and uprooted weeds are brought here: in 10 days every 4 become compost, to fertilize the garden.",
 	Build.CRADLE: "A rocking cradle. A baby sleeps here instead of in their parents' arms.",
+	Build.WEAPON_RACK: "Swords and shields on a rack. With two dummies, a room can become an armory.",
+	Build.TARGET: "A straw target on an easel. Two of them make an archery range, in a room at least 8 tiles long.",
+	Build.LOCK_BENCH: "A bench full of locks: in the armory, burglars practice here.",
 	Build.HEARTH: "A stone fireplace with a chimney, set against a wall. Cooks and warms like a campfire, more. Half its heat goes through a wooden wall at its back, none through stone.",
 	Build.ANVIL: "An iron anvil on a stump. A forge needs one, and a furnace. Tools and metal armor are made here.",
 	Build.WORKBENCH: "A sturdy bench. A workshop needs one. Leather armor is made here.",
@@ -1188,7 +1215,7 @@ const BRANCHES_SHEET := preload("res://art/branches.png")
 enum Tech { FORGE, TAILORING, HUNTING, INN, MASONRY, DECOR, LANTERNS, IRON_ARMS, BOOKSHELF, CHAINMAIL, FOUNTAIN, STATUARY,
 	ASTRONOMY, CHARCOAL, COLD_STORE, PAVED_ROAD, DRY_RATIONS, CARTOGRAPHY, PALISADE, TRAINING_DUMMY, SMOKEHOUSE, RENOWNED_INN,
 	WATCHTOWER, SHIELD, LENDING_ARMORY, STEEL, SCRIPTORIUM, FINE_FURNITURE, PALACE, LOOM, TILED_STOVE, ICEHOUSE, GARDEN,
-	SOIL_SURVEY, ALMANAC, LAND_REGISTER, MANURING, CROWN_COMPANY }
+	SOIL_SURVEY, ALMANAC, LAND_REGISTER, MANURING, CROWN_COMPANY, BARRACKS }
 const TECHS_SHEET := preload("res://art/techs.png")
 const TECHS := {
 	Tech.FORGE: {"branch": Branch.FIRE, "tier": 1, "cost": 60, "builds": [Build.FURNACE, Build.ANVIL],
@@ -1240,6 +1267,10 @@ const TECHS := {
 		"info": "Adventurers come every day and a half and wait 5 days. On the notice board, ask for a class: the next one is that."},
 	Tech.SHIELD: {"branch": Branch.IRON, "tier": 2, "cost": 250, "needs": [Tech.TRAINING_DUMMY], "makes": [Res.SHIELD],
 		"info": "At the anvil, the round shield: armor 3 for whoever fights with a sword or a dagger."},
+	Tech.BARRACKS: {"branch": Branch.IRON, "tier": 2, "cost": 250, "needs": [Tech.TRAINING_DUMMY],
+		"builds": [Build.WEAPON_RACK, Build.TARGET, Build.LOCK_BENCH], "rooms": [RoomKind.ARMORY, RoomKind.ARCHERY_RANGE],
+		"makes": [Res.DAGGER],
+		"info": "The barracks: the armory and the archery range. Colonists can take the class of an adventurer from their sheet. The dagger at the anvil."},
 	Tech.LENDING_ARMORY: {"branch": Branch.ROAD, "tier": 2, "cost": 250, "needs": [Tech.DRY_RATIONS],
 		"info": "Adventurers borrow better armor, helmets and shields from the warehouses for an expedition, and bring them back (unless they die)."},
 	Tech.STEEL: {"branch": Branch.FIRE, "tier": 2, "cost": 300, "needs": [Tech.FORGE], "makes": [Res.STEEL],
@@ -1456,6 +1487,7 @@ class Colonist:
 	var former := Hero.NONE       # rimasto come colono: la classe che aveva (vedi welcome)
 	var wanderer := false         # viandante, finché non resta o se ne va (vedi come, narrator.gd)
 	var mending := false          # Job.REPAIR su una decorazione diroccata, non su un tetto (vedi try_repair)
+	var calling := Hero.NONE      # la classe del colono, scelta dalla scheda (caserma, vedi set_calling); non per gli avventurieri
 	var pilgrim := false          # pellegrino: porta un dono al trono e se ne va (vedi pilgrim_comes, offer)
 	var fellows := []             # il viandante: il suo gruppo, lui compreso (la famiglia); chiedono insieme
 	var oath := false             # deve andare a giurare davanti al trono (vedi try_oath)
@@ -1654,6 +1686,7 @@ var crafting := Vector2i(-1, -1)  # la postazione aperta nel menu, vedi open_cra
 var shown: Colonist         # il colono nella scheda: le barre dei bisogni lo seguono
 var gear_menu := PopupMenu.new()  # clic su uno slot della scheda: Auto, Empty o un pezzo (vedi open_gear_menu)
 var marriage_menu := PopupMenu.new()  # "Arrange a marriage…": chi il sovrano può sposare (vedi open_marriage_menu)
+var class_menu := PopupMenu.new()  # "Class…": la classe del colono, nella scheda (vedi open_class_menu)
 var gear_slot := Slot.HANDS       # lo slot del menu aperto
 var lens_owners := []       # [centro, proprietari o lavoratori] per stanza delle figurine sulla lente, vedi place_owners
 var needs_rate := 1.0       # 0 nei test: i bisogni restano fermi e non cambiano i lavori
@@ -1967,6 +2000,9 @@ func _ready() -> void:
 	$HUD/RequestPanel/Box/Row/No.pressed.connect(answer.bind(false))
 	$HUD/ColonistSheet/Box/Family/Request.pressed.connect(func(): show_request(request_of(shown)))
 	marriage_menu.id_pressed.connect(marriage_pressed)
+	$HUD.add_child(class_menu)
+	class_menu.id_pressed.connect(class_pressed)
+	$HUD/ColonistSheet/Box/Family/Class.pressed.connect(open_class_menu)
 	$HUD/ColonistSheet/Box/Family/Marry.pressed.connect(open_marriage_menu)
 	$HUD/ColonistSheet/Box/Family/House.pressed.connect(open_house)
 	for slot in Slot.values():
@@ -3144,6 +3180,11 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 			% [named(Hero, c.former).to_lower(), c.level, c.trips] if c.former != Hero.NONE else ""))))) \
 		+ ("\n" + tr("Asks to stay in the colony.") if asks else "")
 	box.get_node("Family/Request").visible = asks and box == $HUD/ColonistSheet/Box
+	box.get_node("Family/Class").visible = c in colonists and researched.has(Tech.BARRACKS) and box == $HUD/ColonistSheet/Box
+	if c.calling != Hero.NONE:  # la classe della caserma, sotto il resto
+		var hero_label: Control = box.get_node("Hero")
+		hero_label.text = calling_title(c) if hero_label.text == "" else hero_label.text + "\n" + calling_title(c)
+		hero_label.visible = true
 	box.get_node("Health").text = health_text(c)
 	for child in needs_grid.get_children() + skills_grid.get_children() + traits_box.get_children():
 		child.free()
@@ -5177,6 +5218,11 @@ func room_meets(room: Room, kind: RoomKind) -> bool:
 		return false
 	if kind == RoomKind.ICEHOUSE and not cold_room(room):
 		return false
+	if kind == RoomKind.ARCHERY_RANGE:  # il tiro a segno è lungo: da un capo all'altro almeno RANGE_LENGTH caselle
+		var xs: Array = room.cells.keys().map(func(k): return k.x)
+		var ys: Array = room.cells.keys().map(func(k): return k.y)
+		if maxi(xs.max() - xs.min(), ys.max() - ys.min()) + 1 < RANGE_LENGTH:
+			return false
 	var needs: Dictionary = ROOM_NEEDS.get(kind, {})
 	var inside: Array = furniture.keys().filter(func(o): return room.cells.has(o)) \
 		.map(func(o): return role(furniture[o][0]))
@@ -5656,6 +5702,9 @@ func fits(c: Colonist, slot: Slot) -> Array:
 	if c.loadout.has(slot):
 		var g = c.loadout[slot]
 		return [] if g == null or c.gear.get(slot) == g else [g]
+	var kit: Array = CLASS_GEAR.get(c.calling, {}).get(slot, [])
+	if not kit.is_empty():  # con una classe: il corredo della classe, anche al posto di quello che ha (lo posa)
+		return [] if c.gear.get(slot) in kit or (slot == Slot.SHIELD and not shielded(c)) else kit
 	if c.gear.has(slot) or (slot == Slot.SHIELD and not shielded(c)):
 		return []
 	if slot == Slot.HANDS:
@@ -5708,6 +5757,67 @@ func gear_wanted(res: Res) -> int:
 		want -= total(g) + making.call(g)
 	var chosen := colonists.filter(func(o): return o.loadout.has(slot) and res in fits(o, slot)).size()
 	return maxi(maxi(want, spare), chosen - total(res) - making.call(res))
+
+
+# --- Caserma e classi (GDD 4.4.6) ---
+
+# perché `c` non può prendere la classe `kind` (Hero.NONE: togliere la classe, sempre possibile); "" se può. Serve un
+# colono adulto, la ricerca Caserma, la stanza della classe (CLASS_ROOM) e abbastanza nella sua arma (CLASS_NEEDS)
+func calling_block(c: Colonist, kind: Hero) -> String:
+	if kind == Hero.NONE:
+		return ""
+	if c not in colonists or c.hero != Hero.NONE:
+		return tr("only colonists")
+	if age_of(c) < ADULT:
+		return tr("not grown up yet")
+	if not researched.has(Tech.BARRACKS):
+		return tr("needs the Barracks research")
+	if not rooms.any(func(r): return r.kind == CLASS_ROOM[kind]):
+		return tr("needs a room: %s") % named(RoomKind, CLASS_ROOM[kind]).to_lower()
+	var need: Array = CLASS_NEEDS[kind]
+	if c.skills[need[0]] < need[1]:
+		return tr("needs %d in %s") % [need[1], named(Skill, need[0], "skill")]
+	return ""
+
+
+# `c` prende la classe `kind` (Hero.NONE: la lascia): il corredo che si vede (CLASS_KIT) e il colore del cappuccio,
+# come gli avventurieri; i pezzi della classe li va a prendere da sé (vedi fits). Il livello viene dall'abilità. Senza
+# classe torna com'era: l'arciere rimasto tiene la faretra
+func set_calling(c: Colonist, kind: Hero) -> void:
+	c.calling = kind
+	var look := kind if kind != Hero.NONE else c.former
+	c.kit = CLASS_KIT[kind].duplicate() if kind != Hero.NONE else ([Look.QUIVER] if c.former == Hero.ARCHER else [])
+	c.hood_tint = HEROES[look].get("hood") if look != Hero.NONE else null
+
+
+# il livello della classe di `c`: metà della sua abilità (CLASS_SKILL), da 1 a 5, come per gli avventurieri
+func calling_level(c: Colonist) -> int:
+	return clampi(floori(c.skills[CLASS_SKILL[c.calling]] / 2.0), 1, HERO_LEVEL_MAX)
+
+
+# "Arciere della colonia, livello 2": nella scheda e nell'elenco degli abitanti
+func calling_title(c: Colonist) -> String:
+	return tr("%s of the colony, level %d") % [named(Hero, c.calling), calling_level(c)]
+
+
+# "Class…" nella scheda: nessuna classe o una delle tre; quelle che non si possono dare sono spente, col perché
+func open_class_menu() -> void:
+	class_menu.clear()
+	for kind in Hero.values():
+		var why := calling_block(shown, kind)
+		var label := tr("No class") if kind == Hero.NONE else named(Hero, kind)
+		class_menu.add_radio_check_item(label + (" – " + why if why != "" else ""), kind)
+		var i := class_menu.get_item_index(kind)
+		class_menu.set_item_checked(i, shown.calling == kind)
+		class_menu.set_item_disabled(i, why != "")
+	var button: Control = $HUD/ColonistSheet/Box/Family/Class
+	class_menu.popup(Rect2i(button.get_screen_position() + Vector2(0, button.size.y), Vector2i.ZERO))
+
+
+func class_pressed(id: int) -> void:
+	if shown != null and calling_block(shown, id) == "":
+		set_calling(shown, id)
+		open_sheet(shown)
 
 
 # mobili `kind` (fornace, incudine, banco; per il fuoco da campo anche il focolare, vedi ROLE) dentro una stanza del
@@ -8218,6 +8328,8 @@ func census_role(c: Colonist) -> String:
 		return tr("Wanderer")
 	if c.pilgrim:
 		return tr("Pilgrim")
+	if c.calling != Hero.NONE:
+		return calling_title(c)
 	if c.suitor:
 		return tr("Suitor from the house of %s") % c.last_name
 	if c.former != Hero.NONE:

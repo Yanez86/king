@@ -723,6 +723,21 @@ MANURE_ICONS = """
 
 # Ricerca 12x12 della concimazione, come TECH_SYMBOLS: il cumulo del compost con un germoglio
 # Compagnia della corona: la corona sulla bisaccia di chi parte
+TECH_BARRACKS = """
+.o........o.
+ouo......ouo
+.ouo....ouo.
+..ouo..ouo..
+...ouoouo...
+....ouuo....
+....ouuo....
+..oouoouoo..
+.oguo..ougo.
+..ogo..ogo..
+.olo....olo.
+ogo......ogo
+"""
+
 TECH_COMPANY = """
 .o...oo...o.
 o8o.o88o.o8o
@@ -2975,6 +2990,66 @@ DUMMY = """
 ....zzzzzzzz....
 """
 
+# La caserma (Tech.BARRACKS, GDD 4.4.6), 16x16. Rastrelliera (Build.WEAPON_RACK): due montanti e due traverse, tre
+# spade dritte. Bersaglio (Build.TARGET): un paglione a cerchi, rosso e bianco, sul cavalletto. Banco degli scassi
+# (Build.LOCK_BENCH): un banco di legno con tre lucchetti d'ottone.
+WEAPON_RACK = """
+....o...o...o...
+...ouo.ouo.ouo..
+...ouo.ouo.ouo..
+.o.ouo.ouo.ouoo.
+owoouo.ouo.ouoWo
+owoouooouooouoWo
+owwwwwwwwwwwwwwo
+owooroooroooroWo
+owooro.oro.oroWo
+owogggogggogggWo
+owoolo.olo.oloWo
+owoolo.olo.oloWo
+owoogooogooogoWo
+oWWWWWWWWWWWWWWo
+owooooooooooooWo
+.o.zzzzzzzzzzzo.
+"""
+
+TARGET = """
+.....oooooo.....
+....o******o....
+...o**jjjj**o...
+..o**jjjjjj**o..
+..o*jjxxxxjj*o..
+.o**jxxjjxxj**o.
+.o**jxjjjjxj**o.
+.o**jxxjjxxj**o.
+..o*jjxxxxjj*o..
+..o**jjjjjj**o..
+...o**jjjj**o...
+...ow******Wo...
+...owooooooWo...
+..owo......oWo..
+..owo......oWo..
+..zzzzzzzzzzzzz.
+"""
+
+LOCK_BENCH = """
+................
+....o...o...o...
+...oRo.oRo.oRo..
+..oRoRoRoRoRoRo.
+..oRoRoRoRoRoRo.
+..ogggogggogggo.
+..ogogogogogogo.
+.oogggogggogggo.
+owwwwwwwwwwwwwwo
+oWWWWWWWWWWWWWWo
+.oWooooooooooWo.
+.oWo........oWo.
+.oWo........oWo.
+.oWo........oWo.
+.oWo........oWo.
+..zzzzzzzzzzzzz.
+"""
+
 # Torre di guardia 16x16: la tettoia, la campana, la piattaforma e la scala
 WATCHTOWER = """
 .......oo.......
@@ -4014,7 +4089,7 @@ def furniture_sheet():
     """Mobili, foglio 128x1152. Righe: letto, tavolo, sedia, abat-jour, fuoco da campo, fornace, incudine, banco da lavoro,
     filatoio, banco del falegname, poi le decorazioni: aiuola, fioriera, panca, stendardo, lampione, fontana, statua;
     la bacheca; i cimeli: calice, stendardo antico, busto, corona; scrittoio, libreria, trono, fantoccio, torre di guardia, baldacchino, tappeto, armadio, focolare, pelli alle pareti, portiera, arazzo, stufa a olle, fossa del ghiaccio, quattro righe vuote (le strutture che vengono dopo
-    in Build), il cumulo del compost (come Build in main.gd);
+    in Build), il cumulo del compost, la culla; la rastrelliera, il bersaglio e il banco degli scassi (come Build in main.gd);
     colonne: quarti di giro in senso orario (per fuoco, stendardo e fontana, fotogrammi), ognuno in alto a sinistra nel suo riquadro 32x32."""
     bed, chair, chair_left = art(BED, 32, 16), art(CHAIR, 16, 16), art(CHAIR_LEFT, 16, 16)
     table, lamp, anvil = art(TABLE, 32, 32), art(LAMP, 16, 16), art(ANVIL, 16, 16)
@@ -4053,6 +4128,7 @@ def furniture_sheet():
     rows += [[]] * 4  # strada, palizzata, cancello, intonaco: strutture, non mobili
     rows += [[art(COMPOST_HEAP, 16, 16)] * 4]
     rows += [[art(CRADLE, 16, 16)] * 4]  # dopo, come Build in main.gd
+    rows += [[art(f, 16, 16)] * 4 for f in (WEAPON_RACK, TARGET, LOCK_BENCH)]  # la caserma
     slot = lambda g: [line.ljust(32, ".") for line in g] + ["." * 32] * (32 - len(g))
     return [line for row in rows for line in side_by_side([slot(g) for g in (row or [[]] * 4)])]
 
@@ -4215,7 +4291,7 @@ def main():
     techs += frames(TECH_SYMBOLS_4, 12, 5, 12) + frames(TECH_SYMBOLS_5, 12, 2, 12) + frames(TECH_SYMBOLS_6, 12, 3, 12) \
         + frames(TECH_SYMBOLS_7, 12, 2, 12) + frames(TECH_SYMBOLS_8, 12, 3, 12) + frames(TECH_SYMBOLS_9, 12, 1, 12) \
         + frames(TECH_SYMBOLS_10, 12, 3, 12) + [art(TECH_GARDEN, 12, 12)] + frames(TECH_SOIL, 12, 3, 12) \
-        + [art(TECH_MANURE, 12, 12), art(TECH_COMPANY, 12, 12)]
+        + [art(TECH_MANURE, 12, 12), art(TECH_COMPANY, 12, 12), art(TECH_BARRACKS, 12, 12)]
     images["techs"] = pixels(side_by_side([badge(f) for f in techs]))
     laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 3, 12) + frames(LAW_SYMBOLS_5, 12, 3, 12) + frames(LAW_SYMBOLS_6, 12, 4, 12) \
         + frames(LAW_SYMBOLS_7, 12, 3, 12)

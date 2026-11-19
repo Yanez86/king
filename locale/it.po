@@ -3964,3 +3964,59 @@ msgstr "Livello massimo"
 
 msgid "%d of %d XP to level %d"
 msgstr "%d di %d XP per il livello %d"
+
+# --- La caserma: stanze, mobili, classi
+
+msgid "Weapon Rack"
+msgstr "Rastrelliera"
+
+msgid "Target"
+msgstr "Bersaglio"
+
+msgid "Lock Bench"
+msgstr "Banco degli scassi"
+
+msgid "Armory"
+msgstr "Sala d'armi"
+
+msgid "Archery Range"
+msgstr "Tiro a segno"
+
+msgid "Barracks"
+msgstr "Caserma"
+
+msgid "Class…"
+msgstr "Classe…"
+
+msgid "No class"
+msgstr "Nessuna classe"
+
+msgid "only colonists"
+msgstr "solo i coloni"
+
+msgid "not grown up yet"
+msgstr "ancora troppo giovane"
+
+msgid "needs the Barracks research"
+msgstr "serve la ricerca Caserma"
+
+msgid "needs a room: %s"
+msgstr "serve una stanza: %s"
+
+msgid "needs %d in %s"
+msgstr "serve almeno %d in %s"
+
+msgid "%s of the colony, level %d"
+msgstr "%s della colonia, livello %d"
+
+msgid "Swords and shields on a rack. With two dummies, a room can become an armory."
+msgstr "Spade e scudi sulla rastrelliera. Con due fantocci, una stanza può diventare una sala d'armi."
+
+msgid "A straw target on an easel. Two of them make an archery range, in a room at least 8 tiles long."
+msgstr "Un bersaglio di paglia sul cavalletto. Due fanno un tiro a segno, in una stanza lunga almeno 8 caselle."
+
+msgid "A bench full of locks: in the armory, burglars practice here."
+msgstr "Un banco pieno di serrature: nella sala d'armi, gli scassinatori si esercitano qui."
+
+msgid "The barracks: the armory and the archery range. Colonists can take the class of an adventurer from their sheet. The dagger at the anvil."
+msgstr "La caserma: la sala d'armi e il tiro a segno. I coloni possono prendere la classe di un avventuriero dalla loro scheda. Il pugnale all'incudine."
