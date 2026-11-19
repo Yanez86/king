@@ -53,12 +53,21 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   - Tempo libero: mangia anche senza fame (sotto 60), poi si svaga: attorno al fuoco da campo, se no a passeggio.
   - Sempre: stanco va a letto, affamato mangia, annoiato si prende una pausa (controllato a ogni ora).
 - **Abilità** (livelli 0–10, al 10 una stellina; tutti i coloni partono da 0): raccogliere, estrarre, tagliare legna, costruire, forgiare, cucire, cucinare, pescare, cacciare, armi da mischia, armi a distanza, ricerca (lista provvisoria). Velocità e qualità del lavoro; crescono con l'uso.
-  Nella raccolta (tagliare, estrarre, raccogliere) 1 punto esperienza a raccolta finita (albero abbattuto, masso scavato, cespuglio spogliato), non a colpo; negli altri lavori +1 per pezzo costruito, lancio, tiro o oggetto fatto.
+  **Esperienza in proporzione al lavoro** (fatto il 2026-11-19): 0,28 punti per ogni secondo di lavoro, contato a
+  livello 5 (un colpo d'ascia 10 s, di piccone 15 s, una bacca 5 s, una semina 4 s, un lancio 10 s, un pezzo costruito
+  2 s, una riparazione 3 s, un pasto 8 s, un oggetto il tempo della sua ricetta, una pagina 2,5 s, un tiro di caccia 4 s
+  per cacciare e per tirare, un colpo in battaglia 1,5 s, un tiro 2 s, un colpo al fantoccio 2,5 s; una stanza coi
+  mostri in spedizione 18 s nell'arma), a ogni colpo, anche a vuoto. Un turno di 8 ore a livello 0 fa 15 punti di
+  lavoro; in una giornata vera, col tempo per camminare: taglio 11, raccolta 13–15, scavo 8.
   **Soglie** (decise il 2026-11-19, da tarare): dal livello n al n+1 servono 10 × (n+1) punti, cioè 10 per il primo
   livello e 100 per l'ultimo; 150 punti fino al 5, 550 fino al 10. Ogni lavoro dovrebbe dare circa 15 punti in una
   giornata di 8 ore (oggi lo studio ne dà circa 32, la raccolta meno): i punti dei lavori si pesano con le simulazioni,
   così chi fa sempre la stessa cosa arriva al 5 in una decina di giorni e al 10 in una quarantina. Sulla scheda, col
   mouse sopra il livello, i punti e quanti ne mancano al prossimo. La caserma insegna più in fretta (4.4.6).
+  **Stato**: fatto il 2026-11-19 (`learn` in `main.gd`, test in `tests/test_jobs.gd`). I punti avanzati restano per il
+  livello dopo; i ragazzi (12–15) imparano il doppio; gli avventurieri contano i punti ma il livello lo prendono dalle
+  spedizioni. Un salvataggio di prima tiene i punti contati alla vecchia maniera (uno a raccolta): salgono di livello
+  al primo punto nuovo.
   Tempo di un lavoro: ×1,5 a livello 0, ×1 a livello 5, ×0,5 a livello 10. Ricerca: studiare allo scrittoio (vedi 4.7).
 - **Punti ferita** (0–100): si curano da soli, 30 al giorno (60 dormendo). A 0 il colono resta **a terra** (sdraiato,
   non fa niente) e si cura di 40 al giorno; a 30 si rialza. Sopra la testa, una barretta se è ferito.
@@ -305,8 +314,7 @@ Decisa il 2026-11-19. Numeri da tarare.
   - **Neonato** (0–3 anni): sta nella culla (mobile nuovo, in Casa, 4 legna) della stanza dei genitori; non lavora.
   - **Bambino** (4–11): aiuta a raccogliere e a trasportare, a metà velocità; niente armi né armature; scappa
     sempre dai lupi. Bambini e ragazzi si vedono più piccoli.
-  - **Ragazzo** (12–15): i lavori leggeri (non costruire, scavare, tagliare, cacciare); poi esperienza doppia,
-    quando ci saranno le soglie di livello (4.2).
+  - **Ragazzo** (12–15): i lavori leggeri (non costruire, scavare, tagliare, cacciare); esperienza doppia (4.2).
   - **Adulto** (16).
 - **Successione**: alla morte del sovrano eredita il **primo figlio vivo, maschio o femmina**; senza figli il coniuge,
   poi un fratello o una sorella. Se non c'è nessuno, la colonia sceglie un nuovo sovrano tra i coloni adulti (lo indica
@@ -918,7 +926,7 @@ studio e un quaderno, dopo Fantoccio). Si appoggia alle soglie di livello delle 
   d'armi e tiro a segno coi loro mobili, la classe dalla scheda, il corredo e il cappuccio, il pugnale all'incudine; (3)
   l'esercitazione: l'ora nella routine, il lavoro Esercitarsi, i lavoratori della stanza, la milizia; (4) in battaglia
   secondo la classe; (5) in spedizione come la sua classe, e la regola della squadra.
-- **Stato**: solo il design, niente nel gioco.
+- **Stato**: fatta la fase 1 il 2026-11-19 (le soglie di livello, vedi 4.2); il resto è solo design.
 
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100.

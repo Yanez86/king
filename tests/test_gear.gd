@@ -41,7 +41,8 @@ func _initialize() -> void:
 				started = true
 				check(is_equal_approx(c.work_total, main.BUILD_TIME * 1.4), "costruire a livello 1: 40% di tempo in più")
 	check(started and main.built.has(free[3]), "pavimento fatto")
-	check(main.colonists.reduce(func(n, c): return n + c.xp[main.Skill.CONSTRUCTION], 0) == 1, "1 punto esperienza per pezzo costruito")
+	check(is_equal_approx(main.colonists.reduce(func(n, c): return n + c.xp[main.Skill.CONSTRUCTION], 0.0), main.BUILD_TIME * main.XP_PER_SECOND),
+		"esperienza per pezzo costruito: i suoi 2 secondi di lavoro")
 	main.built.erase(free[3])
 	main.add_item(W, free[0], -main.items[W].get(free[0], 0))
 	for k in main.items[W].keys():

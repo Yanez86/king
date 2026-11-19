@@ -3956,3 +3956,11 @@ msgstr "Diroccata: niente splendore, finché un costruttore non la ripara (1 %s)
 msgctxt "doing"
 msgid "Repairing a decoration"
 msgstr "Ripara una decorazione"
+
+# --- Le abilità salgono di livello
+
+msgid "Top level"
+msgstr "Livello massimo"
+
+msgid "%d of %d XP to level %d"
+msgstr "%d di %d XP per il livello %d"

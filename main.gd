@@ -958,6 +958,15 @@ const WALL_LINKS := [Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT] 
 enum Skill { GATHERING, MINING, WOODCUTTING, CONSTRUCTION, SMITHING, TAILORING, COOKING, FISHING, HUNTING, MELEE, RANGED, RESEARCH,
 	LOCKPICKING }  # scassinare: per ora solo gli scassinatori (vedi HEROES)
 const SKILL_MAX := 10       # livelli 0-10 (si parte da 0): al massimo, nella scheda, compare la stellina
+# Esperienza (GDD 4.2): ogni lavoro insegna in proporzione al lavoro fatto, XP_PER_SECOND punti per secondo di lavoro
+# contato a livello 5 (un colpo d'ascia 10 s, una pagina 2,5 s, un pezzo costruito 2 s...): un turno di 8 ore a livello 0
+# ne dà circa 15. I ragazzi (da YOUTH_AGE ad ADULT) imparano YOUTH_XP volte tanto. Dal livello n al n+1 servono
+# XP_STEP × (n+1) punti: 150 fino al 5, 550 fino al 10 (vedi learn). Gli avventurieri contano i punti ma crescono con
+# le spedizioni. In spedizione, ogni stanza coi mostri vale EXPEDITION_FIGHT secondi di combattimento nell'arma
+const XP_PER_SECOND := 0.28
+const XP_STEP := 10
+const YOUTH_XP := 2.0
+const EXPEDITION_FIGHT := 18.0
 const CORPSE_SHADE := Color(0.6, 0.6, 0.65)  # i morti, smorti
 # raccolta: [abilità, secondi per colpo a livello 5 (vedi gather_time), quantità per colpo, risorsa]; i massi con la
 # vena danno il minerale (vedi ores). 1 punto esperienza nell'abilità a raccolta finita (albero abbattuto, masso
@@ -1384,7 +1393,7 @@ class Colonist:
 	var hp := float(MAX_HP)
 	var downed := false           # a 0 punti ferita: resta a terra finché non torna a GET_UP
 	var skills := []              # livello 0-SKILL_MAX per Skill: tutti partono da 0
-	var xp := []                  # punti esperienza per Skill: 1 per raccolta finita (vedi GATHER)
+	var xp := []                  # punti esperienza per Skill verso il livello dopo (vedi learn)
 	var needs := []               # 0-NEED_MAX per Need, vedi update_needs
 	var trend := []               # per Need: -1 scende, 0 fermo, 1 sale (le frecce della scheda)
 	var traits := []              # Trait
@@ -3167,7 +3176,8 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 		var level := Label.new()
 		level.text = str(c.skills[s])
 		level.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		level.tooltip_text = tr("%d XP") % c.xp[s]
+		level.tooltip_text = tr("Top level") if c.skills[s] == SKILL_MAX \
+			else tr("%d of %d XP to level %d") % [floori(c.xp[s]), XP_STEP * (c.skills[s] + 1), c.skills[s] + 1]
 		level.mouse_filter = Control.MOUSE_FILTER_PASS  # se no il suggerimento non compare
 		var star := ui_icon(STAR if c.skills[s] == SKILL_MAX else null, Rect2(), Vector2(18, 18))  # vuota, tiene la colonna
 		for node in [ui_icon(SKILLS_SHEET, Rect2(s * 8, 0, 8, 8), Vector2(16, 16)), skill, level, star]:
@@ -3916,8 +3926,8 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			var res: Res = Res.FLAX if flax.has(c.target) else ores.get(c.target, gather[3])
 			var left: int = stock.get(c.target, full_stock(c.target))
 			var got := mini(left, gather[2])
+			learn(c, gather[0], gather[1])  # a ogni colpo, anche un lancio a vuoto
 			if c.job == Job.FISH:
-				c.xp[Skill.FISHING] += 1  # la pesca a lancio, anche a vuoto; il resto della raccolta a raccolta finita
 				if randf() >= catch_chance(c.skills[Skill.FISHING]):
 					got = 0  # niente all'amo: si rilancia
 			stock[c.target] = left - got
@@ -3928,8 +3938,6 @@ func update_colonist(c: Colonist, delta: float) -> void:
 				c.work_total = c.work_left
 				return
 			stock.erase(c.target)
-			if c.job != Job.FISH:
-				c.xp[gather[0]] += 1  # raccolta finita
 			match c.job:  # finito: albero e masso spariscono, il cespuglio rifà le bacche
 				Job.CHOP:
 					trees.erase(c.target)
@@ -3962,7 +3970,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 					produce(CROP_RES[crop], here, amount)
 				harvested(c.target, crop, amount)
 				learn_soil(c, c.target)
-				c.xp[Skill.GATHERING] += 1
+				learn(c, Skill.GATHERING, FARM_TIME)
 				end_job(c)
 				if CROP_RES[crop] >= 0:
 					try_haul(c, CROP_RES[crop], [here])  # porta subito via il raccolto
@@ -3973,7 +3981,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 				garden[c.target] = clock
 				sown[c.target] = crop
 				learn_soil(c, c.target)
-				c.xp[Skill.GATHERING] += 1
+				learn(c, Skill.GATHERING, FARM_TIME)
 			end_job(c)
 		Job.FERTILIZE:  # come riparare: al mucchio prende un concime (carry_res), poi accanto alla casella (target) lo sparge
 			if garden.get(c.target, 0.0) >= 0 or manured.has(c.target):
@@ -3997,7 +4005,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 				add_soil(c.target, MANURE_SOIL[c.carry_res])
 				manured[c.target] = true
 				c.carrying = 0
-				c.xp[Skill.GATHERING] += 1
+				learn(c, Skill.GATHERING, FARM_TIME)
 				end_job(c)
 		Job.UPROOT:
 			face(c, center(c.target) - c.pos)
@@ -4063,7 +4071,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 						gain(RELIC_AUTHORITY)
 				delivered.erase([c.job, c.target])
 				c.carrying = 0
-				c.xp[Skill.CONSTRUCTION] += 1
+				learn(c, Skill.CONSTRUCTION, BUILD_TIME)
 				end_job(c)
 		Job.DOUSE:  # all'acqua riempie il secchio, poi accanto al fuoco (target) lo getta
 			if not burning.has(c.target):
@@ -4119,7 +4127,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 						roof_stamp += 1
 					wear.erase(c.target)
 				c.carrying = 0
-				c.xp[Skill.CONSTRUCTION] += 1
+				learn(c, Skill.CONSTRUCTION, REPAIR_TIME)
 				end_job(c)
 		Job.SLEEP:  # a letto o per terra (vedi update_needs): nelle ore di sonno resta giù anche riposato, poi si alza
 			# appena ha riposato abbastanza (senza routine solo del tutto). Chi ha dormito poco recupera nelle ore dopo
@@ -4162,8 +4170,8 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			c.work_left -= delta
 			if c.work_left > 0:
 				return
-			c.xp[Skill.HUNTING] += 1
-			c.xp[Skill.RANGED] += 1
+			learn(c, Skill.HUNTING, AIM_TIME)  # un tiro di caccia: per cacciare e per tirare
+			learn(c, Skill.RANGED, AIM_TIME)
 			c.work_left = c.work_total
 			shoot(c, a, randf() < hit_chance(hunt_level(c), dist) + gear_sum(c, "hit"))
 		Job.FIGHT:  # a portata (vedi track_prey): con l'arco tira, se no colpisce con quello che ha in mano
@@ -4179,10 +4187,10 @@ func update_colonist(c: Colonist, delta: float) -> void:
 				return
 			c.work_left = c.work_total
 			if has_bow(c):
-				c.xp[Skill.RANGED] += 1
+				learn(c, Skill.RANGED, SHOOT_TIME)
 				shoot(c, foe, randf() < hit_chance(c.skills[Skill.RANGED], dist) + gear_sum(c, "hit"))
 			else:
-				c.xp[Skill.MELEE] += 1
+				learn(c, Skill.MELEE, MELEE_TIME)
 				if randf() < melee_chance(c.skills[Skill.MELEE]):
 					wound(foe, melee_damage(c), c)
 		Job.FLEE:  # arrivato al riparo (vedi react)
@@ -4206,7 +4214,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			c.work_left = maxf(c.work_left - delta, 0.0)
 			if c.work_left == 0:
 				c.carrying = 0
-				c.xp[Skill.COOKING] += 1
+				learn(c, Skill.COOKING, COOK_TIME)
 				var comfort := room_comfort(room_at(c.target))
 				var roll := randf()
 				var here := cell_of(c.pos)
@@ -4224,7 +4232,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 					return
 				face(c, center(c.target) - c.pos)
 				if floori((c.work_total - c.work_left) / TRAIN_HIT) > floori((c.work_total - before) / TRAIN_HIT):
-					c.xp[Skill.MELEE] += 1
+					learn(c, Skill.MELEE, TRAIN_HIT)
 			if c.work_left <= 0:
 				end_job(c)
 		Job.TRAVEL:  # avventuriero arrivato alla locanda o al bordo della mappa
@@ -4245,7 +4253,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 				return
 			if c.job == Job.STUDY:
 				study += 1
-				c.xp[Skill.RESEARCH] += 1
+				learn(c, Skill.RESEARCH, PAGE_TIME)
 			else:
 				authority += govern_rate(c)
 			if c in room_at(c.target).workers:  # il lavoratore della stanza resta seduto: la pagina dopo, l'ora dopo
@@ -5461,6 +5469,24 @@ func skill_time(level: int) -> float:
 	return 1.5 - level / 10.0
 
 
+# `c` impara `skill` con `seconds` di lavoro (contati a livello 5): XP_PER_SECOND punti a secondo, YOUTH_XP volte tanto
+# da ragazzo; passata la soglia (XP_STEP × il livello dopo) sale di livello, fino a SKILL_MAX, e i punti avanzati
+# restano per il prossimo. Gli avventurieri contano i punti, ma il livello lo prendono dalle spedizioni
+func learn(c: Colonist, skill: Skill, seconds: float) -> void:
+	var years := age_of(c)
+	c.xp[skill] += seconds * XP_PER_SECOND * (YOUTH_XP if years >= YOUTH_AGE and years < ADULT else 1.0)
+	if c.hero != Hero.NONE:
+		return
+	while c.skills[skill] < SKILL_MAX and c.xp[skill] >= XP_STEP * (c.skills[skill] + 1):
+		c.xp[skill] -= XP_STEP * (c.skills[skill] + 1)
+		c.skills[skill] += 1
+
+
+# i punti che `c` ha in `skill` contati da zero, come se ogni livello l'avesse preso con l'esperienza (per le prove)
+func xp_total(c: Colonist, skill: Skill) -> float:
+	return c.xp[skill] + XP_STEP * c.skills[skill] * (c.skills[skill] + 1) / 2.0
+
+
 # quanto tempo richiede il lavoro `job` a `c` per le sue condizioni (meno se ben nutrito, di più se intossicato) e per
 # quello che ha addosso (vedi GEAR: "time" per quel lavoro, "slow" per tutti)
 func work_factor(c: Colonist, job := Job.NONE) -> float:
@@ -5780,7 +5806,7 @@ func craft(c: Colonist, delta: float) -> void:
 	if c.work_left > 0:
 		return
 	c.fetched.clear()
-	c.xp[r[2]] += 1
+	learn(c, r[2], r[4])
 	end_job(c)
 	if randf() >= burn_chance(c.skills[r[2]], room_comfort(room_at(c.target))):
 		produce(r[0], here, r[5] if r.size() > 5 else 1)
@@ -7240,7 +7266,7 @@ func fight_monsters(exp: Expedition, power: float) -> String:
 		var taken := roundf(hurt * exp.party.size() * role_of(c)["hurt"] / weights * armor_factor(c) * gift(c, "hurt", 1.0))
 		c.hp -= taken
 		wounds.append("%s -%d" % [c.first_name, taken])
-		c.xp[role_of(c)["weapon"]] += 1
+		learn(c, role_of(c)["weapon"], EXPEDITION_FIGHT)
 	return ", ".join(wounds) + "."
 
 

@@ -120,7 +120,7 @@ The colony grows with children (see The Ruler & House), with adventurers who sta
 • They walk in from the map edge to the throne room (or to a fire, or to the clearing) and ask to stay: Welcome or Send away. Close the window and the question waits on their sheet (Answer…) for 2 days, then they leave. Meanwhile they don't work, eat from your warehouses and sleep at the inn (or on the ground).
 • Welcomed, they are colonists, Foreigner for 5 days (-5 happiness, work 10% slower). A family keeps its ties: the couple is married, the child has their parents."""],
 
-	["Skills", """Thirteen skills, with levels from 0 to 10 (a star at 10). Colonists start at 0; your ruler gets 12 points on the new-game page.
+	["Skills", """Thirteen skills, with levels from 0 to 10 (a star at 10). Colonists start at 0 and rise by working; your ruler gets 12 points on the new-game page.
 
 [color=#e8c34a]Speed[/color]
 A job takes 1.5 times as long at level 0, the normal time at level 5 and half at level 10 (1.4 at level 1, 1.3 at level 2...). Most work also depends on conditions, and sleep, cooking, crafting and study on room comfort.
@@ -144,7 +144,10 @@ A job takes 1.5 times as long at level 0, the normal time at level 5 and half at
 With a bow a hunter aims with the better of Hunting and Ranged. At a workstation a low level ruins more items, at the campfire it burns more meals.
 
 [color=#e8c34a]Experience[/color]
-+1 XP (hover the level to see it) for every tree felled, boulder mined or bush picked clean, every cast, piece built, meal cooked, item made, page written, shot or blow. A hunting shot counts for Hunting and Ranged. For now experience is only counted: levels don't rise with it yet."""],
+You learn by working, in proportion to the work: 0.28 experience points (XP) for every second of work in this wiki, at every swing of the axe or the pickaxe, berry picked, sowing, cast (even an empty one), piece built or repaired, meal, item, page, shot or blow. A hunting shot counts for Hunting and Ranged. In an 8-hour shift a colonist at level 0 gets about 15 points (fewer when they walk a lot).
+• From level n to n+1 takes 10 × (n+1) points: 10 for the first, 150 up to 5, 550 up to 10. Points left over count toward the next level.
+• Hover the level on the sheet: the points, and how many are missing for the next.
+• Youths (12–15) learn twice as fast. Adventurers grow with their expeditions, not this way."""],
 
 	["Traits", """Colonists have 0–2 traits, never two that clash. Hover a trait in the sheet for its effect.
 [table=3]

@@ -23,7 +23,7 @@
 | Mondo e tempo | 4.5 | fatto | — |
 | Salvataggio | 4.5.1 | locale fatto | il cloud |
 | Eventi casuali | 4.6 | fatto: il narratore e 11 eventi | tarare i numeri; eventi nuovi coi sistemi nuovi |
-| Caserma e classi | 4.4.6 | solo il design | tutto, a cominciare dalle soglie di livello delle abilità |
+| Caserma e classi | 4.4.6 | fase 1 (le abilità salgono di livello) | la caserma, le classi, l'esercitazione |
 | Ricerca | 4.7.3 | 38 ricerche su 51 | 13 ricerche, il livello IV |
 | Leggi | 4.7.7 | 22 leggi su 38 | 16 leggi: quelle della dinastia si possono fare ora |
 | Interfaccia | [TECH](TECH.md) | testo a 22, elenco degli abitanti, bacheca con la squadra | provarla in inglese e ad altre risoluzioni |
@@ -46,8 +46,8 @@ sfortune, la tregua). Ora si possono fare anche le leggi della dinastia (vedi Le
 
 ## Coloni (4.2)
 
-- [ ] Le soglie di livello delle abilità (decise in 4.2: 10 × (n+1) punti da n a n+1) e i punti dei lavori, pesati
-  perché ognuno dia circa 15 punti in una giornata. Servono alla caserma (4.4.6).
+- [ ] Tarare l'esperienza (le soglie ci sono: un punto ogni 3,6 secondi di lavoro). In una giornata vera, a livello 0:
+  taglio 11, raccolta 13–15, scavo 8 (i massi sono più lontani).
 - [ ] Altri effetti dello stress, oltre alla felicità.
 - [ ] Morte: tombe e cimitero, funerali, il medico che cura chi è a terra.
 - [ ] Condizioni nuove: malattie che si attaccano (la febbre del narratore c'è), perdita di punti ferita.
@@ -79,7 +79,6 @@ Dinastia (4.3.3, fatta): quello che resta.
 
 - [ ] All'incoronazione si sceglie lo stile di regno dell'erede (quando ci sarà lo stile di regno).
 - [ ] Matrimoni anche tra gli altri coloni, non solo del sovrano, e i loro figli.
-- [ ] I ragazzi imparano il doppio, quando ci saranno le soglie di livello delle abilità.
 - [ ] Una casata nuova sceglie il suo stemma (oggi è a caso): l'editor dello stemma in partita.
 - [ ] Gli effetti della vecchiaia (oltre alla morte): più lenti, più saggi.
 - [ ] Tarare i numeri: figli a notte, età, vecchiaia, pretendenti, dote.
@@ -138,9 +137,9 @@ Dinastia (4.3.3, fatta): quello che resta.
 ## Caserma e classi dei coloni (4.4.6)
 
 Deciso il 2026-11-19: il giocatore dà a un colono la classe di un avventuriero (guerriero, arciere, scassinatore) dalla
-sua scheda, e il colono si allena nelle stanze della caserma (sala d'armi, tiro a segno). Fasi dell'ordine di lavoro:
+sua scheda, e il colono si allena nelle stanze della caserma (sala d'armi, tiro a segno). Fatta la fase 1 (le abilità
+salgono di livello). Fasi ancora da fare:
 
-- [ ] (1) Le soglie di livello delle abilità (4.2), coi punti sulla scheda.
 - [ ] (2) Ricerca Caserma; sala d'armi e tiro a segno, con rastrelliera, bersaglio e banco degli scassi; la classe dalla
   scheda (requisiti, perché no); il corredo della classe e il cappuccio colorato; il pugnale all'incudine.
 - [ ] (3) L'esercitazione: un'ora al giorno nella routine, il lavoro Esercitarsi, i lavoratori della stanza a tempo

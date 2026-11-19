@@ -119,7 +119,7 @@ La colonia cresce coi figli (vedi Il sovrano e la casata), con gli avventurieri 
 • Entrano dal bordo della mappa, vanno nella sala del trono (o a un fuoco, o nella radura) e chiedono di restare: Accogli o Manda via. Chiusa la finestra, la domanda aspetta sulla loro scheda (Rispondi…) per 2 giorni, poi se ne vanno. Intanto non lavorano, mangiano dai tuoi magazzini e dormono alla locanda (o per terra).
 • Accolti, sono coloni, Forestieri per 5 giorni (-5 felicità, lavorano il 10% più piano). Una famiglia resta tale: la coppia è sposata, il figlio ha i suoi genitori."""],
 
-	["Abilità", """Tredici abilità, con livelli da 0 a 10 (una stellina al 10). I coloni partono da 0; il tuo sovrano ha 12 punti nella pagina della nuova partita.
+	["Abilità", """Tredici abilità, con livelli da 0 a 10 (una stellina al 10). I coloni partono da 0 e salgono lavorando; il tuo sovrano ha 12 punti nella pagina della nuova partita.
 
 [color=#e8c34a]Velocità[/color]
 Un lavoro dura 1,5 volte tanto a livello 0, il tempo normale a livello 5 e la metà a livello 10 (1,4 a livello 1, 1,3 a livello 2...). Quasi tutti i lavori dipendono anche dalle condizioni, e sonno, cucina, lavorazioni e studio dal comfort della stanza.
@@ -143,7 +143,10 @@ Un lavoro dura 1,5 volte tanto a livello 0, il tempo normale a livello 5 e la me
 Con l'arco un cacciatore mira col migliore tra Cacciare e Tiro. A una postazione un livello basso rovina più oggetti, al fuoco da campo brucia più pasti.
 
 [color=#e8c34a]Esperienza[/color]
-+1 XP (passa il mouse sul livello per vederla) per ogni albero abbattuto, masso scavato o cespuglio spogliato, ogni lancio, pezzo costruito, pasto cucinato, oggetto fatto, pagina scritta, tiro o colpo. Un tiro di caccia conta per Cacciare e per Tiro. Per ora l'esperienza viene solo contata: non fa ancora salire i livelli."""],
+Si impara lavorando, in proporzione al lavoro: 0,28 punti esperienza (XP) per ogni secondo di lavoro di questa wiki, a ogni colpo d'ascia o di piccone, bacca colta, semina, lancio (anche a vuoto), pezzo costruito o riparato, pasto, oggetto, pagina, tiro o colpo. Un tiro di caccia conta per Cacciare e per Tiro. In un turno di 8 ore un colono a livello 0 prende circa 15 punti (meno, quando cammina tanto).
+• Dal livello n al n+1 servono 10 × (n+1) punti: 10 per il primo, 150 fino al 5, 550 fino al 10. Quelli avanzati restano per il livello dopo.
+• Col mouse sul livello, nella scheda: i punti e quanti ne mancano al prossimo.
+• I ragazzi (12–15 anni) imparano il doppio. Gli avventurieri crescono con le spedizioni, non così."""],
 
 	["Talenti", """I coloni hanno 0–2 talenti, mai due in contrasto. Passa il mouse su un talento nella scheda per vederne l'effetto.
 [table=3]

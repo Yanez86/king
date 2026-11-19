@@ -172,9 +172,10 @@ func _initialize() -> void:
 			if c.job == main.Job.COOK:
 				cooks[c] = true
 	var meals: int = main.total(MEAL) + main.total(FINE)
-	var xp: int = main.colonists.reduce(func(sum, c): return sum + c.xp[main.Skill.COOKING], 0)
+	var xp: float = main.colonists.reduce(func(sum, c): return sum + c.xp[main.Skill.COOKING], 0.0)  # al massimo si accumula
 	check(meals == 6 and main.meals_wanted() == 0, "cucinati i pasti che mancavano, non di più")
-	check(xp == 6 and main.total(V) == 20 - 6 * main.COOK_RAW, "2 vegetali e 1 punto esperienza per pasto")
+	check(is_equal_approx(xp, 6 * main.COOK_TIME * main.XP_PER_SECOND) and main.total(V) == 20 - 6 * main.COOK_RAW,
+		"2 vegetali e 8 secondi di esperienza per pasto")
 	check(main.stored(MEAL) + main.stored(FINE) == 6, "i pasti finiscono in magazzino")
 	check(main.colonists.all(func(c): return c.job == main.Job.NONE) and main.reserved.is_empty(), "poi tutti liberi")
 
@@ -646,7 +647,7 @@ func _initialize() -> void:
 	var near_field := Rect2i(plot - Vector2i.ONE, Vector2i(5, 3))
 	var spare: Array = main.cells_in(area).filter(func(k): return (main.can_build(k, main.Build.COMPOST_HEAP)
 		and not main.stockpile.has(k) and not near_field.has_point(k) and main.items.values().all(func(g): return not g.has(k))
-		and [main.trees, main.bushes, main.weeds, main.flax].all(func(plants): return not plants.has(k))))
+		and [main.trees, main.bushes, main.weeds, main.flax].all(func(plants): return not plants.has(k)) and main.describe(k).is_empty()))
 	var heap: Vector2i = spare[0]
 	var rotting: Vector2i = spare[-1]
 	main.add_item(V, rotting, 6)
