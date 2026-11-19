@@ -3860,3 +3860,64 @@ msgstr "Tutti quelli alla locanda sono nella squadra."
 
 msgid "Every colonist who can go is in the party."
 msgstr "Tutti i coloni che possono partire sono nella squadra."
+
+# --- Il narratore: le fortune
+
+msgid "Inspired"
+msgstr "Ispirato"
+
+msgid "Fever"
+msgstr "Febbre"
+
+msgid "Had a bright idea. Works much faster."
+msgstr "Ha avuto un'idea brillante. Lavora molto più in fretta."
+
+msgid "Has a fever. Works slowly and tires twice as fast."
+msgstr "Ha la febbre. Lavora piano e si stanca il doppio."
+
+msgid "%s: a bumper year. For %d days the fields yield half as much again."
+msgstr "%s: un'annata d'oro. Per %d giorni i campi rendono la metà in più."
+
+msgid "%s: a herd of %d deer comes into the valley."
+msgstr "%s: un branco di %d cervi scende nella valle."
+
+msgid "%s: %s has a bright idea and works much faster today."
+msgstr "%s: %s ha un'idea brillante e oggi lavora molto più in fretta."
+
+msgid "%s: %s, a pilgrim, is coming to the throne with a gift."
+msgstr "%s: %s, un pellegrino, viene al trono con un dono."
+
+msgid "%s: %s, the pilgrim, leaves %d coins for the crown and goes on their way."
+msgstr "%s: %s, il pellegrino, lascia %d monete per la corona e riprende il cammino."
+
+msgid "Pilgrim"
+msgstr "Pellegrino"
+
+msgctxt "doing"
+msgid "Bringing a gift to the crown"
+msgstr "Porta un dono alla corona"
+
+# --- Il narratore: le sfortune
+
+msgid "%s: rats got into %s and ate %d pieces of food."
+msgstr "%s: i topi sono entrati in %s e si sono mangiati %d pezzi di cibo."
+
+msgid "%s, night: the watch catches a thief in the warehouse."
+msgstr "%s, notte: la guardia prende un ladro nel magazzino."
+
+msgid "%s, night: a thief steals %d coins from the warehouse."
+msgstr "%s, notte: un ladro ruba %d monete dal magazzino."
+
+msgid "%s: %s has a fever."
+msgstr "%s: %s ha la febbre."
+
+# --- Il narratore: i lupi annunciati
+
+msgid "%s: howling in the hills. A pack of wolves will come tonight."
+msgstr "%s: ululati sulle colline. Stanotte verrà un branco di lupi."
+
+msgid "%s: the howling fades away; the wolves went elsewhere."
+msgstr "%s: gli ululati si allontanano; i lupi sono andati altrove."
+
+msgid "Wolves in %d h"
+msgstr "Lupi tra %d h"

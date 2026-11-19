@@ -10,7 +10,7 @@ func _initialize() -> void:
 	root.add_child(main)
 	await process_frame  # aspetta che venga chiamato _ready
 	main.needs_rate = 0.0  # bisogni fermi: se no a metà prova i coloni vanno a dormire o a mangiare (vedi fondo)
-	main.threats = false  # niente branchi di lupi: le prove del combattimento sono in test_combat
+	main.events = false  # niente branchi di lupi: le prove del combattimento sono in test_combat
 	main.atmosphere.climate = false  # niente freddo né meteo: il comfort è quello dei mobili (il clima è provato col cartello)
 	for c in main.colonists:
 		check(c.skills.all(func(l): return l == 0) and c.xp.all(func(x): return x == 0), "tutti i coloni partono da 0 in ogni abilità")

@@ -10,7 +10,7 @@ func _initialize() -> void:
 	main.game_start = false  # e tutte le ricerche fatte, Astronomia compresa
 	root.add_child(main)
 	await process_frame
-	main.threats = false
+	main.events = false
 	main.needs_rate = 0.0
 	var sky = main.atmosphere
 	var midsummer: float = 1 + 1.5 * main.SEASON_DAYS  # a mezzogiorno

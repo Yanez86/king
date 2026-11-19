@@ -17,7 +17,7 @@ func _initialize() -> void:
 	await process_frame
 	main.needs_rate = 0.0
 	main.routines = false  # niente orari: la routine è provata in test_jobs
-	main.threats = false
+	main.events = false
 	main.animals.clear()
 	var R = main.Res
 	var B = main.Build

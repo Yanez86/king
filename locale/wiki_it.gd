@@ -8,8 +8,16 @@ King è un gestionale di colonia medievale. Sei il sovrano di una piccola signor
 • Il tuo sovrano, creato nella pagina della nuova partita, e tre coloni stanno in una radura. Non c'è ancora niente di costruito: né stanze né magazzino.
 • Accanto a loro, 60 [img=center]res://art/icon_coin.png[/img] sono a terra nell'erba: costruisci un magazzino e i trasportatori ce le portano (si spende solo quello che è in magazzino).
 • Un'arma abbandonata (una spada, un'ascia o un arco) giace nell'erba a 15–25 caselle dalla radura.
-• Dal giorno 5 arrivano i lupi (vedi Combattimento e lupi).
+• Dal giorno 10 possono arrivare i lupi, di rado (vedi Combattimento e lupi).
 • Se muoiono tutti i coloni, la colonia è caduta.
+
+[color=#e8c34a]Gli eventi[/color]
+A mezzanotte il narratore sceglie al più un evento per il giorno, ognuno quando gli tocca; avviene alla sua ora. Lo racconta la cronaca e lo segna il calendario.
+• Minacce: i lupi, annunciati dagli ululati (vedi Combattimento e lupi), e l'ondata di freddo, che il meteo decide due giorni e mezzo prima (vedi le previsioni). Tra una minaccia o una sfortuna e la successiva almeno 3 giorni di tregua; niente minacce mentre qualcuno è a terra o i lupi sono ancora in giro.
+• Visite: i viandanti (vedi Coloni), l'erudito errante (vedi Conoscenza), il pellegrino.
+• Fortune: il raccolto abbondante (d'estate e d'autunno, con l'orto seminato, in media ogni 40 giorni e mai a meno di 30: per 10 giorni i campi rendono la metà in più); un branco di 4–6 cervi (non d'inverno, ogni 25 giorni: quelli che nessuno caccia se ne vanno dopo 2 giorni); l'ispirazione (un colono adulto con almeno 60 di felicità è Ispirato per un giorno, ogni 15 giorni); il dono del pellegrino (con una sala del trono, ogni 30 giorni: un pellegrino va al trono, lascia 20–40 [img=center]res://art/icon_coin.png[/img] e +5 autorità, poi se ne va).
+• Sfortune: i topi (ogni 25 giorni e mai a meno di 15, quando un magazzino o una dispensa ha almeno 20 di cibo crudo: se ne mangiano un quarto, in quello che ne ha di più); il ladro di notte (dal giorno 15, ogni 30 giorni, con almeno 20 [img=center]res://art/icon_coin.png[/img] nei magazzini: col Turno di guardia e la guardia sveglia lo prendono, +5 autorità; se no si porta via un quarto delle monete, al più 50); la febbre (dal giorno 10, ogni 20 giorni, ogni 10 d'inverno: un colono ha la Febbre per 3 giorni).
+• Quando la colonia è in difficoltà (il cibo nei magazzini basta per meno di 3 giorni, o la felicità media è sotto 40) le fortune vengono il doppio delle volte.
 
 [color=#e8c34a]Il tempo[/color]
 • Il giorno e l'ora sono sotto la barra in alto, al centro (col mouse sopra: la stagione e l'anno). La partita comincia alle 8:00 del Giorno della Corona dell'anno 1; a velocità normale un giorno dura 4 minuti, un'ora 10 secondi.
@@ -182,6 +190,8 @@ Goloso e Di poco appetito, Pigro e Stacanovista, Mattiniero e Nottambulo, Dormig
 [cell]Lutto regale[/cell][cell]7 giorni[/cell][cell]–[/cell][cell]-20[/cell]
 [cell]Incoronazione[/cell][cell]2 giorni[/cell][cell]–[/cell][cell]+10[/cell]
 [cell]Forestiero[/cell][cell]5 giorni[/cell][cell]10% più lento[/cell][cell]-5[/cell]
+[cell]Ispirato[/cell][cell]1 giorno[/cell][cell]20% più veloce[/cell][cell]+5[/cell]
+[cell]Febbre[/cell][cell]3 giorni[/cell][cell]50% più lento[/cell][cell]-10[/cell]
 [/table]
 • Intossicato: dal cibo crudo, tanto più probabile quanto più è vicino a marcire.
 • Ben nutrito: dopo un pasto; stress dal lavoro -25%. Lauto pasto: dopo un pasto squisito; stress dal lavoro -50%. Un pasto nuovo sostituisce la condizione di quello prima.
@@ -193,6 +203,8 @@ Goloso e Di poco appetito, Pigro e Stacanovista, Mattiniero e Nottambulo, Dormig
 • Incinta: nell'ultimo terzo lavora il 20% più piano.
 • Lutto regale: è morto il sovrano, al posto del Lutto; stress dal lavoro +25%. Incoronazione: tutti, quando il nuovo sovrano è incoronato.
 • Forestiero: chi è venuto da fuori ed è rimasto, avventuriero o viandante (vedi Avventurieri).
+• Ispirato: ogni tanto un colono adulto con almeno 60 di felicità ha un'idea brillante (vedi Le basi, Gli eventi).
+• Febbre: ogni tanto un colono si ammala (vedi Le basi, Gli eventi) e si stanca il doppio. Non si attacca.
 Qui compaiono anche le leggi in vigore che a un colono piacciono o non piacciono, con la loro icona."""],
 
 	["Il sovrano e la casata", """[color=#e8c34a]Nuova partita[/color]
@@ -476,7 +488,7 @@ Tre slot: mani, corpo, testa. Un colono con uno slot vuoto va da sé a prendere 
 Anche gli attrezzi colpiscono: piccone 10, ascia 12, falcetto 8, mani nude 5. Protezione: vedi Combattimento e lupi."""],
 
 	["Combattimento e lupi", """[color=#e8c34a]Lupi[/color]
-• Il primo branco arriva il giorno 5, poi uno ogni 3 giorni: 2–3 lupi da un bordo della mappa. Fiutano la colonia da 70 caselle di distanza. Sotto la barra in alto compare LUPI finché sono in giro.
+• Il primo branco può arrivare il giorno 10. Il branco si annuncia: a mezzanotte gli ululati (nella cronaca, e nelle previsioni: Lupi tra N h, con l'impronta di una zampa), poi alle 22 i lupi, quasi un giorno per richiamare tutti e chiudere le porte. Poi uno ogni 15 giorni in media e mai prima di una settimana dall'ultimo, né a meno di 3 giorni da un'altra minaccia o sfortuna, né mentre qualcuno è a terra o i lupi sono ancora in giro: 2–3 lupi da un bordo della mappa, uno in più ogni 5 coloni. Fiutano la colonia da 70 caselle di distanza. Sotto la barra in alto compare LUPI finché sono in giro.
 • Inseguono il colono o l'avventuriero in piedi più vicino che sta fuori dalle stanze: i muri proteggono, i lupi non entrano mai. Se fuori non c'è nessuno in piedi, se la prendono con chi è a terra all'aperto.
 • Un morso ogni 1,5 s fa 8 danni e va a segno il 70% delle volte, -3% per ogni livello di Mischia della vittima. Ogni morso dà anche +5 stress.
 • Un branco senza nessuno da inseguire se ne va dopo un giorno.

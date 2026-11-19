@@ -13,7 +13,7 @@ func _initialize() -> void:
 	main.researched.erase(main.Tech.STEEL)  # qui attrezzi e spade di ferro: l'acciaio è in test_research
 	main.needs_rate = 0.0
 	main.routines = false  # niente orari: la routine è provata in test_jobs
-	main.threats = false  # niente branchi di lupi: le prove del combattimento sono in test_combat
+	main.events = false  # niente branchi di lupi: le prove del combattimento sono in test_combat
 	main.animals.clear()
 	main.bushes.clear()
 	main.flax.clear()

@@ -393,7 +393,8 @@ func restore(state: Dictionary) -> void:
 
 
 # Decide il tempo fino a PLAN_DAYS giorni da adesso: prima le ondate di freddo, un tiro per giorno (non per i giorni
-# saltati); poi un tempo a caso da FORECAST dopo l'altro, per WEATHER_HOURS ore, neve invece di pioggia col freddo
+# saltati), solo fuori dalla tregua del narratore, a cui l'ondata decisa si aggiunge (vedi main.narrator.calm); poi un
+# tempo a caso da FORECAST dopo l'altro, per WEATHER_HOURS ore, neve invece di pioggia col freddo
 func plan_ahead() -> void:
 	waves = waves.filter(func(w): return w[1] > main.clock)
 	var horizon: float = main.clock + PLAN_DAYS
@@ -401,8 +402,10 @@ func plan_ahead() -> void:
 	while waves_until < int(horizon):
 		waves_until += 1
 		var day := float(waves_until)
-		if seasonal(day) < COLD_WAVE_BELOW and cold_wave(day) == 0.0 and randf() < COLD_WAVE_CHANCE:
+		if seasonal(day) < COLD_WAVE_BELOW and cold_wave(day) == 0.0 and randf() < COLD_WAVE_CHANCE \
+				and main.narrator.calm(day):
 			waves.append([day, day + randf_range(COLD_WAVE_DAYS.x, COLD_WAVE_DAYS.y), false])
+			main.narrator.cold_wave_on(day)
 	if plan.is_empty() or plan.back()[1] < main.clock:  # orologio saltato avanti (le prove): si riparte da adesso
 		plan = [[main.clock, main.clock, forecast]]
 	while plan.back()[1] < horizon:

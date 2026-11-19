@@ -111,8 +111,11 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   | Mangiato al tavolo | ½ giorno | — | — | +5 |
   | Mangiato crudo (solo il goloso) | ½ giorno | — | — | −10 |
   | Lutto (è morto un colono) | 3 giorni | — | +25% | −15 |
+  | Ispirato (evento del narratore, 4.6) | 1 giorno | −20% tempo | — | +5 |
+  | Febbre (evento del narratore, 4.6; si stanca il doppio) | 3 giorni | +50% tempo | — | −10 |
 
-  Ben nutrito e pasto squisito si escludono: vale l'ultimo pasto. Poi: malattie dal narratore, perdita di punti ferita.
+  Ben nutrito e pasto squisito si escludono: vale l'ultimo pasto. La febbre è la prima malattia. Poi: malattie che si
+  attaccano, il medico che le cura (Medicina), perdita di punti ferita.
 - **Scheda** (clic sul colono): nome, soprannome (facoltativo), cognome, sesso, punti ferita, abilità (ognuna con un'icona 8×8), talenti (solo icone, il nome col mouse sopra), equipaggiamento (4 slot: mani, corpo, testa, scudo). Poi bisogni, relazioni.
 - **Abitanti** (clic sul numero dei coloni in alto, o sulla sua icona; deciso il 2026-11-19): una finestra con tutti,
   gruppo per gruppo, ognuno nel suo riquadro (con la striscia del colore del gruppo a sinistra): figurina grande, nome
@@ -146,7 +149,7 @@ i viandanti. Il valore della colonia (lo splendore) attira gente; i tanti coloni
     4 coloni in più (×2 a 12, ×4 a 16). Per esempio: senza splendore 30 giorni; a 15 di splendore 17; a 60 di
     splendore e 15 coloni 25. ±30% a caso. Con Porte aperte la metà, con Porte chiuse non ne arrivano. Uno alla volta:
     l'attesa del prossimo comincia quando questo ha avuto la risposta o se n'è andato.
-  - Per ora un evento fatto a mano, come l'erudito errante: da portare nel narratore (4.6).
+  - È un evento del narratore (4.6), come l'erudito errante.
 - **Forestiero** (condizione, con la sua icona): chi resta, avventuriero o viandante, lo è per 5 giorni (10 con Porte
   aperte): non conosce ancora la colonia, −5 felicità e +10% tempo di lavoro. Col Giuramento (4.7.7) giura davanti al
   trono e non lo è. I figli nati in colonia e i pretendenti sposati non lo sono.
@@ -566,7 +569,10 @@ Decisa il 2026-11-19. Numeri da tarare.
   attrezzo qualunque. Da fermo e camminando la spada sta al fianco e l'arco sulla schiena; gli attrezzi non si vedono.
 
 ### 4.4.3 Combattimento
-- **Lupi**: dal giorno 5 (poi ogni 3 giorni) un branco di 2–3 lupi entra da un bordo della mappa e punta alla colonia.
+- **Lupi**: dal giorno 10 un branco di 2–3 lupi (uno in più ogni 5 coloni) entra da un bordo della mappa e punta alla
+  colonia; quando, lo decide il narratore (4.6): rari, in media ogni 15 giorni e almeno 7 tra un branco e l'altro
+  (deciso il 2026-11-19: lo scopo è far crescere la colonia, non solo difenderla; tra un branco e l'altro si costruisce).
+  Il branco si annuncia: a mezzanotte gli ululati (nella cronaca e nelle previsioni), alle 22 arrivano.
   Inseguono il colono in piedi più vicino che sta **fuori dalle stanze** (nelle stanze non entrano: i muri proteggono) e lo
   mordono (danno 8, ogni 1,5 s; a segno 70% − 3% per livello di mischia di chi è morso; ogni morso +5 stress).
   Senza nessuno da inseguire, dopo un giorno se ne vanno. Abbattuti lasciano 5 carne e 2 pelli. Nella barra in alto "WOLVES: n".
@@ -819,10 +825,10 @@ di legno, la pietra isola; il caldo e il freddo decidono quanto dura il cibo, fi
   muro è di pietra. Fuori nessuna tinta, solo i gradi in un angolo. Col mouse sopra una stanza, il conto: fuori,
   isolamento dei muri, fuochi, calore dai muri, totale. Piazzando un fuoco o un pezzo che isola la lente si accende da
   sola, con l'anteprima della freccia.
-- **Incendio** (l'evento di 4.6): parte da un fuoco da campo sotto un tetto di scandole (ogni giorno una piccola
-  probabilità) o da un fulmine nel temporale su un tetto di scandole. Si allarga alle caselle di scandole accanto, anche
-  di un altro edificio; i coppi non bruciano. I coloni fanno la catena dei secchi dall'acqua più vicina; le caselle
-  bruciate restano buchi da riparare.
+- **Incendio** (non è del narratore, vedi 4.6): parte da un fuoco da campo sotto un tetto di scandole (ogni giorno una
+  piccola probabilità) o da un fulmine nel temporale su un tetto di scandole. Si allarga alle caselle di scandole
+  accanto, anche di un altro edificio; i coppi non bruciano. I coloni fanno la catena dei secchi dall'acqua più vicina;
+  le caselle bruciate restano buchi da riparare.
 - **Sopra le falde** ✓: neve sciolta dal calore, tetto bagnato, licheni, tegole smosse, buchi, fuoco e comignoli si
   stendono sulle falde alla loro altezza; gocce e ghiaccioli pendono dal bordo davanti.
 - Poi: il buco nel tetto anche sotto il mouse; tra due edifici accostati un vero compluvio (oggi il tetto più in basso
@@ -910,7 +916,8 @@ studio e un quaderno, dopo Fantoccio). Si appoggia alle soglie di livello delle 
   quattro fasce di sei ore e quelle degli avvisi (col mouse sopra, il testo). Cliccata apre il pannello: adesso, una
   riga per fascia (tempo, gradi più bassi e più alti) per 24 ore, un giorno in più con la ricerca Astronomia, e gli
   avvisi: ondata di freddo (in corso, fino a quando; in arrivo, fra quante ore), gelata (fra quante ore si va sotto lo
-  zero e fin dove), acqua che gela, gelata o che sgela, temporale.
+  zero e fin dove), acqua che gela, gelata o che sgela, temporale; i lupi annunciati dal narratore (4.6), fra quante
+  ore, con l'impronta di una zampa.
 - **Acqua che gela** ✓: sotto lo zero gela, tanto più in fretta quanto fa freddo (a −5 °C in un giorno), e sgela allo
   stesso modo; si vede ghiacciare a chiazze. Gelata del tutto regge: si cammina sull'acqua alta, quella bassa non
   rallenta, non si pesca, la neve ci si posa. Torna acqua quando è sciolta a metà: chi sta sull'acqua alta torna a riva.
@@ -933,13 +940,57 @@ studio e un quaderno, dopo Fantoccio). Si appoggia alle soglie di livello delle 
 - Una colonia caricata riparte in pausa, esattamente com'era: coloni a metà lavoro, spedizioni in viaggio, meteo.
 - Una colonia caduta non si salva: Continua la riporta all'ultima alba.
 
-### 4.6 Eventi casuali
-- Un "narratore" pesca eventi con probabilità che dipende dallo stato della colonia.
-- Ogni evento è un file di dati (condizioni, peso, effetti, testi localizzati).
-- Lista da definire. Esempi segnaposto: arrivo di un viandante, malattia, incendio (vedi 4.4.5), ondata di freddo,
-  raccolto abbondante.
-- Per ora incendio, ondata di freddo, erudito errante (4.7.2) e viandanti (4.2.1) sono fatti a mano, ognuno col suo
-  ritmo: da portare nel narratore.
+### 4.6 Eventi casuali: il narratore
+Deciso il 2026-11-19. Numeri da tarare. Un **narratore** solo (niente carattere da scegliere nella nuova partita).
+- **Un dado al giorno**: a mezzanotte il narratore guarda gli eventi possibili quel giorno e ne sceglie al più uno. Ogni
+  evento ha una fetta grande quanto è frequente: "in media ogni 10 giorni" è una fetta di 1/10. Un solo tiro per tutte
+  le fette: ognuno tiene il suo ritmo, ma due eventi non vengono mai lo stesso giorno (se le fette insieme passano
+  l'intero, si stringono in proporzione). L'evento scelto avviene alla sua ora; se a quell'ora non si può più (la locanda
+  abbattuta), quel giorno non succede niente.
+- **Ogni evento è una riga di una tabella** (`narrator.gd`, come il meteo in `atmosphere.gd`): tipo (minaccia, visita,
+  fortuna, sfortuna), da che giorno, le condizioni (stagione, una stanza, una legge), ogni quanti giorni in media (anche
+  secondo lo stato della colonia), la pausa minima tra due uguali, l'ora, l'effetto (una funzione) e i testi (tradotti
+  nel `.po`, come tutti gli altri). La media comprende la pausa (e la tregua): dopo `P` giorni senza tiri, la fetta è
+  1 / (giorni − P + 1). L'erudito (10 giorni, pausa 5) ha 1/6; il branco (15 giorni, pausa 7) 1/9: arriva almeno una
+  settimana dopo l'ultimo, in media due.
+- **Il respiro**: tra una minaccia o una sfortuna e la successiva almeno 3 giorni (la **tregua**); niente minacce mentre
+  un colono è a terra o i lupi sono ancora sulla mappa. Quando la colonia è in difficoltà (il cibo in magazzino
+  basta per meno di 3 giorni, o la felicità media è sotto 40) le fortune hanno la fetta doppia.
+- Ogni evento lo racconta la cronaca, e il calendario lo segna nel suo giorno.
+- **Gli annunci**, per pianificare: un evento può annunciarsi appena scelto, a mezzanotte, e venire più tardi. Il branco
+  di lupi: gli ululati nella cronaca e nelle previsioni ("Lupi tra N h", con l'impronta di una zampa), poi alle 22 i
+  lupi; quasi un giorno per richiamare i coloni e chiudere le porte. Una minaccia scelta tiene già la tregua (il meteo
+  non le mette accanto un'ondata di freddo). Se alle 22 non può più venire (qualcuno a terra, i lupi ancora in giro),
+  gli ululati si allontanano.
+- **Restano fuori**: l'incendio (4.4.5), che viene da dove si mette il fuoco e dai temporali: si può evitare, non lo
+  decide il narratore; i pretendenti (4.3.3), il ritmo della dinastia.
+- **Gli eventi**:
+
+| Evento | Tipo | Quando | In media ogni | Cosa fa |
+|---|---|---|---|---|
+| Viandanti | visita | dal giorno 10; uno alla volta; non con Porte chiuse | 30 giorni ÷ (1 + splendore / 20), ×2 ogni 4 coloni sopra 8; la metà con Porte aperte | come in 4.2.1; pausa 5 giorni dalla risposta (o da quando se ne sono andati) |
+| Erudito errante | visita | dal giorno 5, con una locanda | 10 giorni, pausa 5 | un giorno alla locanda, vende 1–2 libri (4.7.2) |
+| Branco di lupi | minaccia | dal giorno 10 (il decimo); annunciato a mezzanotte, arriva alle 22 | 15 giorni, pausa 7 | 2–3 lupi, uno in più ogni 5 coloni |
+| Ondata di freddo | minaccia | la media del giorno sotto 8 °C | 33 giorni | la decide il meteo 2 giorni e mezzo prima, perché le previsioni la vedano (4.5); rispetta la tregua e la fa partire |
+| Raccolto abbondante | fortuna | estate e autunno, con l'orto seminato | 40 giorni, pausa 30 | per 10 giorni i campi rendono il 50% in più |
+| Branco di cervi | fortuna | non d'inverno | 25 giorni | 4–6 cervi arrivano dal bordo della mappa; dopo 2 giorni quelli rimasti se ne vanno |
+| Ispirazione | fortuna | un colono adulto contento (felicità almeno 60) | 15 giorni | lui, per un giorno: **Ispirato** (condizione), lavora il 25% più in fretta, +5 felicità |
+| Dono del pellegrino | fortuna | con una sala del trono | 30 giorni | un pellegrino arriva dal bordo, va al trono, lascia 20–40 monete e se ne va; +5 autorità |
+| Topi nel magazzino | sfortuna | almeno 20 di cibo crudo nei magazzini | 25 giorni, pausa 15 | un quarto del cibo crudo del magazzino che ne ha di più va perso |
+| Ladro di notte | sfortuna | dal giorno 15, almeno 20 monete in magazzino; di notte | 30 giorni | col Turno di guardia e chi fa la guardia sveglio lo prendono: +5 autorità; se no sparisce un quarto delle monete (al più 50) |
+| Febbre | sfortuna | dal giorno 10; d'inverno ogni 10 giorni | 20 giorni | un colono a caso: **Febbre** (condizione) per 3 giorni, lavora il 50% più lento, si stanca il doppio, −10 felicità; non si attacca. Poi la cura il medico (Medicina, 4.7.3) |
+
+- **Ordine di lavoro**: (1) il narratore e la tabella, con dentro viandanti ed erudito errante (gli stessi ritmi di
+  oggi), la cronaca e il salvataggio; (2) le minacce: il branco di lupi nel narratore, la tregua, il branco che cresce
+  coi coloni, l'ondata di freddo che chiede al narratore; (3) le fortune: raccolto abbondante, branco di cervi,
+  ispirazione, dono del pellegrino; (4) le sfortune: topi nel magazzino, ladro di notte, febbre.
+- **Stato**: fatte le fasi 1–4 il 2026-11-19 (test in `tests/test_narrator.gd`). Il narratore è un figlio di `main`
+  (`narrator.gd`), salvato con la partita. Nei test tace (`main.events`). Il pellegrino è un ospite (`pilgrim`) che va
+  dove vanno i viandanti (la sala del trono), lascia le monete a terra lì e riparte; nell'elenco degli abitanti sta coi
+  forestieri. Ispirato e Febbre hanno la loro icona. Nella wiki la sezione "Gli eventi" (Le basi). Tre anni simulati
+  con tutti gli eventi possibili (locanda, sala del trono, orto, cibo e monete in magazzino): i lupi 18 volte l'anno,
+  in media ogni 20 giorni (mai meno di 7, al più una cinquantina), il primo intorno al giorno 17–29; erudito ogni 10,
+  viandanti ogni 22, febbre ogni 18, topi ogni 30, ladro ogni 40. Prima del narratore i lupi venivano ogni 3 giorni.
 
 ### 4.7 Ricerca: il sapere e le leggi
 Due ricerche. Il **sapere** (le ricerche) si paga in **studio**, che i coloni scrivono allo scrittoio, e in **libri** che
@@ -1192,5 +1243,4 @@ Combattimento tattico (oggi i coloni si difendono da soli, vedi 4.4.3), livelli 
 - Dimensione dei tile: 16×16 o 32×32?
 - Condizione di sconfitta: oggi la partita finisce solo quando muoiono tutti i coloni (finita la dinastia ne nasce
   una nuova, 4.3.3). Basta così?
-- Lista degli eventi.
 - Nome definitivo del gioco.

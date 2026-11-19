@@ -23,16 +23,20 @@ func _initialize() -> void:
 	var b = main.colonists[1]
 	var c = main.colonists[2]
 
-	# branco: entra da un bordo, 2 o 3 lupi ostili che dopo un giorno se ne vanno
-	main.clock = main.next_pack
+	# branco (lo manda il narratore, vedi test_narrator): entra da un bordo, 2 o 3 lupi ostili che dopo un giorno se ne
+	# vanno. Il narratore poi tace: qui gli altri eventi non servono
+	var N = main.narrator
+	main.events = false
+	main.clock = 9.0
 	main.tick(0.0)
+	check(N.happen(N.Event.WOLVES), "il decimo giorno può arrivare un branco")
 	var pack: Array = main.animals.filter(func(w): return main.hostile(w))
 	check(pack.size() >= main.PACK[0] and pack.size() <= main.PACK[1], "arriva un branco di %d lupi" % pack.size())
 	for w in pack:
 		var k: Vector2i = main.cell_of(w.pos)
 		check(mini(mini(k.x, k.y), mini(main.MAP_SIZE.x - 1 - k.x, main.MAP_SIZE.y - 1 - k.y)) <= 2, "dal bordo della mappa")
 		check(is_equal_approx(w.leave_at, main.clock + main.WOLF_STAY), "se ne andranno")
-	check(main.next_pack == main.clock + main.WOLF_EVERY, "il prossimo fra qualche giorno")
+	check(not N.can_happen(N.Event.WOLVES) and not N.calm(main.today + 2) and N.calm(main.today + 3), "il prossimo fra qualche giorno")
 	main._process(0.0)
 	check(main.info_label.text.begins_with("WOLVES: %d" % pack.size()), "barra in alto: lupi in giro")
 	check(main.describe(main.cell_of(pack[0].pos))[1].begins_with("Hostile"), "suggerimento: ostile")
