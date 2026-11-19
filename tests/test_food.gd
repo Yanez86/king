@@ -435,7 +435,7 @@ func _initialize() -> void:
 		"senza piano rape, quante ne stanno nell'anno")
 	var crop: int = main.crop_of(plot)
 	var harvest: int = main.CROP_RES[crop]
-	check(main.CROP_DAYS == [60.0, 90.0, 100.0] and main.SHELF_LIFE[main.Res.TURNIP] == 10.0 and main.SHELF_LIFE[main.Res.CABBAGE] == 14.0
+	check(main.CROP_DAYS.slice(0, 3) == [60.0, 90.0, 100.0] and main.SHELF_LIFE[main.Res.TURNIP] == 10.0 and main.SHELF_LIFE[main.Res.CABBAGE] == 14.0
 		and main.SHELF_LIFE[main.Res.BEANS] == 60.0 and [main.Res.TURNIP, main.Res.CABBAGE, main.Res.BEANS].all(func(r): return r in main.RAW_FOOD),
 		"rape in 60 giorni, cavoli in 90, fave in 100; si conservano 10, 14 e 60 giorni, si cucinano")
 	main.atmosphere.climate = true  # all'inizio della primavera la terra è ancora fredda
@@ -628,6 +628,110 @@ func _initialize() -> void:
 	main.mark(Rect2i(plot, Vector2i(3, 1)))
 	main.order = main.Order.NONE
 	check(main.garden.is_empty() and main.field_signs.is_empty() and main.plans.is_empty(), "Destroy toglie l'orto")
+
+	# concimi (Tech.MANURING): col cumulo del compost il cibo marcio diventa marcio, che fuori sparisce nella terra e al
+	# cumulo, in COMPOST_DAYS giorni, ogni ROT_PER_COMPOST fa un compost; il contadino sparge il concime sulle caselle che
+	# si seminano entro MANURE_AHEAD giorni, nei campi che lo vogliono. Il sovescio si interra e rende fertilità
+	var R = main.Res
+	var heap_button: Button = main.get_node("HUD/FurnitureBar/Row/Compost Heap")
+	main.researched.erase(main.Tech.MANURING)
+	main.refresh_unlocks()
+	check(not heap_button.visible and main.manure_ready().is_empty(), "senza la Concimazione niente cumulo né concime")
+	main.researched[main.Tech.MANURING] = true
+	main.refresh_unlocks()
+	check(heap_button.visible, "con la Concimazione il cumulo del compost")
+	for res in main.SHELF_LIFE:  # via il cibo rimasto: marcendo farebbe altro marcio
+		main.items[res].clear()
+	main.fresh.clear()
+	var near_field := Rect2i(plot - Vector2i.ONE, Vector2i(5, 3))
+	var spare: Array = main.cells_in(area).filter(func(k): return (main.can_build(k, main.Build.COMPOST_HEAP)
+		and not main.stockpile.has(k) and not near_field.has_point(k) and main.items.values().all(func(g): return not g.has(k))
+		and [main.trees, main.bushes, main.weeds, main.flax].all(func(plants): return not plants.has(k))))
+	var heap: Vector2i = spare[0]
+	var rotting: Vector2i = spare[-1]
+	main.add_item(V, rotting, 6)
+	main.fresh[rotting] = 0.1
+	main.spoil(0.5)
+	check(main.items[R.ROT].is_empty() and not main.items[V].has(rotting), "senza cumulo il cibo marcio sparisce e basta")
+	main.furniture[heap] = [main.Build.COMPOST_HEAP, R.WOOD, 0]
+	main.add_item(V, rotting, 6)
+	main.fresh[rotting] = 0.1
+	main.spoil(0.5)
+	check(main.items[R.ROT].get(rotting, 0) == 6 and not main.items[V].has(rotting), "col cumulo diventa marcio")
+	check(main.describe(rotting)[1].contains("seeps into the ground in"), "che fuori sparisce nella terra")
+	check(main.dest_cells(R.ROT) == [heap] and not main.dest_cells(R.WOOD).has(heap), "il marcio va solo al cumulo")
+	main.spoil(main.SHELF_LIFE[R.ROT] + 1)
+	check(main.items[R.ROT].is_empty(), "lasciato fuori, sparito")
+	main.add_item(R.ROT, rotting, 9)
+	for i in 3000:
+		main.tick(0.05)
+		if main.items[R.ROT].get(heap, 0) == 9:
+			break
+	check(main.items[R.ROT].get(heap, 0) == 9 and main.items[R.ROT].size() == 1, "portato al cumulo")
+	main.make_compost()
+	check(main.compost_since.has(heap) and main.describe(heap)[1].contains("compost in"), "nel cumulo matura")
+	main.spoil(main.SHELF_LIFE[R.ROT] + 1)
+	check(main.items[R.ROT].get(heap, 0) == 9, "e non sparisce")
+	main.compost_since[heap] = main.clock - main.COMPOST_DAYS
+	main.make_compost()
+	check(main.items[R.ROT].get(heap, 0) == 1 and main.total(R.COMPOST) == 2 and not main.compost_since.has(heap),
+		"in %d giorni ogni %d marci un compost" % [main.COMPOST_DAYS, main.ROT_PER_COMPOST])
+	# il campo: dieci giorni prima della semina il contadino lo concima, se il cartello lo vuole
+	main.order = main.Order.GARDEN
+	main.mark(field)
+	main.order = main.Order.NONE
+	var sow_day: int = main.DEFAULT_PLAN[0][0][1]
+	check(main.manure_ready().is_empty(), "a Capodanno è presto per concimare")
+	main.clock = year_start + main.YEAR_DAYS + sow_day - 10 + 0.5
+	main.tick(0.0)
+	check(main.manure_ready().size() == 2 and main.job_list().contains("Fertilize the garden: 2 plots"), "dieci giorni prima della semina sì")
+	for k in main.field_of(plot):
+		main.add_soil(k, 50 - main.soil_at(k))
+	main.open_field(plot)
+	var manure_box: CheckBox = box.get_node("Manure")
+	check(manure_box.visible and manure_box.button_pressed, "il cartello: si concima")
+	manure_box.button_pressed = false
+	check(main.no_manure.size() == 2 and main.manure_ready().is_empty(), "tolta la spunta, il campo non si concima")
+	manure_box.button_pressed = true
+	check(main.no_manure.is_empty() and main.manure_ready().size() == 2, "rimessa, sì")
+	main.field_popup.hide()
+	for i in 3000:
+		main.tick(0.05)
+		if main.manured.size() == 2:
+			break
+	check(main.manured.size() == 2 and main.field_of(plot).all(func(k): return main.soil_at(k) == 50 + main.MANURE_SOIL[R.COMPOST]),
+		"il contadino sparge il compost: +%d" % main.MANURE_SOIL[R.COMPOST])
+	check(main.total(R.COMPOST) == 0 and main.manure_ready().is_empty(), "una volta per semina")
+	check(main.MANURE_SOIL.keys() == [R.COMPOST, R.ASH] and main.MANURE_SOIL[R.ASH] < main.MANURE_SOIL[R.COMPOST], "poi la cenere, che rende meno")
+	main.clock = year_start + main.YEAR_DAYS + sow_day + 0.5
+	main.tick(0.0)
+	for i in 2000:
+		main.tick(0.05)
+		if main.garden.values().all(func(t): return t >= 0):
+			break
+	check(main.garden.values().all(func(t): return t >= 0) and main.manured.is_empty(), "seminato: la prossima semina si riconcima")
+	# il sovescio: fave che si interrano in fiore. Nessun raccolto, più fertilità delle fave
+	var G: int = main.Crop.GREEN
+	main.garden[plot] = main.clock - main.CROP_DAYS[G]
+	main.sown[plot] = G
+	main.add_soil(plot, 50 - main.soil_at(plot))
+	var book: Dictionary = main.harvests.duplicate(true)
+	check(main.crop_yield(plot, G) == 0 and main.CROP_SOIL[G] > main.CROP_SOIL[main.Crop.BEANS], "il sovescio non si raccoglie")
+	main.harvested(plot, G, 0)
+	check(main.soil_at(plot) == 50 + main.CROP_SOIL[G] and main.harvests == book, "rende fertilità, e non va nel bilancio")
+	main.open_field(plot)
+	check(box.get_node("Last").text == "Last: green manure, ploughed in.", "il cartello: interrato")
+	box.get_node("Plan").pressed.emit()
+	main.plans[plot] = [main.year_of(main.today), [[]]]
+	plan_click(main, chart, at_day.call(30))
+	check(main.plan_menu.get_item_index(300 + G) >= 0 and main.plan_menu.get_item_text(main.plan_menu.get_item_index(300 + G)).begins_with("Green manure"),
+		"nella pianificazione, il sovescio")
+	main.plan_menu.hide()
+	main.plan_panel.hide()
+	main.order = main.Order.DEMOLISH
+	main.mark(field)
+	main.order = main.Order.NONE
+	check(main.garden.is_empty() and main.no_manure.is_empty() and main.manured.is_empty(), "via l'orto, via i concimi")
 
 	# inverno: i cespugli perdono le bacche e le rifanno dopo Capodanno; al fresco il cibo marcisce più piano, sotto lo
 	# zero per niente (gela)

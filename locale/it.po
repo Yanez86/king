@@ -3124,8 +3124,8 @@ msgstr "Scavare i massi segnati, tagliare il ghiaccio."
 msgid "Picking bushes and flax, uprooting."
 msgstr "Raccogliere da cespugli e lino, estirpare."
 
-msgid "Sowing and harvesting the garden."
-msgstr "Seminare e raccogliere nell'orto."
+msgid "Sowing, harvesting and fertilizing the garden."
+msgstr "Seminare, raccogliere e concimare l'orto."
 
 msgid "Fishing at the marked water."
 msgstr "Pescare nell'acqua segnata."
@@ -3176,3 +3176,49 @@ msgstr "%s: l'incendio è spento."
 
 msgid "%s: fire! The roof of %s is burning."
 msgstr "%s: al fuoco! Brucia il tetto di %s."
+
+# --- Concimi: il cumulo del compost, il marcio, la cenere, concimare, il sovescio
+
+msgid "Manuring"
+msgstr "Concimazione"
+
+msgid "Manuring: rotten food and weeds go to the compost heap, the charcoal kiln leaves ash, and colonists fertilize the garden before sowing. Green manure: beans ploughed in."
+msgstr "Concimazione: il cibo marcio e le erbacce vanno al cumulo del compost, la carbonaia lascia la cenere e i coloni concimano l'orto prima della semina. Il sovescio: fave interrate."
+
+msgid "Compost Heap"
+msgstr "Cumulo del compost"
+
+msgid "Rotten food and uprooted weeds are brought here: in 10 days every 4 become compost, to fertilize the garden."
+msgstr "Ci si portano il cibo marcio e le erbacce estirpate: in 10 giorni ogni 4 diventano un compost, per concimare l'orto."
+
+msgctxt "item"
+msgid "Rot"
+msgstr "Marcio"
+
+msgctxt "item"
+msgid "Compost"
+msgstr "Compost"
+
+msgctxt "item"
+msgid "Ash"
+msgstr "Cenere"
+
+msgid "compost in %.1f days"
+msgstr "compost fra %.1f giorni"
+
+msgid "seeps into the ground in %.1f days"
+msgstr "sparisce nella terra fra %.1f giorni"
+
+msgid "Fertilize the garden: %d plot"
+msgid_plural "Fertilize the garden: %d plots"
+msgstr[0] "Concimare l'orto: %d casella"
+msgstr[1] "Concimare l'orto: %d caselle"
+
+msgid "Fertilize before sowing"
+msgstr "Concimare prima della semina"
+
+msgid "Green manure"
+msgstr "Sovescio"
+
+msgid "Last: green manure, ploughed in."
+msgstr "L'ultimo: sovescio, interrato."

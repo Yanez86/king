@@ -366,6 +366,7 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
     | Cavoli | 90 giorni | 45 | −15 | 14 giorni |
     | Fave (secche) | 100 giorni | 20 | +10 | 60 giorni: il cibo dell'inverno; saziano 40 |
     | Maggese | — | — | +25 l'anno dopo | — |
+    | Sovescio (fave interrate) | 60 giorni | — | +20 | — |
 
   - **Campi**: le caselle d'orto che si toccano fanno un campo ("Campo 1", 2… dall'alto in basso), col suo cartello
     (un paletto nella casella più in alto a sinistra). Cliccandolo: il nome, le caselle, la sua timeline di quest'anno,
@@ -395,9 +396,18 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
     i numeri esatti, sulla lente e sul cartello, e la previsione del prossimo raccolto.
   - **Ordine di lavoro**: (1) fertilità, resa, campi col cartello, indizi, bilancio; (2) fave, piano di rotazione,
     maggese, terra stanca; (3) le tre ricerche, la lente, il contadino che impara.
-  - **Stato**: fatte le fasi 1–3 e la pianificazione a gantt (test in `tests/test_food.gd`).
-  - Poi: concimi naturali (cenere dalla carbonaia, compost dal cibo marcio e dalle erbacce, sovescio delle fave,
-    letame con la stalla).
+  - **Concimi naturali** (decisi il 2026-11-19): la ricerca Concimazione (Terra I, 80, dopo l'Orto) dà il cumulo del
+    compost (mobile 1×1, 6 legna). Se ce n'è uno, il cibo che marcisce e le erbacce estirpate diventano **marcio**, che
+    i trasportatori portano al cumulo (nel cumulo solo lui, anche dai magazzini); lasciato fuori sparisce nella terra
+    in 5 giorni. Nel cumulo, in 10 giorni ogni 4 marci fanno un **compost** (+15 di fertilità). La carbonaia lascia una
+    **cenere** a infornata (+5). Il contadino (lavoro Concimare, nella colonna Coltivare) da 15 giorni prima della
+    semina di una casella ci sparge un concime, prima il compost poi la cenere: una volta per semina, nei campi che lo
+    vogliono (spunta "Concimare prima della semina" sul cartello). Il **sovescio** è una coltura della pianificazione:
+    fave che non si raccolgono, si interrano in fiore dopo 60 giorni, +20 di fertilità e niente cibo (fuori dal
+    bilancio dell'anno).
+  - **Stato**: fatte le fasi 1–3, la pianificazione a gantt e i concimi (test in `tests/test_food.gd`; la cenere in
+    `tests/test_gear.gd`).
+  - Poi: letame con la stalla, quando ci saranno gli animali da allevare.
 
 ### 4.4.2 Forgia, sartoria ed equipaggiamento
 - **Stanze**: forgia (fornace e incudine), laboratorio (banco da lavoro, 15 legna; ci lavora anche il filatoio, 10 legna),
@@ -833,7 +843,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | III | 450–500 | tomo rosso | 14–16 giorni |
   | IV | 1000–1200 | codice di porpora | 31–38 giorni |
 
-  L'albero intero (44 ricerche) vuole circa 14.500 punti: con tre studiosi bravi 95 giorni. Si sceglie, non si finisce.
+  L'albero intero (45 ricerche) vuole circa 14.600 punti: con tre studiosi bravi 95 giorni. Si sceglie, non si finisce.
 - **Dall'inizio**, senza ricerca: muro e pavimento di legno, porta, sentiero, letto, tavolo, sedia, fuoco da campo,
   stendardo, scrittoio, trono; il pasto; tagliare, scavare, estirpare, raccogliere, pescare, costruire, distruggere, e
   cacciare con un arco; stanze magazzino, camera, dormitorio, cucina, studio, sala del trono. Tutto il resto, anche
@@ -848,6 +858,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Saggio del terreno ✓ | I | 60 | Orto | la lente della terra (O) in tre fasce; la fascia sul cartello del campo |
   | | Almanacco agrario ✓ | II | 250 | Saggio del terreno | cinque fasce; se un campo sale o scende rispetto a un anno prima |
   | | Catasto ✓ | III | 450 | Almanacco agrario | i numeri della terra e il prossimo raccolto di ogni campo |
+  | | Concimazione ✓ | I | 80 | Orto | cumulo del compost, marcio e cenere, lavoro Concimare, il sovescio |
   | | Apicoltura | III | 450 | Forno di pietra | arnia accanto alle aiuole: miele (non marcisce), cera (candele: si studia di notte) |
   | | Banchetto reale | IV | 1000 | Apicoltura | il banchetto al forno: +15 felicità per 3 giorni, +20 autorità |
   | | Caccia ✓ | I | 50 | — | *filatoio, corda d'arco, banco del falegname, falegnameria, arco, pelli alle pareti, portiera* (vedi 4.4.5) |

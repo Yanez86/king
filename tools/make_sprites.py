@@ -558,6 +558,64 @@ o)))))))))o. ..oooooooooo .o(_(o-,-,o.
 ............ ............ ............
 """
 
+# Cumulo del compost 16x16 (vedi Build.COMPOST_HEAP in main.gd): un recinto basso di assi con dentro terra scura,
+# paglia e qualche avanzo verde. Uguale girato.
+COMPOST_HEAP = """
+................
+................
+................
+................
+..o..o..o..o..o.
+.owooWoowooWoowo
+.ow)$$)$$G$$)wWo
+.ow$$_$$$$_$$wWo
+.oW$$)$MG$$)$wWo
+.ow)$$$$$_$$$wWo
+.owwwwwwwwwwwwWo
+.oWWWWWWWWWWWWWo
+.oooooooooooooo.
+..zzzzzzzzzzzzz.
+................
+................
+"""
+
+# Icone 16x16 dei concimi -> marcio (avanzi andati a male, verdastri, con le mosche), compost (terra scura e
+# grumosa), cenere (un mucchietto grigio)
+MANURE_ICONS = """
+................ ................ ................
+....o.......o... ................ ................
+...ooo.....o.o.. ................ ................
+....o...o....... ................ ................
+.......ooo...... ......oooo...... ................
+....oooooooo.... ....oo$$)$oo.... ......oooo......
+...oGMGM$$MGo... ...o$)$$$_$$o... ....oorurRoo....
+..oMG$$GMG$$Mo.. ..o$$_$$)$$$$o.. ...oruuRrrRro...
+..o$$MG$$$GM$o.. .o)$$$$$$_$)$$o. ..oruRrurRrRRo..
+.o$GM$$MG$$M$$o. .o$_$)$$$$$$$_o. .orRrurRrRRrRio.
+.oMG$$G$M$$GMMo. o$$$$$_$)$$$$$$o .oRrRrRrRRiRRio.
+.ooooooooooooo.. oooooooooooooooo .oooooooooooooo.
+................ ................ ................
+................ ................ ................
+................ ................ ................
+................ ................ ................
+"""
+
+# Ricerca 12x12 della concimazione, come TECH_SYMBOLS: il cumulo del compost con un germoglio
+TECH_MANURE = """
+.....o.o....
+....oyoyo...
+....oyLyo...
+.....oLo....
+.o..o.L.o..o
+owoowooowoow
+ow)$$G$$)$wo
+ow$$_$$$$_wo
+ow)$M$G$$$wo
+owwwwwwwwwwo
+oooooooooooo
+............
+"""
+
 # Icona 16x16 dell'orto (tasto "Garden"): un germoglio su un cumulo di terra lavorata.
 GARDEN_ICON = """
 ................
@@ -3780,7 +3838,8 @@ def banner_drape():
 def furniture_sheet():
     """Mobili, foglio 128x1152. Righe: letto, tavolo, sedia, abat-jour, fuoco da campo, fornace, incudine, banco da lavoro,
     filatoio, banco del falegname, poi le decorazioni: aiuola, fioriera, panca, stendardo, lampione, fontana, statua;
-    la bacheca; i cimeli: calice, stendardo antico, busto, corona; scrittoio, libreria, trono, fantoccio, torre di guardia, baldacchino, tappeto, armadio, focolare, pelli alle pareti, portiera, arazzo, stufa a olle, fossa del ghiaccio (come Build in main.gd);
+    la bacheca; i cimeli: calice, stendardo antico, busto, corona; scrittoio, libreria, trono, fantoccio, torre di guardia, baldacchino, tappeto, armadio, focolare, pelli alle pareti, portiera, arazzo, stufa a olle, fossa del ghiaccio, quattro righe vuote (le strutture che vengono dopo
+    in Build), il cumulo del compost (come Build in main.gd);
     colonne: quarti di giro in senso orario (per fuoco, stendardo e fontana, fotogrammi), ognuno in alto a sinistra nel suo riquadro 32x32."""
     bed, chair, chair_left = art(BED, 32, 16), art(CHAIR, 16, 16), art(CHAIR_LEFT, 16, 16)
     table, lamp, anvil = art(TABLE, 32, 32), art(LAMP, 16, 16), art(ANVIL, 16, 16)
@@ -3816,8 +3875,10 @@ def furniture_sheet():
            (lambda h, c: [c[0], h[1], c[1], mirror(h[1])])(frames(WALL_HIDES), frames(DOOR_CURTAIN, count=2)),
            (lambda h: [h[0], h[1], h[2], mirror(h[1])])(frames(TAPESTRY)),
            [art(TILED_STOVE, 16, 16)] * 4, [ice_pit()] * 4]
+    rows += [[]] * 4  # strada, palizzata, cancello, intonaco: strutture, non mobili
+    rows += [[art(COMPOST_HEAP, 16, 16)] * 4]  # dopo, come Build in main.gd
     slot = lambda g: [line.ljust(32, ".") for line in g] + ["." * 32] * (32 - len(g))
-    return [line for row in rows for line in side_by_side([slot(g) for g in row])]
+    return [line for row in rows for line in side_by_side([slot(g) for g in (row or [[]] * 4)])]
 
 
 def trees_sheet():
@@ -3883,6 +3944,7 @@ def main():
     images["icon_beans"] = pixels(["." * 16] + crops[9][:15])
     images["field_sign"] = pixels(art(FIELD_SIGN, 16, 16))
     images["icon_soil"] = pixels(art(SOIL_ICON, 16, 16))
+    images["icon_rot"], images["icon_compost"], images["icon_ash"] = (pixels(f) for f in frames(MANURE_ICONS))
     images["icon_garden"] = pixels(art(GARDEN_ICON, 16, 16))
     images["icon_fishing"] = pixels(art(FISHING_ICON, 16, 16))
     images["icon_hunting"] = pixels(art(HUNTING_ICON, 16, 16))
@@ -3969,7 +4031,8 @@ def main():
     techs += frames(TECH_ASTRONOMY, 12, 1, 12)  # come Tech in main.gd: astronomia, poi le altre
     techs += frames(TECH_SYMBOLS_4, 12, 5, 12) + frames(TECH_SYMBOLS_5, 12, 2, 12) + frames(TECH_SYMBOLS_6, 12, 3, 12) \
         + frames(TECH_SYMBOLS_7, 12, 2, 12) + frames(TECH_SYMBOLS_8, 12, 3, 12) + frames(TECH_SYMBOLS_9, 12, 1, 12) \
-        + frames(TECH_SYMBOLS_10, 12, 3, 12) + [art(TECH_GARDEN, 12, 12)] + frames(TECH_SOIL, 12, 3, 12)
+        + frames(TECH_SYMBOLS_10, 12, 3, 12) + [art(TECH_GARDEN, 12, 12)] + frames(TECH_SOIL, 12, 3, 12) \
+        + [art(TECH_MANURE, 12, 12)]
     images["techs"] = pixels(side_by_side([badge(f) for f in techs]))
     laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 3, 12) + frames(LAW_SYMBOLS_5, 12, 3, 12) + frames(LAW_SYMBOLS_6, 12, 4, 12)
     images["laws"] = pixels(side_by_side([badge(f, "I", "x", "U") for f in laws]))

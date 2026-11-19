@@ -358,6 +358,12 @@ Cespugli e lino. Un cespuglio maturo ha 5 bacche (vegetali), il lino in fiore 5 
 • Si comincia a seminare quando la terra è tiepida (6 °C di media del giorno, dal tardo Disgelo) e solo se il raccolto matura prima dell'inverno: i cavoli non si seminano negli ultimi 90 giorni prima dell'inverno, le rape negli ultimi 60. Il primo giorno d'inverno il gelo si prende quello che è ancora nei campi.
 • Distruggi (X) toglie l'orto.
 
+[color=#e8c34a]Concimi[/color] [img=center]res://art/icon_compost.png[/img]
+• Dopo la ricerca Concimazione (Terra I, 80, dopo l'Orto). Costruisci un cumulo del compost (6 legna): da allora il cibo marcio e le erbacce estirpate diventano marcio [img=center]res://art/icon_rot.png[/img], che chi trasporta porta al cumulo; lasciato fuori sparisce nella terra in 5 giorni. Nel cumulo, in 10 giorni ogni 4 marci fanno un compost.
+• La carbonaia lascia ogni volta una cenere [img=center]res://art/icon_ash.png[/img].
+• I contadini concimano: da 15 giorni prima della semina di una casella ci spargono un compost (+15 di fertilità), o una cenere quando il compost è finito (+5). Una volta per semina. Togli la spunta a "Concimare prima della semina" sul cartello di un campo per saltarlo.
+• Il sovescio: una coltura della pianificazione, 60 giorni. Fave che non si raccolgono ma si interrano in fiore: niente cibo, ma +20 di fertilità, il doppio delle fave che si mangiano.
+
 [color=#e8c34a]Pesca (F)[/color] [img=center]res://art/icon_fish.png[/img]
 Segna caselle d'acqua. Il pescatore si mette accanto (anche nell'acqua bassa) e lancia ogni 10 s: un pesce il 30% delle volte, +6% per ogni livello di Pescare. Un punto di pesca ha 4 pesci, poi è vuoto per un giorno; il segno resta.
 
@@ -533,6 +539,7 @@ Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette 
 
 [color=#e8c34a]L'albero[/color]
 • [color=#d9c48a]Orto[/color] (Terra I, 80): le caselle dell'orto e i campi con la loro rotazione; rape in 60 giorni, cavoli in 90, fave in 100.
+• [color=#d9c48a]Concimazione[/color] (Terra I, 80, dopo l'Orto): il cumulo del compost, il marcio e la cenere, concimare, il sovescio.
 • [color=#d9c48a]Saggio del terreno[/color] (Terra I, 60, dopo l'Orto): la lente della terra, in tre fasce.
 • [color=#d9c48a]Almanacco agrario[/color] (Terra II, 250 e un quaderno, dopo il Saggio): cinque fasce, e la tendenza di ogni campo.
 • [color=#d9c48a]Catasto[/color] (Terra III, 450 e un tomo, dopo l'Almanacco): i numeri della terra e il prossimo raccolto.

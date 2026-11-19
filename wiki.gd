@@ -359,6 +359,12 @@ Bushes and flax. A ripe bush has 5 berries (vegetables), flowering flax 5 flax, 
 • Sowing starts when the ground is mild (a daily average of 6 °C, from late Thaw) and only if the crop ripens before winter: cabbages are not sown in the last 90 days before winter, turnips in the last 60. On the first day of winter the frost takes whatever is still in the fields.
 • Destroy (X) removes plots.
 
+[color=#e8c34a]Manure[/color] [img=center]res://art/icon_compost.png[/img]
+• After the Manuring research (Land I, 80, after Garden). Build a compost heap (6 wood): from then on rotten food and uprooted weeds become rot [img=center]res://art/icon_rot.png[/img], which haulers take to the heap; left outside, it seeps into the ground in 5 days. In the heap, in 10 days every 4 rot make a compost.
+• The charcoal kiln leaves an ash [img=center]res://art/icon_ash.png[/img] every time.
+• Farmers fertilize: from 15 days before a plot is sown they spread a compost on it (+15 fertility), or an ash when the compost is gone (+5). Once for every sowing. Untick "Fertilize before sowing" on a field's sign to skip it.
+• Green manure: a crop of the planning, 60 days. Beans not harvested but ploughed in while flowering: no food, but +20 fertility, twice as much as the beans you eat.
+
 [color=#e8c34a]Fish (F)[/color] [img=center]res://art/icon_fish.png[/img]
 Mark water tiles. The fisher stands beside them (in shallow water too) and casts every 10 s: a fish 30% of the time, +6% for every Fishing level. A spot has 4 fish, then it's empty for a day; the mark stays.
 
@@ -534,6 +540,7 @@ What you haven't researched has no build button, and its recipes don't show at t
 
 [color=#e8c34a]The tree[/color]
 • [color=#d9c48a]Garden[/color] (Land I, 80): garden plots and fields with their rotation; turnips in 60 days, cabbages in 90, broad beans in 100.
+• [color=#d9c48a]Manuring[/color] (Land I, 80, after Garden): the compost heap, rot and ash, fertilizing, green manure.
 • [color=#d9c48a]Soil survey[/color] (Land I, 60, after Garden): the soil lens, in three bands.
 • [color=#d9c48a]Almanac[/color] (Land II, 250 and a notebook, after Soil survey): five bands, and the trend of every field.
 • [color=#d9c48a]Land register[/color] (Land III, 450 and a tome, after Almanac): the soil's numbers and the next harvest.

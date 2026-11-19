@@ -310,7 +310,7 @@ func _initialize() -> void:
 
 	# carbonaia: finito il carbone, alla fornace 5 legna fanno 2 carboni, finché non c'è la scorta del menu
 	main.add_item(W, rest[2], 30)  # legna per la carbonaia, quella di prima è andata negli archi
-	for res in [main.Res.COAL, main.Res.IRON, I]:  # senza ferro né lingotti la fornace fa solo carbone
+	for res in [main.Res.COAL, main.Res.IRON, I, main.Res.ASH]:  # senza ferro né lingotti la fornace fa solo carbone
 		for k in main.items[res].keys():
 			main.items[res].erase(k)
 	var wood0: int = main.total(W)
@@ -319,6 +319,7 @@ func _initialize() -> void:
 		if main.total(main.Res.COAL) >= main.STOCK[main.Res.COAL] and not main.colonists.any(func(c): return c.job == main.Job.CRAFT):
 			break
 	check(main.total(main.Res.COAL) == 6 and main.total(W) == wood0 - 15, "carbonaia: tre volte 5 legna, 6 carboni (scorta 5)")
+	check(main.total(main.Res.ASH) == 3, "e una cenere ogni volta, per concimare")
 
 	print("OK: forgia, sartoria ed equipaggiamento")
 	quit()
