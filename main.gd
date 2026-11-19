@@ -247,7 +247,8 @@ const DOING := {Job.CHOP: "Chopping a tree", Job.MINE: "Mining", Job.UPROOT: "Up
 	Job.CUT_ICE: "Cutting ice", Job.DOUSE: "Putting out a fire", Job.FARM: "Tending the garden",
 	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne"}
 const CENSUS_COLUMNS := [280, 120, 250]  # px: chi è, l'età, cosa fa; uguali in tutti i riquadri dell'elenco, così si allineano
-const CENSUS_FONT := [18, 18, 22]  # dimensioni del testo nell'elenco: sotto il nome, nome età e cosa fa, titoli dei gruppi (a 16 il 3 sembra un 8)
+const CENSUS_FONT := [18, 18, 22]  # dimensioni del testo nell'elenco: sotto il nome, nome età e cosa fa, titoli dei
+# gruppi. Più grandi del 16 del tema, per leggerlo meglio (il font è nitido del tutto solo a 11 e 22: un suo pixel è 1/11)
 const CENSUS_CARD := Color(0.17, 0.15, 0.2, 0.92)  # fondo dei riquadri
 const CENSUS_BORDER := Color("6b5236")             # bordo, color legno
 const CENSUS_DIM := Color(0.75, 0.72, 0.68)        # chi è, sotto il nome
