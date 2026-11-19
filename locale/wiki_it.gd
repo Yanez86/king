@@ -189,7 +189,16 @@ Gli altri due coloni vengono a caso: abilità a 0, 0–2 talenti.
 [color=#e8c34a]Matrimonio[/color]
 • Un sovrano adulto (16 anni o più) senza coniuge vivo si può sposare: "Combina un matrimonio…" nella scheda del sovrano elenca i coloni adulti dell'altro sesso senza coniuge. Chi ha meno di 50 di felicità dice di no, e l'elenco dice perché.
 • Le nozze: tutti prendono Nozze (+10 felicità per 2 giorni), +10 autorità, e la cronaca lo racconta. Ognuno dei due sposi entra nelle stanze dell'altro. La scheda mostra il coniuge, con una croce quando è morto: un sovrano vedovo si può risposare.
-• Dai alla coppia una stanza con due letti: i figli verranno dal dividerla."""],
+• Dai alla coppia una stanza con due letti: i figli verranno dal dividerla.
+
+[color=#e8c34a]Figli[/color] [img=center]res://art/baby.png[/img]
+• Una coppia sposata che dorme nella stessa stanza può avere un figlio: l'1% a notte, finché lei ha da 16 a 40 anni (dai 35 la metà). Resta Incinta per 68 giorni, e nell'ultimo terzo lavora più piano; poi per un anno niente altri figli.
+• La cronaca racconta la nascita e una finestra chiede il nome (il dado ne tira uno). Il figlio prende il cognome e i colori della casata, i capelli di un genitore e ognuno dei loro talenti al 50% (al più due, mai in contrasto).
+• Fino a 3 anni è un neonato: non è ancora un colono. Dorme in una culla (Casa, 4 legna), prima quelle dei genitori, o la madre lo tiene in braccio.
+• Dai 4 è un bambino: raccoglie e trasporta e basta, a metà velocità, non prende armi né armature e scappa sempre dai lupi. Si vede più piccolo.
+• Dai 12 è un ragazzo: tutto tranne costruire, scavare, tagliare e cacciare.
+• A 16 anni raggiunge la maggiore età: ogni lavoro, e a qualche ragazzo cresce la barba.
+• La scheda dei genitori elenca i figli, quella dei figli i genitori."""],
 
 	["Costruire", """[color=#e8c34a]Come costruire[/color] [img=center]res://art/icon_wood.png[/img] [img=center]res://art/icon_stone.png[/img]
 • Premi Costruisci, scegli Strutture o una delle cinque categorie dei mobili (Casa; Fuoco e calore; Mestieri e provviste; Corte e difesa; Decorazioni, coi cimeli), poi un pezzo: col mouse sopra il suo pulsante vedi il costo e il comfort o lo splendore che dà.
@@ -237,6 +246,7 @@ Non sull'acqua, sugli alberi, sulla roccia, sui cespugli o sulle erbacce (prima 
 [cell]Stufa a olle[/cell][cell]20 pietra[/cell][cell]Stufa a olle[/cell]
 [cell]Fossa del ghiaccio (2x2)[/cell][cell]20 pietra[/cell][cell]Ghiacciaia[/cell]
 [cell]Cumulo del compost[/cell][cell]6 legna[/cell][cell]Concimazione[/cell]
+[cell]Culla[/cell][cell]4 legna[/cell][cell]–[/cell]
 [/table]
 Focolare, pelli, arazzo e stufa a olle vanno addossati a un muro alle loro spalle, la portiera a una porta: girali verso di lui. Decorazioni: vedi Splendore."""],
 

@@ -247,8 +247,10 @@ Decisa il 2026-11-19. Numeri da tarare.
   lavoro), poi per un anno (91 giorni) niente. Alla nascita il giocatore sceglie il nome (col dado); pelle e capelli
   da uno dei genitori; ogni talento dei genitori passa al 50%, al più due, mai in contrasto.
   - **Neonato** (0–3 anni): sta nella culla (mobile nuovo, in Casa, 4 legna) della stanza dei genitori; non lavora.
-  - **Bambino** (4–11): gioca e aiuta a raccogliere e a trasportare, a metà velocità; non combatte, scappa.
-  - **Ragazzo** (12–15): i lavori leggeri (non costruire, scavare, tagliare, cacciare), esperienza doppia.
+  - **Bambino** (4–11): aiuta a raccogliere e a trasportare, a metà velocità; niente armi né armature; scappa
+    sempre dai lupi. Bambini e ragazzi si vedono più piccoli.
+  - **Ragazzo** (12–15): i lavori leggeri (non costruire, scavare, tagliare, cacciare); poi esperienza doppia,
+    quando ci saranno le soglie di livello (4.2).
   - **Adulto** (16).
 - **Successione**: alla morte del sovrano eredita il **primo figlio vivo, maschio o femmina**; senza figli il coniuge,
   poi un fratello o una sorella. Se non c'è nessuno, la colonia sceglie un nuovo sovrano tra i coloni adulti (lo indica
@@ -263,7 +265,8 @@ Decisa il 2026-11-19. Numeri da tarare.
 - **Ordine di lavoro**: (1) età e vecchiaia; (2) matrimonio coi coloni; (3) gravidanza, nascita e crescita; (4)
   successione, reggenza, lutto regale e incoronazione; (5) pretendenti di altre casate con la dote; (6) la finestra
   della casata.
-- **Stato**: fatte le fasi 1 e 2 (test in `tests/test_dynasty.gd`).
+- **Stato**: fatte le fasi 1–3 (test in `tests/test_dynasty.gd`). A 16 anni la maggiore età, nella cronaca; ai
+  maschi, forse, la barba.
 
 ### 4.4 Risorse ed edifici
 - Materie prime: legname, pietra, ferro, carbone, oro, cibo crudo. Ferro e carbone vengono dalle vene nella roccia (massi 1x1).

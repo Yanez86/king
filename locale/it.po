@@ -3315,3 +3315,6 @@ msgstr "Nome a caso"
 
 msgid "Name the child"
 msgstr "Dai il nome"
+
+msgid "%s: %s comes of age."
+msgstr "%s: %s raggiunge la maggiore età."

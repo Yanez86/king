@@ -177,7 +177,7 @@ func _initialize() -> void:
 	panel.get_node("Box/Ok").pressed.emit()
 	check(not panel.visible, "e si chiude")
 	main.open_sheet(ruler)
-	check(main.get_node("HUD/ColonistSheet/Box/Kin").text == "Children: %s, 0 years old" % baby.first_name, "nella scheda i figli")
+	check(main.get_node("HUD/ColonistSheet/Box/Kin").text == "Children: %s (0)" % baby.first_name, "nella scheda i figli")
 	# in braccio alla madre, o nella culla della stanza
 	check(baby.cradle == Vector2i(-1, -1) and main.carrier_of(baby) == wife, "senza culla, in braccio alla madre")
 	main.furniture[beds[2]] = [main.Build.CRADLE, main.Res.WOOD, 0]
@@ -197,7 +197,31 @@ func _initialize() -> void:
 	check(got.values().all(func(n): return n > 110 and n < 190), "ogni talento passa una volta su due: %s" % got)
 	main.get_node("HUD/BirthPanel").hide()
 
-	print("OK: età, vecchiaia, matrimonio e figli")
+	# crescere: a 4 anni il neonato diventa un bambino della colonia; i bambini raccolgono e trasportano a metà
+	# velocità, i ragazzi non fanno i lavori pesanti; a 16 la maggiore età
+	baby.born = main.clock - 4.01 * main.LIFE_YEAR
+	main.today = int(main.clock)
+	main.new_day()
+	check(baby in main.colonists and baby not in main.babies and baby.pos == wife.pos, "a 4 anni, un bambino accanto alla madre")
+	var W = main.Work
+	check(main.can_do(baby, W.GATHER) and main.can_do(baby, W.HAUL) and not main.can_do(baby, W.BUILD)
+		and not main.can_do(baby, W.COOK) and main.priority(baby, W.BUILD) == 0, "i bambini: raccogliere e trasportare")
+	check(is_equal_approx(main.work_factor(baby), main.CHILD_SLOW * main.cond_product(baby, 1)), "a metà velocità")
+	check(not main.try_equip(baby), "niente armi né armature")
+	main.refresh_priorities()
+	var grid: Control = main.priority_grid
+	var row: int = (W.size() + 1) * (main.colonists.find(baby) + 1)  # le icone e le righe prima: qui il nome
+	check(grid.get_child(row + 1 + W.BUILD) is not Button and grid.get_child(row + 1 + W.HAUL) is Button,
+		"nella tabella delle priorità solo i suoi lavori")
+	baby.born = main.clock - 13.5 * main.LIFE_YEAR
+	check(main.can_do(baby, W.COOK) and main.can_do(baby, W.STUDY) and not main.can_do(baby, W.BUILD) and not main.can_do(baby, W.HUNT)
+		and is_equal_approx(main.work_factor(baby), main.cond_product(baby, 1)), "un ragazzo: tutto tranne i lavori pesanti")
+	baby.born = main.clock - (main.ADULT + 0.001) * main.LIFE_YEAR  # compiuti oggi
+	main.new_day()
+	check(main.can_do(baby, W.BUILD) and Array(main.chronicle).any(func(line): return "%s comes of age." % main.full_name(baby) in line),
+		"a 16 anni la maggiore età, nella cronaca")
+
+	print("OK: età, vecchiaia, matrimonio, figli e crescita")
 	quit()
 
 

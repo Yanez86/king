@@ -767,6 +767,10 @@ const PREGNANT_SLOW := 1.2
 const TRAIT_INHERIT := 0.5
 const CHILD_AGE := 4
 const YOUTH_AGE := 12
+const CHILD_WORK := [Work.GATHER, Work.HAUL]  # i bambini aiutano solo qui, a metà velocità (CHILD_SLOW)
+const YOUTH_BANNED := [Work.BUILD, Work.MINE, Work.CHOP, Work.HUNT]  # i lavori pesanti, che i ragazzi non fanno
+const CHILD_SLOW := 2.0
+const CHILD_SIZE := [0.7, 0.85]  # bambini e ragazzi, più piccoli degli adulti (vedi draw_colonist)
 const BABY := preload("res://art/baby.png")
 const SEASONS := ["Spring", "Summer", "Autumn", "Winter"]
 const WINTER := 3  # in SEASONS: niente bacche né lino (vedi new_day)
@@ -2934,7 +2938,7 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 	if c.spouse != null:  # la croce: vedovo
 		box.get_node("Family/Spouse").text = tr("Spouse: %s") % full_name(c.spouse) + (" †" if c.spouse.died > 0.0 else "")
 	box.get_node("Family/Marry").visible = c == ruler and can_marry() and box == $HUD/ColonistSheet/Box
-	var kin: Array = children_of(c).map(func(o): return tr("%s, %d years old") % [o.first_name, age_of(o)] + (" †" if o.died > 0.0 else ""))
+	var kin: Array = children_of(c).map(func(o): return "%s (%d)" % [o.first_name, age_of(o)] + (" †" if o.died > 0.0 else ""))
 	box.get_node("Kin").visible = not kin.is_empty() or c.mother != null
 	box.get_node("Kin").text = tr("Children: %s") % ", ".join(kin) if not kin.is_empty() else (tr("Parents: %s and %s") \
 		% [full_name(c.mother), full_name(c.father)] if c.father != null else tr("Mother: %s") % full_name(c.mother)) \
@@ -3301,7 +3305,7 @@ func confirm_build() -> void:
 # nome e un tasto per lavoro, 1-4 o – per mai: clic per farlo dopo (1, 2, 3, 4, mai, di nuovo 1), clic destro per
 # farlo prima. Governare solo il sovrano. Si rifà quando cambiano i coloni, il sovrano o la lingua
 func refresh_priorities() -> void:
-	var key := str(colonists) + str(ruler) + TranslationServer.get_locale()
+	var key := str(colonists) + str(ruler) + TranslationServer.get_locale() + str(colonists.map(stage_of))  # anche quando un bambino cresce
 	if key != priorities_key:
 		priorities_key = key
 		for child in priority_grid.get_children():
@@ -3318,7 +3322,7 @@ func refresh_priorities() -> void:
 			label.text = c.first_name
 			priority_grid.add_child(label)
 			for w in Work.values():
-				if w == Work.GOVERN and c != ruler:
+				if (w == Work.GOVERN and c != ruler) or not can_do(c, w):  # governa solo il sovrano; i giovani non tutto
 					priority_grid.add_child(Control.new())
 					continue
 				var cell := Button.new()
@@ -4925,9 +4929,23 @@ func find_work(c: Colonist) -> bool:
 	return false
 
 
-# la priorità di `c` per il lavoro `w`: 1 (prima) - PRIORITY_LEVELS, 0 mai
+# la priorità di `c` per il lavoro `w`: 1 (prima) - PRIORITY_LEVELS, 0 mai (anche quando è troppo giovane, vedi can_do)
 func priority(c: Colonist, w: Work) -> int:
+	if not can_do(c, w):
+		return 0
 	return c.priorities[w] if w < c.priorities.size() else PRIORITY_DEFAULT
+
+
+# 0 bambino, 1 ragazzo, 2 adulto (i neonati non sono coloni: stanno in `babies`)
+func stage_of(c: Colonist) -> int:
+	var years := age_of(c)
+	return 0 if years < YOUTH_AGE else (1 if years < ADULT else 2)
+
+
+# `c` ha l'età per il lavoro `w`: i bambini solo CHILD_WORK, i ragazzi tutto tranne YOUTH_BANNED
+func can_do(c: Colonist, w: Work) -> bool:
+	var years := age_of(c)
+	return w in CHILD_WORK if years < YOUTH_AGE else (w not in YOUTH_BANNED if years < ADULT else true)
 
 
 func set_priority(c: Colonist, w: Work, level: int) -> void:
@@ -5056,6 +5074,8 @@ func skill_time(level: int) -> float:
 # quello che ha addosso (vedi GEAR: "time" per quel lavoro, "slow" per tutti)
 func work_factor(c: Colonist, job := Job.NONE) -> float:
 	var f := cond_product(c, 1)
+	if age_of(c) < YOUTH_AGE:
+		f *= CHILD_SLOW
 	if c.due > 0.0 and c.due - clock < PREGNANCY / 3.0:  # gli ultimi mesi
 		f *= PREGNANT_SLOW
 	for g in c.gear.values():
@@ -5230,6 +5250,8 @@ func fits(c: Colonist, slot: Slot) -> Array:
 # aveva. Scelto "Empty": se lo toglie e lo posa ai suoi piedi, poi si porta in magazzino come ogni mucchio.
 # false se non c'è niente da mettere
 func try_equip(c: Colonist) -> bool:
+	if age_of(c) < YOUTH_AGE:  # i bambini non prendono armi né armature
+		return false
 	for slot in Slot.values():
 		if c.loadout.has(slot) and c.loadout[slot] == null and c.gear.has(slot):
 			drop(c.gear[slot], cell_of(c.pos), 1)
@@ -5443,7 +5465,7 @@ func react(c: Colonist) -> bool:
 	var foe := nearest_foe(c)
 	if foe == null:
 		return false
-	if c.hp < flee_hp():
+	if c.hp < flee_hp() or age_of(c) < YOUTH_AGE:  # i bambini scappano sempre
 		if room_at(cell_of(c.pos)) != null:
 			if c.job == Job.SLEEP:
 				return false  # dorme al sicuro
@@ -5989,6 +6011,8 @@ func children_of(c: Colonist) -> Array:
 
 # gli anni di `c`, compiuti: uno a stagione (LIFE_YEAR giorni)
 func age_of(c: Colonist) -> int:
+	if c.born == INF:  # senza nascita (fatto a mano, nelle prove): adulto
+		return ADULT_AGE[0]
 	return floori((clock - c.born) / LIFE_YEAR)
 
 
@@ -6853,10 +6877,26 @@ func note_harvests() -> void:
 # BERRY_REGROW giorni dopo Capodanno, nell'orto il gelo si prende quello che c'era. Finito un giorno di festa del calendario: la felicità e l'autorità della festa del
 # raccolto; col granaio aperto un pasto a tutti, un pezzo del granaio a testa finché ce n'è
 func new_day() -> void:
-	for c in colonists.duplicate():  # i compleanni; dai OLD_AGE si può morire di vecchiaia
+	for b in babies.duplicate():  # a CHILD_AGE il neonato diventa un bambino della colonia, accanto a chi lo teneva
+		if age_of(b) >= CHILD_AGE:
+			var near = carrier_of(b)
+			if b.cradle.x >= 0 and furniture.get(b.cradle, [-1])[0] == Build.CRADLE:
+				b.pos = center(b.cradle)
+			elif near != null:
+				b.pos = near.pos
+			b.cradle = Vector2i(-1, -1)
+			b.needs = Need.values().map(func(n): return 0.0 if n == Need.STRESS else NEED_MAX * 0.8)
+			babies.erase(b)
+			colonists.append(b)
+	for c in colonists.duplicate():  # i compleanni: la maggiore età; dai OLD_AGE si può morire di vecchiaia
 		var years := age_of(c)
-		if years > floori((today - 1 - c.born) / LIFE_YEAR) and years >= OLD_AGE and deaths \
-				and randf() < (years - OLD_AGE + 2) * OLD_AGE_RISK:
+		if years <= floori((today - 1 - c.born) / LIFE_YEAR):
+			continue
+		if years == ADULT:
+			c.beard = c.sex == Sex.MALE and randf() < BEARD_CHANCE
+			if c.mother != null:
+				note(tr("%s: %s comes of age.") % [date(today), full_name(c)])
+		if years >= OLD_AGE and deaths and randf() < (years - OLD_AGE + 2) * OLD_AGE_RISK:
 			die(c, tr("died of old age, at %d.") % years)
 	if posmod(today, YEAR_DAYS) == 0 and today > 0:  # Capodanno: la terra dell'orto si riposa, di più dopo un anno senza raccolti
 		for cell in garden:
@@ -9064,12 +9104,14 @@ func animal_src(a: Animal) -> Rect2:
 func draw_colonist(c: Colonist) -> void:
 	var at := (c.pos - Vector2.ONE * TILE / 2.0).round()  # allineato ai pixel
 	var src := Rect2(Vector2(frame_of(c), c.facing) * TILE, Vector2.ONE * TILE)
+	var years := age_of(c)
+	var side: float = TILE * (CHILD_SIZE[0] if years < YOUTH_AGE else (CHILD_SIZE[1] if years < ADULT else 1.0))
 	if c.downed:  # sdraiato, girato di un quarto
 		draw_set_transform(c.pos.round(), PI / 2)
-		draw_figure(self, Rect2(-Vector2.ONE * TILE / 2.0, Vector2.ONE * TILE), Rect2(0, 0, TILE, TILE), c)
+		draw_figure(self, Rect2(-Vector2.ONE * side / 2.0, Vector2.ONE * side), Rect2(0, 0, TILE, TILE), c)
 		draw_set_transform_matrix(Transform2D.IDENTITY)
-	else:
-		draw_figure(self, Rect2(at, Vector2.ONE * TILE), src, c)
+	else:  # i giovani più piccoli, coi piedi dove li avrebbe un adulto
+		draw_figure(self, Rect2((c.pos + Vector2(-side / 2.0, TILE / 2.0 - side)).round(), Vector2.ONE * side), src, c)
 	if c.hp < MAX_HP:
 		draw_health(c.pos, c.hp / MAX_HP)
 	for b in babies:  # in braccio, senza culla

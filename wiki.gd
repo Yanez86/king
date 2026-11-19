@@ -190,7 +190,16 @@ The other two colonists come at random: skills at 0, 0–2 traits.
 [color=#e8c34a]Marriage[/color]
 • An adult ruler (16 or older) without a living spouse can marry: "Arrange a marriage…" on the ruler's sheet lists the adult colonists of the other sex without a spouse. Those with less than 50 happiness say no, and the list tells you why.
 • The wedding: everyone gets Wedding (+10 happiness for 2 days), +10 authority, and the chronicle tells it. Each spouse may enter the other's rooms. The sheet shows the spouse, with a cross once they have died: a widowed ruler can marry again.
-• Give the couple a room with two beds: children will come from sharing it."""],
+• Give the couple a room with two beds: children will come from sharing it.
+
+[color=#e8c34a]Children[/color] [img=center]res://art/baby.png[/img]
+• A married couple sleeping in the same room may have a child: 1% a night, while she is 16 to 40 (half from 35). She is Pregnant for 68 days, working more slowly in the last third, then for a year no other child.
+• The chronicle tells the birth and a window asks for the name (the dice rolls one). The child takes the house's name and colors, the hair of a parent, and each of their traits at 50% (at most two, never clashing).
+• Up to 3 a baby: not a colonist yet. They sleep in a cradle (Home, 4 wood), their parents' first, or the mother carries them.
+• From 4 a child: they only gather and haul, at half speed, take no weapons or armor and always run from wolves. They look smaller.
+• From 12 a youth: everything but building, mining, chopping and hunting.
+• At 16 they come of age: every kind of work, and some boys grow a beard.
+• The parents' sheet lists their children, the children's sheet their parents."""],
 
 	["Building", """[color=#e8c34a]How to build[/color] [img=center]res://art/icon_wood.png[/img] [img=center]res://art/icon_stone.png[/img]
 • Press Build, pick Structures or one of the five furniture categories (Home; Fire and warmth; Crafts and stores; Court and defense; Decorations, with the relics), then a piece: hover its button for the cost and the comfort or splendor it gives.
@@ -238,6 +247,7 @@ Not on water, trees, rock, bushes or weeds (uproot them first), nor on items lyi
 [cell]Tiled stove[/cell][cell]20 stone[/cell][cell]Tiled stove[/cell]
 [cell]Ice pit (2x2)[/cell][cell]20 stone[/cell][cell]Icehouse[/cell]
 [cell]Compost heap[/cell][cell]6 wood[/cell][cell]Manuring[/cell]
+[cell]Cradle[/cell][cell]4 wood[/cell][cell]–[/cell]
 [/table]
 Hearth, hides, tapestry and tiled stove hang against a wall at their back, the curtain against a door: turn them toward it. Decorations: see Splendor."""],
 
