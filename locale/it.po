@@ -1210,6 +1210,9 @@ msgstr " pavimentandola tutta, x%s in pietra"
 msgid "+%d colony splendor"
 msgstr "+%d splendore alla colonia"
 
+msgid "+%d colony splendor, only the first one"
+msgstr "+%d splendore alla colonia, solo il primo"
+
 msgid "Comfort: %d / %d    %d°C"
 msgstr "Comfort: %d / %d    %d°C"
 

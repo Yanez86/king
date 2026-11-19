@@ -515,7 +515,7 @@ Per ora fa due cose:
 [cell]Fioriera[/cell][cell]1[/cell][cell]5 pietra[/cell][cell]Decorazioni[/cell]
 [cell]Panca[/cell][cell]1[/cell][cell]6 legna[/cell][cell]Decorazioni[/cell]
 [cell]Lampione[/cell][cell]1[/cell][cell]3 legna, 1 carbone[/cell][cell]Lanterne[/cell]
-[cell]Stendardo[/cell][cell]2[/cell][cell]4 legna[/cell][cell]–[/cell]
+[cell]Stendardo[/cell][cell]1, una volta[/cell][cell]4 legna[/cell][cell]–[/cell]
 [cell]Fontana[/cell][cell]6[/cell][cell]30 pietra[/cell][cell]Fontana[/cell]
 [cell]Statua[/cell][cell]8[/cell][cell]40 pietra[/cell][cell]Statuaria[/cell]
 [cell]Calice[/cell][cell]3[/cell][cell]il cimelio[/cell][cell]–[/cell]
@@ -523,7 +523,7 @@ Per ora fa due cose:
 [cell]Busto[/cell][cell]5[/cell][cell]il cimelio[/cell][cell]–[/cell]
 [cell]Corona[/cell][cell]6[/cell][cell]il cimelio[/cell][cell]–[/cell]
 [/table]
-• La panca (2x1) dà anche +0,5 di comfort alla stanza. Il lampione illumina le strade di notte. Lo stendardo sventola lo stemma della tua casata. Fontana e statua occupano 2x2 caselle.
+• La panca (2x1) dà anche +0,5 di comfort alla stanza. Il lampione illumina le strade di notte. Lo stendardo sventola lo stemma della tua casata; solo il primo dà splendore, gli altri sono solo decorazione. Fontana e statua occupano 2x2 caselle.
 • I cimeli li trovano solo gli avventurieri, nelle rovine. Arrivano a casa come oggetti: costruiscili dalla barra dei mobili, un cimelio per ogni pezzo."""],
 
 	["Avventurieri", """[color=#e8c34a]La locanda[/color]

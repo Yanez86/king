@@ -633,10 +633,12 @@ const COLD_WALLS := [Res.STONE]  # la ghiacciaia vuole muri così (o la roccia)
 const FOUNTAIN_COOL := 3.0
 const FOUNTAIN_FROM := 20.0
 const DISCOMFORT_DROP := 24.0  # uno all'ora per punto
-# splendore della colonia: lo danno le decorazioni finite, dentro e fuori dalle stanze (vedi colony_splendor).
+# splendore della colonia: lo danno le decorazioni finite, dentro e fuori dalle stanze (vedi colony_splendor); quelle
+# di SPLENDOR_ONCE una volta sola: la prima dà splendore, le altre no.
 # ponytail: per ora solo il totale in alto; poi terrà felici i coloni e sbloccherà cose (strade, feste: vedi GDD)
-const SPLENDOR := {Build.FLOWER_BED: 1, Build.PLANTER: 1, Build.BENCH: 1, Build.BANNER: 2, Build.LANTERN: 1,
+const SPLENDOR := {Build.FLOWER_BED: 1, Build.PLANTER: 1, Build.BENCH: 1, Build.BANNER: 1, Build.LANTERN: 1,
 	Build.FOUNTAIN: 6, Build.STATUE: 8, Build.TAPESTRY: 2, Build.CHALICE: 3, Build.OLD_BANNER: 4, Build.BUST: 5, Build.CROWN: 6}
+const SPLENDOR_ONCE := [Build.BANNER]  # lo stendardo della casata: uno basta (deciso il 2026-11-19)
 const SPLENDOR_COLOR := Color("e8c34a")
 const HEAT_COLOR := Color("f2a03a")
 # lente del calore: sopra COLD_FROM, sotto ma senza malus, poi per punti di comfort tolti dal freddo (1, 2, 3 e più)
@@ -2502,7 +2504,8 @@ func build_tip(kind: Build) -> Control:
 		box.add_child(keeps)
 	if SPLENDOR.has(kind):
 		var splendor := Label.new()
-		splendor.text = tr("+%d colony splendor") % SPLENDOR[kind]
+		var text := tr("+%d colony splendor, only the first one") if kind in SPLENDOR_ONCE else tr("+%d colony splendor")
+		splendor.text = text % SPLENDOR[kind]
 		splendor.add_theme_color_override("font_color", SPLENDOR_COLOR)
 		box.add_child(splendor)
 	box.add_child(HSeparator.new())
@@ -4418,11 +4421,17 @@ func in_bed(c: Colonist) -> bool:
 	return c.job == Job.SLEEP and not pieces_at(furniture, cell_of(c.pos)).filter(func(o): return furniture[o][0] in BEDS).is_empty()
 
 
-# Splendore della colonia: la somma delle decorazioni finite (SPLENDOR), ovunque stiano, e degli avventurieri famosi.
+# Splendore della colonia: la somma delle decorazioni finite (SPLENDOR), ovunque stiano (quelle di SPLENDOR_ONCE una
+# volta sola), e degli avventurieri famosi.
 func colony_splendor() -> int:
-	return (PALACE[1] if researched.has(Tech.PALACE) and rooms.any(func(r): return r.kind == RoomKind.THRONE_ROOM) else 0) \
-		+ furniture.values().map(func(plan): return SPLENDOR.get(plan[0], 0)).reduce(func(a, b): return a + b, 0) \
-		+ people().reduce(func(n, g): return n + gift(g, "splendor", 0), 0)  # i famosi: avventurieri, anche rimasti
+	var palace: bool = researched.has(Tech.PALACE) and rooms.any(func(r): return r.kind == RoomKind.THRONE_ROOM)
+	var sum: int = PALACE[1] if palace else 0
+	var seen := {}
+	for plan in furniture.values():
+		if SPLENDOR.has(plan[0]) and not (plan[0] in SPLENDOR_ONCE and seen.has(plan[0])):
+			sum += SPLENDOR[plan[0]]
+			seen[plan[0]] = true
+	return sum + people().reduce(func(n, g): return n + gift(g, "splendor", 0), 0)  # i famosi, anche rimasti
 
 
 # Comfort dove sta il colono: i mobili della stanza, in proporzione se ha meno di ROOM_SPACE caselle a testa (fuori 0),

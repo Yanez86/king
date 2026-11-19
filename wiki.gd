@@ -516,7 +516,7 @@ For now it does two things:
 [cell]Planter[/cell][cell]1[/cell][cell]5 stone[/cell][cell]Decor[/cell]
 [cell]Bench[/cell][cell]1[/cell][cell]6 wood[/cell][cell]Decor[/cell]
 [cell]Lantern[/cell][cell]1[/cell][cell]3 wood, 1 coal[/cell][cell]Lanterns[/cell]
-[cell]Banner[/cell][cell]2[/cell][cell]4 wood[/cell][cell]–[/cell]
+[cell]Banner[/cell][cell]1, once[/cell][cell]4 wood[/cell][cell]–[/cell]
 [cell]Fountain[/cell][cell]6[/cell][cell]30 stone[/cell][cell]Fountain[/cell]
 [cell]Statue[/cell][cell]8[/cell][cell]40 stone[/cell][cell]Statuary[/cell]
 [cell]Chalice[/cell][cell]3[/cell][cell]the relic[/cell][cell]–[/cell]
@@ -524,7 +524,7 @@ For now it does two things:
 [cell]Bust[/cell][cell]5[/cell][cell]the relic[/cell][cell]–[/cell]
 [cell]Crown[/cell][cell]6[/cell][cell]the relic[/cell][cell]–[/cell]
 [/table]
-• The bench (2x1) also gives +0.5 room comfort. The lantern lights the roads at night. The banner flies the arms of your house. Fountain and statue take 2x2 tiles.
+• The bench (2x1) also gives +0.5 room comfort. The lantern lights the roads at night. The banner flies the arms of your house; only the first gives splendor, the others are just decoration. Fountain and statue take 2x2 tiles.
 • Relics are found only by adventurers, in ruins. They come home as items: build them from the furniture bar, one relic for each piece."""],
 
 	["Adventurers", """[color=#e8c34a]The inn[/color]
