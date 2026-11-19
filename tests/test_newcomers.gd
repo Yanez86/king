@@ -322,18 +322,31 @@ func _initialize() -> void:
 	var board = main.get_node("HUD/BoardPanel/Box")
 	check(board.get_node("Columns/Left/Waiting/People/Company").visible and board.get_node("Columns/Left/Waiting/People/Company/List").get_child_count() == main.volunteers().size(),
 		"la bacheca mostra i coloni che possono partire")
-	# un clic sul riquadro lo spunta, e il riquadro si illumina
+	# un clic sul riquadro lo mette nella squadra; un clic nella squadra lo toglie. Lo stesso trascinandolo
 	var card_of := func(o): return board.get_node("Columns/Left/Waiting/People/Heroes").get_children().filter(func(n): return n is PanelContainer \
-		and n.find_children("*", "Label", true, false).any(func(l): return l.text == "%s %s" % [o.first_name, o.last_name]))[0]
-	var click := InputEventMouseButton.new()
+		and n.find_children("*", "Label", true, false).any(func(l): return l.text == "%s %s" % [o.first_name, o.last_name]))
+	var slots: Control = board.get_node("Columns/Right/Party/Box/Slots")
+	var click := InputEventMouseButton.new()  # il clic conta quando si lascia il tasto: se si trascina, no
 	click.button_index = MOUSE_BUTTON_LEFT
 	click.pressed = true
-	card_of.call(leader).gui_input.emit(click)
+	card_of.call(leader)[0].gui_input.emit(click)
+	check(main.board_pick.is_empty(), "premuto non basta: si potrebbe trascinare")
+	click.pressed = false
+	card_of.call(leader)[0].gui_input.emit(click)
 	main.fill_board()
-	check(main.board_pick == [leader] and card_of.call(leader).get_theme_stylebox("panel").border_color == main.SPLENDOR_COLOR,
-		"un clic sul riquadro lo spunta, e si illumina")
-	card_of.call(leader).gui_input.emit(click)
-	check(main.board_pick.is_empty(), "un altro clic lo toglie")
+	check(main.board_pick == [leader] and card_of.call(leader).is_empty() and board.get_node("Columns/Right/PartyTitle").text == "Party (1 / 4)"
+		and slots.get_child(0).find_children("*", "Label", true, false)[0].text == leader.first_name, "un clic: nella squadra")
+	check(slots.get_child_count() == main.MAX_PARTY and slots.get_child(1).find_children("*", "Label", true, false)[0].text == "Free",
+		"gli altri posti liberi")
+	slots.get_child(0).gui_input.emit(click)
+	main.fill_board()
+	check(main.board_pick.is_empty() and not card_of.call(leader).is_empty(), "un clic nella squadra: torna alla locanda")
+	var data: Dictionary = main.board_drag(Vector2.ZERO, card_of.call(leader)[0], leader, false)
+	check(main.board_can_drop(Vector2.ZERO, data, true) and not main.board_can_drop(Vector2.ZERO, data, false), "trascinato: va solo nella squadra")
+	main.board_drop(Vector2.ZERO, data, true)
+	check(main.board_pick == [leader], "lasciato nella squadra, parte")
+	main.board_drop(Vector2.ZERO, {"board": leader, "party": true}, false)
+	check(main.board_pick.is_empty(), "riportato a sinistra, resta")
 	main.toggle_pick(true, farmer)
 	main.fill_board()
 	var send_button: Button = board.get_node("Columns/Right/Places/List/Ruins").get_child(0).find_child("Send", true, false)

@@ -84,19 +84,25 @@ func _initialize() -> void:
 	main.open_board()
 	var box = main.get_node("HUD/BoardPanel/Box")
 	check(main.get_node("HUD/BoardPanel").visible and box.get_node("Columns/Left/Waiting/People/Heroes").get_child_count() == 1, "la bacheca mostra chi aspetta")
-	var pick: CheckBox = box.get_node("Columns/Left/Waiting/People/Heroes").get_child(0).find_child("Pick", true, false)
+	var card: Control = box.get_node("Columns/Left/Waiting/People/Heroes").get_child(0)
 	var send: Button = box.get_node("Columns/Right/Places/List/Ruins").get_child(0).find_child("Send", true, false)
-	check(send.disabled, "senza nessuno spuntato non si manda nessuno")
-	pick.button_pressed = true
+	check(send.disabled, "senza nessuno in squadra non si manda nessuno")
+	var click := InputEventMouseButton.new()  # il clic conta quando si lascia il tasto
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = false
+	card.gui_input.emit(click)
 	main.fill_board()
 	send = box.get_node("Columns/Right/Places/List/Ruins").get_child(0).find_child("Send", true, false)
+	var slot: Control = box.get_node("Columns/Right/Party/Box/Slots").get_child(0)
+	check(slot.find_children("*", "Label", true, false).any(func(l): return l.text == g.first_name)
+		and box.get_node("Columns/Left/Waiting/People/Heroes").get_child(0) is Label, "cliccato, va nella squadra (e lascia la locanda)")
 	check(main.board_pick == [g] and send.disabled == (main.fee(g) > 12), "spuntato; senza abbastanza oro non si parte")
 	check(not main.send([g], tower) or main.fee(g) <= 12, "ingaggio rifiutato")
 	main.add_item(R.GOLD, store, 50)
 	var gold_before: int = main.stored(R.GOLD)
 	check(main.provisions([g], tower) == 3, "provviste: un giorno a testa, andata, 3 stanze e ritorno")
 	main.fill_board()
-	check(box.get_node("Gold").text.begins_with(main.coins(main.stored(R.GOLD))), "sulla bacheca le monete con l'icona")
+	check(box.get_node("Top/Gold").text.begins_with(main.coins(main.stored(R.GOLD))), "sulla bacheca le monete con l'icona")
 	main.drop(R.LEATHER_ARMOR, mid + Vector2i(6, 6), 1)
 	check(main.job_list().contains("Haul %s: 1" % main.item_name(R.LEATHER_ARMOR)) and main.item_name(R.LEATHER_ARMOR).ends_with(" leather armor"),
 		"finestra Jobs: nomi senza trattini, col tipo")

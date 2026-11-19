@@ -646,8 +646,8 @@ func _initialize() -> void:
 	main.guests.clear()
 	main.board_key = ""
 	main.fill_board()
-	var notice: OptionButton = main.get_node("HUD/BoardPanel/Box/Notice/Class")
-	check(main.get_node("HUD/BoardPanel/Box/Notice").visible and notice.item_count == main.Hero.size(), "l'avviso sulla bacheca")
+	var notice: OptionButton = main.get_node("HUD/BoardPanel/Box/Top/Notice/Class")
+	check(main.get_node("HUD/BoardPanel/Box/Top/Notice").visible and notice.item_count == main.Hero.size(), "l'avviso sulla bacheca")
 	notice.item_selected.emit(notice.get_item_index(main.Hero.BURGLAR))
 	check(main.wanted_hero == main.Hero.BURGLAR, "si chiede uno scassinatore")
 	main.next_guest = main.clock
