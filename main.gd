@@ -7,7 +7,11 @@ const STONE_PER_CELL := 5   # pietra (o ferro, carbone) in un masso, per casella
 const ORE_VEIN := 0.35      # soglia del rumore delle vene: più alta, meno minerale nella roccia (vedi generate_map)
 const UPROOT_TIME := 1.5    # secondi per estirpare un'erbaccia o un cespuglio
 const BERRIES_PER_BUSH := 5 # bacche (vegetali) su un cespuglio maturo
-const BERRY_REGROW := 2.0   # giorni prima che il cespuglio rifaccia le bacche
+const BERRY_REGROW := 2.0   # giorni prima che il cespuglio rifaccia le bacche (e il lino i fiori, e le erbe medicinali)
+const HERB_SHARE := 150     # caselle di prato libero per erba medicinale, fuori dalla radura (vedi scatter_herbs)
+const WOUNDED := 60.0       # punti ferita: sotto, chi è in piedi si spalma un unguento (vedi try_salve)
+const SALVE_HEAL := 30.0    # punti ferita di un unguento
+const SALVE_TIME := 3.0     # secondi per spalmarselo
 # Orto (Tech.GARDEN): caselle di prato segnate con "Garden" (vedi garden). Le caselle che si toccano fanno un campo,
 # col suo cartello (vedi update_fields, open_field): la coltura di ogni anno la dice il piano di rotazione (vedi plans).
 # Il contadino (abilità raccogliere) semina, e coi tempi veri (CROP_DAYS) raccoglie CROP_YIELD a casella secondo la
@@ -81,7 +85,7 @@ const SIDES := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 const TREE_SIDES := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  # da sopra la chioma coprirebbe chi taglia
 
 enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE,
-	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE, DOUSE, FARM, FERTILIZE, OATH }
+	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE, DOUSE, FARM, FERTILIZE, OATH, SALVE }
 const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FURNISH, Job.HARVEST, Job.COOK, Job.FISH,
 	Job.HUNT, Job.CRAFT, Job.STUDY, Job.GOVERN, Job.REPAIR, Job.CUT_ICE, Job.FARM, Job.FERTILIZE]  # contano come ore di lavoro
 # Tabella delle priorità (in cima alla finestra Jobs): per colono e per lavoro da 1 (prima) a PRIORITY_LEVELS (dopo),
@@ -95,7 +99,7 @@ const WORK_ICONS := [preload("res://art/icon_meal.png"), preload("res://art/icon
 	preload("res://art/icon_fishing.png"), preload("res://art/icon_hunting.png"), preload("res://art/icon_build.png"),
 	preload("res://art/icon_resources.png"), preload("res://art/icon_authority.png"), preload("res://art/icon_study.png")]
 const WORK_INFO := ["Cooking meals at the campfire or the hearth.", "Forge, workbench, spinning wheel, carpenter's bench, furnace.",
-	"Felling the marked trees.", "Mining the marked boulders, cutting ice.", "Picking bushes and flax, uprooting.",
+	"Felling the marked trees.", "Mining the marked boulders, cutting ice.", "Picking bushes, flax and herbs, uprooting.",
 	"Sowing, harvesting and fertilizing the garden.", "Fishing at the marked water.", "Hunting the marked animals.",
 	"Building, furnishing, repairing roofs.", "Carrying things into the warehouses.",
 	"Governing from the throne: only the ruler.", "Studying at a desk."]
@@ -113,13 +117,15 @@ const PRIORITY_COLORS := [Color("c86450"), Color("e8c34a"), Color("e6e2d0"), Col
 enum Res { WOOD, STONE, VEG, IRON, COAL, MEAL, FINE_MEAL, MEAT, FISH, HIDE, INGOT, FLAX, BOWSTRING,
 	PICKAXE, AXE, SICKLE, BOW, LEATHER_ARMOR, LEATHER_HOOD, HELMET, CHAINMAIL, SWORD, GOLD, DAGGER,
 	CHALICE, OLD_BANNER, BUST, CROWN, NOTEBOOK, TOME, CODEX, HARDTACK, SMOKED_MEAT, SMOKED_FISH, SHIELD,
-	STEEL, PARCHMENT, INK, ICE, TURNIP, CABBAGE, BEANS, ROT, COMPOST, ASH }  # ICE: blocchi tagliati dall'acqua gelata, per la
-	# ghiacciaia (vedi Order.ICE); TURNIP, CABBAGE, BEANS: dall'orto (vedi garden), si conservano a lungo, le fave secche più
-	# di tutto; ROT, COMPOST, ASH: i concimi (vedi Tech.MANURING)
+	STEEL, PARCHMENT, INK, ICE, TURNIP, CABBAGE, BEANS, ROT, COMPOST, ASH, HERBS, OINTMENT }  # ICE: blocchi tagliati
+	# dall'acqua gelata, per la ghiacciaia (vedi Order.ICE); TURNIP, CABBAGE, BEANS: dall'orto (vedi garden), si conservano
+	# a lungo, le fave secche più di tutto; ROT, COMPOST, ASH: i concimi (vedi Tech.MANURING); HERBS: erbe medicinali, dai
+	# prati (vedi herbs); OINTMENT: l'unguento, dalle erbe al fuoco (vedi Tech.HERBALISM, try_salve)
 const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.TURNIP: 50, Res.CABBAGE: 50, Res.BEANS: 50, Res.ROT: 40, Res.COMPOST: 30, Res.ASH: 30, Res.IRON: 50, Res.COAL: 50, Res.MEAL: 20, Res.FINE_MEAL: 20,
 	Res.MEAT: 50, Res.FISH: 50, Res.HIDE: 50, Res.INGOT: 50, Res.FLAX: 50, Res.BOWSTRING: 50, Res.PICKAXE: 10, Res.AXE: 10, Res.SICKLE: 10, Res.BOW: 10,
 	Res.LEATHER_ARMOR: 10, Res.LEATHER_HOOD: 10, Res.HELMET: 10, Res.CHAINMAIL: 10, Res.SWORD: 10, Res.GOLD: 100, Res.DAGGER: 10,
-	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5, Res.NOTEBOOK: 10, Res.TOME: 10, Res.CODEX: 10, Res.HARDTACK: 50, Res.SMOKED_MEAT: 50, Res.SMOKED_FISH: 50, Res.SHIELD: 10, Res.STEEL: 50, Res.PARCHMENT: 50, Res.INK: 20, Res.ICE: 50}  # quantità massima per mucchio (casella)
+	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5, Res.NOTEBOOK: 10, Res.TOME: 10, Res.CODEX: 10, Res.HARDTACK: 50, Res.SMOKED_MEAT: 50, Res.SMOKED_FISH: 50, Res.SHIELD: 10, Res.STEEL: 50, Res.PARCHMENT: 50, Res.INK: 20, Res.ICE: 50,
+	Res.HERBS: 50, Res.OINTMENT: 20}  # quantità massima per mucchio (casella)
 const MEALS := [Res.FINE_MEAL, Res.MEAL]  # cotti: chi ha fame li prende in quest'ordine, poi il crudo
 const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT, Res.SMOKED_FISH, Res.SMOKED_MEAT, Res.TURNIP, Res.CABBAGE, Res.BEANS]  # crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti (prima quello che dura meno)
 const START_GOLD := 60      # monete all'inizio, a terra nella radura: le si spende quando sono in un magazzino
@@ -148,6 +154,7 @@ const ITEM_KIND := {
 	Res.SMOKED_MEAT: ItemKind.FOOD, Res.SMOKED_FISH: ItemKind.FOOD, Res.SHIELD: ItemKind.ARMOR,
 	Res.STEEL: ItemKind.MATERIAL, Res.PARCHMENT: ItemKind.MATERIAL, Res.INK: ItemKind.MATERIAL, Res.ICE: ItemKind.MATERIAL,
 	Res.ROT: ItemKind.MATERIAL, Res.COMPOST: ItemKind.MATERIAL, Res.ASH: ItemKind.MATERIAL,
+	Res.HERBS: ItemKind.MATERIAL, Res.OINTMENT: ItemKind.MATERIAL,
 }
 # cibo: quanto sazia (vedi eat) e in quanti giorni marcisce a terra fuori (vedi spoil); in magazzino ci mette il doppio.
 # Il crudo sazia meno e può intossicare (vedi poison_chance), i pasti no e danno un bonus (vedi Cond)
@@ -246,7 +253,7 @@ const DOING := {Job.CHOP: "Chopping a tree", Job.MINE: "Mining", Job.UPROOT: "Up
 	Job.FIGHT: "Fighting", Job.FLEE: "Fleeing", Job.TANTRUM: "Storming off in a rage", Job.STUDY: "Studying",
 	Job.GOVERN: "Holding audience", Job.PROTEST: "Protesting in the throne room", Job.REPAIR: "Repairing a roof",
 	Job.CUT_ICE: "Cutting ice", Job.DOUSE: "Putting out a fire", Job.FARM: "Tending the garden",
-	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne"}
+	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne", Job.SALVE: "Tending a wound"}
 const BOARD_LIST := 400.0  # pixel: la lista di chi può partire sulla bacheca, al più; poi scorre
 const BOARD_PLACES := 230.0  # pixel: le rovine e le spedizioni, sotto la squadra, al più; poi scorrono
 const BOARD_SLOT := 122    # pixel: un posto della squadra (MAX_PARTY in fila)
@@ -477,12 +484,14 @@ const RECIPES := [
 	[Res.HARDTACK, Build.CAMPFIRE, Skill.COOKING, {Res.VEG: 2}, 10.0],  # gallette
 	[Res.SMOKED_MEAT, Build.CAMPFIRE, Skill.COOKING, {Res.MEAT: 1}, 8.0],  # affumicati
 	[Res.SMOKED_FISH, Build.CAMPFIRE, Skill.COOKING, {Res.FISH: 1}, 8.0],
+	[Res.OINTMENT, Build.CAMPFIRE, Skill.MEDICINE, {Res.HERBS: 2}, 10.0],  # le erbe pestate e cotte nel grasso
 ]
 const SMOKED := [Res.SMOKED_MEAT, Res.SMOKED_FISH]
 const SMOKE_TIME := 0.75     # affumicare al fuoco da campo, dove il fumo resta: tempo x (al focolare va su per la canna)
 const STATION_ROOM := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.HEARTH: RoomKind.KITCHEN, Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP,
 	Build.SPINNING_WHEEL: RoomKind.WORKSHOP, Build.CARPENTER_BENCH: RoomKind.CARPENTRY, Build.DESK: RoomKind.STUDY}
-const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.COAL: 5}  # scorte di partenza, vedi keep; i pasti MEALS_PER_COLONIST a testa
+const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.COAL: 5, Res.OINTMENT: 3}  # scorte di partenza, vedi keep; i pasti
+	# MEALS_PER_COLONIST a testa
 enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT, ICE, GARDEN }  # cosa segna il trascinamento del mouse
 const ORDER_COLORS := [Color.TRANSPARENT, Color.ORANGE, Color("8fd3ff"), Color("9be36a"), Color("e6e2d0"),
 	Color("ff5a5a"), Color("c83030"), Color("d84a6a"), Color("6ab0e0"), Color("c87a3a"), Color("bfe6f2"), Color("c8a46a")]  # selezione e segni, per Order
@@ -665,7 +674,7 @@ const SAVE_LIST := preload("res://save_list.gd")
 # le variabili della partita che si salvano, così come sono (gli oggetti dentro li impacchetta SAVES.Packer); il resto
 # si rifà da queste (vedi restore) o è interfaccia. Una variabile nuova dello stato del gioco va aggiunta qui
 const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today", "hour", "rocks", "boulders", "ores", "water",
-	"trees", "stock", "bushes", "flax", "weeds", "chop_marks", "mine_marks", "uproot_marks", "harvest_marks", "fish_marks",
+	"trees", "stock", "bushes", "flax", "herbs", "weeds", "chop_marks", "mine_marks", "uproot_marks", "harvest_marks", "fish_marks",
 	"fish_spots", "items", "fresh", "draft", "blueprints", "built", "furniture_draft", "furniture_plans", "furniture",
 	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
 	"fallen", "animals", "arrows", "next_animal", "guests", "next_guest", "ruins", "expeditions",
@@ -903,6 +912,8 @@ const ICONS := {
 	Res.HIDE: preload("res://art/icon_hide.png"),
 	Res.INGOT: preload("res://art/icon_ingot.png"),
 	Res.FLAX: preload("res://art/icon_flax.png"),
+	Res.HERBS: preload("res://art/icon_herbs.png"),
+	Res.OINTMENT: preload("res://art/icon_ointment.png"),
 	Res.BOWSTRING: preload("res://art/icon_bowstring.png"),
 	Res.PICKAXE: preload("res://art/icon_mine.png"),
 	Res.AXE: preload("res://art/icon_chop.png"),
@@ -938,7 +949,7 @@ const PLASTER_ROW := 10      # in STRUCTURES: i muri di legno intonacati
 const WALL_LINKS := [Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]  # bit 1, 2, 4, 8 della colonna dei muri
 # scheda del colono, vedi open_sheet
 enum Skill { GATHERING, MINING, WOODCUTTING, CONSTRUCTION, SMITHING, TAILORING, COOKING, FISHING, HUNTING, MELEE, RANGED, RESEARCH,
-	LOCKPICKING }  # scassinare: per ora solo gli scassinatori (vedi HEROES)
+	LOCKPICKING, MEDICINE }  # scassinare: per ora solo gli scassinatori (vedi HEROES); medicina: l'unguento e le cure
 const SKILL_MAX := 10       # livelli 0-10 (si parte da 0): al massimo, nella scheda, compare la stellina
 const CORPSE_SHADE := Color(0.6, 0.6, 0.65)  # i morti, smorti
 # raccolta: [abilità, secondi per colpo a livello 5 (vedi gather_time), quantità per colpo, risorsa]; i massi con la
@@ -1161,7 +1172,7 @@ const BRANCHES_SHEET := preload("res://art/branches.png")
 enum Tech { FORGE, TAILORING, HUNTING, INN, MASONRY, DECOR, LANTERNS, IRON_ARMS, BOOKSHELF, CHAINMAIL, FOUNTAIN, STATUARY,
 	ASTRONOMY, CHARCOAL, COLD_STORE, PAVED_ROAD, DRY_RATIONS, CARTOGRAPHY, PALISADE, TRAINING_DUMMY, SMOKEHOUSE, RENOWNED_INN,
 	WATCHTOWER, SHIELD, LENDING_ARMORY, STEEL, SCRIPTORIUM, FINE_FURNITURE, PALACE, LOOM, TILED_STOVE, ICEHOUSE, GARDEN,
-	SOIL_SURVEY, ALMANAC, LAND_REGISTER, MANURING, CROWN_COMPANY }
+	SOIL_SURVEY, ALMANAC, LAND_REGISTER, MANURING, CROWN_COMPANY, HERBALISM }
 const TECHS_SHEET := preload("res://art/techs.png")
 const TECHS := {
 	Tech.FORGE: {"branch": Branch.FIRE, "tier": 1, "cost": 60, "builds": [Build.FURNACE, Build.ANVIL],
@@ -1241,6 +1252,8 @@ const TECHS := {
 		"info": "The tiled stove, against a wall: +10 °C to its room and to the one behind, through stone too."},
 	Tech.WATCHTOWER: {"branch": Branch.IRON, "tier": 2, "cost": 300, "needs": [Tech.PALISADE], "builds": [Build.WATCHTOWER],
 		"info": "The watchtower and its bell: wolves are seen 20 tiles away. An archer up there shoots 2 tiles farther, +15% to hit."},
+	Tech.HERBALISM: {"branch": Branch.LORE, "tier": 1, "cost": 100, "makes": [Res.OINTMENT],
+		"info": "At the campfire, ointment from 2 medicinal herbs (they grow in the meadows). Whoever is under 60 health spreads it on: +30."},
 }
 const ROAD_SPEED := 1.25    # sulla strada lastricata si va più svelti
 const MAPPED_TRAVEL := 0.75 # con la cartografia, giorni di viaggio x
@@ -1508,6 +1521,7 @@ var trees := {}             # cella -> TreeKind (attraversabile), in ordine di r
 var stock := {}             # albero, masso (cella d'origine) o cespuglio -> quanto resta da raccogliere; se manca, full_stock
 var bushes := {}            # cella -> `clock` da cui ha le bacche (attraversabile): raccolte, il cespuglio resta
 var flax := {}              # cella -> true: i cespugli che sono lino; in fiore (le "bacche") danno il lino
+var herbs := {}             # cella -> true: i cespugli che sono erbe medicinali; in fiore danno le erbe (vedi scatter_herbs)
 var weeds := {}             # cella -> true: erbacce (attraversabili)
 var chop_marks := {}        # cella -> true: alberi da tagliare
 var mine_marks := {}        # cella d'origine -> true: massi da scavare
@@ -2137,6 +2151,14 @@ func restore(state: Dictionary) -> void:
 	for res in Res.values():  # un oggetto nuovo, che il salvataggio non conosceva: nessuno a terra
 		if not items.has(res):
 			items[res] = {}
+	for res in STOCK:  # un prodotto nuovo: la sua scorta di partenza
+		if not keep.has(res):
+			keep[res] = STOCK[res]
+	for c in unpacker.objects[saved_classes().find(Colonist)]:  # un'abilità nuova: livello 0
+		while c.skills.size() < Skill.size():
+			c.skills.append(0)
+		while c.xp.size() < Skill.size():
+			c.xp.append(0)
 	wild.seed = state["wild"][0]
 	wild.state = state["wild"][1]  # dopo il seme, che lo azzera
 	if soil.size() != MAP_SIZE.x * MAP_SIZE.y:  # un salvataggio di prima della fertilità
@@ -2149,6 +2171,8 @@ func restore(state: Dictionary) -> void:
 			tired[k] = [tired[k][0], tired[k][2]]
 	update_fields()
 	rebuild_grid()
+	if not state["main"].has("herbs"):  # di prima delle erbe medicinali: sul prato libero (la roccia è già solida)
+		scatter_herbs()
 	update_roofs()
 	update_stockpile()
 	bake_ground(ground_noise(map_seed))
@@ -3423,8 +3447,9 @@ func describe(cell: Vector2i) -> Array:
 	var uproot := tr("\nMarked: uproot") if uproot_marks.has(cell) else (tr("\nMarked: harvest") if harvest_marks.has(cell) else "")
 	if bushes.has(cell):
 		var ripe: bool = bushes[cell] <= clock
-		var crop := tr("Flax") if flax.has(cell) else tr("Berries")
-		return [tr("Flax") if flax.has(cell) else tr("Bush"), ("%s: %d / %d" % [crop, stock.get(cell, BERRIES_PER_BUSH), BERRIES_PER_BUSH]
+		var crop := tr("Flax") if flax.has(cell) else (named(Res, Res.HERBS, "item") if herbs.has(cell) else tr("Berries"))
+		var plant := tr("Flax") if flax.has(cell) else (tr("Medicinal herbs") if herbs.has(cell) else tr("Bush"))
+		return [plant, ("%s: %d / %d" % [crop, stock.get(cell, BERRIES_PER_BUSH), BERRIES_PER_BUSH]
 			if ripe else tr("%s in %.1f days") % [crop, bushes[cell] - clock]) + uproot]
 	if weeds.has(cell):
 		return [tr("Weed"), uproot.strip_edges()]
@@ -3638,6 +3663,7 @@ func generate_map() -> void:
 				boulders[cell] = size
 				break
 
+	scatter_herbs()
 	wild.seed = noise.seed + 3
 	for kind in BEASTS:
 		for i in BEASTS[kind]["start"]:
@@ -3654,6 +3680,21 @@ func generate_map() -> void:
 	make_soil()
 	gravel = rocks.duplicate()
 	bake_ground(noise)
+
+
+# Le erbe medicinali (vedi herbs): piantine fiorite sparse nei prati, una ogni HERB_SHARE caselle di prato libero fuori
+# dalla radura, col caso loro (dal seme della mappa: il resto della mappa non cambia). Anche caricando una partita di
+# prima delle erbe (vedi restore), dove il prato è ancora libero
+func scatter_herbs() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = map_seed + 4
+	for y in MAP_SIZE.y:
+		for x in MAP_SIZE.x:
+			var cell := Vector2i(x, y)
+			if rng.randf() < 1.0 / HERB_SHARE and (cell - MAP_SIZE / 2).length() >= 4 and can_build(cell) \
+					and room_at(cell) == null:
+				bushes[cell] = 0.0
+				herbs[cell] = true
 
 
 # il rumore della mappa (roccia, alberi, erba sassosa): lo stesso `from`, le stesse chiazze
@@ -3882,7 +3923,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			if c.work_left > 0:
 				return
 			var gather: Array = GATHER[c.job]
-			var res: Res = Res.FLAX if flax.has(c.target) else ores.get(c.target, gather[3])
+			var res: Res = bush_res(c.target) if bushes.has(c.target) else ores.get(c.target, gather[3])
 			var left: int = stock.get(c.target, full_stock(c.target))
 			var got := mini(left, gather[2])
 			if c.job == Job.FISH:
@@ -3974,6 +4015,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			if c.work_left <= 0:
 				bushes.erase(c.target)
 				flax.erase(c.target)
+				herbs.erase(c.target)
 				weeds.erase(c.target)
 				uproot_marks.erase(c.target)
 				harvest_marks.erase(c.target)
@@ -4113,6 +4155,19 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			end_job(c)
 		Job.CRAFT:
 			craft(c, delta)
+		Job.SALVE:  # al mucchio prende l'unguento (carry_res) e se lo spalma lì
+			if c.carrying == 0:
+				if not items[Res.OINTMENT].has(c.target):  # preso da altri
+					end_job(c)
+					return
+				pick_up(c, Res.OINTMENT, c.target, 1)
+				reserved.erase(c.target)
+			c.work_left -= delta
+			if c.work_left > 0:
+				return
+			c.carrying = 0
+			c.hp = minf(c.hp + SALVE_HEAL, MAX_HP)
+			end_job(c)
 		Job.HUNT:  # a tiro (vedi track_prey): mira e tira; colpito o mancato l'animale scappa, abbattuto lascia la carne
 			var a: Animal = c.prey
 			var dist := c.pos.distance_to(a.pos) / TILE
@@ -4986,6 +5041,8 @@ func find_job(c: Colonist) -> void:
 				start_job(c, Job.EAT, to_food, to_food.back(), 0.0)
 				c.carry_res = res
 				return
+	if not visitor(c) and try_salve(c):  # ferito: l'unguento, se ce n'è
+		return
 	if act == Act.SLEEP:
 		if not go_to_bed(c):
 			var stay: Array[Vector2i] = []
@@ -5016,6 +5073,19 @@ func find_job(c: Colonist) -> void:
 				if astar.is_in_boundsv(s) and not astar.is_point_solid(s) and not trees.has(s) and not stockpile.has(s):
 					aside.append(s)
 		c.path = path_to_nearest(c, aside)
+
+
+# Chi ha meno di WOUNDED punti ferita si spalma un unguento (Erboristeria), se ce n'è uno in un mucchio libero dove
+# arriva: va a prenderlo, poi SALVE_TIME secondi e SALVE_HEAL punti ferita (vedi Job.SALVE). false se no
+func try_salve(c: Colonist) -> bool:
+	if c.hp >= WOUNDED or items[Res.OINTMENT].is_empty():
+		return false
+	var path := path_to_nearest(c, items[Res.OINTMENT].keys().filter(func(cell): return is_free(cell)))
+	if path.is_empty():
+		return false
+	start_job(c, Job.SALVE, path, path.back(), SALVE_TIME)
+	c.carry_res = Res.OINTMENT
+	return true
 
 
 # va a dormire nel letto libero più vicino dove può arrivare; false se non ce n'è
@@ -10120,9 +10190,14 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 		draw_rect(Rect2(Vector2(r.position) * TILE, Vector2(r.size) * TILE), ORDER_COLORS[order], false, 1.0)
 
 
-# colonna di PLANTS del cespuglio (o del lino) in `cell` senza bacche (fiori); quella dopo è con
+# colonna di PLANTS del cespuglio (o del lino, delle erbe) in `cell` senza bacche (fiori); quella dopo è con
 func plant_col(cell: Vector2i) -> int:
-	return 3 if flax.has(cell) else 1
+	return 3 if flax.has(cell) else (5 if herbs.has(cell) else 1)
+
+
+# quello che dà il cespuglio in `cell`, raccolto: bacche, lino o erbe
+func bush_res(cell: Vector2i) -> Res:
+	return Res.FLAX if flax.has(cell) else (Res.HERBS if herbs.has(cell) else Res.VEG)
 
 
 # Freccia in volo: asticella di legno con la punta di ferro e le penne, su una parabola bassa (la sua ombra resta a

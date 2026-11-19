@@ -38,7 +38,7 @@ CONTEXT = {"Res": "item", "Skill": "skill", "Branch": "branch"}  # i contesti di
 PAGE_ICONS = [("art/icon_game.png",), ("art/icon_keybindings.png",), ("art/icon_colonists.png",),
               ("art/skills.png", 72, 0, 8, 8), ("art/traits.png", 0, 0, 16, 16), ("art/conditions.png", 16, 0, 16, 16),
               ("art/icon_crown.png",), ("art/icon_build.png",), ("art/sign.png",), ("art/icon_heat.png",), ("art/icon_meal.png",),
-              ("art/icon_harvest.png",), ("art/icon_ingot.png",), ("art/animals.png", 0, 32, 16, 16),
+              ("art/icon_harvest.png",), ("art/icon_ingot.png",), ("art/animals.png", 0, 32, 16, 16), ("art/icon_ointment.png",),
               ("art/furniture.png", 0, 416, 16, 16), ("art/icon_dagger.png",), ("art/icon_chalice.png",),
               ("art/icon_study.png",), ("art/icon_authority.png",)]
 TODO_ICON = ("art/icon_parchment.png",)

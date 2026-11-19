@@ -1366,6 +1366,9 @@ msgstr "Bacche"
 msgid "Bush"
 msgstr "Cespuglio"
 
+msgid "Medicinal herbs"
+msgstr "Erbe medicinali"
+
 msgid "%s in %.1f days"
 msgstr "%s tra %.1f giorni"
 
@@ -2011,6 +2014,10 @@ msgstr "Ricerca"
 msgctxt "skill"
 msgid "Lockpicking"
 msgstr "Scassinare"
+
+msgctxt "skill"
+msgid "Medicine"
+msgstr "Medicina"
 
 msgctxt "branch"
 msgid "Land"
@@ -3133,8 +3140,8 @@ msgstr "Abbattere gli alberi segnati."
 msgid "Mining the marked boulders, cutting ice."
 msgstr "Scavare i massi segnati, tagliare il ghiaccio."
 
-msgid "Picking bushes and flax, uprooting."
-msgstr "Raccogliere da cespugli e lino, estirpare."
+msgid "Picking bushes, flax and herbs, uprooting."
+msgstr "Raccogliere da cespugli, lino ed erbe, estirpare."
 
 msgid "Sowing, harvesting and fertilizing the garden."
 msgstr "Seminare, raccogliere e concimare l'orto."
@@ -3214,6 +3221,14 @@ msgstr "Compost"
 msgctxt "item"
 msgid "Ash"
 msgstr "Cenere"
+
+msgctxt "item"
+msgid "Herbs"
+msgstr "Erbe"
+
+msgctxt "item"
+msgid "Ointment"
+msgstr "Unguento"
 
 msgid "compost in %.1f days"
 msgstr "compost fra %.1f giorni"
@@ -3534,6 +3549,12 @@ msgstr "Compagnia della corona"
 msgid "Colonists go along with the adventurers: pick them on the notice board, with at least one adventurer. They ask no fee and keep no share."
 msgstr "I coloni partono con gli avventurieri: si spuntano sulla bacheca, con almeno un avventuriero. Non chiedono paga e non prendono la quota."
 
+msgid "Herbalism"
+msgstr "Erboristeria"
+
+msgid "At the campfire, ointment from 2 medicinal herbs (they grow in the meadows). Whoever is under 60 health spreads it on: +30."
+msgstr "Al fuoco da campo, l'unguento da 2 erbe medicinali (crescono nei prati). Chi è sotto 60 punti ferita se lo spalma: +30."
+
 msgid "The crown's company: colonists who can go along"
 msgstr "La compagnia della corona: i coloni che possono partire"
 
@@ -3774,6 +3795,10 @@ msgstr "Concima l'orto"
 msgctxt "doing"
 msgid "Swearing loyalty before the throne"
 msgstr "Giura fedeltà davanti al trono"
+
+msgctxt "doing"
+msgid "Tending a wound"
+msgstr "Si medica"
 
 msgctxt "doing"
 msgid "Coming to the inn"

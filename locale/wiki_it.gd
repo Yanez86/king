@@ -99,13 +99,14 @@ Ogni ora è sonno, lavoro o tempo libero. La giornata solita: sonno 22–6, cola
 [color=#e8c34a]Priorità[/color]
 La tabella in cima a Lavori (J): una riga per colono, una colonna per tipo di lavoro (passa sopra le icone). Ogni casella va da 1 (prima) a 4 (per ultimo), o – per mai; clic per dopo, clic destro per prima. All'inizio è tutto 3.
 • Un colono prende il lavoro col numero migliore che ha qualcosa da fare; a numeri uguali, quello più a sinistra; di ogni tipo di lavoro, il più vicino.
-• Le colonne: cucinare, produrre (forgia, banco da lavoro, filatoio, banco del falegname), tagliare, scavare (e tagliare il ghiaccio), raccogliere (cespugli, lino, estirpare), coltivare, pescare, cacciare, costruire (e arredare, riparare i tetti), trasportare, governare (solo il sovrano), studiare.
+• Le colonne: cucinare, produrre (forgia, banco da lavoro, filatoio, banco del falegname), tagliare, scavare (e tagliare il ghiaccio), raccogliere (cespugli, lino, erbe, estirpare), coltivare, pescare, cacciare, costruire (e arredare, riparare i tetti), trasportare, governare (solo il sovrano), studiare.
 • Prima della tabella: prendere l'equipaggiamento; il sovrano al trono e i lavoratori dello studio ai loro scrittoi, se li hai spuntati sul cartello. Un tetto in fiamme viene prima di tutto, per tutti.
 
 [color=#e8c34a]Salute[/color]
 • 0–100; risale di 30 al giorno (60 dormendo). Una barretta sopra la testa mostra i feriti.
 • A 0 un colono è a terra: sdraiato, non fa niente e risale di 40 al giorno. A 30 si rialza.
 • I morti restano a terra per un giorno; il loro equipaggiamento cade lì accanto e gli altri sono in lutto per 3 giorni.
+• Unguento ed erbe medicinali: vedi Medicina e morte.
 
 [color=#e8c34a]Età[/color]
 • La scheda dice l'età di ogni colono, accanto al sesso. Il ritmo della vita si sceglie nella pagina della nuova partita: Veloce, un anno di vita a stagione, quattro volte più in fretta del calendario, così passano le generazioni (i figli crescono in 4 anni); o Reale, un anno all'anno, come il calendario (16 anni per crescere, una gravidanza di 9 mesi veri). I numeri qui sotto sono in anni di vita, qualunque sia il ritmo.
@@ -119,14 +120,14 @@ La colonia cresce coi figli (vedi Il sovrano e la casata), con gli avventurieri 
 • Entrano dal bordo della mappa, vanno nella sala del trono (o a un fuoco, o nella radura) e chiedono di restare: Accogli o Manda via. Chiusa la finestra, la domanda aspetta sulla loro scheda (Rispondi…) per 2 giorni, poi se ne vanno. Intanto non lavorano, mangiano dai tuoi magazzini e dormono alla locanda (o per terra).
 • Accolti, sono coloni, Forestieri per 5 giorni (-5 felicità, lavorano il 10% più piano). Una famiglia resta tale: la coppia è sposata, il figlio ha i suoi genitori."""],
 
-	["Abilità", """Tredici abilità, con livelli da 0 a 10 (una stellina al 10). I coloni partono da 0; il tuo sovrano ha 12 punti nella pagina della nuova partita.
+	["Abilità", """Quattordici abilità, con livelli da 0 a 10 (una stellina al 10). I coloni partono da 0; il tuo sovrano ha 12 punti nella pagina della nuova partita.
 
 [color=#e8c34a]Velocità[/color]
 Un lavoro dura 1,5 volte tanto a livello 0, il tempo normale a livello 5 e la metà a livello 10 (1,4 a livello 1, 1,3 a livello 2...). Quasi tutti i lavori dipendono anche dalle condizioni, e sonno, cucina, lavorazioni e studio dal comfort della stanza.
 
 [color=#e8c34a]Cosa fa ogni abilità[/color]
 [table=2]
-[cell]Raccogliere[/cell][cell]raccolta da cespugli e lino, l'orto[/cell]
+[cell]Raccogliere[/cell][cell]raccolta da cespugli, lino ed erbe, l'orto[/cell]
 [cell]Estrarre[/cell][cell]scavare i massi[/cell]
 [cell]Tagliare legna[/cell][cell]abbattere gli alberi[/cell]
 [cell]Costruire[/cell][cell]costruzione: 2 s a casella o a pezzo[/cell]
@@ -139,6 +140,7 @@ Un lavoro dura 1,5 volte tanto a livello 0, il tempo normale a livello 5 e la me
 [cell]Tiro[/cell][cell]tiri con l'arco; fare archi[/cell]
 [cell]Ricerca[/cell][cell]scrivere pagine di studio[/cell]
 [cell]Scassinare[/cell][cell]solo avventurieri: trappole, serrature[/cell]
+[cell]Medicina[/cell][cell]fare l'unguento[/cell]
 [/table]
 Con l'arco un cacciatore mira col migliore tra Cacciare e Tiro. A una postazione un livello basso rovina più oggetti, al fuoco da campo brucia più pasti.
 
@@ -406,10 +408,10 @@ Alberi: quercia 28 legna, pino 35, betulla 20. Un colpo ogni 10 s ne dà 5.
 Massi di 1x1, 2x1 o 2x2 caselle, 5 pietra a casella. Un colpo ogni 15 s ne dà 5. Le vene di ferro e di carbone sono massi 1x1 (col mouse sopra: "Vena di ferro", "Vena di carbone") che danno 5 ferro o 5 carbone al posto della pietra.
 
 [color=#e8c34a]Estirpa (U)[/color]
-Erbacce, cespugli e lino se ne vanno in 1,5 s. Toglili prima di costruirci sopra.
+Erbacce, cespugli, lino ed erbe se ne vanno in 1,5 s. Toglili prima di costruirci sopra.
 
 [color=#e8c34a]Raccogli (H)[/color] [img=center]res://art/icon_veg.png[/img] [img=center]res://art/icon_flax.png[/img]
-Cespugli e lino. Un cespuglio maturo ha 5 bacche (vegetali), il lino in fiore 5 lino, colti uno ogni 5 s. Ricrescono in 2 giorni e il segno resta: si raccolgono ogni volta. Segnare Estirpa toglie il segno di Raccogli, e viceversa.
+Cespugli, lino ed erbe medicinali. Un cespuglio maturo ha 5 bacche (vegetali), il lino in fiore 5 lino, le erbe in fiore 5 erbe, colti uno ogni 5 s. D'inverno non fiorisce niente. Ricrescono in 2 giorni e il segno resta: si raccolgono ogni volta. Segnare Estirpa toglie il segno di Raccogli, e viceversa.
 
 [color=#e8c34a]Orto (P)[/color] [img=center]res://art/icon_veg.png[/img]
 • Dopo la ricerca Orto. Trascina sul prato libero, fuori dalle stanze, per fare le caselle dell'orto: prima vanno tolte erbacce e cespugli, e sull'orto non si costruisce. Rape e cavoli crescono a file alterne.
@@ -453,7 +455,7 @@ Segna caselle d'acqua. Il pescatore si mette accanto (anche nell'acqua bassa) e 
 Gli animali girano fuori dalle stanze e dall'acqua e nascono a più di 15 caselle dalla radura: all'inizio 6 conigli e 3 cervi, poi uno nuovo ogni mezza giornata finché sono meno di 12. Un lupo segnato, se gli si tira, attacca il cacciatore."""],
 
 	["Lavorazioni ed equipaggiamento", """[color=#e8c34a]Postazioni[/color]
-Clicca una postazione per il suo menu: una riga per ogni ricetta che conosci, coi suoi ingredienti e Tieni N. Si fa finché in giro ce ne sono meno di N (a terra, nei magazzini, in mano, in lavorazione); la Scorta vale per tutte le postazioni dello stesso tipo. L'equipaggiamento si fa anche per i coloni con uno slot vuoto, e un arco quando ci sono animali segnati e nessuno ne ha uno. All'inizio: Scorta 10 lingotti, 2 corde d'arco, 8 pasti, 0 per il resto.
+Clicca una postazione per il suo menu: una riga per ogni ricetta che conosci, coi suoi ingredienti e Tieni N. Si fa finché in giro ce ne sono meno di N (a terra, nei magazzini, in mano, in lavorazione); la Scorta vale per tutte le postazioni dello stesso tipo. L'equipaggiamento si fa anche per i coloni con uno slot vuoto, e un arco quando ci sono animali segnati e nessuno ne ha uno. All'inizio: Scorta 10 lingotti, 2 corde d'arco, 3 unguenti, 8 pasti, 0 per il resto.
 L'artigiano porta gli ingredienti uno alla volta, poi lavora. Il tempo dipende da abilità, comfort della stanza e condizioni; un oggetto può rovinarsi, e gli ingredienti vanno persi, tanto spesso quanto brucia un pasto.
 [table=4]
 [cell][color=#d9c48a]Oggetto[/color][/cell][cell][color=#d9c48a]Postazione[/color][/cell][cell][color=#d9c48a]Ingredienti[/color][/cell][cell][color=#d9c48a]Tempo[/color][/cell]
@@ -468,8 +470,9 @@ L'artigiano porta gli ingredienti uno alla volta, poi lavora. Il tempo dipende d
 [cell]Elmo[/cell][cell]incudine[/cell][cell]3 lingotti[/cell][cell]20 s[/cell]
 [cell]Cotta di maglia[/cell][cell]incudine[/cell][cell]6 lingotti[/cell][cell]30 s[/cell]
 [cell]Spada[/cell][cell]incudine[/cell][cell]3 lingotti, 1 legna[/cell][cell]20 s[/cell]
+[cell]Unguento[/cell][cell]fuoco da campo[/cell][cell]2 erbe[/cell][cell]10 s[/cell]
 [/table]
-Abilità: Forgiare a fornace e incudine, Cucire a filatoio e banco da lavoro, Tiro al banco del falegname.
+Abilità: Forgiare a fornace e incudine, Cucire a filatoio e banco da lavoro, Tiro al banco del falegname, Medicina per l'unguento.
 
 [color=#e8c34a]Equipaggiamento[/color]
 Tre slot: mani, corpo, testa. Un colono con uno slot vuoto va da sé a prendere un pezzo, prima di ogni altro lavoro. In mano vuole l'attrezzo della sua abilità migliore tra Estrarre, Tagliare legna, Raccogliere, Cacciare e Mischia. Nessuno cambia un pezzo con uno migliore; solo chi caccia lo cambia con un arco.
@@ -504,6 +507,13 @@ Anche gli attrezzi colpiscono: piccone 10, ascia 12, falcetto 8, mani nude 5. Pr
 • A 0 punti ferita un colono cade. Il morso che lo manda a terra uccide il 25% delle volte, -3% per ogni punto di protezione (almeno il 5%).
 • A terra guarisce 40 al giorno e si rialza a 30. Un lupo che lo trova all'aperto, senza nessun altro in piedi, lo uccide al primo morso.
 • I morti lasciano cadere il loro equipaggiamento; il corpo resta per un giorno. Gli altri coloni portano il lutto per 3 giorni (Lutto). Se muoiono tutti i coloni, la colonia è caduta."""],
+
+	["Medicina e morte", """[color=#e8c34a]Erbe medicinali[/color] [img=center]res://art/icon_herbs.png[/img]
+Piantine coi fiori bianchi sparse nei prati (col mouse sopra: Erbe medicinali), circa una ogni 150 caselle di prato. Segnale con Raccogli (H): 5 erbe a pianta, colte come le bacche; rifioriscono in 2 giorni, mai d'inverno. Le erbe non marciscono.
+
+[color=#e8c34a]Unguento[/color] [img=center]res://art/icon_ointment.png[/img]
+• Dopo la ricerca Erboristeria (Sapere I, 100). Al fuoco da campo o al focolare di una cucina: 2 erbe, 10 s, con l'abilità Medicina; all'inizio Scorta 3.
+• Un colono in piedi con meno di 60 punti ferita ne va a prendere uno da un mucchio e se lo spalma (3 s): +30 punti ferita. Dopo la fame, prima del lavoro; gli ospiti no, e nessuno mentre combatte."""],
 
 	["Splendore", """Lo splendore è la somma di tutte le decorazioni finite sulla mappa, dentro o fuori dalle stanze, più 5 per ogni avventuriero famoso presente. Il totale è nella barra in alto.
 Per ora fa due cose:

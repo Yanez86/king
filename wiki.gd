@@ -100,13 +100,14 @@ Every hour is sleep, work or free time. The usual day: sleep 22–6, breakfast a
 [color=#e8c34a]Priorities[/color]
 The table at the top of Jobs (J): one row per colonist, one column per kind of work (hover the icons). Each cell is 1 (first) to 4 (last), or – for never; click for later, right click for sooner. At the start everything is 3.
 • A colonist takes the work with the best number that has something to do; with equal numbers, the one further left; of each kind of work, the nearest.
-• The columns: cook, craft (forge, workbench, spinning wheel, carpenter's bench), chop, mine (and cut ice), gather (bushes, flax, uprooting), farm, fish, hunt, build (and furnish, repair roofs), haul, govern (only the ruler), study.
+• The columns: cook, craft (forge, workbench, spinning wheel, carpenter's bench), chop, mine (and cut ice), gather (bushes, flax, herbs, uprooting), farm, fish, hunt, build (and furnish, repair roofs), haul, govern (only the ruler), study.
 • Before the table: picking up equipment; the ruler to the throne and the study's workers to their desks, if you ticked them on the sign. A roof on fire comes before everything, for everyone.
 
 [color=#e8c34a]Health[/color]
 • 0–100, healing 30 a day (60 asleep). A bar over the head shows the wounded.
 • At 0 a colonist is downed: on the ground, doing nothing, healing 40 a day. At 30 they stand up.
 • The dead stay on the ground for a day; their gear drops beside them and the others mourn for 3 days.
+• Ointment and medicinal herbs: see Medicine & Death.
 
 [color=#e8c34a]Age[/color]
 • The sheet shows each colonist's age, next to their sex. The pace of life is chosen on the new-game page: Fast, a year older every season, four times as fast as the calendar, so generations go by (children grow up in 4 years); or Real, a year older every year, like the calendar (16 years to grow up, a pregnancy of 9 true months). The numbers below are in years of life, whichever the pace.
@@ -120,14 +121,14 @@ The colony grows with children (see The Ruler & House), with adventurers who sta
 • They walk in from the map edge to the throne room (or to a fire, or to the clearing) and ask to stay: Welcome or Send away. Close the window and the question waits on their sheet (Answer…) for 2 days, then they leave. Meanwhile they don't work, eat from your warehouses and sleep at the inn (or on the ground).
 • Welcomed, they are colonists, Foreigner for 5 days (-5 happiness, work 10% slower). A family keeps its ties: the couple is married, the child has their parents."""],
 
-	["Skills", """Thirteen skills, with levels from 0 to 10 (a star at 10). Colonists start at 0; your ruler gets 12 points on the new-game page.
+	["Skills", """Fourteen skills, with levels from 0 to 10 (a star at 10). Colonists start at 0; your ruler gets 12 points on the new-game page.
 
 [color=#e8c34a]Speed[/color]
 A job takes 1.5 times as long at level 0, the normal time at level 5 and half at level 10 (1.4 at level 1, 1.3 at level 2...). Most work also depends on conditions, and sleep, cooking, crafting and study on room comfort.
 
 [color=#e8c34a]What each skill does[/color]
 [table=2]
-[cell]Gathering[/cell][cell]picking bushes and flax, the garden[/cell]
+[cell]Gathering[/cell][cell]picking bushes, flax and herbs, the garden[/cell]
 [cell]Mining[/cell][cell]mining boulders[/cell]
 [cell]Woodcutting[/cell][cell]chopping trees[/cell]
 [cell]Construction[/cell][cell]building: 2 s a tile or a piece[/cell]
@@ -140,6 +141,7 @@ A job takes 1.5 times as long at level 0, the normal time at level 5 and half at
 [cell]Ranged[/cell][cell]bow shots; making bows[/cell]
 [cell]Research[/cell][cell]writing pages of study[/cell]
 [cell]Lockpicking[/cell][cell]adventurers only: traps, locks[/cell]
+[cell]Medicine[/cell][cell]making ointment[/cell]
 [/table]
 With a bow a hunter aims with the better of Hunting and Ranged. At a workstation a low level ruins more items, at the campfire it burns more meals.
 
@@ -407,10 +409,10 @@ Trees: oak 28 wood, pine 35, birch 20. A stroke every 10 s gives 5.
 Boulders of 1x1, 2x1 or 2x2 tiles, 5 stone a tile. A stroke every 15 s gives 5. Iron and coal veins are 1x1 boulders (hover: "Iron vein", "Coal vein") that give 5 iron or 5 coal instead of stone.
 
 [color=#e8c34a]Uproot (U)[/color]
-Weeds, bushes and flax go in 1.5 s. Clear them before building there.
+Weeds, bushes, flax and herbs go in 1.5 s. Clear them before building there.
 
-[color=#e8c34a]Harvest (H)[/color] [img=center]res://art/icon_veg.png[/img] [img=center]res://art/icon_flax.png[/img]
-Bushes and flax. A ripe bush has 5 berries (vegetables), flowering flax 5 flax, picked one every 5 s. They grow back in 2 days and the mark stays: they are picked every time. Marking Uproot removes the Harvest mark, and the other way round.
+[color=#e8c34a]Harvest (H)[/color] [img=center]res://art/icon_veg.png[/img] [img=center]res://art/icon_flax.png[/img] [img=center]res://art/icon_herbs.png[/img]
+Bushes, flax and medicinal herbs. A ripe bush has 5 berries (vegetables), flowering flax 5 flax, flowering herbs 5 herbs, picked one every 5 s. Nothing flowers in winter. They grow back in 2 days and the mark stays: they are picked every time. Marking Uproot removes the Harvest mark, and the other way round.
 
 [color=#e8c34a]Garden (P)[/color] [img=center]res://art/icon_veg.png[/img]
 • After the Garden research. Drag over open grass, outside rooms, to make garden plots: weeds and bushes have to go first, and nothing can be built on a plot. Turnips and cabbages grow in alternate rows.
@@ -454,7 +456,7 @@ Mark water tiles. The fisher stands beside them (in shallow water too) and casts
 Animals roam outside rooms and water, born more than 15 tiles from the clearing: 6 rabbits and 3 deer at first, then a new one every half day while there are fewer than 12. A marked wolf, shot at, attacks the hunter."""],
 
 	["Crafting & Equipment", """[color=#e8c34a]Workstations[/color]
-Click a station for its menu: one row for every recipe you know, with its ingredients and Keep N. Things get made while there are fewer than N around (on the ground, in warehouses, in hand, being made); Keep counts for every station of the kind. Equipment is also made for the colonists with an empty slot, and a bow when animals are marked and nobody has one. At the start: Keep 10 ingots, 2 bowstrings, 8 meals, 0 of the rest.
+Click a station for its menu: one row for every recipe you know, with its ingredients and Keep N. Things get made while there are fewer than N around (on the ground, in warehouses, in hand, being made); Keep counts for every station of the kind. Equipment is also made for the colonists with an empty slot, and a bow when animals are marked and nobody has one. At the start: Keep 10 ingots, 2 bowstrings, 3 ointments, 8 meals, 0 of the rest.
 The crafter brings the ingredients one by one, then works. The time depends on skill, room comfort and conditions; an item may be ruined, losing the ingredients, as often as a meal burns.
 [table=4]
 [cell][color=#d9c48a]Item[/color][/cell][cell][color=#d9c48a]Station[/color][/cell][cell][color=#d9c48a]Needs[/color][/cell][cell][color=#d9c48a]Time[/color][/cell]
@@ -469,8 +471,9 @@ The crafter brings the ingredients one by one, then works. The time depends on s
 [cell]Helmet[/cell][cell]anvil[/cell][cell]3 ingots[/cell][cell]20 s[/cell]
 [cell]Chainmail[/cell][cell]anvil[/cell][cell]6 ingots[/cell][cell]30 s[/cell]
 [cell]Sword[/cell][cell]anvil[/cell][cell]3 ingots, 1 wood[/cell][cell]20 s[/cell]
+[cell]Ointment[/cell][cell]campfire[/cell][cell]2 herbs[/cell][cell]10 s[/cell]
 [/table]
-Skill: Smithing at furnace and anvil, Tailoring at spinning wheel and workbench, Ranged at the carpenter bench.
+Skill: Smithing at furnace and anvil, Tailoring at spinning wheel and workbench, Ranged at the carpenter bench, Medicine for the ointment.
 
 [color=#e8c34a]Equipment[/color]
 Three slots: hands, body, head. A colonist with an empty slot fetches a piece by themselves, before any other job. In their hands they want the tool of their best skill among Mining, Woodcutting, Gathering, Hunting and Melee. Nobody trades a piece for a better one; only a hunter swaps for a bow.
@@ -505,6 +508,13 @@ Tools hit too: pickaxe 10, axe 12, sickle 8, bare hands 5. Armor: see Combat & W
 • At 0 health a colonist falls. The bite that downs them kills 25% of the time, -3% for every point of armor (at least 5%).
 • Downed, they heal 40 a day and stand up at 30. A wolf that finds them outdoors, with nobody else standing, kills them with the first bite.
 • The dead drop their gear; the body stays a day. The other colonists mourn for 3 days (Mourning). If every colonist dies, the colony has fallen."""],
+
+	["Medicine & Death", """[color=#e8c34a]Medicinal herbs[/color] [img=center]res://art/icon_herbs.png[/img]
+Small plants with white flowers scattered in the meadows (hover: Medicinal herbs), about one every 150 tiles of grass. Mark them with Harvest (H): 5 herbs a plant, picked like berries; they flower again in 2 days, never in winter. Herbs don't spoil.
+
+[color=#e8c34a]Ointment[/color] [img=center]res://art/icon_ointment.png[/img]
+• After the Herbalism research (Lore I, 100). At a kitchen's campfire or hearth: 2 herbs, 10 s, with the Medicine skill; Keep 3 at the start.
+• A colonist standing with less than 60 health fetches one from a pile and spreads it on (3 s): +30 health. After hunger, before work; guests don't, and nobody does while fighting."""],
 
 	["Splendor", """Splendor is the sum of every finished decoration on the map, inside rooms or out, plus 5 for every famous adventurer around. The total is in the top bar.
 For now it does two things:
