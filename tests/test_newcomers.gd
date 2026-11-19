@@ -372,7 +372,74 @@ func _initialize() -> void:
 	check(Array(main.chronicle).any(func(l): return main.full_name(fallen) + " died in the Ruined tower." in l) and fallen not in main.corpses,
 		"nella cronaca; il corpo resta là")
 
-	print("OK: nuovi coloni (l'avventuriero che resta, i viandanti, le leggi dell'Accoglienza, la compagnia della corona)")
+	# --- L'elenco degli abitanti (clic sul numero dei coloni in alto) ---
+	var newbie = person()
+	main.add_cond(newbie, main.Cond.FOREIGNER, 3.0)
+	var walker: Array = main.wanderer_group(0)
+	main.come(walker)
+	var innkeep = guest(main.Hero.ARCHER, 1, inn)
+	innkeep.stay_until = main.clock + 2.0
+	var rover = main.new_hero(main.Hero.BURGLAR, 2)
+	var mate = person()
+	main.colonists.erase(mate)
+	var far = main.Expedition.new()
+	far.ruin = tower
+	far.left_at = main.clock
+	far.due = main.clock + 3.0
+	far.back_at = INF
+	far.party.assign([rover, mate])
+	far.left.assign([rover, mate])
+	main.expeditions.append(far)
+	var baby = main.Colonist.new()
+	main.dress(baby)
+	baby.born = main.clock
+	baby.mother = newbie if newbie.sex == main.Sex.FEMALE else null
+	baby.father = newbie if newbie.sex == main.Sex.MALE else null
+	main.babies.append(baby)
+	var groups: Dictionary = main.census_groups()
+	check(groups["colonists"][0] == main.ruler and baby in groups["colonists"] and newbie not in groups["colonists"],
+		"i coloni, prima il sovrano, coi neonati")
+	check(newbie in groups["strangers"] and walker[0] in groups["strangers"] and innkeep not in groups["strangers"], "i forestieri: nuovi e viandanti")
+	check(innkeep in groups["inn"] and rover not in groups["inn"], "alla locanda")
+	check(groups["trips"].size() == 1 and groups["trips"][0][1] == [rover, mate], "in spedizione: avventurieri e coloni")
+	main.colonists_label.pressed.emit()
+	var census = main.get_node("HUD/CensusPanel")
+	check(census.visible, "clic sul numero dei coloni: l'elenco")
+	var heads: Array = census.get_node("Box/Scroll/List").get_children().filter(func(n): return n is Label).map(func(n): return n.text)
+	check(heads.has("Colonists (%d)" % groups["colonists"].size()) and heads.has("Foreigners (%d)" % groups["strangers"].size())
+		and heads.has("At the inn (%d)" % groups["inn"].size()) and heads.has("On expeditions (2)")
+		and heads.has("At the Ruined tower, due back by day %d" % (int(far.due) + 1)), "i gruppi: %s" % str(heads))
+	var row_of := func(o): return main.census_rows.filter(func(r): return r[0] == o)[0][1]
+	check("Foreigner for 3.0 more days" in row_of.call(newbie).text, "il forestiero: quanto gli manca")
+	check(row_of.call(walker[0]).text == "Coming to ask to stay", "il viandante in arrivo")
+	check(row_of.call(innkeep).text.ends_with("Leaves in 2.0 days"), "alla locanda: quando se ne va")
+	check(row_of.call(mate).text == "Away on the expedition" and row_of.call(rover).text == "Away on the expedition", "fuori, in spedizione")
+	check(row_of.call(baby).text == ("Carried by %s" % newbie.first_name if newbie.sex == main.Sex.FEMALE else row_of.call(baby).text),
+		"il neonato in braccio")
+	# cosa fa ognuno si aggiorna da sé, senza rifare l'elenco
+	var worker = main.colonists[1]
+	var label = row_of.call(worker)
+	worker.job = main.Job.CHOP
+	main.fill_census()
+	check(label.text == "Chopping a tree" and row_of.call(worker) == label, "cosa fa: si aggiorna")
+	worker.job = main.Job.HAUL
+	worker.carry_res = R.WOOD
+	check(main.doing(worker) == "Hauling wood", "porta la legna")
+	worker.job = main.Job.SLEEP
+	check(main.doing(worker) == "Sleeping on the ground", "dorme per terra")
+	worker.downed = true
+	check(main.doing(worker) == "Downed", "a terra")
+	worker.downed = false
+	worker.job = main.Job.NONE
+	# il nome apre la scheda
+	var grid = census.get_node("Box/Scroll/List").get_children().filter(func(n): return n is GridContainer)[0]
+	var button: Button = grid.get_child(1).get_child(0)
+	button.pressed.emit()
+	check(main.sheet_panel.visible and main.shown == groups["colonists"][0], "il nome apre la scheda")
+	main.toggle_census()
+	check(not census.visible, "di nuovo: si chiude")
+
+	print("OK: nuovi coloni (l'avventuriero che resta, i viandanti, le leggi dell'Accoglienza, la compagnia della corona, l'elenco degli abitanti)")
 	quit()
 
 

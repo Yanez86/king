@@ -109,6 +109,12 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 
   Ben nutrito e pasto squisito si escludono: vale l'ultimo pasto. Poi: malattie dal narratore, perdita di punti ferita.
 - **Scheda** (clic sul colono): nome, soprannome (facoltativo), cognome, sesso, punti ferita, abilità (ognuna con un'icona 8×8), talenti (solo icone, il nome col mouse sopra), equipaggiamento (4 slot: mani, corpo, testa, scudo). Poi bisogni, relazioni.
+- **Abitanti** (clic sul numero dei coloni in alto, o sulla sua icona; deciso il 2026-11-19): una finestra con tutti,
+  gruppo per gruppo, e per ognuno figurina, nome (cliccato apre la scheda), sesso, età e cosa sta facendo adesso
+  (si aggiorna da sé). I gruppi: **coloni** (prima il sovrano, poi i neonati), **forestieri** (i nuovi coloni ancora
+  forestieri, con quanto manca; i viandanti; i pretendenti), **alla locanda** (gli avventurieri, con classe, livello,
+  paga e quando se ne vanno), **in spedizione** (ogni gruppo con la rovina e il giorno del ritorno; finché non tornano
+  la colonia non sa come va). Il numero in alto conta anche i coloni in spedizione.
 
 ### 4.2.1 Nuovi coloni: chi resta e chi arriva
 Decisa il 2026-11-19. Numeri da tarare. La colonia cresce in tre modi: i figli (4.3.3), gli avventurieri che restano e

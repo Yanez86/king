@@ -19,7 +19,15 @@ King è un gestionale di colonia medievale. Sei il sovrano di una piccola signor
 • I tempi di questa wiki sono in secondi a 1x, per chi lavora con l'abilità a livello 5 (vedi Abilità).
 
 [color=#e8c34a]La barra in alto[/color]
-Il tuo stemma e il nome del tuo reame (clic: la scheda del sovrano), gli oggetti nei magazzini, i coloni, i letti e lo splendore; poi LUPI e SPEDIZIONI quando ce ne sono, la stagione, la data, l'ora e l'ordine che stai dando."""],
+Il tuo stemma e il nome del tuo reame (clic: la scheda del sovrano), gli oggetti nei magazzini, i coloni (anche quelli in spedizione), i letti e lo splendore; poi LUPI e SPEDIZIONI quando ce ne sono, la stagione, la data, l'ora e l'ordine che stai dando.
+
+[color=#e8c34a]Abitanti[/color]
+Clicca il numero dei coloni (o la sua icona) per l'elenco di tutti, gruppo per gruppo, ognuno col sesso, l'età e cosa sta facendo in quel momento:
+• Coloni, prima il sovrano, e i neonati.
+• Forestieri: i nuovi coloni ancora Forestieri (e per quanto), i viandanti venuti a chiedere di restare, i pretendenti.
+• Alla locanda: gli avventurieri, con classe, livello, paga e spedizioni, e quando se ne vanno se nessuno li ingaggia.
+• In spedizione: ogni gruppo, dov'è andato e il giorno in cui deve tornare, avventurieri e coloni. Finché non tornano non sai come sta andando.
+Col mouse sopra una figurina vedi la scheda; cliccando un nome la apri. Clicca di nuovo il numero per chiudere l'elenco."""],
 
 	["Comandi", """[color=#e8c34a]Visuale[/color]
 • Trascina col tasto destro del mouse per spostare la visuale; la rotella fa lo zoom.

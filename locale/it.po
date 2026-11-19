@@ -3551,3 +3551,246 @@ msgstr "colono"
 
 msgid "died in the %s."
 msgstr "ha perso la vita esplorando %s."
+
+# --- L'elenco degli abitanti (clic sul numero dei coloni); cosa fa ognuno, col contesto "doing"
+
+msgid "Inhabitants"
+msgstr "Abitanti"
+
+msgid "Inhabitants (click)"
+msgstr "Abitanti (clic)"
+
+msgid "Open the sheet"
+msgstr "Apri la scheda"
+
+msgid "Colonists (%d)"
+msgstr "Coloni (%d)"
+
+msgid "Foreigners (%d)"
+msgstr "Forestieri (%d)"
+
+msgid "No foreigners."
+msgstr "Nessun forestiero."
+
+msgid "At the inn (%d)"
+msgstr "Alla locanda (%d)"
+
+msgid "Nobody at the inn."
+msgstr "Nessuno alla locanda."
+
+msgid "On expeditions (%d)"
+msgstr "In spedizione (%d)"
+
+msgid "Nobody away."
+msgstr "Nessuno in spedizione."
+
+msgid "Setting out for the %s"
+msgstr "In partenza: %s"
+
+msgid "At the %s, due back by day %d"
+msgstr "%s, di ritorno entro il giorno %d"
+
+msgid "Baby"
+msgstr "Neonato"
+
+msgid "Heir to the crown"
+msgstr "Erede al trono"
+
+msgid "Wanderer"
+msgstr "Viandante"
+
+msgid "Suitor from the house of %s"
+msgstr "Pretendente della casata %s"
+
+msgid "Once a %s"
+msgstr "Un tempo %s"
+
+msgid "Foreigner for %.1f more days"
+msgstr "Forestiero ancora per %.1f giorni"
+
+msgid "Leaves in %.1f days"
+msgstr "Se ne va tra %.1f giorni"
+
+msgctxt "doing"
+msgid "In the cradle"
+msgstr "Nella culla"
+
+msgctxt "doing"
+msgid "Carried by %s"
+msgstr "In braccio a %s"
+
+msgctxt "doing"
+msgid "In arms"
+msgstr "In braccio"
+
+msgctxt "doing"
+msgid "Away on the expedition"
+msgstr "Fuori, in spedizione"
+
+msgctxt "doing"
+msgid "Away"
+msgstr "Via"
+
+msgctxt "doing"
+msgid "Downed"
+msgstr "A terra"
+
+msgctxt "doing"
+msgid "Walking"
+msgstr "In cammino"
+
+msgctxt "doing"
+msgid "Sleeping"
+msgstr "Dorme"
+
+msgctxt "doing"
+msgid "Sleeping on the ground"
+msgstr "Dorme per terra"
+
+msgctxt "doing"
+msgid "Hauling %s"
+msgstr "Trasporta: %s"
+
+msgctxt "doing"
+msgid "Making %s"
+msgstr "Fabbrica: %s"
+
+msgctxt "doing"
+msgid "Building %s"
+msgstr "Costruisce: %s"
+
+msgctxt "doing"
+msgid "Building"
+msgstr "Costruisce"
+
+msgctxt "doing"
+msgid "Training at the dummy"
+msgstr "Si allena al fantoccio"
+
+msgctxt "doing"
+msgid "Relaxing"
+msgstr "Si svaga"
+
+msgctxt "doing"
+msgid "Waiting for your answer"
+msgstr "Aspetta la tua risposta"
+
+msgctxt "doing"
+msgid "Waiting"
+msgstr "Aspetta"
+
+msgctxt "doing"
+msgid "Free time"
+msgstr "Tempo libero"
+
+msgctxt "doing"
+msgid "Looking for something to do"
+msgstr "Cerca qualcosa da fare"
+
+msgctxt "doing"
+msgid "Busy"
+msgstr "Occupato"
+
+msgctxt "doing"
+msgid "Chopping a tree"
+msgstr "Taglia un albero"
+
+msgctxt "doing"
+msgid "Mining"
+msgstr "Scava"
+
+msgctxt "doing"
+msgid "Uprooting"
+msgstr "Estirpa"
+
+msgctxt "doing"
+msgid "Harvesting"
+msgstr "Raccoglie"
+
+msgctxt "doing"
+msgid "Eating"
+msgstr "Mangia"
+
+msgctxt "doing"
+msgid "Cooking"
+msgstr "Cucina"
+
+msgctxt "doing"
+msgid "Fishing"
+msgstr "Pesca"
+
+msgctxt "doing"
+msgid "Hunting"
+msgstr "Va a caccia"
+
+msgctxt "doing"
+msgid "Fetching gear"
+msgstr "Prende l'equipaggiamento"
+
+msgctxt "doing"
+msgid "Fighting"
+msgstr "Combatte"
+
+msgctxt "doing"
+msgid "Fleeing"
+msgstr "Scappa"
+
+msgctxt "doing"
+msgid "Storming off in a rage"
+msgstr "Se ne va a sbollire la rabbia"
+
+msgctxt "doing"
+msgid "Studying"
+msgstr "Studia"
+
+msgctxt "doing"
+msgid "Holding audience"
+msgstr "Tiene udienza"
+
+msgctxt "doing"
+msgid "Protesting in the throne room"
+msgstr "Protesta nella sala del trono"
+
+msgctxt "doing"
+msgid "Repairing a roof"
+msgstr "Ripara un tetto"
+
+msgctxt "doing"
+msgid "Cutting ice"
+msgstr "Taglia il ghiaccio"
+
+msgctxt "doing"
+msgid "Putting out a fire"
+msgstr "Spegne un incendio"
+
+msgctxt "doing"
+msgid "Tending the garden"
+msgstr "Cura l'orto"
+
+msgctxt "doing"
+msgid "Fertilizing the garden"
+msgstr "Concima l'orto"
+
+msgctxt "doing"
+msgid "Swearing loyalty before the throne"
+msgstr "Giura fedeltà davanti al trono"
+
+msgctxt "doing"
+msgid "Coming to the inn"
+msgstr "Viene alla locanda"
+
+msgctxt "doing"
+msgid "Leaving"
+msgstr "Se ne va"
+
+msgctxt "doing"
+msgid "Setting out on an expedition"
+msgstr "Parte per una spedizione"
+
+msgctxt "doing"
+msgid "Back from an expedition: to the inn"
+msgstr "Di ritorno da una spedizione: alla locanda"
+
+msgctxt "doing"
+msgid "Coming to ask to stay"
+msgstr "Viene a chiedere di restare"

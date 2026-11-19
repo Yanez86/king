@@ -239,6 +239,16 @@ const CORPSE_DAYS := 1.0    # il corpo resta a terra un giorno, poi sparisce (ve
 enum Hero { NONE, WARRIOR, ARCHER, BURGLAR }  # classe; NONE: un colono
 # dove va un avventuriero col Job.TRAVEL: alla locanda, via per sempre, al bordo per partire, alla locanda di ritorno
 enum Errand { NONE, ARRIVE, LEAVE, DEPART, RETURN, VISIT }  # VISIT: il viandante, al trono (vedi visit_cells)
+# cosa sta facendo chi ha questo lavoro, nell'elenco degli abitanti (vedi doing; tradotti col contesto "doing")
+const DOING := {Job.CHOP: "Chopping a tree", Job.MINE: "Mining", Job.UPROOT: "Uprooting", Job.HARVEST: "Harvesting",
+	Job.EAT: "Eating", Job.COOK: "Cooking", Job.FISH: "Fishing", Job.HUNT: "Hunting", Job.EQUIP: "Fetching gear",
+	Job.FIGHT: "Fighting", Job.FLEE: "Fleeing", Job.TANTRUM: "Storming off in a rage", Job.STUDY: "Studying",
+	Job.GOVERN: "Holding audience", Job.PROTEST: "Protesting in the throne room", Job.REPAIR: "Repairing a roof",
+	Job.CUT_ICE: "Cutting ice", Job.DOUSE: "Putting out a fire", Job.FARM: "Tending the garden",
+	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne"}
+const CENSUS_COLUMNS := [300, 100, 250]  # px: chi è, l'età, cosa fa; uguali in tutti i gruppi dell'elenco, così si allineano
+const ERRAND_DOING := {Errand.ARRIVE: "Coming to the inn", Errand.LEAVE: "Leaving", Errand.DEPART: "Setting out on an expedition",
+	Errand.RETURN: "Back from an expedition: to the inn", Errand.VISIT: "Coming to ask to stay"}
 # "skills": abilità -> livello per livello dell'avventuriero; "weapon": l'abilità con cui combatte nella rovina; "gear" e
 # "kit" quello che porta ("heavy": l'armatura da HEAVY_LEVEL); "hurt": quanti colpi prende nella rovina, rispetto agli
 # altri del gruppo; "cover": i danni al gruppo, se c'è lui (tira per primo); "haul": il bottino, se c'è lui (la sacca)
@@ -1523,6 +1533,8 @@ var board_key := ""         # quello che mostra la bacheca: se cambia, la si rif
 var board_pick: Array[Colonist] = []  # spuntati alla bacheca per la prossima spedizione
 var requests := []          # chi chiede di restare e aspetta la risposta: un Array di Colonist per domanda (vedi ask)
 var asking := []            # la domanda nella finestra (una di requests)
+var census_key := ""        # chi mostra l'elenco degli abitanti e dove: se cambia, lo si rifà (vedi fill_census)
+var census_rows := []       # [Colonist, Label]: la colonna "cosa fa" di ogni riga, aggiornata a ogni fotogramma
 var study := 0.0            # punti studio: il mucchio comune, scritto allo scrittoio (vedi Job.STUDY), speso nelle ricerche
 var researched := {}        # Tech -> true: le ricerche fatte (vedi research)
 var authority := 0.0        # raccolta dal sovrano sul trono (vedi Job.GOVERN), spesa nelle leggi
@@ -1624,7 +1636,7 @@ var lights_canvas := Node2D.new()
 
 @onready var camera: Camera2D = $Camera2D
 @onready var stored_label: Label = $HUD/TopBar/Row/Stored  # risorse in tutti i magazzini, sommate: il dettaglio è in Resources
-@onready var colonists_label: Label = $HUD/TopBar/Row/Colonists
+@onready var colonists_label: Button = $HUD/TopBar/Row/Colonists  # cliccato: l'elenco degli abitanti (vedi fill_census)
 @onready var beds_label: Label = $HUD/TopBar/Row/Beds
 @onready var splendor_label: Label = $HUD/TopBar/Row/Splendor
 @onready var info_label: Label = $HUD/TopBar/Row/Info
@@ -1689,6 +1701,7 @@ class Expedition:
 	var food := 0.0               # provviste, in giorni a testa (1 = un giorno per uno), vedi eat_on_trip
 	var treasure := false         # ha aperto il tesoro dell'ultima stanza: al ritorno, autorità
 	var dead: Array[Colonist] = []  # i coloni morti nella rovina (Compagnia della corona): la colonia lo sa al ritorno
+	var left: Array[Colonist] = []  # chi è partito, vivi e morti: così lo sa la colonia finché non tornano (vedi census_groups)
 
 
 func _init() -> void:
@@ -1725,6 +1738,10 @@ func _ready() -> void:
 	banner_tex = banner_texture(arms)
 	show_title()
 	realm_button.pressed.connect(func(): open_sheet(ruler))
+	colonists_label.pressed.connect(toggle_census)
+	$HUD/TopBar/Row/ColonistsIcon.gui_input.connect(func(event):
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			toggle_census())
 	camera.position = center(MAP_SIZE / 2)
 	for name in SPEEDS:
 		get_node("HUD/TopBar/Row/" + name).pressed.connect(func(): Engine.time_scale = SPEEDS[name])
@@ -1895,7 +1912,7 @@ func _ready() -> void:
 	build_plan_panel()
 	for window in [room_popup, field_popup, plan_panel, craft_popup, jobs_panel, resources_panel, sheet_panel, $HUD/BoardPanel, $HUD/ReportPanel, $HUD/ChroniclePanel,
 			$HUD/KnowledgePanel, $HUD/LawsPanel, $HUD/WikiPanel, $HUD/BirthPanel, $HUD/SuccessionPanel, $HUD/HousePanel,
-			$HUD/RequestPanel]:  # X in alto a destra, si trascinano
+			$HUD/RequestPanel, $HUD/CensusPanel]:  # X in alto a destra, si trascinano
 		window.get_node("Box/Head/Close").pressed.connect(window.hide)
 		window.gui_input.connect(drag_window.bind(window))
 		window.visibility_changed.connect(window.move_to_front, CONNECT_DEFERRED)  # l'ultima aperta sta sopra
@@ -2294,6 +2311,7 @@ func set_language(code: String) -> void:
 	board_key = ""
 	knowledge_key = ""
 	laws_key = ""
+	census_key = ""
 	fill_wiki()
 	show_title()  # il nome del reame in alto
 	if settings_file == "":
@@ -3698,6 +3716,8 @@ func _process(delta: float) -> void:
 		update_resources()
 	if $HUD/BoardPanel.visible:
 		fill_board()
+	if $HUD/CensusPanel.visible:
+		fill_census()
 	if $HUD/KnowledgePanel.visible:
 		fill_knowledge()
 	if $HUD/LawsPanel.visible:
@@ -5900,6 +5920,7 @@ func die(c: Colonist, why: String, away := false) -> void:
 	for exp in expeditions.duplicate():  # ingaggiato e morto prima di partire: gli altri partono senza di lui
 		if exp.left_at < 0 and c in exp.party:
 			exp.party.erase(c)
+			exp.left.erase(c)
 			if exp.party.is_empty():
 				expeditions.erase(exp)
 			else:
@@ -6635,6 +6656,7 @@ func send(party: Array, ruin: Ruin) -> bool:
 	take_stored(Res.GOLD, cost)
 	var exp := Expedition.new()
 	exp.ruin = ruin
+	exp.left.assign(party)
 	var want := provisions(party, ruin)
 	exp.food += from_granary(want)  # prima dal granaio della corona, poi le gallette
 	var biscuits := mini(stored(Res.HARDTACK), ceili((want - exp.food) / HARDTACK_FOOD))
@@ -7394,6 +7416,182 @@ func figure_icon(c: Colonist) -> Control:
 	icon.tooltip_text = full_name(c)
 	icon.draw.connect(draw_figure.bind(icon, Rect2(Vector2.ZERO, Vector2.ONE * TILE * 2), Rect2(0, 0, TILE, TILE), c))
 	return icon
+
+
+# --- Abitanti: chi c'è, chi arriva, chi è fuori ---
+
+func toggle_census() -> void:
+	$HUD/CensusPanel.visible = not $HUD/CensusPanel.visible
+	if $HUD/CensusPanel.visible:
+		census_key = ""
+		fill_census()
+
+
+# Chi va in ogni gruppo dell'elenco: i coloni (e i neonati), i forestieri (i coloni appena arrivati, i viandanti, i
+# pretendenti), gli avventurieri alla locanda, e per ogni spedizione chi è partito (o sta partendo). Ognuno una volta sola
+func census_groups() -> Dictionary:
+	var trips := []
+	var away := []
+	for exp in expeditions:
+		var members: Array = exp.left if not exp.left.is_empty() else exp.party + exp.dead  # di prima di `left`
+		trips.append([exp, members])
+		away.append_array(members)
+	var home: Array = colonists.filter(func(c): return c not in away)
+	var settled: Array = home.filter(func(c): return not c.conds.has(Cond.FOREIGNER))
+	if ruler in settled:  # il sovrano per primo, anche dopo una successione
+		settled.erase(ruler)
+		settled.push_front(ruler)
+	return {"colonists": settled + babies,
+		"strangers": home.filter(func(c): return c.conds.has(Cond.FOREIGNER)) + guests.filter(func(g): return g.wanderer or g.suitor),
+		"inn": guests.filter(func(g): return g.hero != Hero.NONE and g not in away), "trips": trips}
+
+
+# Finestra degli abitanti (clic sul numero dei coloni in alto): un gruppo sotto l'altro, ognuno col suo titolo e quanti
+# sono; per riga la figurina (col mouse sopra la scheda), il nome (cliccato apre la scheda), sesso ed età, cosa fa.
+# Si rifà solo quando qualcuno cambia gruppo; cosa fa ognuno si aggiorna a ogni fotogramma
+func fill_census() -> void:
+	var groups := census_groups()
+	var key := str([groups, groups["trips"].map(func(t): return t[0].left_at), ruler])
+	if key == census_key:
+		for row in census_rows:
+			row[1].text = census_doing(row[0])
+		return
+	census_key = key
+	census_rows.clear()
+	var list: Control = $HUD/CensusPanel/Box/Scroll/List
+	for child in list.get_children():
+		child.free()
+	var settled: Array = groups["colonists"]
+	census_section(list, tr("Colonists (%d)") % settled.size(), settled, "")
+	census_section(list, tr("Foreigners (%d)") % groups["strangers"].size(), groups["strangers"], tr("No foreigners."))
+	census_section(list, tr("At the inn (%d)") % groups["inn"].size(), groups["inn"], tr("Nobody at the inn."))
+	var away: int = groups["trips"].reduce(func(n, t): return n + t[1].size(), 0)
+	census_section(list, tr("On expeditions (%d)") % away, [], tr("Nobody away.") if groups["trips"].is_empty() else "")
+	for trip in groups["trips"]:
+		var exp: Expedition = trip[0]
+		var where := tr(RUINS[exp.ruin.kind]["name"])
+		census_section(list, tr("Setting out for the %s") % where if exp.left_at < 0
+			else tr("At the %s, due back by day %d") % [where, int(exp.due) + 1], trip[1], "", true)
+	$HUD/CensusPanel.reset_size()
+
+
+# un gruppo dell'elenco: il titolo, poi una riga per persona (`nobody`: il testo se non c'è nessuno; `sub`: un
+# sottogruppo, la spedizione, col titolo più piccolo)
+func census_section(list: Control, title: String, people_of: Array, nobody: String, sub := false) -> void:
+	var head := Label.new()
+	head.text = title
+	head.add_theme_color_override("font_color", BUILD_INFO_COLOR if sub else SPLENDOR_COLOR)
+	list.add_child(head)
+	if people_of.is_empty():
+		if nobody != "":
+			var none := Label.new()
+			none.text = nobody
+			list.add_child(none)
+		return
+	var grid := GridContainer.new()
+	grid.columns = 4
+	grid.add_theme_constant_override("h_separation", 12)
+	for c in people_of:
+		grid.add_child(ui_icon(BABY, Rect2(), Vector2(32, 32)) if c in babies else figure_icon(c))
+		var who := VBoxContainer.new()
+		who.add_theme_constant_override("separation", 0)
+		who.custom_minimum_size.x = CENSUS_COLUMNS[0]
+		var name := Button.new()
+		name.flat = true
+		name.focus_mode = Control.FOCUS_NONE
+		name.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		name.text = full_name(c)
+		name.tooltip_text = "Open the sheet"
+		if c == ruler:
+			name.icon = ICONS[Res.CROWN]
+		name.pressed.connect(open_sheet.bind(c))
+		who.add_child(name)
+		var role := census_role(c)
+		if role != "":
+			var label := rich(role)
+			label.autowrap_mode = TextServer.AUTOWRAP_WORD  # largo quanto la colonna: le colonne dei gruppi restano allineate
+			label.custom_minimum_size.x = CENSUS_COLUMNS[0]
+			label.add_theme_color_override("default_color", Color(0.75, 0.72, 0.68))
+			who.add_child(label)
+		grid.add_child(who)
+		var sex := HBoxContainer.new()
+		sex.add_child(ui_icon(SEX_ICONS[c.sex], Rect2(), Vector2(16, 16)))
+		var age := Label.new()
+		age.text = tr("%d years old") % age_of(c)
+		age.custom_minimum_size.x = CENSUS_COLUMNS[1]
+		sex.add_child(age)
+		grid.add_child(sex)
+		var now := Label.new()
+		now.text = census_doing(c)
+		now.custom_minimum_size.x = CENSUS_COLUMNS[2]
+		now.autowrap_mode = TextServer.AUTOWRAP_WORD
+		grid.add_child(now)
+		census_rows.append([c, now])
+	list.add_child(grid)
+
+
+# sotto il nome, chi è: il titolo del sovrano, l'erede, chi era avventuriero, il viandante, il pretendente,
+# l'avventuriero con livello, paga e spedizioni, il colono in spedizione
+func census_role(c: Colonist) -> String:
+	if c in babies:
+		return tr("Baby")
+	if c.hero != Hero.NONE:
+		return tr_n("%s, fee %s, %d expedition", "%s, fee %s, %d expeditions", c.trips) % [hero_name(c), coins(fee(c)), c.trips]
+	if c == ruler:
+		return tr("%s of %s") % [ruler_title(c), realm]
+	if c == regent_for:
+		return tr("Heir to the crown")
+	if c.wanderer:
+		return tr("Wanderer")
+	if c.suitor:
+		return tr("Suitor from the house of %s") % c.last_name
+	if c.former != Hero.NONE:
+		return tr("Once a %s") % named(Hero, c.former).to_lower()
+	return ""
+
+
+# cosa fa `c` nell'elenco, con quanto manca: da forestiero, all'attesa della risposta, alla partenza dalla locanda
+func census_doing(c: Colonist) -> String:
+	var text := doing(c)
+	if c.conds.has(Cond.FOREIGNER):
+		text += "\n" + tr("Foreigner for %.1f more days") % maxf(c.conds[Cond.FOREIGNER] - clock, 0.0)
+	if c in guests and not c.hired and c.errand == Errand.NONE and c.stay_until > 0.0:
+		text += "\n" + tr("Leaves in %.1f days") % maxf(c.stay_until - clock, 0.0)
+	return text
+
+
+# cosa sta facendo `c`, in poche parole: il neonato in culla o in braccio, a terra, il lavoro, la strada che fa, il
+# sonno; senza lavoro, se aspetta (gli ospiti), se è il suo tempo libero
+func doing(c: Colonist) -> String:
+	if c in babies:
+		var near = carrier_of(c)
+		return tr("In the cradle", "doing") if c.cradle.x >= 0 else (tr("Carried by %s", "doing") % near.first_name if near != null else tr("In arms", "doing"))
+	if c not in people():  # in spedizione: com'è andata la colonia lo sa al ritorno
+		var exp := trip_of(c)
+		return tr("Away on the expedition", "doing") if exp != null and exp.left_at >= 0 else tr("Away", "doing")
+	if c.downed:
+		return tr("Downed", "doing")
+	match c.job:
+		Job.TRAVEL:
+			return tr(ERRAND_DOING.get(c.errand, "Walking"), "doing")
+		Job.SLEEP:
+			return tr("Sleeping", "doing") if in_bed(c) else tr("Sleeping on the ground", "doing")
+		Job.HAUL:
+			return tr("Hauling %s", "doing") % res_name(c.carry_res)
+		Job.CRAFT:
+			return tr("Making %s", "doing") % res_name(RECIPES[c.recipe][0])
+		Job.BUILD, Job.FURNISH:
+			var plan = plans_of(c.job).get(c.target)
+			return tr("Building %s", "doing") % named(Build, plan[0]).to_lower() if plan != null else tr("Building", "doing")
+		Job.RELAX:
+			return tr("Training at the dummy", "doing") if c.work_total > 0 else tr("Relaxing", "doing")
+		Job.NONE:
+			if not request_of(c).is_empty():
+				return tr("Waiting for your answer", "doing")
+			if visitor(c):
+				return tr("Waiting", "doing")
+			return tr("Free time", "doing") if routines and activity(c) == Act.FREE else tr("Looking for something to do", "doing")
+	return tr(DOING.get(c.job, "Busy"), "doing")
 
 
 # Cronaca: tutto quello che è successo (ingaggi, diari delle spedizioni, morti), dal più recente

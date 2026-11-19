@@ -20,7 +20,15 @@ King is a medieval colony sim. You are the ruler of a small lordship, but you ne
 • Times in this wiki are seconds at 1x, for a worker of skill level 5 (see Skills).
 
 [color=#e8c34a]Top bar[/color]
-Your arms and the name of your realm (click: the ruler's sheet), the items in your warehouses, colonists, beds and splendor; then WOLVES and EXPEDITION when there are any, the season, the date, the hour and the order you are giving."""],
+Your arms and the name of your realm (click: the ruler's sheet), the items in your warehouses, colonists (those away on expeditions too), beds and splendor; then WOLVES and EXPEDITION when there are any, the season, the date, the hour and the order you are giving.
+
+[color=#e8c34a]Inhabitants[/color]
+Click the number of colonists (or its icon) for the list of everyone, group by group, each with sex, age and what they are doing right now:
+• Colonists, your ruler first, and the babies.
+• Foreigners: new colonists still Foreigner (and for how long), wanderers who came to ask to stay, suitors.
+• At the inn: the adventurers, with class, level, fee and expeditions, and when they leave if nobody hires them.
+• On expeditions: every party, where it went and the day it is due back, adventurers and colonists. Until they are back you don't know how it is going.
+Hover a figure for the sheet; click a name to open it. Click the number again to close the list."""],
 
 	["Controls", """[color=#e8c34a]Camera[/color]
 • Drag with the right mouse button to move the view; the mouse wheel zooms.
