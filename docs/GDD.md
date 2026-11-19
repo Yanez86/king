@@ -265,8 +265,9 @@ Decisa il 2026-11-19. Numeri da tarare.
 - **Ordine di lavoro**: (1) età e vecchiaia; (2) matrimonio coi coloni; (3) gravidanza, nascita e crescita; (4)
   successione, reggenza, lutto regale e incoronazione; (5) pretendenti di altre casate con la dote; (6) la finestra
   della casata.
-- **Stato**: fatte le fasi 1–3 (test in `tests/test_dynasty.gd`). A 16 anni la maggiore età, nella cronaca; ai
-  maschi, forse, la barba.
+- **Stato**: fatte le fasi 1–4 (test in `tests/test_dynasty.gd`). A 16 anni la maggiore età, nella cronaca; ai
+  maschi, forse, la barba. La casata nuova ha uno stemma a caso (poi: l'editor dello stemma in partita); lo stile di
+  regno all'incoronazione quando ci sarà.
 
 ### 4.4 Risorse ed edifici
 - Materie prime: legname, pietra, ferro, carbone, oro, cibo crudo. Ferro e carbone vengono dalle vene nella roccia (massi 1x1).

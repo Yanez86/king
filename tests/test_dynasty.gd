@@ -221,7 +221,72 @@ func _initialize() -> void:
 	check(main.can_do(baby, W.BUILD) and Array(main.chronicle).any(func(line): return "%s comes of age." % main.full_name(baby) in line),
 		"a 16 anni la maggiore età, nella cronaca")
 
-	print("OK: età, vecchiaia, matrimonio, figli e crescita")
+	# successione: alla morte del sovrano il primo figlio vivo; lutto regale, poi l'incoronazione
+	var house: String = main.house_name
+	check(house == ruler.last_name and main.reigns.size() == 1 and main.reigns[0][0] == ruler, "la casata e il primo regno")
+	var heir = baby  # il primo figlio, ormai adulto
+	for o in main.colonists:  # il lutto di prima: qui il tempo non scorre, e non finirebbe
+		o.conds.erase(main.Cond.MOURNING)
+	main.die(ruler, "is gone.")
+	check(main.ruler == heir and main.regent_for == null, "regna il primo figlio")
+	check(main.colonists.all(func(o): return o.conds.has(main.Cond.ROYAL_MOURNING) and not o.conds.has(main.Cond.MOURNING)),
+		"lutto regale per tutti, al posto del lutto")
+	check(main.reigns.size() == 2 and main.reigns[0][2] > 0.0 and main.reigns[1][0] == heir, "il regno di prima finisce, comincia il nuovo")
+	check(is_equal_approx(main.coronation_at, main.clock + main.ROYAL_MOURNING_DAYS)
+		and Array(main.chronicle).any(func(line): return "%s inherits the crown." % main.full_name(heir) in line), "incoronato dopo il lutto")
+	var before: float = main.authority
+	main.clock = main.coronation_at
+	main.hour = int(main.clock * 24)
+	main.new_hour()
+	check(main.coronation_at == 0.0 and main.colonists.all(func(o): return o.conds.has(main.Cond.CORONATION))
+		and is_equal_approx(main.authority, before + main.CORONATION_AUTHORITY), "l'incoronazione: festa e autorità")
+	check(main.get_node("HUD/ReportPanel").visible and main.get_node("HUD/ReportPanel/Box/Head/Title").text == "Coronation", "e una finestra")
+	main.get_node("HUD/ReportPanel").hide()
+
+	# un erede bambino: regna un reggente (l'adulto con più abilità, se i genitori non ci sono) fino ai suoi 16 anni
+	var kid = person(main)
+	kid.born = main.clock - 10.5 * main.LIFE_YEAR
+	kid.father = heir
+	var kid2 = person(main)
+	kid2.born = main.clock - 6.5 * main.LIFE_YEAR
+	kid2.father = heir
+	var wise = person(main)
+	wise.skills = main.Skill.values().map(func(_s): return 5)
+	var second = person(main)
+	second.skills = main.Skill.values().map(func(_s): return 3)
+	main.die(heir, "is gone.")
+	check(main.regent_for == kid and main.ruler == wise and main.ruler_title(wise) == "Regent", "il primo figlio, con un reggente")
+	check(not main.can_marry(), "il reggente non si sposa da sovrano")
+	main.open_sheet(kid)
+	check(main.get_node("HUD/ColonistSheet/Box/Hero").text.contains("Heir of"), "nella scheda: erede")
+	main.die(wise, "is gone.")
+	check(main.regent_for == kid and main.ruler == second, "morto il reggente, un altro")
+	main.die(kid, "is gone.")
+	check(main.regent_for == kid2 and main.ruler == second, "morto l'erede, il fratello")
+	kid2.born = main.clock - (main.ADULT + 0.001) * main.LIFE_YEAR
+	main.today = int(main.clock)
+	main.new_day()
+	check(main.ruler == kid2 and main.regent_for == null and main.reigns[-1][0] == kid2
+		and kid2.conds.has(main.Cond.CORONATION), "a 16 anni l'erede è incoronato")
+	main.get_node("HUD/ReportPanel").hide()
+
+	# nessun erede: la colonia sceglie una casata nuova; il giocatore può indicarne un altro
+	var arms_before: Dictionary = main.arms
+	main.die(kid2, "is gone.")
+	var panel2: Control = main.get_node("HUD/SuccessionPanel")
+	check(main.ruler == second and main.house_name == second.last_name and main.reigns[-1][0] == second, "regna il più abile")
+	check(panel2.visible and panel2.get_node("Box/List").get_child_count() >= 2, "la finestra: chi sceglie la colonia")
+	check(Array(main.chronicle).any(func(line): return "has no heirs. %s begins the house of %s." % [main.full_name(second), second.last_name] in line),
+		"la cronaca")
+	var other: Button = panel2.get_node("Box/List").get_child(1)
+	var chosen = main.colonists.filter(func(o): return main.age_of(o) >= main.ADULT and o != second).filter(func(o):
+		return other.text.begins_with(main.full_name(o)))[0]
+	other.pressed.emit()
+	check(main.ruler == chosen and main.house_name == chosen.last_name and main.reigns[-1][0] == chosen and not panel2.visible,
+		"scelto un altro: regna lui, con la sua casata")
+	check(main.chronicle[main.founding_line].contains(main.full_name(chosen)), "anche nella cronaca")
+
+	print("OK: età, vecchiaia, matrimonio, figli, crescita e successione")
 	quit()
 
 

@@ -599,7 +599,8 @@ const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today"
 	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
 	"fallen", "animals", "arrows", "next_animal", "next_pack", "guests", "next_guest", "ruins", "expeditions",
 	"chronicle", "chronicle_days", "board_pick", "study", "researched", "authority", "codified", "enacted", "revoked",
-	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "sown", "plans", "slot_done", "soil", "soil_year_ago", "soil_known", "compost_since", "manured", "no_manure", "babies", "tired", "last_yield",
+	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "sown", "plans", "slot_done", "soil", "soil_year_ago", "soil_known", "compost_since", "manured", "no_manure", "babies",
+	"house_name", "regent_for", "coronation_at", "reigns", "tired", "last_yield",
 	"harvests", "wear", "plastered", "burning",
 	"fire_noted", "storm_noted", "delivered"]
 const TOAST_TIME := 2000    # millisecondi: "Saved" in alto, poi sparisce (vedi show_toast)
@@ -772,6 +773,11 @@ const YOUTH_BANNED := [Work.BUILD, Work.MINE, Work.CHOP, Work.HUNT]  # i lavori 
 const CHILD_SLOW := 2.0
 const CHILD_SIZE := [0.7, 0.85]  # bambini e ragazzi, più piccoli degli adulti (vedi draw_colonist)
 const BABY := preload("res://art/baby.png")
+# Successione (vedi succeed): alla morte del sovrano il primo figlio vivo, poi il coniuge, poi un fratello o una sorella;
+# se non c'è nessuno, una casata nuova tra i coloni adulti (vedi found_house). Lutto regale per ROYAL_MOURNING_DAYS,
+# poi l'incoronazione (CORONATION_AUTHORITY). Un erede minorenne aspetta i 16 anni: intanto regna un reggente
+const ROYAL_MOURNING_DAYS := 7.0
+const CORONATION_AUTHORITY := 20
 const SEASONS := ["Spring", "Summer", "Autumn", "Winter"]
 const WINTER := 3  # in SEASONS: niente bacche né lino (vedi new_day)
 const MONTHS := ["Thaw", "Sowing", "Blossom", "Highsun", "Haying", "Ripening", "Reaping", "Leaffall", "Mists",
@@ -900,7 +906,8 @@ const TRAIT_INFO := {  # suggerimento col mouse sopra il talento: com'è, poi co
 }
 # condizioni: effetti a tempo, con un'icona 16x16 nella scheda (colonne di CONDITIONS_SHEET nell'ordine di Cond).
 # Dati: [giorni, tempo di lavoro x, stress da lavoro x, felicità +, descrizione]. Vedi add_cond, work_factor, update_needs
-enum Cond { POISONED, WELL_FED, FEASTED, AT_TABLE, ATE_RAW, MOURNING, FESTIVE, PILLORIED, HEARD, WEDDING, PREGNANT }
+enum Cond { POISONED, WELL_FED, FEASTED, AT_TABLE, ATE_RAW, MOURNING, FESTIVE, PILLORIED, HEARD, WEDDING, PREGNANT,
+	ROYAL_MOURNING, CORONATION }
 const CONDITIONS_SHEET := preload("res://art/conditions.png")
 const COND_INFO := {
 	Cond.POISONED: [1.0, 1.5, 1.0, -20.0, "Ate raw food that was going bad. Works slowly."],
@@ -914,6 +921,8 @@ const COND_INFO := {
 	Cond.HEARD: [0.5, 1.0, 1.0, 10.0, "The ruler listened to their complaint."],
 	Cond.WEDDING: [2.0, 1.0, 1.0, 10.0, "Celebrated the ruler's wedding."],
 	Cond.PREGNANT: [PREGNANCY, 1.0, 1.0, 0.0, "Expecting a child. In the last months works more slowly."],
+	Cond.ROYAL_MOURNING: [ROYAL_MOURNING_DAYS, 1.0, 1.25, -20.0, "The ruler has died."],
+	Cond.CORONATION: [2.0, 1.0, 1.0, 10.0, "Celebrated the coronation of the new ruler."],
 }
 const GLUTTON_MOOD := 2.0  # il goloso: tanta felicità in più (o in meno) da quello che mangia
 const FOOD_CONDS := [Cond.WELL_FED, Cond.FEASTED, Cond.AT_TABLE, Cond.ATE_RAW]
@@ -1407,6 +1416,12 @@ var compost_since := {}     # casella di un cumulo del compost -> `clock` da cui
 var manured := {}           # casella d'orto -> true: già concimata per la prossima semina
 var babies: Array[Colonist] = []  # i neonati, fino a CHILD_AGE: non sono ancora coloni (vedi give_birth, place_babies)
 var naming = null           # Colonist: il neonato a cui la finestra della nascita dà il nome
+var house_name := ""        # la casata che regna: il cognome dei suoi, che i figli prendono (vedi found_house)
+var regent_for = null       # Colonist: l'erede minorenne per cui `ruler` regna da reggente; null se no
+var coronation_at := 0.0    # `clock` dell'incoronazione di `ruler`, finito il lutto regale; 0 se non ce n'è una in attesa
+var reigns := []            # [sovrano, `clock` d'inizio, di fine (-1 finché regna)]: i sovrani, in ordine
+var founding_line := -1     # la voce della cronaca della casata nuova, che cambia se il giocatore sceglie un altro
+var founding_from := ""     # la casata finita, per quella voce
 var naming_line := -1       # la voce della cronaca della sua nascita, che cambia col nome
 var no_manure := {}         # casella d'orto -> true: il suo campo non si concima (dal cartello)
 var tired := {}             # casella -> [Crop, quante volte di fila]: l'ultimo raccolto (vedi tired_count)
@@ -1806,7 +1821,7 @@ func _ready() -> void:
 	build_field_popup()
 	build_plan_panel()
 	for window in [room_popup, field_popup, plan_panel, craft_popup, jobs_panel, resources_panel, sheet_panel, $HUD/BoardPanel, $HUD/ReportPanel, $HUD/ChroniclePanel,
-			$HUD/KnowledgePanel, $HUD/LawsPanel, $HUD/WikiPanel, $HUD/BirthPanel]:  # X in alto a destra, si trascinano
+			$HUD/KnowledgePanel, $HUD/LawsPanel, $HUD/WikiPanel, $HUD/BirthPanel, $HUD/SuccessionPanel]:  # X in alto a destra, si trascinano
 		window.get_node("Box/Head/Close").pressed.connect(window.hide)
 		window.gui_input.connect(drag_window.bind(window))
 		window.visibility_changed.connect(window.move_to_front, CONNECT_DEFERRED)  # l'ultima aperta sta sopra
@@ -1847,6 +1862,8 @@ func new_people() -> void:
 				c.traits.append(t)
 		colonists.append(c)
 	ruler = colonists[0]
+	house_name = ruler.last_name
+	reigns = [[ruler, clock, -1.0]]
 	keep[Res.MEAL] = MEALS_PER_COLONIST * colonists.size()
 	realm = setup.get("colony", COLONY_NAMES.pick_random())
 	arms = setup.get("arms", random_arms())
@@ -1987,6 +2004,9 @@ func restore(state: Dictionary) -> void:
 	for c in unpacker.objects[saved_classes().find(Colonist)]:  # di prima delle età: adulti, a caso
 		if c.born == INF:
 			give_age(c, RULER_AGE if c == ruler else ADULT_AGE)
+	if house_name == "" and ruler != null:  # di prima della successione
+		house_name = ruler.last_name
+		reigns = [[ruler, 0.0, -1.0]]
 	for res in Res.values():  # un oggetto nuovo, che il salvataggio non conosceva: nessuno a terra
 		if not items.has(res):
 			items[res] = {}
@@ -2944,9 +2964,10 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 		% [full_name(c.mother), full_name(c.father)] if c.father != null else tr("Mother: %s") % full_name(c.mother)) \
 		if c.mother != null else ""
 	box.get_node("Head/Arms").visible = c == ruler  # lo stemma lo mette show_title
-	box.get_node("Hero").visible = c.hero != Hero.NONE or c == ruler
+	box.get_node("Hero").visible = c.hero != Hero.NONE or c == ruler or c == regent_for
 	box.get_node("Hero").text = tr_n("%s, fee %s, %d expedition", "%s, fee %s, %d expeditions", c.trips) % [hero_name(c), coins(fee(c)), c.trips] \
-		if c.hero != Hero.NONE else (tr("%s %s of %s") % [CROWN_IMG, tr(TITLES[rank]["ruler"][c.sex]), realm] if c == ruler else "")
+		if c.hero != Hero.NONE else (tr("%s %s of %s") % [CROWN_IMG, ruler_title(c), realm] if c == ruler
+		else (tr("%s Heir of %s") % [CROWN_IMG, realm] if c == regent_for else ""))
 	box.get_node("Health").text = health_text(c)
 	for child in needs_grid.get_children() + skills_grid.get_children() + traits_box.get_children():
 		child.free()
@@ -5785,14 +5806,18 @@ func die(c: Colonist, why: String) -> void:
 				leave_if_ready(exp)
 	if was_colonist:
 		gain(DEATH_AUTHORITY)
-		for o in colonists:
-			add_cond(o, Cond.MOURNING)
+		for o in colonists:  # il sovrano: il lutto regale, al posto del lutto
+			add_cond(o, Cond.ROYAL_MOURNING if c == ruler and regent_for == null else Cond.MOURNING)
 	if shown == c:
 		sheet_panel.hide()
 	note("%s: %s %s" % [date(int(clock)), full_name(c), why])
 	if was_colonist and colonists.is_empty():
 		fallen = true
 		$HUD/Fallen.show()
+	elif c == ruler:
+		succeed(c)
+	elif c == regent_for:
+		heir_died()
 
 
 # il lupo `a` può finire `c`: a terra, fuori dalle stanze, entro WOLF_SIGHT (solo se nessuno è in piedi, vedi update_wolf)
@@ -5832,7 +5857,7 @@ func married(c: Colonist) -> bool:
 
 # il sovrano si può sposare: è in colonia, adulto, senza coniuge vivo
 func can_marry() -> bool:
-	return ruler in colonists and age_of(ruler) >= ADULT and not married(ruler)
+	return ruler in colonists and regent_for == null and age_of(ruler) >= ADULT and not married(ruler)
 
 
 # chi il sovrano può sposare: i coloni adulti dell'altro sesso senza coniuge vivo, ognuno con il perché no ("" se
@@ -5904,7 +5929,7 @@ func give_birth(mother: Colonist) -> void:
 	var parents: Array = [mother] + ([father] if father != null else [])
 	var house: Colonist = parents[-1]  # il genitore della casata del sovrano, se c'è; se no il padre
 	for p in parents:
-		if ruler != null and p.last_name == ruler.last_name:
+		if p.last_name == house_name:
 			house = p
 			break
 	var child := Colonist.new()
@@ -6007,6 +6032,154 @@ func children_of(c: Colonist) -> Array:
 			all.append(o)
 	all.sort_custom(func(a, b): return a.born < b.born)
 	return all
+
+
+# il titolo di `c` come sovrano: Signore, Barone... o Reggente
+func ruler_title(c: Colonist) -> String:
+	return tr("Regent") if c == ruler and regent_for != null else tr(TITLES[rank]["ruler"][c.sex])
+
+
+# chi eredita da `monarch`, nell'ordine: i figli vivi dal più grande, il coniuge vivo, i fratelli e le sorelle vivi
+func line_of(monarch: Colonist) -> Array:
+	var alive := func(o): return o.died == 0.0 and (o in colonists or o in babies)
+	var line: Array = children_of(monarch).filter(alive)
+	if married(monarch) and alive.call(monarch.spouse):
+		line.append(monarch.spouse)
+	for parent in [monarch.mother, monarch.father]:
+		if parent != null:
+			for o in children_of(parent):
+				if o != monarch and o not in line and alive.call(o):
+					line.append(o)
+	return line
+
+
+# chi regna per l'erede minorenne `heir`: un genitore adulto, se no l'adulto con più abilità; null se non ci sono adulti
+func regent_of(heir: Colonist):
+	var adults: Array = colonists.filter(func(o): return o != heir and age_of(o) >= ADULT)
+	for p in [heir.mother, heir.father]:
+		if p in adults:
+			return p
+	adults.sort_custom(func(a, b): return a.skills.reduce(func(n, v): return n + v, 0) > b.skills.reduce(func(n, v): return n + v, 0))
+	return adults.front() if not adults.is_empty() else null
+
+
+# Il sovrano `dead` è morto (o il reggente): chi viene dopo. Un erede adulto regna subito e finito il lutto regale è
+# incoronato; uno minorenne aspetta i 16 anni con un reggente; nessuno: la colonia sceglie una casata nuova
+func succeed(dead: Colonist) -> void:
+	if regent_for != null:  # è morto il reggente: un altro, per lo stesso erede
+		var regent = regent_of(regent_for)
+		if regent == null:
+			begin_reign(regent_for)
+			coronation_at = clock + ROYAL_MOURNING_DAYS
+		else:
+			ruler = regent
+			note(tr("%s: %s is regent for %s.") % [date(today), full_name(ruler), full_name(regent_for)])
+		show_title()
+		return
+	if not reigns.is_empty() and reigns[-1][0] == dead:
+		reigns[-1][2] = clock
+	var line := line_of(dead)
+	if line.is_empty():
+		choose_house()
+		return
+	var heir: Colonist = line[0]
+	var regent = regent_of(heir) if age_of(heir) < ADULT else null
+	if regent == null:
+		begin_reign(heir)
+		coronation_at = clock + ROYAL_MOURNING_DAYS
+		note(tr("%s: %s inherits the crown.") % [date(today), full_name(heir)])
+	else:
+		regent_for = heir
+		ruler = regent
+		note(tr("%s: %s inherits the crown; until they come of age, %s is regent.") % [date(today), full_name(heir), full_name(regent)])
+	show_title()
+
+
+# L'erede minorenne è morto durante la reggenza: il prossimo della linea del sovrano di prima; se non ce n'è, il
+# reggente fonda una casata nuova
+func heir_died() -> void:
+	regent_for = null
+	var line: Array = line_of(reigns[-1][0]) if not reigns.is_empty() else []
+	if line.is_empty():
+		found_house(ruler)
+	elif age_of(line[0]) >= ADULT:
+		begin_reign(line[0])
+		coronation()
+	else:
+		regent_for = line[0]
+		note(tr("%s: %s inherits the crown; until they come of age, %s is regent.") % [date(today), full_name(regent_for), full_name(ruler)])
+	show_title()
+
+
+func begin_reign(c: Colonist) -> void:
+	ruler = c
+	regent_for = null
+	reigns.append([c, clock, -1.0])
+
+
+# L'incoronazione di `ruler`: festa per tutti, autorità, una finestra e la cronaca
+func coronation() -> void:
+	coronation_at = 0.0
+	for o in colonists:
+		add_cond(o, Cond.CORONATION)
+	gain(CORONATION_AUTHORITY)
+	show_title()
+	report(tr("Coronation"), [tr("%s: coronation of %s, %s of %s.") % [date(today), full_name(ruler), ruler_title(ruler), realm]])
+
+
+# Nessun erede: la colonia sceglie il sovrano di una casata nuova tra gli adulti. Intanto regna il primo (quello con
+# più abilità); la finestra lascia sceglierne un altro
+func choose_house() -> void:
+	var adults: Array = colonists.filter(func(o): return age_of(o) >= ADULT)
+	if adults.is_empty():
+		adults = colonists.duplicate()
+	adults.sort_custom(func(a, b): return a.skills.reduce(func(n, v): return n + v, 0) > b.skills.reduce(func(n, v): return n + v, 0))
+	var old := house_name
+	found_house(adults[0])
+	var panel: Control = $HUD/SuccessionPanel
+	panel.get_node("Box/Text").text = tr("The house of %s has no heirs. Choose who will rule: their house begins.") % old
+	var list: Control = panel.get_node("Box/List")
+	for child in list.get_children():
+		list.remove_child(child)
+		child.queue_free()
+	for c in adults:
+		var button := Button.new()
+		button.focus_mode = Control.FOCUS_NONE
+		button.text = tr("%s, %d years old") % [full_name(c), age_of(c)]
+		button.pressed.connect(func():
+			pick_founder(c)
+			panel.hide())
+		list.add_child(button)
+	panel.show()
+	panel.reset_size()
+
+
+# il sovrano della casata nuova è `c` invece di quello scelto prima
+func pick_founder(c: Colonist) -> void:
+	if c == ruler:
+		return
+	ruler = c
+	house_name = c.last_name
+	reigns[-1][0] = c
+	if founding_line >= 0 and founding_line < chronicle.size():
+		chronicle[founding_line] = founding_text(c)
+	show_title()
+
+
+# Una casata nuova: `c` regna col suo cognome, uno stemma nuovo; incoronato finito il lutto regale
+func found_house(c: Colonist) -> void:
+	founding_from = house_name
+	begin_reign(c)
+	house_name = c.last_name
+	arms = random_arms()
+	coronation_at = clock + ROYAL_MOURNING_DAYS
+	note(founding_text(c))
+	founding_line = chronicle.size() - 1
+	show_title()
+
+
+func founding_text(c: Colonist) -> String:
+	return tr("%s: the house of %s has no heirs. %s begins the house of %s.") % [date(today), founding_from, full_name(c), c.last_name]
 
 
 # gli anni di `c`, compiuti: uno a stagione (LIFE_YEAR giorni)
@@ -6896,6 +7069,9 @@ func new_day() -> void:
 			c.beard = c.sex == Sex.MALE and randf() < BEARD_CHANCE
 			if c.mother != null:
 				note(tr("%s: %s comes of age.") % [date(today), full_name(c)])
+			if c == regent_for:  # finisce la reggenza
+				begin_reign(c)
+				coronation()
 		if years >= OLD_AGE and deaths and randf() < (years - OLD_AGE + 2) * OLD_AGE_RISK:
 			die(c, tr("died of old age, at %d.") % years)
 	if posmod(today, YEAR_DAYS) == 0 and today > 0:  # Capodanno: la terra dell'orto si riposa, di più dopo un anno senza raccolti
@@ -6946,6 +7122,8 @@ func new_hour() -> void:
 	if hour % 24 == CONCEIVE_HOUR:
 		for c in colonists:
 			conceive(c)
+	if coronation_at > 0.0 and clock >= coronation_at:  # finito il lutto regale
+		coronation()
 	place_babies()
 	wear_roofs()
 	melt_ice()
@@ -7054,7 +7232,7 @@ func show_title() -> void:
 		icon.texture = arms_tex
 		icon.custom_minimum_size = arms_tex.get_size() * 2
 	realm_button.text = realm_name()
-	realm_button.tooltip_text = "%s %s" % [tr(TITLES[rank]["ruler"][ruler.sex]), full_name(ruler)]
+	realm_button.tooltip_text = "%s %s" % [ruler_title(ruler), full_name(ruler)]
 
 
 # Lo splendore è arrivato al titolo dopo: sale (mai giù). Nella cronaca e in una finestra al centro, coi sigilli in più
@@ -7064,7 +7242,7 @@ func rise() -> void:
 	show_title()
 	laws_key = ""
 	report(realm_name(), [tr("Day %d: the %s is now the %s.") % [int(clock) + 1, was, realm_name()],
-		tr("%s %s. Seals: %d. Authority every day: +%d.") % [tr(TITLES[rank]["ruler"][ruler.sex]), full_name(ruler),
+		tr("%s %s. Seals: %d. Authority every day: +%d.") % [ruler_title(ruler), full_name(ruler),
 		TITLES[rank]["seals"], AUTHORITY_DAILY * (rank + 1)]])
 
 

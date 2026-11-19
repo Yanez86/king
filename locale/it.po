@@ -3318,3 +3318,44 @@ msgstr "Dai il nome"
 
 msgid "%s: %s comes of age."
 msgstr "%s: %s raggiunge la maggiore età."
+
+# --- Dinastia: la successione
+
+msgid "%s Heir of %s"
+msgstr "%s Erede di %s"
+
+msgid "Royal Mourning"
+msgstr "Lutto regale"
+
+msgid "The ruler has died."
+msgstr "È morto il sovrano."
+
+msgid "Coronation"
+msgstr "Incoronazione"
+
+msgid "Celebrated the coronation of the new ruler."
+msgstr "Ha festeggiato l'incoronazione del nuovo sovrano."
+
+msgid "Regent"
+msgstr "Reggente"
+
+msgid "%s: %s is regent for %s."
+msgstr "%s: %s regge il reame per %s."
+
+msgid "%s: %s inherits the crown."
+msgstr "%s: %s eredita la corona."
+
+msgid "%s: %s inherits the crown; until they come of age, %s is regent."
+msgstr "%s: %s eredita la corona; fino alla maggiore età regge il reame %s."
+
+msgid "%s: coronation of %s, %s of %s."
+msgstr "%s: incoronazione di %s, %s di %s."
+
+msgid "The house of %s has no heirs. Choose who will rule: their house begins."
+msgstr "La casata %s non ha eredi. Scegli chi regnerà: comincia la sua casata."
+
+msgid "%s: the house of %s has no heirs. %s begins the house of %s."
+msgstr "%s: la casata %s non ha eredi. %s fonda la casata %s."
+
+msgid "A new house"
+msgstr "Una casata nuova"

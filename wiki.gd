@@ -163,6 +163,9 @@ Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleep
 [cell]Mourning[/cell][cell]3 days[/cell][cell]–[/cell][cell]-15[/cell]
 [cell]Festive[/cell][cell]3 days[/cell][cell]–[/cell][cell]+10[/cell]
 [cell]Wedding[/cell][cell]2 days[/cell][cell]–[/cell][cell]+10[/cell]
+[cell]Pregnant[/cell][cell]68 days[/cell][cell]20% slower at the end[/cell][cell]–[/cell]
+[cell]Royal mourning[/cell][cell]7 days[/cell][cell]–[/cell][cell]-20[/cell]
+[cell]Coronation[/cell][cell]2 days[/cell][cell]–[/cell][cell]+10[/cell]
 [/table]
 • Poisoned: from raw food, more likely the closer it is to rotting.
 • Well fed: after a meal; stress from work -25%. Feasted: after a fine meal; stress from work -50%. A new meal replaces the condition of the last one.
@@ -171,6 +174,8 @@ Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleep
 • Mourning: a colonist has died; stress from work +25%.
 • Festive: after a feast day, with the Harvest feast law (see Laws).
 • Wedding: everyone, when the ruler marries.
+• Pregnant: for the last 23 days of the 68 she works 20% more slowly.
+• Royal mourning: the ruler has died, instead of Mourning; stress from work +25%. Coronation: everyone, when the new ruler is crowned.
 The laws in force that a colonist likes or dislikes show here too, with their icon."""],
 
 	["The Ruler & House", """[color=#e8c34a]New game[/color]
@@ -185,7 +190,6 @@ The other two colonists come at random: skills at 0, 0–2 traits.
 • Title: Lord or Lady. The top bar shows "Lordship of" your colony, beside your arms: click it for the ruler's sheet. Banners fly your arms.
 • Only the ruler governs: on a throne, in a throne room, they gather authority for the laws (see Laws). A happy ruler (70 or more) gathers 25% more, a gloomy one (30 or less) half.
 • For now the title stays a Lordship: +1 authority a day and 2 seals for the laws.
-• There is no heir yet: if the ruler dies, nobody can sit on the throne.
 
 [color=#e8c34a]Marriage[/color]
 • An adult ruler (16 or older) without a living spouse can marry: "Arrange a marriage…" on the ruler's sheet lists the adult colonists of the other sex without a spouse. Those with less than 50 happiness say no, and the list tells you why.
@@ -199,7 +203,13 @@ The other two colonists come at random: skills at 0, 0–2 traits.
 • From 4 a child: they only gather and haul, at half speed, take no weapons or armor and always run from wolves. They look smaller.
 • From 12 a youth: everything but building, mining, chopping and hunting.
 • At 16 they come of age: every kind of work, and some boys grow a beard.
-• The parents' sheet lists their children, the children's sheet their parents."""],
+• The parents' sheet lists their children, the children's sheet their parents.
+
+[color=#e8c34a]Succession[/color]
+• When the ruler dies, the crown goes to their eldest living child, boy or girl; without children to their living spouse, then to a brother or sister.
+• Everyone gets Royal mourning for 7 days; then the heir is crowned: Coronation for everyone and +20 authority.
+• An heir under 16 waits with a regent: a living parent, or else the adult with the most skills. The regent governs and their title is Regent; the heir's sheet says "Heir of". On their 16th birthday the heir is crowned. If the regent dies another takes over; if the heir dies, the next in line.
+• Nobody left: the house is over. A window asks who will rule among the adults (the one with the most skills, until you choose): their house begins, with their surname and new arms. The title stays with the realm."""],
 
 	["Building", """[color=#e8c34a]How to build[/color] [img=center]res://art/icon_wood.png[/img] [img=center]res://art/icon_stone.png[/img]
 • Press Build, pick Structures or one of the five furniture categories (Home; Fire and warmth; Crafts and stores; Court and defense; Decorations, with the relics), then a piece: hover its button for the cost and the comfort or splendor it gives.

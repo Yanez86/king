@@ -361,11 +361,12 @@ func _initialize() -> void:
 	main.update_wolf(wolf, 0.05)
 	check(wolf.target == colonist, "nessuno in piedi fuori: il lupo va da chi è a terra")
 	var spot: Vector2i = main.cell_of(colonist.pos)
+	var was_ruler: bool = colonist == main.ruler  # il sovrano: lutto regale, e dopo nella cronaca l'erede
 	main.bite(wolf, colonist)
 	check(colonist not in main.colonists and colonist in main.corpses and wolf.target == null, "a terra, il morso uccide")
 	check(main.total(R.CHAINMAIL) == 1 and main.total(R.HELMET) == 1, "l'equipaggiamento resta per terra")
-	check(others.all(func(o): return o.conds.has(main.Cond.MOURNING)), "gli altri sono in lutto")
-	check("killed by wolves" in main.chronicle[-1], "nella cronaca")
+	check(others.all(func(o): return o.conds.has(main.Cond.ROYAL_MOURNING if was_ruler else main.Cond.MOURNING)), "gli altri sono in lutto")
+	check(Array(main.chronicle).slice(-2).any(func(line): return "killed by wolves" in line), "nella cronaca")
 	check(not main.fallen, "la colonia c'è ancora")
 	main.queue_redraw()
 	await process_frame  # disegna il corpo e chi è vivo
