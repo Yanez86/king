@@ -25,6 +25,7 @@
 | Eventi casuali | 4.6 | quasi niente (quattro eventi fatti a mano) | **il narratore** e la lista degli eventi |
 | Ricerca | 4.7.3 | 38 ricerche su 50 | 12 ricerche, il livello IV |
 | Leggi | 4.7.7 | 22 leggi su 38 | 16 leggi: quelle della dinastia si possono fare ora |
+| Interfaccia | [TECH](TECH.md) | testo a 22, elenco degli abitanti, bacheca con la squadra | provarla in inglese e ad altre risoluzioni |
 
 ## Da dove partire (proposta)
 
@@ -207,6 +208,17 @@ Leggi senza ✓ (tra parentesi quello che aspettano):
 ## Inizio partita (4.7.8)
 
 - [ ] I resti del bivacco accanto all'arma abbandonata.
+
+## Interfaccia
+
+Testo a 22 (il font è nitido solo a 11, 22, 33: vedi [TECH](TECH.md)), rifatta per 1280×720 e provata a schermate in
+italiano: scheda del colono a due colonne, data e meteo in una targhetta sotto la barra in alto, elenco degli abitanti
+(clic sul numero dei coloni), bacheca a riquadri con la zona Squadra.
+
+- [ ] Rivedere a 22 le schermate in inglese, le altre risoluzioni (1920×1080, 1366×768, finestre non 16:9) e i
+  suggerimenti col mouse sopra (finora: scheda del colono e mobili).
+- [ ] Provare col mouse vero il trascinamento nella squadra della bacheca (provato solo chiamando le funzioni).
+- [ ] I contatori di studio e autorità nella barra in alto: vedi Ricerca.
 
 ## Distribuzione
 
