@@ -636,7 +636,7 @@ const DISCOMFORT_DROP := 24.0  # uno all'ora per punto
 # splendore della colonia: lo danno le decorazioni finite, dentro e fuori dalle stanze (vedi colony_splendor); quelle
 # di SPLENDOR_ONCE una volta sola: la prima dà splendore, le altre no.
 # ponytail: per ora solo il totale in alto; poi terrà felici i coloni e sbloccherà cose (strade, feste: vedi GDD)
-const SPLENDOR := {Build.FLOWER_BED: 1, Build.PLANTER: 1, Build.BENCH: 1, Build.BANNER: 1, Build.LANTERN: 1,
+const SPLENDOR := {Build.FLOWER_BED: 1, Build.PLANTER: 1, Build.BENCH: 1, Build.BANNER: 2, Build.LANTERN: 1,
 	Build.FOUNTAIN: 6, Build.STATUE: 8, Build.TAPESTRY: 2, Build.CHALICE: 3, Build.OLD_BANNER: 4, Build.BUST: 5, Build.CROWN: 6}
 const SPLENDOR_ONCE := [Build.BANNER]  # lo stendardo della casata: uno basta (deciso il 2026-11-19)
 const SPLENDOR_COLOR := Color("e8c34a")

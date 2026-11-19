@@ -404,15 +404,15 @@ func _initialize() -> void:
 	main.furniture[at] = [main.Build.STATUE, main.Res.STONE, 0]
 	main.furniture[at + Vector2i(3, 0)] = [main.Build.FLOWER_BED, W, 0]
 	check(main.colony_splendor() == main.SPLENDOR[main.Build.STATUE] + main.SPLENDOR[main.Build.FLOWER_BED], "splendore sommato")
-	# lo stendardo conta una volta sola: il primo +1, gli altri niente
+	# lo stendardo conta una volta sola: il primo +2, gli altri niente
 	var shine: int = main.colony_splendor()
 	main.furniture[at + Vector2i(5, 0)] = [main.Build.BANNER, W, 0]
-	check(main.colony_splendor() == shine + 1, "il primo stendardo +1")
+	check(main.colony_splendor() == shine + 2, "il primo stendardo +2")
 	main.furniture[at + Vector2i(6, 0)] = [main.Build.BANNER, W, 0]
 	main.furniture[at + Vector2i(7, 0)] = [main.Build.BANNER, W, 0]
-	check(main.colony_splendor() == shine + 1, "gli altri stendardi niente")
+	check(main.colony_splendor() == shine + 2, "gli altri stendardi niente")
 	main.furniture[at + Vector2i(8, 0)] = [main.Build.FLOWER_BED, W, 0]
-	check(main.colony_splendor() == shine + 2, "le aiuole invece si sommano")
+	check(main.colony_splendor() == shine + 3, "le aiuole invece si sommano")
 	main.furniture.clear()
 
 	var c = main.colonists[0]

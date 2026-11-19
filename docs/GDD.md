@@ -587,7 +587,7 @@ Decisa il 2026-11-19. Numeri da tarare.
   sblocca cose. Lo danno le decorazioni finite, ovunque stiano (il totale in alto). Primo effetto: attira avventurieri
   più forti (vedi 4.4.4).
   Decorazioni (+splendore): aiuola 1, fioriera di pietra 1, panca 1 (anche +0,5 comfort), lampione 1 (si accende di
-  notte), stendardo 1 ma una volta sola (sventola; deciso il 2026-11-19: prima ne bastavano 30 da 4 legna per il
+  notte), stendardo 2 ma una volta sola (sventola; deciso il 2026-11-19: prima ne bastavano 30 da 4 legna per il
   Regno), fontana 6 (2x2, zampilla), statua del re 8 (2x2).
   Poi: strade che collegano le case, alberi piantati, feste.
 - **Sentiero**: pavimento di terra battuta e sassolini (1 pietra a casella); i mobili ci stanno sopra.

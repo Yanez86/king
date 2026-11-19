@@ -515,7 +515,7 @@ Per ora fa due cose:
 [cell]Fioriera[/cell][cell]1[/cell][cell]5 pietra[/cell][cell]Decorazioni[/cell]
 [cell]Panca[/cell][cell]1[/cell][cell]6 legna[/cell][cell]Decorazioni[/cell]
 [cell]Lampione[/cell][cell]1[/cell][cell]3 legna, 1 carbone[/cell][cell]Lanterne[/cell]
-[cell]Stendardo[/cell][cell]1, una volta[/cell][cell]4 legna[/cell][cell]–[/cell]
+[cell]Stendardo[/cell][cell]2, una volta[/cell][cell]4 legna[/cell][cell]–[/cell]
 [cell]Fontana[/cell][cell]6[/cell][cell]30 pietra[/cell][cell]Fontana[/cell]
 [cell]Statua[/cell][cell]8[/cell][cell]40 pietra[/cell][cell]Statuaria[/cell]
 [cell]Calice[/cell][cell]3[/cell][cell]il cimelio[/cell][cell]–[/cell]
