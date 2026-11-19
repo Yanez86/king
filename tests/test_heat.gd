@@ -14,7 +14,7 @@ func _initialize() -> void:
 	main.game_start = false  # e tutte le ricerche fatte
 	root.add_child(main)
 	await process_frame
-	main.threats = false
+	main.events = false
 	main.needs_rate = 0.0
 	main.routines = false
 	main.animals.clear()

@@ -14,7 +14,7 @@ func _initialize() -> void:
 	await process_frame
 	main.needs_rate = 0.0
 	main.routines = false
-	main.threats = false
+	main.events = false
 	main.atmosphere.climate = false  # niente freddo: lo studio dipende dal comfort
 	main.animals.clear()
 	main.bushes.clear()
@@ -495,20 +495,25 @@ func _initialize() -> void:
 	main.pay_toll(visitor)
 	check(main.items[R.GOLD].get(gate_cell, 0) == main.TOLL, "due monete al cancello")
 
-	# erudito errante: senza locanda non viene; con la locanda passa un giorno, vende 1-2 libri e ne compra uno
+	# erudito errante, un evento del narratore: senza locanda non viene; con la locanda passa un giorno, vende 1-2 libri e
+	# ne compra uno; poi almeno 5 giorni di pausa
+	var N = main.narrator
+	var S = N.Event.SCHOLAR
+	var day: int = main.today
+	main.today = maxi(day, 5)
 	main.scholar_until = -1.0
-	main.next_scholar = main.clock
+	N.last.erase(S)
 	main.rooms.clear()
-	main.update_scholar()
-	check(main.scholar_until < 0 and main.next_scholar > main.clock, "senza locanda l'erudito non passa")
+	check(not N.can_happen(S) and not N.happen(S) and main.scholar_until < 0, "senza locanda l'erudito non passa")
 	var inn = main.Room.new()
 	inn.kind = main.RoomKind.INN
 	inn.cells = {free[40]: true}
 	main.rooms.append(inn)
-	main.next_scholar = main.clock
-	main.update_scholar()
+	check(N.can_happen(S) and is_equal_approx(N.chance(S), 1.0 / 5.0), "con la locanda può passare: in media ogni 10 giorni, 5 di pausa")
+	check(N.happen(S) and N.last[S] == main.today, "passa")
 	check(main.scholar_until > main.clock and main.scholar_books.size() in [1, 2] and main.chronicle[-1].contains("wandering scholar"),
 		"con la locanda arriva, coi suoi libri, nella cronaca")
+	check(N.busy(S) and not N.can_happen(S), "uno alla volta")
 	main.scholar_books = [R.NOTEBOOK]
 	main.stockpile = {free[41]: true, free[42]: true, free[43]: true, free[44]: true}
 	for res in [R.GOLD, R.NOTEBOOK, R.TOME]:
@@ -526,7 +531,12 @@ func _initialize() -> void:
 	check(main.get_node("HUD/KnowledgePanel/Box/Scholar").visible, "nella finestra Knowledge")
 	main.clock = main.scholar_until
 	main.update_scholar()
-	check(main.scholar_until < 0 and main.next_scholar > main.clock + 7, "dopo un giorno riparte; torna fra una decina di giorni")
+	check(main.scholar_until < 0 and not N.busy(S), "dopo un giorno riparte")
+	main.today = N.last[S] + 4
+	check(not N.can_happen(S), "4 giorni dopo non torna")
+	main.today = N.last[S] + 5
+	check(N.can_happen(S), "dopo 5 sì")
+	main.today = day
 
 	# protesta: sotto 20 di felicità e contro due leggi, si va a lamentarsi nella sala del trono; una volta al giorno
 	var hall = main.Room.new()

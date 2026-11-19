@@ -23,7 +23,7 @@ func _initialize() -> void:
 	root.add_child(main)
 	await process_frame
 	check(main.game_id == "" and SAVES.list().is_empty(), "nei test, senza cartella, non si salva")
-	main.threats = false  # i lupi li mette la prova
+	main.events = false  # i lupi li mette la prova
 	main.deaths = false  # a terra sì, morti no: il sovrano resta il primo dei coloni
 	main.atmosphere.climate = false  # temperatura fissa: le due partite non devono dipendere dal meteo che si muove
 	var W: int = main.Res.WOOD
@@ -146,7 +146,7 @@ func _initialize() -> void:
 	# avanti insieme: col caso uguale, le due partite restano uguali (senza cartella: niente salvataggi all'alba)
 	main.game_id = ""
 	copy.game_id = ""
-	copy.threats = false
+	copy.events = false
 	copy.deaths = false
 	copy.atmosphere.climate = false
 	for game in [main, copy]:

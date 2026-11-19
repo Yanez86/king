@@ -16,7 +16,7 @@ func _initialize() -> void:
 	main.settings_file = ""
 	root.add_child(main)
 	await process_frame
-	main.threats = false
+	main.events = false
 	main.needs_rate = 0.0
 	var R = main.Res
 	var mid: Vector2i = main.MAP_SIZE / 2
@@ -148,10 +148,15 @@ func _initialize() -> void:
 		main.colonists.erase(o)
 	for o in [w, b, a]:
 		o.gifts = []
-	# non prima del giorno 10
-	main.next_wanderer = 0.0
-	main.update_wanderers()
-	check(main.next_wanderer >= main.WANDERER_FROM and not main.guests.any(func(g): return g.wanderer), "dal giorno 10")
+	# quando arrivano lo decide il narratore (vedi test_narrator): non prima del giorno 10, uno alla volta
+	var N = main.narrator
+	var W = N.Event.WANDERERS
+	var day: int = main.today
+	main.today = 9
+	check(not N.can_happen(W) and not main.guests.any(func(g): return g.wanderer), "non prima del giorno 10")
+	main.today = 10
+	check(N.can_happen(W) and is_equal_approx(N.chance(W), 1.0 / (30.0 - 5.0)), "dal giorno 10, uno ogni 30 giorni (pausa compresa)")
+	main.today = day
 
 	# chi arriva: 70% soli, 15% coppie, 15% famiglie; uno su quattro con un attrezzo
 	var kinds := [0, 0, 0]
@@ -184,8 +189,9 @@ func _initialize() -> void:
 		"i genitori, abbastanza grandi")
 	main.come(family)
 	check(family.all(func(o): return o in main.guests and o.errand == main.Errand.VISIT and o.job == main.Job.TRAVEL), "arrivano")
-	main.update_wanderers()
-	check(main.next_wanderer == 0.0 and main.guests.filter(func(g): return g.wanderer).size() == family.size(), "uno alla volta")
+	main.today = maxi(day, 10)
+	check(not N.can_happen(W) and main.guests.filter(func(g): return g.wanderer).size() == family.size(), "uno alla volta")
+	main.today = day
 	walk_until(func(): return not main.requests.is_empty(), 8000)
 	var head = main.requests[0][0]
 	check(main.requests[0] == family and panel.visible and main.cell_of(head.pos).distance_to(mid) <= 5.0, "nella radura, chiedono")
@@ -233,9 +239,10 @@ func _initialize() -> void:
 	stays.trips = 3
 	back(stays)
 	check(main.requests.is_empty(), "porte chiuse: l'avventuriero non chiede")
-	main.next_wanderer = main.clock
-	main.update_wanderers()
-	check(not main.guests.any(func(g): return g.wanderer and g.errand != main.Errand.LEAVE), "porte chiuse: nessun viandante")
+	main.today = maxi(day, 10)
+	check(not N.wanderers_can() and not N.happen(W) and not main.guests.any(func(g): return g.wanderer and g.errand != main.Errand.LEAVE),
+		"porte chiuse: nessun viandante")
+	main.today = day
 	check(main.law_mood_of(w, L.CLOSED_GATES) == 5.0, "tutti +5")
 	# porte aperte, al posto delle chiuse: si chiede dopo 2 spedizioni, viandanti il doppio, forestieri per 10 giorni (-5)
 	var wait: float = main.wander_wait()

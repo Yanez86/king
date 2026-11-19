@@ -13,7 +13,7 @@ func _initialize() -> void:
 	main.settings_file = ""
 	root.add_child(main)
 	await process_frame
-	main.threats = false
+	main.events = false
 	var ruler = main.ruler
 
 	# età: il sovrano tra 20 e 30 anni, gli altri tra 18 e 40, come gli avventurieri; un anno di vita a stagione

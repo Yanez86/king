@@ -10,7 +10,7 @@ func _initialize() -> void:
 	main.game_start = false
 	root.add_child(main)
 	await process_frame
-	main.threats = false
+	main.events = false
 
 	# fogli: una voce di 4 direzioni (64 px) per ogni riga di Held, Look e acconciatura
 	var cell_h: int = 4 * main.TILE

@@ -208,7 +208,7 @@ const ARROW_ARC := 0.1      # altezza della parabola, per pixel di tiro
 # combattimento (vedi react, Job.FIGHT, update_wolf): i lupi arrivano in branco dal bordo della mappa e inseguono i coloni
 # fuori dalle stanze; chi sta bene combatte, chi è ferito scappa al chiuso. A 0 punti ferita si resta a terra, o si
 # muore (vedi die): coi lupi, con le probabilità di DEATH_BASE; a terra, il primo morso uccide
-const WOLF_FIRST := 4.0     # giorno del primo branco, contato da 0 (il quinto; vedi threats)
+const WOLF_FIRST := 4.0     # giorno del primo branco, contato da 0 (il quinto; vedi events)
 const WOLF_EVERY := 3.0     # giorni tra un branco e l'altro
 const PACK := [2, 3]        # lupi per branco, da-a
 const WOLF_STAY := 1.0      # giorni: poi, se non inseguono nessuno, se ne vanno
@@ -340,18 +340,16 @@ const TRIPS_PER_LEVEL := 2  # spedizioni tornate per salire di un livello
 const STAY_TRIPS := 3
 const STAY_HAPPY := 60.0
 const FOREIGNER_DAYS := 5.0
-# Viandanti (GDD 4.2.1): uno alla volta, dal giorno WANDERER_FROM, in media ogni WANDERER_EVERY giorni diviso
-# (1 + splendore / WANDERER_SPLENDOR); sopra CROWD coloni l'attesa raddoppia ogni CROWD_DOUBLE coloni in più; ±
-# WANDERER_JITTER (vedi wander_wait). Una persona sola, una coppia sposata o una famiglia (WANDERER_GROUPS): adulti di
-# WANDERER_AGE anni con WANDERER_SKILLS punti abilità (al più 3 per abilità), i figli di WANDERER_CHILD; uno su
+# Viandanti (GDD 4.2.1), un evento del narratore (narrator.gd: da che giorno, uno alla volta, la pausa): in media ogni
+# WANDERER_EVERY giorni diviso (1 + splendore / WANDERER_SPLENDOR); sopra CROWD coloni l'attesa raddoppia ogni
+# CROWD_DOUBLE coloni in più (vedi wander_wait). Una persona sola, una coppia sposata o una famiglia (WANDERER_GROUPS):
+# adulti di WANDERER_AGE anni con WANDERER_SKILLS punti abilità (al più 3 per abilità), i figli di WANDERER_CHILD; uno su
 # WANDERER_TOOL porta un attrezzo. Vanno nella sala del trono (se no a un fuoco, se no nella radura), chiedono di restare
 # e aspettano la risposta WANDERER_WAIT giorni
-const WANDERER_FROM := 10.0
 const WANDERER_EVERY := 30.0
 const WANDERER_SPLENDOR := 20.0
 const CROWD := 8
 const CROWD_DOUBLE := 4.0
-const WANDERER_JITTER := 0.3
 const WANDERER_GROUPS := [0.7, 0.15, 0.15]  # solo, coppia, famiglia (un genitore o una coppia, con un figlio)
 const WANDERER_AGE := [16, 45]
 const WANDERER_CHILD := [4, 11]
@@ -647,10 +645,10 @@ const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today"
 	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
 	"fallen", "animals", "arrows", "next_animal", "next_pack", "guests", "next_guest", "ruins", "expeditions",
 	"chronicle", "chronicle_days", "board_pick", "study", "researched", "authority", "codified", "enacted", "revoked",
-	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "sown", "plans", "slot_done", "soil", "soil_year_ago", "soil_known", "compost_since", "manured", "no_manure", "babies",
+	"granary", "tithe_owed", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "sown", "plans", "slot_done", "soil", "soil_year_ago", "soil_known", "compost_since", "manured", "no_manure", "babies",
 	"house_name", "regent_for", "coronation_at", "reigns", "next_suitor", "pace", "tired", "last_yield",
 	"harvests", "wear", "plastered", "burning",
-	"fire_noted", "storm_noted", "delivered", "requests", "next_wanderer"]
+	"fire_noted", "storm_noted", "delivered", "requests"]
 const TOAST_TIME := 2000    # millisecondi: "Saved" in alto, poi sparisce (vedi show_toast)
 const AUTOSAVE_HOUR := 6    # all'alba, quando i coloni si alzano: il salvataggio di ogni giorno
 const MODIFIER_KEYS := [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]  # da soli non sono un tasto
@@ -1120,12 +1118,10 @@ const SEAT_ROOM := {Build.DESK: RoomKind.STUDY, Build.THRONE: RoomKind.THRONE_RO
 const STUDY_ICON := preload("res://art/icon_study.png")
 const AUTHORITY_ICON := preload("res://art/icon_authority.png")
 const BOOKS := [Res.NOTEBOOK, Res.TOME, Res.CODEX]  # il libro che consuma una ricerca di livello II, III, IV
-# Erudito errante (GDD 4.7.2): con una locanda, ogni SCHOLAR_EVERY giorni (± SCHOLAR_JITTER) passa per un giorno; vende
-# 1-2 libri (quaderni, a volte un tomo; mai codici) a BOOK_PRICE e ne compra uno a metà prezzo. Si tratta nella
-# finestra Knowledge (vedi fill_knowledge). ponytail: un evento, non una figura che arriva alla locanda; e paga solo in
-# monete (il GDD vuole anche il granaio)
-const SCHOLAR_EVERY := 10.0
-const SCHOLAR_JITTER := 2.0
+# Erudito errante (GDD 4.7.2), un evento del narratore (narrator.gd: con una locanda, quanto spesso): passa per un
+# giorno; vende 1-2 libri (quaderni, a volte un tomo; mai codici) a BOOK_PRICE e ne compra uno a metà prezzo. Si tratta
+# nella finestra Knowledge (vedi fill_knowledge). ponytail: un evento, non una figura che arriva alla locanda; e paga
+# solo in monete (il GDD vuole anche il granaio)
 const SCHOLAR_TOME := 0.25  # per ogni libro in vendita, la volta che è un tomo
 const BOOK_PRICE := {Res.NOTEBOOK: 40, Res.TOME: 120, Res.CODEX: 300}
 enum Branch { LAND, FIRE, STONE, IRON, ROAD, LORE }  # rami dell'albero, colonne di BRANCHES_SHEET
@@ -1404,7 +1400,7 @@ class Colonist:
 	var gifts := []               # Gift: i talenti da avventuriero
 	var refused_at := 0           # le spedizioni che aveva quando gli hanno detto di no l'ultima volta (vedi wants_to_stay)
 	var former := Hero.NONE       # rimasto come colono: la classe che aveva (vedi welcome)
-	var wanderer := false         # viandante, finché non resta o se ne va (vedi update_wanderers)
+	var wanderer := false         # viandante, finché non resta o se ne va (vedi come, narrator.gd)
 	var fellows := []             # il viandante: il suo gruppo, lui compreso (la famiglia); chiedono insieme
 	var oath := false             # deve andare a giurare davanti al trono (vedi try_oath)
 	var sworn := false            # ha giurato (Law.OATH)
@@ -1510,7 +1506,6 @@ var reigns := []            # [sovrano, `clock` d'inizio, di fine (-1 finché re
 var founding_line := -1     # la voce della cronaca della casata nuova, che cambia se il giocatore sceglie un altro
 var founding_from := ""     # la casata finita, per quella voce
 var next_suitor := 0.0      # `clock` del prossimo pretendente alla locanda; 0: da fissare (vedi update_suitors)
-var next_wanderer := 0.0    # `clock` del prossimo viandante; 0: da fissare (vedi update_wanderers)
 var naming_line := -1       # la voce della cronaca della sua nascita, che cambia col nome
 var no_manure := {}         # casella d'orto -> true: il suo campo non si concima (dal cartello)
 var tired := {}             # casella -> [Crop, quante volte di fila]: l'ultimo raccolto (vedi tired_count)
@@ -1531,7 +1526,7 @@ var animals: Array[Animal] = []
 var arrows: Array[Arrow] = []  # in volo, vedi shoot
 var wild := RandomNumberGenerator.new()  # tutto il caso degli animali: non sposta quello del resto della partita
 var next_animal := ANIMAL_RESPAWN  # `clock` del prossimo arrivo
-var threats := true         # false nei test: niente branchi di lupi
+var events := true          # false nei test: il narratore tace (vedi narrator.gd) e niente branchi di lupi
 var next_pack := WOLF_FIRST # `clock` del prossimo branco
 var deaths := true          # false nei test: a 0 punti ferita si resta a terra, nessuno muore
 var corpses: Array[Colonist] = []  # morti: restano a terra CORPSE_DAYS (vedi die)
@@ -1560,7 +1555,6 @@ var tithe_owed := {}        # Res -> parte di pezzo dovuta alla decima, che si a
 var today := 0              # il giorno visto per ultimo: cambiato, è l'alba di uno nuovo (vedi new_day)
 var hour := 0               # lo stesso per l'ora (vedi new_hour)
 var knowledge_key := ""     # quello che mostra la finestra Knowledge: se cambia, la si rifà (vedi fill_knowledge)
-var next_scholar := SCHOLAR_EVERY  # `clock` del prossimo passaggio dell'erudito (vedi update_scholar)
 var scholar_until := -1.0   # `clock` fino a cui l'erudito è alla locanda
 var scholar_books: Array = []  # Res che ha ancora da vendere
 var scholar_bought := false # ha già comprato il suo libro, a questo passaggio
@@ -1589,6 +1583,7 @@ var made_roofs := {}        # i dati di un tetto -> com'è fatto (Roof.look): a 
 var hole_masks: Array[Image] = [ROOFS.hole_mask(0), ROOFS.hole_mask(1)]  # i buchi per vedere dietro i tetti, vedi cut_holes
 var hole_clear := Image.create_empty(ROOFS.HOLE_DITHER * 2, ROOFS.HOLE_DITHER * 2, false, Image.FORMAT_RGBA8)
 var atmosphere := preload("res://atmosphere.gd").new()  # luci, fuochi, nuvole, meteo; neve e pozzanghere a terra
+var narrator := preload("res://narrator.gd").new()  # gli eventi: uno al giorno al più, ognuno col suo ritmo
 var forecast_strip = preload("res://forecast.gd").new()  # in alto accanto alla data: il meteo di adesso e le previsioni
 var calendar = preload("res://calendar.gd").new()  # si apre cliccando la data: un mese per pagina, coi suoi eventi
 var rooms_made := 0         # per i nomi di default
@@ -1803,6 +1798,7 @@ func _ready() -> void:
 	add_child(soil_lens)
 	soil_canvas.draw.connect(draw_soil_lens)
 	add_child(atmosphere)  # dopo `lights` e `flat`, che usa
+	add_child(narrator)
 	toast.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	toast.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	toast.position.y = 72  # sotto la barra in alto
@@ -2038,14 +2034,14 @@ func saved_classes() -> Array:
 
 
 # Tutto lo stato della partita, pronto per store_var: le variabili di SAVED (gli oggetti impacchettati in "objects"),
-# il caso degli animali, il meteo e dove guarda la telecamera
+# il caso degli animali, il meteo, il narratore e dove guarda la telecamera
 func game_state() -> Dictionary:
 	var packer := SAVES.Packer.new(saved_classes())
 	var fields := {}
 	for name in SAVED:
 		fields[name] = packer.pack(get(name))
 	return {"main": fields, "objects": packer.fields(), "wild": [wild.seed, wild.state], "weather": atmosphere.saved(),
-		"camera": [camera.position, camera.zoom]}
+		"narrator": narrator.saved(), "camera": [camera.position, camera.zoom]}
 
 
 # quello che l'elenco dei salvataggi mostra, nella lingua di adesso
@@ -2147,9 +2143,10 @@ func rebuild_grid() -> void:
 			astar.set_point_weight_scale(cell, 1.0 / ROAD_SPEED)
 
 
-# finito _ready di una partita caricata: il meteo (e l'acqua gelata), la telecamera; si riparte in pausa
+# finito _ready di una partita caricata: il meteo (e l'acqua gelata), il narratore, la telecamera; si riparte in pausa
 func resume(state: Dictionary) -> void:
 	atmosphere.restore(state["weather"])
+	narrator.restore(state.get("narrator", {}))  # di prima del narratore: niente
 	if atmosphere.frozen:
 		freeze_water(true)
 	camera.position = state["camera"][0]
@@ -3801,7 +3798,6 @@ func tick(delta: float) -> void:
 		fly(arrow, delta)
 	update_guests()
 	update_suitors()
-	update_wanderers()
 	update_expeditions()
 	update_scholar()
 	for c in corpses.duplicate():
@@ -3816,7 +3812,7 @@ func tick(delta: float) -> void:
 			if enacted.has(Law.HUNTING_RESERVE):  # riserva di caccia: cervi doppi
 				prey.append(Beast.DEER)
 			spawn_animal(prey[wild.randi() % prey.size()])
-	if threats and clock >= next_pack:
+	if events and clock >= next_pack:
 		next_pack = clock + WOLF_EVERY
 		spawn_pack()
 
@@ -5793,18 +5789,16 @@ func set_keep(value: float, res: Res) -> void:
 	keep[res] = int(value)
 
 
-# L'erudito arriva se c'è una locanda (se no riprova domani) e resta un giorno, poi riparte con quello che non ha venduto
+# Passato il suo giorno, l'erudito riparte con quello che non ha venduto
 func update_scholar() -> void:
 	if scholar_until >= 0 and clock >= scholar_until:
 		scholar_until = -1.0
 		scholar_books.clear()
 		knowledge_key = ""
-	if clock < next_scholar:
-		return
-	if not rooms.any(is_inn):
-		next_scholar = clock + 1.0
-		return
-	next_scholar = clock + SCHOLAR_EVERY + randf_range(-SCHOLAR_JITTER, SCHOLAR_JITTER)
+
+
+# L'erudito arriva alla locanda (quando lo dice il narratore, vedi narrator.gd) e resta un giorno, con 1-2 libri
+func scholar_arrives() -> void:
 	scholar_until = clock + 1.0
 	scholar_bought = false
 	scholar_books.clear()
@@ -7102,25 +7096,11 @@ func names_list(names: Array) -> String:
 
 # --- Viandanti (GDD 4.2.1) ---
 
-# giorni di attesa, in media, prima del prossimo viandante: lo splendore attira, i tanti coloni frenano
+# giorni di attesa, in media, prima del prossimo viandante: lo splendore attira, i tanti coloni frenano. Quando
+# arrivano lo decide il narratore (vedi narrator.gd): uno alla volta, coi suoi giorni di pausa
 func wander_wait() -> float:
 	return WANDERER_EVERY / (1.0 + colony_splendor() / WANDERER_SPLENDOR) \
 		* pow(2.0, maxi(colonists.size() - CROWD, 0) / CROWD_DOUBLE) * (OPEN_WANDERERS if enacted.has(Law.OPEN_GATES) else 1.0)
-
-
-# Uno alla volta: con un viandante sulla mappa l'attesa del prossimo si ferma, e riparte da capo quando è rimasto o
-# se n'è andato. Arriva da un bordo con il suo gruppo e va dove chiederà di restare (vedi visit_cells, arrive)
-func update_wanderers() -> void:
-	if guests.any(func(g): return g.wanderer):
-		next_wanderer = 0.0
-		return
-	if next_wanderer == 0.0:
-		next_wanderer = maxf(clock + wander_wait() * randf_range(1.0 - WANDERER_JITTER, 1.0 + WANDERER_JITTER), WANDERER_FROM)
-	if clock < next_wanderer:
-		return
-	next_wanderer = 0.0
-	if not enacted.has(Law.CLOSED_GATES):  # con le porte chiuse non viene nessuno
-		come(wanderer_group())
 
 
 # i viandanti `group` arrivano insieme da un bordo e vanno a chiedere di restare (vedi visit_cells, arrive)
@@ -8024,6 +8004,7 @@ func note_harvests() -> void:
 # BERRY_REGROW giorni dopo Capodanno, nell'orto il gelo si prende quello che c'era. Finito un giorno di festa del calendario: la felicità e l'autorità della festa del
 # raccolto; col granaio aperto un pasto a tutti, un pezzo del granaio a testa finché ce n'è
 func new_day() -> void:
+	narrator.new_day()
 	for b in babies.duplicate():  # a CHILD_AGE il neonato diventa un bambino della colonia, accanto a chi lo teneva
 		if age_of(b) >= CHILD_AGE:
 			var near = carrier_of(b)
@@ -8102,6 +8083,7 @@ func new_hour() -> void:
 	wear_roofs()
 	melt_ice()
 	ignite_roofs()
+	narrator.new_hour()
 	for c in colonists:
 		if c != ruler and c.needs[Need.HAPPINESS] < UNHAPPY and c.protested != today and not c.downed \
 				and c.job not in [Job.SLEEP, Job.FIGHT, Job.FLEE, Job.TANTRUM, Job.PROTEST, Job.OATH] \

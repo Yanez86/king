@@ -12,7 +12,7 @@ func _initialize() -> void:
 	await process_frame
 	main.needs_rate = 0.0  # bisogni fermi: nessuno va a mangiare finché non lo decide la prova
 	main.routines = false  # niente orari: la routine è provata in test_jobs
-	main.threats = false  # niente branchi di lupi: le prove del combattimento sono in test_combat
+	main.events = false  # niente branchi di lupi: le prove del combattimento sono in test_combat
 	main.atmosphere.climate = false  # niente freddo: il cibo marcisce al ritmo pieno (il freddo è provato in fondo)
 	main.bushes.clear()
 	main.flax.clear()

@@ -899,7 +899,7 @@ Deciso il 2026-11-19. Numeri da tarare. Un **narratore** solo (niente carattere 
 | Evento | Tipo | Quando | In media ogni | Cosa fa |
 |---|---|---|---|---|
 | Viandanti | visita | dal giorno 10; uno alla volta; non con Porte chiuse | 30 giorni ÷ (1 + splendore / 20), ×2 ogni 4 coloni sopra 8; la metà con Porte aperte | come in 4.2.1; pausa 5 giorni dalla risposta (o da quando se ne sono andati) |
-| Erudito errante | visita | con una locanda | 10 giorni, pausa 5 | un giorno alla locanda, vende 1–2 libri (4.7.2) |
+| Erudito errante | visita | dal giorno 5, con una locanda | 10 giorni, pausa 5 | un giorno alla locanda, vende 1–2 libri (4.7.2) |
 | Branco di lupi | minaccia | dal giorno 5, di notte | 4 giorni | 2–3 lupi, uno in più ogni 5 coloni |
 | Ondata di freddo | minaccia | la media del giorno sotto 8 °C | 33 giorni | la decide il meteo 2 giorni e mezzo prima, perché le previsioni la vedano (4.5); rispetta la tregua e la fa partire |
 | Raccolto abbondante | fortuna | estate e autunno, con l'orto seminato | 40 giorni, pausa 30 | per 10 giorni i campi raccolti rendono il 50% in più |
