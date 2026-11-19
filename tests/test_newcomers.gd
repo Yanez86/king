@@ -220,7 +220,72 @@ func _initialize() -> void:
 	check(pair.all(func(o): return o.errand == main.Errand.LEAVE) and main.requests.is_empty() and not panel.visible,
 		"nessuna risposta in 2 giorni: se ne vanno insieme")
 
-	print("OK: nuovi coloni (l'avventuriero che resta, i viandanti)")
+	# --- Le leggi dell'Accoglienza ---
+	var L = main.Law
+	main.authority = 1000.0
+	check(main.LAWS[L.CLOSED_GATES]["kind"] == main.LawKind.PEOPLE and main.LAWS[L.OATH]["tier"] == 1, "categoria Popolo; il giuramento in baronia")
+	# porte chiuse: nessuno chiede di restare, nessun viandante; tutti +5
+	check(main.codify(L.CLOSED_GATES) and main.enact(L.CLOSED_GATES), "porte chiuse")
+	var stays = guest(main.Hero.ARCHER, 2, inn)
+	stays.trips = 3
+	back(stays)
+	check(main.requests.is_empty(), "porte chiuse: l'avventuriero non chiede")
+	main.next_wanderer = main.clock
+	main.update_wanderers()
+	check(not main.guests.any(func(g): return g.wanderer and g.errand != main.Errand.LEAVE), "porte chiuse: nessun viandante")
+	check(main.law_mood_of(w, L.CLOSED_GATES) == 5.0, "tutti +5")
+	# porte aperte, al posto delle chiuse: si chiede dopo 2 spedizioni, viandanti il doppio, forestieri per 10 giorni (-5)
+	var wait: float = main.wander_wait()
+	check(main.codify(L.OPEN_GATES) and main.enact(L.OPEN_GATES) and not main.enacted.has(L.CLOSED_GATES), "porte aperte, al posto delle chiuse")
+	check(is_equal_approx(main.wander_wait(), wait / 2.0), "i viandanti il doppio")
+	stays.trips = 2
+	back(stays)
+	check(main.request_of(stays) == [stays], "porte aperte: chiede dopo 2 spedizioni")
+	main.answer(true)
+	check(is_equal_approx(stays.conds[main.Cond.FOREIGNER], main.clock + 10.0), "forestiero per 10 giorni")
+	check(main.law_mood_of(stays, L.OPEN_GATES) == -5.0 and main.law_mood_of(main.ruler, L.OPEN_GATES) == 0.0, "i forestieri -5, gli altri niente")
+	check("foreigners -5" in main.law_tip(L.OPEN_GATES), "nel suggerimento della legge")
+	main.revoke(L.OPEN_GATES)
+
+	# giuramento (baronia): chi resta va nella sala del trono, un'ora in ginocchio, e giura: 10 autorità, non è forestiero
+	check(main.codify_block(L.OATH) == "Needs a barony", "il giuramento vuole la baronia")
+	main.rank = 1
+	check(main.codify(L.OATH) and main.enact(L.OATH), "giuramento")
+	var hall = make_room(mid + Vector2i(10, -10))
+	main.furniture[mid + Vector2i(10, -12)] = [main.Build.THRONE, R.WOOD, 0]
+	hall.kind = main.RoomKind.THRONE_ROOM
+	main.come(main.wanderer_group(0))
+	walk_until(func(): return not main.requests.is_empty(), 8000)
+	var vow = main.requests[0][0]
+	check(main.cell_of(vow.pos).distance_to(mid + Vector2i(10, -10)) <= 3.0, "i viandanti vanno nella sala del trono")
+	main.answer(true)
+	check(vow.oath and vow.conds.has(main.Cond.FOREIGNER), "accolto: deve giurare")
+	walk_until(func(): return vow.job == main.Job.OATH and vow.path.is_empty(), 4000)
+	check(main.room_at(main.cell_of(vow.pos)) == hall, "in ginocchio nella sala del trono")
+	walk_until(func(): return vow.sworn, 2000)
+	check(not vow.oath and not vow.conds.has(main.Cond.FOREIGNER), "ha giurato: non è forestiero")
+	check(main.law_mood_of(vow, L.OATH) == 5.0 and main.law_mood_of(main.ruler, L.OATH) == 0.0, "chi ha giurato +5")
+	var other = main.wanderer_group(0)[0]
+	main.authority = 25.0
+	main.swear(other)
+	check(other.sworn and main.authority == 15.0, "il giuramento costa 10 autorità")
+	check(Array(main.chronicle).any(func(l): return main.full_name(vow) + " swears loyalty to the crown." in l), "nella cronaca")
+	# senza autorità resta forestiero
+	main.authority = 5.0
+	var poor = main.wanderer_group(0)[0]
+	main.guests.append(poor)
+	main.requests.append([poor])
+	main.asking = [poor]
+	main.answer(true)
+	main.swear(poor)
+	check(not poor.sworn and poor.conds.has(main.Cond.FOREIGNER) and main.authority == 5.0, "senza autorità resta forestiero")
+	# revocata la legge, niente giuramento
+	main.authority = 1000.0
+	poor.oath = true
+	main.revoke(L.OATH)
+	check(not main.try_oath(poor) and not poor.oath and not poor.sworn, "revocata la legge, niente giuramento")
+
+	print("OK: nuovi coloni (l'avventuriero che resta, i viandanti, le leggi dell'Accoglienza)")
 	quit()
 
 

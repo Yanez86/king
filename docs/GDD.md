@@ -1051,9 +1051,9 @@ Quattro fasce, una per titolo; sei categorie. ✓ = c'è nel gioco.
 | | Clemenza ✓ | baronia | 80 | Giustizia | sfuriate di un'ora; il sovrano ascolta chi protesta (un'ora, +10 felicità per mezza giornata, niente autorità persa) | tutti +3; iracondo +5 |
 | | Riserva di caccia ✓ | baronia | 100 | — | cervi doppi, solo del sovrano e dei cacciatori (chi ha l'arco); +3 autorità a cervo del sovrano | cacciatori +3; gli altri −3 |
 | | Legge marziale | contea | 150 | — | con nemici in vista nessuno scappa sopra 20 punti ferita; +10% a segno | tutti −5 |
-| Popolo | Porte chiuse | signoria | 30 | Accoglienza | nessuno chiede di restare: gli avventurieri non lo chiedono, i viandanti non vengono | tutti +5 |
-| | Porte aperte | signoria | 40 | Accoglienza | un avventuriero chiede di restare dopo 2 spedizioni, i viandanti il doppio; forestieri per 10 giorni (vedi 4.2.1) | forestieri −5 |
-| | Giuramento | baronia | 80 | — | chi resta va al trono e giura (un'ora, 10 autorità; senza trono dove si trova, senza autorità resta forestiero): non è forestiero | chi ha giurato +5 |
+| Popolo | Porte chiuse ✓ | signoria | 30 | Accoglienza | nessuno chiede di restare: gli avventurieri non lo chiedono, i viandanti non vengono | tutti +5 |
+| | Porte aperte ✓ | signoria | 40 | Accoglienza | un avventuriero chiede di restare dopo 2 spedizioni, i viandanti il doppio; forestieri per 10 giorni (vedi 4.2.1) | forestieri −5 |
+| | Giuramento ✓ | baronia | 80 | — | chi resta va al trono e giura (un'ora, 10 autorità; senza trono dove si trova, senza autorità resta forestiero): non è forestiero | chi ha giurato +5 |
 | | Padrinato | baronia | 100 | — | un padrino: +50% esperienza per 10 giorni lavorandogli vicino | padrino e figlioccio +3 |
 | | Matrimoni misti | contea | 150 | — | coloni e avventurieri si sposano; l'avventuriero resta come colono | avventurieri +5 |
 | | Scuola | contea | 180 | Scriptorium | un'ora allo scrittoio per figli e forestieri; i figli crescono con 3 punti abilità in più | figli e forestieri +3 |

@@ -3490,3 +3490,38 @@ msgid "%s: %s, a wanderer, is coming to ask to stay."
 msgid_plural "%s: %s, wanderers, are coming to ask to stay."
 msgstr[0] "%s: %s, un viandante, viene a chiedere di restare."
 msgstr[1] "%s: %s, viandanti, vengono a chiedere di restare."
+
+# --- Nuovi coloni: le leggi dell'Accoglienza, il giuramento
+
+msgid "People"
+msgstr "Popolo"
+
+msgid "Closed Gates"
+msgstr "Porte chiuse"
+
+msgid "Open Gates"
+msgstr "Porte aperte"
+
+msgid "Oath"
+msgstr "Giuramento"
+
+msgid "Nobody asks to stay: adventurers don't ask, and no wanderers come."
+msgstr "Nessuno chiede di restare: gli avventurieri non lo chiedono, e non vengono viandanti."
+
+msgid "Adventurers ask to stay after 2 expeditions, and wanderers come twice as often. Newcomers are foreigners for 10 days, not 5."
+msgstr "Gli avventurieri chiedono di restare dopo 2 spedizioni, e i viandanti vengono il doppio delle volte. Chi arriva è forestiero per 10 giorni, non 5."
+
+msgid "Whoever stays swears loyalty before the throne (an hour, 10 authority) and is no foreigner. Without enough authority they stay a foreigner."
+msgstr "Chi resta giura fedeltà davanti al trono (un'ora, 10 autorità) e non è forestiero. Senza abbastanza autorità resta forestiero."
+
+msgid "foreigners"
+msgstr "forestieri"
+
+msgid "the sworn"
+msgstr "chi ha giurato"
+
+msgid "%s: %s cannot swear loyalty: the crown lacks the authority."
+msgstr "%s: %s non può giurare fedeltà: alla corona manca l'autorità."
+
+msgid "%s: %s swears loyalty to the crown."
+msgstr "%s: %s giura fedeltà alla corona."

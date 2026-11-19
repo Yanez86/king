@@ -618,7 +618,7 @@ What you haven't researched has no build button, and its recipes don't show at t
 [color=#e8c34a]The Laws window[/color]
 Press G or click the throne: authority, seals, the crown's granary, then the laws by kind. Hover a law for what it does and who likes it.
 • Codify a law once, paying its cost in authority. Then Enact it: 10 authority and a free seal. A Lordship has 2 seals.
-• Laws of the same group (taxes, shifts) exclude each other: enacting one replaces the other.
+• Laws of the same group (taxes, shifts, justice, welcome) exclude each other: enacting one replaces the other.
 • Revoking is free, but the law can't be enacted again for 3 days.
 • Every law in force changes the happiness of the colonists (some traits feel it differently) or of the adventurers. It shows among the conditions in the sheet.
 • The crown's granary is filled by the Tithe, and nothing in it rots. Expedition provisions come from it first.
@@ -634,6 +634,10 @@ Press G or click the throne: authority, seals, the crown's granary, then the law
 • Day of rest (30): on days 7, 14, 21... nobody works but the cooks. Everyone +6, workaholic -5, ascetic 0.
 [color=#d9c48a]Order[/color]
 • Curfew (40): from 21:00 free time becomes sleep. Everyone -2, fun-loving -10, early bird +3.
+[color=#d9c48a]People[/color]
+• Closed gates (30, welcome): nobody asks to stay, adventurers or wanderers (see Colonists, New colonists). Everyone +5.
+• Open gates (40, welcome): adventurers ask to stay after 2 expeditions, wanderers come twice as often; newcomers are Foreigners for 10 days, not 5. Foreigners -5.
+• Oath (80, a Barony): whoever stays goes to the throne room and kneels an hour, then swears loyalty: 10 authority, and they are no foreigner (without a throne room, they swear where they stand; without the authority, they stay a foreigner). The sworn +5.
 [color=#d9c48a]Feasts[/color]
 • Harvest feast (40): on the five feast days of the calendar (see Time) nobody works but the cooks. The next day every colonist is Festive (+10 happiness for 3 days) and you get 5 authority."""],
 ]

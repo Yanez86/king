@@ -80,7 +80,7 @@ const SIDES := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 const TREE_SIDES := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  # da sopra la chioma coprirebbe chi taglia
 
 enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE,
-	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE, DOUSE, FARM, FERTILIZE }
+	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE, DOUSE, FARM, FERTILIZE, OATH }
 const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FURNISH, Job.HARVEST, Job.COOK, Job.FISH,
 	Job.HUNT, Job.CRAFT, Job.STUDY, Job.GOVERN, Job.REPAIR, Job.CUT_ICE, Job.FARM, Job.FERTILIZE]  # contano come ore di lavoro
 # Tabella delle priorità (in cima alla finestra Jobs): per colono e per lavoro da 1 (prima) a PRIORITY_LEVELS (dopo),
@@ -1208,13 +1208,14 @@ const ENACT_COST := 10.0
 const REVOKE_WAIT := 3.0    # giorni prima di poter ripromulgare una legge revocata
 enum Law { EXEMPTION, TITHE, LOOT_TAX, LODGING_TAX, LONG_SHIFTS, SHORT_DAY, DAY_OF_REST, CURFEW, HARVEST_FEAST, TALLAGE, TRIBUTE, OPEN_GRANARY,
 	TOLL, NIGHT_WATCH, MILITIA,
-	HARSH_PUNISHMENT, CLEMENCY, HUNTING_RESERVE, COURT }
+	HARSH_PUNISHMENT, CLEMENCY, HUNTING_RESERVE, COURT, CLOSED_GATES, OPEN_GATES, OATH }
 const LAWS_SHEET := preload("res://art/laws.png")  # colonne nell'ordine di Law
-enum LawKind { TREASURY, WORK, ORDER, CROWN, FEASTS }
+enum LawKind { TREASURY, WORK, ORDER, PEOPLE, CROWN, FEASTS }
 # Leggi: "kind" categoria; "cost" autorità per codificarla; "tier" il titolo che serve (di TITLES, se no la signoria);
 # "group" in vigore una sola dello stesso gruppo; "needs" la ricerca che serve; "after" la legge da codificare prima.
 # "mood": felicità di chi è in colonia finché è in vigore (vedi law_mood): "all" a tutti i coloni, un Trait al posto di
-# "all" a chi ce l'ha, "guests" agli avventurieri, "ruler" al sovrano, "hunters" a chi ha l'arco (vedi law_mood_of).
+# "all" a chi ce l'ha, "guests" agli avventurieri, "ruler" al sovrano, "hunters" a chi ha l'arco, "foreigners" ai
+# forestieri, "sworn" a chi ha giurato (vedi law_mood_of).
 # Le altre cose le fanno le funzioni che le nominano.
 # ponytail: solo le leggi che usano cose che ci sono già; le altre del GDD arrivano coi loro sistemi
 const LAWS := {
@@ -1255,6 +1256,12 @@ const LAWS := {
 		"info": "The ruler no longer works: only governs, and audiences give 50% more authority."},
 	Law.CURFEW: {"kind": LawKind.ORDER, "cost": 40, "mood": {"all": -2.0, Trait.FUN_LOVING: -10.0, Trait.EARLY_BIRD: 3.0},
 		"info": "From 21 everyone goes to bed: no evenings at the campfire, fewer targets for the wolves."},
+	Law.CLOSED_GATES: {"kind": LawKind.PEOPLE, "cost": 30, "group": "welcome", "mood": {"all": 5.0},
+		"info": "Nobody asks to stay: adventurers don't ask, and no wanderers come."},
+	Law.OPEN_GATES: {"kind": LawKind.PEOPLE, "cost": 40, "group": "welcome", "mood": {"foreigners": -5.0},
+		"info": "Adventurers ask to stay after 2 expeditions, and wanderers come twice as often. Newcomers are foreigners for 10 days, not 5."},
+	Law.OATH: {"kind": LawKind.PEOPLE, "tier": 1, "cost": 80, "mood": {"sworn": 5.0},
+		"info": "Whoever stays swears loyalty before the throne (an hour, 10 authority) and is no foreigner. Without enough authority they stay a foreigner."},
 	Law.HARVEST_FEAST: {"kind": LawKind.FEASTS, "cost": 40,
 		"info": "The five feast days of the calendar are holidays: nobody works but the cooks. Then +10 happiness for 3 days, +5 authority."},
 }
@@ -1270,6 +1277,11 @@ const MILITIA_FLEE := 30.0  # con la milizia si scappa sotto questi punti ferita
 const HARSH_STRESS := 2.0 / 3  # con le pene severe, stress dal lavoro x per l'iracondo: sfuriate un terzo meno spesso
 const CLEMENT_HOURS := 1.0  # con la clemenza sfuriate e proteste durano tanto
 const COURT_AUDIENCE := 1.5 # con la corte, autorità dall'udienza x
+const OPEN_STAY_TRIPS := 2  # con le porte aperte: spedizioni dopo le quali un avventuriero chiede di restare
+const OPEN_WANDERERS := 0.5 # con le porte aperte: attesa dei viandanti x
+const OPEN_FOREIGNER_DAYS := 10.0  # con le porte aperte: giorni da forestiero
+const OATH_AUTHORITY := 10.0  # il giuramento davanti al trono: la corona spende questa autorità (vedi swear)
+const OATH_HOURS := 1.0
 const PALACE := [1.5, 10]   # col palazzo (e una sala del trono): autorità dall'udienza x, splendore in più
 const RESERVE_AUTHORITY := 3.0  # riserva di caccia: per ogni cervo abbattuto dal sovrano
 const TRAIN_HIT := 2.5      # secondi per colpo al fantoccio: +1 esperienza in mischia
@@ -1368,6 +1380,8 @@ class Colonist:
 	var former := Hero.NONE       # rimasto come colono: la classe che aveva (vedi welcome)
 	var wanderer := false         # viandante, finché non resta o se ne va (vedi update_wanderers)
 	var fellows := []             # il viandante: il suo gruppo, lui compreso (la famiglia); chiedono insieme
+	var oath := false             # deve andare a giurare davanti al trono (vedi try_oath)
+	var sworn := false            # ha giurato (Law.OATH)
 
 
 # Animale selvatico: gira da solo per la mappa, fuori dalle stanze (vedi update_animal); si caccia (vedi try_hunt).
@@ -4119,6 +4133,11 @@ func update_colonist(c: Colonist, delta: float) -> void:
 				end_job(c)
 		Job.TRAVEL:  # avventuriero arrivato alla locanda o al bordo della mappa
 			arrive(c)
+		Job.OATH:  # davanti al trono, in ginocchio: finita l'ora, giura
+			c.work_left -= delta
+			if c.work_left <= 0:
+				end_job(c)
+				swear(c)
 		Job.STUDY, Job.GOVERN:  # allo scrittoio una pagina, sul trono un'ora di udienza; poi chi non ci lavora rivaluta
 			var seat: Build = Build.DESK if c.job == Job.STUDY else Build.THRONE
 			if furniture.get(c.target, [-1])[0] != seat or room_at(c.target) == null or room_at(c.target).kind != SEAT_ROOM[seat]:
@@ -4284,7 +4303,7 @@ func update_needs(c: Colonist, delta: float) -> void:
 		c.needs[Need.FUN] -= FUN_DROP * fx(c, "fun", 1.0) * day
 	if fx(c, "fun", 1.0) == 0:  # non gli serve: sempre a posto
 		c.needs[Need.FUN] = NEED_MAX
-	if c.job not in [Job.NONE, Job.SLEEP, Job.EAT, Job.RELAX, Job.TANTRUM, Job.PROTEST]:  # lavori, ma anche combattere e scappare
+	if c.job not in [Job.NONE, Job.SLEEP, Job.EAT, Job.RELAX, Job.TANTRUM, Job.PROTEST, Job.OATH]:  # lavori, ma anche combattere e scappare
 		c.needs[Need.STRESS] += STRESS_WORK * fx(c, "stress", 1.0) * cond_product(c, 2) * outdoor_stress(c) * shift_stress() * day \
 			* (HARSH_STRESS if enacted.has(Law.HARSH_PUNISHMENT) and Trait.HOTHEAD in c.traits else 1.0)
 	else:
@@ -4894,6 +4913,8 @@ func find_job(c: Colonist) -> void:
 		return
 	if c.errand != Errand.NONE:  # avventuriero per strada, interrotto: riprende la strada
 		travel(c)
+		return
+	if c.oath and try_oath(c):  # chi resta, col giuramento: prima di tutto al trono
 		return
 	if not visitor(c) and try_douse(c):  # un tetto brucia: tutti col secchio (i coloni)
 		return
@@ -6890,14 +6911,14 @@ func update_expeditions() -> void:
 
 # spedizioni dopo le quali un avventuriero chiede di restare
 func stay_trips() -> int:
-	return STAY_TRIPS
+	return OPEN_STAY_TRIPS if enacted.has(Law.OPEN_GATES) else STAY_TRIPS
 
 
 # l'avventuriero `g`, appena tornato alla locanda, chiede di restare: è contento, e ha fatto abbastanza spedizioni
 # dall'ultima volta che gli hanno detto di no
 func wants_to_stay(g: Colonist) -> bool:
 	return g.hero != Hero.NONE and not g.suitor and g.trips - g.refused_at >= stay_trips() \
-		and g.needs[Need.HAPPINESS] >= STAY_HAPPY
+		and g.needs[Need.HAPPINESS] >= STAY_HAPPY and not enacted.has(Law.CLOSED_GATES)
 
 
 # la domanda in cui c'è `c`, [] se non aspetta una risposta
@@ -6975,7 +6996,7 @@ func answer(yes: bool) -> void:
 
 # giorni da forestiero di chi resta
 func foreigner_days() -> float:
-	return FOREIGNER_DAYS
+	return OPEN_FOREIGNER_DAYS if enacted.has(Law.OPEN_GATES) else FOREIGNER_DAYS
 
 
 # Accolti: diventano coloni, forestieri per un po'. L'avventuriero ricorda la classe; lo scudo del corredo diventa uno
@@ -7001,6 +7022,7 @@ func welcome(group: Array) -> void:
 			colonists.append(c)
 		quit_job(c)
 		add_cond(c, Cond.FOREIGNER, foreigner_days())
+		c.oath = enacted.has(Law.OATH)  # col giuramento: prima di tutto, al trono (vedi try_oath)
 	note(tr_n("%s: %s stays in the colony.", "%s: %s stay in the colony.", group.size()) % [date(today), names_list(group.map(full_name))])
 	board_key = ""
 
@@ -7023,7 +7045,7 @@ func names_list(names: Array) -> String:
 # giorni di attesa, in media, prima del prossimo viandante: lo splendore attira, i tanti coloni frenano
 func wander_wait() -> float:
 	return WANDERER_EVERY / (1.0 + colony_splendor() / WANDERER_SPLENDOR) \
-		* pow(2.0, maxi(colonists.size() - CROWD, 0) / CROWD_DOUBLE)
+		* pow(2.0, maxi(colonists.size() - CROWD, 0) / CROWD_DOUBLE) * (OPEN_WANDERERS if enacted.has(Law.OPEN_GATES) else 1.0)
 
 
 # Uno alla volta: con un viandante sulla mappa l'attesa del prossimo si ferma, e riparte da capo quando è rimasto o
@@ -7037,7 +7059,8 @@ func update_wanderers() -> void:
 	if clock < next_wanderer:
 		return
 	next_wanderer = 0.0
-	come(wanderer_group())
+	if not enacted.has(Law.CLOSED_GATES):  # con le porte chiuse non viene nessuno
+		come(wanderer_group())
 
 
 # i viandanti `group` arrivano insieme da un bordo e vanno a chiedere di restare (vedi visit_cells, arrive)
@@ -7137,6 +7160,37 @@ func visit_cells() -> Array:
 			if not astar.is_point_solid(k) and not water.has(k):
 				goals.append(k)
 	return goals
+
+
+# Il giuramento (Law.OATH): chi è appena rimasto va nella sala del trono e ci resta in ginocchio OATH_HOURS, poi giura
+# (vedi swear). Senza sala del trono giura dove si trova. Revocata la legge, niente giuramento. false se non va
+func try_oath(c: Colonist) -> bool:
+	if not enacted.has(Law.OATH):
+		c.oath = false
+		return false
+	var hall := []
+	for room in rooms:
+		if room.kind == RoomKind.THRONE_ROOM:
+			hall.append_array(room.cells.keys().filter(func(k): return not astar.is_point_solid(k) and is_free(k)))
+	var path := path_to_nearest(c, hall)
+	if hall.is_empty() or path.is_empty():
+		swear(c)
+		return false
+	start_job(c, Job.OATH, path, path.back(), 0.0)
+	c.work_left = OATH_HOURS * DAY_LENGTH / 24
+	return true
+
+
+# `c` giura fedeltà alla corona: se c'è abbastanza autorità non è più forestiero; se no resta forestiero. Nella cronaca
+func swear(c: Colonist) -> void:
+	c.oath = false
+	if authority < OATH_AUTHORITY:
+		note(tr("%s: %s cannot swear loyalty: the crown lacks the authority.") % [date(today), full_name(c)])
+		return
+	gain(-OATH_AUTHORITY)
+	c.conds.erase(Cond.FOREIGNER)
+	c.sworn = true
+	note(tr("%s: %s swears loyalty to the crown.") % [date(today), full_name(c)])
 
 
 # I viandanti `group` se ne vanno: non aspettano più la risposta, via dal bordo più vicino
@@ -7472,6 +7526,10 @@ func law_mood_of(c: Colonist, law: Law) -> float:
 		return mood["ruler"]
 	if has_bow(c) and mood.has("hunters"):
 		return mood["hunters"]
+	if c.conds.has(Cond.FOREIGNER) and mood.has("foreigners"):
+		return mood["foreigners"]
+	if c.sworn and mood.has("sworn"):
+		return mood["sworn"]
 	for t in c.traits:
 		if mood.has(t):
 			return mood[t]
@@ -7617,7 +7675,7 @@ func new_hour() -> void:
 	ignite_roofs()
 	for c in colonists:
 		if c != ruler and c.needs[Need.HAPPINESS] < UNHAPPY and c.protested != today and not c.downed \
-				and c.job not in [Job.SLEEP, Job.FIGHT, Job.FLEE, Job.TANTRUM, Job.PROTEST] \
+				and c.job not in [Job.SLEEP, Job.FIGHT, Job.FLEE, Job.TANTRUM, Job.PROTEST, Job.OATH] \
 				and enacted.filter(func(law): return law_mood_of(c, law) < 0).size() >= PROTEST_LAWS:
 			protest(c)
 	if not enacted.has(Law.OPEN_GRANARY) or (MEALS + RAW_FOOD).any(func(r): return stored(r) > 0):
@@ -7820,7 +7878,7 @@ func revoke(law: Law) -> void:
 func law_tip(law: Law) -> String:
 	var mood: Dictionary = LAWS[law].get("mood", {})
 	var who := mood.keys().map(func(k): return "%s %s" % [{"all": tr("everyone"), "guests": tr("adventurers"), "ruler": tr("the ruler"),
-		"hunters": tr("bow carriers")}.get(k,
+		"hunters": tr("bow carriers"), "foreigners": tr("foreigners"), "sworn": tr("the sworn")}.get(k,
 		named(Trait, k).to_lower() if k is int else ""), signed(mood[k])])
 	return tr(LAWS[law]["info"]) + (tr("\nHappiness: ") + ", ".join(who) if not who.is_empty() else "") \
 		+ (tr("\nNeeds a %s") % tr(TITLES[LAWS[law]["tier"]]["realm"]).to_lower() if LAWS[law].get("tier", 0) > 0 else "") \

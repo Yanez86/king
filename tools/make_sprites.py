@@ -3549,6 +3549,23 @@ oooooooooooo ...oxo...... ...occcCo... .oJjjjjjjJo.
 ....owWo.... ............ .....oo..... ............
 """
 
+# Accoglienza (GDD 4.2.1): porte chiuse (il cancello sbarrato tra i pilastri), porte aperte (i battenti aperti, la strada
+# che entra), giuramento (la mano alzata)
+LAW_SYMBOLS_7 = """
+............ ............ ....o.o.o...
+ooo......ooo ooo......ooo ...osososo..
+orooooooooro orow....woro ...osososo..
+orowwWwwWoro orow....woro ...osososo..
+orowwWwwWoro orow.cc.woro .o.osososo..
+orojjjjjjoro orow.cc.woro osoosssssSo.
+oroJJJJJJoro orow.cc.woro ossssssssSo.
+orowwWwwWoro orow.cc.woro .osssssssSo.
+orowwWwwWoro orow.cc.woro ..ossssssSo.
+orowwWwwWoro orowcccCworo ...ossssSo..
+orooooooooro oroocccCooro ...ojjjjJo..
+ooo......ooo oooccccCCooo ...oooooo...
+"""
+
 # Rami dell'albero del sapere 12x12, nei quadratini: terra (spiga), fuoco (fiamma), pietra (mattoni), ferro (spada e
 # scudo), strada (rosa dei venti), sapere (lucerna)
 
@@ -4121,7 +4138,8 @@ def main():
         + frames(TECH_SYMBOLS_10, 12, 3, 12) + [art(TECH_GARDEN, 12, 12)] + frames(TECH_SOIL, 12, 3, 12) \
         + [art(TECH_MANURE, 12, 12)]
     images["techs"] = pixels(side_by_side([badge(f) for f in techs]))
-    laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 3, 12) + frames(LAW_SYMBOLS_5, 12, 3, 12) + frames(LAW_SYMBOLS_6, 12, 4, 12)
+    laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 3, 12) + frames(LAW_SYMBOLS_5, 12, 3, 12) + frames(LAW_SYMBOLS_6, 12, 4, 12) \
+        + frames(LAW_SYMBOLS_7, 12, 3, 12)
     images["laws"] = pixels(side_by_side([badge(f, "I", "x", "U") for f in laws]))
     branches = [f for block in (BRANCH_SYMBOLS_1, BRANCH_SYMBOLS_2) for f in frames(block, 12, 3, 12)]
     images["branches"] = pixels(side_by_side([badge(f) for f in branches]))

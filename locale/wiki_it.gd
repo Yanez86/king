@@ -617,7 +617,7 @@ Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette 
 [color=#e8c34a]La finestra Leggi[/color]
 Premi G o clicca il trono: autorità, sigilli, il granaio della corona, poi le leggi per categoria. Col mouse sopra una legge vedi cosa fa e a chi piace.
 • Codifica una legge una volta sola, pagandone il costo in autorità. Poi, con Promulga, la metti in vigore: 10 autorità e un sigillo libero. Una Signoria ha 2 sigilli.
-• Le leggi dello stesso gruppo (tasse, turni) si escludono a vicenda: promulgarne una sostituisce l'altra.
+• Le leggi dello stesso gruppo (tasse, turni, giustizia, accoglienza) si escludono a vicenda: promulgarne una sostituisce l'altra.
 • Revocare è gratis, ma la legge non si può promulgare di nuovo per 3 giorni.
 • Ogni legge in vigore cambia la felicità dei coloni (alcuni talenti la sentono in modo diverso) o degli avventurieri. Compare tra le condizioni nella scheda.
 • Il granaio della corona lo riempie la Decima, e lì dentro non marcisce niente. Le provviste delle spedizioni si prendono prima da lì.
@@ -633,6 +633,10 @@ Premi G o clicca il trono: autorità, sigilli, il granaio della corona, poi le l
 • Riposo festivo (30): nei giorni 7, 14, 21... non lavora nessuno tranne i cuochi. Tutti +6, stacanovista -5, asceta 0.
 [color=#d9c48a]Ordine[/color]
 • Coprifuoco (40): dalle 21:00 il tempo libero diventa sonno. Tutti -2, festaiolo -10, mattiniero +3.
+[color=#d9c48a]Popolo[/color]
+• Porte chiuse (30, accoglienza): nessuno chiede di restare, né avventurieri né viandanti (vedi Coloni, Nuovi coloni). Tutti +5.
+• Porte aperte (40, accoglienza): gli avventurieri chiedono di restare dopo 2 spedizioni, i viandanti vengono il doppio delle volte; chi arriva è Forestiero per 10 giorni, non 5. Forestieri -5.
+• Giuramento (80, una baronia): chi resta va nella sala del trono e sta un'ora in ginocchio, poi giura fedeltà: 10 autorità, e non è forestiero (senza sala del trono giura dove si trova; senza l'autorità resta forestiero). Chi ha giurato +5.
 [color=#d9c48a]Feste[/color]
 • Festa del raccolto (40): nei cinque giorni di festa del calendario (vedi Il tempo, in Le basi) non lavora nessuno tranne i cuochi. Il giorno dopo ogni colono è In festa (+10 felicità per 3 giorni) e ricevi 5 autorità."""],
 ]
