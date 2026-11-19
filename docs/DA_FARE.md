@@ -182,7 +182,8 @@ Cittadella.
 | | Medicina | II | Erboristeria | infermeria e medico |
 
 - [ ] Astronomia: la sfera armillare (le stagioni un giorno prima).
-- [ ] I contatori di studio e autorità nella barra in alto (a 1280 di larghezza non ci stanno).
+- [ ] I contatori di studio e autorità nella barra in alto (ora c'è posto: data, ora e meteo sono scesi in una
+  targhetta sotto la barra).
 
 ## Leggi e autorità (4.7.4–4.7.7)
 

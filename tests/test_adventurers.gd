@@ -83,8 +83,8 @@ func _initialize() -> void:
 	# la bacheca: chi aspetta, da spuntare; le rovine col tasto per mandarci gli spuntati; l'oro non basta
 	main.open_board()
 	var box = main.get_node("HUD/BoardPanel/Box")
-	check(main.get_node("HUD/BoardPanel").visible and box.get_node("Heroes").get_child_count() == 1, "la bacheca mostra chi aspetta")
-	var pick: CheckBox = box.get_node("Heroes").get_child(0).get_child(2)
+	check(main.get_node("HUD/BoardPanel").visible and box.get_node("Waiting/People/Heroes").get_child_count() == 1, "la bacheca mostra chi aspetta")
+	var pick: CheckBox = box.get_node("Waiting/People/Heroes").get_child(0).get_child(2)
 	var send: Button = box.get_node("Ruins").get_child(0).get_child(-1)
 	check(send.disabled, "senza nessuno spuntato non si manda nessuno")
 	pick.button_pressed = true

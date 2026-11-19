@@ -126,7 +126,7 @@ func events(day: int) -> Array:
 # premuto, i giorni passati più spenti
 func cell(day: int) -> Button:
 	var b := Button.new()
-	b.custom_minimum_size = Vector2(64, 52)
+	b.custom_minimum_size = Vector2(88, 62)  # ci sta "Corona" col testo a 22
 	b.focus_mode = FOCUS_NONE
 	b.toggle_mode = true
 	b.button_mask = 0  # non si clicca: si guarda

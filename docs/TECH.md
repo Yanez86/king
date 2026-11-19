@@ -85,6 +85,12 @@
 - Editor: Aseprite (a pagamento, o compilabile gratis) o LibreSprite/Pixelorama (gratuiti).
 - All'inizio: asset pack gratuiti/segnaposto (itch.io, Kenney) per non bloccarsi sulla grafica.
 - Palette limitata fissa (es. una palette da Lospec) per coerenza.
+- Testo: PixelifySans (`fonts/`), senza antialiasing, a **22** in tutto il tema (`theme.tres`, `default_font_size`). Il
+  font è disegnato su una griglia di 11 pixel per em: è nitido solo a 11, 22, 33, 44... A 22 lo resta anche con la
+  finestra ingrandita a 1920×1080 (33) e 2560×1440 (44); a 16, come prima, un suo pixel diventava 1,45 pixel di schermo e
+  i tratti uscivano di spessori diversi. Le grandezze scelte a mano (titolo 44, nuova partita 33, gantt dei campi 22)
+  stanno su quella griglia. L'interfaccia è pensata per 1280×720: la scheda del colono è a due colonne (`columns.gd`),
+  data, ora e meteo stanno in una targhetta sotto la barra in alto.
 
 ## Versionamento
 - Git + GitHub (`Yanez86/king`).

@@ -54,9 +54,10 @@ const CLASSIC_PLAN := [[[Crop.CABBAGE, 22], [Crop.CABBAGE, 112], [Crop.TURNIP, 2
 	[[Crop.TURNIP, 22], [Crop.TURNIP, 82], [Crop.TURNIP, 142], [Crop.TURNIP, 202]], [[Crop.BEANS, 22], [Crop.BEANS, 122]], []]
 const PLAN_YEARS := 4
 const PLAN_DAY := 2.0       # pixel per giorno nella pianificazione
-const PLAN_NAME := 200      # pixel: la colonna coi nomi dei campi
-const PLAN_AXIS := 36       # pixel: stagioni e mesi in testa
-const PLAN_ROW := 40        # pixel: una riga per campo
+const PLAN_NAME := 300      # pixel: la colonna coi nomi dei campi
+const PLAN_AXIS := 54       # pixel: stagioni e mesi in testa
+const PLAN_ROW := 60        # pixel: una riga per campo
+const PLAN_FONT := 22       # il testo del gantt, come il tema: il font è nitido solo a 11, 22, 33
 const PLAN_COLD := Color(0.63, 0.75, 0.86, 0.22)   # prima di SOW_FROM: la terra fredda, a righe
 const PLAN_WINTER := Color(0.47, 0.55, 0.75, 0.3)  # l'inverno
 # Ricerche della terra: Saggio del terreno, la lente (vedi draw_soil_lens) in tre fasce; Almanacco agrario cinque fasce e
@@ -246,9 +247,10 @@ const DOING := {Job.CHOP: "Chopping a tree", Job.MINE: "Mining", Job.UPROOT: "Up
 	Job.GOVERN: "Holding audience", Job.PROTEST: "Protesting in the throne room", Job.REPAIR: "Repairing a roof",
 	Job.CUT_ICE: "Cutting ice", Job.DOUSE: "Putting out a fire", Job.FARM: "Tending the garden",
 	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne"}
-const CENSUS_COLUMNS := [280, 120, 250]  # px: chi è, l'età, cosa fa; uguali in tutti i riquadri dell'elenco, così si allineano
-const CENSUS_FONT := [18, 18, 22]  # dimensioni del testo nell'elenco: sotto il nome, nome età e cosa fa, titoli dei
-# gruppi. Più grandi del 16 del tema, per leggerlo meglio (il font è nitido del tutto solo a 11 e 22: un suo pixel è 1/11)
+const BOARD_LIST := 280.0  # pixel: la lista di chi aspetta sulla bacheca, al più; poi scorre
+const CENSUS_COLUMNS := [320, 130, 290]  # px: chi è, l'età, cosa fa; uguali in tutti i riquadri dell'elenco, così si allineano
+const CENSUS_FONT := [22, 22, 22]  # dimensioni del testo nell'elenco: sotto il nome, nome età e cosa fa, titoli dei
+# gruppi. Come il tema: il font è nitido del tutto solo a 11, 22, 33 (un suo pixel è 1/11 della grandezza)
 const CENSUS_CARD := Color(0.17, 0.15, 0.2, 0.92)  # fondo dei riquadri
 const CENSUS_BORDER := Color("6b5236")             # bordo, color legno
 const CENSUS_DIM := Color(0.75, 0.72, 0.68)        # chi è, sotto il nome
@@ -1646,7 +1648,7 @@ var lights_canvas := Node2D.new()
 @onready var colonists_label: Button = $HUD/TopBar/Row/Colonists  # cliccato: l'elenco degli abitanti (vedi fill_census)
 @onready var beds_label: Label = $HUD/TopBar/Row/Beds
 @onready var splendor_label: Label = $HUD/TopBar/Row/Splendor
-@onready var info_label: Label = $HUD/TopBar/Row/Info
+@onready var info_label: Label = $HUD/Clock/Row/Info  # sotto la barra in alto, al centro: allarmi, giorno e ora
 @onready var realm_button: Button = $HUD/TopBar/Row/Realm  # nome del reame: apre la scheda del sovrano
 @onready var video: Control = $HUD/Options/Window/Box/Body/Pages/Video  # risoluzione e schermo intero
 @onready var categories: Control = $HUD/Categories  # si apre col tasto Build: una categoria per barra di costruzione
@@ -1806,12 +1808,10 @@ func _ready() -> void:
 	toast.hide()
 	$HUD.add_child(toast)
 	forecast_strip.main = self
-	$HUD/TopBar/Row.add_child(forecast_strip)
-	$HUD/TopBar/Row.move_child(forecast_strip, info_label.get_index() + 1)
+	$HUD/Clock/Row.add_child(forecast_strip)  # accanto alla data
 	calendar.main = self
 	$HUD.add_child(calendar)
 	info_label.mouse_filter = Control.MOUSE_FILTER_STOP  # la data apre il calendario
-	info_label.tooltip_text = "Calendar"
 	info_label.gui_input.connect(func(event):
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			calendar.visible = not calendar.visible)
@@ -1850,7 +1850,7 @@ func _ready() -> void:
 	hint.name = "PriorityHint"
 	hint.text = "1 first, 4 last, – never. Click: later; right click: sooner."
 	hint.add_theme_color_override("font_color", Color(0.85, 0.77, 0.54))
-	hint.add_theme_font_size_override("font_size", 12)
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART  # largo quanto la tabella
 	jobs_box.add_child(hint)
 	jobs_box.move_child(hint, jobs_list.get_index())
 	var line := HSeparator.new()
@@ -2739,7 +2739,6 @@ func build_plan_panel() -> void:
 	legend.text = "Striped: the soil is still cold, no sowing. Blue: winter, nothing grows. Click an empty spot to add a crop, a crop to change it, a field's name for ready rotations."
 	legend.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	legend.custom_minimum_size = Vector2(PLAN_NAME + YEAR_DAYS * PLAN_DAY, 0)
-	legend.add_theme_font_size_override("font_size", 12)
 	legend.add_theme_color_override("font_color", Color("b0aca0"))
 	box.add_child(legend)
 	plan_menu.id_pressed.connect(plan_menu_pressed)
@@ -2760,7 +2759,7 @@ func refresh_plan() -> void:
 	nav.get_node("Year").text = tr("Year %d") % (year_of(today) + plan_year + 1) + (tr(" · this year") if plan_year == 0 else "")
 	nav.get_node("Prev").disabled = plan_year == 0
 	nav.get_node("Next").disabled = plan_year == PLAN_YEARS - 1
-	plan_chart.custom_minimum_size = Vector2(PLAN_NAME + YEAR_DAYS * PLAN_DAY, PLAN_AXIS + maxi(field_signs.size(), 1) * PLAN_ROW + 18)
+	plan_chart.custom_minimum_size = Vector2(PLAN_NAME + YEAR_DAYS * PLAN_DAY, PLAN_AXIS + maxi(field_signs.size(), 1) * PLAN_ROW + 30)
 	plan_chart.queue_redraw()
 	plan_panel.reset_size()
 
@@ -2772,14 +2771,14 @@ func draw_plan() -> void:
 	for season_i in SEASONS.size():  # in testa stagioni e mesi; una riga a ogni stagione
 		var sx := x0 + (1 + season_i * SEASON_DAYS) * PLAN_DAY
 		plan_chart.draw_line(Vector2(sx, 0), Vector2(sx, tall), Color(1, 1, 1, 0.12))
-		plan_chart.draw_string(font, Vector2(sx, 13), tr(SEASONS[season_i]), HORIZONTAL_ALIGNMENT_CENTER,
-			SEASON_DAYS * PLAN_DAY, 13, Color("d9c48a"))
+		plan_chart.draw_string(font, Vector2(sx, 20), tr(SEASONS[season_i]), HORIZONTAL_ALIGNMENT_CENTER,
+			SEASON_DAYS * PLAN_DAY, PLAN_FONT, Color("d9c48a"))
 		for m in 3:
-			plan_chart.draw_string(font, Vector2(sx + m * MONTH_DAYS * PLAN_DAY, 29), tr(MONTHS[season_i * 3 + m]).left(3),
-				HORIZONTAL_ALIGNMENT_CENTER, MONTH_DAYS * PLAN_DAY, 11, Color("b0aca0"))
+			plan_chart.draw_string(font, Vector2(sx + m * MONTH_DAYS * PLAN_DAY, 44), tr(MONTHS[season_i * 3 + m]).left(3),
+				HORIZONTAL_ALIGNMENT_CENTER, MONTH_DAYS * PLAN_DAY, PLAN_FONT, Color("b0aca0"))
 	if field_signs.is_empty():
-		plan_chart.draw_string(font, Vector2(0, PLAN_AXIS + 24), tr("No fields yet: mark garden plots with Garden (P)."),
-			HORIZONTAL_ALIGNMENT_CENTER, x0 + YEAR_DAYS * PLAN_DAY, 14, Color("b0aca0"))
+		plan_chart.draw_string(font, Vector2(0, PLAN_AXIS + 36), tr("No fields yet: mark garden plots with Garden (P)."),
+			HORIZONTAL_ALIGNMENT_CENTER, x0 + YEAR_DAYS * PLAN_DAY, PLAN_FONT, Color("b0aca0"))
 	var y := year_of(today) + plan_year
 	for r in field_signs.size():
 		var sign_cell: Vector2i = field_signs[r]
@@ -2787,13 +2786,13 @@ func draw_plan() -> void:
 		var cycle: int = plan_of(sign_cell)[1].size()
 		var sub: String = tr_n("%d plot", "%d plots", field_of(sign_cell).size()) % field_of(sign_cell).size() + " · " + (tr("every year")
 			if cycle == 1 else tr("%d-year cycle, year %d") % [cycle, plan_index(sign_cell, y) + 1])
-		plan_chart.draw_string(font, Vector2(4, top + 17), field_name(sign_cell), HORIZONTAL_ALIGNMENT_LEFT, x0 - 8, 15, Color("e6e2d0"))
-		plan_chart.draw_string(font, Vector2(4, top + 32), sub, HORIZONTAL_ALIGNMENT_LEFT, x0 - 8, 11, Color("b0aca0"))
+		plan_chart.draw_string(font, Vector2(4, top + 26), field_name(sign_cell), HORIZONTAL_ALIGNMENT_LEFT, x0 - 8, PLAN_FONT, Color("e6e2d0"))
+		plan_chart.draw_string(font, Vector2(4, top + 50), sub, HORIZONTAL_ALIGNMENT_LEFT, x0 - 8, PLAN_FONT, Color("b0aca0"))
 		draw_plan_row(plan_chart, sign_cell, y, Rect2(x0, top + 4, YEAR_DAYS * PLAN_DAY, PLAN_ROW - 8), true)
 	if plan_year == 0:
 		var tx := x0 + (clock - year_start()) * PLAN_DAY
-		plan_chart.draw_string(font, Vector2(tx - 100, tall + 14), "▲ " + tr("today, %s") % day_name(today),
-			HORIZONTAL_ALIGNMENT_CENTER, 200, 11, Color("e8c34a"))
+		plan_chart.draw_string(font, Vector2(tx - 200, tall + 22), "▲ " + tr("today, %s") % day_name(today),
+			HORIZONTAL_ALIGNMENT_CENTER, 400, PLAN_FONT, Color("e8c34a"))
 
 
 # Una riga del gantt in `r` su `canvas`: le colture del piano del campo di `sign_cell` nell'anno `y`; a righe la terra
@@ -2814,8 +2813,8 @@ func draw_plan_row(canvas: Control, sign_cell: Vector2i, y: int, r: Rect2, label
 		return
 	var slots := slots_of(sign_cell, y)
 	if slots.is_empty() and labels:
-		canvas.draw_string(font, Vector2(r.position.x, r.position.y + r.size.y / 2 + 5), tr("Fallow: the soil rests"),
-			HORIZONTAL_ALIGNMENT_CENTER, winter_day() * px, 13, Color("b0aca0"))
+		canvas.draw_string(font, Vector2(r.position.x, r.position.y + r.size.y / 2 + 8), tr("Fallow: the soil rests"),
+			HORIZONTAL_ALIGNMENT_CENTER, winter_day() * px, PLAN_FONT, Color("b0aca0"))
 	for slot in slots:
 		var bar := Rect2(r.position.x + slot[1] * px, r.position.y, CROP_DAYS[slot[0]] * px, r.size.y)
 		canvas.draw_rect(bar, CROP_COLORS[slot[0]])
@@ -2823,8 +2822,8 @@ func draw_plan_row(canvas: Control, sign_cell: Vector2i, y: int, r: Rect2, label
 		var icon := minf(16, r.size.y - 4)
 		canvas.draw_texture_rect(ICONS[CROP_ICON[slot[0]]], Rect2(bar.position + Vector2(3, (r.size.y - icon) / 2), Vector2.ONE * icon), false)
 		if labels:
-			canvas.draw_string(font, Vector2(bar.position.x + icon + 6, bar.position.y + r.size.y / 2 + 5), tr(CROP_NAMES[slot[0]]),
-				HORIZONTAL_ALIGNMENT_LEFT, bar.size.x - icon - 8, 13, Color.WHITE)
+			canvas.draw_string(font, Vector2(bar.position.x + icon + 6, bar.position.y + r.size.y / 2 + 8), tr(CROP_NAMES[slot[0]]),
+				HORIZONTAL_ALIGNMENT_LEFT, bar.size.x - icon - 8, PLAN_FONT, Color.WHITE)
 	if y == year_of(today):
 		var tx := r.position.x + (clock - year_start()) * px
 		canvas.draw_line(Vector2(tx, r.position.y - 2), Vector2(tx, r.end.y + 2), Color("e8c34a"), 2.0)
@@ -3752,9 +3751,12 @@ func _process(delta: float) -> void:
 		get_node("HUD/TopBar/Row/" + name).set_pressed_no_signal(Engine.time_scale == SPEEDS[name])
 	var t := fmod(clock, 1.0)
 	var wolves := animals.filter(hostile).size()
-	info_label.text = (tr("WOLVES: %d    ") % wolves if wolves > 0 else "") \
-		+ (tr("EXPEDITION: %d    ") % expeditions.size() if not expeditions.is_empty() else "") + tr("%s, %s  %02d:%02d    Order: %s") \
-		% [tr(SEASONS[season(int(clock))]), date(int(clock)), int(t * 24), int(t * 1440) % 60, named(Order, order)]
+	# nella targhetta sotto la barra gli allarmi, il giorno e l'ora; la stagione, l'anno e l'ordine nel suggerimento
+	info_label.text = (tr("WOLVES: %d  ") % wolves if wolves > 0 else "") \
+		+ (tr("EXPEDITION: %d  ") % expeditions.size() if not expeditions.is_empty() else "") \
+		+ "%s  %02d:%02d" % [day_name(int(clock)), int(t * 24), int(t * 1440) % 60]
+	info_label.tooltip_text = tr("%s, %s. Order: %s\nClick: the calendar") % [tr(SEASONS[season(int(clock))]), date(int(clock)),
+		named(Order, order)]
 	sky.color = sky_colors.sample(t)
 	queue_redraw()
 	flat.queue_redraw()
@@ -7306,6 +7308,7 @@ func report(title: String, lines: PackedStringArray) -> void:
 
 func open_board() -> void:
 	board_key = ""
+	$HUD/BoardPanel.set_meta("center", true)
 	fill_board()
 	$HUD/BoardPanel.show()
 
@@ -7335,8 +7338,8 @@ func fill_board() -> void:
 	notice.select(notice.get_item_index(wanted_hero))
 	box.get_node("Gold").text = tr("%s    %d %s provisions (meals, raw food, hardtack)") % [coins(stored(Res.GOLD)), food_stored(),
 		"[img=center]%s[/img]" % KIND_ICONS[ItemKind.FOOD].resource_path]
-	var list: Control = box.get_node("Heroes")
-	var crew: Control = box.get_node("Company/List")
+	var list: Control = box.get_node("Waiting/People/Heroes")  # chi aspetta e i coloni scorrono: la bacheca resta nello schermo
+	var crew: Control = box.get_node("Waiting/People/Company/List")
 	for child in list.get_children() + box.get_node("Ruins").get_children() + crew.get_children():
 		child.free()
 	for g in waiting:
@@ -7346,7 +7349,7 @@ func fill_board() -> void:
 		nobody.text = "Nobody is waiting at the inn." if inn_beds() > 0 else "Nobody will come without an inn: a room with a bed, a table and this board."
 		nobody.autowrap_mode = TextServer.AUTOWRAP_WORD
 		list.add_child(nobody)
-	box.get_node("Company").visible = researched.has(Tech.CROWN_COMPANY)
+	box.get_node("Waiting/People/Company").visible = researched.has(Tech.CROWN_COMPANY)
 	for c in company:
 		crew.add_child(pick_row(c, "%s\n%s" % [full_name(c), tr("Melee %d, ranged %d, armor %d") % [c.skills[Skill.MELEE],
 			c.skills[Skill.RANGED], gear_sum(c, "armor")]]))
@@ -7393,6 +7396,20 @@ func fill_board() -> void:
 	box.get_node("Chronicle").visible = not chronicle.is_empty()
 	box.get_node("ChronicleButton").text = tr("Chronicle (%d)") % chronicle.size()
 	$HUD/BoardPanel.reset_size()
+	fit_board_list.call_deferred()  # le righe nuove si misurano a fine fotogramma
+
+
+# la lista di chi aspetta sulla bacheca: alta quanto serve, al più BOARD_LIST (poi scorre); la bacheca si rifà della misura
+func fit_board_list() -> void:
+	var people: Control = $HUD/BoardPanel/Box/Waiting/People
+	$HUD/BoardPanel/Box/Waiting.custom_minimum_size = Vector2(people.get_combined_minimum_size().x,
+		minf(people.get_combined_minimum_size().y, BOARD_LIST))
+	var panel: Control = $HUD/BoardPanel
+	panel.reset_size()
+	if panel.has_meta("center"):  # appena aperta: al centro; poi dove la si trascina, ma dentro lo schermo
+		panel.remove_meta("center")
+		panel.position = ((get_viewport_rect().size - panel.size) / 2).floor()
+	panel.position = panel.position.clamp(Vector2.ZERO, (get_viewport_rect().size - panel.size).max(Vector2.ZERO))
 
 
 # una riga della bacheca: la figurina di `g`, il testo, la casella per spuntarlo per la prossima spedizione

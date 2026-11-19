@@ -197,7 +197,7 @@ func _initialize() -> void:
 	check(head.job not in main.WORK_JOBS and main.free_beds(head).all(func(o): return main.is_inn(main.room_at(o))),
 		"intanto non lavorano, e dormono alla locanda")
 	main.open_board()
-	var rows: int = main.get_node("HUD/BoardPanel/Box/Heroes").get_children().filter(func(r): return r is HBoxContainer).size()
+	var rows: int = main.get_node("HUD/BoardPanel/Box/Waiting/People/Heroes").get_children().filter(func(r): return r is HBoxContainer).size()
 	check(rows == main.guests.filter(func(g): return g.hero != main.Hero.NONE and g.errand != main.Errand.LEAVE).size()
 		and rows < main.guests.size(), "non sono sulla bacheca")
 	main.get_node("HUD/BoardPanel").hide()
@@ -313,7 +313,7 @@ func _initialize() -> void:
 	main.board_pick.clear()
 	main.open_board()
 	var board = main.get_node("HUD/BoardPanel/Box")
-	check(board.get_node("Company").visible and board.get_node("Company/List").get_child_count() == main.volunteers().size(),
+	check(board.get_node("Waiting/People/Company").visible and board.get_node("Waiting/People/Company/List").get_child_count() == main.volunteers().size(),
 		"la bacheca mostra i coloni che possono partire")
 	main.toggle_pick(true, farmer)
 	main.fill_board()

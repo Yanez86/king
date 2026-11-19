@@ -13,14 +13,15 @@ King is a medieval colony sim. You are the ruler of a small lordship, but you ne
 • If every colonist dies, the colony has fallen.
 
 [color=#e8c34a]Time[/color]
-• The season, the date and the hour are in the top bar. The game starts at 8:00 on Crown Day, Year 1; a day lasts 4 minutes at normal speed, an hour 10 seconds.
+• The day and the hour are under the top bar, in the middle (hover them for the season and the year). The game starts at 8:00 on Crown Day, Year 1; a day lasts 4 minutes at normal speed, an hour 10 seconds.
 • The year has 365 days: Crown Day (New Year), then four seasons of three 30-day months, each closed by a feast day outside the months. Spring: Thaw, Sowing, Blossom, then the Flower Feast. Summer: Highsun, Haying, Ripening, then the Sickle Feast. Autumn: Reaping, Leaffall, Mists, then the Hearth Feast. Winter: Frost, Deepsnow, Longnight, then the Candle Feast.
 • Night lasts from 18:00 to 6:00: lamps and lanterns light up.
 • The speed buttons at the top right: pause, 1x, 2x, 3x. Or the keys: Space pauses (and from pause goes back to 1x), 1, 2 and 3 set the speed. The options menu pauses the game too.
 • Times in this wiki are seconds at 1x, for a worker of skill level 5 (see Skills).
 
 [color=#e8c34a]Top bar[/color]
-Your arms and the name of your realm (click: the ruler's sheet), the items in your warehouses, colonists (those away on expeditions too), beds and splendor; then WOLVES and EXPEDITION when there are any, the season, the date, the hour and the order you are giving.
+Your arms and the name of your realm (click: the ruler's sheet), the items in your warehouses, colonists (those away on expeditions too), beds and splendor; on the right the speed buttons, Debug, full screen and the options.
+Under it, in the middle: WOLVES and EXPEDITION when there are any, the day and the hour (hover: season, year and the order you are giving; click: the calendar) and the weather.
 
 [color=#e8c34a]Inhabitants[/color]
 Click the number of colonists (or its icon) for the list of everyone, group by group, each in a box with the group's color: sex, age and what they are doing right now.
@@ -476,7 +477,7 @@ Three slots: hands, body, head. A colonist with an empty slot fetches a piece by
 Tools hit too: pickaxe 10, axe 12, sickle 8, bare hands 5. Armor: see Combat & Wolves."""],
 
 	["Combat & Wolves", """[color=#e8c34a]Wolves[/color]
-• The first pack comes on day 5, then one every 3 days: 2–3 wolves from a map edge. They smell the colony from 70 tiles away. The top bar shows WOLVES while they are around.
+• The first pack comes on day 5, then one every 3 days: 2–3 wolves from a map edge. They smell the colony from 70 tiles away. Under the top bar you see WOLVES while they are around.
 • They chase the nearest colonist or adventurer standing outside the rooms: walls protect, wolves never come in. With nobody standing outside, they go for whoever lies downed outdoors.
 • A bite every 1.5 s does 8 damage and lands 70% of the time, -3% for every Melee level of the victim. Every bite also gives +5 stress.
 • A pack with nobody to chase leaves after a day.
@@ -565,7 +566,7 @@ Click it: the coins and provisions in store, who waits at the inn (Pick up to 4)
 
 [color=#e8c34a]Expeditions[/color]
 • Provisions: one a head for every day of the trip (there, ½ day for every room left, back), first from the crown's granary, then from warehouses, meals before raw food. Short of them, the party leaves anyway and goes hungry: -20 health a day each.
-• They walk to the map edge and leave together; the top bar shows EXPEDITION. You read how it went in their diary when they're back (and in the Chronicle, with hirings and deaths).
+• They walk to the map edge and leave together; under the top bar you see EXPEDITION. You read how it went in their diary when they're back (and in the Chronicle, with hirings and deaths).
 • In the ruin, a room every ½ day: empty (25%), a trap (20%), monsters (35%), a chest (15%) or a collapse (5%: they turn back).
 • Monsters: strength 5 for every point of danger. The weaker the party (weapon skill plus armor of each), the deeper the wounds; then each one's armor softens them.
 • Traps: the best lockpicker disarms one 20% of the time, +8% a level; if not, someone takes 15 damage for every point of danger.

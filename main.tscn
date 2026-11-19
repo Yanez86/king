@@ -1,6 +1,7 @@
 [gd_scene load_steps=92 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
+[ext_resource type="Script" path="res://columns.gd" id="columns"]
 [ext_resource type="Texture2D" path="res://art/icon_wood.png" id="2"]
 [ext_resource type="Texture2D" path="res://art/icon_stone.png" id="3"]
 [ext_resource type="Texture2D" path="res://art/icon_build.png" id="4"]
@@ -334,11 +335,9 @@ custom_minimum_size = Vector2(48, 0)
 text = "0"
 vertical_alignment = 1
 
-[node name="Info" type="Label" parent="HUD/TopBar/Row"]
+[node name="Spacer" type="Control" parent="HUD/TopBar/Row"]
 size_flags_horizontal = 3
-horizontal_alignment = 2
-vertical_alignment = 1
-text_overrun_behavior = 3
+mouse_filter = 2
 
 [node name="Pause" type="Button" parent="HUD/TopBar/Row"]
 custom_minimum_size = Vector2(32, 32)
@@ -398,6 +397,20 @@ tooltip_text = "Options (Esc)"
 icon = ExtResource("options_icon")
 icon_alignment = 1
 expand_icon = true
+
+[node name="Clock" type="PanelContainer" parent="HUD"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_top = 54.0
+grow_horizontal = 2
+theme_type_variation = &"Bar"
+
+[node name="Row" type="HBoxContainer" parent="HUD/Clock"]
+theme_override_constants/separation = 8
+
+[node name="Info" type="Label" parent="HUD/Clock/Row"]
+vertical_alignment = 1
 
 [node name="Categories" type="PanelContainer" parent="HUD"]
 visible = false
@@ -989,8 +1002,8 @@ visible = false
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_top = 64.0
-offset_bottom = 104.0
+offset_top = 116.0
+offset_bottom = 156.0
 grow_horizontal = 2
 theme_override_constants/separation = 6
 
@@ -1388,8 +1401,8 @@ offset_top = 64.0
 offset_right = 268.0
 offset_bottom = 64.0
 
-[node name="Box" type="VBoxContainer" parent="HUD/ColonistSheet"]
-theme_override_constants/separation = 4
+[node name="Box" type="Container" parent="HUD/ColonistSheet"]
+script = ExtResource("columns")
 
 [node name="Head" type="HBoxContainer" parent="HUD/ColonistSheet/Box"]
 
@@ -1469,6 +1482,7 @@ theme_override_constants/separation = 1
 [node name="Worked" type="Label" parent="HUD/ColonistSheet/Box/Routine"]
 
 [node name="Separator" type="HSeparator" parent="HUD/ColonistSheet/Box"]
+visible = false
 
 [node name="Skills" type="GridContainer" parent="HUD/ColonistSheet/Box"]
 theme_override_constants/h_separation = 8
@@ -1784,17 +1798,24 @@ text = "Notice: wanted at the inn"
 [node name="Class" type="OptionButton" parent="HUD/BoardPanel/Box/Notice"]
 focus_mode = 0
 
-[node name="Heroes" type="VBoxContainer" parent="HUD/BoardPanel/Box"]
+[node name="Waiting" type="ScrollContainer" parent="HUD/BoardPanel/Box"]
+horizontal_scroll_mode = 0
+
+[node name="People" type="VBoxContainer" parent="HUD/BoardPanel/Box/Waiting"]
+size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
-[node name="Company" type="VBoxContainer" parent="HUD/BoardPanel/Box"]
+[node name="Heroes" type="VBoxContainer" parent="HUD/BoardPanel/Box/Waiting/People"]
+theme_override_constants/separation = 6
+
+[node name="Company" type="VBoxContainer" parent="HUD/BoardPanel/Box/Waiting/People"]
 visible = false
 theme_override_constants/separation = 6
 
-[node name="Title" type="Label" parent="HUD/BoardPanel/Box/Company"]
+[node name="Title" type="Label" parent="HUD/BoardPanel/Box/Waiting/People/Company"]
 text = "The crown's company: colonists who can go along"
 
-[node name="List" type="VBoxContainer" parent="HUD/BoardPanel/Box/Company"]
+[node name="List" type="VBoxContainer" parent="HUD/BoardPanel/Box/Waiting/People/Company"]
 theme_override_constants/separation = 6
 
 [node name="Separator" type="HSeparator" parent="HUD/BoardPanel/Box"]
@@ -1958,11 +1979,11 @@ expand_icon = true
 theme_override_constants/separation = 12
 
 [node name="Topics" type="ItemList" parent="HUD/WikiPanel/Box/Body"]
-custom_minimum_size = Vector2(190, 460)
+custom_minimum_size = Vector2(400, 500)
 focus_mode = 0
 
 [node name="Text" type="RichTextLabel" parent="HUD/WikiPanel/Box/Body"]
-custom_minimum_size = Vector2(560, 460)
+custom_minimum_size = Vector2(660, 500)
 bbcode_enabled = true
 
 [node name="ReportPanel" type="PanelContainer" parent="HUD"]
@@ -2209,7 +2230,7 @@ icon_alignment = 1
 expand_icon = true
 
 [node name="Scroll" type="ScrollContainer" parent="HUD/CensusPanel/Box"]
-custom_minimum_size = Vector2(800, 520)
+custom_minimum_size = Vector2(900, 540)
 horizontal_scroll_mode = 0
 
 [node name="List" type="VBoxContainer" parent="HUD/CensusPanel/Box/Scroll"]

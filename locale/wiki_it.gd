@@ -12,14 +12,15 @@ King è un gestionale di colonia medievale. Sei il sovrano di una piccola signor
 • Se muoiono tutti i coloni, la colonia è caduta.
 
 [color=#e8c34a]Il tempo[/color]
-• La stagione, la data e l'ora sono nella barra in alto. La partita comincia alle 8:00 del Giorno della Corona dell'anno 1; a velocità normale un giorno dura 4 minuti, un'ora 10 secondi.
+• Il giorno e l'ora sono sotto la barra in alto, al centro (col mouse sopra: la stagione e l'anno). La partita comincia alle 8:00 del Giorno della Corona dell'anno 1; a velocità normale un giorno dura 4 minuti, un'ora 10 secondi.
 • L'anno ha 365 giorni: il Giorno della Corona (Capodanno), poi quattro stagioni di tre mesi da 30 giorni, ognuna chiusa da un giorno di festa fuori dai mesi. Primavera: Disgelo, Semina, Fioritura, poi la Festa dei Fiori. Estate: Solleone, Fienagione, Maturazione, poi la Festa della Falce. Autunno: Mietitura, Foglie morte, Nebbie, poi la Festa del Focolare. Inverno: Gelo, Neve alta, Notte lunga, poi la Festa delle Candele.
 • La notte dura dalle 18:00 alle 6:00: si accendono abat-jour e lampioni.
 • I pulsanti della velocità in alto a destra: pausa, 1x, 2x, 3x. Oppure i tasti: Spazio mette in pausa (e dalla pausa torna a 1x), 1, 2 e 3 scelgono la velocità. Anche il menu delle opzioni mette in pausa.
 • I tempi di questa wiki sono in secondi a 1x, per chi lavora con l'abilità a livello 5 (vedi Abilità).
 
 [color=#e8c34a]La barra in alto[/color]
-Il tuo stemma e il nome del tuo reame (clic: la scheda del sovrano), gli oggetti nei magazzini, i coloni (anche quelli in spedizione), i letti e lo splendore; poi LUPI e SPEDIZIONI quando ce ne sono, la stagione, la data, l'ora e l'ordine che stai dando.
+Il tuo stemma e il nome del tuo reame (clic: la scheda del sovrano), gli oggetti nei magazzini, i coloni (anche quelli in spedizione), i letti e lo splendore; a destra i tasti della velocità, Debug, lo schermo intero e le opzioni.
+Sotto, al centro: LUPI e SPEDIZIONI quando ce ne sono, il giorno e l'ora (col mouse sopra: stagione, anno e l'ordine che stai dando; clic: il calendario) e il tempo.
 
 [color=#e8c34a]Abitanti[/color]
 Clicca il numero dei coloni (o la sua icona) per l'elenco di tutti, gruppo per gruppo, ognuno in un riquadro col colore del gruppo: sesso, età e cosa sta facendo in quel momento.
@@ -475,7 +476,7 @@ Tre slot: mani, corpo, testa. Un colono con uno slot vuoto va da sé a prendere 
 Anche gli attrezzi colpiscono: piccone 10, ascia 12, falcetto 8, mani nude 5. Protezione: vedi Combattimento e lupi."""],
 
 	["Combattimento e lupi", """[color=#e8c34a]Lupi[/color]
-• Il primo branco arriva il giorno 5, poi uno ogni 3 giorni: 2–3 lupi da un bordo della mappa. Fiutano la colonia da 70 caselle di distanza. La barra in alto mostra LUPI finché sono in giro.
+• Il primo branco arriva il giorno 5, poi uno ogni 3 giorni: 2–3 lupi da un bordo della mappa. Fiutano la colonia da 70 caselle di distanza. Sotto la barra in alto compare LUPI finché sono in giro.
 • Inseguono il colono o l'avventuriero in piedi più vicino che sta fuori dalle stanze: i muri proteggono, i lupi non entrano mai. Se fuori non c'è nessuno in piedi, se la prendono con chi è a terra all'aperto.
 • Un morso ogni 1,5 s fa 8 danni e va a segno il 70% delle volte, -3% per ogni livello di Mischia della vittima. Ogni morso dà anche +5 stress.
 • Un branco senza nessuno da inseguire se ne va dopo un giorno.
@@ -564,7 +565,7 @@ Cliccala: le monete e le provviste in magazzino, chi aspetta alla locanda (Scegl
 
 [color=#e8c34a]Spedizioni[/color]
 • Provviste: una a testa per ogni giorno del viaggio (andata, ½ giorno per ogni stanza che resta, ritorno), prima dal granaio della corona, poi dai magazzini, i pasti prima del crudo. Se non bastano, il gruppo parte lo stesso e patisce la fame: -20 punti ferita al giorno a testa.
-• Vanno a piedi fino al bordo della mappa ed escono insieme; la barra in alto mostra SPEDIZIONI. Com'è andata lo leggi nel loro diario quando tornano (e nella Cronaca, con ingaggi e morti).
+• Vanno a piedi fino al bordo della mappa ed escono insieme; sotto la barra in alto compare SPEDIZIONI. Com'è andata lo leggi nel loro diario quando tornano (e nella Cronaca, con ingaggi e morti).
 • Nella rovina, una stanza ogni ½ giorno: vuota (25%), una trappola (20%), mostri (35%), un forziere (15%) o un crollo (5%: tornano indietro).
 • Mostri: forza 5 per ogni punto di pericolo. Più il gruppo è debole (abilità d'arma più protezione di ognuno), più le ferite sono profonde; poi la protezione di ognuno le attenua.
 • Trappole: il migliore a scassinare ne disinnesca una il 20% delle volte, +8% a livello; se no, qualcuno prende 15 danni per ogni punto di pericolo.

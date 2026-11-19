@@ -1430,14 +1430,14 @@ msgstr "Niente da fare"
 
 # --- main.gd: barra in alto, simulazione, avventurieri e spedizioni
 
-msgid "WOLVES: %d    "
-msgstr "LUPI: %d    "
+msgid "WOLVES: %d  "
+msgstr "LUPI: %d  "
 
-msgid "EXPEDITION: %d    "
-msgstr "SPEDIZIONI: %d    "
+msgid "EXPEDITION: %d  "
+msgstr "SPEDIZIONI: %d  "
 
-msgid "%s, %s  %02d:%02d    Order: %s"
-msgstr "%s, %s  %02d:%02d    Ordine: %s"
+msgid "%s, %s. Order: %s\nClick: the calendar"
+msgstr "%s, %s. Ordine: %s\nClic: il calendario"
 
 msgid "was killed by wolves."
 msgstr "ha perso la vita sotto i morsi dei lupi."

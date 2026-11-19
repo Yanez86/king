@@ -1109,7 +1109,7 @@ l'incoronazione (manca la successione), mai sotto zero. Il granaio è un conto, 
 paga le provviste, poi (Granaio aperto) l'ora senza cibo in magazzino e il pasto di ogni stagione; la festa del
 raccolto è nei cinque giorni di festa del calendario (4.5), il pasto del granaio l'alba dopo. Le spedizioni prendono
 prima dal granaio, poi le gallette, poi pasti e crudo. Manca il resto, e i contatori di studio e autorità nella barra
-in alto (a 1280 di larghezza non ci stanno).
+in alto (ora c'è posto: data, ora e meteo sono in una targhetta sotto la barra).
 
 ## 5. Scope
 

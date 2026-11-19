@@ -55,7 +55,7 @@ func _ready() -> void:
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 16)
 	panel.add_child(box)
-	title.add_theme_font_size_override("font_size", 32)
+	title.add_theme_font_size_override("font_size", 33)  # il font è nitido a 11, 22, 33
 	box.add_child(title)
 	pages = [house_page(), ruler_page()]
 	for p in pages:
