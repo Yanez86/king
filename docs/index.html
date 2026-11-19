@@ -135,7 +135,7 @@ pre i { color: #8fb87a; }
 <body>
 <nav>
 <h1>King</h1>
-<small>Meccaniche · commit 89b26be · 2026-11-19 · <a class="lang" href="en.html">English</a></small>
+<small>Meccaniche · commit 6a868f2 · 2026-11-19 · <a class="lang" href="en.html">English</a></small>
 <h2>Wiki</h2>
 <a href="#le-basi"><i class="sp s86" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Le basi</a><a href="#comandi"><i class="sp s87" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Comandi</a><a href="#coloni"><i class="sp s88" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Coloni</a><a href="#abilità"><i class="sp s83" style="width:16px;height:16px;background-position:-144px 0px;background-size:208px 16px"></i> Abilità</a><a href="#talenti"><i class="sp s77" style="width:16px;height:16px;background-position:0px 0px;background-size:240px 16px"></i> Talenti</a><a href="#condizioni"><i class="sp s78" style="width:16px;height:16px;background-position:-16px 0px;background-size:224px 16px"></i> Condizioni</a><a href="#il-sovrano-e-la-casata"><i class="sp s33" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Il sovrano e la casata</a><a href="#costruire"><i class="sp s62" style="width:15px;height:15px;background-position:0px 0px;background-size:15px 15px"></i> Costruire</a><a href="#stanze"><i class="sp s73" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Stanze</a><a href="#tetti-e-calore"><i class="sp s74" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Tetti e calore</a><a href="#cibo-e-cucina"><i class="sp s11" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Cibo e cucina</a><a href="#raccolta"><i class="sp s65" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Raccolta</a><a href="#lavorazioni-ed-equipaggiamento"><i class="sp s16" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Lavorazioni ed equipaggiamento</a><a href="#combattimento-e-lupi"><i class="sp s85" style="width:16px;height:16px;background-position:0px -32px;background-size:32px 48px"></i> Combattimento e lupi</a><a href="#splendore"><i class="sp s60" style="width:16px;height:16px;background-position:0px -416px;background-size:128px 1344px"></i> Splendore</a><a href="#avventurieri"><i class="sp s29" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Avventurieri</a><a href="#rovine-e-spedizioni"><i class="sp s30" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Rovine e spedizioni</a><a href="#conoscenza"><i class="sp s70" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Conoscenza</a><a href="#leggi"><i class="sp s71" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Leggi</a><h2>Sviluppo</h2><a href="#todo"><i class="sp s42" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Da sviluppare</a><h2>Numeri</h2><a href="#main-gd">main.gd</a><a href="#atmosphere-gd">atmosphere.gd</a>
 </nav>
@@ -162,7 +162,7 @@ pre i { color: #8fb87a; }
 <h3>La barra in alto </h3>
 <p>Il tuo stemma e il nome del tuo reame (clic: la scheda del sovrano), gli oggetti nei magazzini, i coloni (anche quelli in spedizione), i letti e lo splendore; poi LUPI e SPEDIZIONI quando ce ne sono, la stagione, la data, l'ora e l'ordine che stai dando.</p>
 <h3>Abitanti </h3>
-<p>Clicca il numero dei coloni (o la sua icona) per l'elenco di tutti, gruppo per gruppo, ognuno col sesso, l'età e cosa sta facendo in quel momento:</p>
+<p>Clicca il numero dei coloni (o la sua icona) per l'elenco di tutti, gruppo per gruppo, ognuno in un riquadro col colore del gruppo: sesso, età e cosa sta facendo in quel momento.</p>
 <ul>
 <li>Coloni, prima il sovrano, e i neonati.</li>
 <li>Forestieri: i nuovi coloni ancora Forestieri (e per quanto), i viandanti venuti a chiedere di restare, i pretendenti.</li>
@@ -890,7 +890,9 @@ const <b id="c-DOING">DOING</b> := {Job.CHOP: "Chopping a tree", Job.MINE: "Mini
 	Job.GOVERN: "Holding audience", Job.PROTEST: "Protesting in the throne room", Job.REPAIR: "Repairing a roof",
 	Job.CUT_ICE: "Cutting ice", Job.DOUSE: "Putting out a fire", Job.FARM: "Tending the garden",
 	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne"}
-const <b id="c-CENSUS_COLUMNS">CENSUS_COLUMNS</b> := [300, 100, 250]  <i># px: chi è, l'età, cosa fa; uguali in tutti i gruppi dell'elenco, così si allineano</i>
+const <b id="c-CENSUS_COLUMNS">CENSUS_COLUMNS</b> := [280, 120, 250]  <i># px: chi è, l'età, cosa fa; uguali in tutti i riquadri dell'elenco, così si allineano</i>
+const <b id="c-CENSUS_FONT">CENSUS_FONT</b> := [18, 18, 22]  <i># dimensioni del testo nell'elenco: sotto il nome, nome età e cosa fa, titoli dei gruppi (a 16 il 3 sembra un 8)</i></pre>
+<pre><i># il colore di ogni gruppo: coloni, forestieri, alla locanda, in spedizione</i>
 const <b id="c-ERRAND_DOING">ERRAND_DOING</b> := {Errand.ARRIVE: "Coming to the inn", Errand.LEAVE: "Leaving", Errand.DEPART: "Setting out on an expedition",
 	Errand.RETURN: "Back from an expedition: to the inn", Errand.VISIT: "Coming to ask to stay"}</pre>
 <pre><i># "skills": abilità -&gt; livello per livello dell'avventuriero; "weapon": l'abilità con cui combatte nella rovina; "gear" e</i>
