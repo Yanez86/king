@@ -1138,7 +1138,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   meno di partire per la Cittadella.
 
 #### 4.7.3 Le ricerche
-- Finestra **Knowledge** (tasto in basso, K, o clic su uno scrittoio): lo studio e i libri in magazzino, poi l'albero,
+- Finestra **Knowledge** (tasto in basso, che compare col primo studio; K, o clic su uno scrittoio): lo studio e i libri in magazzino, poi l'albero,
   una riga per ramo e una colonna per livello. Una ricerca si studia se ci sono quelle prima, i punti e (dal livello II)
   il libro in magazzino: **Studia** la sblocca subito, consumando punti e libro.
 
@@ -1222,7 +1222,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   colono morto −5, ogni colono sotto 20 di felicità −1 al giorno.
 
 #### 4.7.5 Codificare, promulgare, revocare
-- Finestra **Laws** (tasto in basso, G, o clic sul trono): autorità, sigilli, granaio, poi le leggi per categoria.
+- Finestra **Laws** (tasto in basso, che compare con la sala del trono; G, o clic sul trono): autorità, sigilli, granaio, poi le leggi per categoria.
 - **Codificare** è la ricerca civica: una volta sola, con autorità. Serve il titolo della fascia della legge e a volte
   una ricerca.
 - **Promulgare** costa 10 autorità e prende un **sigillo**: signoria 2, baronia 3, contea 4, regno 5. La successione ha
@@ -1316,7 +1316,7 @@ l'incoronazione (manca la successione), mai sotto zero. Il granaio è un conto, 
 paga le provviste, poi (Granaio aperto) l'ora senza cibo in magazzino e il pasto di ogni stagione; la festa del
 raccolto è nei cinque giorni di festa del calendario (4.5), il pasto del granaio l'alba dopo. Le spedizioni prendono
 prima dal granaio, poi le gallette, poi pasti e crudo. Manca il resto, e i contatori di studio e autorità nella barra
-in alto (ora c'è posto: data, ora e meteo sono in una targhetta sotto la barra).
+in alto (lì però il posto è poco: ci sono di nuovo data, ora e meteo).
 
 ## 5. Scope
 

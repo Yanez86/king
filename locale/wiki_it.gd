@@ -20,15 +20,14 @@ A mezzanotte il narratore sceglie al più un evento per il giorno, ognuno quando
 • Quando la colonia è in difficoltà (il cibo nei magazzini basta per meno di 3 giorni, o la felicità media è sotto 40) le fortune vengono il doppio delle volte.
 
 [color=#e8c34a]Il tempo[/color]
-• Il giorno e l'ora sono sotto la barra in alto, al centro (col mouse sopra: la stagione e l'anno). La partita comincia alle 8:00 del Giorno della Corona dell'anno 1; a velocità normale un giorno dura 4 minuti, un'ora 10 secondi.
+• Il giorno e l'ora sono nella barra in alto, a destra (col mouse sopra: la stagione e l'anno). La partita comincia alle 8:00 del Giorno della Corona dell'anno 1; a velocità normale un giorno dura 4 minuti, un'ora 10 secondi.
 • L'anno ha 365 giorni: il Giorno della Corona (Capodanno), poi quattro stagioni di tre mesi da 30 giorni, ognuna chiusa da un giorno di festa fuori dai mesi. Primavera: Disgelo, Semina, Fioritura, poi la Festa dei Fiori. Estate: Solleone, Fienagione, Maturazione, poi la Festa della Falce. Autunno: Mietitura, Foglie morte, Nebbie, poi la Festa del Focolare. Inverno: Gelo, Neve alta, Notte lunga, poi la Festa delle Candele.
 • La notte dura dalle 18:00 alle 6:00: si accendono abat-jour e lampioni.
 • I pulsanti della velocità in alto a destra: pausa, 1x, 2x, 3x. Oppure i tasti: Spazio mette in pausa (e dalla pausa torna a 1x), 1, 2 e 3 scelgono la velocità. Anche il menu delle opzioni mette in pausa.
 • I tempi di questa wiki sono in secondi a 1x, per chi lavora con l'abilità a livello 5 (vedi Abilità).
 
 [color=#e8c34a]La barra in alto[/color]
-Il tuo stemma e il nome del tuo reame (clic: la scheda del sovrano), gli oggetti nei magazzini, i coloni (anche quelli in spedizione), i letti e lo splendore; a destra i tasti della velocità, Debug, lo schermo intero e le opzioni.
-Sotto, al centro: LUPI e SPEDIZIONI quando ce ne sono, il giorno e l'ora (col mouse sopra: stagione, anno e l'ordine che stai dando; clic: il calendario) e il tempo.
+Il tuo stemma e il nome del tuo reame (clic: la scheda del sovrano), gli oggetti nei magazzini, i coloni (anche quelli in spedizione), i letti e lo splendore; a destra LUPI e SPEDIZIONI quando ce ne sono, il giorno e l'ora (col mouse sopra: stagione, anno e l'ordine che stai dando; clic: il calendario), il tempo, poi i tasti della velocità, lo schermo intero, la Wiki e le opzioni.
 
 [color=#e8c34a]Abitanti[/color]
 Clicca il numero dei coloni (o la sua icona) per l'elenco di tutti, gruppo per gruppo, ognuno in un riquadro col colore del gruppo: sesso, età e cosa sta facendo in quel momento.
@@ -63,6 +62,7 @@ Un tasto fa come un clic sul suo pulsante (premilo di nuovo per chiudere).
 [cell]Tetti[/cell][cell]V[/cell][cell]Wiki[/cell][cell]F1[/cell]
 [/table]
 • Lavori: chi fa cosa per primo (vedi Coloni), e il lavoro in attesa. Risorse: cosa c'è nei magazzini.
+• Conoscenza compare col primo studio, Leggi con la sala del trono. Il pulsante della Wiki è nella barra in alto.
 
 [color=#e8c34a]Tasti fissi[/color]
 • Spazio: pausa; 1, 2, 3: velocità.
@@ -72,6 +72,7 @@ Un tasto fa come un clic sul suo pulsante (premilo di nuovo per chiudere).
 [color=#e8c34a]Opzioni[/color]
 • Sistema: la lingua, carica un'altra colonia, torna al menu principale, esci dal gioco. Video: misura della finestra e schermo intero (anche il pulsante dello schermo in alto a destra).
 • Tasti: clicca il tasto di un comando, poi premi quello nuovo. Esc annulla, Canc o Backspace lo lasciano senza tasto, Ripristina rimette quelli di partenza. Spazio, 1-3, E, R ed Esc non si possono assegnare. I tuoi tasti vengono salvati.
+• Debug: per provare il gioco (Avanti di 12 ore).
 
 [color=#e8c34a]Salvataggio[/color]
 • La partita si salva da sé: appena fondata la colonia, a ogni alba (le 6:00), e quando torni al menu principale, esci o chiudi la finestra. In alto compare "Salvato". Non si salva a mano: una colonia è una storia sola.
@@ -510,7 +511,7 @@ Anche gli attrezzi colpiscono: piccone 10, ascia 12, falcetto 8, mani nude 5. Pr
 Un colono con una classe prende invece il corredo della sua classe, anche al posto di un attrezzo: vedi Combattimento e lupi."""],
 
 	["Combattimento e lupi", """[color=#e8c34a]Lupi[/color]
-• Il primo branco può arrivare il giorno 10. Il branco si annuncia: a mezzanotte gli ululati (nella cronaca, e nelle previsioni: Lupi tra N h, con l'impronta di una zampa), poi alle 22 i lupi, quasi un giorno per richiamare tutti e chiudere le porte. Poi uno ogni 15 giorni in media e mai prima di una settimana dall'ultimo, né a meno di 3 giorni da un'altra minaccia o sfortuna, né mentre qualcuno è a terra o i lupi sono ancora in giro: 2–3 lupi da un bordo della mappa, uno in più ogni 5 coloni. Fiutano la colonia da 70 caselle di distanza. Sotto la barra in alto compare LUPI finché sono in giro.
+• Il primo branco può arrivare il giorno 10. Il branco si annuncia: a mezzanotte gli ululati (nella cronaca, e nelle previsioni: Lupi tra N h, con l'impronta di una zampa), poi alle 22 i lupi, quasi un giorno per richiamare tutti e chiudere le porte. Poi uno ogni 15 giorni in media e mai prima di una settimana dall'ultimo, né a meno di 3 giorni da un'altra minaccia o sfortuna, né mentre qualcuno è a terra o i lupi sono ancora in giro: 2–3 lupi da un bordo della mappa, uno in più ogni 5 coloni. Fiutano la colonia da 70 caselle di distanza. Nella barra in alto compare LUPI finché sono in giro.
 • Inseguono il colono o l'avventuriero in piedi più vicino che sta fuori dalle stanze: i muri proteggono, i lupi non entrano mai. Se fuori non c'è nessuno in piedi, se la prendono con chi è a terra all'aperto.
 • Un morso ogni 1,5 s fa 8 danni e va a segno il 70% delle volte, -3% per ogni livello di Mischia della vittima. Ogni morso dà anche +5 stress.
 • Un branco senza nessuno da inseguire se ne va dopo un giorno.
@@ -639,7 +640,7 @@ Cliccala: le monete e le provviste in magazzino, poi tutto in riquadri. A sinist
 
 [color=#e8c34a]Spedizioni[/color]
 • Provviste: una a testa per ogni giorno del viaggio (andata, ½ giorno per ogni stanza che resta, ritorno), prima dal granaio della corona, poi dai magazzini, i pasti prima del crudo. Se non bastano, il gruppo parte lo stesso e patisce la fame: -20 punti ferita al giorno a testa.
-• Vanno a piedi fino al bordo della mappa ed escono insieme; sotto la barra in alto compare SPEDIZIONI. Com'è andata lo leggi nel loro diario quando tornano (e nella Cronaca, con ingaggi e morti).
+• Vanno a piedi fino al bordo della mappa ed escono insieme; nella barra in alto compare SPEDIZIONI. Com'è andata lo leggi nel loro diario quando tornano (e nella Cronaca, con ingaggi e morti).
 • Nella rovina, una stanza ogni ½ giorno: vuota (25%), una trappola (20%), mostri (35%), un forziere (15%) o un crollo (5%: tornano indietro).
 • Mostri: forza 5 per ogni punto di pericolo. Più il gruppo è debole (abilità d'arma più protezione di ognuno), più le ferite sono profonde; poi la protezione di ognuno le attenua.
 • Trappole: il migliore a scassinare ne disinnesca una il 20% delle volte, +8% a livello; se no, qualcuno prende 15 danni per ogni punto di pericolo.

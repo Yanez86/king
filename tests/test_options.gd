@@ -1,5 +1,5 @@
 # Esegui: godot --headless --path . -s tests/test_options.gd
-# Menù delle opzioni: apertura con Esc e con l'ingranaggio, pausa, tab (System, Video, Audio, Keybindings), tasti della
+# Menù delle opzioni: apertura con Esc e con l'ingranaggio, pausa, tab (System, Video, Audio, Keybindings, Debug), tasti della
 # barra in basso; velocità in alto, finestra Wiki
 extends SceneTree
 
@@ -64,8 +64,8 @@ func _initialize() -> void:
 	var system: Control = main.get_node("HUD/Options/Window/Box/Body/Pages/System")
 	var video: Control = main.get_node("HUD/Options/Window/Box/Body/Pages/Video")
 	check(system.is_visible_in_tree() and not main.key_list.is_visible_in_tree(), "tab System aperta")
-	check(tabs.get_children().map(func(t): return String(t.name)) == ["System", "Video", "Audio", "Keybindings"],
-		"quattro tab: sistema, video, audio, tasti")
+	check(tabs.get_children().map(func(t): return String(t.name)) == ["System", "Video", "Audio", "Keybindings", "Debug"],
+		"cinque tab: sistema, video, audio, tasti, debug")
 	check(tabs.get_children().all(func(t): return t.text == "" and t.icon != null), "tab: solo icone")
 	check(["Load", "MainMenu", "Quit"].all(func(b): return not system.get_node(b).disabled) and not system.has_node("Save"),
 		"carica, menù principale, esci; niente salvataggi a mano")
@@ -135,14 +135,14 @@ func _initialize() -> void:
 	var topics: ItemList = wiki.get_node("Box/Body/Topics")
 	check(not wiki.visible and main.hotkeys["Wiki"] == KEY_F1, "Wiki chiusa, tasto F1")
 	press(main, KEY_F1)
-	check(wiki.visible and main.get_node("HUD/Tools/Row/Wiki").button_pressed, "F1 apre la Wiki")
+	check(wiki.visible and main.get_node("HUD/TopBar/Row/Wiki").button_pressed, "F1 apre la Wiki")
 	check(topics.item_count == main.WIKI.PAGES.size() and topics.item_count > 5 and topics.is_selected(0), "argomenti, il primo scelto")
 	check(wiki.get_node("Box/Body/Text").text == main.WIKI.PAGES[0][1], "la sua pagina")
 	topics.select(2)
 	topics.item_selected.emit(2)
 	check(wiki.get_node("Box/Body/Text").text == main.WIKI.PAGES[2][1], "un'altra voce, un'altra pagina")
 	wiki.get_node("Box/Head/Close").pressed.emit()
-	check(not wiki.visible and not main.get_node("HUD/Tools/Row/Wiki").button_pressed, "la X la chiude, tasto su")
+	check(not wiki.visible and not main.get_node("HUD/TopBar/Row/Wiki").button_pressed, "la X la chiude, tasto su")
 
 	# salvati: si ritrovano
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVED))
@@ -161,11 +161,12 @@ func _initialize() -> void:
 		"la lingua si salva accanto ai tasti")
 	TranslationServer.set_locale("en")
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVED))
-	# Debug, in alto: Advance 12 hours fa andare avanti la partita davvero, mezza giornata di tick
-	var debug: PopupMenu = main.get_node("HUD/TopBar/Row/Debug").get_popup()
-	check(debug.item_count == 1 and debug.get_item_text(0) == "Advance 12 hours", "menu Debug")
+	# tab Debug: Advance 12 hours fa andare avanti la partita davvero, mezza giornata di tick; in alto niente più Debug,
+	# ma la data e il meteo
+	check(not top.has_node("Debug") and top.get_node("Info") == main.info_label and main.forecast_strip.get_parent() == top
+		and main.forecast_strip.get_index() == main.info_label.get_index() + 1, "in alto data e meteo, niente Debug")
 	var day: float = main.clock
-	debug.id_pressed.emit(0)
+	main.get_node("HUD/Options/Window/Box/Body/Pages/Debug/Advance").pressed.emit()
 	check(is_equal_approx(main.clock, day + 0.5), "avanti di 12 ore")
 	print("OK: menù delle opzioni e tasti")
 	quit()

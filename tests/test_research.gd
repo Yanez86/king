@@ -88,7 +88,12 @@ func _initialize() -> void:
 		throne_room.cells[k] = true
 	study_room.kind = main.RoomKind.STUDY
 	throne_room.kind = main.RoomKind.THRONE_ROOM
+	var tools: Node = main.get_node("HUD/Tools/Row")
+	await process_frame
+	check(not tools.get_node("Knowledge").visible and not tools.get_node("Laws").visible, "senza studio né sala del trono niente Knowledge e Laws")
 	main.rooms.append_array([study_room, throne_room])
+	await process_frame
+	check(tools.get_node("Knowledge").visible and tools.get_node("Laws").visible, "con lo studio e la sala del trono sì")
 	var desk: Vector2i = spots[0][4]
 	var throne: Vector2i = spots[1][4]
 	main.furniture = {desk: [B.DESK, R.WOOD, 0], throne: [B.THRONE, R.WOOD, 0]}

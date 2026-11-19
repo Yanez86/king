@@ -1246,6 +1246,7 @@ const NIGHT_STUDY := 1.5
 const SHELF_BONUS := 0.1
 const SHELVES_MAX := 3
 const SEAT_ROOM := {Build.DESK: RoomKind.STUDY, Build.THRONE: RoomKind.THRONE_ROOM}  # dove si studia e si governa
+const ROOM_TOOLS := {"Knowledge": RoomKind.STUDY, "Laws": RoomKind.THRONE_ROOM}  # pulsanti in basso: si vedono con la stanza
 const STUDY_ICON := preload("res://art/icon_study.png")
 const AUTHORITY_ICON := preload("res://art/icon_authority.png")
 const BOOKS := [Res.NOTEBOOK, Res.TOME, Res.CODEX]  # il libro che consuma una ricerca di livello II, III, IV
@@ -1760,6 +1761,7 @@ var game_start := true      # false nei test: TEST_PEOPLE coloni, niente monete 
 var settings_file := "user://settings.cfg"  # "" nei test: tasti di partenza, niente da leggere né da salvare
 var hotkeys := {}           # nome del pulsante in HUD/Tools/Row -> Key, KEY_NONE se non ne ha: vedi bind_key
 var tool_names := {}        # nome del pulsante in HUD/Tools/Row -> suggerimento senza il tasto
+var tool_buttons := {}      # nome -> pulsante: quelli della barra in basso e la Wiki, in alto (vedi setup_options)
 var rebinding := ""         # comando che aspetta il suo nuovo tasto, vedi capture_key
 var resume_speed := 1.0     # velocità a cui riprende il gioco chiudendo il menù delle opzioni
 var reserved := {}          # cella -> Colonist che la sta usando
@@ -1806,7 +1808,7 @@ var lights_canvas := Node2D.new()
 @onready var colonists_label: Button = $HUD/TopBar/Row/Colonists  # cliccato: l'elenco degli abitanti (vedi fill_census)
 @onready var beds_label: Label = $HUD/TopBar/Row/Beds
 @onready var splendor_label: Label = $HUD/TopBar/Row/Splendor
-@onready var info_label: Label = $HUD/Clock/Row/Info  # sotto la barra in alto, al centro: allarmi, giorno e ora
+@onready var info_label: Label = $HUD/TopBar/Row/Info  # nella barra in alto, prima delle velocità: allarmi, giorno e ora
 @onready var realm_button: Button = $HUD/TopBar/Row/Realm  # nome del reame: apre la scheda del sovrano
 @onready var video: Control = $HUD/Options/Window/Box/Body/Pages/Video  # risoluzione e schermo intero
 @onready var categories: Control = $HUD/Categories  # si apre col tasto Build: una categoria per barra di costruzione
@@ -1915,9 +1917,6 @@ func _ready() -> void:
 	$HUD/TopBar/Row/Screen.pressed.connect(func():
 		set_fullscreen(DisplayServer.window_get_mode() != DisplayServer.WINDOW_MODE_FULLSCREEN))
 	$HUD/TopBar/Row/Options.pressed.connect(toggle_options)
-	var debug: PopupMenu = $HUD/TopBar/Row/Debug.get_popup()  # per provare il gioco: una voce per id (vedi debug_pressed)
-	debug.add_item("Advance 12 hours", 0)
-	debug.id_pressed.connect(debug_pressed)
 	setup_options()
 	build_button.toggled.connect(toggle_build)
 	structures_button.toggled.connect(toggle_category.bind(build_bar))
@@ -1968,7 +1967,8 @@ func _ready() -> void:
 	toast.hide()
 	$HUD.add_child(toast)
 	forecast_strip.main = self
-	$HUD/Clock/Row.add_child(forecast_strip)  # accanto alla data
+	$HUD/TopBar/Row.add_child(forecast_strip)
+	$HUD/TopBar/Row.move_child(forecast_strip, info_label.get_index() + 1)  # accanto alla data
 	calendar.main = self
 	$HUD.add_child(calendar)
 	info_label.mouse_filter = Control.MOUSE_FILTER_STOP  # la data apre il calendario
@@ -2022,8 +2022,8 @@ func _ready() -> void:
 	var topics: ItemList = $HUD/WikiPanel/Box/Body/Topics
 	topics.item_selected.connect(func(i): $HUD/WikiPanel/Box/Body/Text.text = WIKI.pages()[i][1])
 	fill_wiki()
-	$HUD/Tools/Row/Wiki.toggled.connect($HUD/WikiPanel.set_visible)
-	$HUD/WikiPanel.hidden.connect($HUD/Tools/Row/Wiki.set_pressed_no_signal.bind(false))
+	$HUD/TopBar/Row/Wiki.toggled.connect($HUD/WikiPanel.set_visible)
+	$HUD/WikiPanel.hidden.connect($HUD/TopBar/Row/Wiki.set_pressed_no_signal.bind(false))
 	for name in ["Knowledge", "Laws"]:  # le finestre della ricerca, al centro: si rifanno aprendole (vedi fill_knowledge)
 		var panel: Control = get_node("HUD/%sPanel" % name)
 		get_node("HUD/Tools/Row/" + name).toggled.connect(func(on):
@@ -2145,6 +2145,7 @@ func setup_options() -> void:
 	for tab in window.get_node("Box/Body/Tabs").get_children():
 		tab.toggled.connect(show_page.bind(pages.get_node(NodePath(tab.name))))
 	pages.get_node("Keybindings/Reset").pressed.connect(reset_keys)
+	pages.get_node("Debug/Advance").pressed.connect(advance.bind(0.5))  # 12 ore
 	# ponytail: risoluzione e schermo intero non si salvano ancora: si riparte dalla finestra di partenza
 	var sizes: OptionButton = video.get_node("Resolution/Sizes")
 	var screen := DisplayServer.screen_get_size()
@@ -2169,9 +2170,10 @@ func setup_options() -> void:
 	# all'inizio quella del sistema (o salvata, vedi title.gd); se non c'è, l'inglese
 	languages.select(maxi(0, LANGUAGES.keys().find(TranslationServer.get_locale().get_slice("_", 0))))
 	languages.item_selected.connect(func(i): set_language(LANGUAGES.keys()[i]))
-	for button in hotbar.get_children():
+	for button in hotbar.get_children() + [$HUD/TopBar/Row/Wiki]:
 		if not button is Button:
 			continue
+		tool_buttons[String(button.name)] = button
 		tool_names[String(button.name)] = button.tooltip_text
 		key_list.add_child(ui_icon(button.icon, Rect2(), Vector2(32, 32)))
 		var label := Label.new()
@@ -2222,14 +2224,7 @@ func save_game() -> Error:
 	return SAVES.write(game_id, header(), game_state())
 
 
-# le voci del menu Debug, in alto (vedi _ready)
-func debug_pressed(id: int) -> void:
-	match id:
-		0:
-			advance(0.5)
-
-
-# debug: `days` giorni simulati, non saltati, così bisogni e lavori vanno avanti davvero
+# tab Debug delle opzioni: `days` giorni simulati, non saltati, così bisogni e lavori vanno avanti davvero
 func advance(days: float) -> void:
 	for i in roundi(days * DAY_LENGTH / 0.05):
 		tick(0.05)
@@ -2430,7 +2425,7 @@ func save_keys() -> void:
 func show_keys() -> void:
 	for name in hotkeys:
 		var key: Key = hotkeys[name]
-		hotbar.get_node(NodePath(name)).tooltip_text = tr(tool_names[name]) + ("" if key == KEY_NONE else " (%s)" % OS.get_keycode_string(key))
+		tool_buttons[name].tooltip_text = tr(tool_names[name]) + ("" if key == KEY_NONE else " (%s)" % OS.get_keycode_string(key))
 		var button: Button = key_list.get_node(NodePath(name))
 		button.text = "Press a key" if name == rebinding else "-" if key == KEY_NONE else OS.get_keycode_string(key)
 		button.set_pressed_no_signal(name == rebinding)
@@ -2457,12 +2452,12 @@ func capture_key(key: Key) -> void:
 		bind_key(name, key)
 
 
-# tasto di un comando della barra in basso: come cliccarne il pulsante
+# tasto di un comando della barra in basso: come cliccarne il pulsante; non quelli nascosti (non ancora sbloccati)
 func press_hotkey(key: Key) -> bool:
 	var name = hotkeys.find_key(key)
-	if key == KEY_NONE or name == null:
+	if key == KEY_NONE or name == null or not tool_buttons[name].visible:
 		return false
-	var button: Button = hotbar.get_node(NodePath(name))
+	var button: Button = tool_buttons[name]
 	button.button_pressed = not button.button_pressed
 	return true
 
@@ -3934,6 +3929,8 @@ func _process(delta: float) -> void:
 	colonists_label.text = str(colony_size())  # anche chi è in spedizione: conta per il titolo
 	beds_label.text = str(furniture.values().filter(func(plan): return plan[0] in BEDS).size())  # solo quelli finiti
 	splendor_label.text = str(colony_splendor())
+	for name in ROOM_TOOLS:
+		hotbar.get_node(name).visible = rooms.any(func(r): return r.kind == ROOM_TOOLS[name])
 	if Engine.get_process_frames() % 30 == 0:  # il conto della manutenzione, ogni tanto: basta per il suggerimento
 		splendor_label.tooltip_text = splendor_tip()
 	confirm.disabled = draft.is_empty() and furniture_draft.is_empty()
@@ -3973,7 +3970,7 @@ func _process(delta: float) -> void:
 		get_node("HUD/TopBar/Row/" + name).set_pressed_no_signal(Engine.time_scale == SPEEDS[name])
 	var t := fmod(clock, 1.0)
 	var wolves := animals.filter(hostile).size()
-	# nella targhetta sotto la barra gli allarmi, il giorno e l'ora; la stagione, l'anno e l'ordine nel suggerimento
+	# nella barra in alto gli allarmi, il giorno e l'ora; la stagione, l'anno e l'ordine nel suggerimento
 	info_label.text = (tr("WOLVES: %d  ") % wolves if wolves > 0 else "") \
 		+ (tr("EXPEDITION: %d  ") % expeditions.size() if not expeditions.is_empty() else "") \
 		+ "%s  %02d:%02d" % [day_name(int(clock)), int(t * 24), int(t * 1440) % 60]

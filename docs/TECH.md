@@ -93,7 +93,8 @@
   finestra ingrandita a 1920×1080 (33) e 2560×1440 (44); a 16, come prima, un suo pixel diventava 1,45 pixel di schermo e
   i tratti uscivano di spessori diversi. Le grandezze scelte a mano (titolo 44, nuova partita 33, gantt dei campi 22)
   stanno su quella griglia. L'interfaccia è pensata per 1280×720: la scheda del colono è a due colonne (`columns.gd`),
-  data, ora e meteo stanno in una targhetta sotto la barra in alto.
+  la barra in alto ci sta di misura (numeri senza larghezza fissa, Debug come tab delle opzioni, Wiki accanto
+  all'ingranaggio): con nomi lunghi o gli allarmi la data si accorcia coi puntini.
 
 ## Versionamento
 - Git + GitHub (`Yanez86/king`).

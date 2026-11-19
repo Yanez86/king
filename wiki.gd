@@ -21,15 +21,14 @@ At midnight the narrator picks at most one event for the day, each as often as i
 • When the colony struggles (the food in the warehouses lasts less than 3 days, or the average happiness is under 40) good fortune comes twice as often.
 
 [color=#e8c34a]Time[/color]
-• The day and the hour are under the top bar, in the middle (hover them for the season and the year). The game starts at 8:00 on Crown Day, Year 1; a day lasts 4 minutes at normal speed, an hour 10 seconds.
+• The day and the hour are in the top bar, on the right (hover them for the season and the year). The game starts at 8:00 on Crown Day, Year 1; a day lasts 4 minutes at normal speed, an hour 10 seconds.
 • The year has 365 days: Crown Day (New Year), then four seasons of three 30-day months, each closed by a feast day outside the months. Spring: Thaw, Sowing, Blossom, then the Flower Feast. Summer: Highsun, Haying, Ripening, then the Sickle Feast. Autumn: Reaping, Leaffall, Mists, then the Hearth Feast. Winter: Frost, Deepsnow, Longnight, then the Candle Feast.
 • Night lasts from 18:00 to 6:00: lamps and lanterns light up.
 • The speed buttons at the top right: pause, 1x, 2x, 3x. Or the keys: Space pauses (and from pause goes back to 1x), 1, 2 and 3 set the speed. The options menu pauses the game too.
 • Times in this wiki are seconds at 1x, for a worker of skill level 5 (see Skills).
 
 [color=#e8c34a]Top bar[/color]
-Your arms and the name of your realm (click: the ruler's sheet), the items in your warehouses, colonists (those away on expeditions too), beds and splendor; on the right the speed buttons, Debug, full screen and the options.
-Under it, in the middle: WOLVES and EXPEDITION when there are any, the day and the hour (hover: season, year and the order you are giving; click: the calendar) and the weather.
+Your arms and the name of your realm (click: the ruler's sheet), the items in your warehouses, colonists (those away on expeditions too), beds and splendor; on the right WOLVES and EXPEDITION when there are any, the day and the hour (hover: season, year and the order you are giving; click: the calendar), the weather, then the speed buttons, full screen, the Wiki and the options.
 
 [color=#e8c34a]Inhabitants[/color]
 Click the number of colonists (or its icon) for the list of everyone, group by group, each in a box with the group's color: sex, age and what they are doing right now.
@@ -64,6 +63,7 @@ A key works like a click on its button (press it again to close).
 [cell]Roofs[/cell][cell]V[/cell][cell]Wiki[/cell][cell]F1[/cell]
 [/table]
 • Jobs: who does what first (see Colonists), and the work waiting. Resources: what is in your warehouses.
+• Knowledge shows up with your first study, Laws with the throne room. The Wiki button is in the top bar.
 
 [color=#e8c34a]Fixed keys[/color]
 • Space: pause; 1, 2, 3: speed.
@@ -73,6 +73,7 @@ A key works like a click on its button (press it again to close).
 [color=#e8c34a]Options[/color]
 • System: language, load another colony, back to the main menu, quit the game. Video: window size and fullscreen (also the screen button at the top right).
 • Keybindings: click a command's key, then press the new one. Esc cancels, Delete or Backspace leaves it without a key, Reset restores the defaults. Space, 1-3, E, R and Esc can't be taken. Your keys are saved.
+• Debug: to try the game out (Advance 12 hours).
 
 [color=#e8c34a]Saving[/color]
 • The game saves by itself: when the colony is founded, at every dawn (6:00), and when you go back to the main menu, quit or close the window. "Saved" shows at the top. There is no saving by hand: a colony is one story.
@@ -511,7 +512,7 @@ Tools hit too: pickaxe 10, axe 12, sickle 8, bare hands 5. Armor: see Combat & W
 A colonist with a class takes the gear of their class instead, even in place of a tool: see Combat & Wolves."""],
 
 	["Combat & Wolves", """[color=#e8c34a]Wolves[/color]
-• The first pack can come on day 10. A pack announces itself: at midnight the howling (in the chronicle, and in the forecast: Wolves in N h, with a paw print), then at 22:00 the wolves, almost a day to call everyone in and shut the doors. Then one every 15 days on average and never within a week of the last one, nor within 3 days of another threat or misfortune, nor while someone lies downed or wolves are still around: 2–3 wolves from a map edge, one more for every 5 colonists. They smell the colony from 70 tiles away. Under the top bar you see WOLVES while they are around.
+• The first pack can come on day 10. A pack announces itself: at midnight the howling (in the chronicle, and in the forecast: Wolves in N h, with a paw print), then at 22:00 the wolves, almost a day to call everyone in and shut the doors. Then one every 15 days on average and never within a week of the last one, nor within 3 days of another threat or misfortune, nor while someone lies downed or wolves are still around: 2–3 wolves from a map edge, one more for every 5 colonists. They smell the colony from 70 tiles away. In the top bar you see WOLVES while they are around.
 • They chase the nearest colonist or adventurer standing outside the rooms: walls protect, wolves never come in. With nobody standing outside, they go for whoever lies downed outdoors.
 • A bite every 1.5 s does 8 damage and lands 70% of the time, -3% for every Melee level of the victim. Every bite also gives +5 stress.
 • A pack with nobody to chase leaves after a day.
@@ -640,7 +641,7 @@ Click it: the coins and provisions in store, then everything in boxes. On the le
 
 [color=#e8c34a]Expeditions[/color]
 • Provisions: one a head for every day of the trip (there, ½ day for every room left, back), first from the crown's granary, then from warehouses, meals before raw food. Short of them, the party leaves anyway and goes hungry: -20 health a day each.
-• They walk to the map edge and leave together; under the top bar you see EXPEDITION. You read how it went in their diary when they're back (and in the Chronicle, with hirings and deaths).
+• They walk to the map edge and leave together; in the top bar you see EXPEDITION. You read how it went in their diary when they're back (and in the Chronicle, with hirings and deaths).
 • In the ruin, a room every ½ day: empty (25%), a trap (20%), monsters (35%), a chest (15%) or a collapse (5%: they turn back).
 • Monsters: strength 5 for every point of danger. The weaker the party (weapon skill plus armor of each), the deeper the wounds; then each one's armor softens them.
 • Traps: the best lockpicker disarms one 20% of the time, +8% a level; if not, someone takes 15 damage for every point of danger.

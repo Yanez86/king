@@ -209,8 +209,7 @@ Cittadella.
 | Sapere | Biblioteca reale | IV | Astronomia | si rilegano i tomi; +2 autorità al giorno |
 
 - [ ] Astronomia: la sfera armillare (le stagioni un giorno prima).
-- [ ] I contatori di studio e autorità nella barra in alto (ora c'è posto: data, ora e meteo sono scesi in una
-  targhetta sotto la barra).
+- [ ] I contatori di studio e autorità nella barra in alto (il posto è poco: ci sono di nuovo data, ora e meteo).
 
 ## Leggi e autorità (4.7.4–4.7.7)
 
@@ -238,7 +237,7 @@ Leggi senza ✓ (tra parentesi quello che aspettano):
 ## Interfaccia
 
 Testo a 22 (il font è nitido solo a 11, 22, 33: vedi [TECH](TECH.md)), rifatta per 1280×720 e provata a schermate in
-italiano: scheda del colono a due colonne, data e meteo in una targhetta sotto la barra in alto, elenco degli abitanti
+italiano: scheda del colono a due colonne, data e meteo di nuovo nella barra in alto (Debug è una tab delle opzioni, la Wiki accanto all'ingranaggio), elenco degli abitanti
 (clic sul numero dei coloni), bacheca a riquadri con la zona Squadra.
 
 - [ ] Rivedere a 22 le schermate in inglese, le altre risoluzioni (1920×1080, 1366×768, finestre non 16:9) e i
