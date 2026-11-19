@@ -36,6 +36,7 @@ var forward := Button.new()  # "Next", nell'ultima pagina "Start"
 var levels := {}            # Skill -> [livello, "-", "+"]
 var trait_buttons := {}     # Trait -> pulsante, vedi traits_grid
 var synced := []            # [pulsante, valore corrente (Callable), valore del pulsante]: premuto se coincidono
+var pace := Main.Pace.FAST  # il ritmo della vita: un anno a stagione o all'anno (vedi Main.life_year)
 var arms_icons := []        # [pulsante, voce dello stemma, valore]: l'icona è lo stemma con quel valore
 
 
@@ -107,6 +108,7 @@ func house_page() -> Control:
 	name_row(names, "House", house, ruler.last_name, func(): return Main.LAST_NAMES.pick_random())
 	name_row(names, "Colony", colony, Main.COLONY_NAMES.pick_random(), func(): return Main.COLONY_NAMES.pick_random())
 	box.add_child(names)
+	box.add_child(pick_row("Pace of life", Main.Pace.values(), func(): return pace, func(v): pace = v, show_pace))
 	for r in [["Shape", "shape", Main.Shape], ["Division", "division", Main.Division], ["Field", "field", null],
 			["Second field", "field2", null], ["Ordinary", "ordinary", Main.Ordinary], ["Ordinary tincture", "ordinary_tincture", null],
 			["Charge", "charge", Main.Charge], ["Charge tincture", "charge_tincture", null]]:
@@ -270,6 +272,14 @@ func show_sex(button: Button, s: int) -> void:
 	button.icon = Main.SEX_ICONS[s]
 
 
+# il ritmo della vita: veloce o reale, col perché nel suggerimento
+func show_pace(button: Button, v: int) -> void:
+	button.text = Main.named(Main.Pace, v)
+	button.custom_minimum_size.x = 96  # una parola, non un'icona
+	button.tooltip_text = ["A year of life every season: generations go by, children grow up in 4 years.",
+		"A year of life every year, like the calendar: children take 16 years to grow up."][v]
+
+
 func show_text(button: Button, v: int, names: Dictionary) -> void:
 	button.text = Main.named(names, v)
 
@@ -430,7 +440,7 @@ func make_setup() -> Dictionary:
 	var made := {}
 	for key in CHOSEN:
 		made[key] = ruler.get(key)
-	return {"colony": colony.text.strip_edges(), "arms": arms, "ruler": made}.duplicate(true)
+	return {"colony": colony.text.strip_edges(), "arms": arms, "ruler": made, "pace": pace}.duplicate(true)
 
 
 func begin() -> void:

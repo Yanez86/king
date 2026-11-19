@@ -91,7 +91,7 @@ La tabella in cima a Lavori (J): una riga per colono, una colonna per tipo di la
 • I morti restano a terra per un giorno; il loro equipaggiamento cade lì accanto e gli altri sono in lutto per 3 giorni.
 
 [color=#e8c34a]Età[/color]
-• La scheda dice l'età di ogni colono, accanto al sesso. Si invecchia di un anno a stagione, quattro volte più in fretta del calendario, così passano le generazioni.
+• La scheda dice l'età di ogni colono, accanto al sesso. Il ritmo della vita si sceglie nella pagina della nuova partita: Veloce, un anno di vita a stagione, quattro volte più in fretta del calendario, così passano le generazioni (i figli crescono in 4 anni); o Reale, un anno all'anno, come il calendario (16 anni per crescere, una gravidanza di 9 mesi veri). I numeri qui sotto sono in anni di vita, qualunque sia il ritmo.
 • Il sovrano parte tra 20 e 30 anni, gli altri coloni e gli avventurieri tra 18 e 40.
 • Dai 60 anni, a ogni compleanno si può morire di vecchiaia: il 4% a 60, il 24% a 70, il 44% a 80."""],
 
@@ -179,7 +179,7 @@ Qui compaiono anche le leggi in vigore che a un colono piacciono o non piacciono
 
 	["Il sovrano e la casata", """[color=#e8c34a]Nuova partita[/color]
 Prima della mappa vengono due pagine.
-• La tua casata: il nome della casata (il cognome del tuo sovrano), il nome della colonia e lo stemma: forma, partizione, campo e secondo campo, pezza e figura, ognuna col suo smalto. I dadi tirano a sorte un nome o uno stemma intero.
+• La tua casata: il nome della casata (il cognome del tuo sovrano), il nome della colonia, il ritmo della vita (vedi Coloni, Età) e lo stemma: forma, partizione, campo e secondo campo, pezza e figura, ognuna col suo smalto. I dadi tirano a sorte un nome o uno stemma intero.
 • Il tuo sovrano: nome, un soprannome facoltativo, sesso, capelli e il loro colore, la barba (solo per gli uomini), maglia e mantello (seguono i primi due smalti dello stemma finché non li scegli), fino a 2 talenti non in contrasto e 12 punti abilità, al massimo 3 in un'abilità (niente Scassinare).
 • I talenti spostano punti: i difetti ne danno 2 (Goloso, Sonnambulo, Iracondo, Pigro, Dormiglione, Festaiolo, Irrequieto), i pregi ne costano 2 (Stacanovista, Instancabile, Asceta, Di poco appetito, Tranquillo); Mattiniero, Nottambulo e Pennichella sono gratis.
 Gli altri due coloni vengono a caso: abilità a 0, 0–2 talenti.

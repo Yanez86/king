@@ -600,7 +600,7 @@ const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today"
 	"fallen", "animals", "arrows", "next_animal", "next_pack", "guests", "next_guest", "ruins", "expeditions",
 	"chronicle", "chronicle_days", "board_pick", "study", "researched", "authority", "codified", "enacted", "revoked",
 	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "sown", "plans", "slot_done", "soil", "soil_year_ago", "soil_known", "compost_since", "manured", "no_manure", "babies",
-	"house_name", "regent_for", "coronation_at", "reigns", "next_suitor", "tired", "last_yield",
+	"house_name", "regent_for", "coronation_at", "reigns", "next_suitor", "pace", "tired", "last_yield",
 	"harvests", "wear", "plastered", "burning",
 	"fire_noted", "storm_noted", "delivered"]
 const TOAST_TIME := 2000    # millisecondi: "Saved" in alto, poi sparisce (vedi show_toast)
@@ -741,10 +741,12 @@ const DAY_LENGTH := 240.0   # secondi per giorno a velocità 1x
 const MONTH_DAYS := 30
 const SEASON_DAYS := 3 * MONTH_DAYS + 1
 const YEAR_DAYS := 1 + 4 * SEASON_DAYS
-# Età (vedi age_of): si invecchia di un anno a stagione, quattro volte il calendario, così passano le generazioni.
+# Età (vedi age_of): col ritmo veloce (Pace.FAST) si invecchia di un anno a stagione, quattro volte il calendario, così
+# passano le generazioni; con quello reale (Pace.REAL) di un anno all'anno. Si sceglie nella nuova partita.
 # All'arrivo il sovrano ha RULER_AGE anni, gli altri ADULT_AGE; dai OLD_AGE, a ogni compleanno si muore con
 # probabilità (età - OLD_AGE + 2) × OLD_AGE_RISK: 4% a 60, 24% a 70, 44% a 80
-const LIFE_YEAR := YEAR_DAYS / 4.0
+enum Pace { FAST, REAL }  # il ritmo della vita, scelto nella nuova partita (vedi life_year)
+const LIFE_YEARS := [YEAR_DAYS / 4.0, float(YEAR_DAYS)]  # per Pace: giorni per un anno di vita
 const RULER_AGE := [20, 30]
 const ADULT_AGE := [18, 40]
 const OLD_AGE := 60
@@ -755,7 +757,7 @@ const ADULT := 16
 const MARRY_HAPPY := 50.0
 const WEDDING_AUTHORITY := 10
 # Figli (vedi conceive, give_birth): una coppia sposata che dorme nella stessa stanza, ogni notte CONCEIVE_CHANCE (la
-# donna in FERTILE_AGE, da LATE_FERTILE la metà). La gravidanza dura PREGNANCY giorni (nell'ultimo terzo il lavoro
+# donna in FERTILE_AGE, da LATE_FERTILE la metà). La gravidanza dura PREGNANCY anni di vita (nell'ultimo terzo il lavoro
 # PREGNANT_SLOW), poi per un anno niente. Ogni talento dei genitori passa al figlio con TRAIT_INHERIT, al più due.
 # Fino a CHILD_AGE è un neonato (in `babies`: nella culla o in braccio), poi un bambino, da YOUTH_AGE un ragazzo, da
 # ADULT un adulto
@@ -763,7 +765,7 @@ const CONCEIVE_CHANCE := 0.01
 const CONCEIVE_HOUR := 2
 const FERTILE_AGE := [16, 40]
 const LATE_FERTILE := 35
-const PREGNANCY := 0.75 * LIFE_YEAR
+const PREGNANCY := 0.75       # anni di vita (vedi pregnancy)
 const PREGNANT_SLOW := 1.2
 const TRAIT_INHERIT := 0.5
 const CHILD_AGE := 4
@@ -931,7 +933,7 @@ const COND_INFO := {
 	Cond.PILLORIED: [1.0, 1.0, 1.0, -10.0, "Put in the stocks for a tantrum or a protest."],
 	Cond.HEARD: [0.5, 1.0, 1.0, 10.0, "The ruler listened to their complaint."],
 	Cond.WEDDING: [2.0, 1.0, 1.0, 10.0, "Celebrated the ruler's wedding."],
-	Cond.PREGNANT: [PREGNANCY, 1.0, 1.0, 0.0, "Expecting a child. In the last months works more slowly."],
+	Cond.PREGNANT: [0.0, 1.0, 1.0, 0.0, "Expecting a child. In the last months works more slowly."],  # fino al parto (due)
 	Cond.ROYAL_MOURNING: [ROYAL_MOURNING_DAYS, 1.0, 1.25, -20.0, "The ruler has died."],
 	Cond.CORONATION: [2.0, 1.0, 1.0, 10.0, "Celebrated the coronation of the new ruler."],
 }
@@ -1430,6 +1432,7 @@ var compost_since := {}     # casella di un cumulo del compost -> `clock` da cui
 var manured := {}           # casella d'orto -> true: già concimata per la prossima semina
 var babies: Array[Colonist] = []  # i neonati, fino a CHILD_AGE: non sono ancora coloni (vedi give_birth, place_babies)
 var naming = null           # Colonist: il neonato a cui la finestra della nascita dà il nome
+var pace := Pace.FAST       # il ritmo della vita, scelto nella nuova partita: si invecchia di un anno a stagione o all'anno
 var house_name := ""        # la casata che regna: il cognome dei suoi, che i figli prendono (vedi found_house)
 var regent_for = null       # Colonist: l'erede minorenne per cui `ruler` regna da reggente; null se no
 var coronation_at := 0.0    # `clock` dell'incoronazione di `ruler`, finito il lutto regale; 0 se non ce n'è una in attesa
@@ -1541,7 +1544,7 @@ var furniture_draft := {}
 var furniture_plans := {}
 var furniture := {}
 var colonists: Array[Colonist] = []
-static var setup := {}      # nuova partita, da creation.gd: {"colony": nome, "ruler": Colonist.proprietà -> valore}
+static var setup := {}      # nuova partita, da creation.gd: {"colony": nome, "ruler": Colonist.proprietà -> valore, "pace": Pace}
 var ruler: Colonist         # il sovrano, vedi RULER_POINTS
 var realm := ""             # nome della colonia
 var arms := {}              # stemma della casata, vedi Tincture
@@ -1855,6 +1858,7 @@ func _ready() -> void:
 # Partita nuova: il sovrano (come l'ha fatto il giocatore nella pagina della nuova partita, vedi setup) e gli altri
 # coloni nella radura, a caso; il nome del reame e lo stemma
 func new_people() -> void:
+	pace = setup.get("pace", Pace.FAST)
 	var heads := COLONIST_COUNT + 1 if game_start else TEST_PEOPLE  # il primo è il sovrano
 	for i in heads:
 		var c := Colonist.new()
@@ -5120,7 +5124,7 @@ func work_factor(c: Colonist, job := Job.NONE) -> float:
 	var f := cond_product(c, 1)
 	if age_of(c) < YOUTH_AGE:
 		f *= CHILD_SLOW
-	if c.due > 0.0 and c.due - clock < PREGNANCY / 3.0:  # gli ultimi mesi
+	if c.due > 0.0 and c.due - clock < pregnancy() / 3.0:  # gli ultimi mesi
 		f *= PREGNANT_SLOW
 	for g in c.gear.values():
 		f *= (STEEL_TIME if steel(g) and GEAR[g].get("time", {}).has(job) else GEAR[g].get("time", {}).get(job, 1.0)) * GEAR[g].get("slow", 1.0)
@@ -5957,8 +5961,8 @@ func conceive(c: Colonist) -> void:
 	if c.job != Job.SLEEP or c.spouse.job != Job.SLEEP or room == null or room != room_at(cell_of(c.spouse.pos)):
 		return
 	if randf() < CONCEIVE_CHANCE * (0.5 if years >= LATE_FERTILE else 1.0):
-		c.due = clock + PREGNANCY
-		add_cond(c, Cond.PREGNANT)
+		c.due = clock + pregnancy()
+		c.conds[Cond.PREGNANT] = c.due
 
 
 # Il parto: un neonato in `babies`, figlio di `mother` e del marito. Il cognome e i colori della casata (se uno dei
@@ -5997,7 +6001,7 @@ func give_birth(mother: Colonist) -> void:
 	child.pos = mother.pos
 	mother.due = 0.0
 	mother.conds.erase(Cond.PREGNANT)
-	mother.fertile_from = clock + LIFE_YEAR
+	mother.fertile_from = clock + life_year()
 	babies.append(child)
 	place_babies()
 	note(birth_line(child))
@@ -6244,11 +6248,11 @@ func house_text() -> String:
 		var end: float = reign[2]
 		var years := "%d – %s" % [year_of(int(reign[1])) + 1, str(year_of(int(end)) + 1) if end >= 0.0 else tr("today")]
 		lines.append("%s %s%s, %s (%s)" % [CROWN_IMG, full_name(c), " †" if c.died > 0.0 else "", tr("Year %s") % years,
-			tr("%d years old") % age_of(c) if c.died == 0.0 else tr("died at %d") % floori((c.died - c.born) / LIFE_YEAR)])
+			tr("%d years old") % age_of(c) if c.died == 0.0 else tr("died at %d") % floori((c.died - c.born) / life_year())])
 		if c.spouse != null:
 			lines.append("    " + tr("Spouse: %s") % full_name(c.spouse) + (" †" if c.spouse.died > 0.0 else ""))
 		var kids: Array = children_of(c).map(func(o): return "%s (%d)" % [o.first_name, age_of(o) if o.died == 0.0
-			else floori((o.died - o.born) / LIFE_YEAR)] + (" †" if o.died > 0.0 else ""))
+			else floori((o.died - o.born) / life_year())] + (" †" if o.died > 0.0 else ""))
 		if not kids.is_empty():
 			lines.append("    " + tr("Children: %s") % ", ".join(kids))
 	if regent_for != null:
@@ -6321,16 +6325,26 @@ func new_suitor(sex: Sex) -> Colonist:
 	return c
 
 
-# gli anni di `c`, compiuti: uno a stagione (LIFE_YEAR giorni)
+# giorni per un anno di vita: una stagione col ritmo veloce, un anno di calendario con quello reale (Pace)
+func life_year() -> float:
+	return LIFE_YEARS[pace]
+
+
+# giorni di gravidanza: tre quarti d'anno di vita
+func pregnancy() -> float:
+	return PREGNANCY * life_year()
+
+
+# gli anni di `c`, compiuti: uno ogni life_year() giorni
 func age_of(c: Colonist) -> int:
 	if c.born == INF:  # senza nascita (fatto a mano, nelle prove): adulto
 		return ADULT_AGE[0]
-	return floori((clock - c.born) / LIFE_YEAR)
+	return floori((clock - c.born) / life_year())
 
 
 # un'età a caso tra `ages[0]` e `ages[1]` anni (compresi), con un giorno di nascita a caso
 func give_age(c: Colonist, ages: Array) -> void:
-	c.born = clock - randf_range(ages[0], ages[1] + 1) * LIFE_YEAR
+	c.born = clock - randf_range(ages[0], ages[1] + 1) * life_year()
 
 
 func new_hero(kind: Hero, level: int) -> Colonist:
@@ -7203,7 +7217,7 @@ func new_day() -> void:
 			colonists.append(b)
 	for c in colonists.duplicate():  # i compleanni: la maggiore età; dai OLD_AGE si può morire di vecchiaia
 		var years := age_of(c)
-		if years <= floori((today - 1 - c.born) / LIFE_YEAR):
+		if years <= floori((today - 1 - c.born) / life_year()):
 			continue
 		if years == ADULT:
 			c.beard = c.sex == Sex.MALE and randf() < BEARD_CHANCE

@@ -3402,3 +3402,20 @@ msgstr "La casata…"
 
 msgid "The house"
 msgstr "La casata"
+
+# --- Nuova partita: il ritmo della vita
+
+msgid "Pace of life"
+msgstr "Ritmo della vita"
+
+msgid "Fast"
+msgstr "Veloce"
+
+msgid "Real"
+msgstr "Reale"
+
+msgid "A year of life every season: generations go by, children grow up in 4 years."
+msgstr "Un anno di vita a stagione: passano le generazioni, i figli crescono in 4 anni."
+
+msgid "A year of life every year, like the calendar: children take 16 years to grow up."
+msgstr "Un anno di vita all'anno, come il calendario: i figli ci mettono 16 anni a crescere."

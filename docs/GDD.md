@@ -231,8 +231,10 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
 
 ### 4.3.3 Dinastia: età, matrimonio, figli, successione
 Decisa il 2026-11-19. Numeri da tarare.
-- **Età**: ogni persona ha un'età (nella scheda, accanto al sesso). Si invecchia di **un anno a stagione** (91 giorni):
-  quattro volte il calendario, così in una partita lunga passano le generazioni. Il sovrano parte tra 20 e 30 anni, gli
+- **Età**: ogni persona ha un'età (nella scheda, accanto al sesso). Il **ritmo della vita** si sceglie nella nuova
+  partita (pagina della casata): **veloce**, un anno a stagione (91 giorni), quattro volte il calendario, così in una
+  partita lunga passano le generazioni; o **reale**, un anno all'anno, come i tempi veri dell'orto (deciso il
+  2026-11-19). I numeri qui sotto sono in anni di vita. Il sovrano parte tra 20 e 30 anni, gli
   altri coloni e gli avventurieri tra 18 e 40.
 - **Vecchiaia**: dai 60 anni, a ogni compleanno muore con probabilità (età − 58) × 2%: 4% a 60, 24% a 70, 44% a 80.
 - **Matrimonio**: dalla scheda del sovrano, "Combina un matrimonio": una persona adulta dell'altro sesso, non sposata.

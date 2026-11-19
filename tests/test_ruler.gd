@@ -27,7 +27,7 @@ func _initialize() -> void:
 	check(page.ruler.tunic == Main.TINCTURE_COLORS[T.AZURE] and page.ruler.cape == Main.TINCTURE_COLORS[T.OR],
 		"maglia e mantello coi primi due smalti")
 	var pressed: Array = page.synced.filter(func(e): return e[0].button_pressed).map(func(e): return e[2])
-	check(page.synced.filter(func(e): return e[0].button_pressed).size() == 8 + 5 and T.AZURE in pressed,
+	check(page.synced.filter(func(e): return e[0].button_pressed).size() == 9 + 5 and T.AZURE in pressed,
 		"una scelta premuta per riga")
 	page.go(1)
 	check(page.pages[1].visible and page.forward.text == "Start", "poi il sovrano")
@@ -98,6 +98,10 @@ func _initialize() -> void:
 			and (r.charge == 0 or metal.call(r.charge_tincture) != metal.call(r.field)), "il dado rispetta la regola degli smalti")
 		check(r.charge == 0 or r.ordinary not in Main.CENTRAL, "niente figure sulle pezze che passano dal centro")
 
+	# il ritmo della vita: veloce all'inizio, si può scegliere reale
+	check(page.pace == Main.Pace.FAST and page.make_setup()["pace"] == Main.Pace.FAST, "all'inizio il ritmo veloce")
+	page.pace = Main.Pace.REAL
+
 	# in partita
 	Main.setup = page.make_setup()
 	var chosen: Dictionary = page.arms.duplicate()
@@ -115,6 +119,8 @@ func _initialize() -> void:
 	check(r.tunic == Main.TINCTURE_COLORS[T.VERT], "vestito come l'ha scelto")
 	check(main.colonists.slice(1).all(func(c): return c.skills.max() == 0 and c.first_name != "Ilda"), "gli altri partono da 0, con altri nomi")
 	check(main.realm == "Valbruna" and main.realm_button.text == "Lordship of Valbruna", "il reame nella barra in alto")
+	check(main.pace == Main.Pace.REAL and main.life_year() == Main.YEAR_DAYS and main.age_of(r) >= 20 and main.age_of(r) <= 30,
+		"il ritmo reale: un anno di vita all'anno, le stesse età")
 	check(main.arms == chosen and main.get_node("HUD/TopBar/Row/RealmIcon").texture == main.arms_tex, "e lo stemma accanto")
 	main.realm_button.pressed.emit()
 	var box = main.get_node("HUD/ColonistSheet/Box")

@@ -92,7 +92,7 @@ The table at the top of Jobs (J): one row per colonist, one column per kind of w
 • The dead stay on the ground for a day; their gear drops beside them and the others mourn for 3 days.
 
 [color=#e8c34a]Age[/color]
-• The sheet shows each colonist's age, next to their sex. People grow a year older every season, four times as fast as the calendar, so generations go by.
+• The sheet shows each colonist's age, next to their sex. The pace of life is chosen on the new-game page: Fast, a year older every season, four times as fast as the calendar, so generations go by (children grow up in 4 years); or Real, a year older every year, like the calendar (16 years to grow up, a pregnancy of 9 true months). The numbers below are in years of life, whichever the pace.
 • Your ruler starts between 20 and 30, the other colonists and the adventurers between 18 and 40.
 • From 60, on every birthday they may die of old age: 4% at 60, 24% at 70, 44% at 80."""],
 
@@ -180,7 +180,7 @@ The laws in force that a colonist likes or dislikes show here too, with their ic
 
 	["The Ruler & House", """[color=#e8c34a]New game[/color]
 Two pages come before the map.
-• Your House: the house name (your ruler's surname), the colony's name and the coat of arms: shape, division, field and second field, ordinary and charge, each with its tincture. The dice roll a name or a whole coat of arms.
+• Your House: the house name (your ruler's surname), the colony's name, the pace of life (see Colonists, Age) and the coat of arms: shape, division, field and second field, ordinary and charge, each with its tincture. The dice roll a name or a whole coat of arms.
 • Your Ruler: name, an optional nickname, sex, hair and its color, a beard (men only), tunic and cape (they follow the first two tinctures of the arms until you pick them), up to 2 traits that don't clash, and 12 skill points, at most 3 in one skill (no Lockpicking).
 • Traits move points: flaws give 2 (Glutton, Sleepwalker, Hothead, Lazy, Sleepyhead, Fun-loving, Restless), virtues cost 2 (Workaholic, Tireless, Ascetic, Small appetite, Easygoing); Early bird, Night owl and Napper are free.
 The other two colonists come at random: skills at 0, 0–2 traits.

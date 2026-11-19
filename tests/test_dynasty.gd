@@ -17,17 +17,22 @@ func _initialize() -> void:
 	var ruler = main.ruler
 
 	# età: il sovrano tra 20 e 30 anni, gli altri tra 18 e 40, come gli avventurieri; un anno di vita a stagione
-	check(main.LIFE_YEAR == main.YEAR_DAYS / 4.0, "un anno di vita a stagione")
+	check(main.life_year() == main.YEAR_DAYS / 4.0, "un anno di vita a stagione")
+	var then: int = main.age_of(ruler)
+	main.pace = main.Pace.REAL  # il ritmo reale: un anno all'anno, la gravidanza nove mesi veri
+	check(main.life_year() == main.YEAR_DAYS and is_equal_approx(main.pregnancy(), 0.75 * main.YEAR_DAYS)
+		and main.age_of(ruler) < then, "col ritmo reale un anno all'anno")
+	main.pace = main.Pace.FAST
 	check(main.age_of(ruler) >= 20 and main.age_of(ruler) <= 30, "il sovrano tra 20 e 30 anni: %d" % main.age_of(ruler))
 	check(main.colonists.all(func(c): return main.age_of(c) >= 18 and main.age_of(c) <= 40), "i coloni tra 18 e 40")
 	var hero = main.new_hero(main.Hero.ARCHER, 1)
 	check(main.age_of(hero) >= 18 and main.age_of(hero) <= 40, "anche gli avventurieri")
 	var c = main.colonists[1]
-	c.born = main.clock - 30.5 * main.LIFE_YEAR
+	c.born = main.clock - 30.5 * main.life_year()
 	main.open_sheet(c)
 	var sex: String = main.SEX_NAMES[c.sex]
 	check(main.get_node("HUD/ColonistSheet/Box/Sex/Label").text == "%s, 30 years old" % sex, "nella scheda, accanto al sesso")
-	main.clock += main.LIFE_YEAR
+	main.clock += main.life_year()
 	check(main.age_of(c) == 31, "una stagione dopo, un anno in più")
 
 	# vecchiaia: dai 60 anni, a ogni compleanno si muore con (età - 58) × 2%; a 59 mai
@@ -35,7 +40,7 @@ func _initialize() -> void:
 	for years in deaths:
 		for i in 500:
 			var old = main.Colonist.new()
-			old.born = floorf(main.clock) - (years - 0.001) * main.LIFE_YEAR  # compie gli anni proprio oggi
+			old.born = floorf(main.clock) - (years - 0.001) * main.life_year()  # compie gli anni proprio oggi
 			old.needs = main.Need.values().map(func(_n): return 50.0)
 			old.skills = main.Skill.values().map(func(_s): return 0)
 			old.xp = main.Skill.values().map(func(_s): return 0)
@@ -45,7 +50,7 @@ func _initialize() -> void:
 		main.new_day()
 		deaths[years] = before - main.colonists.size()
 		for o in main.colonists.duplicate():  # via i vecchi rimasti
-			if o.born < main.clock - 50 * main.LIFE_YEAR:
+			if o.born < main.clock - 50 * main.life_year():
 				main.colonists.erase(o)
 		main.corpses.clear()
 	check(deaths[59] == 0, "a 59 anni nessuno muore di vecchiaia")
@@ -54,7 +59,7 @@ func _initialize() -> void:
 	check(Array(main.chronicle).any(func(line): return "died of old age, at 70." in line), "la cronaca lo scrive")
 	main.deaths = false
 	var spared = main.Colonist.new()
-	spared.born = floorf(main.clock) - 89.999 * main.LIFE_YEAR
+	spared.born = floorf(main.clock) - 89.999 * main.life_year()
 	spared.needs = main.Need.values().map(func(_n): return 50.0)
 	main.colonists.append(spared)
 	main.new_day()
@@ -68,13 +73,13 @@ func _initialize() -> void:
 	ruler.sex = main.Sex.MALE
 	for i in others.size():
 		others[i].sex = main.Sex.FEMALE if i < 3 else main.Sex.MALE
-		others[i].born = main.clock - 25.5 * main.LIFE_YEAR
+		others[i].born = main.clock - 25.5 * main.life_year()
 		others[i].needs[main.Need.HAPPINESS] = 80.0
 	var bride = others[0]
 	var sad = others[1]
 	sad.needs[main.Need.HAPPINESS] = 20.0
 	var girl = others[2]
-	girl.born = main.clock - 15.5 * main.LIFE_YEAR
+	girl.born = main.clock - 15.5 * main.life_year()
 	check(main.can_marry(), "il sovrano adulto, senza coniuge, si può sposare")
 	var options: Array = main.suitors()
 	check(options.map(func(o): return o[0]) == [bride, sad], "le donne adulte, non i ragazzi né gli uomini")
@@ -128,7 +133,7 @@ func _initialize() -> void:
 	wife.pos = main.center(beds[1])
 	ruler.job = main.Job.SLEEP
 	wife.job = main.Job.SLEEP
-	wife.born = main.clock - 25.5 * main.LIFE_YEAR
+	wife.born = main.clock - 25.5 * main.life_year()
 	main.conceive(ruler)
 	check(ruler.due == 0.0, "il marito non resta incinto")
 	wife.job = main.Job.NONE
@@ -141,19 +146,19 @@ func _initialize() -> void:
 		main.conceive(wife)
 	check(wife.due == 0.0, "in un'altra stanza, niente")
 	wife.pos = main.center(beds[1])
-	wife.born = main.clock - 41.5 * main.LIFE_YEAR
+	wife.born = main.clock - 41.5 * main.life_year()
 	for i in 2000:
 		main.conceive(wife)
 	check(wife.due == 0.0, "dopo i 40 anni, niente")
-	wife.born = main.clock - 25.5 * main.LIFE_YEAR
+	wife.born = main.clock - 25.5 * main.life_year()
 	var tries := 0
 	while wife.due == 0.0 and tries < 3000:
 		main.conceive(wife)
 		tries += 1
 	check(wife.due > 0.0 and tries > 10 and tries < 1000, "insieme nella stanza, di notte: incinta dopo %d notti" % tries)
-	check(is_equal_approx(wife.due, main.clock + main.PREGNANCY) and wife.conds.has(main.Cond.PREGNANT), "incinta per tre quarti d'anno")
+	check(is_equal_approx(wife.due, main.clock + main.pregnancy()) and wife.conds.has(main.Cond.PREGNANT), "incinta per tre quarti d'anno")
 	var early: float = main.work_factor(wife)
-	main.clock = wife.due - main.PREGNANCY / 4.0
+	main.clock = wife.due - main.pregnancy() / 4.0
 	check(is_equal_approx(main.work_factor(wife), early * main.PREGNANT_SLOW), "negli ultimi mesi lavora più piano")
 	# il parto: un neonato della casata, col nome dalla finestra
 	wife.traits = [main.Trait.GLUTTON]
@@ -166,7 +171,7 @@ func _initialize() -> void:
 	check(baby.mother == wife and baby.father == ruler and baby.last_name == ruler.last_name and baby.tunic == ruler.tunic,
 		"figlio dei due, col cognome e i colori della casata")
 	check(main.age_of(baby) == 0 and baby not in main.colonists and not baby.beard, "un neonato, non ancora un colono")
-	check(is_equal_approx(wife.fertile_from, main.clock + main.LIFE_YEAR), "per un anno niente altri figli")
+	check(is_equal_approx(wife.fertile_from, main.clock + main.life_year()), "per un anno niente altri figli")
 	var panel: Control = main.get_node("HUD/BirthPanel")
 	check(panel.visible and panel.get_node("Box/Row/Name").text == baby.first_name, "la finestra chiede il nome")
 	check(Array(main.chronicle).any(func(line): return "%s is born, child of" % main.full_name(baby) in line), "la cronaca")
@@ -199,7 +204,7 @@ func _initialize() -> void:
 
 	# crescere: a 4 anni il neonato diventa un bambino della colonia; i bambini raccolgono e trasportano a metà
 	# velocità, i ragazzi non fanno i lavori pesanti; a 16 la maggiore età
-	baby.born = main.clock - 4.01 * main.LIFE_YEAR
+	baby.born = main.clock - 4.01 * main.life_year()
 	main.today = int(main.clock)
 	main.new_day()
 	check(baby in main.colonists and baby not in main.babies and baby.pos == wife.pos, "a 4 anni, un bambino accanto alla madre")
@@ -213,10 +218,10 @@ func _initialize() -> void:
 	var row: int = (W.size() + 1) * (main.colonists.find(baby) + 1)  # le icone e le righe prima: qui il nome
 	check(grid.get_child(row + 1 + W.BUILD) is not Button and grid.get_child(row + 1 + W.HAUL) is Button,
 		"nella tabella delle priorità solo i suoi lavori")
-	baby.born = main.clock - 13.5 * main.LIFE_YEAR
+	baby.born = main.clock - 13.5 * main.life_year()
 	check(main.can_do(baby, W.COOK) and main.can_do(baby, W.STUDY) and not main.can_do(baby, W.BUILD) and not main.can_do(baby, W.HUNT)
 		and is_equal_approx(main.work_factor(baby), main.cond_product(baby, 1)), "un ragazzo: tutto tranne i lavori pesanti")
-	baby.born = main.clock - (main.ADULT + 0.001) * main.LIFE_YEAR  # compiuti oggi
+	baby.born = main.clock - (main.ADULT + 0.001) * main.life_year()  # compiuti oggi
 	main.new_day()
 	check(main.can_do(baby, W.BUILD) and Array(main.chronicle).any(func(line): return "%s comes of age." % main.full_name(baby) in line),
 		"a 16 anni la maggiore età, nella cronaca")
@@ -245,10 +250,10 @@ func _initialize() -> void:
 
 	# un erede bambino: regna un reggente (l'adulto con più abilità, se i genitori non ci sono) fino ai suoi 16 anni
 	var kid = person(main)
-	kid.born = main.clock - 10.5 * main.LIFE_YEAR
+	kid.born = main.clock - 10.5 * main.life_year()
 	kid.father = heir
 	var kid2 = person(main)
-	kid2.born = main.clock - 6.5 * main.LIFE_YEAR
+	kid2.born = main.clock - 6.5 * main.life_year()
 	kid2.father = heir
 	var wise = person(main)
 	wise.skills = main.Skill.values().map(func(_s): return 5)
@@ -263,7 +268,7 @@ func _initialize() -> void:
 	check(main.regent_for == kid and main.ruler == second, "morto il reggente, un altro")
 	main.die(kid, "is gone.")
 	check(main.regent_for == kid2 and main.ruler == second, "morto l'erede, il fratello")
-	kid2.born = main.clock - (main.ADULT + 0.001) * main.LIFE_YEAR
+	kid2.born = main.clock - (main.ADULT + 0.001) * main.life_year()
 	main.today = int(main.clock)
 	main.new_day()
 	check(main.ruler == kid2 and main.regent_for == null and main.reigns[-1][0] == kid2
