@@ -3687,7 +3687,7 @@ func _process(delta: float) -> void:
 	toast.visible = Time.get_ticks_msec() < toast_until
 	toast.modulate.a = clampf((toast_until - Time.get_ticks_msec()) / 500.0, 0.0, 1.0)  # sparisce nell'ultimo mezzo secondo
 	stored_label.text = str(Res.values().map(stored).reduce(func(a, b): return a + b, 0))
-	colonists_label.text = str(colonists.size())
+	colonists_label.text = str(colony_size())  # anche chi è in spedizione: conta per il titolo
 	beds_label.text = str(furniture.values().filter(func(plan): return plan[0] in BEDS).size())  # solo quelli finiti
 	splendor_label.text = str(colony_splendor())
 	confirm.disabled = draft.is_empty() and furniture_draft.is_empty()

@@ -142,6 +142,11 @@ i viandanti. Il valore della colonia (lo splendore) attira gente; i tanti coloni
   viandanti, soli o in famiglia; (3) le leggi dell'Accoglienza (Porte chiuse, Porte aperte, Giuramento, 4.7.7); (4) il
   titolo che sale anche col numero dei coloni (4.3); (5) la Compagnia della corona (4.7.3): i coloni in spedizione con
   gli avventurieri (vedi 4.4.4).
+- **Stato**: fatte le fasi 1–5 il 2026-11-19 (test in `tests/test_newcomers.gd`). Ospiti (`visitor`) sono avventurieri,
+  pretendenti e viandanti: non lavorano e dormono alla locanda. Le domande in attesa si salvano e, caricata la partita,
+  la finestra si riapre. Chi giura va nella sala del trono prima di ogni altra cosa. Il contatore dei coloni nella barra
+  in alto conta anche chi è in spedizione. Da tarare: l'attesa dei viandanti e quante volte chiedono di restare gli
+  avventurieri.
 
 ### 4.3 Il re e la dinastia
 - Il **sovrano** (re solo alla fine, vedi Titolo) è un colono come gli altri: lavori e priorità, bisogni, routine, abilità che
@@ -691,12 +696,13 @@ racconta il diario al ritorno.
 - **Ordine di lavoro**: (1) locanda e bacheca, oro, un avventuriero alla volta, solo la torre, bottino in risorse che
   esistono già; (2) classi, talenti, gruppi, provviste, diario; (3) altre rovine, mappe, cimeli, effetto dello splendore;
   (4) il resto.
-- **Stato**: fatte le fasi 1, 2 e 3.
+- **Stato**: fatte le fasi 1, 2 e 3; della 4 chi resta (4.2.1) e i coloni in spedizione (Compagnia della corona).
   Simulazioni (500 spedizioni per caso, provviste piene, rovina intatta): alla torre non muore nessuno, ma mandarci
   gente di livello alto costa più di quello che rende; nelle rovine profonde chi va da solo non torna una volta su
   cinque, un gruppo di livello 1 al forte perde in media un uomo ogni 9 spedizioni e torna presto; un gruppo del livello
   giusto ci guadagna (cripta, tre di livello 3: 147 monete a casa per 75 di paghe; forte, quattro di livello 5: 268
-  per 140); coi talenti a caso i numeri restano questi, più o meno. Manca il resto di "Poi".
+  per 140); coi talenti a caso i numeri restano questi, più o meno. Manca il resto di "Poi": vene d'oro e commercio,
+  una rovina sulla mappa.
 
 ### 4.4.5 Tetti, calore e conservazione
 Deciso il 2026-11-18. I tetti cambiano aspetto col materiale e si consumano; i fuochi scaldano anche attraverso i muri
@@ -869,6 +875,8 @@ di legno, la pietra isola; il caldo e il freddo decidono quanto dura il cibo, fi
 - Ogni evento è un file di dati (condizioni, peso, effetti, testi localizzati).
 - Lista da definire. Esempi segnaposto: arrivo di un viandante, malattia, incendio (vedi 4.4.5), ondata di freddo,
   raccolto abbondante.
+- Per ora incendio, ondata di freddo, erudito errante (4.7.2) e viandanti (4.2.1) sono fatti a mano, ognuno col suo
+  ritmo: da portare nel narratore.
 
 ### 4.7 Ricerca: il sapere e le leggi
 Due ricerche. Il **sapere** (le ricerche) si paga in **studio**, che i coloni scrivono allo scrittoio, e in **libri** che
@@ -1088,7 +1096,7 @@ IV, regno, leggi finali, cittadella.
 **Stato**: fatte le fasi 1–4; della 5 una parte dei nodi, l'erudito errante e la protesta. Nel gioco: scrittoio,
 libreria e trono; stanze Studio e Sala del trono; lavori Studiare e Governare; studio e autorità (nelle finestre
 Knowledge e Laws, tasti K e G, o clic su scrittoio e trono; tutte e due scorrono); i tre libri, nei forzieri e nei
-tesori, col monastero; le 37 ricerche segnate ✓; le 19 leggi segnate ✓; il titolo cresce con lo splendore (4.3) e dà i
+tesori, col monastero; le 38 ricerche segnate ✓; le 22 leggi segnate ✓; il titolo cresce con lo splendore e i coloni (4.3) e dà i
 sigilli (2–5), le fasce delle leggi e l'autorità di ogni giorno; gli eventi d'autorità del 4.7.4 tranne
 l'incoronazione (manca la successione), mai sotto zero. Il granaio è un conto, non una stanza, e niente ci marcisce;
 paga le provviste, poi (Granaio aperto) l'ora senza cibo in magazzino e il pasto di ogni stagione; la festa del

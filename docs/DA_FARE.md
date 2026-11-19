@@ -11,32 +11,31 @@
 |---|---|---|---|
 | Lavori e priorità | 4.1 | fatto | i lavoratori delle stanze non contano ancora |
 | Coloni | 4.2 | quasi tutto | malattie, medico, tombe; relazioni e umore |
+| Nuovi coloni | 4.2.1 | fatto | tarare i numeri |
 | Sovrano e dinastia | 4.3 | dinastia fatta (4.3.3); del sovrano fasi 1, 2, 6 e mezza 5 | sovrano sereno/cupo, stile di regno, sguardo, epiteti |
 | Stemma | 4.3.2 | base | linee, pellicce, ornamenti, motto, blasonatura |
 | Risorse ed edifici | 4.4 | fatto | vene d'oro, commercio |
 | Cibo e orto | 4.4.1 | fatto, coi concimi | forno e pane, stufato e conserve, letame (serve la stalla) |
 | Forgia e sartoria | 4.4.2 | fatto | ordini "fanne N", qualità degli oggetti |
 | Combattimento | 4.4.3 | fatto | predoni, medico e cure |
-| Avventurieri e rovine | 4.4.4 | fasi 1–3 | **avventurieri che restano come coloni**, coloni in spedizione |
+| Avventurieri e rovine | 4.4.4 | fasi 1–3, chi resta, coloni in spedizione | vene d'oro, commercio, una rovina sulla mappa |
 | Tetti, calore, conservazione | 4.4.5 | fasi 1–7 | rifiniture grafiche |
 | Mondo e tempo | 4.5 | fatto | — |
 | Salvataggio | 4.5.1 | locale fatto | il cloud |
-| Eventi casuali | 4.6 | quasi niente | **il narratore** e la lista degli eventi |
-| Ricerca | 4.7.3 | 37 ricerche su 50 | 13 ricerche, il livello IV |
-| Leggi | 4.7.7 | 19 leggi su 38 | 19 leggi: quelle della dinastia si possono fare ora, altre aspettano i coloni nuovi |
+| Eventi casuali | 4.6 | quasi niente (quattro eventi fatti a mano) | **il narratore** e la lista degli eventi |
+| Ricerca | 4.7.3 | 38 ricerche su 50 | 12 ricerche, il livello IV |
+| Leggi | 4.7.7 | 22 leggi su 38 | 16 leggi: quelle della dinastia si possono fare ora |
 
 ## Da dove partire (proposta)
 
-La dinastia c'è (4.3.3: età, matrimonio, figli, successione, pretendenti, la finestra della casata; il ritmo della vita,
-veloce o reale, si sceglie nella nuova partita). Molte cose aspettano ancora **i coloni nuovi**: conviene farli adesso.
-Ora che c'è la dinastia si possono fare anche le sue leggi (vedi Leggi).
+La dinastia c'è (4.3.3) e la colonia cresce (4.2.1: avventurieri che restano, viandanti, le leggi dell'Accoglienza, la
+Compagnia della corona, il titolo che vuole anche i coloni). Ora si possono fare anche le leggi della dinastia (vedi
+Leggi).
 
-1. **La colonia che cresce** — avventurieri che restano come coloni, viandanti (4.4.4). Sblocca: Porte aperte e Porte
-   chiuse, Giuramento, Compagnia della corona, il titolo che sale anche col numero di coloni.
-2. **Il narratore** (4.6) — gli eventi come file di dati. Sblocca: malattie, viandanti, raccolto abbondante, e dà un
-   posto all'erudito errante, all'incendio e all'ondata di freddo (oggi fatti a mano).
-3. **Medicina e morte** — Erboristeria, Medicina, tombe e cimitero, funerali (legge Funerali).
-4. **Cucina e animali** — Forno di pietra, stufato, conserve; poi Apicoltura e Banchetto reale; animali da allevare e
+1. **Il narratore** (4.6) — gli eventi come file di dati. Sblocca: malattie, raccolto abbondante, e dà un posto
+   all'erudito errante, all'incendio, all'ondata di freddo e ai viandanti (oggi fatti a mano).
+2. **Medicina e morte** — Erboristeria, Medicina, tombe e cimitero, funerali (legge Funerali).
+3. **Cucina e animali** — Forno di pietra, stufato, conserve; poi Apicoltura e Banchetto reale; animali da allevare e
    la stalla, col letame.
 
 ## Lavori e priorità (4.1)
@@ -56,6 +55,12 @@ Ora che c'è la dinastia si possono fare anche le sue leggi (vedi Leggi).
 - [ ] Tono della pelle (3–4 toni, un livello tinto nuovo): nella pagina del sovrano, per gli altri coloni a caso, e i
   figli lo prendono dai genitori. Oggi non c'è: la pelle è uguale per tutti.
 
+## Nuovi coloni (4.2.1)
+
+- [ ] Tarare i numeri: l'attesa dei viandanti (30 giorni, splendore, affollamento sopra 8 coloni), quanti in famiglia,
+  dopo quante spedizioni chiede di restare un avventuriero e con quanta felicità, i giorni da forestiero.
+- [ ] I viandanti nel narratore (4.6), come evento coi suoi pesi.
+
 ## Sovrano e dinastia (4.3, 4.3.1)
 
 Fasi dell'ordine di lavoro ancora da fare:
@@ -72,7 +77,6 @@ Fasi dell'ordine di lavoro ancora da fare:
 Dinastia (4.3.3, fatta): quello che resta.
 
 - [ ] All'incoronazione si sceglie lo stile di regno dell'erede (quando ci sarà lo stile di regno).
-- [ ] Il titolo che sale anche col numero dei coloni, non solo con lo splendore.
 - [ ] Matrimoni anche tra gli altri coloni, non solo del sovrano, e i loro figli.
 - [ ] I ragazzi imparano il doppio, quando ci saranno le soglie di livello delle abilità.
 - [ ] Una casata nuova sceglie il suo stemma (oggi è a caso): l'editor dello stemma in partita.
@@ -129,9 +133,7 @@ Dinastia (4.3.3, fatta): quello che resta.
 
 ## Avventurieri e rovine (4.4.4)
 
-- [ ] (4) Il resto:
-  - [ ] un avventuriero contento dopo 3 spedizioni chiede di restare come colono;
-  - [ ] coloni in spedizione (ricerca Compagnia della corona);
+- [ ] (4) Il resto (chi resta e i coloni in spedizione ci sono):
   - [ ] vene d'oro e commercio;
   - [ ] una rovina sulla mappa da esplorare davvero.
 
@@ -156,8 +158,8 @@ Dinastia (4.3.3, fatta): quello che resta.
 
 - [ ] Il narratore: pesca eventi con un peso che dipende dallo stato della colonia.
 - [ ] Gli eventi come file di dati (condizioni, peso, effetti, testi tradotti).
-- [ ] La lista degli eventi (esempi: viandante, malattia, raccolto abbondante). Oggi incendio, ondata di freddo ed
-  erudito errante sono fatti a mano: da portare nel narratore.
+- [ ] La lista degli eventi (esempi: malattia, raccolto abbondante). Oggi incendio, ondata di freddo, erudito errante e
+  viandanti sono fatti a mano: da portare nel narratore.
 
 ## Ricerca (4.7.3)
 
@@ -174,8 +176,7 @@ Cittadella.
 | Pietra | Ponte | II | Strada lastricata | si attraversa l'acqua alta, si pesca dal ponte |
 | Ferro | Balestra | III | Torre di guardia | danno 22, +15% a segno |
 | | Armatura a piastre | IV | Balestra, Cotta di maglia, Acciaio | protezione 7 |
-| Strada | Compagnia della corona | III | Locanda rinomata | i coloni partono con gli avventurieri |
-| | Mappa del Re Dimenticato | IV | Compagnia, Cartografia | la Cittadella |
+| Strada | Mappa del Re Dimenticato | IV | Compagnia, Cartografia | la Cittadella |
 | Sapere | Biblioteca reale | IV | Astronomia | si rilegano i tomi; +2 autorità al giorno |
 | | Erboristeria | I | — | erbe medicinali, unguento |
 | | Medicina | II | Erboristeria | infermeria e medico |
@@ -196,7 +197,7 @@ Leggi senza ✓ (tra parentesi quello che aspettano):
 |---|---|
 | Lavoro | Corvée (la quarta casella colorata nella routine), Corporazioni (i lavoratori delle stanze) |
 | Ordine | Legge marziale |
-| Popolo | Porte chiuse, Porte aperte, Giuramento (coloni nuovi); Padrinato; Matrimoni misti, Scuola (si possono fare: c'è la dinastia); Carta delle libertà (regno) |
+| Popolo | Padrinato; Matrimoni misti, Scuola (si possono fare: ci sono la dinastia e i forestieri); Carta delle libertà (regno) |
 | Corona | Primogenitura (la regola c'è già, dall'inizio: manca solo la legge nella finestra), Successione elettiva (si può fare: c'è la successione); Guardia del corpo; Assolutismo (regno) |
 | Feste | Funerali (cimitero), Torneo, Cronista di corte, Mecenatismo, Calendario delle feste |
 
