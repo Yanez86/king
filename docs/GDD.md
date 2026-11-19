@@ -201,9 +201,14 @@ accompagnano i morti.
 - **Ordine di lavoro**: (1) Erboristeria: l'abilità Medicina, le erbe, l'unguento, spalmarselo; (2) Medicina: infermeria
   e armadio, il riposo, il medico (soccorrere, curare, la febbre); (3) tombe e sepoltura, il corpo che aspetta, il lutto
   più corto; (4) la legge Funerali e il memoriale dei caduti.
-- **Stato**: fatta la fase 1 il 2026-11-19 (test in `tests/test_medicine.gd`). Le erbe sono un cespuglio come il lino
+- **Stato**: fatte le fasi 1–2 il 2026-11-19 (test in `tests/test_medicine.gd`). Le erbe sono un cespuglio come il lino
   (`herbs`), sparse con un caso loro dal seme della mappa; caricando una partita di prima spuntano sul prato libero. Le
-  partite di prima hanno la Medicina a 0 e la scorta di 3 unguenti. Nella wiki la pagina "Medicina e morte".
+  partite di prima hanno la Medicina a 0 e la scorta di 3 unguenti. Nella wiki la pagina "Medicina e morte". La colonna
+  Curare è l'ultimo valore di `Work` (le priorità salvate restano giuste) ma la prima in `WORK_ORDER`, che dà le colonne
+  e l'ordine a pari priorità. Il malato in spalla (`carried_by`) segue il medico e si disegna sdraiato sopra di lui; se il
+  medico molla (lupi, incendio) resta giù dove si trova; a fine turno no, lo porta prima a letto. Messo a letto, il medico
+  si fa da parte. Si cura chi è sdraiato (a terra o a letto): chi ha la febbre e gira per la colonia aspetta di essere a
+  letto.
 
 ### 4.3 Il re e la dinastia
 - Il **sovrano** (re solo alla fine, vedi Titolo) è un colono come gli altri: lavori e priorità, bisogni, routine, abilità che
@@ -1103,7 +1108,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Astronomia ✓ | III | 500 | Scriptorium | le previsioni del tempo arrivano un giorno più in là (poi: sfera armillare, stagioni un giorno prima) |
   | | Biblioteca reale | IV | 1200 | Astronomia | si rilegano i tomi (2 quaderni + 400 studio); +2 autorità al giorno |
   | | Erboristeria ✓ | I | 100 | — | l'unguento dalle erbe medicinali, al fuoco: +30 punti ferita (4.2.2) |
-  | | Medicina | II | 300 | Erboristeria | armadio dei rimedi e infermeria; il lavoro Curare: il medico soccorre e cura chi è a terra, i feriti e la febbre (4.2.2) |
+  | | Medicina ✓ | II | 300 | Erboristeria | armadio dei rimedi e infermeria; il lavoro Curare: il medico soccorre e cura chi è a terra, i feriti e la febbre (4.2.2) |
   | | Lanterne ✓ | I | 40 | — | *abat-jour, lampione* |
 
 #### 4.7.4 L'autorità
@@ -1203,7 +1208,7 @@ IV, regno, leggi finali, cittadella.
 **Stato**: fatte le fasi 1–4; della 5 una parte dei nodi, l'erudito errante e la protesta. Nel gioco: scrittoio,
 libreria e trono; stanze Studio e Sala del trono; lavori Studiare e Governare; studio e autorità (nelle finestre
 Knowledge e Laws, tasti K e G, o clic su scrittoio e trono; tutte e due scorrono); i tre libri, nei forzieri e nei
-tesori, col monastero; le 39 ricerche segnate ✓; le 22 leggi segnate ✓; il titolo cresce con lo splendore e i coloni (4.3) e dà i
+tesori, col monastero; le 40 ricerche segnate ✓; le 22 leggi segnate ✓; il titolo cresce con lo splendore e i coloni (4.3) e dà i
 sigilli (2–5), le fasce delle leggi e l'autorità di ogni giorno; gli eventi d'autorità del 4.7.4 tranne
 l'incoronazione (manca la successione), mai sotto zero. Il granaio è un conto, non una stanza, e niente ci marcisce;
 paga le provviste, poi (Granaio aperto) l'ora senza cibo in magazzino e il pasto di ogni stagione; la festa del

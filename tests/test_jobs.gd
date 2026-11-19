@@ -946,7 +946,7 @@ func _initialize() -> void:
 	check(prio_grid.columns == P.size() + 1 and prio_grid.get_child_count() == prio_grid.columns * (main.colonists.size() + 1),
 		"in testa le icone dei lavori, poi una riga per colono")
 	var row: int = main.colonists.find(prio_worker) + 1
-	var cook_cell: Button = prio_grid.get_child(row * prio_grid.columns + 1 + P.COOK)
+	var cook_cell: Button = prio_grid.get_child(row * prio_grid.columns + 1 + main.WORK_ORDER.find(P.COOK))  # le colonne nell'ordine di WORK_ORDER
 	check(cook_cell.text == "3", "il tasto dice la priorità")
 	cook_cell.pressed.emit()
 	check(main.priority(prio_worker, P.COOK) == 4 and cook_cell.text == "4", "clic: dopo")
@@ -957,7 +957,7 @@ func _initialize() -> void:
 	right.pressed = true
 	cook_cell.gui_input.emit(right)
 	check(main.priority(prio_worker, P.COOK) == 4, "clic destro: prima")
-	var govern_col: int = 1 + P.GOVERN
+	var govern_col: int = 1 + main.WORK_ORDER.find(P.GOVERN)
 	check(prio_grid.get_child(row * prio_grid.columns + govern_col) is not Button and prio_grid.get_child(govern_col + prio_grid.columns
 		* (main.colonists.find(main.ruler) + 1)) is Button, "governa solo il sovrano")
 	main.jobs_panel.hide()

@@ -216,7 +216,8 @@ func _initialize() -> void:
 	main.refresh_priorities()
 	var grid: Control = main.priority_grid
 	var row: int = (W.size() + 1) * (main.colonists.find(baby) + 1)  # le icone e le righe prima: qui il nome
-	check(grid.get_child(row + 1 + W.BUILD) is not Button and grid.get_child(row + 1 + W.HAUL) is Button,
+	check(grid.get_child(row + 1 + main.WORK_ORDER.find(W.BUILD)) is not Button \
+		and grid.get_child(row + 1 + main.WORK_ORDER.find(W.HAUL)) is Button,
 		"nella tabella delle priorità solo i suoi lavori")
 	baby.born = main.clock - 13.5 * main.life_year()
 	check(main.can_do(baby, W.COOK) and main.can_do(baby, W.STUDY) and not main.can_do(baby, W.BUILD) and not main.can_do(baby, W.HUNT)

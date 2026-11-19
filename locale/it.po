@@ -2869,6 +2869,9 @@ msgstr "Fossa del ghiaccio"
 msgid "Icehouse"
 msgstr "Ghiacciaia"
 
+msgid "Infirmary"
+msgstr "Infermeria"
+
 msgid "Ice cutting spot"
 msgstr "Taglio del ghiaccio"
 
@@ -3128,6 +3131,10 @@ msgctxt "work"
 msgid "Study"
 msgstr "Studiare"
 
+msgctxt "work"
+msgid "Doctor"
+msgstr "Curare"
+
 msgid "Cooking meals at the campfire or the hearth."
 msgstr "Cucinare i pasti al fuoco da campo o al focolare."
 
@@ -3163,6 +3170,9 @@ msgstr "Governare dal trono: solo il sovrano."
 
 msgid "Studying at a desk."
 msgstr "Studiare allo scrittoio."
+
+msgid "Rescuing and treating the downed, the wounded and the sick: only after Medicine."
+msgstr "Soccorrere e curare chi è a terra, i feriti e i malati: solo dopo la Medicina."
 
 msgid "1 first, 4 last, – never. Click: later; right click: sooner."
 msgstr "1 prima, 4 per ultimo, – mai. Clic: dopo; clic destro: prima."
@@ -3288,6 +3298,12 @@ msgstr "Culla"
 
 msgid "A rocking cradle. A baby sleeps here instead of in their parents' arms."
 msgstr "Una culla a dondolo. Un neonato ci dorme invece di stare in braccio ai genitori."
+
+msgid "Medicine Chest"
+msgstr "Armadio dei rimedi"
+
+msgid "Herbs, ointments and bandages. With a bed, the room can be an infirmary, where the sick heal faster."
+msgstr "Erbe, unguenti e bende. Con un letto, la stanza può essere un'infermeria, dove chi sta male guarisce più in fretta."
 
 msgid "Pregnant"
 msgstr "Incinta"
@@ -3555,6 +3571,12 @@ msgstr "Erboristeria"
 msgid "At the campfire, ointment from 2 medicinal herbs (they grow in the meadows). Whoever is under 60 health spreads it on: +30."
 msgstr "Al fuoco da campo, l'unguento da 2 erbe medicinali (crescono nei prati). Chi è sotto 60 punti ferita se lo spalma: +30."
 
+msgid "Medicine"
+msgstr "Medicina"
+
+msgid "The medicine chest and the infirmary, and the Doctor column: doctors carry the downed to an infirmary bed and treat them, the wounded and the fevered."
+msgstr "L'armadio dei rimedi e l'infermeria, e la colonna Curare: i medici portano chi è a terra in un letto dell'infermeria e curano lui, i feriti e chi ha la febbre."
+
 msgid "The crown's company: colonists who can go along"
 msgstr "La compagnia della corona: i coloni che possono partire"
 
@@ -3667,6 +3689,18 @@ msgstr "Dorme"
 msgctxt "doing"
 msgid "Sleeping on the ground"
 msgstr "Dorme per terra"
+
+msgctxt "doing"
+msgid "Resting in the infirmary"
+msgstr "A riposo in infermeria"
+
+msgctxt "doing"
+msgid "Rescuing the wounded"
+msgstr "Soccorre un ferito"
+
+msgctxt "doing"
+msgid "Treating a patient"
+msgstr "Cura un malato"
 
 msgctxt "doing"
 msgid "Hauling %s"
@@ -3899,6 +3933,12 @@ msgstr "Ha avuto un'idea brillante. Lavora molto più in fretta."
 
 msgid "Has a fever. Works slowly and tires twice as fast."
 msgstr "Ha la febbre. Lavora piano e si stanca il doppio."
+
+msgid "Treated"
+msgstr "Medicato"
+
+msgid "Treated by a doctor: heals twice as fast."
+msgstr "Curato da un medico: guarisce il doppio più in fretta."
 
 msgid "%s: a bumper year. For %d days the fields yield half as much again."
 msgstr "%s: un'annata d'oro. Per %d giorni i campi rendono la metà in più."

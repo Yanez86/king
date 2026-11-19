@@ -12,6 +12,12 @@ const HERB_SHARE := 150     # caselle di prato libero per erba medicinale, fuori
 const WOUNDED := 60.0       # punti ferita: sotto, chi è in piedi si spalma un unguento (vedi try_salve)
 const SALVE_HEAL := 30.0    # punti ferita di un unguento
 const SALVE_TIME := 3.0     # secondi per spalmarselo
+const CONVALESCE := 50.0    # punti ferita: sotto, con un letto libero in infermeria, si va a letto (vedi sick, try_bed_rest)
+const HEALED := 80.0        # e ci si resta fino a qui (e finché c'è la febbre); il medico cura chi è a letto sotto
+const INFIRMARY_HEAL := 1.5 # in un letto dell'infermeria i punti ferita tornano tanto più in fretta
+const TREATED_HEAL := 2.0   # medicato (Cond.TREATED): tanto più in fretta
+const TREAT_TIME := 8.0     # secondi per una cura, a livello 5 di Medicina (vedi Job.TREAT)
+const FEVER_TREATED := 0.5  # giorni: la febbre medicata passa entro tanto
 # Orto (Tech.GARDEN): caselle di prato segnate con "Garden" (vedi garden). Le caselle che si toccano fanno un campo,
 # col suo cartello (vedi update_fields, open_field): la coltura di ogni anno la dice il piano di rotazione (vedi plans).
 # Il contadino (abilità raccogliere) semina, e coi tempi veri (CROP_DAYS) raccoglie CROP_YIELD a casella secondo la
@@ -85,24 +91,31 @@ const SIDES := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 const TREE_SIDES := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  # da sopra la chioma coprirebbe chi taglia
 
 enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE,
-	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE, DOUSE, FARM, FERTILIZE, OATH, SALVE }
+	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE, DOUSE, FARM, FERTILIZE, OATH, SALVE, RESCUE, TREAT }
 const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FURNISH, Job.HARVEST, Job.COOK, Job.FISH,
-	Job.HUNT, Job.CRAFT, Job.STUDY, Job.GOVERN, Job.REPAIR, Job.CUT_ICE, Job.FARM, Job.FERTILIZE]  # contano come ore di lavoro
+	Job.HUNT, Job.CRAFT, Job.STUDY, Job.GOVERN, Job.REPAIR, Job.CUT_ICE, Job.FARM, Job.FERTILIZE, Job.RESCUE,
+	Job.TREAT]  # contano come ore di lavoro
 # Tabella delle priorità (in cima alla finestra Jobs): per colono e per lavoro da 1 (prima) a PRIORITY_LEVELS (dopo),
 # 0 mai. Si prende il lavoro disponibile con la priorità più alta; a pari priorità nell'ordine di Work, e di un lavoro
-# il più vicino (vedi find_work). All'inizio tutto PRIORITY_DEFAULT: l'ordine di Work
-enum Work { COOK, CRAFT, CHOP, MINE, GATHER, FARM, FISH, HUNT, BUILD, HAUL, GOVERN, STUDY }
+# il più vicino (vedi find_work). All'inizio tutto PRIORITY_DEFAULT: l'ordine di WORK_ORDER
+enum Work { COOK, CRAFT, CHOP, MINE, GATHER, FARM, FISH, HUNT, BUILD, HAUL, GOVERN, STUDY, DOCTOR }
+# le colonne nella tabella, da sinistra, e l'ordine a pari priorità: il medico prima di tutti (i valori di Work restano
+# quelli, perché le priorità salvate sono per valore)
+const WORK_ORDER := [Work.DOCTOR, Work.COOK, Work.CRAFT, Work.CHOP, Work.MINE, Work.GATHER, Work.FARM, Work.FISH, Work.HUNT,
+	Work.BUILD, Work.HAUL, Work.GOVERN, Work.STUDY]
 const PRIORITY_DEFAULT := 3
 const PRIORITY_LEVELS := 4
 const WORK_ICONS := [preload("res://art/icon_meal.png"), preload("res://art/icon_ingot.png"), preload("res://art/icon_chop.png"),
 	preload("res://art/icon_mine.png"), preload("res://art/icon_harvest.png"), preload("res://art/icon_garden.png"),
 	preload("res://art/icon_fishing.png"), preload("res://art/icon_hunting.png"), preload("res://art/icon_build.png"),
-	preload("res://art/icon_resources.png"), preload("res://art/icon_authority.png"), preload("res://art/icon_study.png")]
+	preload("res://art/icon_resources.png"), preload("res://art/icon_authority.png"), preload("res://art/icon_study.png"),
+	preload("res://art/icon_doctor.png")]
 const WORK_INFO := ["Cooking meals at the campfire or the hearth.", "Forge, workbench, spinning wheel, carpenter's bench, furnace.",
 	"Felling the marked trees.", "Mining the marked boulders, cutting ice.", "Picking bushes, flax and herbs, uprooting.",
 	"Sowing, harvesting and fertilizing the garden.", "Fishing at the marked water.", "Hunting the marked animals.",
 	"Building, furnishing, repairing roofs.", "Carrying things into the warehouses.",
-	"Governing from the throne: only the ruler.", "Studying at a desk."]
+	"Governing from the throne: only the ruler.", "Studying at a desk.",
+	"Rescuing and treating the downed, the wounded and the sick: only after Medicine."]
 const PRIORITY_COLORS := [Color("c86450"), Color("e8c34a"), Color("e6e2d0"), Color("b0aca0"), Color("8a8678")]  # mai, poi 1-4
 # VEG: vegetali, dalle bacche dei cespugli; IRON, COAL: dai massi con le vene; MEAL, FINE_MEAL: pasti, dalla cucina;
 # MEAT, HIDE: carne e pelle, dagli animali cacciati; FISH: pesce, dai punti di pesca; INGOT: lingotti, dalla fornace;
@@ -253,7 +266,8 @@ const DOING := {Job.CHOP: "Chopping a tree", Job.MINE: "Mining", Job.UPROOT: "Up
 	Job.FIGHT: "Fighting", Job.FLEE: "Fleeing", Job.TANTRUM: "Storming off in a rage", Job.STUDY: "Studying",
 	Job.GOVERN: "Holding audience", Job.PROTEST: "Protesting in the throne room", Job.REPAIR: "Repairing a roof",
 	Job.CUT_ICE: "Cutting ice", Job.DOUSE: "Putting out a fire", Job.FARM: "Tending the garden",
-	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne", Job.SALVE: "Tending a wound"}
+	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne", Job.SALVE: "Tending a wound",
+	Job.RESCUE: "Rescuing the wounded", Job.TREAT: "Treating a patient"}
 const BOARD_LIST := 400.0  # pixel: la lista di chi può partire sulla bacheca, al più; poi scorre
 const BOARD_PLACES := 230.0  # pixel: le rovine e le spedizioni, sotto la squadra, al più; poi scorrono
 const BOARD_SLOT := 122    # pixel: un posto della squadra (MAX_PARTY in fila)
@@ -502,7 +516,8 @@ const ORDER_ICONS := {Order.CHOP: preload("res://art/icon_chop.png"), Order.MINE
 	Order.UPROOT: preload("res://art/icon_uproot.png"), Order.HARVEST: preload("res://art/icon_harvest.png"),
 	Order.FISH: preload("res://art/icon_fishing.png"), Order.HUNT: preload("res://art/icon_hunting.png"),
 	Order.ICE: preload("res://art/icon_ice.png"), Order.GARDEN: preload("res://art/icon_garden.png")}  # le stesse dei tasti: piccole e velate sopra ciò che è segnato
-enum RoomKind { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE, WORKSHOP, CARPENTRY, INN, STUDY, THRONE_ROOM, PANTRY, ICEHOUSE }  # tipo di stanza, scelto dal cartello
+enum RoomKind { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE, WORKSHOP, CARPENTRY, INN, STUDY, THRONE_ROOM, PANTRY, ICEHOUSE,
+	INFIRMARY }  # tipo di stanza, scelto dal cartello
 # categoria del tipo: lavoro (niente proprietari, gli si assegnano dei lavoratori), residenza (può avere dei proprietari),
 # servizio (comune a tutti, con uno scopo preciso: magazzino, locanda). Senza tipo: nessuna, né proprietari né lavoratori
 enum RoomClass { NONE, WORK, RESIDENCE, SERVICE }
@@ -519,6 +534,7 @@ const ROOM_CLASS := {
 	RoomKind.THRONE_ROOM: RoomClass.WORK,  # un solo lavoratore possibile: il sovrano (vedi fill_people)
 	RoomKind.PANTRY: RoomClass.SERVICE,  # un magazzino solo per il cibo, che ci dura di più (vedi spoil_rate)
 	RoomKind.ICEHOUSE: RoomClass.SERVICE,  # una dispensa di pietra col ghiaccio: col freddo il cibo non marcisce (vedi room_base)
+	RoomKind.INFIRMARY: RoomClass.SERVICE,  # i suoi letti solo per chi sta male (vedi free_beds, sick)
 }
 # titolo della lista di coloni da spuntare nel popup del cartello, per RoomClass (le altre non ce l'hanno)
 const ROOM_PEOPLE := {RoomClass.WORK: "Workers", RoomClass.RESIDENCE: "Owners"}
@@ -538,7 +554,8 @@ enum Build { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE
 	PALISADE, GATE,  # palizzata e cancello: i lupi non passano; non fanno stanze (vedi update_rooms, beast_path)
 	PLASTER,  # intonaco su un muro di legno già fatto: isola di più (PLASTER_INSULATION), diventa bianco (vedi plastered)
 	COMPOST_HEAP,  # il cumulo del compost: ci si porta il marcio, che diventa compost (vedi make_compost)
-	CRADLE }  # la culla: ci dorme un neonato, invece di stare in braccio (vedi place_babies)
+	CRADLE,  # la culla: ci dorme un neonato, invece di stare in braccio (vedi place_babies)
+	MEDICINE_CHEST }  # l'armadio dei rimedi: con un letto, la stanza è un'infermeria (vedi Tech.MEDICINE)
 # materiale per casella; per i mobili, per pezzo. Un numero: del materiale del progetto; se no risorsa -> quantità, e
 # ogni viaggio porta tutta una risorsa (vedi cost_of, delivered)
 const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3,
@@ -547,7 +564,7 @@ const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1
 	Build.BENCH: 6, Build.BANNER: 4, Build.LANTERN: {Res.WOOD: 3, Res.COAL: 1}, Build.FOUNTAIN: 30, Build.STATUE: 40, Build.NOTICE_BOARD: 8,
 	Build.CHALICE: 1, Build.OLD_BANNER: 1, Build.BUST: 1, Build.CROWN: 1, Build.DESK: 10, Build.BOOKSHELF: 12, Build.THRONE: 12, Build.ROAD: 2, Build.DUMMY: 6, Build.WATCHTOWER: 20,
 	Build.CANOPY_BED: 20, Build.RUG: 4, Build.WARDROBE: 12, Build.HEARTH: 15,
-	Build.WALL_HIDES: 2, Build.DOOR_CURTAIN: 2, Build.TAPESTRY: 4, Build.TILED_STOVE: 20, Build.ICE_PIT: 20, Build.COMPOST_HEAP: 6, Build.CRADLE: 4,
+	Build.WALL_HIDES: 2, Build.DOOR_CURTAIN: 2, Build.TAPESTRY: 4, Build.TILED_STOVE: 20, Build.ICE_PIT: 20, Build.COMPOST_HEAP: 6, Build.CRADLE: 4, Build.MEDICINE_CHEST: 8,
 	Build.PALISADE: 4, Build.GATE: 6, Build.PLASTER: 1}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
 const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
@@ -560,7 +577,7 @@ const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Buil
 	Build.WATCHTOWER: Vector2i.ONE, Build.CANOPY_BED: Vector2i(2, 1), Build.RUG: Vector2i(2, 1), Build.WARDROBE: Vector2i.ONE,
 	Build.HEARTH: Vector2i.ONE, Build.WALL_HIDES: Vector2i.ONE, Build.DOOR_CURTAIN: Vector2i.ONE, Build.TAPESTRY: Vector2i.ONE,
 	Build.TILED_STOVE: Vector2i.ONE, Build.ICE_PIT: Vector2i(2, 2), Build.COMPOST_HEAP: Vector2i.ONE,
-	Build.CRADLE: Vector2i.ONE}
+	Build.CRADLE: Vector2i.ONE, Build.MEDICINE_CHEST: Vector2i.ONE}
 # mobili animati: secondi per fotogramma; i fotogrammi stanno nelle colonne dei quarti di giro (sono simmetrici)
 const ANIMATED := {Build.CAMPFIRE: 0.15, Build.BANNER: 0.3, Build.FOUNTAIN: 0.2}
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
@@ -586,10 +603,12 @@ const ROOM_NEEDS := {
 	RoomKind.STUDY: {Build.DESK: 1},
 	RoomKind.THRONE_ROOM: {Build.THRONE: 1},
 	RoomKind.ICEHOUSE: {Build.ICE_PIT: 1},  # e solo muri di pietra o roccia, nessun fuoco (vedi room_meets)
+	RoomKind.INFIRMARY: {Build.BED: 1, Build.MEDICINE_CHEST: 1},
 }
 # lente delle stanze (tasto col cartello in basso): le stanze finite velate col colore del loro tipo, per RoomKind
 const ROOM_COLORS := [Color("e6e2d0"), Color("c9a23b"), Color("3b8fd3"), Color("8a5ad3"), Color("e0703a"), Color("d33b3b"),
-	Color("3bb08a"), Color("9be36a"), Color("d38a3b"), Color("6a9ae0"), Color("c48ad8"), Color("8fd8e8"), Color("dff2fa")]
+	Color("3bb08a"), Color("9be36a"), Color("d38a3b"), Color("6a9ae0"), Color("c48ad8"), Color("8fd8e8"), Color("dff2fa"),
+	Color("e86a6a")]
 # comfort di una stanza, 0-COMFORT_MAX: lo danno i mobili (per pezzo) e il pavimento (tutto se copre la stanza intera),
 # per il materiale. A metà né bonus né malus; fuori dalle stanze è 0. Vedi room_comfort e comfort_of
 const COMFORT_MAX := 10
@@ -710,6 +729,7 @@ const BUILD_INFO := {
 	Build.ICE_PIT: "A stone pit lined with straw, for blocks of ice. An icehouse needs one, stone walls and no fire: while it holds ice, the room tends to 0 °C.",
 	Build.COMPOST_HEAP: "Rotten food and uprooted weeds are brought here: in 10 days every 4 become compost, to fertilize the garden.",
 	Build.CRADLE: "A rocking cradle. A baby sleeps here instead of in their parents' arms.",
+	Build.MEDICINE_CHEST: "Herbs, ointments and bandages. With a bed, the room can be an infirmary, where the sick heal faster.",
 	Build.HEARTH: "A stone fireplace with a chimney, set against a wall. Cooks and warms like a campfire, more. Half its heat goes through a wooden wall at its back, none through stone.",
 	Build.ANVIL: "An iron anvil on a stump. A forge needs one, and a furnace. Tools and metal armor are made here.",
 	Build.WORKBENCH: "A sturdy bench. A workshop needs one. Leather armor is made here.",
@@ -1002,7 +1022,7 @@ const TRAIT_INFO := {  # suggerimento col mouse sopra il talento: com'è, poi co
 # condizioni: effetti a tempo, con un'icona 16x16 nella scheda (colonne di CONDITIONS_SHEET nell'ordine di Cond).
 # Dati: [giorni, tempo di lavoro x, stress da lavoro x, felicità +, descrizione]. Vedi add_cond, work_factor, update_needs
 enum Cond { POISONED, WELL_FED, FEASTED, AT_TABLE, ATE_RAW, MOURNING, FESTIVE, PILLORIED, HEARD, WEDDING, PREGNANT,
-	ROYAL_MOURNING, CORONATION, FOREIGNER, INSPIRED, FEVER }
+	ROYAL_MOURNING, CORONATION, FOREIGNER, INSPIRED, FEVER, TREATED }
 const CONDITIONS_SHEET := preload("res://art/conditions.png")
 const COND_INFO := {
 	Cond.POISONED: [1.0, 1.5, 1.0, -20.0, "Ate raw food that was going bad. Works slowly."],
@@ -1021,6 +1041,7 @@ const COND_INFO := {
 	Cond.FOREIGNER: [FOREIGNER_DAYS, 1.1, 1.0, -5.0, "New to the colony: doesn't know its ways yet. Works a little slower."],
 	Cond.INSPIRED: [1.0, 0.8, 1.0, 5.0, "Had a bright idea. Works much faster."],
 	Cond.FEVER: [3.0, 1.5, 1.0, -10.0, "Has a fever. Works slowly and tires twice as fast."],
+	Cond.TREATED: [1.0, 1.0, 1.0, 0.0, "Treated by a doctor: heals twice as fast."],
 }
 const GLUTTON_MOOD := 2.0  # il goloso: tanta felicità in più (o in meno) da quello che mangia
 const FOOD_CONDS := [Cond.WELL_FED, Cond.FEASTED, Cond.AT_TABLE, Cond.ATE_RAW]
@@ -1172,7 +1193,7 @@ const BRANCHES_SHEET := preload("res://art/branches.png")
 enum Tech { FORGE, TAILORING, HUNTING, INN, MASONRY, DECOR, LANTERNS, IRON_ARMS, BOOKSHELF, CHAINMAIL, FOUNTAIN, STATUARY,
 	ASTRONOMY, CHARCOAL, COLD_STORE, PAVED_ROAD, DRY_RATIONS, CARTOGRAPHY, PALISADE, TRAINING_DUMMY, SMOKEHOUSE, RENOWNED_INN,
 	WATCHTOWER, SHIELD, LENDING_ARMORY, STEEL, SCRIPTORIUM, FINE_FURNITURE, PALACE, LOOM, TILED_STOVE, ICEHOUSE, GARDEN,
-	SOIL_SURVEY, ALMANAC, LAND_REGISTER, MANURING, CROWN_COMPANY, HERBALISM }
+	SOIL_SURVEY, ALMANAC, LAND_REGISTER, MANURING, CROWN_COMPANY, HERBALISM, MEDICINE }
 const TECHS_SHEET := preload("res://art/techs.png")
 const TECHS := {
 	Tech.FORGE: {"branch": Branch.FIRE, "tier": 1, "cost": 60, "builds": [Build.FURNACE, Build.ANVIL],
@@ -1254,6 +1275,9 @@ const TECHS := {
 		"info": "The watchtower and its bell: wolves are seen 20 tiles away. An archer up there shoots 2 tiles farther, +15% to hit."},
 	Tech.HERBALISM: {"branch": Branch.LORE, "tier": 1, "cost": 100, "makes": [Res.OINTMENT],
 		"info": "At the campfire, ointment from 2 medicinal herbs (they grow in the meadows). Whoever is under 60 health spreads it on: +30."},
+	Tech.MEDICINE: {"branch": Branch.LORE, "tier": 2, "cost": 300, "needs": [Tech.HERBALISM], "builds": [Build.MEDICINE_CHEST],
+		"rooms": [RoomKind.INFIRMARY],
+		"info": "The medicine chest and the infirmary, and the Doctor column: doctors carry the downed to an infirmary bed and treat them, the wounded and the fevered."},
 }
 const ROAD_SPEED := 1.25    # sulla strada lastricata si va più svelti
 const MAPPED_TRAVEL := 0.75 # con la cartografia, giorni di viaggio x
@@ -1444,6 +1468,8 @@ class Colonist:
 	var pilgrim := false          # pellegrino: porta un dono al trono e se ne va (vedi pilgrim_comes, offer)
 	var fellows := []             # il viandante: il suo gruppo, lui compreso (la famiglia); chiedono insieme
 	var oath := false             # deve andare a giurare davanti al trono (vedi try_oath)
+	var patient = null            # Colonist: il malato che il medico soccorre o cura (vedi try_doctor)
+	var carried_by = null         # Colonist: il medico che lo porta in spalla all'infermeria (vedi Job.RESCUE)
 	var sworn := false            # ha giurato (Law.OATH)
 
 
@@ -3499,7 +3525,7 @@ func refresh_priorities() -> void:
 			priority_grid.remove_child(child)
 			child.queue_free()
 		priority_grid.add_child(Control.new())  # sopra i nomi
-		for w in Work.values():
+		for w in WORK_ORDER:
 			var icon := ui_icon(WORK_ICONS[w], Rect2(), Vector2(16, 16))
 			icon.tooltip_text = "%s\n%s" % [named(Work, w, "work"), tr(WORK_INFO[w])]
 			icon.mouse_filter = Control.MOUSE_FILTER_STOP  # il suggerimento
@@ -3508,7 +3534,7 @@ func refresh_priorities() -> void:
 			var label := Label.new()
 			label.text = c.first_name
 			priority_grid.add_child(label)
-			for w in Work.values():
+			for w in WORK_ORDER:
 				if (w == Work.GOVERN and c != ruler) or not can_do(c, w):  # governa solo il sovrano; i giovani non tutto
 					priority_grid.add_child(Control.new())
 					continue
@@ -3523,7 +3549,7 @@ func refresh_priorities() -> void:
 	var i := Work.size() + 1  # dopo la riga delle icone
 	for c in colonists:
 		i += 1  # il nome
-		for w in Work.values():
+		for w in WORK_ORDER:
 			var cell: Control = priority_grid.get_child(i)
 			i += 1
 			if cell is Button:
@@ -3904,6 +3930,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 		var step := SPEED * TILE * delta * (ROAD_SPEED if built.get(cell_of(c.pos), [-1])[0] == Build.ROAD else 1.0)
 		c.walked += minf(d.length(), step)
 		c.pos = c.pos.move_toward(goal, step)
+		carry_along(c)
 		if c.pos == goal:
 			c.path.pop_front()
 		return
@@ -4127,7 +4154,8 @@ func update_colonist(c: Colonist, delta: float) -> void:
 				end_job(c)
 		Job.SLEEP:  # a letto o per terra (vedi update_needs): nelle ore di sonno resta giù anche riposato, poi si alza
 			# appena ha riposato abbastanza (senza routine solo del tutto). Chi ha dormito poco recupera nelle ore dopo
-			if c.needs[Need.REST] >= (RISE if routines else NEED_MAX) and not (routines and activity(c) == Act.SLEEP):
+			if c.needs[Need.REST] >= (RISE if routines else NEED_MAX) and not (routines and activity(c) == Act.SLEEP) \
+					and not resting(c):
 				end_job(c)
 		Job.EAT:  # al mucchio ne prende uno (carry_res) e lo mangia a una sedia accanto a un tavolo, se ce n'è una vicina; se no lì
 			if c.carrying == 0:
@@ -4155,6 +4183,51 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			end_job(c)
 		Job.CRAFT:
 			craft(c, delta)
+		Job.RESCUE:  # accanto a chi è a terra se lo carica in spalla, poi lo porta al letto libero dell'infermeria più vicino
+			var p: Colonist = c.patient
+			if p.carried_by != c:
+				var beds := infirmary_beds()
+				if p.died != 0.0 or not p.downed or cell_of(p.pos) != c.dest or beds.is_empty():
+					quit_job(c)  # morto, rialzato, portato via, o niente più letti
+					return
+				var to_bed := path_to_nearest(c, beds)
+				if to_bed.is_empty():
+					quit_job(c)
+					return
+				reserved.erase(c.target)
+				p.carried_by = c
+				c.path = to_bed
+				c.target = to_bed.back()
+				reserved[c.target] = c
+				return
+			lay_down(p, c.target)
+			end_job(c)
+			c.path = path_to_nearest(c, stands_of(p))  # si fa da parte: il letto è suo
+		Job.TREAT:  # al mucchio prende l'unguento (se è andato a prenderlo: work_total 0), poi accanto al malato lo cura
+			var p: Colonist = c.patient
+			if p.died != 0.0 or cell_of(p.pos) != c.dest or not treatable(p) or p.carried_by != null:
+				quit_job(c)  # guarito, alzato, portato via o morto: l'unguento resta dove si trova
+				return
+			if c.work_total == 0:
+				if items[Res.OINTMENT].has(c.target):
+					pick_up(c, Res.OINTMENT, c.target, 1)
+				reserved.erase(c.target)
+				var to_stand := path_to_nearest(c, stands_of(p))
+				if to_stand.is_empty():
+					quit_job(c)
+					return
+				c.path = to_stand
+				c.target = to_stand.back()
+				reserved[c.target] = c
+				c.work_left = treat_time(c)
+				c.work_total = c.work_left
+				return
+			face(c, center(c.dest) - c.pos)
+			c.work_left -= delta
+			if c.work_left > 0:
+				return
+			treat(c, p)
+			end_job(c)
 		Job.SALVE:  # al mucchio prende l'unguento (carry_res) e se lo spalma lì
 			if c.carrying == 0:
 				if not items[Res.OINTMENT].has(c.target):  # preso da altri
@@ -4292,7 +4365,8 @@ func update_routine(c: Colonist, delta: float) -> void:
 	var now := hour_now()
 	var new_hour := now != c.hour
 	c.hour = now
-	if c.job in WORK_JOBS and c.carrying == 0 and (not may_work(c) or (new_hour and urgent(c))):
+	if c.job in WORK_JOBS and c.carrying == 0 and (c.patient == null or c.patient.carried_by != c) \
+			and (not may_work(c) or (new_hour and urgent(c))):
 		quit_job(c)
 
 
@@ -4399,6 +4473,10 @@ func update_needs(c: Colonist, delta: float) -> void:
 		if c.conds[k] <= clock:
 			c.conds.erase(k)
 	var heal := DOWNED_REGEN if c.downed else HP_REGEN * (2.0 if c.job == Job.SLEEP else 1.0)
+	if c.hp < MAX_HP and (c.downed or c.job == Job.SLEEP) and on_bed(c) and is_infirmary(room_at(cell_of(c.pos))):
+		heal *= INFIRMARY_HEAL
+	if c.conds.has(Cond.TREATED):
+		heal *= TREATED_HEAL
 	c.hp = minf(c.hp + heal * day, MAX_HP)
 	var asleep := c.job == Job.SLEEP and c.path.is_empty()
 	c.needs[Need.FOOD] -= FOOD_DROP * fx(c, "food", 1.0) * day
@@ -5043,6 +5121,8 @@ func find_job(c: Colonist) -> void:
 				return
 	if not visitor(c) and try_salve(c):  # ferito: l'unguento, se ce n'è
 		return
+	if not visitor(c) and sick(c) and try_bed_rest(c):  # ferito o con la febbre: a letto in infermeria, se c'è
+		return
 	if act == Act.SLEEP:
 		if not go_to_bed(c):
 			var stay: Array[Vector2i] = []
@@ -5086,6 +5166,117 @@ func try_salve(c: Colonist) -> bool:
 	start_job(c, Job.SALVE, path, path.back(), SALVE_TIME)
 	c.carry_res = Res.OINTMENT
 	return true
+
+
+# chi sta male (vedi sick) va a letto in infermeria, nel letto libero più vicino, e ci resta (vedi resting); false se
+# non ce n'è uno
+func try_bed_rest(c: Colonist) -> bool:
+	var to_bed := path_to_nearest(c, infirmary_beds())
+	if to_bed.is_empty():
+		return false
+	start_job(c, Job.SLEEP, to_bed, to_bed.back(), 0.0)
+	return true
+
+
+# Il medico (Work.DOCTOR, con la Medicina), in quest'ordine: soccorre chi è a terra fuori da un letto, se c'è un letto
+# libero in infermeria (Job.RESCUE: se lo carica in spalla e ce lo porta); cura chi è a terra o a letto ferito o con la
+# febbre e non è ancora medicato (Job.TREAT: prima a prendere un unguento, se ce n'è). Sempre il più vicino; non sé
+# stesso, né chi ha già un medico. false se non c'è niente da fare
+func try_doctor(c: Colonist) -> bool:
+	if not researched.has(Tech.MEDICINE):
+		return false
+	var tended := {}
+	for o in colonists:
+		if o != c and o.job in [Job.RESCUE, Job.TREAT] and o.patient != null:
+			tended[o.patient] = true
+	var others := colonists.filter(func(p): return p != c and not tended.has(p) and p.carried_by == null)
+	if not infirmary_beds().is_empty():
+		var to_down := path_to_patient(c, others.filter(func(p): return p.downed and not on_bed(p)))
+		if not to_down.is_empty():
+			start_rescue(c, Job.RESCUE, to_down, 0.0)
+			return true
+	var path := path_to_patient(c, others.filter(treatable))
+	if path.is_empty():
+		return false
+	var piles: Array = items[Res.OINTMENT].keys().filter(func(cell): return is_free(cell))
+	var to_pile: Array[Vector2i] = []
+	if not piles.is_empty():
+		to_pile = path_to_nearest(c, piles)
+	if to_pile.is_empty():
+		start_rescue(c, Job.TREAT, path, treat_time(c))
+	else:  # prima al mucchio: work_total 0 finché non ha l'unguento (vedi Job.TREAT)
+		var p = stand_owner(c, path.back())
+		start_job(c, Job.TREAT, to_pile, to_pile.back(), 0.0)
+		c.patient = p
+		c.dest = cell_of(p.pos)
+	return true
+
+
+# ha bisogno del medico: a terra, o a letto ferito (sotto HEALED) o con la febbre; non già medicato
+func treatable(p: Colonist) -> bool:
+	return not p.conds.has(Cond.TREATED) and (p.downed or (in_bed(p) and (p.hp < HEALED or p.conds.has(Cond.FEVER))))
+
+
+func treat_time(c: Colonist) -> float:
+	return TREAT_TIME * skill_time(c.skills[Skill.MEDICINE]) * work_factor(c, Job.TREAT)
+
+
+# le caselle accanto a dove sta sdraiato `p`, dove il medico si mette
+func stands_of(p: Colonist) -> Array:
+	var stands := []
+	for side in SIDES:
+		var s: Vector2i = cell_of(p.pos) + side
+		if astar.is_in_boundsv(s) and not astar.is_point_solid(s) and not trees.has(s):
+			stands.append(s)
+	return stands
+
+
+# percorso di `c` fino accanto al più vicino tra `patients`; [] se nessuno è a portata
+func path_to_patient(c: Colonist, patients: Array) -> Array[Vector2i]:
+	var stands := []
+	for p in patients:
+		stands.append_array(stands_of(p))
+	if stands.is_empty():
+		return []
+	return path_to_nearest(c, stands)
+
+
+# il malato accanto al quale si ferma chi arriva in `stand` (il più vicino, se due ce l'hanno accanto)
+func stand_owner(c: Colonist, stand: Vector2i):
+	var near := colonists.filter(func(p): return p != c and stands_of(p).has(stand) and (p.downed or in_bed(p)))
+	near.sort_custom(func(a, b): return a.pos.distance_squared_to(center(stand)) < b.pos.distance_squared_to(center(stand)))
+	return near[0]
+
+
+func start_rescue(c: Colonist, job: Job, path: Array[Vector2i], time: float) -> void:
+	var p = stand_owner(c, path.back())
+	start_job(c, job, path, path.back(), time)
+	c.patient = p
+	c.dest = cell_of(p.pos)
+
+
+# il medico cura `p`: medicato; con l'unguento +SALVE_HEAL subito; la febbre passa presto. +1 esperienza in Medicina
+func treat(c: Colonist, p: Colonist) -> void:
+	add_cond(p, Cond.TREATED)
+	if c.carrying > 0 and c.carry_res == Res.OINTMENT:
+		c.carrying = 0
+		p.hp = minf(p.hp + SALVE_HEAL, MAX_HP)
+	if p.conds.has(Cond.FEVER):
+		p.conds[Cond.FEVER] = minf(p.conds[Cond.FEVER], clock + FEVER_TREATED)
+	c.xp[Skill.MEDICINE] += 1
+
+
+# il malato portato in spalla va dove va il medico (un filo più in basso: si disegna dopo di lui, sopra)
+func carry_along(c: Colonist) -> void:
+	if c.patient != null and c.patient.carried_by == c:
+		c.patient.pos = c.pos + Vector2(0, 0.01)
+
+
+# il medico mette giù `p` nel letto `bed`, a dormire: ci resta (vedi resting)
+func lay_down(p: Colonist, bed: Vector2i) -> void:
+	p.carried_by = null
+	p.pos = center(bed)
+	start_job(p, Job.SLEEP, [], bed, 0.0)
 
 
 # va a dormire nel letto libero più vicino dove può arrivare; false se non ce n'è
@@ -5157,7 +5348,7 @@ func stroll(c: Colonist, reach: int) -> Array[Vector2i]:
 
 # Avvia il lavoro da fare per primo secondo la tabella delle priorità (vedi Work): prima di tutto l'equipaggiamento; poi
 # chi lavora in una sala del trono o in uno studio (scelto dal cartello) ci governa e ci studia; poi i lavori dalla
-# priorità 1 alla PRIORITY_LEVELS, a pari priorità nell'ordine di Work, e di ognuno il più vicino. false se non ce n'è
+# priorità 1 alla PRIORITY_LEVELS, a pari priorità nell'ordine di WORK_ORDER, e di ognuno il più vicino. false se non ce n'è
 func find_work(c: Colonist) -> bool:
 	if c == ruler and enacted.has(Law.COURT):  # a corte il sovrano governa e basta
 		return try_equip(c) or try_seat(c, Build.THRONE, false)
@@ -5167,7 +5358,7 @@ func find_work(c: Colonist) -> bool:
 			or (priority(c, Work.STUDY) > 0 and try_seat(c, Build.DESK, true)):
 		return true
 	for level in range(1, PRIORITY_LEVELS + 1):
-		for w in Work.values():
+		for w in WORK_ORDER:
 			if priority(c, w) == level and try_work_kind(c, w):
 				return true
 	return false
@@ -5232,6 +5423,8 @@ func try_work_kind(c: Colonist, w: Work) -> bool:
 			return try_seat(c, Build.THRONE, false)
 		Work.STUDY:
 			return try_seat(c, Build.DESK, false)
+		Work.DOCTOR:
+			return try_doctor(c)
 	return false
 
 
@@ -6144,6 +6337,7 @@ func die(c: Colonist, why: String, away := false) -> void:
 	c.downed = true
 	c.hp = 0.0
 	c.died = clock
+	c.carried_by = null  # morto in spalla al medico: il corpo resta lì
 	var was_colonist := c in colonists or away
 	withdraw(c)
 	colonists.erase(c)
@@ -6197,10 +6391,37 @@ func is_inn(room: Room) -> bool:
 	return room != null and room.kind == RoomKind.INN
 
 
-# letti liberi per `c`: agli ospiti (vedi visitor) quelli della locanda, ai coloni tutti gli altri
+# letti liberi per `c`: agli ospiti (vedi visitor) quelli della locanda, ai coloni tutti gli altri; quelli
+# dell'infermeria solo a chi sta male (vedi sick)
 func free_beds(c: Colonist) -> Array:
+	var ill := sick(c)
 	return furniture.keys().filter(func(o): return furniture[o][0] in BEDS and is_free(o) \
-		and is_inn(room_at(o)) == visitor(c))
+		and is_inn(room_at(o)) == visitor(c) and (ill or not is_infirmary(room_at(o))))
+
+
+func is_infirmary(room: Room) -> bool:
+	return room != null and room.kind == RoomKind.INFIRMARY
+
+
+# i letti liberi delle infermerie
+func infirmary_beds() -> Array:
+	return furniture.keys().filter(func(o): return furniture[o][0] in BEDS and is_free(o) and is_infirmary(room_at(o)))
+
+
+# sta male: a terra, sotto CONVALESCE punti ferita o con la febbre. In infermeria ci va a letto (vedi try_bed_rest)
+func sick(c: Colonist) -> bool:
+	return c.downed or c.hp < CONVALESCE or c.conds.has(Cond.FEVER)
+
+
+# a letto in infermeria, a riposo: ci resta finché non torna a HEALED e la febbre non è passata, se non ha fame
+func resting(c: Colonist) -> bool:
+	return (c.hp < HEALED or c.conds.has(Cond.FEVER)) and c.needs[Need.FOOD] >= NEED_LOW and in_bed(c) \
+		and is_infirmary(room_at(cell_of(c.pos)))
+
+
+# sdraiato su un letto (a terra o a dormire)
+func on_bed(c: Colonist) -> bool:
+	return not pieces_at(furniture, cell_of(c.pos)).filter(func(o): return furniture[o][0] in BEDS).is_empty()
 
 
 # ospite, non colono: avventuriero, pretendente o viandante. Non lavora, dorme alla locanda
@@ -8072,13 +8293,15 @@ func doing(c: Colonist) -> String:
 		var exp := trip_of(c)
 		return tr("Away on the expedition", "doing") if exp != null and exp.left_at >= 0 else tr("Away", "doing")
 	if c.downed:
-		return tr("Downed", "doing")
+		return tr("Carried by %s", "doing") % c.carried_by.first_name if c.carried_by != null else tr("Downed", "doing")
 	match c.job:
 		Job.TRAVEL:
 			if c.pilgrim and c.errand == Errand.VISIT:
 				return tr("Bringing a gift to the crown", "doing")
 			return tr(ERRAND_DOING.get(c.errand, "Walking"), "doing")
 		Job.SLEEP:
+			if in_bed(c) and is_infirmary(room_at(cell_of(c.pos))):
+				return tr("Resting in the infirmary", "doing")
 			return tr("Sleeping", "doing") if in_bed(c) else tr("Sleeping on the ground", "doing")
 		Job.HAUL:
 			return tr("Hauling %s", "doing") % res_name(c.carry_res)
@@ -9133,6 +9356,10 @@ func end_job(c: Colonist) -> void:
 	for cell in reserved.keys():
 		if reserved[cell] == c:
 			reserved.erase(cell)
+	if c.patient != null and c.patient.carried_by == c:  # chi aveva in spalla resta giù lì
+		c.patient.carried_by = null
+		c.patient.pos = center(cell_of(c.pos))
+	c.patient = null
 	if c.prey and c.prey.hunter == c:
 		c.prey.hunter = null
 	c.prey = null
@@ -10617,8 +10844,8 @@ func draw_colonist(c: Colonist) -> void:
 	var src := Rect2(Vector2(frame_of(c), c.facing) * TILE, Vector2.ONE * TILE)
 	var years := age_of(c)
 	var side: float = TILE * (CHILD_SIZE[0] if years < YOUTH_AGE else (CHILD_SIZE[1] if years < ADULT else 1.0))
-	if c.downed:  # sdraiato, girato di un quarto
-		draw_set_transform(c.pos.round(), PI / 2)
+	if c.downed:  # sdraiato, girato di un quarto; in spalla al medico, più in alto
+		draw_set_transform((c.pos + (Vector2(0, -7) if c.carried_by != null else Vector2.ZERO)).round(), PI / 2)
 		draw_figure(self, Rect2(-Vector2.ONE * side / 2.0, Vector2.ONE * side), Rect2(0, 0, TILE, TILE), c)
 		draw_set_transform_matrix(Transform2D.IDENTITY)
 	else:  # i giovani più piccoli, coi piedi dove li avrebbe un adulto
@@ -10632,7 +10859,7 @@ func draw_colonist(c: Colonist) -> void:
 		draw_texture_rect(ICONS[c.carry_res], Rect2(at + Vector2(8, 6), Vector2(8, 8)), false)
 	elif c.bucket:
 		draw_texture_rect(BUCKET, Rect2(at + Vector2(8, 6), Vector2(8, 8)), false)
-	if c.job == Job.SLEEP and c.path.is_empty():  # ponytail: niente sprite sdraiato, solo una "z" che sale
+	if c.job == Job.SLEEP and c.path.is_empty() and not c.downed:  # ponytail: niente sprite sdraiato, solo una "z" che sale
 		draw_string(ThemeDB.fallback_font, at + Vector2(11, 2 - fmod(clock * DAY_LENGTH, 2.0) * 2), "z",
 			HORIZONTAL_ALIGNMENT_LEFT, -1, 8)
 	elif c.job in [Job.TANTRUM, Job.PROTEST]:  # sfuriata, protesta: un punto esclamativo, rosso o giallo, che sobbalza

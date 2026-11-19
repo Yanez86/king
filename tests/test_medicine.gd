@@ -1,6 +1,6 @@
 # Esegui: godot --headless --path . -s tests/test_medicine.gd
 # Medicina e morte (GDD 4.2.2): le erbe medicinali nei prati, l'unguento al fuoco e chi se lo spalma, l'abilità
-# Medicina; il salvataggio di prima delle erbe
+# Medicina; l'infermeria, il riposo a letto, il medico che soccorre e cura, la febbre; il salvataggio
 extends SceneTree
 
 const SAVES := preload("res://saves.gd")
@@ -135,6 +135,167 @@ func _initialize() -> void:
 	main.guests.erase(guest)
 	main.items[R.OINTMENT].clear()
 
+	# --- Medicina ---
+
+	var M = main.Tech.MEDICINE
+	check(main.TECHS[M]["tier"] == 2 and main.TECHS[M]["needs"] == [main.Tech.HERBALISM] and main.TECHS[M]["builds"] == [B.MEDICINE_CHEST]
+		and main.TECHS[M]["rooms"] == [main.RoomKind.INFIRMARY], "la Medicina: Sapere II, dopo l'Erboristeria; l'armadio e l'infermeria")
+	check(main.WORK_ORDER[0] == main.Work.DOCTOR and main.WORK_ORDER.size() == main.Work.size(), "Curare: la prima colonna")
+	check(main.named(main.Work, main.Work.DOCTOR, "work") == "Doctor", "si chiama Doctor")
+
+	# l'infermeria: un letto e l'armadio dei rimedi
+	var ward_rect := Rect2i(mid + Vector2i(-16, -4), Vector2i(9, 9))
+	clear(ward_rect)
+	wall_room(ward_rect.grow(-1), mid + Vector2i(-12, 3))
+	var bed1: Vector2i = mid + Vector2i(-14, -2)
+	var bed2: Vector2i = mid + Vector2i(-14, 0)
+	var chest: Vector2i = mid + Vector2i(-10, -2)
+	main.furniture[bed1] = [B.BED, R.WOOD, 0]
+	main.furniture[chest] = [B.MEDICINE_CHEST, R.WOOD, 0]
+	main.update_rooms()
+	var ward = main.room_at(bed1)
+	check(ward != null and main.room_meets(ward, main.RoomKind.INFIRMARY), "con un letto e l'armadio può essere un'infermeria")
+	main.retype(ward, main.RoomKind.INFIRMARY)
+	main.furniture[bed2] = [B.BED, R.WOOD, 0]
+	check(main.infirmary_beds().size() == 2, "due letti in infermeria")
+	check(not main.free_beds(b).has(bed1) and not main.sick(b), "chi sta bene non ci dorme")
+	b.hp = 45.0
+	check(main.sick(b) and main.free_beds(b).has(bed1), "chi sta male sì")
+	b.hp = 100.0
+	b.conds[main.Cond.FEVER] = main.clock + 1.0
+	check(main.sick(b), "anche con la febbre")
+	b.conds.erase(main.Cond.FEVER)
+
+	# a riposo: chi è sotto 50 va a letto in infermeria e ci resta fino a 80
+	for o in [a, b, c]:
+		o.pos = main.center(mid + Vector2i(0, 1 + [a, b, c].find(o)))
+	b.hp = 45.0
+	main.find_job(b)
+	check(b.job == main.Job.SLEEP and main.infirmary_beds().size() == 1, "va a letto in infermeria")
+	walk_until(func(): return b.path.is_empty(), 2000)
+	check(main.in_bed(b) and main.resting(b) and main.doing(b) == "Resting in the infirmary", "ci sta a riposo: %s" % main.doing(b))
+	b.needs[main.Need.REST] = 100.0
+	main.tick(0.05)
+	check(b.job == main.Job.SLEEP, "riposato, resta a letto: è ancora ferito")
+	main.needs_rate = 1.0  # le cure: in infermeria il 50% più in fretta, dormendo
+	var before: float = b.hp
+	main.update_needs(b, 2.0)
+	var in_ward: float = b.hp - before
+	check(is_equal_approx(in_ward, main.HP_REGEN * 2 * main.INFIRMARY_HEAL * 2.0 / main.DAY_LENGTH), "in infermeria: %.4f" % in_ward)
+	main.add_cond(b, main.Cond.TREATED)
+	before = b.hp
+	main.update_needs(b, 2.0)
+	check(is_equal_approx(b.hp - before, in_ward * main.TREATED_HEAL), "medicato: il doppio")
+	b.conds.erase(main.Cond.TREATED)
+	main.needs_rate = 0.0
+	b.hp = 85.0
+	main.tick(0.05)
+	check(b.job != main.Job.SLEEP or not main.in_bed(b), "a 85 si alza")
+	b.hp = 100.0
+	main.quit_job(b)
+
+	# il medico: senza la Medicina niente; con la Medicina soccorre chi è a terra e lo porta in infermeria
+	for w in main.Work.values():
+		main.set_priority(a, w, 0)
+	main.set_priority(a, main.Work.DOCTOR, 1)
+	var field: Vector2i = mid + Vector2i(-3, 6)
+	c.pos = main.center(field)
+	c.hp = 0.0
+	c.downed = true
+	main.quit_job(c)
+	main.researched.erase(M)
+	check(not main.try_doctor(a), "senza la Medicina nessun medico")
+	main.researched[M] = true
+	check(main.try_doctor(a) and a.job == main.Job.RESCUE and a.patient == c, "il medico va a soccorrerlo")
+	check(not main.try_doctor(b) or b.patient != c, "un altro medico non va dallo stesso")
+	main.quit_job(b)
+	walk_until(func(): return c.carried_by == a, 2000)
+	check(main.doing(c) == "Carried by %s" % a.first_name and main.doing(a) == "Rescuing the wounded", "in spalla: %s" % main.doing(c))
+	main.tick(0.05)
+	check(c.pos.distance_to(a.pos) < 1.0 and c.pos.y > a.pos.y, "lo porta con sé (disegnato sopra di lui)")
+
+	# salvata a metà strada: il medico e il malato restano legati
+	var mid_carry: Dictionary = main.game_state()
+	SAVES.pending = mid_carry
+	var copy2 = load("res://main.tscn").instantiate()
+	copy2.game_start = false
+	copy2.settings_file = ""
+	root.add_child(copy2)
+	await process_frame
+	var a2 = copy2.colonists[0]
+	var c2 = copy2.colonists[2]
+	check(a2.job == copy2.Job.RESCUE and a2.patient == c2 and c2.carried_by == a2, "ricaricata: ancora in spalla")
+	copy2.free()
+	Engine.time_scale = 1.0
+
+	walk_until(func(): return c.carried_by == null and a.job != main.Job.RESCUE, 3000)
+	check(main.on_bed(c) and c.job == main.Job.SLEEP and main.cell_of(c.pos) in [bed1, bed2] and c.downed, "messo a letto, ancora a terra")
+	check(main.cell_of(a.pos) != main.cell_of(c.pos) or not a.path.is_empty(), "il medico si fa da parte")
+
+	# poi lo cura: prima va a prendere un unguento, poi accanto al letto; medicato, +30, si rialza
+	var pile: Vector2i = mid + Vector2i(-2, 0)
+	main.drop(R.OINTMENT, pile, 1)
+	walk_until(func(): return a.job == main.Job.TREAT, 400)
+	check(a.patient == c and a.target == pile and a.work_total == 0, "prima al mucchio dell'unguento")
+	walk_until(func(): return a.job != main.Job.TREAT, 3000)
+	check(c.conds.has(main.Cond.TREATED) and is_equal_approx(c.hp, main.SALVE_HEAL) and main.total(R.OINTMENT) == 0,
+		"medicato con l'unguento: %.1f" % c.hp)
+	check(a.xp[main.Skill.MEDICINE] == 2, "+1 esperienza in Medicina")
+	main.tick(0.05)
+	check(not c.downed and c.job == main.Job.SLEEP and main.resting(c), "si rialza, ma resta a letto in infermeria")
+	check(not main.treatable(c), "medicato non lo si cura di nuovo")
+	main.find_job(a)
+	check(a.job != main.Job.TREAT, "niente da curare")
+	main.quit_job(a)
+
+	# senza letti liberi in infermeria lo cura dove si trova; mollato a metà, il malato resta giù lì
+	main.quit_job(c)
+	c.pos = main.center(field)
+	c.hp = 10.0
+	c.downed = true
+	c.conds.erase(main.Cond.TREATED)
+	main.furniture.erase(bed1)
+	main.furniture.erase(bed2)
+	check(main.infirmary_beds().is_empty(), "niente letti")
+	check(main.try_doctor(a) and a.job == main.Job.TREAT and a.work_total > 0, "lo cura dov'è, senza unguento")
+	walk_until(func(): return a.job != main.Job.TREAT, 3000)
+	check(c.conds.has(main.Cond.TREATED) and is_equal_approx(c.hp, 10.0), "medicato, senza i 30")
+	main.furniture[bed1] = [B.BED, R.WOOD, 0]
+	c.conds.erase(main.Cond.TREATED)
+	check(main.try_doctor(a) and a.job == main.Job.RESCUE, "di nuovo un letto: lo soccorre")
+	walk_until(func(): return c.carried_by == a, 2000)
+	walk_until(func(): return a.pos.distance_to(c.pos) < 1.0 and main.cell_of(a.pos) != field, 400)
+	var dropped: Vector2i = main.cell_of(a.pos)
+	main.quit_job(a)
+	check(c.carried_by == null and main.cell_of(c.pos) == dropped and c.pos == main.center(dropped), "mollato, resta giù lì")
+	check(not main.try_doctor(c) and c.job == main.Job.NONE, "chi è a terra non cura")
+
+	# la febbre: a letto, il medico la cura e passa entro mezza giornata
+	c.hp = 100.0
+	c.downed = false
+	b.conds[main.Cond.FEVER] = main.clock + 3.0
+	b.pos = main.center(mid + Vector2i(0, 2))
+	main.find_job(b)
+	check(b.job == main.Job.SLEEP, "con la febbre a letto in infermeria")
+	walk_until(func(): return b.path.is_empty(), 2000)
+	check(main.treatable(b), "da curare")
+	check(main.try_doctor(a) and a.patient == b and a.job == main.Job.TREAT, "il medico va da lei")
+	walk_until(func(): return a.job != main.Job.TREAT, 3000)
+	check(b.conds[main.Cond.FEVER] <= main.clock + main.FEVER_TREATED and b.conds.has(main.Cond.TREATED), "la febbre passa presto")
+	main.quit_job(b)
+	b.conds.clear()
+
+	# il medico non cura sé stesso
+	main.add_cond(a, main.Cond.FEVER)
+	a.pos = main.center(bed1)
+	var none: Array[Vector2i] = []
+	main.start_job(a, main.Job.SLEEP, none, bed1, 0.0)
+	main.set_priority(a, main.Work.DOCTOR, 1)
+	check(not main.try_doctor(a), "da sé non si cura")
+	main.quit_job(a)
+	a.conds.clear()
+	a.hp = 100.0
+
 	# --- Salvataggio ---
 
 	# una partita di prima delle erbe e dell'abilità: caricata, le erbe spuntano sul prato e la Medicina è a 0
@@ -161,7 +322,7 @@ func _initialize() -> void:
 	copy.free()
 	Engine.time_scale = 1.0
 
-	print("OK: medicina e morte (erbe e unguento)")
+	print("OK: medicina e morte (erbe e unguento, infermeria e medico)")
 	quit()
 
 

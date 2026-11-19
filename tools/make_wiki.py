@@ -45,7 +45,8 @@ TODO_ICON = ("art/icon_parchment.png",)
 # icona di ogni tipo di stanza: il pulsante del mobile che la fa, o un file
 ROOM_ICONS = {"Warehouse": "art/icon_resources.png", "Bedroom": "Bed", "Dormitory": "Bed", "Kitchen": "Campfire",
               "Forge": "Anvil", "Workshop": "Workbench", "Carpentry": "Carpenter Bench", "Inn": "Notice Board",
-              "Study": "Desk", "Throne Room": "Throne", "Pantry": "art/kind_food.png", "Icehouse": "Ice Pit"}
+              "Study": "Desk", "Throne Room": "Throne", "Pantry": "art/kind_food.png", "Icehouse": "Ice Pit",
+              "Infirmary": "Medicine Chest"}
 
 
 def png_size(path):

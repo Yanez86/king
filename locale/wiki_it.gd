@@ -99,14 +99,14 @@ Ogni ora è sonno, lavoro o tempo libero. La giornata solita: sonno 22–6, cola
 [color=#e8c34a]Priorità[/color]
 La tabella in cima a Lavori (J): una riga per colono, una colonna per tipo di lavoro (passa sopra le icone). Ogni casella va da 1 (prima) a 4 (per ultimo), o – per mai; clic per dopo, clic destro per prima. All'inizio è tutto 3.
 • Un colono prende il lavoro col numero migliore che ha qualcosa da fare; a numeri uguali, quello più a sinistra; di ogni tipo di lavoro, il più vicino.
-• Le colonne: cucinare, produrre (forgia, banco da lavoro, filatoio, banco del falegname), tagliare, scavare (e tagliare il ghiaccio), raccogliere (cespugli, lino, erbe, estirpare), coltivare, pescare, cacciare, costruire (e arredare, riparare i tetti), trasportare, governare (solo il sovrano), studiare.
+• Le colonne: curare (solo dopo la Medicina), cucinare, produrre (forgia, banco da lavoro, filatoio, banco del falegname), tagliare, scavare (e tagliare il ghiaccio), raccogliere (cespugli, lino, erbe, estirpare), coltivare, pescare, cacciare, costruire (e arredare, riparare i tetti), trasportare, governare (solo il sovrano), studiare.
 • Prima della tabella: prendere l'equipaggiamento; il sovrano al trono e i lavoratori dello studio ai loro scrittoi, se li hai spuntati sul cartello. Un tetto in fiamme viene prima di tutto, per tutti.
 
 [color=#e8c34a]Salute[/color]
 • 0–100; risale di 30 al giorno (60 dormendo). Una barretta sopra la testa mostra i feriti.
 • A 0 un colono è a terra: sdraiato, non fa niente e risale di 40 al giorno. A 30 si rialza.
 • I morti restano a terra per un giorno; il loro equipaggiamento cade lì accanto e gli altri sono in lutto per 3 giorni.
-• Unguento ed erbe medicinali: vedi Medicina e morte.
+• Unguento, infermeria e medici: vedi Medicina e morte.
 
 [color=#e8c34a]Età[/color]
 • La scheda dice l'età di ogni colono, accanto al sesso. Il ritmo della vita si sceglie nella pagina della nuova partita: Veloce, un anno di vita a stagione, quattro volte più in fretta del calendario, così passano le generazioni (i figli crescono in 4 anni); o Reale, un anno all'anno, come il calendario (16 anni per crescere, una gravidanza di 9 mesi veri). I numeri qui sotto sono in anni di vita, qualunque sia il ritmo.
@@ -140,7 +140,7 @@ Un lavoro dura 1,5 volte tanto a livello 0, il tempo normale a livello 5 e la me
 [cell]Tiro[/cell][cell]tiri con l'arco; fare archi[/cell]
 [cell]Ricerca[/cell][cell]scrivere pagine di studio[/cell]
 [cell]Scassinare[/cell][cell]solo avventurieri: trappole, serrature[/cell]
-[cell]Medicina[/cell][cell]fare l'unguento[/cell]
+[cell]Medicina[/cell][cell]fare l'unguento, curare i malati[/cell]
 [/table]
 Con l'arco un cacciatore mira col migliore tra Cacciare e Tiro. A una postazione un livello basso rovina più oggetti, al fuoco da campo brucia più pasti.
 
@@ -194,6 +194,7 @@ Goloso e Di poco appetito, Pigro e Stacanovista, Mattiniero e Nottambulo, Dormig
 [cell]Forestiero[/cell][cell]5 giorni[/cell][cell]10% più lento[/cell][cell]-5[/cell]
 [cell]Ispirato[/cell][cell]1 giorno[/cell][cell]20% più veloce[/cell][cell]+5[/cell]
 [cell]Febbre[/cell][cell]3 giorni[/cell][cell]50% più lento[/cell][cell]-10[/cell]
+[cell]Medicato[/cell][cell]1 giorno[/cell][cell]–[/cell][cell]–[/cell]
 [/table]
 • Intossicato: dal cibo crudo, tanto più probabile quanto più è vicino a marcire.
 • Ben nutrito: dopo un pasto; stress dal lavoro -25%. Lauto pasto: dopo un pasto squisito; stress dal lavoro -50%. Un pasto nuovo sostituisce la condizione di quello prima.
@@ -206,7 +207,8 @@ Goloso e Di poco appetito, Pigro e Stacanovista, Mattiniero e Nottambulo, Dormig
 • Lutto regale: è morto il sovrano, al posto del Lutto; stress dal lavoro +25%. Incoronazione: tutti, quando il nuovo sovrano è incoronato.
 • Forestiero: chi è venuto da fuori ed è rimasto, avventuriero o viandante (vedi Avventurieri).
 • Ispirato: ogni tanto un colono adulto con almeno 60 di felicità ha un'idea brillante (vedi Le basi, Gli eventi).
-• Febbre: ogni tanto un colono si ammala (vedi Le basi, Gli eventi) e si stanca il doppio. Non si attacca.
+• Febbre: ogni tanto un colono si ammala (vedi Le basi, Gli eventi) e si stanca il doppio. Non si attacca; un medico la fa passare entro mezza giornata.
+• Medicato: un medico l'ha curato; i punti ferita tornano il doppio più in fretta (vedi Medicina e morte).
 Qui compaiono anche le leggi in vigore che a un colono piacciono o non piacciono, con la loro icona."""],
 
 	["Il sovrano e la casata", """[color=#e8c34a]Nuova partita[/color]
@@ -299,6 +301,7 @@ Non sull'acqua, sugli alberi, sulla roccia, sui cespugli o sulle erbacce (prima 
 [cell]Fossa del ghiaccio (2x2)[/cell][cell]20 pietra[/cell][cell]Ghiacciaia[/cell]
 [cell]Cumulo del compost[/cell][cell]6 legna[/cell][cell]Concimazione[/cell]
 [cell]Culla[/cell][cell]4 legna[/cell][cell]–[/cell]
+[cell]Armadio dei rimedi[/cell][cell]8 legna[/cell][cell]Medicina[/cell]
 [/table]
 Focolare, pelli, arazzo e stufa a olle vanno addossati a un muro alle loro spalle, la portiera a una porta: girali verso di lui. Decorazioni: vedi Splendore."""],
 
@@ -319,13 +322,14 @@ L'elenco mostra solo i tipi i cui mobili sono dentro. Se togli quei mobili la st
 [cell]Studio[/cell][cell]scrittoio[/cell][cell]lavoro[/cell]
 [cell]Sala del trono[/cell][cell]trono[/cell][cell]lavoro[/cell]
 [cell]Ghiacciaia[/cell][cell]fossa del ghiaccio; muri di pietra, nessun fuoco[/cell][cell]servizio[/cell]
+[cell]Infermeria[/cell][cell]letto, armadio dei rimedi[/cell][cell]servizio[/cell]
 [/table]
 • Residenza: può avere dei proprietari. Se ne ha, è chiusa a tutti gli altri, anche solo per passarci.
 • Lavoro: può avere dei lavoratori. Per ora contano in uno studio (studiano prima di qualunque altro lavoro) e in una sala del trono (solo il sovrano).
 • Servizio: in comune per tutti.
 • Vietata: non entra nessuno, nemmeno i proprietari.
 • Le postazioni funzionano solo nella loro stanza: il fuoco da campo in una cucina, fornace e incudine in una forgia, banco da lavoro e filatoio in un laboratorio, il banco del falegname in una falegnameria.
-• I coloni dormono in qualunque letto tranne quelli di una locanda, che sono per gli avventurieri.
+• I coloni dormono in qualunque letto tranne quelli di una locanda, che sono per gli avventurieri, e quelli di un'infermeria, che sono per chi sta male.
 
 [color=#e8c34a]Magazzini[/color]
 I trasportatori portano gli oggetti sparsi nei magazzini, 10 alla volta; senza magazzino nessuno trasporta. Conta come immagazzinato solo quello che è in un magazzino: la barra in alto, Risorse, le monete che paghi, i libri per la ricerca. Una casella tiene un solo tipo di oggetto: 100 legna o monete, 50 per la maggior parte dei materiali e del cibo crudo, 20 pasti, 10 strumenti, armi, armature o libri, 5 cimeli. Dentro, il cibo marcisce a metà velocità, e al freddo ancora più piano (vedi Tetti e calore).
@@ -513,7 +517,18 @@ Piantine coi fiori bianchi sparse nei prati (col mouse sopra: Erbe medicinali), 
 
 [color=#e8c34a]Unguento[/color] [img=center]res://art/icon_ointment.png[/img]
 • Dopo la ricerca Erboristeria (Sapere I, 100). Al fuoco da campo o al focolare di una cucina: 2 erbe, 10 s, con l'abilità Medicina; all'inizio Scorta 3.
-• Un colono in piedi con meno di 60 punti ferita ne va a prendere uno da un mucchio e se lo spalma (3 s): +30 punti ferita. Dopo la fame, prima del lavoro; gli ospiti no, e nessuno mentre combatte."""],
+• Un colono in piedi con meno di 60 punti ferita ne va a prendere uno da un mucchio e se lo spalma (3 s): +30 punti ferita. Dopo la fame, prima del lavoro; gli ospiti no, e nessuno mentre combatte.
+
+[color=#e8c34a]L'infermeria[/color] [img=center]res://art/icon_doctor.png[/img]
+• Dopo la ricerca Medicina (Sapere II, 300 e un quaderno, dopo l'Erboristeria). Una stanza con un letto e l'armadio dei rimedi (8 legna) può essere un'infermeria. I suoi letti sono solo per chi sta male: chi è a terra, chi ha meno di 50 punti ferita, chi ha la febbre.
+• In un letto dell'infermeria i punti ferita tornano il 50% più in fretta: 60 al giorno a terra, 90 dormendo.
+• Riposo: chi ha meno di 50 punti ferita o la febbre va in un letto libero dell'infermeria, anche nelle ore di lavoro, e ci resta finché non torna a 80 e la febbre non è passata (si alza solo per mangiare).
+
+[color=#e8c34a]I medici[/color]
+La colonna Curare, la prima della tabella (Lavori, J): chi ce l'ha fa, in quest'ordine, prima il più vicino:
+• Soccorrere: un colono a terra fuori da un letto, se c'è un letto libero in infermeria. Il medico se lo carica in spalla e lo mette a letto. Senza letti liberi lo cura dove si trova.
+• Curare: chi è a terra, o a letto ferito (sotto 80) o con la febbre, e non è già medicato. Prima il medico prende un unguento da un mucchio, se ce n'è uno; poi 8 s accanto al malato (abilità Medicina, +1 esperienza). Medicato, per un giorno i punti ferita tornano il doppio più in fretta; con l'unguento anche +30 subito (chi è a terra si rialza). La febbre medicata passa entro mezza giornata.
+• Un medico non cura sé stesso (l'unguento se lo spalma da solo), e due medici non vanno mai dallo stesso malato. A fine turno chi ha qualcuno in spalla lo porta prima a letto."""],
 
 	["Splendore", """Lo splendore è la somma di tutte le decorazioni finite sulla mappa, dentro o fuori dalle stanze, più 5 per ogni avventuriero famoso presente. Il totale è nella barra in alto.
 Per ora fa due cose:
@@ -654,6 +669,8 @@ Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette 
 • [color=#d9c48a]Locanda[/color] (Strada I, 40): la bacheca; le leggi Gabella sul bottino e Tassa di soggiorno.
 • [color=#d9c48a]Compagnia della corona[/color] (Strada III, 500 e un tomo, dopo Locanda rinomata): i coloni partono in spedizione con gli avventurieri.
 • [color=#d9c48a]Libreria[/color] (Sapere I, 60): la libreria.
+• [color=#d9c48a]Erboristeria[/color] (Sapere I, 100): l'unguento, dalle erbe medicinali.
+• [color=#d9c48a]Medicina[/color] (Sapere II, 300 e un quaderno, dopo l'Erboristeria): l'armadio dei rimedi, l'infermeria e i medici.
 • [color=#d9c48a]Lanterne[/color] (Sapere I, 40): abat-jour e lampione."""],
 
 	["Leggi", """[color=#e8c34a]Autorità[/color] [img=center]res://art/icon_authority.png[/img]

@@ -100,14 +100,14 @@ Every hour is sleep, work or free time. The usual day: sleep 22–6, breakfast a
 [color=#e8c34a]Priorities[/color]
 The table at the top of Jobs (J): one row per colonist, one column per kind of work (hover the icons). Each cell is 1 (first) to 4 (last), or – for never; click for later, right click for sooner. At the start everything is 3.
 • A colonist takes the work with the best number that has something to do; with equal numbers, the one further left; of each kind of work, the nearest.
-• The columns: cook, craft (forge, workbench, spinning wheel, carpenter's bench), chop, mine (and cut ice), gather (bushes, flax, herbs, uprooting), farm, fish, hunt, build (and furnish, repair roofs), haul, govern (only the ruler), study.
+• The columns: doctor (only after Medicine), cook, craft (forge, workbench, spinning wheel, carpenter's bench), chop, mine (and cut ice), gather (bushes, flax, herbs, uprooting), farm, fish, hunt, build (and furnish, repair roofs), haul, govern (only the ruler), study.
 • Before the table: picking up equipment; the ruler to the throne and the study's workers to their desks, if you ticked them on the sign. A roof on fire comes before everything, for everyone.
 
 [color=#e8c34a]Health[/color]
 • 0–100, healing 30 a day (60 asleep). A bar over the head shows the wounded.
 • At 0 a colonist is downed: on the ground, doing nothing, healing 40 a day. At 30 they stand up.
 • The dead stay on the ground for a day; their gear drops beside them and the others mourn for 3 days.
-• Ointment and medicinal herbs: see Medicine & Death.
+• Ointment, the infirmary and doctors: see Medicine & Death.
 
 [color=#e8c34a]Age[/color]
 • The sheet shows each colonist's age, next to their sex. The pace of life is chosen on the new-game page: Fast, a year older every season, four times as fast as the calendar, so generations go by (children grow up in 4 years); or Real, a year older every year, like the calendar (16 years to grow up, a pregnancy of 9 true months). The numbers below are in years of life, whichever the pace.
@@ -141,7 +141,7 @@ A job takes 1.5 times as long at level 0, the normal time at level 5 and half at
 [cell]Ranged[/cell][cell]bow shots; making bows[/cell]
 [cell]Research[/cell][cell]writing pages of study[/cell]
 [cell]Lockpicking[/cell][cell]adventurers only: traps, locks[/cell]
-[cell]Medicine[/cell][cell]making ointment[/cell]
+[cell]Medicine[/cell][cell]making ointment, treating the sick[/cell]
 [/table]
 With a bow a hunter aims with the better of Hunting and Ranged. At a workstation a low level ruins more items, at the campfire it burns more meals.
 
@@ -195,6 +195,7 @@ Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleep
 [cell]Foreigner[/cell][cell]5 days[/cell][cell]10% slower[/cell][cell]-5[/cell]
 [cell]Inspired[/cell][cell]1 day[/cell][cell]20% faster[/cell][cell]+5[/cell]
 [cell]Fever[/cell][cell]3 days[/cell][cell]50% slower[/cell][cell]-10[/cell]
+[cell]Treated[/cell][cell]1 day[/cell][cell]–[/cell][cell]–[/cell]
 [/table]
 • Poisoned: from raw food, more likely the closer it is to rotting.
 • Well fed: after a meal; stress from work -25%. Feasted: after a fine meal; stress from work -50%. A new meal replaces the condition of the last one.
@@ -207,7 +208,8 @@ Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleep
 • Royal mourning: the ruler has died, instead of Mourning; stress from work +25%. Coronation: everyone, when the new ruler is crowned.
 • Foreigner: whoever came from outside and stayed, an adventurer or a wanderer (see Adventurers).
 • Inspired: now and then a grown-up colonist with at least 60 happiness has a bright idea (see Basics, Events).
-• Fever: now and then a colonist falls ill (see Basics, Events) and tires twice as fast. It doesn't spread.
+• Fever: now and then a colonist falls ill (see Basics, Events) and tires twice as fast. It doesn't spread; a doctor cures it within half a day.
+• Treated: a doctor took care of them; health comes back twice as fast (see Medicine & Death).
 The laws in force that a colonist likes or dislikes show here too, with their icon."""],
 
 	["The Ruler & House", """[color=#e8c34a]New game[/color]
@@ -300,6 +302,7 @@ Not on water, trees, rock, bushes or weeds (uproot them first), nor on items lyi
 [cell]Ice pit (2x2)[/cell][cell]20 stone[/cell][cell]Icehouse[/cell]
 [cell]Compost heap[/cell][cell]6 wood[/cell][cell]Manuring[/cell]
 [cell]Cradle[/cell][cell]4 wood[/cell][cell]–[/cell]
+[cell]Medicine chest[/cell][cell]8 wood[/cell][cell]Medicine[/cell]
 [/table]
 Hearth, hides, tapestry and tiled stove hang against a wall at their back, the curtain against a door: turn them toward it. Decorations: see Splendor."""],
 
@@ -320,13 +323,14 @@ The list shows only the types whose furniture is inside. Take that furniture awa
 [cell]Study[/cell][cell]desk[/cell][cell]work[/cell]
 [cell]Throne room[/cell][cell]throne[/cell][cell]work[/cell]
 [cell]Icehouse[/cell][cell]ice pit; stone walls, no fire[/cell][cell]service[/cell]
+[cell]Infirmary[/cell][cell]bed, medicine chest[/cell][cell]service[/cell]
 [/table]
 • Residence: it can have owners. One with owners is closed to everyone else, even just to walk through.
 • Work: it can have workers. For now they matter in a study (they study before any other job) and in a throne room (only the ruler).
 • Service: shared by all.
 • Banned: nobody goes in, not even the owners.
 • Workstations work only inside their room: the campfire in a kitchen, furnace and anvil in a forge, workbench and spinning wheel in a workshop, the carpenter bench in a carpentry.
-• Colonists sleep in any bed but those of an inn, which are for adventurers.
+• Colonists sleep in any bed but those of an inn, which are for adventurers, and those of an infirmary, which are for the sick.
 
 [color=#e8c34a]Warehouses[/color]
 Haulers carry loose items into warehouses, 10 at a time; with no warehouse nobody hauls. Only what is in a warehouse counts as stored: the top bar, Resources, the coins you pay, the books for research. A tile holds one kind of item: 100 wood or coins, 50 of most materials and raw food, 20 meals, 10 tools, weapons, armor or books, 5 relics. Food rots half as fast inside, and slower still in the cold (see Roofs & Heat).
@@ -514,7 +518,18 @@ Small plants with white flowers scattered in the meadows (hover: Medicinal herbs
 
 [color=#e8c34a]Ointment[/color] [img=center]res://art/icon_ointment.png[/img]
 • After the Herbalism research (Lore I, 100). At a kitchen's campfire or hearth: 2 herbs, 10 s, with the Medicine skill; Keep 3 at the start.
-• A colonist standing with less than 60 health fetches one from a pile and spreads it on (3 s): +30 health. After hunger, before work; guests don't, and nobody does while fighting."""],
+• A colonist standing with less than 60 health fetches one from a pile and spreads it on (3 s): +30 health. After hunger, before work; guests don't, and nobody does while fighting.
+
+[color=#e8c34a]The infirmary[/color] [img=center]res://art/icon_doctor.png[/img]
+• After the Medicine research (Lore II, 300 and a notebook, after Herbalism). A room with a bed and a medicine chest (8 wood) can be an infirmary. Its beds are only for the sick: the downed, those under 50 health, those with a fever.
+• In an infirmary bed health comes back 50% faster: 60 a day downed, 90 asleep.
+• Bed rest: whoever is under 50 health or has a fever goes to a free infirmary bed, even in work hours, and stays there until they are back at 80 and the fever is gone (they still get up to eat).
+
+[color=#e8c34a]Doctors[/color]
+The Doctor column, the first of the table (Jobs, J): whoever has it does, in this order, nearest first:
+• Rescue: a colonist downed outside a bed, if an infirmary bed is free. The doctor carries them on their shoulders and lays them in the bed. With no free bed, they treat them where they lie.
+• Treat: whoever is downed, or in bed wounded (under 80) or with a fever, and not yet treated. First the doctor fetches an ointment from a pile, if there is one; then 8 s beside the patient (Medicine skill, +1 XP). Treated, for a day health comes back twice as fast; with the ointment also +30 at once (a downed colonist stands up). A treated fever passes within half a day.
+• A doctor doesn't treat themselves (they spread their own ointment), and two doctors never go to the same patient. At the end of the shift a doctor carrying someone carries them to the bed first."""],
 
 	["Splendor", """Splendor is the sum of every finished decoration on the map, inside rooms or out, plus 5 for every famous adventurer around. The total is in the top bar.
 For now it does two things:
@@ -655,6 +670,8 @@ What you haven't researched has no build button, and its recipes don't show at t
 • [color=#d9c48a]Inn[/color] (Road I, 40): the notice board; the laws Loot tax and Lodging tax.
 • [color=#d9c48a]Crown company[/color] (Road III, 500 and a tome, after Renowned inn): colonists go on expeditions with the adventurers.
 • [color=#d9c48a]Bookshelf[/color] (Lore I, 60): the bookshelf.
+• [color=#d9c48a]Herbalism[/color] (Lore I, 100): the ointment, from medicinal herbs.
+• [color=#d9c48a]Medicine[/color] (Lore II, 300 and a notebook, after Herbalism): the medicine chest, the infirmary and the doctors.
 • [color=#d9c48a]Lanterns[/color] (Lore I, 40): lamp and lantern."""],
 
 	["Laws", """[color=#e8c34a]Authority[/color] [img=center]res://art/icon_authority.png[/img]

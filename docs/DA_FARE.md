@@ -12,7 +12,7 @@
 | Lavori e priorità | 4.1 | fatto | i lavoratori delle stanze non contano ancora |
 | Coloni | 4.2 | quasi tutto | malattie che si attaccano; relazioni e umore |
 | Nuovi coloni | 4.2.1 | fatto | tarare i numeri |
-| Medicina e morte | 4.2.2 | fase 1 (Erboristeria) | le fasi 2–4: medico, tombe, funerali |
+| Medicina e morte | 4.2.2 | fasi 1–2 (Erboristeria, Medicina) | le fasi 3–4: tombe, funerali |
 | Sovrano e dinastia | 4.3 | dinastia fatta (4.3.3); del sovrano fasi 1, 2, 6 e mezza 5 | sovrano sereno/cupo, stile di regno, sguardo, epiteti |
 | Stemma | 4.3.2 | base | linee, pellicce, ornamenti, motto, blasonatura |
 | Risorse ed edifici | 4.4 | fatto | vene d'oro, commercio |
@@ -24,7 +24,7 @@
 | Mondo e tempo | 4.5 | fatto | — |
 | Salvataggio | 4.5.1 | locale fatto | il cloud |
 | Eventi casuali | 4.6 | fatto: il narratore e 11 eventi | tarare i numeri; eventi nuovi coi sistemi nuovi |
-| Ricerca | 4.7.3 | 39 ricerche su 50 | 11 ricerche, il livello IV |
+| Ricerca | 4.7.3 | 40 ricerche su 50 | 10 ricerche, il livello IV |
 | Leggi | 4.7.7 | 22 leggi su 38 | 16 leggi: quelle della dinastia si possono fare ora |
 | Interfaccia | [TECH](TECH.md) | testo a 22, elenco degli abitanti, bacheca con la squadra | provarla in inglese e ad altre risoluzioni |
 
@@ -63,10 +63,8 @@ sfortune, la tregua). Ora si possono fare anche le leggi della dinastia (vedi Le
 
 ## Medicina e morte (4.2.2)
 
-Deciso il 2026-11-19; fatta la fase 1 (Erboristeria). Fasi ancora da fare:
+Deciso il 2026-11-19; fatte le fasi 1–2 (Erboristeria, Medicina). Fasi ancora da fare:
 
-- [ ] (2) Medicina: armadio dei rimedi e infermeria, il riposo a letto, il lavoro Curare (soccorrere chi è a terra,
-  curare, la febbre).
 - [ ] (3) Tombe e sepoltura: il corpo che aspetta (2 giorni), il tumulo col nome, il lutto un giorno più corto.
 - [ ] (4) La legge Funerali e il memoriale dei caduti (Statuaria).
 
@@ -188,7 +186,6 @@ Cittadella.
 | | Armatura a piastre | IV | Balestra, Cotta di maglia, Acciaio | protezione 7 |
 | Strada | Mappa del Re Dimenticato | IV | Compagnia, Cartografia | la Cittadella |
 | Sapere | Biblioteca reale | IV | Astronomia | si rilegano i tomi; +2 autorità al giorno |
-| | Medicina | II | Erboristeria | infermeria e medico |
 
 - [ ] Astronomia: la sfera armillare (le stagioni un giorno prima).
 - [ ] I contatori di studio e autorità nella barra in alto (ora c'è posto: data, ora e meteo sono scesi in una

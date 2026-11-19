@@ -1,4 +1,4 @@
-[gd_scene load_steps=92 format=3]
+[gd_scene load_steps=93 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Script" path="res://columns.gd" id="columns"]
@@ -210,6 +210,10 @@ region = Rect2(0, 1280, 16, 16)
 [sub_resource type="AtlasTexture" id="CradleIcon"]
 atlas = ExtResource("8")
 region = Rect2(0, 1312, 16, 16)
+
+[sub_resource type="AtlasTexture" id="MedicineChestIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 1344, 16, 16)
 
 [sub_resource type="AtlasTexture" id="PlasterIcon"]
 atlas = ExtResource("5")
@@ -649,6 +653,15 @@ focus_mode = 0
 toggle_mode = true
 button_group = SubResource("Kinds")
 icon = SubResource("CradleIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Medicine Chest" type="Button" parent="HUD/FurnitureBar/Row/Home"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("MedicineChestIcon")
 icon_alignment = 1
 expand_icon = true
 

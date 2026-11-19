@@ -518,6 +518,67 @@ FEVER = """
 ................
 """
 
+# L'armadio dei rimedi (Build.MEDICINE_CHEST): un mobiletto di legno con l'anta bianca e la croce rossa; con un letto
+# fa di una stanza un'infermeria.
+MEDICINE_CHEST = """
+................
+................
+..oooooooooooo..
+..oBBBBBBBBBBo..
+..oooooooooooo..
+..oBwwwwwwwwWo..
+..oBwxxxxxxwWo..
+..oBwxxjJxxwWo..
+..oBwxjjjJxwWo..
+..oBwxJJJJxwWo..
+..oBwxxjJxxwWo..
+..oBwxxxxxxwWo..
+..oBwwwwwwwwWo..
+..oooooooooooo..
+..oWo......oWo..
+...zzzzzzzzzz...
+"""
+
+# Icona 16x16 del lavoro Curare (Work.DOCTOR): la croce rossa, bordata di bianco.
+DOCTOR_ICON = """
+................
+.....oooooo.....
+.....oxxxxo.....
+.....oxjJxo.....
+.....oxjJxo.....
+.oooooxjJxooooo.
+.oxxxxxjJxxxxxo.
+.oxjjjjjjjjjjxo.
+.oxJJJJJJJJJJxo.
+.oxxxxxjJxxxxxo.
+.oooooxjJxooooo.
+.....oxjJxo.....
+.....oxjJxo.....
+.....oxxxxo.....
+.....oooooo.....
+................
+"""
+
+# Condizione "medicato" (Cond.TREATED): un rotolo di bende, il capo svolto con la croce rossa.
+TREATED = """
+................
+................
+...oooooo.......
+..oxxxxxxo......
+.oxxXXXXxxo.....
+.oxXoooXXxo.....
+.oxXo.oXXxo.....
+.oxXoooXXxo.....
+.oxxXXXXxxooooo.
+..oxxxxxxxxxxxxo
+...oooooxxxjxxxo
+........oxjjjxo.
+........oxxjxxo.
+.........ooooo..
+................
+................
+"""
+
 # La culla (Build.CRADLE): cassa di legno a dondolo, il lino dentro. Il neonato in fasce (BABY) ci si disegna sopra,
 # o in braccio, piccolo; è anche l'icona della condizione "incinta" (Cond.PREGNANT).
 CRADLE = """
@@ -753,6 +814,22 @@ ourrrrrrrrRo
 .orrrrrrrRo.
 ..oRRRRRRo..
 ...oooooo...
+"""
+
+# Medicina (Tech.MEDICINE): il libro rosso del medico, con la croce bianca
+TECH_MEDICINE = """
+............
+.oooooooooo.
+.oJjjjjjjjo.
+.oJjjxxjjjo.
+.oJjjxxjjjo.
+.oJxxxxxxjo.
+.oJxxxxxxjo.
+.oJjjxxjjjo.
+.oJjjxxjjjo.
+.oJjjjjjjjo.
+.oxxxxxxxxo.
+.oooooooooo.
 """
 
 TECH_MANURE = """
@@ -4111,6 +4188,7 @@ def furniture_sheet():
     rows += [[]] * 4  # strada, palizzata, cancello, intonaco: strutture, non mobili
     rows += [[art(COMPOST_HEAP, 16, 16)] * 4]
     rows += [[art(CRADLE, 16, 16)] * 4]  # dopo, come Build in main.gd
+    rows += [[art(MEDICINE_CHEST, 16, 16)] * 4]
     slot = lambda g: [line.ljust(32, ".") for line in g] + ["." * 32] * (32 - len(g))
     return [line for row in rows for line in side_by_side([slot(g) for g in (row or [[]] * 4)])]
 
@@ -4194,6 +4272,7 @@ def main():
     for name, block in (("chalice", CHALICE), ("old_banner", OLD_BANNER), ("bust", BUST), ("crown", CROWN)):
         images["icon_" + name] = pixels(art(block, 16, 16))
     images["icon_flax"] = pixels(art(FLAX_ICON, 16, 16))
+    images["icon_doctor"] = pixels(art(DOCTOR_ICON, 16, 16))
     images["icon_herbs"] = pixels(art(HERBS_ICON, 16, 16))
     images["icon_ointment"] = pixels(art(OINTMENT_ICON, 16, 16))
     images["icon_bowstring"] = pixels(art(BOWSTRING_ICON, 16, 16))
@@ -4225,7 +4304,7 @@ def main():
                                                                               art(WEDDING, 16, 16), art(BABY, 16, 16),
                                                                               mourning_crown, art(CROWN, 16, 16),
                                                                               art(FOREIGNER, 16, 16), art(INSPIRED, 16, 16),
-                                                                              art(FEVER, 16, 16)]))
+                                                                              art(FEVER, 16, 16), art(TREATED, 16, 16)]))
     images["baby"] = pixels(art(BABY, 16, 16))
     images["ground"] = pixels(ground_sheet())
     images["warehouse_day"] = pixels(art(WAREHOUSE, 64, 32))
@@ -4275,7 +4354,8 @@ def main():
     techs += frames(TECH_SYMBOLS_4, 12, 5, 12) + frames(TECH_SYMBOLS_5, 12, 2, 12) + frames(TECH_SYMBOLS_6, 12, 3, 12) \
         + frames(TECH_SYMBOLS_7, 12, 2, 12) + frames(TECH_SYMBOLS_8, 12, 3, 12) + frames(TECH_SYMBOLS_9, 12, 1, 12) \
         + frames(TECH_SYMBOLS_10, 12, 3, 12) + [art(TECH_GARDEN, 12, 12)] + frames(TECH_SOIL, 12, 3, 12) \
-        + [art(TECH_MANURE, 12, 12), art(TECH_COMPANY, 12, 12), art(TECH_HERBALISM, 12, 12)]
+        + [art(TECH_MANURE, 12, 12), art(TECH_COMPANY, 12, 12), art(TECH_HERBALISM, 12, 12),
+           art(TECH_MEDICINE, 12, 12)]
     images["techs"] = pixels(side_by_side([badge(f) for f in techs]))
     laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 3, 12) + frames(LAW_SYMBOLS_5, 12, 3, 12) + frames(LAW_SYMBOLS_6, 12, 4, 12) \
         + frames(LAW_SYMBOLS_7, 12, 3, 12)
