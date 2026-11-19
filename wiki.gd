@@ -477,7 +477,7 @@ Three slots: hands, body, head. A colonist with an empty slot fetches a piece by
 Tools hit too: pickaxe 10, axe 12, sickle 8, bare hands 5. Armor: see Combat & Wolves."""],
 
 	["Combat & Wolves", """[color=#e8c34a]Wolves[/color]
-• The first pack comes on day 5, then one every 3 days: 2–3 wolves from a map edge. They smell the colony from 70 tiles away. Under the top bar you see WOLVES while they are around.
+• The first pack can come on day 5, at midnight; then one every 4 days on average, never within 3 days of another threat, and not while someone lies downed or wolves are still around: 2–3 wolves from a map edge, one more for every 5 colonists. They smell the colony from 70 tiles away. Under the top bar you see WOLVES while they are around.
 • They chase the nearest colonist or adventurer standing outside the rooms: walls protect, wolves never come in. With nobody standing outside, they go for whoever lies downed outdoors.
 • A bite every 1.5 s does 8 damage and lands 70% of the time, -3% for every Melee level of the victim. Every bite also gives +5 stress.
 • A pack with nobody to chase leaves after a day.

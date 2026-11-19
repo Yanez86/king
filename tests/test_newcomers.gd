@@ -155,7 +155,7 @@ func _initialize() -> void:
 	main.today = 9
 	check(not N.can_happen(W) and not main.guests.any(func(g): return g.wanderer), "non prima del giorno 10")
 	main.today = 10
-	check(N.can_happen(W) and is_equal_approx(N.chance(W), 1.0 / (30.0 - 5.0)), "dal giorno 10, uno ogni 30 giorni (pausa compresa)")
+	check(N.can_happen(W) and is_equal_approx(N.chance(W), 1.0 / (30.0 - 5.0 + 1.0)), "dal giorno 10, uno ogni 30 giorni (pausa compresa)")
 	main.today = day
 
 	# chi arriva: 70% soli, 15% coppie, 15% famiglie; uno su quattro con un attrezzo

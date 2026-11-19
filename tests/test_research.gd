@@ -509,7 +509,7 @@ func _initialize() -> void:
 	inn.kind = main.RoomKind.INN
 	inn.cells = {free[40]: true}
 	main.rooms.append(inn)
-	check(N.can_happen(S) and is_equal_approx(N.chance(S), 1.0 / 5.0), "con la locanda può passare: in media ogni 10 giorni, 5 di pausa")
+	check(N.can_happen(S) and is_equal_approx(N.chance(S), 1.0 / 6.0), "con la locanda può passare: in media ogni 10 giorni, 5 di pausa")
 	check(N.happen(S) and N.last[S] == main.today, "passa")
 	check(main.scholar_until > main.clock and main.scholar_books.size() in [1, 2] and main.chronicle[-1].contains("wandering scholar"),
 		"con la locanda arriva, coi suoi libri, nella cronaca")
@@ -790,7 +790,7 @@ func _initialize() -> void:
 	root.add_child(real)
 	await process_frame
 	check(real.researched.is_empty() and not real.kind_buttons[real.Build.FURNACE].visible, "si parte senza ricerche")
-	check(is_equal_approx(real.next_pack, 4.0), "il primo branco il quinto giorno")
+	check(real.narrator.EVENTS[real.narrator.Event.WOLVES]["from"] == 4, "il primo branco il quinto giorno")
 	var found := []
 	for res in real.FOUND_WEAPONS:
 		for cell in real.items[res]:

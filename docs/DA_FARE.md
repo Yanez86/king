@@ -22,7 +22,7 @@
 | Tetti, calore, conservazione | 4.4.5 | fasi 1–7 | rifiniture grafiche |
 | Mondo e tempo | 4.5 | fatto | — |
 | Salvataggio | 4.5.1 | locale fatto | il cloud |
-| Eventi casuali | 4.6 | deciso (il narratore e 11 eventi) | tutto: le fasi 1–4 |
+| Eventi casuali | 4.6 | il narratore, fasi 1–2 (4 eventi su 11) | le fortune e le sfortune nuove (fasi 3–4) |
 | Ricerca | 4.7.3 | 38 ricerche su 50 | 12 ricerche, il livello IV |
 | Leggi | 4.7.7 | 22 leggi su 38 | 16 leggi: quelle della dinastia si possono fare ora |
 
@@ -32,9 +32,9 @@ La dinastia c'è (4.3.3) e la colonia cresce (4.2.1: avventurieri che restano, v
 Compagnia della corona, il titolo che vuole anche i coloni). Ora si possono fare anche le leggi della dinastia (vedi
 Leggi).
 
-1. **Il narratore** (4.6, deciso, in corso) — un dado al giorno, una tabella di 11 eventi, la tregua. Dentro viandanti,
-   erudito errante, lupi e ondata di freddo (oggi fatti a mano); nuovi raccolto abbondante, cervi, ispirazione,
-   pellegrino, topi, ladro, febbre (la prima malattia, che poi cura il medico).
+1. **Il narratore** (4.6, fasi 1–2 fatte) — il dado del giorno e la tregua ci sono, con viandanti, erudito, lupi e ondata
+   di freddo. Mancano le fortune (raccolto abbondante, cervi, ispirazione, pellegrino) e le sfortune (topi, ladro, febbre:
+   la prima malattia, che poi cura il medico).
 2. **Medicina e morte** — Erboristeria, Medicina, tombe e cimitero, funerali (legge Funerali).
 3. **Cucina e animali** — Forno di pietra, stufato, conserve; poi Apicoltura e Banchetto reale; animali da allevare e
    la stalla, col letame.
@@ -60,7 +60,6 @@ Leggi).
 
 - [ ] Tarare i numeri: l'attesa dei viandanti (30 giorni, splendore, affollamento sopra 8 coloni), quanti in famiglia,
   dopo quante spedizioni chiede di restare un avventuriero e con quanta felicità, i giorni da forestiero.
-- [ ] I viandanti nel narratore (4.6), come evento coi suoi pesi.
 
 ## Sovrano e dinastia (4.3, 4.3.1)
 
@@ -157,11 +156,9 @@ Dinastia (4.3.3, fatta): quello che resta.
 
 ## Eventi casuali: il narratore (4.6)
 
-Deciso il 2026-11-19 (la tabella degli eventi è nel GDD). Fasi ancora da fare:
+Deciso il 2026-11-19 (la tabella degli eventi è nel GDD); fatte le fasi 1 e 2 (il narratore, viandanti, erudito, lupi,
+ondata di freddo, la tregua). Fasi ancora da fare:
 
-- [ ] (1) Il narratore e la tabella, con dentro viandanti ed erudito errante; la cronaca, il salvataggio.
-- [ ] (2) Le minacce: il branco di lupi nel narratore, la tregua, il branco che cresce coi coloni, l'ondata di freddo che
-  chiede al narratore.
 - [ ] (3) Le fortune: raccolto abbondante, branco di cervi, ispirazione, dono del pellegrino.
 - [ ] (4) Le sfortune: topi nel magazzino, ladro di notte, febbre.
 - [ ] Tarare i numeri: quanto spesso, la tregua, quando la colonia è in difficoltà.

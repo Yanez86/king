@@ -208,9 +208,9 @@ const ARROW_ARC := 0.1      # altezza della parabola, per pixel di tiro
 # combattimento (vedi react, Job.FIGHT, update_wolf): i lupi arrivano in branco dal bordo della mappa e inseguono i coloni
 # fuori dalle stanze; chi sta bene combatte, chi è ferito scappa al chiuso. A 0 punti ferita si resta a terra, o si
 # muore (vedi die): coi lupi, con le probabilità di DEATH_BASE; a terra, il primo morso uccide
-const WOLF_FIRST := 4.0     # giorno del primo branco, contato da 0 (il quinto; vedi events)
-const WOLF_EVERY := 3.0     # giorni tra un branco e l'altro
+# quando arriva un branco lo decide il narratore (narrator.gd: dal quinto giorno, la tregua)
 const PACK := [2, 3]        # lupi per branco, da-a
+const PACK_GROW := 5        # e uno in più ogni tanti coloni (anche quelli in spedizione)
 const WOLF_STAY := 1.0      # giorni: poi, se non inseguono nessuno, se ne vanno
 const WOLF_SIGHT := 70      # caselle: fiutano la colonia da tutta la mappa; chi è più lontano non lo trovano
 const BITE_RANGE := 1.2     # caselle
@@ -643,7 +643,7 @@ const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today"
 	"trees", "stock", "bushes", "flax", "weeds", "chop_marks", "mine_marks", "uproot_marks", "harvest_marks", "fish_marks",
 	"fish_spots", "items", "fresh", "draft", "blueprints", "built", "furniture_draft", "furniture_plans", "furniture",
 	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
-	"fallen", "animals", "arrows", "next_animal", "next_pack", "guests", "next_guest", "ruins", "expeditions",
+	"fallen", "animals", "arrows", "next_animal", "guests", "next_guest", "ruins", "expeditions",
 	"chronicle", "chronicle_days", "board_pick", "study", "researched", "authority", "codified", "enacted", "revoked",
 	"granary", "tithe_owed", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "sown", "plans", "slot_done", "soil", "soil_year_ago", "soil_known", "compost_since", "manured", "no_manure", "babies",
 	"house_name", "regent_for", "coronation_at", "reigns", "next_suitor", "pace", "tired", "last_yield",
@@ -1526,8 +1526,7 @@ var animals: Array[Animal] = []
 var arrows: Array[Arrow] = []  # in volo, vedi shoot
 var wild := RandomNumberGenerator.new()  # tutto il caso degli animali: non sposta quello del resto della partita
 var next_animal := ANIMAL_RESPAWN  # `clock` del prossimo arrivo
-var events := true          # false nei test: il narratore tace (vedi narrator.gd) e niente branchi di lupi
-var next_pack := WOLF_FIRST # `clock` del prossimo branco
+var events := true          # false nei test: il narratore tace (vedi narrator.gd), niente eventi né branchi di lupi
 var deaths := true          # false nei test: a 0 punti ferita si resta a terra, nessuno muore
 var corpses: Array[Colonist] = []  # morti: restano a terra CORPSE_DAYS (vedi die)
 var fallen := false         # sono morti tutti i coloni
@@ -3812,9 +3811,6 @@ func tick(delta: float) -> void:
 			if enacted.has(Law.HUNTING_RESERVE):  # riserva di caccia: cervi doppi
 				prey.append(Beast.DEER)
 			spawn_animal(prey[wild.randi() % prey.size()])
-	if events and clock >= next_pack:
-		next_pack = clock + WOLF_EVERY
-		spawn_pack()
 
 
 func update_colonist(c: Colonist, delta: float) -> void:
@@ -5874,14 +5870,15 @@ func pay_toll(g: Colonist) -> void:
 		drop(Res.GOLD, gates[0], TOLL)
 
 
-# Un branco di lupi entra da un bordo della mappa, a caso; se ne va dopo WOLF_STAY se non trova nessuno. La guardia lo vede
+# Un branco di lupi (quando lo dice il narratore) entra da un bordo della mappa, a caso: PACK lupi, uno in più ogni
+# PACK_GROW coloni; se ne va dopo WOLF_STAY se non trova nessuno. La guardia lo vede
 func spawn_pack() -> void:
 	for attempt in 50:
 		var t := wild.randi() % MAP_SIZE.x
 		var cell: Vector2i = [Vector2i(t, 0), Vector2i(t, MAP_SIZE.y - 1), Vector2i(0, t), Vector2i(MAP_SIZE.x - 1, t)][wild.randi() % 4]
 		if not roams(cell):
 			continue
-		for i in wild.randi_range(PACK[0], PACK[1]):
+		for i in wild.randi_range(PACK[0], PACK[1]) + floori(float(colony_size()) / PACK_GROW):
 			var near := cell + Vector2i(wild.randi_range(-2, 2), wild.randi_range(-2, 2))
 			var a := add_animal(Beast.WOLF, near if roams(near) else cell)
 			a.leave_at = clock + WOLF_STAY
