@@ -135,7 +135,7 @@ pre i { color: #8fb87a; }
 <body>
 <nav>
 <h1>King</h1>
-<small>Meccaniche · commit 7ed2295 · 2026-11-19 · <a class="lang" href="en.html">English</a></small>
+<small>Meccaniche · commit 42a68c3 · 2026-11-19 · <a class="lang" href="en.html">English</a></small>
 <h2>Wiki</h2>
 <a href="#le-basi"><i class="sp s86" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Le basi</a><a href="#comandi"><i class="sp s87" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Comandi</a><a href="#coloni"><i class="sp s88" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Coloni</a><a href="#abilità"><i class="sp s83" style="width:16px;height:16px;background-position:-144px 0px;background-size:208px 16px"></i> Abilità</a><a href="#talenti"><i class="sp s77" style="width:16px;height:16px;background-position:0px 0px;background-size:240px 16px"></i> Talenti</a><a href="#condizioni"><i class="sp s78" style="width:16px;height:16px;background-position:-16px 0px;background-size:208px 16px"></i> Condizioni</a><a href="#il-sovrano-e-la-casata"><i class="sp s33" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Il sovrano e la casata</a><a href="#costruire"><i class="sp s62" style="width:15px;height:15px;background-position:0px 0px;background-size:15px 15px"></i> Costruire</a><a href="#stanze"><i class="sp s73" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Stanze</a><a href="#tetti-e-calore"><i class="sp s74" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Tetti e calore</a><a href="#cibo-e-cucina"><i class="sp s11" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Cibo e cucina</a><a href="#raccolta"><i class="sp s65" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Raccolta</a><a href="#lavorazioni-ed-equipaggiamento"><i class="sp s16" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Lavorazioni ed equipaggiamento</a><a href="#combattimento-e-lupi"><i class="sp s85" style="width:16px;height:16px;background-position:0px -32px;background-size:32px 48px"></i> Combattimento e lupi</a><a href="#splendore"><i class="sp s60" style="width:16px;height:16px;background-position:0px -416px;background-size:128px 1344px"></i> Splendore</a><a href="#avventurieri"><i class="sp s29" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Avventurieri</a><a href="#rovine-e-spedizioni"><i class="sp s30" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Rovine e spedizioni</a><a href="#conoscenza"><i class="sp s70" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Conoscenza</a><a href="#leggi"><i class="sp s71" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Leggi</a><h2>Sviluppo</h2><a href="#todo"><i class="sp s42" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Da sviluppare</a><h2>Numeri</h2><a href="#main-gd">main.gd</a><a href="#atmosphere-gd">atmosphere.gd</a>
 </nav>
@@ -228,7 +228,7 @@ pre i { color: #8fb87a; }
 </ul>
 <h3>Età </h3>
 <ul>
-<li>La scheda dice l'età di ogni colono, accanto al sesso. Si invecchia di un anno a stagione, quattro volte più in fretta del calendario, così passano le generazioni.</li>
+<li>La scheda dice l'età di ogni colono, accanto al sesso. Il ritmo della vita si sceglie nella pagina della nuova partita: Veloce, un anno di vita a stagione, quattro volte più in fretta del calendario, così passano le generazioni (i figli crescono in 4 anni); o Reale, un anno all'anno, come il calendario (16 anni per crescere, una gravidanza di 9 mesi veri). I numeri qui sotto sono in anni di vita, qualunque sia il ritmo.</li>
 <li>Il sovrano parte tra 20 e 30 anni, gli altri coloni e gli avventurieri tra 18 e 40.</li>
 <li>Dai 60 anni, a ogni compleanno si può morire di vecchiaia: il 4% a 60, il 24% a 70, il 44% a 80.</li>
 </ul></section><section id="abilità"><h2><i class="sp s83" style="width:32px;height:32px;background-position:-288px 0px;background-size:416px 32px"></i> Abilità</h2><p>Tredici abilità, con livelli da 0 a 10 (una stellina al 10). I coloni partono da 0; il tuo sovrano ha 12 punti nella pagina della nuova partita.</p>
@@ -265,7 +265,7 @@ pre i { color: #8fb87a; }
 <p>Qui compaiono anche le leggi in vigore che a un colono piacciono o non piacciono, con la loro icona.</p></section><section id="il-sovrano-e-la-casata"><h2><i class="sp s33" style="width:32px;height:32px;background-position:0px 0px;background-size:32px 32px"></i> Il sovrano e la casata</h2><h3>Nuova partita </h3>
 <p>Prima della mappa vengono due pagine.</p>
 <ul>
-<li>La tua casata: il nome della casata (il cognome del tuo sovrano), il nome della colonia e lo stemma: forma, partizione, campo e secondo campo, pezza e figura, ognuna col suo smalto. I dadi tirano a sorte un nome o uno stemma intero.</li>
+<li>La tua casata: il nome della casata (il cognome del tuo sovrano), il nome della colonia, il ritmo della vita (vedi Coloni, Età) e lo stemma: forma, partizione, campo e secondo campo, pezza e figura, ognuna col suo smalto. I dadi tirano a sorte un nome o uno stemma intero.</li>
 <li>Il tuo sovrano: nome, un soprannome facoltativo, sesso, capelli e il loro colore, la barba (solo per gli uomini), maglia e mantello (seguono i primi due smalti dello stemma finché non li scegli), fino a 2 talenti non in contrasto e 12 punti abilità, al massimo 3 in un'abilità (niente Scassinare).</li>
 <li>I talenti spostano punti: i difetti ne danno 2 (Goloso, Sonnambulo, Iracondo, Pigro, Dormiglione, Festaiolo, Irrequieto), i pregi ne costano 2 (Stacanovista, Instancabile, Asceta, Di poco appetito, Tranquillo); Mattiniero, Nottambulo e Pennichella sono gratis.</li>
 </ul>
@@ -1181,7 +1181,7 @@ const <b id="c-SAVED">SAVED</b> := ["game_id", "map_seed", "ground_cols", "grave
 	"fallen", "animals", "arrows", "next_animal", "next_pack", "guests", "next_guest", "ruins", "expeditions",
 	"chronicle", "chronicle_days", "board_pick", "study", "researched", "authority", "codified", "enacted", "revoked",
 	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "sown", "plans", "slot_done", "soil", "soil_year_ago", "soil_known", "compost_since", "manured", "no_manure", "babies",
-	"house_name", "regent_for", "coronation_at", "reigns", "next_suitor", "tired", "last_yield",
+	"house_name", "regent_for", "coronation_at", "reigns", "next_suitor", "pace", "tired", "last_yield",
 	"harvests", "wear", "plastered", "burning",
 	"fire_noted", "storm_noted", "delivered"]
 const <b id="c-TOAST_TIME">TOAST_TIME</b> := 2000    <i># millisecondi: "Saved" in alto, poi sparisce (vedi show_toast)</i>
@@ -1290,10 +1290,12 @@ const <b id="c-DAY_LENGTH">DAY_LENGTH</b> := 240.0   <i># secondi per giorno a v
 const <b id="c-MONTH_DAYS">MONTH_DAYS</b> := 30
 const <b id="c-SEASON_DAYS">SEASON_DAYS</b> := 3 * MONTH_DAYS + 1
 const <b id="c-YEAR_DAYS">YEAR_DAYS</b> := 1 + 4 * SEASON_DAYS</pre>
-<pre><i># Età (vedi age_of): si invecchia di un anno a stagione, quattro volte il calendario, così passano le generazioni.</i>
+<pre><i># Età (vedi age_of): col ritmo veloce (Pace.FAST) si invecchia di un anno a stagione, quattro volte il calendario, così</i>
+<i># passano le generazioni; con quello reale (Pace.REAL) di un anno all'anno. Si sceglie nella nuova partita.</i>
 <i># All'arrivo il sovrano ha RULER_AGE anni, gli altri ADULT_AGE; dai OLD_AGE, a ogni compleanno si muore con</i>
 <i># probabilità (età - OLD_AGE + 2) × OLD_AGE_RISK: 4% a 60, 24% a 70, 44% a 80</i>
-const <b id="c-LIFE_YEAR">LIFE_YEAR</b> := YEAR_DAYS / 4.0
+enum <b id="c-Pace">Pace</b> { FAST, REAL }  <i># il ritmo della vita, scelto nella nuova partita (vedi life_year)</i>
+const <b id="c-LIFE_YEARS">LIFE_YEARS</b> := [YEAR_DAYS / 4.0, float(YEAR_DAYS)]  <i># per Pace: giorni per un anno di vita</i>
 const <b id="c-RULER_AGE">RULER_AGE</b> := [20, 30]
 const <b id="c-ADULT_AGE">ADULT_AGE</b> := [18, 40]
 const <b id="c-OLD_AGE">OLD_AGE</b> := 60
@@ -1304,7 +1306,7 @@ const <b id="c-ADULT">ADULT</b> := 16
 const <b id="c-MARRY_HAPPY">MARRY_HAPPY</b> := 50.0
 const <b id="c-WEDDING_AUTHORITY">WEDDING_AUTHORITY</b> := 10</pre>
 <pre><i># Figli (vedi conceive, give_birth): una coppia sposata che dorme nella stessa stanza, ogni notte CONCEIVE_CHANCE (la</i>
-<i># donna in FERTILE_AGE, da LATE_FERTILE la metà). La gravidanza dura PREGNANCY giorni (nell'ultimo terzo il lavoro</i>
+<i># donna in FERTILE_AGE, da LATE_FERTILE la metà). La gravidanza dura PREGNANCY anni di vita (nell'ultimo terzo il lavoro</i>
 <i># PREGNANT_SLOW), poi per un anno niente. Ogni talento dei genitori passa al figlio con TRAIT_INHERIT, al più due.</i>
 <i># Fino a CHILD_AGE è un neonato (in `babies`: nella culla o in braccio), poi un bambino, da YOUTH_AGE un ragazzo, da</i>
 <i># ADULT un adulto</i>
@@ -1312,7 +1314,7 @@ const <b id="c-CONCEIVE_CHANCE">CONCEIVE_CHANCE</b> := 0.01
 const <b id="c-CONCEIVE_HOUR">CONCEIVE_HOUR</b> := 2
 const <b id="c-FERTILE_AGE">FERTILE_AGE</b> := [16, 40]
 const <b id="c-LATE_FERTILE">LATE_FERTILE</b> := 35
-const <b id="c-PREGNANCY">PREGNANCY</b> := 0.75 * LIFE_YEAR
+const <b id="c-PREGNANCY">PREGNANCY</b> := 0.75       <i># anni di vita (vedi pregnancy)</i>
 const <b id="c-PREGNANT_SLOW">PREGNANT_SLOW</b> := 1.2
 const <b id="c-TRAIT_INHERIT">TRAIT_INHERIT</b> := 0.5
 const <b id="c-CHILD_AGE">CHILD_AGE</b> := 4
@@ -1418,7 +1420,7 @@ const <b id="c-COND_INFO">COND_INFO</b> := {
 	Cond.PILLORIED: [1.0, 1.0, 1.0, -10.0, "Put in the stocks for a tantrum or a protest."],
 	Cond.HEARD: [0.5, 1.0, 1.0, 10.0, "The ruler listened to their complaint."],
 	Cond.WEDDING: [2.0, 1.0, 1.0, 10.0, "Celebrated the ruler's wedding."],
-	Cond.PREGNANT: [PREGNANCY, 1.0, 1.0, 0.0, "Expecting a child. In the last months works more slowly."],
+	Cond.PREGNANT: [0.0, 1.0, 1.0, 0.0, "Expecting a child. In the last months works more slowly."],  <i># fino al parto (due)</i>
 	Cond.ROYAL_MOURNING: [ROYAL_MOURNING_DAYS, 1.0, 1.25, -20.0, "The ruler has died."],
 	Cond.CORONATION: [2.0, 1.0, 1.0, 10.0, "Celebrated the coronation of the new ruler."],
 }

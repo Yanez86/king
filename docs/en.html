@@ -135,7 +135,7 @@ pre i { color: #8fb87a; }
 <body>
 <nav>
 <h1>King</h1>
-<small>Mechanics · commit 7ed2295 · 2026-11-19 · <a class="lang" href="index.html">Italiano</a></small>
+<small>Mechanics · commit 42a68c3 · 2026-11-19 · <a class="lang" href="index.html">Italiano</a></small>
 <h2>Wiki</h2>
 <a href="#basics"><i class="sp s86" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Basics</a><a href="#controls"><i class="sp s87" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Controls</a><a href="#colonists"><i class="sp s88" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Colonists</a><a href="#skills"><i class="sp s83" style="width:16px;height:16px;background-position:-144px 0px;background-size:208px 16px"></i> Skills</a><a href="#traits"><i class="sp s77" style="width:16px;height:16px;background-position:0px 0px;background-size:240px 16px"></i> Traits</a><a href="#conditions"><i class="sp s78" style="width:16px;height:16px;background-position:-16px 0px;background-size:208px 16px"></i> Conditions</a><a href="#the-ruler-house"><i class="sp s33" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> The Ruler &amp; House</a><a href="#building"><i class="sp s62" style="width:15px;height:15px;background-position:0px 0px;background-size:15px 15px"></i> Building</a><a href="#rooms"><i class="sp s73" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Rooms</a><a href="#roofs-heat"><i class="sp s74" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Roofs &amp; Heat</a><a href="#food-cooking"><i class="sp s11" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Food &amp; Cooking</a><a href="#gathering"><i class="sp s65" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Gathering</a><a href="#crafting-equipment"><i class="sp s16" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Crafting &amp; Equipment</a><a href="#combat-wolves"><i class="sp s85" style="width:16px;height:16px;background-position:0px -32px;background-size:32px 48px"></i> Combat &amp; Wolves</a><a href="#splendor"><i class="sp s60" style="width:16px;height:16px;background-position:0px -416px;background-size:128px 1344px"></i> Splendor</a><a href="#adventurers"><i class="sp s29" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Adventurers</a><a href="#ruins-expeditions"><i class="sp s30" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Ruins &amp; Expeditions</a><a href="#knowledge"><i class="sp s70" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Knowledge</a><a href="#laws"><i class="sp s71" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Laws</a><h2>Development</h2><a href="#todo"><i class="sp s42" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Still to develop</a><h2>Numbers</h2><a href="#main-gd">main.gd</a><a href="#atmosphere-gd">atmosphere.gd</a>
 </nav>
@@ -228,7 +228,7 @@ pre i { color: #8fb87a; }
 </ul>
 <h3>Age </h3>
 <ul>
-<li>The sheet shows each colonist's age, next to their sex. People grow a year older every season, four times as fast as the calendar, so generations go by.</li>
+<li>The sheet shows each colonist's age, next to their sex. The pace of life is chosen on the new-game page: Fast, a year older every season, four times as fast as the calendar, so generations go by (children grow up in 4 years); or Real, a year older every year, like the calendar (16 years to grow up, a pregnancy of 9 true months). The numbers below are in years of life, whichever the pace.</li>
 <li>Your ruler starts between 20 and 30, the other colonists and the adventurers between 18 and 40.</li>
 <li>From 60, on every birthday they may die of old age: 4% at 60, 24% at 70, 44% at 80.</li>
 </ul></section><section id="skills"><h2><i class="sp s83" style="width:32px;height:32px;background-position:-288px 0px;background-size:416px 32px"></i> Skills</h2><p>Thirteen skills, with levels from 0 to 10 (a star at 10). Colonists start at 0; your ruler gets 12 points on the new-game page.</p>
@@ -265,7 +265,7 @@ pre i { color: #8fb87a; }
 <p>The laws in force that a colonist likes or dislikes show here too, with their icon.</p></section><section id="the-ruler-house"><h2><i class="sp s33" style="width:32px;height:32px;background-position:0px 0px;background-size:32px 32px"></i> The Ruler &amp; House</h2><h3>New game </h3>
 <p>Two pages come before the map.</p>
 <ul>
-<li>Your House: the house name (your ruler's surname), the colony's name and the coat of arms: shape, division, field and second field, ordinary and charge, each with its tincture. The dice roll a name or a whole coat of arms.</li>
+<li>Your House: the house name (your ruler's surname), the colony's name, the pace of life (see Colonists, Age) and the coat of arms: shape, division, field and second field, ordinary and charge, each with its tincture. The dice roll a name or a whole coat of arms.</li>
 <li>Your Ruler: name, an optional nickname, sex, hair and its color, a beard (men only), tunic and cape (they follow the first two tinctures of the arms until you pick them), up to 2 traits that don't clash, and 12 skill points, at most 3 in one skill (no Lockpicking).</li>
 <li>Traits move points: flaws give 2 (Glutton, Sleepwalker, Hothead, Lazy, Sleepyhead, Fun-loving, Restless), virtues cost 2 (Workaholic, Tireless, Ascetic, Small appetite, Easygoing); Early bird, Night owl and Napper are free.</li>
 </ul>
@@ -1181,7 +1181,7 @@ const <b id="c-SAVED">SAVED</b> := ["game_id", "map_seed", "ground_cols", "grave
 	"fallen", "animals", "arrows", "next_animal", "next_pack", "guests", "next_guest", "ruins", "expeditions",
 	"chronicle", "chronicle_days", "board_pick", "study", "researched", "authority", "codified", "enacted", "revoked",
 	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "sown", "plans", "slot_done", "soil", "soil_year_ago", "soil_known", "compost_since", "manured", "no_manure", "babies",
-	"house_name", "regent_for", "coronation_at", "reigns", "next_suitor", "tired", "last_yield",
+	"house_name", "regent_for", "coronation_at", "reigns", "next_suitor", "pace", "tired", "last_yield",
 	"harvests", "wear", "plastered", "burning",
 	"fire_noted", "storm_noted", "delivered"]
 const <b id="c-TOAST_TIME">TOAST_TIME</b> := 2000    <i># millisecondi: "Saved" in alto, poi sparisce (vedi show_toast)</i>
@@ -1290,10 +1290,12 @@ const <b id="c-DAY_LENGTH">DAY_LENGTH</b> := 240.0   <i># secondi per giorno a v
 const <b id="c-MONTH_DAYS">MONTH_DAYS</b> := 30
 const <b id="c-SEASON_DAYS">SEASON_DAYS</b> := 3 * MONTH_DAYS + 1
 const <b id="c-YEAR_DAYS">YEAR_DAYS</b> := 1 + 4 * SEASON_DAYS</pre>
-<pre><i># Età (vedi age_of): si invecchia di un anno a stagione, quattro volte il calendario, così passano le generazioni.</i>
+<pre><i># Età (vedi age_of): col ritmo veloce (Pace.FAST) si invecchia di un anno a stagione, quattro volte il calendario, così</i>
+<i># passano le generazioni; con quello reale (Pace.REAL) di un anno all'anno. Si sceglie nella nuova partita.</i>
 <i># All'arrivo il sovrano ha RULER_AGE anni, gli altri ADULT_AGE; dai OLD_AGE, a ogni compleanno si muore con</i>
 <i># probabilità (età - OLD_AGE + 2) × OLD_AGE_RISK: 4% a 60, 24% a 70, 44% a 80</i>
-const <b id="c-LIFE_YEAR">LIFE_YEAR</b> := YEAR_DAYS / 4.0
+enum <b id="c-Pace">Pace</b> { FAST, REAL }  <i># il ritmo della vita, scelto nella nuova partita (vedi life_year)</i>
+const <b id="c-LIFE_YEARS">LIFE_YEARS</b> := [YEAR_DAYS / 4.0, float(YEAR_DAYS)]  <i># per Pace: giorni per un anno di vita</i>
 const <b id="c-RULER_AGE">RULER_AGE</b> := [20, 30]
 const <b id="c-ADULT_AGE">ADULT_AGE</b> := [18, 40]
 const <b id="c-OLD_AGE">OLD_AGE</b> := 60
@@ -1304,7 +1306,7 @@ const <b id="c-ADULT">ADULT</b> := 16
 const <b id="c-MARRY_HAPPY">MARRY_HAPPY</b> := 50.0
 const <b id="c-WEDDING_AUTHORITY">WEDDING_AUTHORITY</b> := 10</pre>
 <pre><i># Figli (vedi conceive, give_birth): una coppia sposata che dorme nella stessa stanza, ogni notte CONCEIVE_CHANCE (la</i>
-<i># donna in FERTILE_AGE, da LATE_FERTILE la metà). La gravidanza dura PREGNANCY giorni (nell'ultimo terzo il lavoro</i>
+<i># donna in FERTILE_AGE, da LATE_FERTILE la metà). La gravidanza dura PREGNANCY anni di vita (nell'ultimo terzo il lavoro</i>
 <i># PREGNANT_SLOW), poi per un anno niente. Ogni talento dei genitori passa al figlio con TRAIT_INHERIT, al più due.</i>
 <i># Fino a CHILD_AGE è un neonato (in `babies`: nella culla o in braccio), poi un bambino, da YOUTH_AGE un ragazzo, da</i>
 <i># ADULT un adulto</i>
@@ -1312,7 +1314,7 @@ const <b id="c-CONCEIVE_CHANCE">CONCEIVE_CHANCE</b> := 0.01
 const <b id="c-CONCEIVE_HOUR">CONCEIVE_HOUR</b> := 2
 const <b id="c-FERTILE_AGE">FERTILE_AGE</b> := [16, 40]
 const <b id="c-LATE_FERTILE">LATE_FERTILE</b> := 35
-const <b id="c-PREGNANCY">PREGNANCY</b> := 0.75 * LIFE_YEAR
+const <b id="c-PREGNANCY">PREGNANCY</b> := 0.75       <i># anni di vita (vedi pregnancy)</i>
 const <b id="c-PREGNANT_SLOW">PREGNANT_SLOW</b> := 1.2
 const <b id="c-TRAIT_INHERIT">TRAIT_INHERIT</b> := 0.5
 const <b id="c-CHILD_AGE">CHILD_AGE</b> := 4
@@ -1418,7 +1420,7 @@ const <b id="c-COND_INFO">COND_INFO</b> := {
 	Cond.PILLORIED: [1.0, 1.0, 1.0, -10.0, "Put in the stocks for a tantrum or a protest."],
 	Cond.HEARD: [0.5, 1.0, 1.0, 10.0, "The ruler listened to their complaint."],
 	Cond.WEDDING: [2.0, 1.0, 1.0, 10.0, "Celebrated the ruler's wedding."],
-	Cond.PREGNANT: [PREGNANCY, 1.0, 1.0, 0.0, "Expecting a child. In the last months works more slowly."],
+	Cond.PREGNANT: [0.0, 1.0, 1.0, 0.0, "Expecting a child. In the last months works more slowly."],  <i># fino al parto (due)</i>
 	Cond.ROYAL_MOURNING: [ROYAL_MOURNING_DAYS, 1.0, 1.25, -20.0, "The ruler has died."],
 	Cond.CORONATION: [2.0, 1.0, 1.0, 10.0, "Celebrated the coronation of the new ruler."],
 }
