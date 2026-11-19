@@ -509,6 +509,7 @@ Anche gli attrezzi colpiscono: piccone 10, ascia 12, falcetto 8, mani nude 5. Pr
 • Solo nella colonia: in una stanza, entro 2 caselle da un muro, una porta, un pavimento o un sentiero, o dentro la palizzata. Fuori, nei prati, una decorazione non dà niente.
 • Aiuole, fioriere, panche e lampioni contano solo senza un'altra uguale entro 4 caselle (vale la più vecchia); lo stendardo una volta sola. Conviene costruire decorazioni diverse, non tante uguali.
 • Col mouse sopra una decorazione: quanto splendore dà, o perché niente.
+• Manutenzione: a ogni festa di fine stagione (Fiori, Falce, Focolare, Candele) la colonia paga mezza moneta per ogni punto di splendore oltre i primi 15, dai magazzini, prima per le decorazioni più preziose. Una non pagata è trascurata: metà del suo splendore, più spenta. Non pagata nemmeno alla festa dopo, è diroccata: niente splendore, grigia, finché un costruttore non la ripara con 1 del suo materiale (poi è trascurata finché non si paga). I cimeli non costano e non si rovinano. Col mouse sullo splendore in alto, la manutenzione della prossima festa.
 Per ora fa due cose:
 • Gli avventurieri arrivano più forti: livello 1, +1 ogni 10 di splendore, ±1 a caso (da 1 a 5).
 • +1 autorità al giorno ogni 20 di splendore.

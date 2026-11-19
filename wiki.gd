@@ -510,6 +510,7 @@ Tools hit too: pickaxe 10, axe 12, sickle 8, bare hands 5. Armor: see Combat & W
 • Only inside the colony: in a room, within 2 tiles of a wall, a door, a floor or a path, or inside the palisade. Out in the fields a decoration gives nothing.
 • Flower beds, planters, benches and lanterns count only with no other of the same kind within 4 tiles (the oldest wins); the banner only once. Build different decorations, not many of the same.
 • Hover a decoration: how much splendor it gives, or why it gives none.
+• Upkeep: at every season's feast (Flower, Sickle, Hearth, Candle) the colony pays half a coin for every point of splendor beyond the first 15, from the warehouses, the most precious decorations first. An unpaid one is neglected: half its splendor, duller. Unpaid again at the next feast, it falls into ruin: no splendor, grey, until a builder repairs it with 1 of its material (then it is neglected until paid). Relics cost nothing and never decay. Hover the splendor in the top bar for the next upkeep.
 For now it does two things:
 • Adventurers arrive stronger: level 1, +1 for every 10 splendor, ±1 at random (from 1 to 5).
 • +1 authority a day for every 20 splendor.

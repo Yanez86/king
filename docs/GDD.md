@@ -608,9 +608,13 @@ Decisa il 2026-11-19. Numeri da tarare.
     colonia, trascurata, diroccata); le trascurate più spente, le diroccate grigie.
   - **Ordine di lavoro**: (1) vicinanza e colonia, col riquadro in basso a destra; (2) la manutenzione alle feste, le
     trascurate e le diroccate, la riparazione, la barra in alto e l'aspetto.
-  - **Stato**: fatta la fase 1 il 2026-11-19 (test in `tests/test_jobs.gd`): `decor_splendor` in `main.gd`, rifatto solo
-    quando cambiano mobili, strutture o stanze; le caselle dentro la palizzata solo quando cambiano muri, porte,
-    palizzata, cancelli o roccia (12 ms la mappa intera).
+  - **Stato**: fatte le fasi 1 e 2 il 2026-11-19 (test in `tests/test_jobs.gd` e `tests/test_splendor.gd`):
+    `decor_splendor` in `main.gd`, rifatto solo quando cambiano mobili, strutture, stanze o manutenzione; le caselle
+    dentro la palizzata solo quando cambiano muri, porte, palizzata, cancelli o roccia (12 ms la mappa intera). La
+    manutenzione si paga alla mezzanotte della festa (`pay_upkeep`); a parità di valore paga prima la decorazione più
+    vecchia; lo splendore delle trascurate si somma e si arrotonda per difetto. La riparazione è quella dei tetti
+    (`Job.REPAIR`, col colono che sa se è una decorazione). Trascurate e diroccate hanno solo una tinta, più spenta o
+    grigia: una patina vera (crepe, erba secca) resta da disegnare.
 - **Sentiero**: pavimento di terra battuta e sassolini (1 pietra a casella); i mobili ci stanno sopra.
   Su tutti i pavimenti l'erba dei prati vicini sborda, frastagliata, così non finiscono di netto; contro muri, porte
   e altri pavimenti il bordo resta netto. Poi: i sentieri che collegano le case danno splendore.

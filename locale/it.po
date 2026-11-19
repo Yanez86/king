@@ -3935,3 +3935,24 @@ msgstr "Niente splendore: conta solo il primo"
 
 msgid "No splendor: another %s within %d tiles"
 msgstr "Niente splendore: c'è un'altra %s entro %d caselle"
+
+# --- Lo splendore: la manutenzione
+
+msgid "%s: the upkeep of the decorations, %d coins."
+msgstr "%s: la manutenzione delle decorazioni, %d monete."
+
+msgid "Not enough coins: %d neglected, %d fell into ruin."
+msgstr "Le monete non bastano: %d trascurate, %d diroccate."
+
+msgid "Colony splendor: %d\nUpkeep at %s: %d coins (%d in the warehouses)\nNeglected: %d, ruined: %d"
+msgstr "Splendore della colonia: %d\nManutenzione alla %s: %d monete (%d nei magazzini)\nTrascurate: %d, diroccate: %d"
+
+msgid "Neglected: half its splendor, until the upkeep is paid at a feast"
+msgstr "Trascurata: metà del suo splendore, finché a una festa non si paga la manutenzione"
+
+msgid "Ruined: no splendor, until a builder repairs it (1 %s)"
+msgstr "Diroccata: niente splendore, finché un costruttore non la ripara (1 %s)"
+
+msgctxt "doing"
+msgid "Repairing a decoration"
+msgstr "Ripara una decorazione"

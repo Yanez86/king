@@ -647,6 +647,14 @@ const SPLENDOR_GAP := 4
 const COLONY_REACH := 2
 const COLONY_BUILT := [Build.WALL, Build.DOOR, Build.FLOOR, Build.PATH, Build.ROAD, Build.PALISADE, Build.GATE]
 const FENCES := [Build.WALL, Build.DOOR, Build.PALISADE, Build.GATE]  # chiudono un'area, con roccia e acqua profonda
+# La manutenzione dello splendore (GDD 4.4.3): a ogni festa di fine stagione UPKEEP monete per punto oltre i primi
+# UPKEEP_FREE (gratis per le decorazioni che valgono di più), dai magazzini (vedi pay_upkeep). Le non pagate si
+# trascurano (Decay.NEGLECTED: metà splendore); una trascurata non pagata alla festa dopo si dirocca (Decay.RUINED:
+# niente, finché un costruttore non la ripara con REPAIR_COST del suo materiale, e torna trascurata). I cimeli no
+enum Decay { KEPT, NEGLECTED, RUINED }
+const UPKEEP := 0.5
+const UPKEEP_FREE := 15
+const DECAY_TINT := [Color.WHITE, Color(0.8, 0.76, 0.66), Color(0.5, 0.48, 0.48)]  # per Decay: più spente, grigie
 const SPLENDOR_COLOR := Color("e8c34a")
 const HEAT_COLOR := Color("f2a03a")
 # lente del calore: sopra COLD_FROM, sotto ma senza malus, poi per punti di comfort tolti dal freddo (1, 2, 3 e più)
@@ -683,7 +691,7 @@ const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today"
 	"granary", "tithe_owed", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "sown", "plans", "slot_done", "soil", "soil_year_ago", "soil_known", "compost_since", "manured", "no_manure", "babies",
 	"house_name", "regent_for", "coronation_at", "reigns", "next_suitor", "pace", "tired", "last_yield",
 	"harvests", "wear", "plastered", "burning",
-	"fire_noted", "storm_noted", "delivered", "requests", "bumper_until"]
+	"fire_noted", "storm_noted", "delivered", "requests", "bumper_until", "decor_state"]
 const TOAST_TIME := 2000    # millisecondi: "Saved" in alto, poi sparisce (vedi show_toast)
 const AUTOSAVE_HOUR := 6    # all'alba, quando i coloni si alzano: il salvataggio di ogni giorno
 const MODIFIER_KEYS := [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]  # da soli non sono un tasto
@@ -1438,6 +1446,7 @@ class Colonist:
 	var refused_at := 0           # le spedizioni che aveva quando gli hanno detto di no l'ultima volta (vedi wants_to_stay)
 	var former := Hero.NONE       # rimasto come colono: la classe che aveva (vedi welcome)
 	var wanderer := false         # viandante, finché non resta o se ne va (vedi come, narrator.gd)
+	var mending := false          # Job.REPAIR su una decorazione diroccata, non su un tetto (vedi try_repair)
 	var pilgrim := false          # pellegrino: porta un dono al trono e se ne va (vedi pilgrim_comes, offer)
 	var fellows := []             # il viandante: il suo gruppo, lui compreso (la famiglia); chiedono insieme
 	var oath := false             # deve andare a giurare davanti al trono (vedi try_oath)
@@ -1593,6 +1602,7 @@ var today := 0              # il giorno visto per ultimo: cambiato, è l'alba di
 var hour := 0               # lo stesso per l'ora (vedi new_hour)
 var knowledge_key := ""     # quello che mostra la finestra Knowledge: se cambia, la si rifà (vedi fill_knowledge)
 var scholar_until := -1.0   # `clock` fino a cui l'erudito è alla locanda
+var decor_state := {}       # origine di una decorazione -> Decay, se non è KEPT (vedi pay_upkeep)
 var decor_key := []         # da cosa dipende decor_memo: se cambia, si rifà (vedi decor_splendor)
 var decor_memo := {}        # origine di una decorazione -> [splendore che dà, perché no: "" se lo dà]
 var enclosed := {}          # casella -> true: chiusa da muri e palizzata (vedi enclosed_cells)
@@ -1841,6 +1851,7 @@ func _ready() -> void:
 	soil_canvas.draw.connect(draw_soil_lens)
 	add_child(atmosphere)  # dopo `lights` e `flat`, che usa
 	add_child(narrator)
+	splendor_label.mouse_filter = Control.MOUSE_FILTER_PASS  # il suggerimento: la manutenzione (vedi splendor_tip)
 	toast.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	toast.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	toast.position.y = 72  # sotto la barra in alto
@@ -3761,6 +3772,8 @@ func _process(delta: float) -> void:
 	colonists_label.text = str(colony_size())  # anche chi è in spedizione: conta per il titolo
 	beds_label.text = str(furniture.values().filter(func(plan): return plan[0] in BEDS).size())  # solo quelli finiti
 	splendor_label.text = str(colony_splendor())
+	if Engine.get_process_frames() % 30 == 0:  # il conto della manutenzione, ogni tanto: basta per il suggerimento
+		splendor_label.tooltip_text = splendor_tip()
 	confirm.disabled = draft.is_empty() and furniture_draft.is_empty()
 	if jobs_panel.visible:
 		refresh_priorities()
@@ -4077,7 +4090,11 @@ func update_colonist(c: Colonist, delta: float) -> void:
 					note(tr("%s: the fire is out.") % date(today))
 			end_job(c)
 		Job.REPAIR:  # come BUILD: al mucchio prende il materiale (carry_res), poi accanto alla casella (target) la ripara
-			if wear.get(c.target, 0.0) < WORN or not roofed.has(c.target):
+			if c.mending:  # una decorazione diroccata
+				if decor_state.get(c.target, Decay.KEPT) != Decay.RUINED or not furniture.has(c.target):
+					quit_job(c)  # già riparata, o abbattuta
+					return
+			elif wear.get(c.target, 0.0) < WORN or not roofed.has(c.target):
 				quit_job(c)  # già riparata, o la stanza non c'è più
 				return
 			if c.carrying == 0:
@@ -4095,9 +4112,12 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			face(c, center(c.target) - c.pos)
 			c.work_left = maxf(c.work_left - delta, 0.0)
 			if c.work_left == 0:
-				if holed(c.target):
-					roof_stamp += 1
-				wear.erase(c.target)
+				if c.mending:  # riparata, torna trascurata: alla prossima festa, pagata, sarà a posto
+					decor_state[c.target] = Decay.NEGLECTED
+				else:
+					if holed(c.target):
+						roof_stamp += 1
+					wear.erase(c.target)
 				c.carrying = 0
 				c.xp[Skill.CONSTRUCTION] += 1
 				end_job(c)
@@ -4436,20 +4456,25 @@ func in_bed(c: Colonist) -> bool:
 	return c.job == Job.SLEEP and not pieces_at(furniture, cell_of(c.pos)).filter(func(o): return furniture[o][0] in BEDS).is_empty()
 
 
-# Splendore della colonia: le decorazioni finite che contano (vedi decor_splendor), il palazzo e gli avventurieri famosi
+# Splendore della colonia: le decorazioni finite che contano (vedi decor_splendor; le trascurate a metà, per difetto),
+# il palazzo e gli avventurieri famosi
 func colony_splendor() -> int:
 	var palace: bool = researched.has(Tech.PALACE) and rooms.any(func(r): return r.kind == RoomKind.THRONE_ROOM)
-	var sum: int = PALACE[1] if palace else 0
+	var sum: float = PALACE[1] if palace else 0
 	for v in decor_splendor().values():
 		sum += v[0]
-	return sum + people().reduce(func(n, g): return n + gift(g, "splendor", 0), 0)  # i famosi, anche rimasti
+	return floori(sum + 0.001) + people().reduce(func(n, g): return n + gift(g, "splendor", 0), 0)  # i famosi
 
 
-# Lo splendore di ogni decorazione finita: origine -> [quanto ne dà, perché no]. Il perché: "outside" fuori dalla
-# colonia, "once" non è il primo (SPLENDOR_ONCE), "near" un'altra uguale vicino (SPLENDOR_NEAR); "" se conta. In ordine di
-# costruzione, così vale la più vecchia. Si rifà solo quando cambiano mobili, strutture o stanze
+# Lo splendore di ogni decorazione finita: origine -> [quanto ne dà, perché]. Il perché: "outside" fuori dalla
+# colonia, "ruined" diroccata, "once" non è il primo (SPLENDOR_ONCE), "near" un'altra uguale vicino (SPLENDOR_NEAR):
+# niente; "neglected" trascurata: metà; "" tutto. In ordine di costruzione, così vale la più vecchia; una diroccata
+# non conta e non toglie il posto alle altre. Si rifà solo quando cambiano mobili, strutture, stanze o manutenzione
 func decor_splendor() -> Dictionary:
-	var key := [furniture.hash(), built.hash(), rooms.size()]
+	for origin in decor_state.keys():  # una decorazione abbattuta: il suo stato se ne va con lei
+		if not furniture.has(origin) or not SPLENDOR.has(furniture[origin][0]):
+			decor_state.erase(origin)
+	var key := [furniture.hash(), built.hash(), rooms.size(), decor_state.hash()]
 	if key == decor_key:
 		return decor_memo
 	decor_key = key
@@ -4470,6 +4495,8 @@ func decor_splendor() -> Dictionary:
 		var why := ""
 		if not in_colony(origin):
 			why = "outside"
+		elif decor_state.get(origin, Decay.KEPT) == Decay.RUINED:
+			why = "ruined"
 		elif kind in SPLENDOR_ONCE and counted.has(kind):
 			why = "once"
 		elif kind in SPLENDOR_NEAR and counted.get(kind, []).any(
@@ -4477,8 +4504,75 @@ func decor_splendor() -> Dictionary:
 			why = "near"
 		if why == "":
 			counted[kind] = counted.get(kind, []) + [origin]
-		decor_memo[origin] = [SPLENDOR[kind] if why == "" else 0, why]
+			if decor_state.get(origin, Decay.KEPT) == Decay.NEGLECTED:
+				why = "neglected"
+		decor_memo[origin] = [{"": SPLENDOR[kind], "neglected": SPLENDOR[kind] * 0.5}.get(why, 0.0), why]
 	return decor_memo
+
+
+# La manutenzione della prossima festa: [origine, monete] delle decorazioni che contano (non diroccate, non cimeli),
+# le più preziose prima (a parità, la più vecchia); i primi UPKEEP_FREE punti sono gratis, poi UPKEEP a punto
+func upkeep_plan() -> Array:
+	var memo := decor_splendor()
+	var due := []
+	for origin in memo:  # in ordine di costruzione
+		if memo[origin][1] in ["", "neglected"] and not RELICS.has(furniture[origin][0]):
+			due.append([origin, SPLENDOR[furniture[origin][0]], due.size()])
+	due.sort_custom(func(a, b): return a[1] > b[1] or (a[1] == b[1] and a[2] < b[2]))
+	var free := UPKEEP_FREE
+	for d in due:
+		var covered := mini(d[1], free)
+		free -= covered
+		d[1] = (d[1] - covered) * UPKEEP
+		d.resize(2)
+	return due
+
+
+# A ogni festa di fine stagione (vedi new_day): con le monete dei magazzini si pagano le decorazioni, prima le più
+# preziose; una pagata torna a posto, una senza monete si trascura, o si dirocca se lo era già. Nella cronaca
+func pay_upkeep() -> void:
+	var due := upkeep_plan()
+	var gold := stored(Res.GOLD)
+	var owed := 0.0
+	var lost := [0, 0]  # trascurate, diroccate
+	for d in due:
+		if ceili(owed + d[1]) <= gold:
+			owed += d[1]
+			decor_state.erase(d[0])
+		elif decor_state.get(d[0], Decay.KEPT) == Decay.NEGLECTED:
+			decor_state[d[0]] = Decay.RUINED
+			lost[1] += 1
+		else:
+			decor_state[d[0]] = Decay.NEGLECTED
+			lost[0] += 1
+	take_stored(Res.GOLD, ceili(owed))
+	if ceili(owed) == 0 and lost == [0, 0]:
+		return
+	var line := tr("%s: the upkeep of the decorations, %d coins.") % [date(today), ceili(owed)]
+	if lost != [0, 0]:
+		line += " " + tr("Not enough coins: %d neglected, %d fell into ruin.") % lost
+	note(line)
+
+
+# la manutenzione che si pagherà alla prossima festa, se le cose restano così: monete
+func upkeep_due() -> int:
+	return ceili(upkeep_plan().reduce(func(n, d): return n + d[1], 0.0))
+
+
+# il prossimo giorno di festa di fine stagione (non il Capodanno), da domani: quella di oggi l'ha già pagata new_day
+func next_feast() -> int:
+	var d := today + 1
+	while not feast(d) or posmod(d, YEAR_DAYS) == 0:
+		d += 1
+	return d
+
+
+# lo splendore in alto, col mouse sopra: la manutenzione della prossima festa e le decorazioni trascurate o diroccate
+func splendor_tip() -> String:
+	var states := decor_state.values()
+	return tr("Colony splendor: %d\nUpkeep at %s: %d coins (%d in the warehouses)\nNeglected: %d, ruined: %d") % [
+		colony_splendor(), date(next_feast()), upkeep_due(), stored(Res.GOLD), states.count(Decay.NEGLECTED),
+		states.count(Decay.RUINED)]
 
 
 # `cell` è nella colonia: in una stanza o dentro muri e palizzata, o entro COLONY_REACH caselle da un muro, una porta,
@@ -4536,6 +4630,11 @@ func decor_about(origin: Vector2i) -> String:
 			return tr("No splendor: only the first one counts")
 		"near":
 			return tr("No splendor: another %s within %d tiles") % [named(Build, kind).to_lower(), SPLENDOR_GAP]
+		"neglected":
+			return tr("Neglected: half its splendor, until the upkeep is paid at a feast")
+		"ruined":
+			var stuff: String = res_name(furniture[origin][1]).to_lower()
+			return tr("Ruined: no splendor, until a builder repairs it (1 %s)") % stuff
 	return tr("+%d colony splendor") % v[0]
 
 
@@ -5302,23 +5401,27 @@ func try_build(c: Colonist) -> bool:
 # Riparare un tetto: la casella consumata (da WORN) più vicina, con un mucchio del suo materiale (legna per le
 # scandole, pietra per i coppi): come costruire, prima al mucchio e poi accanto alla casella. false se non si può
 func try_repair(c: Colonist) -> bool:
-	var damaged := roof_repairs().filter(func(k): return is_free(k))
-	if damaged.is_empty():
-		return false
 	var stands := {}
-	for cell in damaged:
+	for cell in roof_repairs().filter(func(k): return is_free(k)):
 		add_stands(stands, [cell], cell, SIDES)
+	for origin in decor_state:  # le decorazioni diroccate: accanto al pezzo
+		if decor_state[origin] == Decay.RUINED and furniture.has(origin):
+			add_stands(stands, cells_in(piece_rect(origin, furniture[origin])), origin, SIDES)
+	if stands.is_empty():
+		return false
 	var path := path_to_nearest(c, stands.keys())
 	if path.is_empty():
 		return false
 	var target: Vector2i = stands[path.back()]
-	var res: Res = roofed[target].material
+	var mend: bool = decor_state.get(target, Decay.KEPT) == Decay.RUINED and furniture.has(target)
+	var res: Res = furniture[target][1] if mend else roofed[target].material
 	var to_source := path_to_nearest(c, items[res].keys().filter(func(k): return items[res][k] >= REPAIR_COST and is_free(k)))
 	if to_source.is_empty():
 		return false
 	start_job(c, Job.REPAIR, to_source, target, REPAIR_TIME * skill_time(c.skills[Skill.CONSTRUCTION]) * work_factor(c, Job.REPAIR))
 	c.dest = path.back()
 	c.carry_res = res
+	c.mending = mend
 	reserved[to_source.back()] = c
 	return true
 
@@ -8139,6 +8242,8 @@ func doing(c: Colonist) -> String:
 			if visitor(c):
 				return tr("Waiting", "doing")
 			return tr("Free time", "doing") if routines and activity(c) == Act.FREE else tr("Looking for something to do", "doing")
+	if c.job == Job.REPAIR and c.mending:
+		return tr("Repairing a decoration", "doing")
 	return tr(DOING.get(c.job, "Busy"), "doing")
 
 
@@ -8385,6 +8490,8 @@ func note_harvests() -> void:
 # raccolto; col granaio aperto un pasto a tutti, un pezzo del granaio a testa finché ce n'è
 func new_day() -> void:
 	narrator.new_day()
+	if feast(today) and posmod(today, YEAR_DAYS) != 0:  # le feste di fine stagione: la manutenzione dello splendore
+		pay_upkeep()
 	for b in babies.duplicate():  # a CHILD_AGE il neonato diventa un bambino della colonia, accanto a chi lo teneva
 		if age_of(b) >= CHILD_AGE:
 			var near = carrier_of(b)
@@ -10161,7 +10268,10 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 		draw_texture(boulder_tex(cell), Vector2(cell) * TILE)
 	for cell in bushes:  # bassi, dentro la loro casella come i massi; con le bacche (o i fiori) se sono maturi
 		draw_texture_rect_region(PLANTS, tile_rect(cell.x, cell.y), tile_rect(plant_col(cell) + (1 if bushes[cell] <= clock else 0), 0))
-	draw_pieces(self, FURNITURE_NIGHT if sun_height() < 0 else FURNITURE_SHEET, furniture)
+	var decay := {}
+	for origin in decor_state:
+		decay[origin] = DECAY_TINT[decor_state[origin]]
+	draw_pieces(self, FURNITURE_NIGHT if sun_height() < 0 else FURNITURE_SHEET, furniture, Color.WHITE, decay)
 	for b in babies:  # nella culla
 		if b.cradle.x >= 0 and furniture.get(b.cradle, [-1])[0] == Build.CRADLE:
 			draw_texture_rect(BABY, tile_rect(b.cradle.x, b.cradle.y), false)
@@ -10613,10 +10723,12 @@ func boulder_tex(origin: Vector2i) -> Texture2D:
 	return ORE_ROCKS[ores[origin]] if ores.has(origin) else BOULDERS[boulders[origin]]
 
 
-func draw_pieces(canvas: CanvasItem, sheet: Texture2D, layer: Dictionary, tint := Color.WHITE) -> void:
+# i pezzi di `layer` (origine -> piano) da `sheet`; `tints`: origine -> tinta al posto di `tint` (le decorazioni
+# trascurate o diroccate, vedi DECAY_TINT)
+func draw_pieces(canvas: CanvasItem, sheet: Texture2D, layer: Dictionary, tint := Color.WHITE, tints := {}) -> void:
 	for origin in layer:
 		var r := piece_rects(origin, layer[origin])
-		canvas.draw_texture_rect_region(sheet, r[0], r[1], tint)
+		canvas.draw_texture_rect_region(sheet, r[0], r[1], tints.get(origin, tint))
 
 
 func draw_creature(who) -> void:
