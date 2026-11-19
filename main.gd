@@ -1115,7 +1115,7 @@ const BRANCHES_SHEET := preload("res://art/branches.png")
 enum Tech { FORGE, TAILORING, HUNTING, INN, MASONRY, DECOR, LANTERNS, IRON_ARMS, BOOKSHELF, CHAINMAIL, FOUNTAIN, STATUARY,
 	ASTRONOMY, CHARCOAL, COLD_STORE, PAVED_ROAD, DRY_RATIONS, CARTOGRAPHY, PALISADE, TRAINING_DUMMY, SMOKEHOUSE, RENOWNED_INN,
 	WATCHTOWER, SHIELD, LENDING_ARMORY, STEEL, SCRIPTORIUM, FINE_FURNITURE, PALACE, LOOM, TILED_STOVE, ICEHOUSE, GARDEN,
-	SOIL_SURVEY, ALMANAC, LAND_REGISTER, MANURING }
+	SOIL_SURVEY, ALMANAC, LAND_REGISTER, MANURING, CROWN_COMPANY }
 const TECHS_SHEET := preload("res://art/techs.png")
 const TECHS := {
 	Tech.FORGE: {"branch": Branch.FIRE, "tier": 1, "cost": 60, "builds": [Build.FURNACE, Build.ANVIL],
@@ -1161,6 +1161,8 @@ const TECHS := {
 		"info": "The training dummy: in their free time colonists train there, for fun and melee experience."},
 	Tech.SMOKEHOUSE: {"branch": Branch.LAND, "tier": 2, "cost": 200, "needs": [Tech.HUNTING],
 		"makes": [Res.SMOKED_MEAT, Res.SMOKED_FISH], "info": "At the campfire, smoked meat and fish: they keep four times as long."},
+	Tech.CROWN_COMPANY: {"branch": Branch.ROAD, "tier": 3, "cost": 500, "needs": [Tech.RENOWNED_INN],
+		"info": "Colonists go along with the adventurers: pick them on the notice board, with at least one adventurer. They ask no fee and keep no share."},
 	Tech.RENOWNED_INN: {"branch": Branch.ROAD, "tier": 2, "cost": 250, "needs": [Tech.INN],
 		"info": "Adventurers come every day and a half and wait 5 days. On the notice board, ask for a class: the next one is that."},
 	Tech.SHIELD: {"branch": Branch.IRON, "tier": 2, "cost": 250, "needs": [Tech.TRAINING_DUMMY], "makes": [Res.SHIELD],
@@ -1686,6 +1688,7 @@ class Expedition:
 	var maps := []                # RuinKind delle mappe trovate: le rovine si conoscono al ritorno
 	var food := 0.0               # provviste, in giorni a testa (1 = un giorno per uno), vedi eat_on_trip
 	var treasure := false         # ha aperto il tesoro dell'ultima stanza: al ritorno, autorità
+	var dead: Array[Colonist] = []  # i coloni morti nella rovina (Compagnia della corona): la colonia lo sa al ritorno
 
 
 func _init() -> void:
@@ -5868,21 +5871,23 @@ func death_chance(c: Colonist) -> float:
 
 
 # `c` muore: lascia a terra quello che porta, l'equipaggiamento e il bottino; il corpo resta CORPSE_DAYS. Se era un
-# colono gli altri prendono il lutto; morti tutti, la colonia è caduta
-func die(c: Colonist, why: String) -> void:
-	quit_job(c)
-	var here := cell_of(c.pos)
-	for g in c.gear.values():
-		drop(g, here, 1)
-	for res in c.loot:
-		drop(res, here, c.loot[res])
+# colono gli altri prendono il lutto; morti tutti, la colonia è caduta. `away`: un colono della compagnia morto in una
+# rovina, che la colonia viene a sapere adesso: il corpo e quello che portava restano là
+func die(c: Colonist, why: String, away := false) -> void:
+	if not away:
+		quit_job(c)
+		var here := cell_of(c.pos)
+		for g in c.gear.values():
+			drop(g, here, 1)
+		for res in c.loot:
+			drop(res, here, c.loot[res])
+		corpses.append(c)
 	c.gear.clear()
 	c.loot.clear()
 	c.downed = true
 	c.hp = 0.0
 	c.died = clock
-	corpses.append(c)
-	var was_colonist := c in colonists
+	var was_colonist := c in colonists or away
 	withdraw(c)
 	colonists.erase(c)
 	guests.erase(c)
@@ -5906,7 +5911,7 @@ func die(c: Colonist, why: String) -> void:
 	if shown == c:
 		sheet_panel.hide()
 	note("%s: %s %s" % [date(int(clock)), full_name(c), why])
-	if was_colonist and colonists.is_empty():
+	if was_colonist and colony_size() == 0:  # chi è in spedizione tiene in vita la colonia
 		fallen = true
 		$HUD/Fallen.show()
 	elif c == ruler:
@@ -6144,7 +6149,7 @@ func carrier_of(b: Colonist):
 # i figli di `c`, vivi o morti, neonati compresi, dal più grande
 func children_of(c: Colonist) -> Array:
 	var all: Array = []
-	for o in colonists + babies + corpses:
+	for o in colonists + babies + corpses + away_colonists():  # anche chi è in spedizione
 		if (o.mother == c or o.father == c) and o not in all:
 			all.append(o)
 	all.sort_custom(func(a, b): return a.born < b.born)
@@ -6158,7 +6163,8 @@ func ruler_title(c: Colonist) -> String:
 
 # chi eredita da `monarch`, nell'ordine: i figli vivi dal più grande, il coniuge vivo, i fratelli e le sorelle vivi
 func line_of(monarch: Colonist) -> Array:
-	var alive := func(o): return o.died == 0.0 and (o in colonists or o in babies)
+	var away := away_colonists()
+	var alive := func(o): return o.died == 0.0 and (o in colonists or o in babies or o in away)
 	var line: Array = children_of(monarch).filter(alive)
 	if married(monarch) and alive.call(monarch.spouse):
 		line.append(monarch.spouse)
@@ -6247,9 +6253,10 @@ func coronation() -> void:
 # Nessun erede: la colonia sceglie il sovrano di una casata nuova tra gli adulti. Intanto regna il primo (quello con
 # più abilità); la finestra lascia sceglierne un altro
 func choose_house() -> void:
-	var adults: Array = colonists.filter(func(o): return age_of(o) >= ADULT)
+	var everyone: Array = colonists + away_colonists()  # anche chi è in spedizione
+	var adults: Array = everyone.filter(func(o): return age_of(o) >= ADULT)
 	if adults.is_empty():
-		adults = colonists.duplicate()
+		adults = everyone
 	adults.sort_custom(func(a, b): return a.skills.reduce(func(n, v): return n + v, 0) > b.skills.reduce(func(n, v): return n + v, 0))
 	var old := house_name
 	found_house(adults[0])
@@ -6452,8 +6459,8 @@ func set_level(c: Colonist, level: int) -> void:
 		c.gear[Slot.BODY] = data["heavy"]
 
 
-func fee(c: Colonist) -> int:
-	return roundi((FEE_BASE + FEE_PER_LEVEL * c.level) * gift(c, "fee", 1.0))
+func fee(c: Colonist) -> int:  # i coloni della compagnia niente
+	return 0 if c.hero == Hero.NONE else roundi((FEE_BASE + FEE_PER_LEVEL * c.level) * gift(c, "fee", 1.0))
 
 
 # effetto `key` dei talenti di `c` (vedi GIFT_FX), `base` se non ce l'ha
@@ -6495,7 +6502,7 @@ func border_cells() -> Array:
 # spedizione); se non c'è, il prossimo arriva GUEST_EVERY dopo che si è liberato. Chi aspetta da GUEST_STAY giorni
 # senza che nessuno lo ingaggi se ne va
 func update_guests() -> void:
-	var away: int = expeditions.reduce(func(n, exp): return n + exp.party.filter(func(g): return g not in guests).size(), 0)
+	var away: int = expeditions.reduce(func(n, exp): return n + exp.party.filter(func(g): return g.hero != Hero.NONE and g not in guests).size(), 0)
 	if inn_beds() <= guests.size() + away:
 		next_guest = maxf(next_guest, clock + GUEST_EVERY)
 	elif clock >= next_guest:
@@ -6551,16 +6558,18 @@ func arrive(c: Colonist) -> void:
 		Errand.ARRIVE:
 			c.stay_until = clock + (SUITOR_STAY if c.suitor else (RENOWNED_GUESTS[1] if researched.has(Tech.RENOWNED_INN) else GUEST_STAY)
 				- (1.0 if enacted.has(Law.LODGING_TAX) else 0.0))
-		Errand.RETURN:
-			c.stay_until = clock + GUEST_REST
+		Errand.RETURN:  # alla locanda; il colono di ritorno ci lascia il bottino e torna al lavoro
 			c.hired = false
 			for res in c.loot:
 				drop(res, cell_of(c.pos), c.loot[res])
 			c.loot.clear()
-			if wants_to_stay(c) and request_of(c).is_empty():
-				ask([c])
+			if c.hero != Hero.NONE:
+				c.stay_until = clock + GUEST_REST
+				if wants_to_stay(c) and request_of(c).is_empty():
+					ask([c])
 		Errand.LEAVE:
 			guests.erase(c)
+			c.fellows = []  # via il riferimento al gruppo (che contiene lui): se ne va per sempre
 		Errand.VISIT:  # il viandante arrivato: col primo del gruppo comincia l'attesa della risposta
 			if request_of(c).is_empty() and c.stay_until == 0.0:
 				for o in c.fellows:
@@ -6568,6 +6577,7 @@ func arrive(c: Colonist) -> void:
 				ask(c.fellows)
 		Errand.DEPART:
 			guests.erase(c)
+			colonists.erase(c)  # il colono della compagnia: fuori dalla mappa (vedi colony_size)
 			var exp := trip_of(c)
 			if exp != null:
 				if exp.edge.x < 0:
@@ -6586,7 +6596,7 @@ func trip_of(c: Colonist) -> Expedition:
 
 # fuori dalla mappa tutto il gruppo: si parte
 func leave_if_ready(exp: Expedition) -> void:
-	if exp.left_at < 0 and exp.party.all(func(g): return g not in guests):
+	if exp.left_at < 0 and exp.party.all(func(g): return g not in guests and g not in colonists):
 		depart(exp)
 
 
@@ -6619,7 +6629,8 @@ func food_stored() -> int:
 func send(party: Array, ruin: Ruin) -> bool:
 	var cost: int = party.reduce(func(n, g): return n + fee(g), 0)
 	if party.is_empty() or party.size() > MAX_PARTY or ruin not in ruins or explored(ruin) or stored(Res.GOLD) < cost \
-			or party.any(func(g): return g.hired or g not in guests):
+			or party.any(func(g): return g.hired or (g not in guests and g not in volunteers())) \
+			or not party.any(func(g): return g.hero != Hero.NONE):
 		return false
 	take_stored(Res.GOLD, cost)
 	var exp := Expedition.new()
@@ -6636,7 +6647,7 @@ func send(party: Array, ruin: Ruin) -> bool:
 	var loans := PackedStringArray()
 	for g in party:
 		withdraw(g)  # ingaggiato: non chiede più di restare
-		if researched.has(Tech.LENDING_ARMORY):
+		if researched.has(Tech.LENDING_ARMORY) and g.hero != Hero.NONE:
 			loans.append_array(lend(g))
 		exp.party.append(g)
 		g.hired = true
@@ -6646,7 +6657,8 @@ func send(party: Array, ruin: Ruin) -> bool:
 	expeditions.append(exp)
 	board_pick.clear()
 	note(tr("%s: %s hired for the %s, for %s and %d of %d provisions.") % [date(int(clock)),
-		", ".join(party.map(func(g): return "%s (%s)" % [full_name(g), hero_name(g)])), tr(RUINS[ruin.kind]["name"]), coins(cost),
+		", ".join(party.map(func(g): return "%s (%s)" % [full_name(g), hero_name(g) if g.hero != Hero.NONE else tr("colonist")])),
+		tr(RUINS[ruin.kind]["name"]), coins(cost),
 		exp.food, want] + (tr(" The armory lends: %s.") % ", ".join(loans) if not loans.is_empty() else ""))
 	return true
 
@@ -6721,8 +6733,11 @@ func explore(exp: Expedition, travel: float) -> float:
 				var medic := exp.party.any(func(o): return o != c and o.hp > 0 and gift(o, "carry", false))
 				if exp.party.size() == 1 or (not medic and randf() < FALL_DEATH):
 					exp.party.erase(c)
-					c.died = clock
 					exp.lines.append(tr("%s falls and dies.") % c.first_name)
+					if c.hero == Hero.NONE:  # un colono: la colonia lo saprà al ritorno (vedi died_away)
+						exp.dead.append(c)
+						continue
+					c.died = clock
 					note(tr("%s: %s died in the %s.") % [date(int(start + days)), full_name(c), tr(data["name"])], int(start + days))
 				else:
 					c.hp = CARRIED_HP
@@ -6807,16 +6822,16 @@ func fight_monsters(exp: Expedition, power: float) -> String:
 	var weights := 0.0
 	var cover := 1.0
 	for c in exp.party:
-		strength += c.skills[HEROES[c.hero]["weapon"]] * gift(c, "weapon", 1.0) + gear_sum(c, "armor")
-		weights += HEROES[c.hero]["hurt"]
-		cover = minf(cover, HEROES[c.hero].get("cover", 1.0))
+		strength += c.skills[role_of(c)["weapon"]] * gift(c, "weapon", 1.0) + gear_sum(c, "armor")
+		weights += role_of(c)["hurt"]
+		cover = minf(cover, role_of(c).get("cover", 1.0))
 	var hurt := MONSTER_HURT * power * exp.party.size() / maxf(strength, 1.0) * cover
 	var wounds := PackedStringArray()
 	for c in exp.party:
-		var taken := roundf(hurt * exp.party.size() * HEROES[c.hero]["hurt"] / weights * armor_factor(c) * gift(c, "hurt", 1.0))
+		var taken := roundf(hurt * exp.party.size() * role_of(c)["hurt"] / weights * armor_factor(c) * gift(c, "hurt", 1.0))
 		c.hp -= taken
 		wounds.append("%s -%d" % [c.first_name, taken])
-		c.xp[HEROES[c.hero]["weapon"]] += 1
+		c.xp[role_of(c)["weapon"]] += 1
 	return ", ".join(wounds) + "."
 
 
@@ -6829,7 +6844,7 @@ func open_chest(exp: Expedition, data: Dictionary, last: bool) -> Array:
 		return [tr("a locked chest nobody can open."), false]
 	var haul := 1.0
 	for c in exp.party:
-		haul = maxf(haul, HEROES[c.hero].get("haul", 1.0))
+		haul = maxf(haul, role_of(c).get("haul", 1.0))
 	var gold := roundi(randi_range(data["gold"][0], data["gold"][1]) * haul * (TREASURE_GOLD if last else 1))
 	exp.loot[Res.GOLD] = exp.loot.get(Res.GOLD, 0) + gold
 	var found := {}  # Res -> quantità in questo forziere
@@ -6870,11 +6885,14 @@ func update_expeditions() -> void:
 		if exp.lost:
 			exp.lines.append(tr("Nobody came back from the %s.") % name)
 			report(tr("Lost in the %s") % name, exp.lines)
+			for c in exp.dead:  # i coloni della compagnia: la colonia lo sa adesso
+				die(c, tr("died in the %s.") % name, true)
 			continue
 		var gold: int = exp.loot.get(Res.GOLD, 0)
 		var share := LOOT_SHARE if enacted.has(Law.LOOT_TAX) else SHARE
-		var shares: float = exp.party.reduce(func(n, g): return n + gift(g, "share", share), 0.0) / exp.party.size()
-		var kept := floori(gold * shares)  # la quota: ognuno la sua parte (il leale niente)
+		var shares: float = exp.party.reduce(func(n, g): return n + (gift(g, "share", share) if g.hero != Hero.NONE else 0.0), 0.0) \
+			/ exp.party.size()
+		var kept := floori(gold * shares)  # la quota: ognuno la sua parte (il leale niente, i coloni niente)
 		if gold > 0:
 			exp.loot[Res.GOLD] = gold - kept
 		var brought := PackedStringArray()
@@ -6892,20 +6910,26 @@ func update_expeditions() -> void:
 		ruins.sort_custom(func(a, b): return a.kind < b.kind)
 		for g in exp.party:
 			g.trips += 1
-			if g.trips % gift(g, "trips", TRIPS_PER_LEVEL) == 0 and g.level < HERO_LEVEL_MAX:
+			if g.hero != Hero.NONE and g.trips % gift(g, "trips", TRIPS_PER_LEVEL) == 0 and g.level < HERO_LEVEL_MAX:
 				set_level(g, g.level + 1)
 				exp.lines.append(tr("%s is now level %d.") % [g.first_name, g.level])
 			g.pos = center(exp.edge)
 			g.errand = Errand.RETURN
-			guests.append(g)
+			if g.hero != Hero.NONE:
+				guests.append(g)
+			else:  # il colono della compagnia: di nuovo in colonia, passa dalla locanda e torna al lavoro
+				colonists.append(g)
 			travel(g)
 		if exp.treasure:
 			gain(TREASURE_AUTHORITY)
 			exp.lines.append(tr("The treasure of the %s: %s authority for the crown.") % [name, signed(TREASURE_AUTHORITY)])
 		for g in exp.party:
 			give_back(g)
-		exp.party[0].loot = exp.loot  # lo porta il primo, lo lascia alla locanda (vedi arrive)
+		var heroes: Array = exp.party.filter(func(g): return g.hero != Hero.NONE)
+		(heroes[0] if not heroes.is_empty() else exp.party[0]).loot = exp.loot  # lo porta un avventuriero alla locanda (vedi arrive)
 		report(tr("Back from the %s") % name, exp.lines)
+		for c in exp.dead:
+			die(c, tr("died in the %s.") % name, true)
 
 
 # --- Chi resta (GDD 4.2.1): la domanda, la finestra, il forestiero ---
@@ -7263,10 +7287,11 @@ func open_board() -> void:
 # qualcosa, se no i tasti non si premono
 func fill_board() -> void:
 	var waiting := guests.filter(func(g): return g.hero != Hero.NONE and not g.hired and g.errand != Errand.LEAVE)
+	var company := volunteers()  # Compagnia della corona: i coloni che possono andare con loro
 	for g in board_pick.duplicate():
-		if g not in waiting:
+		if g not in waiting and g not in company:
 			board_pick.erase(g)
-	var key := str([stored(Res.GOLD), food_stored(), waiting, board_pick, ruins.map(func(r): return r.cleared),
+	var key := str([stored(Res.GOLD), food_stored(), waiting, company, board_pick, ruins.map(func(r): return r.cleared),
 		expeditions.map(func(exp): return exp.left_at), chronicle.size()])
 	if key == board_key:
 		return
@@ -7282,30 +7307,27 @@ func fill_board() -> void:
 	box.get_node("Gold").text = tr("%s    %d %s provisions (meals, raw food, hardtack)") % [coins(stored(Res.GOLD)), food_stored(),
 		"[img=center]%s[/img]" % KIND_ICONS[ItemKind.FOOD].resource_path]
 	var list: Control = box.get_node("Heroes")
-	for child in list.get_children() + box.get_node("Ruins").get_children():
+	var crew: Control = box.get_node("Company/List")
+	for child in list.get_children() + box.get_node("Ruins").get_children() + crew.get_children():
 		child.free()
 	for g in waiting:
-		var row := HBoxContainer.new()
-		row.add_child(figure_icon(g))
-		var label := rich("%s\n%s, %s, %s" % [full_name(g), hero_name(g), gift_names(g), coins(fee(g))])
-		label.custom_minimum_size.x = 280
-		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		row.add_child(label)
-		var pick := CheckBox.new()
-		pick.text = "Pick"
-		pick.focus_mode = Control.FOCUS_NONE
-		pick.button_pressed = g in board_pick
-		pick.disabled = g not in board_pick and board_pick.size() >= MAX_PARTY
-		pick.toggled.connect(toggle_pick.bind(g))
-		row.add_child(pick)
-		list.add_child(row)
+		list.add_child(pick_row(g, "%s\n%s, %s, %s" % [full_name(g), hero_name(g), gift_names(g), coins(fee(g))]))
 	if waiting.is_empty():
 		var nobody := Label.new()
 		nobody.text = "Nobody is waiting at the inn." if inn_beds() > 0 else "Nobody will come without an inn: a room with a bed, a table and this board."
 		nobody.autowrap_mode = TextServer.AUTOWRAP_WORD
 		list.add_child(nobody)
+	box.get_node("Company").visible = researched.has(Tech.CROWN_COMPANY)
+	for c in company:
+		crew.add_child(pick_row(c, "%s\n%s" % [full_name(c), tr("Melee %d, ranged %d, armor %d") % [c.skills[Skill.MELEE],
+			c.skills[Skill.RANGED], gear_sum(c, "armor")]]))
+	if company.is_empty():
+		var nobody := Label.new()
+		nobody.text = "Nobody can go: adults only, not the ruler, nobody downed or pregnant."
+		nobody.autowrap_mode = TextServer.AUTOWRAP_WORD
+		crew.add_child(nobody)
 	var cost: int = board_pick.reduce(func(n, g): return n + fee(g), 0)
+	var anyone := board_pick.any(func(g): return g.hero != Hero.NONE)  # ci vuole almeno un avventuriero
 	for ruin in ruins:
 		var data: Dictionary = RUINS[ruin.kind]
 		var row := HBoxContainer.new()
@@ -7327,8 +7349,9 @@ func fill_board() -> void:
 			var send_button := Button.new()
 			send_button.text = "Send"
 			send_button.focus_mode = Control.FOCUS_NONE
-			send_button.disabled = board_pick.is_empty() or stored(Res.GOLD) < cost
-			send_button.tooltip_text = "Pick who goes" if board_pick.is_empty() else ("Not enough gold" if stored(Res.GOLD) < cost
+			send_button.disabled = board_pick.is_empty() or stored(Res.GOLD) < cost or not anyone
+			send_button.tooltip_text = "Pick who goes" if board_pick.is_empty() else ("At least one adventurer must go" if not anyone
+				else "Not enough gold" if stored(Res.GOLD) < cost
 				else (tr("Only %d of %d provisions: they will go hungry") % [food_stored(), food] if food_stored() < food
 				else tr("%d days there and back") % ceili(trip_days(ruin, board_pick))))
 			send_button.pressed.connect(func(): send(board_pick.duplicate(), ruin))
@@ -7341,6 +7364,25 @@ func fill_board() -> void:
 	box.get_node("Chronicle").visible = not chronicle.is_empty()
 	box.get_node("ChronicleButton").text = tr("Chronicle (%d)") % chronicle.size()
 	$HUD/BoardPanel.reset_size()
+
+
+# una riga della bacheca: la figurina di `g`, il testo, la casella per spuntarlo per la prossima spedizione
+func pick_row(g: Colonist, text: String) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_child(figure_icon(g))
+	var label := rich(text)
+	label.custom_minimum_size.x = 280
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(label)
+	var pick := CheckBox.new()
+	pick.text = "Pick"
+	pick.focus_mode = Control.FOCUS_NONE
+	pick.button_pressed = g in board_pick
+	pick.disabled = g not in board_pick and board_pick.size() >= MAX_PARTY
+	pick.toggled.connect(toggle_pick.bind(g))
+	row.add_child(pick)
+	return row
 
 
 # la figurina di `c`, al doppio, di fronte; col mouse sopra la sua scheda (bacheca, finestra della domanda)
@@ -7784,8 +7826,34 @@ func show_title() -> void:
 # i coloni che contano per il titolo: quelli in colonia, figli compresi, e quelli in spedizione (non i neonati, che
 # stanno in `babies`, né gli avventurieri)
 func colony_size() -> int:
-	return colonists.size() + expeditions.reduce(func(n, exp): return n + exp.party.filter(
-		func(c): return c.hero == Hero.NONE and c not in colonists).size(), 0)
+	return colonists.size() + away_colonists().size()
+
+
+# i coloni fuori dalla mappa con la compagnia della corona: anche quelli morti nella rovina, finché non si sa
+func away_colonists() -> Array:
+	var out := []
+	for exp in expeditions:
+		out.append_array((exp.party + exp.dead).filter(func(c): return c.hero == Hero.NONE and c not in colonists))
+	return out
+
+
+# Compagnia della corona: i coloni che possono partire con gli avventurieri (adulti, non il sovrano né il reggente, non
+# a terra né incinte, non già in viaggio o col giuramento da fare)
+func volunteers() -> Array:
+	if not researched.has(Tech.CROWN_COMPANY):
+		return []
+	return colonists.filter(func(c): return c != ruler and c != regent_for and age_of(c) >= ADULT and not c.downed \
+		and c.due == 0.0 and not c.hired and c.errand == Errand.NONE and not c.oath)
+
+
+# nella rovina: l'abilità con cui combatte, quanti colpi prende, e per l'avventuriero il resto della classe (HEROES).
+# Chi era avventuriero combatte come la sua classe di un tempo; gli altri coloni con la migliore tra mischia e distanza
+func role_of(c: Colonist) -> Dictionary:
+	if c.hero != Hero.NONE:
+		return HEROES[c.hero]
+	if c.former != Hero.NONE:
+		return {"weapon": HEROES[c.former]["weapon"], "hurt": HEROES[c.former]["hurt"]}
+	return {"weapon": Skill.MELEE if c.skills[Skill.MELEE] >= c.skills[Skill.RANGED] else Skill.RANGED, "hurt": 1.0}
 
 
 # Lo splendore e i coloni sono arrivati al titolo dopo: sale (mai giù). Nella cronaca e in una finestra al centro, coi sigilli in più

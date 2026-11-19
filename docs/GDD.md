@@ -978,7 +978,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Scudo ✓ | II | 250 | Fantoccio | scudo tondo all'incudine (3 legna, 1 lingotto), nel suo slot: +3 protezione con spada o pugnale |
   | Strada | Locanda ✓ | I | 40 | — | *bacheca degli incarichi, locanda, ingaggi e spedizioni* |
   | | Locanda rinomata ✓ | II | 250 | Locanda | arrivi ogni giorno e mezzo, restano 5 giorni; avviso per la classe (sulla bacheca) |
-  | | Compagnia della corona | III | 500 | Locanda rinomata | i coloni partono con gli avventurieri |
+  | | Compagnia della corona ✓ | III | 500 | Locanda rinomata | i coloni partono con gli avventurieri (vedi 4.4.4) |
   | | Mappa del Re Dimenticato | IV | 1000 | Compagnia, Cartografia | la Cittadella: pericolo 5, 10 stanze, 3 giorni |
   | | Provviste secche ✓ | I | 80 | — | gallette al fuoco (2 vegetali, scorta 0 dal menu): valgono 2 provviste, non marciscono, a casa non si mangiano |
   | | Armeria di prestito ✓ | II | 250 | Provviste secche | si presta l'equipaggiamento agli avventurieri: armatura, elmo e scudo migliori dei loro, dal magazzino; tornano con loro (morti, persi) |

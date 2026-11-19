@@ -3525,3 +3525,29 @@ msgstr "%s: %s non può giurare fedeltà: alla corona manca l'autorità."
 
 msgid "%s: %s swears loyalty to the crown."
 msgstr "%s: %s giura fedeltà alla corona."
+
+# --- Nuovi coloni: la compagnia della corona
+
+msgid "Crown Company"
+msgstr "Compagnia della corona"
+
+msgid "Colonists go along with the adventurers: pick them on the notice board, with at least one adventurer. They ask no fee and keep no share."
+msgstr "I coloni partono con gli avventurieri: si spuntano sulla bacheca, con almeno un avventuriero. Non chiedono paga e non prendono la quota."
+
+msgid "The crown's company: colonists who can go along"
+msgstr "La compagnia della corona: i coloni che possono partire"
+
+msgid "Nobody can go: adults only, not the ruler, nobody downed or pregnant."
+msgstr "Non può partire nessuno: solo gli adulti, non il sovrano, nessuno a terra o incinta."
+
+msgid "At least one adventurer must go"
+msgstr "Deve partire almeno un avventuriero"
+
+msgid "Melee %d, ranged %d, armor %d"
+msgstr "Mischia %d, distanza %d, protezione %d"
+
+msgid "colonist"
+msgstr "colono"
+
+msgid "died in the %s."
+msgstr "ha perso la vita esplorando %s."

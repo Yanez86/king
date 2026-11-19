@@ -1783,6 +1783,16 @@ focus_mode = 0
 [node name="Heroes" type="VBoxContainer" parent="HUD/BoardPanel/Box"]
 theme_override_constants/separation = 6
 
+[node name="Company" type="VBoxContainer" parent="HUD/BoardPanel/Box"]
+visible = false
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="HUD/BoardPanel/Box/Company"]
+text = "The crown's company: colonists who can go along"
+
+[node name="List" type="VBoxContainer" parent="HUD/BoardPanel/Box/Company"]
+theme_override_constants/separation = 6
+
 [node name="Separator" type="HSeparator" parent="HUD/BoardPanel/Box"]
 
 [node name="Ruins" type="VBoxContainer" parent="HUD/BoardPanel/Box"]

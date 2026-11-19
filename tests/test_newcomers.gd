@@ -160,6 +160,9 @@ func _initialize() -> void:
 		var group: Array = main.wanderer_group()
 		kinds[2 if group.any(func(o): return main.age_of(o) < main.ADULT) else group.size() - 1] += 1
 		tools += 1 if group[0].gear.has(main.Slot.HANDS) else 0
+		for o in group:  # niente cicli di riferimenti: si liberano
+			o.fellows = []
+			o.spouse = null
 	check(kinds[0] > 1300 and kinds[0] < 1500 and kinds[1] > 220 and kinds[1] < 380 and kinds[2] > 220 and kinds[2] < 380,
 		"soli, coppie, famiglie: %s" % str(kinds))
 	check(tools > 420 and tools < 580, "attrezzi: %d su 2000" % tools)
@@ -285,7 +288,91 @@ func _initialize() -> void:
 	main.revoke(L.OATH)
 	check(not main.try_oath(poor) and not poor.oath and not poor.sworn, "revocata la legge, niente giuramento")
 
-	print("OK: nuovi coloni (l'avventuriero che resta, i viandanti, le leggi dell'Accoglienza)")
+	# --- Compagnia della corona: i coloni partono con gli avventurieri ---
+	main.routines = false
+	for o in main.colonists:  # niente di strano: in piedi, non incinte, senza giuramento da fare
+		o.downed = false
+		o.due = 0.0
+		o.oath = false
+		o.errand = main.Errand.NONE
+	var ready: Array = main.volunteers()
+	check(main.ruler not in ready and kid not in ready and w in ready, "partono gli adulti, non il sovrano né i bambini")
+	w.due = 1.0
+	check(w not in main.volunteers(), "né le incinte")
+	w.due = 0.0
+	main.researched.erase(main.Tech.CROWN_COMPANY)
+	check(main.volunteers().is_empty(), "senza la ricerca nessuno")
+	main.researched[main.Tech.CROWN_COMPANY] = true
+	check(main.role_of(w) == {"weapon": main.Skill.MELEE, "hurt": 2.0} and main.role_of(a)["weapon"] == main.Skill.RANGED,
+		"chi era avventuriero combatte come la sua classe")
+	var farmer = person()
+	farmer.skills[main.Skill.RANGED] = 4
+	check(main.role_of(farmer) == {"weapon": main.Skill.RANGED, "hurt": 1.0}, "gli altri con la loro arma migliore, la parte media dei colpi")
+	# la bacheca: sotto chi aspetta alla locanda, i coloni; ci vuole almeno un avventuriero
+	var leader = guest(main.Hero.WARRIOR, 2, inn)
+	main.board_pick.clear()
+	main.open_board()
+	var board = main.get_node("HUD/BoardPanel/Box")
+	check(board.get_node("Company").visible and board.get_node("Company/List").get_child_count() == main.volunteers().size(),
+		"la bacheca mostra i coloni che possono partire")
+	main.toggle_pick(true, farmer)
+	main.fill_board()
+	var send_button: Button = board.get_node("Ruins").get_child(0).get_child(-1)
+	check(send_button.disabled and send_button.tooltip_text == "At least one adventurer must go", "un colono da solo non parte")
+	check(not main.send([farmer], main.ruins[0]), "un colono da solo non parte")
+	main.get_node("HUD/BoardPanel").hide()
+	var tower = main.ruins[0]
+	tower.cleared = 0
+	main.stockpile[mid + Vector2i(12, 0)] = true  # le stanze rifatte (la sala del trono) l'avevano tolto
+	var gold: int = main.stored(R.GOLD)
+	check(main.send([leader, farmer], tower), "il guerriero e il colono partono")
+	check(main.stored(R.GOLD) == gold - main.fee(leader) and main.fee(farmer) == 0, "il colono non ha paga")
+	var trip = main.expeditions[-1]
+	var size: int = main.colony_size()
+	walk_until(func(): return trip.left_at >= 0, 8000)
+	check(farmer not in main.colonists and farmer not in main.guests and main.colony_size() == size, "partiti: il colono è fuori dalla mappa, ma conta")
+	check(farmer not in main.volunteers(), "via, non si spunta")
+	# il ritorno: il colono non prende la quota, torna in colonia, passa dalla locanda e torna al lavoro
+	trip.lost = false
+	trip.party.assign([leader, farmer])
+	trip.dead.clear()
+	trip.loot = {R.GOLD: 100}
+	main.clock = trip.back_at
+	main.update_expeditions()
+	check(farmer in main.colonists and farmer.trips == 1 and farmer.errand == main.Errand.RETURN and leader in main.guests,
+		"tornati: il colono è di nuovo in colonia")
+	check(leader.loot[R.GOLD] == 100 - floori(100 * main.SHARE / 2.0) and farmer.loot.is_empty(),
+		"la quota la prende solo l'avventuriero, e porta lui il bottino")
+	walk_until(func(): return farmer.errand == main.Errand.NONE, 8000)
+	check(not farmer.hired and farmer in main.volunteers(), "arrivato: può ripartire")
+	main.find_job(farmer)
+	check(farmer.job != main.Job.RELAX and farmer.job != main.Job.TRAVEL, "e lavora")
+
+	# morto nella rovina: la colonia lo sa al ritorno; lutto e -5 autorità; finché non si sa, conta ancora
+	var fallen = person()
+	main.colonists.erase(fallen)
+	var grim = main.Expedition.new()
+	grim.ruin = tower
+	grim.left_at = main.clock
+	grim.back_at = main.clock + 1.0
+	grim.lost = true
+	grim.dead.append(fallen)
+	main.expeditions.append(grim)
+	if main.ruler.sex == main.Sex.MALE:  # un figlio del sovrano: in spedizione resta nella linea di successione
+		fallen.father = main.ruler
+	else:
+		fallen.mother = main.ruler
+	check(main.colony_size() == main.colonists.size() + 1 and fallen in main.line_of(main.ruler),
+		"finché non si sa, conta: per il titolo e per la successione")
+	main.authority = 50.0
+	main.clock = grim.back_at
+	main.update_expeditions()
+	check(fallen.died > 0.0 and main.authority == 45.0 and main.colonists.all(func(o): return o.conds.has(main.Cond.MOURNING)),
+		"lutto e -5 autorità")
+	check(Array(main.chronicle).any(func(l): return main.full_name(fallen) + " died in the Ruined tower." in l) and fallen not in main.corpses,
+		"nella cronaca; il corpo resta là")
+
+	print("OK: nuovi coloni (l'avventuriero che resta, i viandanti, le leggi dell'Accoglienza, la compagnia della corona)")
 	quit()
 
 

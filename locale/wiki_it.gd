@@ -567,6 +567,13 @@ Cliccala: le monete e le provviste in magazzino, chi aspetta alla locanda (Scegl
 • Tornati a casa, vanno alla locanda e lì lasciano il bottino ai tuoi trasportatori, tolta la loro quota delle monete.
 • Le stanze ripulite restano ripulite: il gruppo dopo riparte da lì. Una rovina senza più stanze è esplorata.
 
+[color=#e8c34a]La compagnia della corona[/color]
+Con la ricerca Compagnia della corona (Strada III, 500 e un tomo, dopo Locanda rinomata) partono anche i tuoi coloni.
+• Sulla bacheca, sotto chi aspetta alla locanda, i coloni che possono partire: gli adulti, non il sovrano, nessuno a terra o incinta. Si spuntano come gli avventurieri; deve partire almeno un avventuriero.
+• Non chiedono paga e non prendono la quota delle monete. Via, non lavorano, ma contano per il titolo.
+• Nella rovina chi era avventuriero combatte come la sua classe di un tempo; gli altri con la migliore tra Mischia e Distanza, e prendono una parte media delle ferite. +1 esperienza nell'arma per ogni combattimento.
+• Al ritorno vanno alla locanda con gli altri, poi tornano al lavoro. Un colono morto in una rovina si piange quando arriva la notizia (col gruppo, o quando la spedizione si dà per persa): Lutto e -5 autorità.
+
 [color=#e8c34a]Rovine[/color]
 All'inizio conosci solo la torre. Ogni tesoro contiene la mappa della rovina successiva, e qualunque forziere può (15%) contenere la mappa di una che non conosci ancora. Il viaggio è indicato per la sola andata.
 [table=4]
@@ -614,6 +621,7 @@ Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette 
 • [color=#d9c48a]Armi di ferro[/color] (Ferro I, 80, dopo Forgia): spada ed elmo.
 • [color=#d9c48a]Cotta di maglia[/color] (Ferro II, 300 e un quaderno, dopo Armi di ferro): la cotta di maglia.
 • [color=#d9c48a]Locanda[/color] (Strada I, 40): la bacheca; le leggi Gabella sul bottino e Tassa di soggiorno.
+• [color=#d9c48a]Compagnia della corona[/color] (Strada III, 500 e un tomo, dopo Locanda rinomata): i coloni partono in spedizione con gli avventurieri.
 • [color=#d9c48a]Libreria[/color] (Sapere I, 60): la libreria.
 • [color=#d9c48a]Lanterne[/color] (Sapere I, 40): abat-jour e lampione."""],
 

@@ -681,6 +681,22 @@ MANURE_ICONS = """
 """
 
 # Ricerca 12x12 della concimazione, come TECH_SYMBOLS: il cumulo del compost con un germoglio
+# Compagnia della corona: la corona sulla bisaccia di chi parte
+TECH_COMPANY = """
+.o...oo...o.
+o8o.o88o.o8o
+ogooogggoogo
+oggggggggg<o
+oooooooooooo
+..oooooooo..
+.owwwwwwwwo.
+.oWWWgWWWWo.
+.owwwwwwwwo.
+.owwwwwwwWo.
+.oWWWWWWWWo.
+..oooooooo..
+"""
+
 TECH_MANURE = """
 .....o.o....
 ....oyoyo...
@@ -4136,7 +4152,7 @@ def main():
     techs += frames(TECH_SYMBOLS_4, 12, 5, 12) + frames(TECH_SYMBOLS_5, 12, 2, 12) + frames(TECH_SYMBOLS_6, 12, 3, 12) \
         + frames(TECH_SYMBOLS_7, 12, 2, 12) + frames(TECH_SYMBOLS_8, 12, 3, 12) + frames(TECH_SYMBOLS_9, 12, 1, 12) \
         + frames(TECH_SYMBOLS_10, 12, 3, 12) + [art(TECH_GARDEN, 12, 12)] + frames(TECH_SOIL, 12, 3, 12) \
-        + [art(TECH_MANURE, 12, 12)]
+        + [art(TECH_MANURE, 12, 12), art(TECH_COMPANY, 12, 12)]
     images["techs"] = pixels(side_by_side([badge(f) for f in techs]))
     laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 3, 12) + frames(LAW_SYMBOLS_5, 12, 3, 12) + frames(LAW_SYMBOLS_6, 12, 4, 12) \
         + frames(LAW_SYMBOLS_7, 12, 3, 12)

@@ -568,6 +568,13 @@ Click it: the coins and provisions in store, who waits at the inn (Pick up to 4)
 • Home again, they go to the inn and leave the loot there for your haulers, minus their share of the coins.
 • Cleared rooms stay cleared: the next party starts from there. A ruin with no rooms left is explored.
 
+[color=#e8c34a]The crown's company[/color]
+With the Crown company research (Road III, 500 and a tome, after Renowned inn) your colonists go too.
+• On the notice board, under those waiting at the inn, the colonists who can go: adults, not the ruler, nobody downed or pregnant. Pick them like the adventurers; at least one adventurer must go.
+• They ask no fee and keep no share of the coins. Away they don't work, but they still count for the title.
+• In the ruin a former adventurer fights like their old class; the others with the better of Melee and Ranged, taking an average share of the wounds. +1 experience in their weapon for every fight.
+• Back home they walk to the inn with the others, then go back to work. A colonist who dies in a ruin is mourned when the news comes (with the party, or when it is given up for lost): Mourning and -5 authority.
+
 [color=#e8c34a]Ruins[/color]
 At first you know only the tower. Every treasure holds the map of the next ruin, and any chest may (15%) hold the map of one you don't know yet. Travel is one way.
 [table=4]
@@ -615,6 +622,7 @@ What you haven't researched has no build button, and its recipes don't show at t
 • [color=#d9c48a]Iron arms[/color] (Iron I, 80, after Forge): sword and helmet.
 • [color=#d9c48a]Chainmail[/color] (Iron II, 300 and a notebook, after Iron arms): chainmail.
 • [color=#d9c48a]Inn[/color] (Road I, 40): the notice board; the laws Loot tax and Lodging tax.
+• [color=#d9c48a]Crown company[/color] (Road III, 500 and a tome, after Renowned inn): colonists go on expeditions with the adventurers.
 • [color=#d9c48a]Bookshelf[/color] (Lore I, 60): the bookshelf.
 • [color=#d9c48a]Lanterns[/color] (Lore I, 40): lamp and lantern."""],
 
