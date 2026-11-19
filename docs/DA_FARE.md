@@ -23,7 +23,8 @@
 | Mondo e tempo | 4.5 | fatto | — |
 | Salvataggio | 4.5.1 | locale fatto | il cloud |
 | Eventi casuali | 4.6 | fatto: il narratore e 11 eventi | tarare i numeri; eventi nuovi coi sistemi nuovi |
-| Ricerca | 4.7.3 | 38 ricerche su 50 | 12 ricerche, il livello IV |
+| Caserma e classi | 4.4.6 | solo il design | tutto, a cominciare dalle soglie di livello delle abilità |
+| Ricerca | 4.7.3 | 38 ricerche su 51 | 13 ricerche, il livello IV |
 | Leggi | 4.7.7 | 22 leggi su 38 | 16 leggi: quelle della dinastia si possono fare ora |
 | Interfaccia | [TECH](TECH.md) | testo a 22, elenco degli abitanti, bacheca con la squadra | provarla in inglese e ad altre risoluzioni |
 
@@ -45,7 +46,8 @@ sfortune, la tregua). Ora si possono fare anche le leggi della dinastia (vedi Le
 
 ## Coloni (4.2)
 
-- [ ] Soglie di livello delle abilità da definire.
+- [ ] Le soglie di livello delle abilità (decise in 4.2: 10 × (n+1) punti da n a n+1) e i punti dei lavori, pesati
+  perché ognuno dia circa 15 punti in una giornata. Servono alla caserma (4.4.6).
 - [ ] Altri effetti dello stress, oltre alla felicità.
 - [ ] Morte: tombe e cimitero, funerali, il medico che cura chi è a terra.
 - [ ] Condizioni nuove: malattie che si attaccano (la febbre del narratore c'è), perdita di punti ferita.
@@ -126,12 +128,26 @@ Dinastia (4.3.3, fatta): quello che resta.
 - [ ] Medico e cure; funerali.
 - [ ] Animali che fuggono o si difendono.
 - [ ] Ordini di combattimento dati dal re (il combattimento tattico resta fuori scope).
-- [ ] L'arciere che sale da sé sulla torre di guardia.
+- [ ] L'arciere che sale da sé sulla torre di guardia: lo fa chi ha la classe arciere (4.4.6).
 - [ ] Splendore: strade che collegano le case, alberi piantati, feste; i sentieri tra le case danno splendore.
 - [ ] Splendore: tarare la manutenzione (mezza moneta a punto oltre i primi 15, a ogni festa di stagione), la
   vicinanza (4 caselle) e la colonia (2 caselle); disegnare la patina delle decorazioni trascurate e diroccate (oggi
   solo una tinta).
 - [ ] Statuaria: i memoriali dei caduti (lutto un giorno in meno).
+
+## Caserma e classi dei coloni (4.4.6)
+
+Deciso il 2026-11-19: il giocatore dà a un colono la classe di un avventuriero (guerriero, arciere, scassinatore) dalla
+sua scheda, e il colono si allena nelle stanze della caserma (sala d'armi, tiro a segno). Fasi dell'ordine di lavoro:
+
+- [ ] (1) Le soglie di livello delle abilità (4.2), coi punti sulla scheda.
+- [ ] (2) Ricerca Caserma; sala d'armi e tiro a segno, con rastrelliera, bersaglio e banco degli scassi; la classe dalla
+  scheda (requisiti, perché no); il corredo della classe e il cappuccio colorato; il pugnale all'incudine.
+- [ ] (3) L'esercitazione: un'ora al giorno nella routine, il lavoro Esercitarsi, i lavoratori della stanza a tempo
+  pieno, la milizia in caserma.
+- [ ] (4) In battaglia secondo la classe: il guerriero che copre, l'arciere che tiene la distanza e sale sulla torre, lo
+  scassinatore che schiva.
+- [ ] (5) In spedizione come la sua classe; un gruppo di soli coloni con una classe può partire.
 
 ## Avventurieri e rovine (4.4.4)
 
@@ -179,7 +195,8 @@ Cittadella.
 | Fuoco | Vetreria | III | Acciaio | finestre, occhiali |
 | | Altoforno | IV | Vetreria | lingotti e acciaio tre alla volta |
 | Pietra | Ponte | II | Strada lastricata | si attraversa l'acqua alta, si pesca dal ponte |
-| Ferro | Balestra | III | Torre di guardia | danno 22, +15% a segno |
+| Ferro | Caserma | II | Fantoccio | sala d'armi, tiro a segno, le classi dei coloni, il pugnale (4.4.6) |
+| | Balestra | III | Torre di guardia | danno 22, +15% a segno |
 | | Armatura a piastre | IV | Balestra, Cotta di maglia, Acciaio | protezione 7 |
 | Strada | Mappa del Re Dimenticato | IV | Compagnia, Cartografia | la Cittadella |
 | Sapere | Biblioteca reale | IV | Astronomia | si rilegano i tomi; +2 autorità al giorno |
