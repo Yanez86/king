@@ -1433,6 +1433,11 @@ visible = false
 focus_mode = 0
 text = "Arrange a marriage…"
 
+[node name="House" type="Button" parent="HUD/ColonistSheet/Box/Family"]
+visible = false
+focus_mode = 0
+text = "The house…"
+
 [node name="Kin" type="Label" parent="HUD/ColonistSheet/Box"]
 visible = false
 custom_minimum_size = Vector2(300, 0)
@@ -2028,6 +2033,45 @@ expand_icon = true
 [node name="Ok" type="Button" parent="HUD/BirthPanel/Box"]
 focus_mode = 0
 text = "Name the child"
+
+[node name="HousePanel" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Box" type="VBoxContainer" parent="HUD/HousePanel"]
+theme_override_constants/separation = 8
+
+[node name="Head" type="HBoxContainer" parent="HUD/HousePanel/Box"]
+
+[node name="Title" type="Label" parent="HUD/HousePanel/Box/Head"]
+size_flags_horizontal = 3
+text = "The house"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Close" type="Button" parent="HUD/HousePanel/Box/Head"]
+custom_minimum_size = Vector2(32, 32)
+focus_mode = 0
+tooltip_text = "Close"
+icon = ExtResource("6")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Scroll" type="ScrollContainer" parent="HUD/HousePanel/Box"]
+custom_minimum_size = Vector2(520, 380)
+horizontal_scroll_mode = 0
+
+[node name="Text" type="RichTextLabel" parent="HUD/HousePanel/Box/Scroll"]
+size_flags_horizontal = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
 
 [node name="SuccessionPanel" type="PanelContainer" parent="HUD"]
 visible = false

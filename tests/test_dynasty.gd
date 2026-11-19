@@ -326,7 +326,19 @@ func _initialize() -> void:
 	check(main.total(main.Res.GOLD) == gold + suitor.dowry[main.Res.GOLD], "la dote resta in colonia")
 	check(Array(main.chronicle).any(func(line): return "brings a dowry" in line), "la cronaca")
 
-	print("OK: età, vecchiaia, matrimonio, figli, crescita, successione e pretendenti")
+	# la finestra della casata: i sovrani divisi per casata, con gli anni di regno, il coniuge e i figli
+	main.open_sheet(lord)
+	main.get_node("HUD/ColonistSheet/Box/Family/House").pressed.emit()
+	var house_panel: Control = main.get_node("HUD/HousePanel")
+	var tree: String = house_panel.get_node("Box/Scroll/Text").text
+	check(house_panel.visible and house_panel.get_node("Box/Head/Title").text == "The House of %s" % main.house_name, "la finestra della casata")
+	check(main.reigns.size() == 4 and main.reigns.all(func(r): return main.full_name(r[0]) in tree), "tutti i sovrani")
+	check(tree.find("The House of %s" % house) < tree.find("The House of %s" % lord.last_name), "le casate, in ordine")
+	check(tree.contains("Spouse: %s" % main.full_name(suitor)) and tree.contains("Children: %s (" % heir.first_name)
+		and tree.contains("today"), "coniugi, figli, chi regna oggi")
+	house_panel.hide()
+
+	print("OK: età, vecchiaia, matrimonio, figli, crescita, successione, pretendenti e casata")
 	quit()
 
 

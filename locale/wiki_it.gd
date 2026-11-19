@@ -209,6 +209,7 @@ Gli altri due coloni vengono a caso: abilità a 0, 0–2 talenti.
 • Quando il sovrano muore, la corona va al primo figlio vivo, maschio o femmina; senza figli al coniuge vivo, poi a un fratello o a una sorella.
 • Tutti prendono il Lutto regale per 7 giorni; poi l'erede è incoronato: Incoronazione per tutti e +20 autorità.
 • Un erede sotto i 16 anni aspetta con un reggente: un genitore vivo, se no l'adulto con più abilità. Il reggente governa e il suo titolo è Reggente; la scheda dell'erede dice "Erede di". Al sedicesimo compleanno l'erede è incoronato. Se il reggente muore ne arriva un altro; se muore l'erede, il prossimo della linea.
+• "La casata…" nella scheda di un colono apre l'albero genealogico: i sovrani in ordine, divisi per casata, ognuno con gli anni di regno, il coniuge e i figli (i morti con la croce), e il reggente se c'è.
 • Non resta nessuno: la casata è finita. Una finestra chiede chi regnerà tra gli adulti (intanto quello con più abilità): comincia la sua casata, col suo cognome e uno stemma nuovo. Il titolo resta al reame."""],
 
 	["Costruire", """[color=#e8c34a]Come costruire[/color] [img=center]res://art/icon_wood.png[/img] [img=center]res://art/icon_stone.png[/img]

@@ -11,7 +11,7 @@
 |---|---|---|---|
 | Lavori e priorità | 4.1 | fatto | i lavoratori delle stanze non contano ancora |
 | Coloni | 4.2 | quasi tutto | malattie, medico, tombe; relazioni e umore |
-| Sovrano e dinastia | 4.3 | fasi 1, 2, 6 e mezza 5 | **matrimonio, figli, successione**; sovrano sereno/cupo, lutto regale, incoronazione |
+| Sovrano e dinastia | 4.3 | dinastia fatta (4.3.3); del sovrano fasi 1, 2, 6 e mezza 5 | sovrano sereno/cupo, stile di regno, sguardo, epiteti |
 | Stemma | 4.3.2 | base | linee, pellicce, ornamenti, motto, blasonatura |
 | Risorse ed edifici | 4.4 | fatto | vene d'oro, commercio |
 | Cibo e orto | 4.4.1 | fatto, coi concimi | forno e pane, stufato e conserve, letame (serve la stalla) |
@@ -27,17 +27,15 @@
 
 ## Da dove partire (proposta)
 
-Molte cose aspettano due sistemi che non ci sono ancora: **la dinastia** e **i coloni nuovi**. Conviene farli per primi.
+La dinastia c'è (4.3.3: età, matrimonio, figli, successione, pretendenti, la finestra della casata). Molte cose
+aspettano ancora **i coloni nuovi**: conviene farli adesso.
 
-1. **Dinastia** — matrimonio, figli, successione (4.3). Sblocca: lutto regale e incoronazione, l'autorità
-   dell'incoronazione, la Primogenitura e la Successione elettiva, il lambello e gli stemmi uniti, gli epiteti, le leggi
-   Matrimoni misti, Scuola, Padrinato. Oggi la morte del sovrano non ha seguito.
-2. **La colonia che cresce** — avventurieri che restano come coloni, viandanti (4.4.4). Sblocca: Porte aperte e Porte
+1. **La colonia che cresce** — avventurieri che restano come coloni, viandanti (4.4.4). Sblocca: Porte aperte e Porte
    chiuse, Giuramento, Compagnia della corona, il titolo che sale anche col numero di coloni.
-3. **Il narratore** (4.6) — gli eventi come file di dati. Sblocca: malattie, viandanti, raccolto abbondante, e dà un
+2. **Il narratore** (4.6) — gli eventi come file di dati. Sblocca: malattie, viandanti, raccolto abbondante, e dà un
    posto all'erudito errante, all'incendio e all'ondata di freddo (oggi fatti a mano).
-4. **Medicina e morte** — Erboristeria, Medicina, tombe e cimitero, funerali (legge Funerali).
-5. **Cucina e animali** — Forno di pietra, stufato, conserve; poi Apicoltura e Banchetto reale; animali da allevare e
+3. **Medicina e morte** — Erboristeria, Medicina, tombe e cimitero, funerali (legge Funerali).
+4. **Cucina e animali** — Forno di pietra, stufato, conserve; poi Apicoltura e Banchetto reale; animali da allevare e
    la stalla, col letame.
 
 ## Lavori e priorità (4.1)
@@ -60,7 +58,7 @@ Molte cose aspettano due sistemi che non ci sono ancora: **la dinastia** e **i c
 
 Fasi dell'ordine di lavoro ancora da fare:
 
-- [ ] (3) Sovrano sereno e sovrano cupo, lutto regale, incoronazione (con le loro condizioni sulla scheda).
+- [ ] (3) Sovrano sereno e sovrano cupo, con le loro condizioni sulla scheda (lutto regale e incoronazione ci sono).
 - [ ] (4) Riepilogo della nuova partita coi coloni di partenza, ognuno col suo dado.
 - [ ] (5) Lo stile di regno (Condottiero, Costruttore, Mecenate, Padre del popolo, Tesoriere, Saggio); i talenti a
   punti ci sono già.
@@ -69,12 +67,15 @@ Fasi dell'ordine di lavoro ancora da fare:
   (lista da definire).
 - [ ] (9) Il resto dei "Poi".
 
-Dinastia:
+Dinastia (4.3.3, fatta): quello che resta.
 
-- [ ] Matrimonio, figli che crescono, prendono il cognome e una parte dei talenti.
-- [ ] Successione al primogenito; nessun erede: fine della dinastia.
-- [ ] All'incoronazione si sceglie lo stile di regno dell'erede.
+- [ ] All'incoronazione si sceglie lo stile di regno dell'erede (quando ci sarà lo stile di regno).
 - [ ] Il titolo che sale anche col numero dei coloni, non solo con lo splendore.
+- [ ] Matrimoni anche tra gli altri coloni, non solo del sovrano, e i loro figli.
+- [ ] I ragazzi imparano il doppio, quando ci saranno le soglie di livello delle abilità.
+- [ ] Una casata nuova sceglie il suo stemma (oggi è a caso): l'editor dello stemma in partita.
+- [ ] Gli effetti della vecchiaia (oltre alla morte): più lenti, più saggi.
+- [ ] Tarare i numeri: figli a notte, età, vecchiaia, pretendenti, dote.
 
 ## Stemma (4.3.2)
 
@@ -184,8 +185,8 @@ Cittadella.
 
 Eventi d'autorità ancora da fare:
 
-- [ ] Incoronazione +20; spedizione tornata col tesoro +5; cimelio posato +3; colono morto −5; ogni colono sotto 20 di
-  felicità −1 al giorno.
+- [ ] Spedizione tornata col tesoro +5; cimelio posato +3 (l'incoronazione, il colono morto e i coloni infelici ci
+  sono già).
 
 Leggi senza ✓ (tra parentesi quello che aspettano):
 

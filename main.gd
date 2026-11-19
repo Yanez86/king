@@ -1433,7 +1433,7 @@ var naming = null           # Colonist: il neonato a cui la finestra della nasci
 var house_name := ""        # la casata che regna: il cognome dei suoi, che i figli prendono (vedi found_house)
 var regent_for = null       # Colonist: l'erede minorenne per cui `ruler` regna da reggente; null se no
 var coronation_at := 0.0    # `clock` dell'incoronazione di `ruler`, finito il lutto regale; 0 se non ce n'è una in attesa
-var reigns := []            # [sovrano, `clock` d'inizio, di fine (-1 finché regna)]: i sovrani, in ordine
+var reigns := []            # [sovrano, `clock` d'inizio, di fine (-1 finché regna), casata]: i sovrani, in ordine
 var founding_line := -1     # la voce della cronaca della casata nuova, che cambia se il giocatore sceglie un altro
 var founding_from := ""     # la casata finita, per quella voce
 var next_suitor := 0.0      # `clock` del prossimo pretendente alla locanda; 0: da fissare (vedi update_suitors)
@@ -1825,6 +1825,7 @@ func _ready() -> void:
 	$HUD/BirthPanel/Box/Ok.pressed.connect($HUD/BirthPanel.hide)
 	marriage_menu.id_pressed.connect(marriage_pressed)
 	$HUD/ColonistSheet/Box/Family/Marry.pressed.connect(open_marriage_menu)
+	$HUD/ColonistSheet/Box/Family/House.pressed.connect(open_house)
 	for slot in Slot.values():
 		var icon: Control = $HUD/ColonistSheet/Box/Equipment/Slots.get_child(slot)
 		icon.mouse_filter = Control.MOUSE_FILTER_STOP  # il clic non trascina la finestra
@@ -1836,7 +1837,7 @@ func _ready() -> void:
 	build_field_popup()
 	build_plan_panel()
 	for window in [room_popup, field_popup, plan_panel, craft_popup, jobs_panel, resources_panel, sheet_panel, $HUD/BoardPanel, $HUD/ReportPanel, $HUD/ChroniclePanel,
-			$HUD/KnowledgePanel, $HUD/LawsPanel, $HUD/WikiPanel, $HUD/BirthPanel, $HUD/SuccessionPanel]:  # X in alto a destra, si trascinano
+			$HUD/KnowledgePanel, $HUD/LawsPanel, $HUD/WikiPanel, $HUD/BirthPanel, $HUD/SuccessionPanel, $HUD/HousePanel]:  # X in alto a destra, si trascinano
 		window.get_node("Box/Head/Close").pressed.connect(window.hide)
 		window.gui_input.connect(drag_window.bind(window))
 		window.visibility_changed.connect(window.move_to_front, CONNECT_DEFERRED)  # l'ultima aperta sta sopra
@@ -1878,7 +1879,7 @@ func new_people() -> void:
 		colonists.append(c)
 	ruler = colonists[0]
 	house_name = ruler.last_name
-	reigns = [[ruler, clock, -1.0]]
+	reigns = [[ruler, clock, -1.0, house_name]]
 	keep[Res.MEAL] = MEALS_PER_COLONIST * colonists.size()
 	realm = setup.get("colony", COLONY_NAMES.pick_random())
 	arms = setup.get("arms", random_arms())
@@ -2021,7 +2022,7 @@ func restore(state: Dictionary) -> void:
 			give_age(c, RULER_AGE if c == ruler else ADULT_AGE)
 	if house_name == "" and ruler != null:  # di prima della successione
 		house_name = ruler.last_name
-		reigns = [[ruler, 0.0, -1.0]]
+		reigns = [[ruler, 0.0, -1.0, house_name]]
 	for res in Res.values():  # un oggetto nuovo, che il salvataggio non conosceva: nessuno a terra
 		if not items.has(res):
 			items[res] = {}
@@ -2973,6 +2974,7 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 	if c.spouse != null:  # la croce: vedovo
 		box.get_node("Family/Spouse").text = tr("Spouse: %s") % full_name(c.spouse) + (" †" if c.spouse.died > 0.0 else "")
 	box.get_node("Family/Marry").visible = c == ruler and can_marry() and box == $HUD/ColonistSheet/Box
+	box.get_node("Family/House").visible = c in colonists and box == $HUD/ColonistSheet/Box
 	var kin: Array = children_of(c).map(func(o): return "%s (%d)" % [o.first_name, age_of(o)] + (" †" if o.died > 0.0 else ""))
 	box.get_node("Kin").visible = not kin.is_empty() or c.mother != null
 	box.get_node("Kin").text = tr("Children: %s") % ", ".join(kin) if not kin.is_empty() else (tr("Parents: %s and %s") \
@@ -6152,7 +6154,7 @@ func heir_died() -> void:
 func begin_reign(c: Colonist) -> void:
 	ruler = c
 	regent_for = null
-	reigns.append([c, clock, -1.0])
+	reigns.append([c, clock, -1.0, house_name])
 
 
 # L'incoronazione di `ruler`: festa per tutti, autorità, una finestra e la cronaca
@@ -6199,6 +6201,7 @@ func pick_founder(c: Colonist) -> void:
 	ruler = c
 	house_name = c.last_name
 	reigns[-1][0] = c
+	reigns[-1][3] = house_name
 	if founding_line >= 0 and founding_line < chronicle.size():
 		chronicle[founding_line] = founding_text(c)
 	show_title()
@@ -6207,8 +6210,8 @@ func pick_founder(c: Colonist) -> void:
 # Una casata nuova: `c` regna col suo cognome, uno stemma nuovo; incoronato finito il lutto regale
 func found_house(c: Colonist) -> void:
 	founding_from = house_name
-	begin_reign(c)
 	house_name = c.last_name
+	begin_reign(c)
 	arms = random_arms()
 	coronation_at = clock + ROYAL_MOURNING_DAYS
 	note(founding_text(c))
@@ -6218,6 +6221,39 @@ func found_house(c: Colonist) -> void:
 
 func founding_text(c: Colonist) -> String:
 	return tr("%s: the house of %s has no heirs. %s begins the house of %s.") % [date(today), founding_from, full_name(c), c.last_name]
+
+
+# La finestra della casata: i sovrani in ordine, divisi per casata, ognuno con gli anni di regno, il coniuge e i figli
+# (vivi e morti, con l'età); per ultimo il reggente, se c'è
+func open_house() -> void:
+	$HUD/HousePanel/Box/Head/Title.text = tr("The House of %s") % house_name
+	$HUD/HousePanel/Box/Scroll/Text.text = house_text()
+	$HUD/HousePanel.show()
+	$HUD/HousePanel.reset_size()
+
+
+func house_text() -> String:
+	var lines := []
+	var shown := ""
+	for reign in reigns:
+		var c: Colonist = reign[0]
+		var house: String = reign[3] if reign.size() > 3 else c.last_name
+		if house != shown:
+			shown = house
+			lines.append("[color=#e8c34a]%s[/color]" % tr("The House of %s") % house)
+		var end: float = reign[2]
+		var years := "%d – %s" % [year_of(int(reign[1])) + 1, str(year_of(int(end)) + 1) if end >= 0.0 else tr("today")]
+		lines.append("%s %s%s, %s (%s)" % [CROWN_IMG, full_name(c), " †" if c.died > 0.0 else "", tr("Year %s") % years,
+			tr("%d years old") % age_of(c) if c.died == 0.0 else tr("died at %d") % floori((c.died - c.born) / LIFE_YEAR)])
+		if c.spouse != null:
+			lines.append("    " + tr("Spouse: %s") % full_name(c.spouse) + (" †" if c.spouse.died > 0.0 else ""))
+		var kids: Array = children_of(c).map(func(o): return "%s (%d)" % [o.first_name, age_of(o) if o.died == 0.0
+			else floori((o.died - o.born) / LIFE_YEAR)] + (" †" if o.died > 0.0 else ""))
+		if not kids.is_empty():
+			lines.append("    " + tr("Children: %s") % ", ".join(kids))
+	if regent_for != null:
+		lines.append(tr("%s is regent for %s.") % [full_name(ruler), full_name(regent_for)])
+	return "\n".join(lines)
 
 
 # la dote di `c` a parole: monete (con la monetina, se `rich`) e oggetti

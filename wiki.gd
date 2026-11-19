@@ -210,6 +210,7 @@ The other two colonists come at random: skills at 0, 0–2 traits.
 • When the ruler dies, the crown goes to their eldest living child, boy or girl; without children to their living spouse, then to a brother or sister.
 • Everyone gets Royal mourning for 7 days; then the heir is crowned: Coronation for everyone and +20 authority.
 • An heir under 16 waits with a regent: a living parent, or else the adult with the most skills. The regent governs and their title is Regent; the heir's sheet says "Heir of". On their 16th birthday the heir is crowned. If the regent dies another takes over; if the heir dies, the next in line.
+• "The house…" on a colonist's sheet opens the family tree: the rulers in order, grouped by house, each with their years of reign, spouse and children (the dead with a cross), and the regent if there is one.
 • Nobody left: the house is over. A window asks who will rule among the adults (the one with the most skills, until you choose): their house begins, with their surname and new arms. The title stays with the realm."""],
 
 	["Building", """[color=#e8c34a]How to build[/color] [img=center]res://art/icon_wood.png[/img] [img=center]res://art/icon_stone.png[/img]

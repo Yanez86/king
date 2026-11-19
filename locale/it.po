@@ -3376,3 +3376,29 @@ msgstr "%d monete"
 
 msgid "%s: %s, of the house of %s, is coming to the inn to ask for the hand of %s."
 msgstr "%s: %s, della casata %s, viene alla locanda a chiedere la mano di %s."
+
+# --- Dinastia: la finestra della casata
+
+msgid "The House of %s"
+msgstr "La casata %s"
+
+msgid "today"
+msgstr "oggi"
+
+msgid "Year %s"
+msgstr "Anno %s"
+
+msgid "%d years old"
+msgstr "%d anni"
+
+msgid "died at %d"
+msgstr "visse %d anni"
+
+msgid "%s is regent for %s."
+msgstr "%s regge il reame per %s."
+
+msgid "The house…"
+msgstr "La casata…"
+
+msgid "The house"
+msgstr "La casata"
