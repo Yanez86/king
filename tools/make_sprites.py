@@ -477,6 +477,47 @@ FOREIGNER = """
 ................
 """
 
+# Condizione "ispirato" (Cond.INSPIRED, un evento del narratore): una stella a quattro punte che brilla, e una piccola.
+INSPIRED = """
+.............o..
+............oIo.
+.......o...ooIoo
+......oIo.oII8<<
+......oIo..oo<oo
+......oIo...o<o.
+.....oIIIo...o..
+..oooIIIg<ooo...
+.oIIIII8<<<<<o..
+..oooIg<<<ooo...
+.....o<<<o......
+......o<o.......
+......o<o.......
+......o<o.......
+.......o........
+................
+"""
+
+# Condizione "febbre" (Cond.FEVER, un evento del narratore): la faccia rossa, gli occhi chiusi, il panno bagnato sulla
+# fronte e una goccia di sudore.
+FEVER = """
+................
+.....oooooo.....
+...ooxxxxxxoo...
+..oxxxxxxxxxXo..
+..oXXXXXXXXXXo..
+.ojjjjjjjjjjjjo.
+.ojooojjjjooojo.
+.ojjjjjjjjjjQjo.
+.ojjjjjjjjjjQjo.
+.ojjjojojojjEjo.
+..ojjjjjjjjjjo..
+..oJjjjjjjjjJo..
+...ooJJJJJJoo...
+.....oooooo.....
+................
+................
+"""
+
 # La culla (Build.CRADLE): cassa di legno a dondolo, il lino dentro. Il neonato in fasce (BABY) ci si disegna sopra,
 # o in braccio, piccolo; è anche l'icona della condizione "incinta" (Cond.PREGNANT).
 CRADLE = """
@@ -4102,7 +4143,8 @@ def main():
     images["conditions"] = pixels(side_by_side(frames(CONDITIONS, count=6) + [feast, pad12(pillory), pad12(heard),
                                                                               art(WEDDING, 16, 16), art(BABY, 16, 16),
                                                                               mourning_crown, art(CROWN, 16, 16),
-                                                                              art(FOREIGNER, 16, 16)]))
+                                                                              art(FOREIGNER, 16, 16), art(INSPIRED, 16, 16),
+                                                                              art(FEVER, 16, 16)]))
     images["baby"] = pixels(art(BABY, 16, 16))
     images["ground"] = pixels(ground_sheet())
     images["warehouse_day"] = pixels(art(WAREHOUSE, 64, 32))

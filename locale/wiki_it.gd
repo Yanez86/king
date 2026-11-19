@@ -11,6 +11,13 @@ King è un gestionale di colonia medievale. Sei il sovrano di una piccola signor
 • Dal giorno 5 arrivano i lupi (vedi Combattimento e lupi).
 • Se muoiono tutti i coloni, la colonia è caduta.
 
+[color=#e8c34a]Gli eventi[/color]
+A mezzanotte il narratore sceglie al più un evento per il giorno, ognuno quando gli tocca; avviene alla sua ora. Lo racconta la cronaca e lo segna il calendario.
+• Minacce: i lupi (vedi Combattimento e lupi) e l'ondata di freddo, che il meteo decide due giorni e mezzo prima (vedi le previsioni). Tra una minaccia o una sfortuna e la successiva almeno 3 giorni di tregua; niente minacce mentre qualcuno è a terra o i lupi sono ancora in giro.
+• Visite: i viandanti (vedi Coloni), l'erudito errante (vedi Conoscenza), il pellegrino.
+• Fortune: il raccolto abbondante (d'estate e d'autunno, con l'orto seminato, in media ogni 40 giorni e mai a meno di 30: per 10 giorni i campi rendono la metà in più); un branco di 4–6 cervi (non d'inverno, ogni 25 giorni: quelli che nessuno caccia se ne vanno dopo 2 giorni); l'ispirazione (un colono adulto con almeno 60 di felicità è Ispirato per un giorno, ogni 15 giorni); il dono del pellegrino (con una sala del trono, ogni 30 giorni: un pellegrino va al trono, lascia 20–40 [img=center]res://art/icon_coin.png[/img] e +5 autorità, poi se ne va).
+• Quando la colonia è in difficoltà (il cibo nei magazzini basta per meno di 3 giorni, o la felicità media è sotto 40) le fortune vengono il doppio delle volte.
+
 [color=#e8c34a]Il tempo[/color]
 • Il giorno e l'ora sono sotto la barra in alto, al centro (col mouse sopra: la stagione e l'anno). La partita comincia alle 8:00 del Giorno della Corona dell'anno 1; a velocità normale un giorno dura 4 minuti, un'ora 10 secondi.
 • L'anno ha 365 giorni: il Giorno della Corona (Capodanno), poi quattro stagioni di tre mesi da 30 giorni, ognuna chiusa da un giorno di festa fuori dai mesi. Primavera: Disgelo, Semina, Fioritura, poi la Festa dei Fiori. Estate: Solleone, Fienagione, Maturazione, poi la Festa della Falce. Autunno: Mietitura, Foglie morte, Nebbie, poi la Festa del Focolare. Inverno: Gelo, Neve alta, Notte lunga, poi la Festa delle Candele.
@@ -182,6 +189,7 @@ Goloso e Di poco appetito, Pigro e Stacanovista, Mattiniero e Nottambulo, Dormig
 [cell]Lutto regale[/cell][cell]7 giorni[/cell][cell]–[/cell][cell]-20[/cell]
 [cell]Incoronazione[/cell][cell]2 giorni[/cell][cell]–[/cell][cell]+10[/cell]
 [cell]Forestiero[/cell][cell]5 giorni[/cell][cell]10% più lento[/cell][cell]-5[/cell]
+[cell]Ispirato[/cell][cell]1 giorno[/cell][cell]20% più veloce[/cell][cell]+5[/cell]
 [/table]
 • Intossicato: dal cibo crudo, tanto più probabile quanto più è vicino a marcire.
 • Ben nutrito: dopo un pasto; stress dal lavoro -25%. Lauto pasto: dopo un pasto squisito; stress dal lavoro -50%. Un pasto nuovo sostituisce la condizione di quello prima.
@@ -193,6 +201,7 @@ Goloso e Di poco appetito, Pigro e Stacanovista, Mattiniero e Nottambulo, Dormig
 • Incinta: nell'ultimo terzo lavora il 20% più piano.
 • Lutto regale: è morto il sovrano, al posto del Lutto; stress dal lavoro +25%. Incoronazione: tutti, quando il nuovo sovrano è incoronato.
 • Forestiero: chi è venuto da fuori ed è rimasto, avventuriero o viandante (vedi Avventurieri).
+• Ispirato: ogni tanto un colono adulto con almeno 60 di felicità ha un'idea brillante (vedi Le basi, Gli eventi).
 Qui compaiono anche le leggi in vigore che a un colono piacciono o non piacciono, con la loro icona."""],
 
 	["Il sovrano e la casata", """[color=#e8c34a]Nuova partita[/color]

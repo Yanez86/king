@@ -905,7 +905,7 @@ Deciso il 2026-11-19. Numeri da tarare. Un **narratore** solo (niente carattere 
 | Erudito errante | visita | dal giorno 5, con una locanda | 10 giorni, pausa 5 | un giorno alla locanda, vende 1–2 libri (4.7.2) |
 | Branco di lupi | minaccia | dal giorno 5 (il quinto), a mezzanotte | 4 giorni | 2–3 lupi, uno in più ogni 5 coloni |
 | Ondata di freddo | minaccia | la media del giorno sotto 8 °C | 33 giorni | la decide il meteo 2 giorni e mezzo prima, perché le previsioni la vedano (4.5); rispetta la tregua e la fa partire |
-| Raccolto abbondante | fortuna | estate e autunno, con l'orto seminato | 40 giorni, pausa 30 | per 10 giorni i campi raccolti rendono il 50% in più |
+| Raccolto abbondante | fortuna | estate e autunno, con l'orto seminato | 40 giorni, pausa 30 | per 10 giorni i campi rendono il 50% in più |
 | Branco di cervi | fortuna | non d'inverno | 25 giorni | 4–6 cervi arrivano dal bordo della mappa; dopo 2 giorni quelli rimasti se ne vanno |
 | Ispirazione | fortuna | un colono adulto contento (felicità almeno 60) | 15 giorni | lui, per un giorno: **Ispirato** (condizione), lavora il 25% più in fretta, +5 felicità |
 | Dono del pellegrino | fortuna | con una sala del trono | 30 giorni | un pellegrino arriva dal bordo, va al trono, lascia 20–40 monete e se ne va; +5 autorità |
@@ -917,9 +917,11 @@ Deciso il 2026-11-19. Numeri da tarare. Un **narratore** solo (niente carattere 
   oggi), la cronaca e il salvataggio; (2) le minacce: il branco di lupi nel narratore, la tregua, il branco che cresce
   coi coloni, l'ondata di freddo che chiede al narratore; (3) le fortune: raccolto abbondante, branco di cervi,
   ispirazione, dono del pellegrino; (4) le sfortune: topi nel magazzino, ladro di notte, febbre.
-- **Stato**: fatte le fasi 1 e 2 il 2026-11-19 (test in `tests/test_narrator.gd`). Il narratore è un figlio di `main`
+- **Stato**: fatte le fasi 1–3 il 2026-11-19 (test in `tests/test_narrator.gd`). Il narratore è un figlio di `main`
   (`narrator.gd`), salvato con la partita. Nei test tace (`main.events`). Un anno simulato: lupi ogni 3,9 giorni (mai
-  meno di 3), erudito ogni 9,8, viandanti ogni 26.
+  meno di 3), erudito ogni 9,8, viandanti ogni 26. Il pellegrino è un ospite (`pilgrim`) che va dove vanno i viandanti
+  (la sala del trono), lascia le monete a terra lì e riparte; nell'elenco degli abitanti sta coi forestieri. Le condizioni
+  Ispirato e Febbre hanno la loro icona (Febbre è pronta per la fase 4). Nella wiki la sezione "Gli eventi" (Le basi).
 
 ### 4.7 Ricerca: il sapere e le leggi
 Due ricerche. Il **sapere** (le ricerche) si paga in **studio**, che i coloni scrivono allo scrittoio, e in **libri** che

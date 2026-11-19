@@ -22,7 +22,7 @@
 | Tetti, calore, conservazione | 4.4.5 | fasi 1–7 | rifiniture grafiche |
 | Mondo e tempo | 4.5 | fatto | — |
 | Salvataggio | 4.5.1 | locale fatto | il cloud |
-| Eventi casuali | 4.6 | il narratore, fasi 1–2 (4 eventi su 11) | le fortune e le sfortune nuove (fasi 3–4) |
+| Eventi casuali | 4.6 | il narratore, fasi 1–3 (8 eventi su 11) | le sfortune (fase 4) |
 | Ricerca | 4.7.3 | 38 ricerche su 50 | 12 ricerche, il livello IV |
 | Leggi | 4.7.7 | 22 leggi su 38 | 16 leggi: quelle della dinastia si possono fare ora |
 
@@ -32,9 +32,8 @@ La dinastia c'è (4.3.3) e la colonia cresce (4.2.1: avventurieri che restano, v
 Compagnia della corona, il titolo che vuole anche i coloni). Ora si possono fare anche le leggi della dinastia (vedi
 Leggi).
 
-1. **Il narratore** (4.6, fasi 1–2 fatte) — il dado del giorno e la tregua ci sono, con viandanti, erudito, lupi e ondata
-   di freddo. Mancano le fortune (raccolto abbondante, cervi, ispirazione, pellegrino) e le sfortune (topi, ladro, febbre:
-   la prima malattia, che poi cura il medico).
+1. **Il narratore** (4.6, fasi 1–3 fatte) — il dado del giorno e la tregua ci sono, con viandanti, erudito, lupi, ondata
+   di freddo e le fortune. Mancano le sfortune (topi, ladro, febbre: la prima malattia, che poi cura il medico).
 2. **Medicina e morte** — Erboristeria, Medicina, tombe e cimitero, funerali (legge Funerali).
 3. **Cucina e animali** — Forno di pietra, stufato, conserve; poi Apicoltura e Banchetto reale; animali da allevare e
    la stalla, col letame.
@@ -156,10 +155,9 @@ Dinastia (4.3.3, fatta): quello che resta.
 
 ## Eventi casuali: il narratore (4.6)
 
-Deciso il 2026-11-19 (la tabella degli eventi è nel GDD); fatte le fasi 1 e 2 (il narratore, viandanti, erudito, lupi,
-ondata di freddo, la tregua). Fasi ancora da fare:
+Deciso il 2026-11-19 (la tabella degli eventi è nel GDD); fatte le fasi 1–3 (il narratore, viandanti, erudito, lupi,
+ondata di freddo, la tregua, le fortune). Fasi ancora da fare:
 
-- [ ] (3) Le fortune: raccolto abbondante, branco di cervi, ispirazione, dono del pellegrino.
 - [ ] (4) Le sfortune: topi nel magazzino, ladro di notte, febbre.
 - [ ] Tarare i numeri: quanto spesso, la tregua, quando la colonia è in difficoltà.
 - [ ] Eventi nuovi quando ci saranno i sistemi: predoni, malattie che si attaccano, mercanti.

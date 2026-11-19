@@ -3825,3 +3825,39 @@ msgid "%d day"
 msgid_plural "%d days"
 msgstr[0] "%d giorno"
 msgstr[1] "%d giorni"
+
+# --- Il narratore: le fortune
+
+msgid "Inspired"
+msgstr "Ispirato"
+
+msgid "Fever"
+msgstr "Febbre"
+
+msgid "Had a bright idea. Works much faster."
+msgstr "Ha avuto un'idea brillante. Lavora molto più in fretta."
+
+msgid "Has a fever. Works slowly and tires twice as fast."
+msgstr "Ha la febbre. Lavora piano e si stanca il doppio."
+
+msgid "%s: a bumper year. For %d days the fields yield half as much again."
+msgstr "%s: un'annata d'oro. Per %d giorni i campi rendono la metà in più."
+
+msgid "%s: a herd of %d deer comes into the valley."
+msgstr "%s: un branco di %d cervi scende nella valle."
+
+msgid "%s: %s has a bright idea and works much faster today."
+msgstr "%s: %s ha un'idea brillante e oggi lavora molto più in fretta."
+
+msgid "%s: %s, a pilgrim, is coming to the throne with a gift."
+msgstr "%s: %s, un pellegrino, viene al trono con un dono."
+
+msgid "%s: %s, the pilgrim, leaves %d coins for the crown and goes on their way."
+msgstr "%s: %s, il pellegrino, lascia %d monete per la corona e riprende il cammino."
+
+msgid "Pilgrim"
+msgstr "Pellegrino"
+
+msgctxt "doing"
+msgid "Bringing a gift to the crown"
+msgstr "Porta un dono alla corona"

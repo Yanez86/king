@@ -3,14 +3,20 @@
 # eventi non vengono mai lo stesso giorno; se le fette insieme passano l'intero, si stringono in proporzione. L'evento
 # scelto avviene alla sua ora, se allora si può ancora (vedi can_happen); se no quel giorno non succede niente.
 # Il respiro: tra una minaccia o una sfortuna e la successiva almeno TRUCE giorni (la tregua), anche con l'ondata di
-# freddo, che decide il meteo (vedi calm); niente minacce mentre un colono è a terra o i lupi sono sulla mappa.
+# freddo, che decide il meteo (vedi calm); niente minacce mentre un colono è a terra o i lupi sono sulla mappa. Quando
+# la colonia è in difficoltà (vedi struggling) le fortune hanno la fetta BOON_HELP volte più grande.
 # Figlio di main, come atmosphere.gd: legge da lì lo stato della colonia, e gli effetti li fa fare a main.
 extends Node
 
 enum Kind { THREAT, VISIT, BOON, BANE }  # minaccia, visita, fortuna, sfortuna
 const BAD := [Kind.THREAT, Kind.BANE]  # quelle della tregua
 const TRUCE := 3     # giorni almeno tra una minaccia (o sfortuna) e la successiva
-enum Event { WANDERERS, SCHOLAR, WOLVES }
+const BOON_HELP := 2.0
+const STRUGGLE_FOOD := 3.0   # in difficoltà: il cibo in magazzino basta per meno giorni (main.FOOD_DROP a testa)
+const STRUGGLE_HAPPY := 40.0  # o la felicità media è sotto
+const SUMMER := 1    # in main.SEASONS
+const AUTUMN := 2
+enum Event { WANDERERS, SCHOLAR, WOLVES, BUMPER, HERD, INSPIRATION, PILGRIM }
 # Gli eventi, una riga per evento.
 # "kind": Kind. "from": giorno da cui può capitare, contato da 0 come main.today. "every": giorni in media tra uno e
 # l'altro, pausa (o tregua) compresa: un numero, o il nome di una funzione di main quando dipende dallo stato della
@@ -27,6 +33,17 @@ const EVENTS := {
 		"can": "scholar_can", "busy": "scholar_here", "do": "scholar_comes"},
 	# GDD 4.4.3: dal quinto giorno, a mezzanotte; 2-3 lupi, uno in più ogni main.PACK_GROW coloni (vedi main.spawn_pack)
 	Event.WOLVES: {"kind": Kind.THREAT, "from": 4, "every": 4.0, "hour": 0, "can": "threat_can", "do": "wolves_come"},
+	# le fortune (main.BUMPER e seguenti): raccolto abbondante d'estate e d'autunno, con l'orto seminato
+	Event.BUMPER: {"kind": Kind.BOON, "every": 40.0, "pause": 30.0, "hour": 7, "can": "bumper_can",
+		"do": "bumper_comes"},
+	# un branco di cervi, non d'inverno
+	Event.HERD: {"kind": Kind.BOON, "every": 25.0, "hour": 8, "can": "herd_can", "do": "herd_comes"},
+	# l'ispirazione di un colono adulto contento
+	Event.INSPIRATION: {"kind": Kind.BOON, "every": 15.0, "hour": 8, "can": "inspiration_can",
+		"do": "inspiration_comes"},
+	# il pellegrino, con una sala del trono: uno alla volta
+	Event.PILGRIM: {"kind": Kind.BOON, "every": 30.0, "hour": 11, "can": "pilgrim_can", "busy": "pilgrim_here",
+		"do": "pilgrim_comes"},
 }
 const SAVED := ["planned", "last", "bad"]
 
@@ -75,12 +92,26 @@ func pick() -> int:
 
 # La fetta di `e` nel tiro di un giorno in cui è possibile. Dopo uno, per `p` giorni di pausa (o di tregua) non si tira;
 # poi con una fetta `f` ogni giorno ne passano in media 1 / f - 1 prima del prossimo: perché in tutto siano i suoi
-# giorni in media, f = 1 / (giorni - p + 1)
+# giorni in media, f = 1 / (giorni - p + 1). Le fortune, con la colonia in difficoltà, BOON_HELP volte tanto
 func chance(e: int) -> float:
 	var p: float = EVENTS[e].get("pause", 0.0)
 	if EVENTS[e]["kind"] in BAD:
 		p = maxf(p, TRUCE)
-	return 1.0 / maxf(every(e) - p + 1.0, 1.0)
+	var f := 1.0 / maxf(every(e) - p + 1.0, 1.0)
+	return f * BOON_HELP if EVENTS[e]["kind"] == Kind.BOON and struggling() else f
+
+
+# la colonia è in difficoltà: il cibo in magazzino basta per meno di STRUGGLE_FOOD giorni, o la felicità media è sotto
+# STRUGGLE_HAPPY
+func struggling() -> bool:
+	var people: Array = main.colonists
+	if people.is_empty():
+		return false
+	var food := 0.0
+	for res in main.FOOD:
+		food += main.stored(res) * main.FOOD[res]
+	var happy: float = people.reduce(func(n, c): return n + c.needs[main.Need.HAPPINESS], 0.0) / people.size()
+	return food < people.size() * main.FOOD_DROP * STRUGGLE_FOOD or happy < STRUGGLE_HAPPY
 
 
 # giorni in media tra un `e` e l'altro, adesso
@@ -174,3 +205,39 @@ func threat_can() -> bool:
 
 func wolves_come() -> void:
 	main.spawn_pack()
+
+
+func bumper_can() -> bool:
+	return main.season(main.today) in [SUMMER, AUTUMN] and not main.sown.is_empty()
+
+
+func bumper_comes() -> void:
+	main.bumper_harvest()
+
+
+func herd_can() -> bool:
+	return main.season(main.today) != main.WINTER
+
+
+func herd_comes() -> void:
+	main.spawn_herd()
+
+
+func inspiration_can() -> bool:
+	return not main.inspirable().is_empty()
+
+
+func inspiration_comes() -> void:
+	main.inspire()
+
+
+func pilgrim_can() -> bool:
+	return main.rooms.any(func(r): return r.kind == main.RoomKind.THRONE_ROOM)
+
+
+func pilgrim_here() -> bool:
+	return main.guests.any(func(g): return g.pilgrim)
+
+
+func pilgrim_comes() -> void:
+	main.pilgrim_comes()

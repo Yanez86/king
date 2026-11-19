@@ -12,6 +12,13 @@ King is a medieval colony sim. You are the ruler of a small lordship, but you ne
 • From day 5 wolves come (see Combat & Wolves).
 • If every colonist dies, the colony has fallen.
 
+[color=#e8c34a]Events[/color]
+At midnight the narrator picks at most one event for the day, each as often as it is due; it happens at its hour. The chronicle tells it and the calendar marks it.
+• Threats: the wolves (see Combat & Wolves), and the cold wave, which the weather decides two and a half days ahead (see the forecast). Between a threat or a misfortune and the next there are at least 3 days of truce; no threats while someone lies downed or wolves are still around.
+• Visits: the wanderers (see Colonists), the wandering scholar (see Knowledge), the pilgrim.
+• Good fortune: a bumper harvest (summer and autumn, with sown fields, every 40 days on average and never within 30: for 10 days the fields yield half as much again); a herd of 4–6 deer (not in winter, every 25 days: those nobody hunts leave after 2 days); inspiration (a grown-up colonist with at least 60 happiness is Inspired for a day, every 15 days); the pilgrim's gift (with a throne room, every 30 days: a pilgrim walks to the throne, leaves 20–40 [img=center]res://art/icon_coin.png[/img] and +5 authority, then goes).
+• When the colony struggles (the food in the warehouses lasts less than 3 days, or the average happiness is under 40) good fortune comes twice as often.
+
 [color=#e8c34a]Time[/color]
 • The day and the hour are under the top bar, in the middle (hover them for the season and the year). The game starts at 8:00 on Crown Day, Year 1; a day lasts 4 minutes at normal speed, an hour 10 seconds.
 • The year has 365 days: Crown Day (New Year), then four seasons of three 30-day months, each closed by a feast day outside the months. Spring: Thaw, Sowing, Blossom, then the Flower Feast. Summer: Highsun, Haying, Ripening, then the Sickle Feast. Autumn: Reaping, Leaffall, Mists, then the Hearth Feast. Winter: Frost, Deepsnow, Longnight, then the Candle Feast.
@@ -183,6 +190,7 @@ Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleep
 [cell]Royal mourning[/cell][cell]7 days[/cell][cell]–[/cell][cell]-20[/cell]
 [cell]Coronation[/cell][cell]2 days[/cell][cell]–[/cell][cell]+10[/cell]
 [cell]Foreigner[/cell][cell]5 days[/cell][cell]10% slower[/cell][cell]-5[/cell]
+[cell]Inspired[/cell][cell]1 day[/cell][cell]20% faster[/cell][cell]+5[/cell]
 [/table]
 • Poisoned: from raw food, more likely the closer it is to rotting.
 • Well fed: after a meal; stress from work -25%. Feasted: after a fine meal; stress from work -50%. A new meal replaces the condition of the last one.
@@ -194,6 +202,7 @@ Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleep
 • Pregnant: in the last third she works 20% more slowly.
 • Royal mourning: the ruler has died, instead of Mourning; stress from work +25%. Coronation: everyone, when the new ruler is crowned.
 • Foreigner: whoever came from outside and stayed, an adventurer or a wanderer (see Adventurers).
+• Inspired: now and then a grown-up colonist with at least 60 happiness has a bright idea (see Basics, Events).
 The laws in force that a colonist likes or dislikes show here too, with their icon."""],
 
 	["The Ruler & House", """[color=#e8c34a]New game[/color]
