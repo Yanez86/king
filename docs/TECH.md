@@ -34,7 +34,10 @@
 ## Architettura (principi, non codice)
 - **Simulazione separata dalla grafica**: lo stato del gioco (mappa, coloni, oggetti) è solo dati; la grafica lo legge e lo mostra.
 - **Tick fisso** (es. 10 al secondo a 1×); la velocità di gioco cambia quanti tick per secondo.
-- **Contenuti come dati**: edifici, oggetti, ricette, abilità, talenti, eventi definiti in file di risorse Godot (`.tres`), non nel codice.
+- **Contenuti come dati**: edifici, oggetti, ricette, abilità, talenti, ricerche, leggi ed eventi sono tabelle di
+  costanti (dizionari), una riga per cosa: quasi tutto in `main.gd`, il meteo in `atmosphere.gd`, gli eventi del
+  narratore in `narrator.gd`. Niente file `.tres`: le tabelle si leggono e si confrontano meglio, e la wiki le legge
+  da lì (`tools/make_wiki.py`). Gli effetti sono funzioni, la tabella dice quale.
 - Pathfinding: `AStarGrid2D` integrato in Godot.
 
 ## Salvataggio

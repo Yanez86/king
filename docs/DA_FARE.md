@@ -22,7 +22,7 @@
 | Tetti, calore, conservazione | 4.4.5 | fasi 1–7 | rifiniture grafiche |
 | Mondo e tempo | 4.5 | fatto | — |
 | Salvataggio | 4.5.1 | locale fatto | il cloud |
-| Eventi casuali | 4.6 | quasi niente (quattro eventi fatti a mano) | **il narratore** e la lista degli eventi |
+| Eventi casuali | 4.6 | deciso (il narratore e 11 eventi) | tutto: le fasi 1–4 |
 | Ricerca | 4.7.3 | 38 ricerche su 50 | 12 ricerche, il livello IV |
 | Leggi | 4.7.7 | 22 leggi su 38 | 16 leggi: quelle della dinastia si possono fare ora |
 
@@ -32,8 +32,9 @@ La dinastia c'è (4.3.3) e la colonia cresce (4.2.1: avventurieri che restano, v
 Compagnia della corona, il titolo che vuole anche i coloni). Ora si possono fare anche le leggi della dinastia (vedi
 Leggi).
 
-1. **Il narratore** (4.6) — gli eventi come file di dati. Sblocca: malattie, raccolto abbondante, e dà un posto
-   all'erudito errante, all'incendio, all'ondata di freddo e ai viandanti (oggi fatti a mano).
+1. **Il narratore** (4.6, deciso, in corso) — un dado al giorno, una tabella di 11 eventi, la tregua. Dentro viandanti,
+   erudito errante, lupi e ondata di freddo (oggi fatti a mano); nuovi raccolto abbondante, cervi, ispirazione,
+   pellegrino, topi, ladro, febbre (la prima malattia, che poi cura il medico).
 2. **Medicina e morte** — Erboristeria, Medicina, tombe e cimitero, funerali (legge Funerali).
 3. **Cucina e animali** — Forno di pietra, stufato, conserve; poi Apicoltura e Banchetto reale; animali da allevare e
    la stalla, col letame.
@@ -154,12 +155,17 @@ Dinastia (4.3.3, fatta): quello che resta.
 
 - [ ] Il cloud: Steam Cloud (se il gioco va su Steam) o Supabase (vedi [TECH](TECH.md)). Decisione da prendere.
 
-## Eventi casuali (4.6)
+## Eventi casuali: il narratore (4.6)
 
-- [ ] Il narratore: pesca eventi con un peso che dipende dallo stato della colonia.
-- [ ] Gli eventi come file di dati (condizioni, peso, effetti, testi tradotti).
-- [ ] La lista degli eventi (esempi: malattia, raccolto abbondante). Oggi incendio, ondata di freddo, erudito errante e
-  viandanti sono fatti a mano: da portare nel narratore.
+Deciso il 2026-11-19 (la tabella degli eventi è nel GDD). Fasi ancora da fare:
+
+- [ ] (1) Il narratore e la tabella, con dentro viandanti ed erudito errante; la cronaca, il salvataggio.
+- [ ] (2) Le minacce: il branco di lupi nel narratore, la tregua, il branco che cresce coi coloni, l'ondata di freddo che
+  chiede al narratore.
+- [ ] (3) Le fortune: raccolto abbondante, branco di cervi, ispirazione, dono del pellegrino.
+- [ ] (4) Le sfortune: topi nel magazzino, ladro di notte, febbre.
+- [ ] Tarare i numeri: quanto spesso, la tregua, quando la colonia è in difficoltà.
+- [ ] Eventi nuovi quando ci saranno i sistemi: predoni, malattie che si attaccano, mercanti.
 
 ## Ricerca (4.7.3)
 
@@ -217,6 +223,5 @@ Leggi senza ✓ (tra parentesi quello che aspettano):
 - [ ] Dimensione dei tile: 16×16 o 32×32?
 - [ ] Condizione di sconfitta: oggi la partita finisce solo quando muoiono tutti i coloni (finita la dinastia ne nasce
   una nuova). Basta così?
-- [ ] La lista degli eventi.
 - [ ] Il nome definitivo del gioco.
 - [ ] Il nome dello "splendore" (alternative: decoro, prestigio, lustro).

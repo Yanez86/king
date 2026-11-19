@@ -811,10 +811,10 @@ di legno, la pietra isola; il caldo e il freddo decidono quanto dura il cibo, fi
   muro è di pietra. Fuori nessuna tinta, solo i gradi in un angolo. Col mouse sopra una stanza, il conto: fuori,
   isolamento dei muri, fuochi, calore dai muri, totale. Piazzando un fuoco o un pezzo che isola la lente si accende da
   sola, con l'anteprima della freccia.
-- **Incendio** (l'evento di 4.6): parte da un fuoco da campo sotto un tetto di scandole (ogni giorno una piccola
-  probabilità) o da un fulmine nel temporale su un tetto di scandole. Si allarga alle caselle di scandole accanto, anche
-  di un altro edificio; i coppi non bruciano. I coloni fanno la catena dei secchi dall'acqua più vicina; le caselle
-  bruciate restano buchi da riparare.
+- **Incendio** (non è del narratore, vedi 4.6): parte da un fuoco da campo sotto un tetto di scandole (ogni giorno una
+  piccola probabilità) o da un fulmine nel temporale su un tetto di scandole. Si allarga alle caselle di scandole
+  accanto, anche di un altro edificio; i coppi non bruciano. I coloni fanno la catena dei secchi dall'acqua più vicina;
+  le caselle bruciate restano buchi da riparare.
 - **Sopra le falde** ✓: neve sciolta dal calore, tetto bagnato, licheni, tegole smosse, buchi, fuoco e comignoli si
   stendono sulle falde alla loro altezza; gocce e ghiaccioli pendono dal bordo davanti.
 - Poi: il buco nel tetto anche sotto il mouse; tra due edifici accostati un vero compluvio (oggi il tetto più in basso
@@ -877,13 +877,43 @@ di legno, la pietra isola; il caldo e il freddo decidono quanto dura il cibo, fi
 - Una colonia caricata riparte in pausa, esattamente com'era: coloni a metà lavoro, spedizioni in viaggio, meteo.
 - Una colonia caduta non si salva: Continua la riporta all'ultima alba.
 
-### 4.6 Eventi casuali
-- Un "narratore" pesca eventi con probabilità che dipende dallo stato della colonia.
-- Ogni evento è un file di dati (condizioni, peso, effetti, testi localizzati).
-- Lista da definire. Esempi segnaposto: arrivo di un viandante, malattia, incendio (vedi 4.4.5), ondata di freddo,
-  raccolto abbondante.
-- Per ora incendio, ondata di freddo, erudito errante (4.7.2) e viandanti (4.2.1) sono fatti a mano, ognuno col suo
-  ritmo: da portare nel narratore.
+### 4.6 Eventi casuali: il narratore
+Deciso il 2026-11-19. Numeri da tarare. Un **narratore** solo (niente carattere da scegliere nella nuova partita).
+- **Un dado al giorno**: a mezzanotte il narratore guarda gli eventi possibili quel giorno e ne sceglie al più uno. Ogni
+  evento ha una fetta grande quanto è frequente: "in media ogni 10 giorni" è una fetta di 1/10. Un solo tiro per tutte
+  le fette: ognuno tiene il suo ritmo, ma due eventi non vengono mai lo stesso giorno (se le fette insieme passano
+  l'intero, si stringono in proporzione). L'evento scelto avviene alla sua ora; se a quell'ora non si può più (la locanda
+  abbattuta), quel giorno non succede niente.
+- **Ogni evento è una riga di una tabella** (`narrator.gd`, come il meteo in `atmosphere.gd`): tipo (minaccia, visita,
+  fortuna, sfortuna), da che giorno, le condizioni (stagione, una stanza, una legge), ogni quanti giorni in media (anche
+  secondo lo stato della colonia), la pausa minima tra due uguali, l'ora, l'effetto (una funzione) e i testi (tradotti
+  nel `.po`, come tutti gli altri).
+- **Il respiro**: dopo una minaccia o una sfortuna, 3 giorni senza minacce né sfortune (la **tregua**); niente minacce
+  mentre un colono è a terra o i lupi sono ancora sulla mappa. Quando la colonia è in difficoltà (il cibo in magazzino
+  basta per meno di 3 giorni, o la felicità media è sotto 40) le fortune hanno la fetta doppia.
+- Ogni evento lo racconta la cronaca, e il calendario lo segna nel suo giorno.
+- **Restano fuori**: l'incendio (4.4.5), che viene da dove si mette il fuoco e dai temporali: si può evitare, non lo
+  decide il narratore; i pretendenti (4.3.3), il ritmo della dinastia.
+- **Gli eventi**:
+
+| Evento | Tipo | Quando | In media ogni | Cosa fa |
+|---|---|---|---|---|
+| Viandanti | visita | dal giorno 10; uno alla volta; non con Porte chiuse | 30 giorni ÷ (1 + splendore / 20), ×2 ogni 4 coloni sopra 8; la metà con Porte aperte | come in 4.2.1; pausa 5 giorni dalla risposta (o da quando se ne sono andati) |
+| Erudito errante | visita | con una locanda | 10 giorni, pausa 5 | un giorno alla locanda, vende 1–2 libri (4.7.2) |
+| Branco di lupi | minaccia | dal giorno 5, di notte | 4 giorni | 2–3 lupi, uno in più ogni 5 coloni |
+| Ondata di freddo | minaccia | la media del giorno sotto 8 °C | 33 giorni | la decide il meteo 2 giorni e mezzo prima, perché le previsioni la vedano (4.5); rispetta la tregua e la fa partire |
+| Raccolto abbondante | fortuna | estate e autunno, con l'orto seminato | 40 giorni, pausa 30 | per 10 giorni i campi raccolti rendono il 50% in più |
+| Branco di cervi | fortuna | non d'inverno | 25 giorni | 4–6 cervi arrivano dal bordo della mappa; dopo 2 giorni quelli rimasti se ne vanno |
+| Ispirazione | fortuna | un colono adulto contento (felicità almeno 60) | 15 giorni | lui, per un giorno: **Ispirato** (condizione), lavora il 25% più in fretta, +5 felicità |
+| Dono del pellegrino | fortuna | con una sala del trono | 30 giorni | un pellegrino arriva dal bordo, va al trono, lascia 20–40 monete e se ne va; +5 autorità |
+| Topi nel magazzino | sfortuna | almeno 20 di cibo crudo nei magazzini | 25 giorni, pausa 15 | un quarto del cibo crudo del magazzino che ne ha di più va perso |
+| Ladro di notte | sfortuna | dal giorno 15, almeno 20 monete in magazzino; di notte | 30 giorni | col Turno di guardia e chi fa la guardia sveglio lo prendono: +5 autorità; se no sparisce un quarto delle monete (al più 50) |
+| Febbre | sfortuna | dal giorno 10; d'inverno ogni 10 giorni | 20 giorni | un colono a caso: **Febbre** (condizione) per 3 giorni, lavora il 50% più lento, si stanca il doppio, −10 felicità; non si attacca. Poi la cura il medico (Medicina, 4.7.3) |
+
+- **Ordine di lavoro**: (1) il narratore e la tabella, con dentro viandanti ed erudito errante (gli stessi ritmi di
+  oggi), la cronaca e il salvataggio; (2) le minacce: il branco di lupi nel narratore, la tregua, il branco che cresce
+  coi coloni, l'ondata di freddo che chiede al narratore; (3) le fortune: raccolto abbondante, branco di cervi,
+  ispirazione, dono del pellegrino; (4) le sfortune: topi nel magazzino, ladro di notte, febbre.
 
 ### 4.7 Ricerca: il sapere e le leggi
 Due ricerche. Il **sapere** (le ricerche) si paga in **studio**, che i coloni scrivono allo scrittoio, e in **libri** che
@@ -1135,5 +1165,4 @@ Combattimento tattico (oggi i coloni si difendono da soli, vedi 4.4.3), livelli 
 - Dimensione dei tile: 16×16 o 32×32?
 - Condizione di sconfitta: oggi la partita finisce solo quando muoiono tutti i coloni (finita la dinastia ne nasce
   una nuova, 4.3.3). Basta così?
-- Lista degli eventi.
 - Nome definitivo del gioco.
