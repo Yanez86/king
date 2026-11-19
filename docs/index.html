@@ -135,7 +135,7 @@ pre i { color: #8fb87a; }
 <body>
 <nav>
 <h1>King</h1>
-<small>Meccaniche · commit aab93c3 · 2026-11-19 · <a class="lang" href="en.html">English</a></small>
+<small>Meccaniche · commit be94ef7 · 2026-11-19 · <a class="lang" href="en.html">English</a></small>
 <h2>Wiki</h2>
 <a href="#le-basi"><i class="sp s86" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Le basi</a><a href="#comandi"><i class="sp s87" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Comandi</a><a href="#coloni"><i class="sp s88" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Coloni</a><a href="#abilità"><i class="sp s83" style="width:16px;height:16px;background-position:-144px 0px;background-size:208px 16px"></i> Abilità</a><a href="#talenti"><i class="sp s77" style="width:16px;height:16px;background-position:0px 0px;background-size:240px 16px"></i> Talenti</a><a href="#condizioni"><i class="sp s78" style="width:16px;height:16px;background-position:-16px 0px;background-size:256px 16px"></i> Condizioni</a><a href="#il-sovrano-e-la-casata"><i class="sp s33" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Il sovrano e la casata</a><a href="#costruire"><i class="sp s62" style="width:15px;height:15px;background-position:0px 0px;background-size:15px 15px"></i> Costruire</a><a href="#stanze"><i class="sp s73" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Stanze</a><a href="#tetti-e-calore"><i class="sp s74" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Tetti e calore</a><a href="#cibo-e-cucina"><i class="sp s11" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Cibo e cucina</a><a href="#raccolta"><i class="sp s65" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Raccolta</a><a href="#lavorazioni-ed-equipaggiamento"><i class="sp s16" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Lavorazioni ed equipaggiamento</a><a href="#combattimento-e-lupi"><i class="sp s85" style="width:16px;height:16px;background-position:0px -32px;background-size:32px 48px"></i> Combattimento e lupi</a><a href="#splendore"><i class="sp s60" style="width:16px;height:16px;background-position:0px -416px;background-size:128px 1344px"></i> Splendore</a><a href="#avventurieri"><i class="sp s29" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Avventurieri</a><a href="#rovine-e-spedizioni"><i class="sp s30" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Rovine e spedizioni</a><a href="#conoscenza"><i class="sp s70" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Conoscenza</a><a href="#leggi"><i class="sp s71" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Leggi</a><h2>Sviluppo</h2><a href="#todo"><i class="sp s42" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Da sviluppare</a><h2>Numeri</h2><a href="#main-gd">main.gd</a><a href="#atmosphere-gd">atmosphere.gd</a><a href="#narrator-gd">narrator.gd</a>
 </nav>
@@ -507,6 +507,7 @@ pre i { color: #8fb87a; }
 <li>Solo nella colonia: in una stanza, entro 2 caselle da un muro, una porta, un pavimento o un sentiero, o dentro la palizzata. Fuori, nei prati, una decorazione non dà niente.</li>
 <li>Aiuole, fioriere, panche e lampioni contano solo senza un'altra uguale entro 4 caselle (vale la più vecchia); lo stendardo una volta sola. Conviene costruire decorazioni diverse, non tante uguali.</li>
 <li>Col mouse sopra una decorazione: quanto splendore dà, o perché niente.</li>
+<li>Manutenzione: a ogni festa di fine stagione (Fiori, Falce, Focolare, Candele) la colonia paga mezza moneta per ogni punto di splendore oltre i primi 15, dai magazzini, prima per le decorazioni più preziose. Una non pagata è trascurata: metà del suo splendore, più spenta. Non pagata nemmeno alla festa dopo, è diroccata: niente splendore, grigia, finché un costruttore non la ripara con 1 del suo materiale (poi è trascurata finché non si paga). I cimeli non costano e non si rovinano. Col mouse sullo splendore in alto, la manutenzione della prossima festa.</li>
 </ul>
 <p>Per ora fa due cose:</p>
 <ul>
@@ -660,7 +661,6 @@ pre i { color: #8fb87a; }
 <li><i class="sp s81" style="width:16px;height:16px;background-position:-128px 0px;background-size:352px 16px"></i> Festa del raccolto (40): nei cinque giorni di festa del calendario (vedi Il tempo, in Le basi) non lavora nessuno tranne i cuochi. Il giorno dopo ogni colono è In festa (+10 felicità per 3 giorni) e ricevi 5 autorità.</li>
 </ul></section><section id="todo"><h2><i class="sp s42" style="width:32px;height:32px;background-position:0px 0px;background-size:32px 32px"></i> Da sviluppare</h2><p class="note">Dal documento di design (<code>docs/GDD.md</code>): quello che c'è nel progetto e non ancora nel gioco. Si aggiorna col GDD.</p><h3>Fasi ancora da fare</h3>
 <h4>4.3 Il re e la dinastia</h4><ul><li>(3) sovrano sereno e cupo, lutto regale, incoronazione</li><li>(4) riepilogo coi coloni di partenza</li><li>(5) talenti a punti e stile di regno <small>(in parte)</small></li><li>(7) linee, pellicce, motivi, ornamenti, motto, blasonatura</li><li>(8) presenza, difesa del sovrano, epiteti</li><li>(9) il resto di "Poi"</li></ul>
-<h4>4.4.3 Combattimento</h4><ul><li>(2) la manutenzione alle feste, le trascurate e le diroccate, la riparazione, la barra in alto e l'aspetto</li></ul>
 <h4>4.4.4 Avventurieri e rovine</h4><ul><li>(4) il resto <small>(in parte)</small></li></ul>
 <h4>4.7 Ricerca: il sapere e le leggi</h4><ul><li>(5) il resto dell'albero un nodo alla volta, erudito errante, protesta <small>(in parte)</small></li><li>(6) livello IV, regno, leggi finali, cittadella</li></ul>
 <h3>In programma</h3>
@@ -1292,6 +1292,13 @@ const <b id="c-SPLENDOR_GAP">SPLENDOR_GAP</b> := 4
 const <b id="c-COLONY_REACH">COLONY_REACH</b> := 2
 const <b id="c-COLONY_BUILT">COLONY_BUILT</b> := [Build.WALL, Build.DOOR, Build.FLOOR, Build.PATH, Build.ROAD, Build.PALISADE, Build.GATE]
 const <b id="c-FENCES">FENCES</b> := [Build.WALL, Build.DOOR, Build.PALISADE, Build.GATE]  <i># chiudono un'area, con roccia e acqua profonda</i></pre>
+<pre><i># La manutenzione dello splendore (GDD 4.4.3): a ogni festa di fine stagione UPKEEP monete per punto oltre i primi</i>
+<i># UPKEEP_FREE (gratis per le decorazioni che valgono di più), dai magazzini (vedi pay_upkeep). Le non pagate si</i>
+<i># trascurano (Decay.NEGLECTED: metà splendore); una trascurata non pagata alla festa dopo si dirocca (Decay.RUINED:</i>
+<i># niente, finché un costruttore non la ripara con REPAIR_COST del suo materiale, e torna trascurata). I cimeli no</i>
+enum <b id="c-Decay">Decay</b> { KEPT, NEGLECTED, RUINED }
+const <b id="c-UPKEEP">UPKEEP</b> := 0.5
+const <b id="c-UPKEEP_FREE">UPKEEP_FREE</b> := 15</pre>
 <pre><i># lente del calore: sopra COLD_FROM, sotto ma senza malus, poi per punti di comfort tolti dal freddo (1, 2, 3 e più)</i>
 const <b id="c-ROOM_SPACE">ROOM_SPACE</b> := 6        <i># caselle a testa: chi ne ha meno (stanza piena di gente) ha il comfort in proporzione</i></pre>
 <pre><i># suggerimento dei pulsanti di costruzione (vedi build_tip): sotto nome e costo il comfort, poi la descrizione colorata</i>
@@ -1317,7 +1324,7 @@ const <b id="c-SAVED">SAVED</b> := ["game_id", "map_seed", "ground_cols", "grave
 	"granary", "tithe_owed", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "sown", "plans", "slot_done", "soil", "soil_year_ago", "soil_known", "compost_since", "manured", "no_manure", "babies",
 	"house_name", "regent_for", "coronation_at", "reigns", "next_suitor", "pace", "tired", "last_yield",
 	"harvests", "wear", "plastered", "burning",
-	"fire_noted", "storm_noted", "delivered", "requests", "bumper_until"]
+	"fire_noted", "storm_noted", "delivered", "requests", "bumper_until", "decor_state"]
 const <b id="c-TOAST_TIME">TOAST_TIME</b> := 2000    <i># millisecondi: "Saved" in alto, poi sparisce (vedi show_toast)</i>
 const <b id="c-AUTOSAVE_HOUR">AUTOSAVE_HOUR</b> := 6    <i># all'alba, quando i coloni si alzano: il salvataggio di ogni giorno</i>
 const <b id="c-MODIFIER_KEYS">MODIFIER_KEYS</b> := [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]  <i># da soli non sono un tasto</i>

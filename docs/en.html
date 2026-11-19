@@ -135,7 +135,7 @@ pre i { color: #8fb87a; }
 <body>
 <nav>
 <h1>King</h1>
-<small>Mechanics · commit aab93c3 · 2026-11-19 · <a class="lang" href="index.html">Italiano</a></small>
+<small>Mechanics · commit be94ef7 · 2026-11-19 · <a class="lang" href="index.html">Italiano</a></small>
 <h2>Wiki</h2>
 <a href="#basics"><i class="sp s86" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Basics</a><a href="#controls"><i class="sp s87" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Controls</a><a href="#colonists"><i class="sp s88" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Colonists</a><a href="#skills"><i class="sp s83" style="width:16px;height:16px;background-position:-144px 0px;background-size:208px 16px"></i> Skills</a><a href="#traits"><i class="sp s77" style="width:16px;height:16px;background-position:0px 0px;background-size:240px 16px"></i> Traits</a><a href="#conditions"><i class="sp s78" style="width:16px;height:16px;background-position:-16px 0px;background-size:256px 16px"></i> Conditions</a><a href="#the-ruler-house"><i class="sp s33" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> The Ruler &amp; House</a><a href="#building"><i class="sp s62" style="width:15px;height:15px;background-position:0px 0px;background-size:15px 15px"></i> Building</a><a href="#rooms"><i class="sp s73" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Rooms</a><a href="#roofs-heat"><i class="sp s74" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Roofs &amp; Heat</a><a href="#food-cooking"><i class="sp s11" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Food &amp; Cooking</a><a href="#gathering"><i class="sp s65" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Gathering</a><a href="#crafting-equipment"><i class="sp s16" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Crafting &amp; Equipment</a><a href="#combat-wolves"><i class="sp s85" style="width:16px;height:16px;background-position:0px -32px;background-size:32px 48px"></i> Combat &amp; Wolves</a><a href="#splendor"><i class="sp s60" style="width:16px;height:16px;background-position:0px -416px;background-size:128px 1344px"></i> Splendor</a><a href="#adventurers"><i class="sp s29" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Adventurers</a><a href="#ruins-expeditions"><i class="sp s30" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Ruins &amp; Expeditions</a><a href="#knowledge"><i class="sp s70" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Knowledge</a><a href="#laws"><i class="sp s71" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Laws</a><h2>Development</h2><a href="#todo"><i class="sp s42" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Still to develop</a><h2>Numbers</h2><a href="#main-gd">main.gd</a><a href="#atmosphere-gd">atmosphere.gd</a><a href="#narrator-gd">narrator.gd</a>
 </nav>
@@ -507,6 +507,7 @@ pre i { color: #8fb87a; }
 <li>Only inside the colony: in a room, within 2 tiles of a wall, a door, a floor or a path, or inside the palisade. Out in the fields a decoration gives nothing.</li>
 <li>Flower beds, planters, benches and lanterns count only with no other of the same kind within 4 tiles (the oldest wins); the banner only once. Build different decorations, not many of the same.</li>
 <li>Hover a decoration: how much splendor it gives, or why it gives none.</li>
+<li>Upkeep: at every season's feast (Flower, Sickle, Hearth, Candle) the colony pays half a coin for every point of splendor beyond the first 15, from the warehouses, the most precious decorations first. An unpaid one is neglected: half its splendor, duller. Unpaid again at the next feast, it falls into ruin: no splendor, grey, until a builder repairs it with 1 of its material (then it is neglected until paid). Relics cost nothing and never decay. Hover the splendor in the top bar for the next upkeep.</li>
 </ul>
 <p>For now it does two things:</p>
 <ul>
@@ -660,7 +661,6 @@ pre i { color: #8fb87a; }
 <li><i class="sp s81" style="width:16px;height:16px;background-position:-128px 0px;background-size:352px 16px"></i> Harvest feast (40): on the five feast days of the calendar (see Time) nobody works but the cooks. The next day every colonist is Festive (+10 happiness for 3 days) and you get 5 authority.</li>
 </ul></section><section id="todo"><h2><i class="sp s42" style="width:32px;height:32px;background-position:0px 0px;background-size:32px 32px"></i> Still to develop</h2><p class="note">From the design document (<code>docs/GDD.md</code>, in Italian): what is planned and not in the game yet.</p><h3>Phases still to do</h3>
 <h4>4.3 Il re e la dinastia</h4><ul><li>(3) sovrano sereno e cupo, lutto regale, incoronazione</li><li>(4) riepilogo coi coloni di partenza</li><li>(5) talenti a punti e stile di regno <small>(partly done)</small></li><li>(7) linee, pellicce, motivi, ornamenti, motto, blasonatura</li><li>(8) presenza, difesa del sovrano, epiteti</li><li>(9) il resto di "Poi"</li></ul>
-<h4>4.4.3 Combattimento</h4><ul><li>(2) la manutenzione alle feste, le trascurate e le diroccate, la riparazione, la barra in alto e l'aspetto</li></ul>
 <h4>4.4.4 Avventurieri e rovine</h4><ul><li>(4) il resto <small>(partly done)</small></li></ul>
 <h4>4.7 Ricerca: il sapere e le leggi</h4><ul><li>(5) il resto dell'albero un nodo alla volta, erudito errante, protesta <small>(partly done)</small></li><li>(6) livello IV, regno, leggi finali, cittadella</li></ul>
 <h3>Planned</h3>
@@ -1292,6 +1292,13 @@ const <b id="c-SPLENDOR_GAP">SPLENDOR_GAP</b> := 4
 const <b id="c-COLONY_REACH">COLONY_REACH</b> := 2
 const <b id="c-COLONY_BUILT">COLONY_BUILT</b> := [Build.WALL, Build.DOOR, Build.FLOOR, Build.PATH, Build.ROAD, Build.PALISADE, Build.GATE]
 const <b id="c-FENCES">FENCES</b> := [Build.WALL, Build.DOOR, Build.PALISADE, Build.GATE]  <i># chiudono un'area, con roccia e acqua profonda</i></pre>
+<pre><i># La manutenzione dello splendore (GDD 4.4.3): a ogni festa di fine stagione UPKEEP monete per punto oltre i primi</i>
+<i># UPKEEP_FREE (gratis per le decorazioni che valgono di più), dai magazzini (vedi pay_upkeep). Le non pagate si</i>
+<i># trascurano (Decay.NEGLECTED: metà splendore); una trascurata non pagata alla festa dopo si dirocca (Decay.RUINED:</i>
+<i># niente, finché un costruttore non la ripara con REPAIR_COST del suo materiale, e torna trascurata). I cimeli no</i>
+enum <b id="c-Decay">Decay</b> { KEPT, NEGLECTED, RUINED }
+const <b id="c-UPKEEP">UPKEEP</b> := 0.5
+const <b id="c-UPKEEP_FREE">UPKEEP_FREE</b> := 15</pre>
 <pre><i># lente del calore: sopra COLD_FROM, sotto ma senza malus, poi per punti di comfort tolti dal freddo (1, 2, 3 e più)</i>
 const <b id="c-ROOM_SPACE">ROOM_SPACE</b> := 6        <i># caselle a testa: chi ne ha meno (stanza piena di gente) ha il comfort in proporzione</i></pre>
 <pre><i># suggerimento dei pulsanti di costruzione (vedi build_tip): sotto nome e costo il comfort, poi la descrizione colorata</i>
@@ -1317,7 +1324,7 @@ const <b id="c-SAVED">SAVED</b> := ["game_id", "map_seed", "ground_cols", "grave
 	"granary", "tithe_owed", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "sown", "plans", "slot_done", "soil", "soil_year_ago", "soil_known", "compost_since", "manured", "no_manure", "babies",
 	"house_name", "regent_for", "coronation_at", "reigns", "next_suitor", "pace", "tired", "last_yield",
 	"harvests", "wear", "plastered", "burning",
-	"fire_noted", "storm_noted", "delivered", "requests", "bumper_until"]
+	"fire_noted", "storm_noted", "delivered", "requests", "bumper_until", "decor_state"]
 const <b id="c-TOAST_TIME">TOAST_TIME</b> := 2000    <i># millisecondi: "Saved" in alto, poi sparisce (vedi show_toast)</i>
 const <b id="c-AUTOSAVE_HOUR">AUTOSAVE_HOUR</b> := 6    <i># all'alba, quando i coloni si alzano: il salvataggio di ogni giorno</i>
 const <b id="c-MODIFIER_KEYS">MODIFIER_KEYS</b> := [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]  <i># da soli non sono un tasto</i>
