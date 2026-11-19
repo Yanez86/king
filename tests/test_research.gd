@@ -34,10 +34,10 @@ func _initialize() -> void:
 	# sblocchi: senza ricerche niente forgia, pietra, lampade; quello che nessuna ricerca nomina c'è
 	main.researched.clear()
 	main.refresh_unlocks()
-	var furnace_button: Button = main.furniture_bar.get_node("Row/Furnace")
+	var furnace_button: Button = main.kind_buttons[B.FURNACE]
 	check(not furnace_button.visible and not main.get_node("HUD/BuildBar/Row/Materials/Stone").visible, "forgia e pietra nascoste")
-	check(main.furniture_bar.get_node("Row/Bed").visible and main.furniture_bar.get_node("Row/Desk").visible
-		and main.furniture_bar.get_node("Row/Throne").visible, "letto, scrittoio e trono dall'inizio")
+	check(main.kind_buttons[B.BED].visible and main.kind_buttons[B.DESK].visible and main.kind_buttons[B.THRONE].visible,
+		"letto, scrittoio e trono dall'inizio")
 	check(not main.unlocked("makes", R.INGOT) and main.unlocked("builds", B.CAMPFIRE), "lingotti no, fuoco da campo sì")
 	check(main.research_block(T.FORGE) == "60 more study" and not main.research(T.FORGE), "senza studio non si studia")
 	main.study = 70.0
@@ -758,7 +758,7 @@ func _initialize() -> void:
 	var real = load("res://main.tscn").instantiate()
 	root.add_child(real)
 	await process_frame
-	check(real.researched.is_empty() and not real.furniture_bar.get_node("Row/Furnace").visible, "si parte senza ricerche")
+	check(real.researched.is_empty() and not real.kind_buttons[real.Build.FURNACE].visible, "si parte senza ricerche")
 	check(is_equal_approx(real.next_pack, 4.0), "il primo branco il quinto giorno")
 	var found := []
 	for res in real.FOUND_WEAPONS:

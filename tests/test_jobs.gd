@@ -298,16 +298,29 @@ func _initialize() -> void:
 	main.structures_button.button_pressed = true
 	check(main.build_bar.visible and main.actions.visible, "categoria Structures: la sua barra, con Build e X")
 	main.get_node("HUD/BuildBar/Row/Wall").button_pressed = true
-	main.furniture_button.button_pressed = true  # categoria "Furniture": la barra dei mobili al posto di quella delle strutture
+	var home: Button = main.get_node("HUD/Categories/Row/Home")
+	var crafts: Button = main.get_node("HUD/Categories/Row/Crafts")
+	home.button_pressed = true  # categoria "Home": la barra dei mobili al posto di quella delle strutture, col solo gruppo di casa
+	var groups: Array = main.FURNITURE_GROUPS.map(func(g): return main.furniture_bar.get_node("Row/" + g))
 	check(main.furniture_bar.visible and not main.build_bar.visible and main.actions.visible, "barra dei mobili, con Build e X")
 	check(not main.structures_button.button_pressed, "una categoria alla volta")
+	check(groups.filter(func(g): return g.visible) == [groups[0]] and main.kind_buttons[main.Build.BED].is_visible_in_tree()
+		and not main.kind_buttons[main.Build.ANVIL].is_visible_in_tree(), "solo i mobili di casa")
+	crafts.button_pressed = true
+	check(main.furniture_bar.visible and not home.button_pressed and groups.filter(func(g): return g.visible) == [groups[2]]
+		and main.kind_buttons[main.Build.ANVIL].is_visible_in_tree(), "Crafts: i mestieri al posto della casa")
+	var widest := 0.0
+	for g in groups:  # ogni gruppo, con tutte le ricerche fatte, sta in 1280 pixel
+		widest = maxf(widest, g.get_combined_minimum_size().x)
+	check(widest + 200 < 1280, "il gruppo più largo sta nello schermo: %d pixel" % widest)
+	home.button_pressed = true
 	check(main.draft.has(at) and main.draft.has(at + Vector2i.DOWN), "cambiando barra il pavimento in progetto resta")
 	check(main.order == main.Order.NONE and main.kind_group.get_pressed_button() == null, "il muro scelto prima qui non vale")
 	main.choose_kind(main.Build.ANVIL)
-	check(main.build_res == main.Res.IRON and tip_texts(main, "FurnitureBar/Row/Anvil").slice(0, 2) == ["Anvil", "10"], "incudine: solo di ferro")
+	check(main.build_res == main.Res.IRON and tip_texts(main, "FurnitureBar/Row/Crafts/Anvil").slice(0, 2) == ["Anvil", "10"], "incudine: solo di ferro")
 	main.choose_kind(main.Build.BED)
 	check(main.order == main.Order.BUILD and main.build_res == W, "letto: solo di legno")
-	check(tip_texts(main, "FurnitureBar/Row/Bed") == ["Bed", "10", "+1 room comfort", main.BUILD_INFO[main.Build.BED]],
+	check(tip_texts(main, "FurnitureBar/Row/Home/Bed") == ["Bed", "10", "+1 room comfort", main.BUILD_INFO[main.Build.BED]],
 		"suggerimento: nome, costo, comfort, descrizione")
 	check(tip_texts(main, "BuildBar/Row/Wall").slice(0, 3) == ["Wall", "5/tile", "or 5/tile"], "muro: legno o pietra, per casella")
 	for i in 3:
@@ -333,7 +346,7 @@ func _initialize() -> void:
 	main.mark(Rect2i(at + Vector2i.DOWN, Vector2i.ONE))
 	check(main.furniture.is_empty(), "Destroy toglie anche i mobili")
 	# abat-jour: 2 legna e 1 carbone, un viaggio per materiale; quello già portato aspetta al cantiere
-	check(tip_texts(main, "FurnitureBar/Row/Lamp").slice(0, 3) == ["Lamp", "2", "1"], "abat-jour: legna e carbone")
+	check(tip_texts(main, "FurnitureBar/Row/Home/Lamp").slice(0, 3) == ["Lamp", "2", "1"], "abat-jour: legna e carbone")
 	var C: int = main.Res.COAL
 	main.drop(C, at + Vector2i(0, 3), 3)
 	var lamp := [main.Build.LAMP, W, 0]
@@ -365,7 +378,7 @@ func _initialize() -> void:
 	main.items[lamp_res].erase(at)  # via, che qui sotto si costruisce ancora
 	main.items[C].erase(at + Vector2i(0, 3))
 	# fuoco da campo: quinta riga del foglio; al posto dei quarti di giro, le colonne sono i fotogrammi della fiamma
-	check(tip_texts(main, "FurnitureBar/Row/Campfire").slice(0, 2) == ["Campfire", "5"], "tasto del fuoco da campo")
+	check(tip_texts(main, "FurnitureBar/Row/Fire/Campfire").slice(0, 2) == ["Campfire", "5"], "tasto del fuoco da campo")
 	var fire := [main.Build.CAMPFIRE, W, 0]
 	var flame: Rect2 = main.piece_rects(at, fire)[1]
 	main.clock += 1.5 * main.ANIMATED[main.Build.CAMPFIRE] / main.DAY_LENGTH
@@ -382,7 +395,7 @@ func _initialize() -> void:
 	# decorazioni: ognuna col suo tasto e il suo splendore; la panca girata sta in piedi, fontana e stendardo si muovono
 	for kind in main.SPLENDOR:
 		check(main.FURNITURE.has(kind) and main.BUILD_INFO.has(kind), "decorazione %s" % main.Build.keys()[kind])
-	check(tip_texts(main, "FurnitureBar/Row/Statue").slice(0, 2) == ["Statue", "40"], "tasto della statua")
+	check(tip_texts(main, "FurnitureBar/Row/Decor/Statue").slice(0, 2) == ["Statue", "40"], "tasto della statua")
 	check(main.piece_rect(at, [main.Build.BENCH, W, 1]).size == Vector2i(1, 2), "panca girata in verticale")
 	var water: Rect2 = main.piece_rects(at, [main.Build.FOUNTAIN, main.Res.STONE, 0])[1]
 	main.clock += 1.5 * main.ANIMATED[main.Build.FOUNTAIN] / main.DAY_LENGTH
@@ -465,7 +478,7 @@ func _initialize() -> void:
 	main.build_button.button_pressed = true
 	check(main.order == main.Order.NONE and main.order_group.get_pressed_button() == null, "Build chiude le azioni")
 	check(not main.select_button.button_pressed, "con uno strumento aperto Select è su")
-	main.furniture_button.button_pressed = true
+	main.get_node("HUD/Categories/Row/Home").button_pressed = true
 	main.choose_kind(main.Build.LAMP)
 	var lamp_at: Vector2i = main.cells_in(area).filter(func(k): return main.can_build(k, main.Build.LAMP))[0]
 	main.mark(Rect2i(lamp_at, Vector2i.ONE))

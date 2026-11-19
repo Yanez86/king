@@ -203,11 +203,6 @@ Leggi senza ✓ (tra parentesi quello che aspettano):
 
 - [ ] I resti del bivacco accanto all'arma abbandonata.
 
-## Interfaccia
-
-- [ ] La barra dei mobili, con tutte le ricerche fatte, è più larga di 1280 px ed esce dallo schermo: va divisa in
-  categorie o resa scorrevole.
-
 ## Distribuzione
 
 - [ ] Firma e notarizzazione per macOS (account Apple Developer), se il gioco va distribuito ad altri.

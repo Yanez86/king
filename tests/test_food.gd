@@ -633,7 +633,7 @@ func _initialize() -> void:
 	# cumulo, in COMPOST_DAYS giorni, ogni ROT_PER_COMPOST fa un compost; il contadino sparge il concime sulle caselle che
 	# si seminano entro MANURE_AHEAD giorni, nei campi che lo vogliono. Il sovescio si interra e rende fertilità
 	var R = main.Res
-	var heap_button: Button = main.get_node("HUD/FurnitureBar/Row/Compost Heap")
+	var heap_button: Button = main.kind_buttons[main.Build.COMPOST_HEAP]
 	main.researched.erase(main.Tech.MANURING)
 	main.refresh_unlocks()
 	check(not heap_button.visible and main.manure_ready().is_empty(), "senza la Concimazione niente cumulo né concime")

@@ -257,6 +257,12 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
 - Attrezzi equipaggiati = bonus all'abilità corrispondente.
 - Edifici MVP: muri, porte, tetto, letto, focolare, cucina, magazzino (zona), banco da lavoro, fornace, fucina.
 - Stanze chiuse con tetto proteggono da pioggia e freddo; il focolare scalda.
+- **Costruire**: il tasto Build apre le categorie: Strutture (muri, pavimenti, porte, strade, palizzata, intonaco) e
+  cinque categorie di mobili, perché una barra sola con tutte le ricerche non stava nello schermo (decise il
+  2026-11-19): Casa (letti, armadio, tavolo, sedia, tappeto, abat-jour), Fuoco e calore (fuoco da campo, focolare, stufa
+  a olle, pelli alle pareti, portiera, arazzo), Mestieri e provviste (fornace, incudine, banchi, filatoio, scrittoio,
+  libreria, fossa del ghiaccio, cumulo del compost), Corte e difesa (trono, bacheca, fantoccio, torre di guardia),
+  Decorazioni (le decorazioni e i cimeli). Un mobile nuovo va nella sua categoria, che resta sotto i 1280 pixel.
 - **Stanze**: zona chiusa da muri con una porta; il cartello sul muro accanto alla porta apre nome e tipo.
   Tipi: magazzino; camera (1 letto); dormitorio (2 letti); cucina (fuoco da campo o focolare, poi anche stufa); forgia (fornace e incudine);
   laboratorio (banco da lavoro); falegnameria (banco del falegname); ghiacciaia (fossa del ghiaccio, muri di pietra:

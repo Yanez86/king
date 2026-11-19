@@ -181,7 +181,7 @@ The other two colonists come at random: skills at 0, 0–2 traits.
 • There is no heir yet: if the ruler dies, nobody can sit on the throne."""],
 
 	["Building", """[color=#e8c34a]How to build[/color] [img=center]res://art/icon_wood.png[/img] [img=center]res://art/icon_stone.png[/img]
-• Press Build, pick Structures or Furniture, then a piece: hover its button for the cost and the comfort or splendor it gives.
+• Press Build, pick Structures or one of the five furniture categories (Home; Fire and warmth; Crafts and stores; Court and defense; Decorations, with the relics), then a piece: hover its button for the cost and the comfort or splendor it gives.
 • Walls and floors are made of wood or stone (stone after the Masonry research). Doors, furniture and decorations have their own material.
 • Drag on the map: the plan shows in blue. Walls go only along the border of the rectangle, so one drag outlines a room; floors, paths and doors fill it. Drawing over your unconfirmed plan replaces it: that is how to put a door into a wall you are planning.
 • Furniture goes one piece at a time, where you let go of the button. E and R (or the arrows in the bar) turn it; the preview is red where it doesn't fit.
@@ -225,6 +225,7 @@ Not on water, trees, rock, bushes or weeds (uproot them first), nor on items lyi
 [cell]Tapestry[/cell][cell]4 flax[/cell][cell]Loom[/cell]
 [cell]Tiled stove[/cell][cell]20 stone[/cell][cell]Tiled stove[/cell]
 [cell]Ice pit (2x2)[/cell][cell]20 stone[/cell][cell]Icehouse[/cell]
+[cell]Compost heap[/cell][cell]6 wood[/cell][cell]Manuring[/cell]
 [/table]
 Hearth, hides, tapestry and tiled stove hang against a wall at their back, the curtain against a door: turn them toward it. Decorations: see Splendor."""],
 

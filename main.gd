@@ -1511,7 +1511,10 @@ var lights_canvas := Node2D.new()
 @onready var select_button: Button = $HUD/Tools/Row/Select  # la freccia, prima a sinistra: vedi select_tool
 @onready var build_button: Button = $HUD/Tools/Row/Build  # sega e martello: apre le categorie, vedi toggle_build
 @onready var structures_button: Button = $HUD/Categories/Row/Structures
-@onready var furniture_button: Button = $HUD/Categories/Row/Furniture
+# categorie dei mobili, accanto a Structures: ognuna mostra il suo gruppo della barra dei mobili (stesso nome, in
+# main.tscn), così la barra non esce dallo schermo: casa, fuoco e calore, mestieri e provviste, corte e difesa, decorazioni
+const FURNITURE_GROUPS := ["Home", "Fire", "Crafts", "Court", "Decor"]
+var kind_buttons := {}  # Build -> il suo pulsante, nella barra delle strutture o in un gruppo di quella dei mobili
 @onready var category_group: ButtonGroup = structures_button.button_group
 @onready var order_group: ButtonGroup = $HUD/Tools/Row/Destroy.button_group  # Destroy, Mine, Chop, Uproot
 @onready var room_popup: Control = $HUD/RoomPopup  # pannello al centro
@@ -1602,7 +1605,8 @@ func _ready() -> void:
 	setup_options()
 	build_button.toggled.connect(toggle_build)
 	structures_button.toggled.connect(toggle_category.bind(build_bar))
-	furniture_button.toggled.connect(toggle_category.bind(furniture_bar))
+	for group in FURNITURE_GROUPS:
+		get_node("HUD/Categories/Row/" + group).toggled.connect(toggle_furniture.bind(furniture_bar.get_node("Row/" + group)))
 	for o in ORDER_TOOLS:
 		get_node("HUD/Tools/Row/" + ORDER_TOOLS[o]).toggled.connect(toggle_order.bind(o))
 	select_button.toggled.connect(select_tool.unbind(1))
@@ -1667,7 +1671,8 @@ func _ready() -> void:
 	$HUD/RoomPopup/Box/Ok.pressed.connect(room_popup.hide)
 	for kind in Build.values():  # un pulsante per tipo, con lo stesso nome: Wall, Floor, ... Lamp
 		var bar := furniture_bar if FURNITURE.has(kind) else build_bar
-		var button: Button = bar.get_node("Row/" + Build.keys()[kind].capitalize())
+		var button: Button = bar.find_child(Build.keys()[kind].capitalize(), true, false)
+		kind_buttons[kind] = button
 		button.set_script(TIP)
 		button.set("make_tip", build_tip.bind(kind))
 		button.tooltip_text = Build.keys()[kind].capitalize()  # Godot lo mostra da sé col mouse sopra, via build_tip
@@ -2200,14 +2205,23 @@ func toggle_build(on: bool) -> void:
 	reset_choice()
 
 
-# categorie "Structures" (muro) e "Furniture" (lampada), una alla volta: sopra compare la sua barra (strutture e
-# materiale, o mobili e frecce per girarli), al centro "Build" e la X per cancellare. Passando dall'una all'altra
-# il progetto resta (es. un letto sul pavimento appena disegnato)
+# categorie "Structures" (muro) e quelle dei mobili (FURNITURE_GROUPS), una alla volta: sopra compare la sua barra
+# (strutture e materiale, o il gruppo di mobili e le frecce per girarli), al centro "Build" e la X per cancellare.
+# Passando dall'una all'altra il progetto resta (es. un letto sul pavimento appena disegnato)
 func toggle_category(on: bool, bar: Control) -> void:
 	bar.visible = on
 	if on:
 		reset_choice()  # il tipo scelto nell'altra barra qui non c'è
 	actions.visible = category_group.get_pressed_button() != null
+
+
+# una categoria dei mobili: la barra dei mobili col solo gruppo `group`
+func toggle_furniture(on: bool, group: Control) -> void:
+	if on:
+		for other in FURNITURE_GROUPS:
+			furniture_bar.get_node("Row/" + other).visible = other == group.name
+		furniture_bar.reset_size()  # stretta come il gruppo, non come il più lungo
+	toggle_category(on, furniture_bar)
 
 
 # nessun tipo scelto: il trascinamento non disegna progetti finché non se ne sceglie uno
@@ -6378,8 +6392,7 @@ func toggle_pick(on: bool, g: Colonist) -> void:
 # Pulsanti di costruzione e pietra: si vedono solo quelli che nessuna ricerca chiede o che le ricerche fatte sbloccano
 func refresh_unlocks() -> void:
 	for kind in Build.values():
-		var bar := furniture_bar if FURNITURE.has(kind) else build_bar
-		bar.get_node("Row/" + Build.keys()[kind].capitalize()).visible = unlocked("builds", kind)
+		kind_buttons[kind].visible = unlocked("builds", kind)
 	$HUD/BuildBar/Row/Materials/Stone.visible = unlocked("materials", Res.STONE)
 	$HUD/Tools/Row/Ice.visible = unlocked("rooms", RoomKind.ICEHOUSE)  # col tasto del ghiaccio, la ghiacciaia
 	$HUD/Tools/Row/Garden.visible = unlocked("orders", Order.GARDEN)

@@ -180,7 +180,7 @@ Gli altri due coloni vengono a caso: abilità a 0, 0–2 talenti.
 • Non c'è ancora un erede: se il sovrano muore, nessuno può sedere sul trono."""],
 
 	["Costruire", """[color=#e8c34a]Come costruire[/color] [img=center]res://art/icon_wood.png[/img] [img=center]res://art/icon_stone.png[/img]
-• Premi Costruisci, scegli Strutture o Mobili, poi un pezzo: col mouse sopra il suo pulsante vedi il costo e il comfort o lo splendore che dà.
+• Premi Costruisci, scegli Strutture o una delle cinque categorie dei mobili (Casa; Fuoco e calore; Mestieri e provviste; Corte e difesa; Decorazioni, coi cimeli), poi un pezzo: col mouse sopra il suo pulsante vedi il costo e il comfort o lo splendore che dà.
 • Muri e pavimenti si fanno con legna o pietra (la pietra dopo la ricerca Muratura). Porte, mobili e decorazioni hanno il loro materiale.
 • Trascina sulla mappa: il progetto si vede in blu. I muri vanno solo lungo il bordo del rettangolo, così con un solo trascinamento tracci il contorno di una stanza; pavimenti, sentieri e porte lo riempiono. Disegnare sopra il tuo progetto non ancora confermato lo sostituisce: è così che metti una porta in un muro che stai progettando.
 • I mobili si mettono un pezzo alla volta, dove rilasci il tasto. E e R (o le frecce nella barra) girano il pezzo; l'anteprima è rossa dove non ci sta.
@@ -224,6 +224,7 @@ Non sull'acqua, sugli alberi, sulla roccia, sui cespugli o sulle erbacce (prima 
 [cell]Arazzo[/cell][cell]4 lino[/cell][cell]Telaio[/cell]
 [cell]Stufa a olle[/cell][cell]20 pietra[/cell][cell]Stufa a olle[/cell]
 [cell]Fossa del ghiaccio (2x2)[/cell][cell]20 pietra[/cell][cell]Ghiacciaia[/cell]
+[cell]Cumulo del compost[/cell][cell]6 legna[/cell][cell]Concimazione[/cell]
 [/table]
 Focolare, pelli, arazzo e stufa a olle vanno addossati a un muro alle loro spalle, la portiera a una porta: girali verso di lui. Decorazioni: vedi Splendore."""],
 

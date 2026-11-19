@@ -165,8 +165,20 @@ msgstr "Splendore della colonia"
 msgid "Structures"
 msgstr "Strutture"
 
-msgid "Furniture"
-msgstr "Mobili"
+msgid "Home"
+msgstr "Casa"
+
+msgid "Fire and warmth"
+msgstr "Fuoco e calore"
+
+msgid "Crafts and stores"
+msgstr "Mestieri e provviste"
+
+msgid "Court and defense"
+msgstr "Corte e difesa"
+
+msgid "Decorations"
+msgstr "Decorazioni"
 
 msgid "Rotate left (E)"
 msgstr "Ruota a sinistra (E)"

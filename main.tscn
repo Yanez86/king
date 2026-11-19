@@ -414,13 +414,53 @@ icon = SubResource("WallIcon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Furniture" type="Button" parent="HUD/Categories/Row"]
+[node name="Home" type="Button" parent="HUD/Categories/Row"]
 custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
-tooltip_text = "Furniture"
+tooltip_text = "Home"
 toggle_mode = true
 button_group = SubResource("Categories")
-icon = SubResource("LampIcon")
+icon = SubResource("BedIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Fire" type="Button" parent="HUD/Categories/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+tooltip_text = "Fire and warmth"
+toggle_mode = true
+button_group = SubResource("Categories")
+icon = SubResource("CampfireIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Crafts" type="Button" parent="HUD/Categories/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+tooltip_text = "Crafts and stores"
+toggle_mode = true
+button_group = SubResource("Categories")
+icon = SubResource("AnvilIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Court" type="Button" parent="HUD/Categories/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+tooltip_text = "Court and defense"
+toggle_mode = true
+button_group = SubResource("Categories")
+icon = SubResource("ThroneIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Decor" type="Button" parent="HUD/Categories/Row"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+tooltip_text = "Decorations"
+toggle_mode = true
+button_group = SubResource("Categories")
+icon = SubResource("FountainIcon")
 icon_alignment = 1
 expand_icon = true
 
@@ -550,7 +590,11 @@ theme_type_variation = &"Bar"
 [node name="Row" type="HBoxContainer" parent="HUD/FurnitureBar"]
 theme_override_constants/separation = 6
 
-[node name="Bed" type="Button" parent="HUD/FurnitureBar/Row"]
+[node name="Home" type="HBoxContainer" parent="HUD/FurnitureBar/Row"]
+visible = false
+theme_override_constants/separation = 6
+
+[node name="Bed" type="Button" parent="HUD/FurnitureBar/Row/Home"]
 custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
 toggle_mode = true
@@ -559,7 +603,7 @@ icon = SubResource("BedIcon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Canopy Bed" type="Button" parent="HUD/FurnitureBar/Row"]
+[node name="Canopy Bed" type="Button" parent="HUD/FurnitureBar/Row/Home"]
 custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
 toggle_mode = true
@@ -568,214 +612,7 @@ icon = SubResource("CanopyBedIcon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Table" type="Button" parent="HUD/FurnitureBar/Row"]
-custom_minimum_size = Vector2(40, 40)
-focus_mode = 0
-toggle_mode = true
-button_group = SubResource("Kinds")
-icon = SubResource("TableIcon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Chair" type="Button" parent="HUD/FurnitureBar/Row"]
-custom_minimum_size = Vector2(40, 40)
-focus_mode = 0
-toggle_mode = true
-button_group = SubResource("Kinds")
-icon = SubResource("ChairIcon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Lamp" type="Button" parent="HUD/FurnitureBar/Row"]
-custom_minimum_size = Vector2(40, 40)
-focus_mode = 0
-toggle_mode = true
-button_group = SubResource("Kinds")
-icon = SubResource("LampIcon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Campfire" type="Button" parent="HUD/FurnitureBar/Row"]
-custom_minimum_size = Vector2(40, 40)
-focus_mode = 0
-toggle_mode = true
-button_group = SubResource("Kinds")
-icon = SubResource("CampfireIcon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Hearth" type="Button" parent="HUD/FurnitureBar/Row"]
-custom_minimum_size = Vector2(40, 40)
-focus_mode = 0
-toggle_mode = true
-button_group = SubResource("Kinds")
-icon = SubResource("HearthIcon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Wall Hides" type="Button" parent="HUD/FurnitureBar/Row"]
-custom_minimum_size = Vector2(40, 40)
-focus_mode = 0
-toggle_mode = true
-button_group = SubResource("Kinds")
-icon = SubResource("WallHidesIcon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Door Curtain" type="Button" parent="HUD/FurnitureBar/Row"]
-custom_minimum_size = Vector2(40, 40)
-focus_mode = 0
-toggle_mode = true
-button_group = SubResource("Kinds")
-icon = SubResource("DoorCurtainIcon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Tapestry" type="Button" parent="HUD/FurnitureBar/Row"]
-custom_minimum_size = Vector2(40, 40)
-focus_mode = 0
-toggle_mode = true
-button_group = SubResource("Kinds")
-icon = SubResource("TapestryIcon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Tiled Stove" type="Button" parent="HUD/FurnitureBar/Row"]
-custom_minimum_size = Vector2(40, 40)
-focus_mode = 0
-toggle_mode = true
-button_group = SubResource("Kinds")
-icon = SubResource("TiledStoveIcon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Ice Pit" type="Button" parent="HUD/FurnitureBar/Row"]
-custom_minimum_size = Vector2(40, 40)
-focus_mode = 0
-toggle_mode = true
-button_group = SubResource("Kinds")
-icon = SubResource("IcePitIcon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Compost Heap" type="Button" parent="HUD/FurnitureBar/Row"]
-custom_minimum_size = Vector2(40, 40)
-focus_mode = 0
-toggle_mode = true
-button_group = SubResource("Kinds")
-icon = SubResource("CompostHeapIcon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Furnace" type="Button" parent="HUD/FurnitureBar/Row"]
-custom_minimum_size = Vector2(40, 40)
-focus_mode = 0
-toggle_mode = true
-button_group = SubResource("Kinds")
-icon = SubResource("FurnaceIcon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Anvil" type="Button" parent="HUD/FurnitureBar/Row"]
-custom_minimum_size = Vector2(40, 40)
-focus_mode = 0
-toggle_mode = true
-button_group = SubResource("Kinds")
-icon = SubResource("AnvilIcon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Workbench" type="Button" parent="HUD/FurnitureBar/Row"]
-custom_minimum_size = Vector2(40, 40)
-focus_mode = 0
-toggle_mode = true
-button_group = SubResource("Kinds")
-icon = SubResource("WorkbenchIcon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Spinning Wheel" type="Button" parent="HUD/FurnitureBar/Row"]
-custom_minimum_size = Vector2(40, 40)
-focus_mode = 0
-toggle_mode = true
-button_group = SubResource("Kinds")
-icon = SubResource("SpinningWheelIcon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Carpenter Bench" type="Button" parent="HUD/FurnitureBar/Row"]
-custom_minimum_size = Vector2(40, 40)
-focus_mode = 0
-toggle_mode = true
-button_group = SubResource("Kinds")
-icon = SubResource("CarpenterBenchIcon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Notice Board" type="Button" parent="HUD/FurnitureBar/Row"]
-custom_minimum_size = Vector2(40, 40)
-focus_mode = 0
-toggle_mode = true
-button_group = SubResource("Kinds")
-icon = SubResource("NoticeBoardIcon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Desk" type="Button" parent="HUD/FurnitureBar/Row"]
-custom_minimum_size = Vector2(40, 40)
-focus_mode = 0
-toggle_mode = true
-button_group = SubResource("Kinds")
-icon = SubResource("DeskIcon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Bookshelf" type="Button" parent="HUD/FurnitureBar/Row"]
-custom_minimum_size = Vector2(40, 40)
-focus_mode = 0
-toggle_mode = true
-button_group = SubResource("Kinds")
-icon = SubResource("BookshelfIcon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Throne" type="Button" parent="HUD/FurnitureBar/Row"]
-custom_minimum_size = Vector2(40, 40)
-focus_mode = 0
-toggle_mode = true
-button_group = SubResource("Kinds")
-icon = SubResource("ThroneIcon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Dummy" type="Button" parent="HUD/FurnitureBar/Row"]
-custom_minimum_size = Vector2(40, 40)
-focus_mode = 0
-toggle_mode = true
-button_group = SubResource("Kinds")
-icon = SubResource("DummyIcon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Watchtower" type="Button" parent="HUD/FurnitureBar/Row"]
-custom_minimum_size = Vector2(40, 40)
-focus_mode = 0
-toggle_mode = true
-button_group = SubResource("Kinds")
-icon = SubResource("WatchtowerIcon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Rug" type="Button" parent="HUD/FurnitureBar/Row"]
-custom_minimum_size = Vector2(40, 40)
-focus_mode = 0
-toggle_mode = true
-button_group = SubResource("Kinds")
-icon = SubResource("RugIcon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Wardrobe" type="Button" parent="HUD/FurnitureBar/Row"]
+[node name="Wardrobe" type="Button" parent="HUD/FurnitureBar/Row/Home"]
 custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
 toggle_mode = true
@@ -784,9 +621,230 @@ icon = SubResource("WardrobeIcon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="DecorSeparator" type="VSeparator" parent="HUD/FurnitureBar/Row"]
+[node name="Table" type="Button" parent="HUD/FurnitureBar/Row/Home"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("TableIcon")
+icon_alignment = 1
+expand_icon = true
 
-[node name="Flower Bed" type="Button" parent="HUD/FurnitureBar/Row"]
+[node name="Chair" type="Button" parent="HUD/FurnitureBar/Row/Home"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("ChairIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Rug" type="Button" parent="HUD/FurnitureBar/Row/Home"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("RugIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Lamp" type="Button" parent="HUD/FurnitureBar/Row/Home"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("LampIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Fire" type="HBoxContainer" parent="HUD/FurnitureBar/Row"]
+visible = false
+theme_override_constants/separation = 6
+
+[node name="Campfire" type="Button" parent="HUD/FurnitureBar/Row/Fire"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("CampfireIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Hearth" type="Button" parent="HUD/FurnitureBar/Row/Fire"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("HearthIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Tiled Stove" type="Button" parent="HUD/FurnitureBar/Row/Fire"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("TiledStoveIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Wall Hides" type="Button" parent="HUD/FurnitureBar/Row/Fire"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("WallHidesIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Door Curtain" type="Button" parent="HUD/FurnitureBar/Row/Fire"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("DoorCurtainIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Tapestry" type="Button" parent="HUD/FurnitureBar/Row/Fire"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("TapestryIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Crafts" type="HBoxContainer" parent="HUD/FurnitureBar/Row"]
+visible = false
+theme_override_constants/separation = 6
+
+[node name="Furnace" type="Button" parent="HUD/FurnitureBar/Row/Crafts"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("FurnaceIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Anvil" type="Button" parent="HUD/FurnitureBar/Row/Crafts"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("AnvilIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Workbench" type="Button" parent="HUD/FurnitureBar/Row/Crafts"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("WorkbenchIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Spinning Wheel" type="Button" parent="HUD/FurnitureBar/Row/Crafts"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("SpinningWheelIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Carpenter Bench" type="Button" parent="HUD/FurnitureBar/Row/Crafts"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("CarpenterBenchIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Desk" type="Button" parent="HUD/FurnitureBar/Row/Crafts"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("DeskIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Bookshelf" type="Button" parent="HUD/FurnitureBar/Row/Crafts"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("BookshelfIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Ice Pit" type="Button" parent="HUD/FurnitureBar/Row/Crafts"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("IcePitIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Compost Heap" type="Button" parent="HUD/FurnitureBar/Row/Crafts"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("CompostHeapIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Court" type="HBoxContainer" parent="HUD/FurnitureBar/Row"]
+visible = false
+theme_override_constants/separation = 6
+
+[node name="Throne" type="Button" parent="HUD/FurnitureBar/Row/Court"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("ThroneIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Notice Board" type="Button" parent="HUD/FurnitureBar/Row/Court"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("NoticeBoardIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Dummy" type="Button" parent="HUD/FurnitureBar/Row/Court"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("DummyIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Watchtower" type="Button" parent="HUD/FurnitureBar/Row/Court"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("WatchtowerIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Decor" type="HBoxContainer" parent="HUD/FurnitureBar/Row"]
+visible = false
+theme_override_constants/separation = 6
+
+[node name="Flower Bed" type="Button" parent="HUD/FurnitureBar/Row/Decor"]
 custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
 toggle_mode = true
@@ -795,7 +853,7 @@ icon = SubResource("FlowerBedIcon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Planter" type="Button" parent="HUD/FurnitureBar/Row"]
+[node name="Planter" type="Button" parent="HUD/FurnitureBar/Row/Decor"]
 custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
 toggle_mode = true
@@ -804,7 +862,7 @@ icon = SubResource("PlanterIcon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Bench" type="Button" parent="HUD/FurnitureBar/Row"]
+[node name="Bench" type="Button" parent="HUD/FurnitureBar/Row/Decor"]
 custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
 toggle_mode = true
@@ -813,7 +871,7 @@ icon = SubResource("BenchIcon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Banner" type="Button" parent="HUD/FurnitureBar/Row"]
+[node name="Banner" type="Button" parent="HUD/FurnitureBar/Row/Decor"]
 custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
 toggle_mode = true
@@ -822,7 +880,7 @@ icon = SubResource("BannerIcon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Lantern" type="Button" parent="HUD/FurnitureBar/Row"]
+[node name="Lantern" type="Button" parent="HUD/FurnitureBar/Row/Decor"]
 custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
 toggle_mode = true
@@ -831,7 +889,7 @@ icon = SubResource("LanternIcon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Fountain" type="Button" parent="HUD/FurnitureBar/Row"]
+[node name="Fountain" type="Button" parent="HUD/FurnitureBar/Row/Decor"]
 custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
 toggle_mode = true
@@ -840,7 +898,7 @@ icon = SubResource("FountainIcon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Statue" type="Button" parent="HUD/FurnitureBar/Row"]
+[node name="Statue" type="Button" parent="HUD/FurnitureBar/Row/Decor"]
 custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
 toggle_mode = true
@@ -849,9 +907,9 @@ icon = SubResource("StatueIcon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="RelicSeparator" type="VSeparator" parent="HUD/FurnitureBar/Row"]
+[node name="RelicSeparator" type="VSeparator" parent="HUD/FurnitureBar/Row/Decor"]
 
-[node name="Chalice" type="Button" parent="HUD/FurnitureBar/Row"]
+[node name="Chalice" type="Button" parent="HUD/FurnitureBar/Row/Decor"]
 custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
 toggle_mode = true
@@ -860,7 +918,7 @@ icon = SubResource("ChaliceIcon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Old Banner" type="Button" parent="HUD/FurnitureBar/Row"]
+[node name="Old Banner" type="Button" parent="HUD/FurnitureBar/Row/Decor"]
 custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
 toggle_mode = true
@@ -869,7 +927,7 @@ icon = SubResource("OldBannerIcon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Bust" type="Button" parent="HUD/FurnitureBar/Row"]
+[node name="Bust" type="Button" parent="HUD/FurnitureBar/Row/Decor"]
 custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
 toggle_mode = true
@@ -878,7 +936,7 @@ icon = SubResource("BustIcon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Crown" type="Button" parent="HUD/FurnitureBar/Row"]
+[node name="Crown" type="Button" parent="HUD/FurnitureBar/Row/Decor"]
 custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
 toggle_mode = true
