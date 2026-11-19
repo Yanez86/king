@@ -639,6 +639,14 @@ const DISCOMFORT_DROP := 24.0  # uno all'ora per punto
 const SPLENDOR := {Build.FLOWER_BED: 1, Build.PLANTER: 1, Build.BENCH: 1, Build.BANNER: 2, Build.LANTERN: 1,
 	Build.FOUNTAIN: 6, Build.STATUE: 8, Build.TAPESTRY: 2, Build.CHALICE: 3, Build.OLD_BANNER: 4, Build.BUST: 5, Build.CROWN: 6}
 const SPLENDOR_ONCE := [Build.BANNER]  # lo stendardo della casata: uno basta (deciso il 2026-11-19)
+# Dove conta lo splendore (GDD 4.4.3): le decorazioni di SPLENDOR_NEAR solo senza un'altra uguale entro SPLENDOR_GAP
+# caselle che già lo dà (vale la più vecchia); tutte solo nella colonia: in una stanza, entro COLONY_REACH caselle da
+# una struttura di COLONY_BUILT, o dentro muri e palizzata (vedi in_colony, enclosed_cells)
+const SPLENDOR_NEAR := [Build.FLOWER_BED, Build.PLANTER, Build.BENCH, Build.LANTERN]
+const SPLENDOR_GAP := 4
+const COLONY_REACH := 2
+const COLONY_BUILT := [Build.WALL, Build.DOOR, Build.FLOOR, Build.PATH, Build.ROAD, Build.PALISADE, Build.GATE]
+const FENCES := [Build.WALL, Build.DOOR, Build.PALISADE, Build.GATE]  # chiudono un'area, con roccia e acqua profonda
 const SPLENDOR_COLOR := Color("e8c34a")
 const HEAT_COLOR := Color("f2a03a")
 # lente del calore: sopra COLD_FROM, sotto ma senza malus, poi per punti di comfort tolti dal freddo (1, 2, 3 e più)
@@ -1585,6 +1593,10 @@ var today := 0              # il giorno visto per ultimo: cambiato, è l'alba di
 var hour := 0               # lo stesso per l'ora (vedi new_hour)
 var knowledge_key := ""     # quello che mostra la finestra Knowledge: se cambia, la si rifà (vedi fill_knowledge)
 var scholar_until := -1.0   # `clock` fino a cui l'erudito è alla locanda
+var decor_key := []         # da cosa dipende decor_memo: se cambia, si rifà (vedi decor_splendor)
+var decor_memo := {}        # origine di una decorazione -> [splendore che dà, perché no: "" se lo dà]
+var enclosed := {}          # casella -> true: chiusa da muri e palizzata (vedi enclosed_cells)
+var enclosed_key := []      # da cosa dipende `enclosed`: le strutture che chiudono e la roccia
 var bumper_until := -1.0    # `clock` fino a cui i campi rendono di più (raccolto abbondante, vedi crop_yield)
 var scholar_books: Array = []  # Res che ha ancora da vendere
 var scholar_bought := false # ha già comprato il suo libro, a questo passaggio
@@ -3446,8 +3458,11 @@ func describe(cell: Vector2i) -> Array:
 			return [tr("%s pile") % item_title(res), about]
 	for origin in pieces_at(furniture, cell):
 		var kind: Build = furniture[origin][0]
-		return [named(Build, kind), {Build.DESK: tr("Click: knowledge"), Build.THRONE: tr("Click: laws")}.get(kind,
-			tr("Click: what to make") if STATION_ROOM.has(kind) else "")]
+		var about: String = {Build.DESK: tr("Click: knowledge"), Build.THRONE: tr("Click: laws")}.get(kind,
+			tr("Click: what to make") if STATION_ROOM.has(kind) else "")
+		if SPLENDOR.has(kind):
+			about = decor_about(origin)
+		return [named(Build, kind), about]
 	if built.has(cell):
 		return [named(Build, built[cell][0]), named(Res, built[cell][1], "item")]
 	return []
@@ -4421,17 +4436,107 @@ func in_bed(c: Colonist) -> bool:
 	return c.job == Job.SLEEP and not pieces_at(furniture, cell_of(c.pos)).filter(func(o): return furniture[o][0] in BEDS).is_empty()
 
 
-# Splendore della colonia: la somma delle decorazioni finite (SPLENDOR), ovunque stiano (quelle di SPLENDOR_ONCE una
-# volta sola), e degli avventurieri famosi.
+# Splendore della colonia: le decorazioni finite che contano (vedi decor_splendor), il palazzo e gli avventurieri famosi
 func colony_splendor() -> int:
 	var palace: bool = researched.has(Tech.PALACE) and rooms.any(func(r): return r.kind == RoomKind.THRONE_ROOM)
 	var sum: int = PALACE[1] if palace else 0
-	var seen := {}
-	for plan in furniture.values():
-		if SPLENDOR.has(plan[0]) and not (plan[0] in SPLENDOR_ONCE and seen.has(plan[0])):
-			sum += SPLENDOR[plan[0]]
-			seen[plan[0]] = true
+	for v in decor_splendor().values():
+		sum += v[0]
 	return sum + people().reduce(func(n, g): return n + gift(g, "splendor", 0), 0)  # i famosi, anche rimasti
+
+
+# Lo splendore di ogni decorazione finita: origine -> [quanto ne dà, perché no]. Il perché: "outside" fuori dalla
+# colonia, "once" non è il primo (SPLENDOR_ONCE), "near" un'altra uguale vicino (SPLENDOR_NEAR); "" se conta. In ordine di
+# costruzione, così vale la più vecchia. Si rifà solo quando cambiano mobili, strutture o stanze
+func decor_splendor() -> Dictionary:
+	var key := [furniture.hash(), built.hash(), rooms.size()]
+	if key == decor_key:
+		return decor_memo
+	decor_key = key
+	var fences := []
+	for k in built:
+		if built[k][0] in FENCES:
+			fences.append(k)
+	var fenced := [fences.hash(), rocks.size()]
+	if fenced != enclosed_key:  # la mappa intera: solo quando cambia quello che chiude, non a ogni pavimento
+		enclosed_key = fenced
+		enclosed = enclosed_cells()
+	decor_memo = {}
+	var counted := {}  # Build -> le origini che danno splendore
+	for origin in furniture:
+		var kind: Build = furniture[origin][0]
+		if not SPLENDOR.has(kind):
+			continue
+		var why := ""
+		if not in_colony(origin):
+			why = "outside"
+		elif kind in SPLENDOR_ONCE and counted.has(kind):
+			why = "once"
+		elif kind in SPLENDOR_NEAR and counted.get(kind, []).any(
+				func(o): return maxi(absi(o.x - origin.x), absi(o.y - origin.y)) <= SPLENDOR_GAP):
+			why = "near"
+		if why == "":
+			counted[kind] = counted.get(kind, []) + [origin]
+		decor_memo[origin] = [SPLENDOR[kind] if why == "" else 0, why]
+	return decor_memo
+
+
+# `cell` è nella colonia: in una stanza o dentro muri e palizzata, o entro COLONY_REACH caselle da un muro, una porta,
+# un pavimento, un sentiero, una strada o la palizzata
+func in_colony(cell: Vector2i) -> bool:
+	if room_at(cell) != null or enclosed.has(cell):
+		return true
+	for k in cells_in(Rect2i(cell - Vector2i.ONE * COLONY_REACH, Vector2i.ONE * (2 * COLONY_REACH + 1))):
+		if built.has(k) and built[k][0] in COLONY_BUILT:
+			return true
+	return false
+
+
+# Le caselle chiuse: quelle che dal bordo della mappa non si raggiungono senza passare muri, porte, palizzata,
+# cancelli, roccia o acqua profonda (che le chiudono anche d'inverno, gelata)
+func enclosed_cells() -> Dictionary:
+	var fence := func(k: Vector2i) -> bool:
+		return rocks.has(k) or water.get(k, -1) == Ground.DEEP or (built.has(k) and built[k][0] in FENCES)
+	var seen := {}
+	var todo: Array[Vector2i] = []
+	for i in MAP_SIZE.x:
+		for k in [Vector2i(i, 0), Vector2i(i, MAP_SIZE.y - 1)]:
+			if not seen.has(k) and not fence.call(k):
+				seen[k] = true
+				todo.append(k)
+	for i in MAP_SIZE.y:
+		for k in [Vector2i(0, i), Vector2i(MAP_SIZE.x - 1, i)]:
+			if not seen.has(k) and not fence.call(k):
+				seen[k] = true
+				todo.append(k)
+	while not todo.is_empty():
+		var k: Vector2i = todo.pop_back()
+		for side in SIDES:
+			var next: Vector2i = k + side
+			if astar.is_in_boundsv(next) and not seen.has(next) and not fence.call(next):
+				seen[next] = true
+				todo.append(next)
+	var out := {}
+	for y in MAP_SIZE.y:
+		for x in MAP_SIZE.x:
+			var k := Vector2i(x, y)
+			if not seen.has(k) and not fence.call(k):
+				out[k] = true
+	return out
+
+
+# il riquadro in basso a destra di una decorazione: quanto splendore dà, o perché niente
+func decor_about(origin: Vector2i) -> String:
+	var v: Array = decor_splendor().get(origin, [0, "outside"])
+	var kind: Build = furniture[origin][0]
+	match v[1]:
+		"outside":
+			return tr("No splendor: outside the colony (a room, near a building or a path, inside the palisade)")
+		"once":
+			return tr("No splendor: only the first one counts")
+		"near":
+			return tr("No splendor: another %s within %d tiles") % [named(Build, kind).to_lower(), SPLENDOR_GAP]
+	return tr("+%d colony splendor") % v[0]
 
 
 # Comfort dove sta il colono: i mobili della stanza, in proporzione se ha meno di ROOM_SPACE caselle a testa (fuori 0),

@@ -401,18 +401,39 @@ func _initialize() -> void:
 	main.clock += 1.5 * main.ANIMATED[main.Build.FOUNTAIN] / main.DAY_LENGTH
 	check(main.piece_rects(at, [main.Build.FOUNTAIN, main.Res.STONE, 0])[1].position.x != water.position.x, "la fontana zampilla")
 	check(main.colony_splendor() == 0, "niente splendore senza decorazioni")
+	# lo splendore conta solo nella colonia (qui vicino alle stanze, e lungo un sentiero)
 	main.furniture[at] = [main.Build.STATUE, main.Res.STONE, 0]
+	var lane: Array = range(-1, 13).map(func(i): return at + Vector2i(i, -2))
+	for k in lane:
+		main.built[k] = [main.Build.PATH, main.Res.STONE]
+	check(main.colony_splendor() == 8 and main.describe(at)[1] == "+8 colony splendor", "nella colonia sì")
 	main.furniture[at + Vector2i(3, 0)] = [main.Build.FLOWER_BED, W, 0]
 	check(main.colony_splendor() == main.SPLENDOR[main.Build.STATUE] + main.SPLENDOR[main.Build.FLOWER_BED], "splendore sommato")
-	# lo stendardo conta una volta sola: il primo +2, gli altri niente
-	var shine: int = main.colony_splendor()
-	main.furniture[at + Vector2i(5, 0)] = [main.Build.BANNER, W, 0]
-	check(main.colony_splendor() == shine + 2, "il primo stendardo +2")
-	main.furniture[at + Vector2i(6, 0)] = [main.Build.BANNER, W, 0]
-	main.furniture[at + Vector2i(7, 0)] = [main.Build.BANNER, W, 0]
-	check(main.colony_splendor() == shine + 2, "gli altri stendardi niente")
+	# un'aiuola dà splendore solo senza un'altra entro 4 caselle che già lo dà (vale la più vecchia)
+	main.furniture[at + Vector2i(5, 0)] = [main.Build.FLOWER_BED, W, 0]
+	check(main.colony_splendor() == 9 and main.describe(at + Vector2i(5, 0))[1] == "No splendor: another flower bed within 4 tiles",
+		"un'aiuola troppo vicina: niente")
 	main.furniture[at + Vector2i(8, 0)] = [main.Build.FLOWER_BED, W, 0]
-	check(main.colony_splendor() == shine + 3, "le aiuole invece si sommano")
+	check(main.colony_splendor() == 10, "a 5 caselle sì")
+	# lo stendardo conta una volta sola: il primo +2, gli altri niente
+	main.furniture[at + Vector2i(10, 0)] = [main.Build.BANNER, W, 0]
+	main.furniture[at + Vector2i(11, 0)] = [main.Build.BANNER, W, 0]
+	main.furniture[at + Vector2i(12, 0)] = [main.Build.BANNER, W, 0]
+	check(main.colony_splendor() == 12 and main.describe(at + Vector2i(12, 0))[1] == "No splendor: only the first one counts",
+		"lo stendardo: +2, solo il primo")
+	for k in lane:
+		main.built.erase(k)
+	main.furniture.clear()
+	# dentro la palizzata conta anche lontano dai sentieri
+	var pen: Array = main.cells_in(Rect2i(3, 3, 9, 9)).filter(func(k): return k.x in [3, 11] or k.y in [3, 11])
+	main.furniture[Vector2i(7, 7)] = [main.Build.FLOWER_BED, W, 0]
+	check(main.colony_splendor() == 0 and main.decor_about(Vector2i(7, 7)).begins_with("No splendor: outside the colony"),
+		"nel prato, lontano da tutto, niente")
+	for k in pen:
+		main.built[k] = [main.Build.PALISADE, W]
+	check(main.colony_splendor() == 1, "dentro la palizzata sì")
+	for k in pen:
+		main.built.erase(k)
 	main.furniture.clear()
 
 	var c = main.colonists[0]

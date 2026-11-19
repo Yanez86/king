@@ -506,7 +506,10 @@ Tools hit too: pickaxe 10, axe 12, sickle 8, bare hands 5. Armor: see Combat & W
 • Downed, they heal 40 a day and stand up at 30. A wolf that finds them outdoors, with nobody else standing, kills them with the first bite.
 • The dead drop their gear; the body stays a day. The other colonists mourn for 3 days (Mourning). If every colonist dies, the colony has fallen."""],
 
-	["Splendor", """Splendor is the sum of every finished decoration on the map, inside rooms or out, plus 5 for every famous adventurer around. The total is in the top bar.
+	["Splendor", """Splendor is the sum of the finished decorations that count, plus 5 for every famous adventurer around. The total is in the top bar.
+• Only inside the colony: in a room, within 2 tiles of a wall, a door, a floor or a path, or inside the palisade. Out in the fields a decoration gives nothing.
+• Flower beds, planters, benches and lanterns count only with no other of the same kind within 4 tiles (the oldest wins); the banner only once. Build different decorations, not many of the same.
+• Hover a decoration: how much splendor it gives, or why it gives none.
 For now it does two things:
 • Adventurers arrive stronger: level 1, +1 for every 10 splendor, ±1 at random (from 1 to 5).
 • +1 authority a day for every 20 splendor.

@@ -584,12 +584,33 @@ Decisa il 2026-11-19. Numeri da tarare.
 - Poi: predoni (umani), funerali, medico e cure, animali che fuggono o si difendono, ordini di combattimento dati dal re.
 
 - **Splendore** della colonia (termine provvisorio; alternative: decoro, prestigio, lustro): tiene felici i coloni e
-  sblocca cose. Lo danno le decorazioni finite, ovunque stiano (il totale in alto). Primo effetto: attira avventurieri
+  sblocca cose. Lo danno le decorazioni finite (il totale in alto), dove e quanto vedi sotto. Primo effetto: attira avventurieri
   più forti (vedi 4.4.4).
   Decorazioni (+splendore): aiuola 1, fioriera di pietra 1, panca 1 (anche +0,5 comfort), lampione 1 (si accende di
   notte), stendardo 2 ma una volta sola (sventola; deciso il 2026-11-19: prima ne bastavano 30 da 4 legna per il
   Regno), fontana 6 (2x2, zampilla), statua del re 8 (2x2).
   Poi: strade che collegano le case, alberi piantati, feste.
+- **Splendore: dove conta e quanto costa** (deciso il 2026-11-19; numeri da tarare). Il giocatore deve essere spinto a
+  costruire decorazioni, non a riempire la mappa per accumulare splendore.
+  - **Vicinanza**: aiuola, fioriera, panca e lampione danno splendore solo se entro 4 caselle non ce n'è un'altra dello
+    stesso tipo che già lo dà (vale la più vecchia). Fontana, statua, arazzi e cimeli no: costano già tanto, o sono
+    unici. Lo stendardo conta una volta sola (sopra).
+  - **Nella colonia**: una decorazione conta solo in una stanza, entro 2 caselle da un muro, una porta, un pavimento o
+    un sentiero, o dentro la palizzata (un'area che muri, palizzata, roccia e acqua profonda chiudono). Fuori, niente.
+  - **Manutenzione, in oro**: a ogni festa di fine stagione (Fiori, Falce, Focolare, Candele) si paga mezza moneta per
+    ogni punto di splendore oltre i primi 15 (gratis: quanto basta per la Baronia), dai magazzini; la cronaca lo dice. I
+    primi 15 punti coprono le decorazioni che valgono di più; le altre pagano. Se le monete non bastano si pagano prima
+    quelle che valgono di più, e le altre si **trascurano**: metà splendore. Una trascurata che alla festa dopo non è
+    ancora pagata è **diroccata**: niente splendore, finché un costruttore non la ripara (1 del suo materiale, come un
+    tetto: torna trascurata). Alla festa, una trascurata pagata torna a posto. I cimeli non costano e non si rovinano.
+  - **Si vede**: col mouse sullo splendore in alto, la manutenzione della prossima festa e le monete in magazzino; sul
+    riquadro in basso a destra di ogni decorazione, quanto splendore dà e perché (un'altra uguale vicino, fuori dalla
+    colonia, trascurata, diroccata); le trascurate più spente, le diroccate grigie.
+  - **Ordine di lavoro**: (1) vicinanza e colonia, col riquadro in basso a destra; (2) la manutenzione alle feste, le
+    trascurate e le diroccate, la riparazione, la barra in alto e l'aspetto.
+  - **Stato**: fatta la fase 1 il 2026-11-19 (test in `tests/test_jobs.gd`): `decor_splendor` in `main.gd`, rifatto solo
+    quando cambiano mobili, strutture o stanze; le caselle dentro la palizzata solo quando cambiano muri, porte,
+    palizzata, cancelli o roccia (12 ms la mappa intera).
 - **Sentiero**: pavimento di terra battuta e sassolini (1 pietra a casella); i mobili ci stanno sopra.
   Su tutti i pavimenti l'erba dei prati vicini sborda, frastagliata, così non finiscono di netto; contro muri, porte
   e altri pavimenti il bordo resta netto. Poi: i sentieri che collegano le case danno splendore.

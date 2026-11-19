@@ -505,7 +505,10 @@ Anche gli attrezzi colpiscono: piccone 10, ascia 12, falcetto 8, mani nude 5. Pr
 • A terra guarisce 40 al giorno e si rialza a 30. Un lupo che lo trova all'aperto, senza nessun altro in piedi, lo uccide al primo morso.
 • I morti lasciano cadere il loro equipaggiamento; il corpo resta per un giorno. Gli altri coloni portano il lutto per 3 giorni (Lutto). Se muoiono tutti i coloni, la colonia è caduta."""],
 
-	["Splendore", """Lo splendore è la somma di tutte le decorazioni finite sulla mappa, dentro o fuori dalle stanze, più 5 per ogni avventuriero famoso presente. Il totale è nella barra in alto.
+	["Splendore", """Lo splendore è la somma delle decorazioni finite che contano, più 5 per ogni avventuriero famoso presente. Il totale è nella barra in alto.
+• Solo nella colonia: in una stanza, entro 2 caselle da un muro, una porta, un pavimento o un sentiero, o dentro la palizzata. Fuori, nei prati, una decorazione non dà niente.
+• Aiuole, fioriere, panche e lampioni contano solo senza un'altra uguale entro 4 caselle (vale la più vecchia); lo stendardo una volta sola. Conviene costruire decorazioni diverse, non tante uguali.
+• Col mouse sopra una decorazione: quanto splendore dà, o perché niente.
 Per ora fa due cose:
 • Gli avventurieri arrivano più forti: livello 1, +1 ogni 10 di splendore, ±1 a caso (da 1 a 5).
 • +1 autorità al giorno ogni 20 di splendore.

@@ -225,6 +225,7 @@ func _initialize() -> void:
 	var statues: Array = [free[10], free[11]]  # 8 di splendore l'una
 	for k in statues:
 		main.furniture[k] = [B.STATUE, R.STONE, 0]
+		main.built[k] = [B.PATH, R.STONE]  # su un sentiero: nella colonia
 	main.tick(0.0)
 	check(main.rank == 0 and main.colonists.size() == 3, "16 di splendore ma 3 coloni: ancora signoria")
 	main.fill_laws()
@@ -247,6 +248,7 @@ func _initialize() -> void:
 	check(main.codify_block(L.TRIBUTE) == "Needs a county", "il tributo vuole la contea")
 	for k in [free[12], free[13], free[14]]:
 		main.furniture[k] = [B.STATUE, R.STONE, 0]
+		main.built[k] = [B.PATH, R.STONE]  # su un sentiero: nella colonia
 		statues.append(k)
 	while main.colonists.size() < 9:
 		crowd.append(person(main))

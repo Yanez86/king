@@ -58,11 +58,13 @@ func _initialize() -> void:
 	for i in 13:
 		statues.append(Vector2i(i + 2, 2))
 		main.furniture[statues[-1]] = [main.Build.STATUE, main.Res.STONE, 0]
+		main.built[statues[-1]] = [main.Build.PATH, main.Res.STONE]  # su un sentiero: nella colonia
 	check(main.wander_wait() < 5.0 and is_equal_approx(N.chance(E.WANDERERS), 1.0), "un viandante ogni 5 giorni scarsi")
 	counts = tally(12000)
 	check(counts[-1] == 0 and fair(counts, 12000, 0.02), "strette: %s" % str(counts))
 	for k in statues:
 		main.furniture.erase(k)
+		main.built.erase(k)
 
 	# l'evento scelto a mezzanotte aspetta la sua ora: l'erudito alle 9
 	main.scholar_until = -1.0

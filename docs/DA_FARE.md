@@ -128,6 +128,9 @@ Dinastia (4.3.3, fatta): quello che resta.
 - [ ] Ordini di combattimento dati dal re (il combattimento tattico resta fuori scope).
 - [ ] L'arciere che sale da sé sulla torre di guardia.
 - [ ] Splendore: strade che collegano le case, alberi piantati, feste; i sentieri tra le case danno splendore.
+- [ ] Splendore, la manutenzione in oro (deciso il 2026-11-19, fase 2): mezza moneta a punto oltre i primi 15 a ogni
+  festa di stagione; le decorazioni non pagate trascurate (metà), poi diroccate (niente, da riparare). Fatta la fase 1:
+  conta solo nella colonia e senza un'altra uguale vicino.
 - [ ] Statuaria: i memoriali dei caduti (lutto un giorno in meno).
 
 ## Avventurieri e rovine (4.4.4)

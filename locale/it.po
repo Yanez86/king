@@ -3924,3 +3924,14 @@ msgstr "%s: gli ululati si allontanano; i lupi sono andati altrove."
 
 msgid "Wolves in %d h"
 msgstr "Lupi tra %d h"
+
+# --- Lo splendore: dove conta
+
+msgid "No splendor: outside the colony (a room, near a building or a path, inside the palisade)"
+msgstr "Niente splendore: fuori dalla colonia (in una stanza, vicino a un edificio o a un sentiero, dentro la palizzata)"
+
+msgid "No splendor: only the first one counts"
+msgstr "Niente splendore: conta solo il primo"
+
+msgid "No splendor: another %s within %d tiles"
+msgstr "Niente splendore: c'è un'altra %s entro %d caselle"
