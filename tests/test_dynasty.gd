@@ -61,6 +61,46 @@ func _initialize() -> void:
 	check(spared in main.colonists, "senza morti (nei test) nessuno muore di vecchiaia")
 	main.colonists.erase(spared)
 
+	# matrimonio: il sovrano adulto sposa una persona adulta dell'altro sesso, senza coniuge, abbastanza felice
+	for i in 2:  # in tutto quattro, oltre al sovrano
+		person(main)
+	var others: Array = main.colonists.filter(func(o): return o != ruler)
+	ruler.sex = main.Sex.MALE
+	for i in others.size():
+		others[i].sex = main.Sex.FEMALE if i < 3 else main.Sex.MALE
+		others[i].born = main.clock - 25.5 * main.LIFE_YEAR
+		others[i].needs[main.Need.HAPPINESS] = 80.0
+	var bride = others[0]
+	var sad = others[1]
+	sad.needs[main.Need.HAPPINESS] = 20.0
+	var girl = others[2]
+	girl.born = main.clock - 15.5 * main.LIFE_YEAR
+	check(main.can_marry(), "il sovrano adulto, senza coniuge, si può sposare")
+	var options: Array = main.suitors()
+	check(options.map(func(o): return o[0]) == [bride, sad], "le donne adulte, non i ragazzi né gli uomini")
+	check(options[0][1] == "" and options[1][1] == "not happy enough", "chi è infelice non accetta")
+	main.open_sheet(ruler)
+	var family: Control = main.get_node("HUD/ColonistSheet/Box/Family")
+	check(family.get_node("Marry").visible and not family.get_node("Spouse").visible, "nella scheda: Arrange a marriage…")
+	family.get_node("Marry").pressed.emit()
+	check(main.marriage_menu.visible and main.marriage_menu.item_count == 2 and not main.marriage_menu.is_item_disabled(0)
+		and main.marriage_menu.is_item_disabled(1) and main.marriage_menu.get_item_text(1).ends_with("not happy enough"),
+		"il menu: chi non accetta è spento, col perché")
+	var authority_before: float = main.authority
+	main.marriage_menu.id_pressed.emit(main.colonists.find(bride))
+	check(ruler.spouse == bride and bride.spouse == ruler and main.married(ruler) and main.married(bride), "sposati")
+	check(main.colonists.all(func(o): return o.conds.has(main.Cond.WEDDING)), "le nozze: tutti fanno festa")
+	check(is_equal_approx(main.authority, authority_before + main.WEDDING_AUTHORITY), "+%d autorità" % main.WEDDING_AUTHORITY)
+	check(Array(main.chronicle).any(func(line): return "%s married %s." % [main.full_name(ruler), main.full_name(bride)] in line),
+		"la cronaca lo scrive")
+	check(not family.get_node("Marry").visible and family.get_node("Spouse").text == "Spouse: " + main.full_name(bride),
+		"nella scheda il coniuge")
+	check(not main.can_marry(), "sposato, niente altri matrimoni")
+	main.die(bride, "is gone.")
+	main.open_sheet(ruler)
+	check(family.get_node("Spouse").text.ends_with(" †") and main.can_marry() and not main.married(ruler),
+		"vedovo: la croce accanto al nome, e ci si può risposare")
+
 	# un salvataggio di prima delle età: tutti adulti
 	var state: Dictionary = main.game_state()
 	var k: int = main.saved_classes().find(main.Colonist)
@@ -76,8 +116,22 @@ func _initialize() -> void:
 	check(copy.age_of(copy.ruler) <= 30, "il sovrano al più 30 anni")
 	Engine.time_scale = 1.0  # caricata riparte in pausa
 
-	print("OK: età e vecchiaia")
+	print("OK: età, vecchiaia e matrimonio")
 	quit()
+
+
+# un colono in più, adulto, accanto al centro
+func person(main) -> Variant:
+	var c = main.Colonist.new()
+	main.dress(c, main.people().map(func(o): return o.first_name))
+	c.pos = main.center(main.MAP_SIZE / 2 + Vector2i(main.colonists.size(), 1))
+	c.skills = main.Skill.values().map(func(_s): return 0)
+	c.xp = main.Skill.values().map(func(_s): return 0)
+	c.needs = main.Need.values().map(func(_n): return 60.0)
+	c.trend = c.needs.map(func(_v): return 0.0)
+	main.give_age(c, main.ADULT_AGE)
+	main.colonists.append(c)
+	return c
 
 
 func check(ok: bool, what: String) -> void:

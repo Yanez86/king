@@ -437,6 +437,26 @@ CONDITIONS = """
 ................ ................ ................ ................ ................ ................
 """
 
+# Condizione delle nozze (Cond.WEDDING): due anelli d'oro intrecciati.
+WEDDING = """
+................
+................
+........oooo....
+.......ooIggoo..
+....ooogIggggoo.
+..ooggoggoooggo.
+.oogIgogoo..ogo.
+.ogIooogoo..ogo.
+.ogo..oggoooggo.
+.ogo..oggggggoo.
+.oggooogggggoo..
+.ooggggggooo....
+..oogggoo.......
+....oooo........
+................
+................
+"""
+
 # Piante 16x16 -> erbaccia, cespuglio, cespuglio con le bacche, lino, lino in fiore (azzurro: si raccoglie).
 # Si attraversano, ma non ci si costruisce sopra.
 PLANTS = """
@@ -3983,7 +4003,8 @@ def main():
     feast = ["." * 16] * 2 + [".." + line + ".." for line in art(FEAST_SYMBOL, 12, 12)] + ["." * 16] * 2
     pad12 = lambda f: ["." * 16] * 2 + [".." + line + ".." for line in f] + ["." * 16] * 2  # simbolo 12x12 in 16x16
     pillory, heard = frames(LAW_SYMBOLS_6, 12, 4, 12)[:2]
-    images["conditions"] = pixels(side_by_side(frames(CONDITIONS, count=6) + [feast, pad12(pillory), pad12(heard)]))
+    images["conditions"] = pixels(side_by_side(frames(CONDITIONS, count=6) + [feast, pad12(pillory), pad12(heard),
+                                                                              art(WEDDING, 16, 16)]))
     images["ground"] = pixels(ground_sheet())
     images["warehouse_day"] = pixels(art(WAREHOUSE, 64, 32))
     images["warehouse_night"] = pixels(art(WAREHOUSE, 64, 32), palette=night_palette())

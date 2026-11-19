@@ -1408,6 +1408,17 @@ bbcode_enabled = true
 fit_content = true
 scroll_active = false
 
+[node name="Family" type="HBoxContainer" parent="HUD/ColonistSheet/Box"]
+theme_override_constants/separation = 8
+
+[node name="Spouse" type="Label" parent="HUD/ColonistSheet/Box/Family"]
+visible = false
+
+[node name="Marry" type="Button" parent="HUD/ColonistSheet/Box/Family"]
+visible = false
+focus_mode = 0
+text = "Arrange a marriage…"
+
 [node name="Health" type="Label" parent="HUD/ColonistSheet/Box"]
 
 [node name="Needs" type="GridContainer" parent="HUD/ColonistSheet/Box"]

@@ -3242,3 +3242,26 @@ msgstr "%s, %d anni"
 
 msgid "died of old age, at %d."
 msgstr "ha finito i suoi giorni, di vecchiaia, a %d anni."
+
+# --- Dinastia: il matrimonio
+
+msgid "Arrange a marriage…"
+msgstr "Combina un matrimonio…"
+
+msgid "Spouse: %s"
+msgstr "Coniuge: %s"
+
+msgid "not happy enough"
+msgstr "non abbastanza felice"
+
+msgid "Nobody to marry."
+msgstr "Nessuno da sposare."
+
+msgid "%s: %s married %s."
+msgstr "%s: %s ha sposato %s."
+
+msgid "Wedding"
+msgstr "Nozze"
+
+msgid "Celebrated the ruler's wedding."
+msgstr "Ha festeggiato le nozze del sovrano."

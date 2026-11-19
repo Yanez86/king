@@ -161,6 +161,7 @@ Goloso e Di poco appetito, Pigro e Stacanovista, Mattiniero e Nottambulo, Dormig
 [cell]Mangiato crudo[/cell][cell]½ giorno[/cell][cell]–[/cell][cell]-10[/cell]
 [cell]Lutto[/cell][cell]3 giorni[/cell][cell]–[/cell][cell]-15[/cell]
 [cell]In festa[/cell][cell]3 giorni[/cell][cell]–[/cell][cell]+10[/cell]
+[cell]Nozze[/cell][cell]2 giorni[/cell][cell]–[/cell][cell]+10[/cell]
 [/table]
 • Intossicato: dal cibo crudo, tanto più probabile quanto più è vicino a marcire.
 • Ben nutrito: dopo un pasto; stress dal lavoro -25%. Lauto pasto: dopo un pasto squisito; stress dal lavoro -50%. Un pasto nuovo sostituisce la condizione di quello prima.
@@ -168,6 +169,7 @@ Goloso e Di poco appetito, Pigro e Stacanovista, Mattiniero e Nottambulo, Dormig
 • Mangiato crudo: un goloso che ha dovuto mangiare cibo crudo. Il goloso sente il doppio Ben nutrito, Lauto pasto, Mangiato al tavolo e Mangiato crudo.
 • Lutto: è morto un colono; stress dal lavoro +25%.
 • In festa: dopo un giorno di festa, con la legge Festa del raccolto (vedi Leggi).
+• Nozze: tutti, quando il sovrano si sposa.
 Qui compaiono anche le leggi in vigore che a un colono piacciono o non piacciono, con la loro icona."""],
 
 	["Il sovrano e la casata", """[color=#e8c34a]Nuova partita[/color]
@@ -182,7 +184,12 @@ Gli altri due coloni vengono a caso: abilità a 0, 0–2 talenti.
 • Titolo: Signore o Signora. La barra in alto mostra "Signoria di" e il nome della tua colonia, accanto al tuo stemma: cliccaci sopra per la scheda del sovrano. Sugli stendardi sventola il tuo stemma.
 • Solo il sovrano governa: su un trono, in una sala del trono, raccoglie autorità per le leggi (vedi Leggi). Un sovrano sereno (70 o più) ne raccoglie il 25% in più, uno cupo (30 o meno) la metà.
 • Per ora il titolo resta quello della Signoria: +1 autorità al giorno e 2 sigilli per le leggi.
-• Non c'è ancora un erede: se il sovrano muore, nessuno può sedere sul trono."""],
+• Non c'è ancora un erede: se il sovrano muore, nessuno può sedere sul trono.
+
+[color=#e8c34a]Matrimonio[/color]
+• Un sovrano adulto (16 anni o più) senza coniuge vivo si può sposare: "Combina un matrimonio…" nella scheda del sovrano elenca i coloni adulti dell'altro sesso senza coniuge. Chi ha meno di 50 di felicità dice di no, e l'elenco dice perché.
+• Le nozze: tutti prendono Nozze (+10 felicità per 2 giorni), +10 autorità, e la cronaca lo racconta. Ognuno dei due sposi entra nelle stanze dell'altro. La scheda mostra il coniuge, con una croce quando è morto: un sovrano vedovo si può risposare.
+• Dai alla coppia una stanza con due letti: i figli verranno dal dividerla."""],
 
 	["Costruire", """[color=#e8c34a]Come costruire[/color] [img=center]res://art/icon_wood.png[/img] [img=center]res://art/icon_stone.png[/img]
 • Premi Costruisci, scegli Strutture o una delle cinque categorie dei mobili (Casa; Fuoco e calore; Mestieri e provviste; Corte e difesa; Decorazioni, coi cimeli), poi un pezzo: col mouse sopra il suo pulsante vedi il costo e il comfort o lo splendore che dà.

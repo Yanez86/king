@@ -162,6 +162,7 @@ Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleep
 [cell]Ate raw[/cell][cell]½ day[/cell][cell]–[/cell][cell]-10[/cell]
 [cell]Mourning[/cell][cell]3 days[/cell][cell]–[/cell][cell]-15[/cell]
 [cell]Festive[/cell][cell]3 days[/cell][cell]–[/cell][cell]+10[/cell]
+[cell]Wedding[/cell][cell]2 days[/cell][cell]–[/cell][cell]+10[/cell]
 [/table]
 • Poisoned: from raw food, more likely the closer it is to rotting.
 • Well fed: after a meal; stress from work -25%. Feasted: after a fine meal; stress from work -50%. A new meal replaces the condition of the last one.
@@ -169,6 +170,7 @@ Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleep
 • Ate raw: a glutton who had to eat raw food. A glutton feels Well fed, Feasted, At table and Ate raw twice as much.
 • Mourning: a colonist has died; stress from work +25%.
 • Festive: after a feast day, with the Harvest feast law (see Laws).
+• Wedding: everyone, when the ruler marries.
 The laws in force that a colonist likes or dislikes show here too, with their icon."""],
 
 	["The Ruler & House", """[color=#e8c34a]New game[/color]
@@ -183,7 +185,12 @@ The other two colonists come at random: skills at 0, 0–2 traits.
 • Title: Lord or Lady. The top bar shows "Lordship of" your colony, beside your arms: click it for the ruler's sheet. Banners fly your arms.
 • Only the ruler governs: on a throne, in a throne room, they gather authority for the laws (see Laws). A happy ruler (70 or more) gathers 25% more, a gloomy one (30 or less) half.
 • For now the title stays a Lordship: +1 authority a day and 2 seals for the laws.
-• There is no heir yet: if the ruler dies, nobody can sit on the throne."""],
+• There is no heir yet: if the ruler dies, nobody can sit on the throne.
+
+[color=#e8c34a]Marriage[/color]
+• An adult ruler (16 or older) without a living spouse can marry: "Arrange a marriage…" on the ruler's sheet lists the adult colonists of the other sex without a spouse. Those with less than 50 happiness say no, and the list tells you why.
+• The wedding: everyone gets Wedding (+10 happiness for 2 days), +10 authority, and the chronicle tells it. Each spouse may enter the other's rooms. The sheet shows the spouse, with a cross once they have died: a widowed ruler can marry again.
+• Give the couple a room with two beds: children will come from sharing it."""],
 
 	["Building", """[color=#e8c34a]How to build[/color] [img=center]res://art/icon_wood.png[/img] [img=center]res://art/icon_stone.png[/img]
 • Press Build, pick Structures or one of the five furniture categories (Home; Fire and warmth; Crafts and stores; Court and defense; Decorations, with the relics), then a piece: hover its button for the cost and the comfort or splendor it gives.

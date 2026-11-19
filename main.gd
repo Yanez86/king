@@ -745,6 +745,11 @@ const RULER_AGE := [20, 30]
 const ADULT_AGE := [18, 40]
 const OLD_AGE := 60
 const OLD_AGE_RISK := 0.02
+# Matrimonio (vedi marry): il sovrano adulto e non sposato sposa una persona adulta dell'altro sesso; un colono
+# accetta se ha almeno MARRY_HAPPY di felicità. Le nozze: Cond.WEDDING a tutti, WEDDING_AUTHORITY
+const ADULT := 16
+const MARRY_HAPPY := 50.0
+const WEDDING_AUTHORITY := 10
 const SEASONS := ["Spring", "Summer", "Autumn", "Winter"]
 const WINTER := 3  # in SEASONS: niente bacche né lino (vedi new_day)
 const MONTHS := ["Thaw", "Sowing", "Blossom", "Highsun", "Haying", "Ripening", "Reaping", "Leaffall", "Mists",
@@ -873,7 +878,7 @@ const TRAIT_INFO := {  # suggerimento col mouse sopra il talento: com'è, poi co
 }
 # condizioni: effetti a tempo, con un'icona 16x16 nella scheda (colonne di CONDITIONS_SHEET nell'ordine di Cond).
 # Dati: [giorni, tempo di lavoro x, stress da lavoro x, felicità +, descrizione]. Vedi add_cond, work_factor, update_needs
-enum Cond { POISONED, WELL_FED, FEASTED, AT_TABLE, ATE_RAW, MOURNING, FESTIVE, PILLORIED, HEARD }
+enum Cond { POISONED, WELL_FED, FEASTED, AT_TABLE, ATE_RAW, MOURNING, FESTIVE, PILLORIED, HEARD, WEDDING }
 const CONDITIONS_SHEET := preload("res://art/conditions.png")
 const COND_INFO := {
 	Cond.POISONED: [1.0, 1.5, 1.0, -20.0, "Ate raw food that was going bad. Works slowly."],
@@ -885,6 +890,7 @@ const COND_INFO := {
 	Cond.FESTIVE: [3.0, 1.0, 1.0, 10.0, "Celebrated a feast."],
 	Cond.PILLORIED: [1.0, 1.0, 1.0, -10.0, "Put in the stocks for a tantrum or a protest."],
 	Cond.HEARD: [0.5, 1.0, 1.0, 10.0, "The ruler listened to their complaint."],
+	Cond.WEDDING: [2.0, 1.0, 1.0, 10.0, "Celebrated the ruler's wedding."],
 }
 const GLUTTON_MOOD := 2.0  # il goloso: tanta felicità in più (o in meno) da quello che mangia
 const FOOD_CONDS := [Cond.WELL_FED, Cond.FEASTED, Cond.AT_TABLE, Cond.ATE_RAW]
@@ -1264,6 +1270,7 @@ class Colonist:
 	var hour := -1                # ultima ora vista, per accorgersi di quando scocca la successiva
 	var died := 0.0               # `clock` della morte (vedi corpses)
 	var born := INF               # `clock` della nascita (vedi age_of); INF: da dare, salvataggio di prima delle età
+	var spouse = null             # Colonist: il coniuge, anche morto (vedi married)
 	# avventurieri (vedi HEROES): per i coloni hero è NONE e il resto non conta
 	var hero := Hero.NONE
 	var level := 0                # 1-HERO_LEVEL_MAX
@@ -1451,6 +1458,7 @@ var keep := STOCK.duplicate()  # prodotto -> quanti tenerne (a terra, in magazzi
 var crafting := Vector2i(-1, -1)  # la postazione aperta nel menu, vedi open_craft
 var shown: Colonist         # il colono nella scheda: le barre dei bisogni lo seguono
 var gear_menu := PopupMenu.new()  # clic su uno slot della scheda: Auto, Empty o un pezzo (vedi open_gear_menu)
+var marriage_menu := PopupMenu.new()  # "Arrange a marriage…": chi il sovrano può sposare (vedi open_marriage_menu)
 var gear_slot := Slot.HANDS       # lo slot del menu aperto
 var lens_owners := []       # [centro, proprietari o lavoratori] per stanza delle figurine sulla lente, vedi place_owners
 var needs_rate := 1.0       # 0 nei test: i bisogni restano fermi e non cambiano i lavori
@@ -1750,6 +1758,9 @@ func _ready() -> void:
 		ruins.append(Ruin.new())  # per ora solo la torre
 	$HUD.add_child(gear_menu)
 	gear_menu.id_pressed.connect(choose_gear)
+	$HUD.add_child(marriage_menu)
+	marriage_menu.id_pressed.connect(marriage_pressed)
+	$HUD/ColonistSheet/Box/Family/Marry.pressed.connect(open_marriage_menu)
 	for slot in Slot.values():
 		var icon: Control = $HUD/ColonistSheet/Box/Equipment/Slots.get_child(slot)
 		icon.mouse_filter = Control.MOUSE_FILTER_STOP  # il clic non trascina la finestra
@@ -2889,6 +2900,10 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 	box.get_node("Head/Name").text = full_name(c)
 	box.get_node("Sex/Icon").texture = SEX_ICONS[c.sex]
 	box.get_node("Sex/Label").text = tr("%s, %d years old") % [tr(SEX_NAMES[c.sex]), age_of(c)]
+	box.get_node("Family/Spouse").visible = c.spouse != null
+	if c.spouse != null:  # la croce: vedovo
+		box.get_node("Family/Spouse").text = tr("Spouse: %s") % full_name(c.spouse) + (" †" if c.spouse.died > 0.0 else "")
+	box.get_node("Family/Marry").visible = c == ruler and can_marry() and box == $HUD/ColonistSheet/Box
 	box.get_node("Head/Arms").visible = c == ruler  # lo stemma lo mette show_title
 	box.get_node("Hero").visible = c.hero != Hero.NONE or c == ruler
 	box.get_node("Hero").text = tr_n("%s, fee %s, %d expedition", "%s, fee %s, %d expeditions", c.trips) % [hero_name(c), coins(fee(c)), c.trips] \
@@ -5751,6 +5766,62 @@ func inn_beds() -> int:
 
 
 # avventuriero `kind` di livello `level`, col suo nome, aspetto, abilità ed equipaggiamento
+# sposato, col coniuge vivo
+func married(c: Colonist) -> bool:
+	return c.spouse != null and c.spouse.died == 0.0
+
+
+# il sovrano si può sposare: è in colonia, adulto, senza coniuge vivo
+func can_marry() -> bool:
+	return ruler in colonists and age_of(ruler) >= ADULT and not married(ruler)
+
+
+# chi il sovrano può sposare: i coloni adulti dell'altro sesso senza coniuge vivo, ognuno con il perché no ("" se
+# accetta)
+func suitors() -> Array:
+	var out := []
+	for o in colonists:
+		if o != ruler and o.sex != ruler.sex and age_of(o) >= ADULT and not married(o):
+			out.append([o, "" if o.needs[Need.HAPPINESS] >= MARRY_HAPPY else tr("not happy enough")])
+	return out
+
+
+# le nozze di `a` e `b`: a tutti Cond.WEDDING, autorità, la cronaca; ognuno entra nelle stanze dell'altro
+func marry(a: Colonist, b: Colonist) -> void:
+	a.spouse = b
+	b.spouse = a
+	for c in colonists:
+		add_cond(c, Cond.WEDDING)
+	gain(WEDDING_AUTHORITY)
+	for room in rooms:
+		for pair in [[a, b], [b, a]]:
+			if room.owners.has(pair[0]) and not room.owners.has(pair[1]):
+				room.owners.append(pair[1])
+	note(tr("%s: %s married %s.") % [date(today), full_name(a), full_name(b)])
+
+
+# "Arrange a marriage…" nella scheda del sovrano: chi può sposare; chi non accetta è spento, col perché
+func open_marriage_menu() -> void:
+	marriage_menu.clear()
+	var options := suitors()
+	for i in options.size():
+		var o: Colonist = options[i][0]
+		marriage_menu.add_item(tr("%s, %d years old") % [full_name(o), age_of(o)]
+			+ (" – " + options[i][1] if options[i][1] != "" else ""), colonists.find(o))
+		marriage_menu.set_item_disabled(i, options[i][1] != "")
+	if options.is_empty():
+		marriage_menu.add_item(tr("Nobody to marry."), -1)
+		marriage_menu.set_item_disabled(0, true)
+	var button: Control = $HUD/ColonistSheet/Box/Family/Marry
+	marriage_menu.popup(Rect2i(button.get_screen_position() + Vector2(0, button.size.y), Vector2i.ZERO))
+
+
+func marriage_pressed(id: int) -> void:
+	if id >= 0 and can_marry():
+		marry(ruler, colonists[id])
+		open_sheet(ruler)
+
+
 # gli anni di `c`, compiuti: uno a stagione (LIFE_YEAR giorni)
 func age_of(c: Colonist) -> int:
 	return floori((clock - c.born) / LIFE_YEAR)
