@@ -1,6 +1,7 @@
 # King — Game Design Document
 
 > Stato: bozza v0.1 — 2026-11-15
+> Cose da fare, sistema per sistema: [DA_FARE.md](DA_FARE.md).
 
 ## 1. Visione
 
@@ -293,7 +294,7 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
   dice "Fresh / Stale / Almost rotten" e fra quanti giorni marcisce. Col freddo marcisce più piano: sotto i 15 °C in
   proporzione ai gradi, sotto lo zero per niente (gela, "frozen: it keeps"); un magazzino senza fuoco fa da dispensa. Stanze senza gente più
   fredde, caldo che fa marcire, cantine e ghiacciaia: vedi 4.4.5.
-  Poi: marcio da buttare.
+  Con un cumulo del compost il cibo marcito diventa marcio da portarci (vedi Concimi naturali, sotto).
 - **Crudo**: si può mangiare, ma sazia poco e può intossicare (dal crudo appena preso a quello quasi marcio):
 
   | Crudo | Sazia | Dura (fuori / magazzino) | Intossica |
@@ -399,8 +400,8 @@ nella barra in alto e nella scheda del sovrano, che con lei diventano più alti;
   - **Concimi naturali** (decisi il 2026-11-19): la ricerca Concimazione (Terra I, 80, dopo l'Orto) dà il cumulo del
     compost (mobile 1×1, 6 legna). Se ce n'è uno, il cibo che marcisce e le erbacce estirpate diventano **marcio**, che
     i trasportatori portano al cumulo (nel cumulo solo lui, anche dai magazzini); lasciato fuori sparisce nella terra
-    in 5 giorni. Nel cumulo, in 10 giorni ogni 4 marci fanno un **compost** (+15 di fertilità). La carbonaia lascia una
-    **cenere** a infornata (+5). Il contadino (lavoro Concimare, nella colonna Coltivare) da 15 giorni prima della
+    in 5 giorni. Nel cumulo, in 10 giorni ogni 4 marci fanno un **compost** (+15 di fertilità). La carbonaia lascia
+    una **cenere** a infornata (+5). Il contadino (lavoro Concimare, nella colonna Coltivare) da 15 giorni prima della
     semina di una casella ci sparge un concime, prima il compost poi la cenere: una volta per semina, nei campi che lo
     vogliono (spunta "Concimare prima della semina" sul cartello). Il **sovescio** è una coltura della pianificazione:
     fave che non si raccolgono, si interrano in fiore dopo 60 giorni, +20 di fertilità e niente cibo (fuori dal
@@ -599,7 +600,7 @@ racconta il diario al ritorno.
   | Busto di pietra (un re dimenticato) | cripta | 5 |
   | Corona (su un cuscino di velluto) | forte | 6 |
 - Poi: un avventuriero contento dopo 3 spedizioni chiede di **restare come colono** (il primo modo di avere più coloni);
-  coloni in spedizione; prestare equipaggiamento agli avventurieri; vene d'oro e commercio; una rovina sulla mappa da
+  coloni in spedizione; vene d'oro e commercio; una rovina sulla mappa da
   esplorare davvero.
 - **Ordine di lavoro**: (1) locanda e bacheca, oro, un avventuriero alla volta, solo la torre, bottino in risorse che
   esistono già; (2) classi, talenti, gruppi, provviste, diario; (3) altre rovine, mappe, cimeli, effetto dello splendore;
@@ -843,7 +844,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | III | 450–500 | tomo rosso | 14–16 giorni |
   | IV | 1000–1200 | codice di porpora | 31–38 giorni |
 
-  L'albero intero (45 ricerche) vuole circa 14.600 punti: con tre studiosi bravi 95 giorni. Si sceglie, non si finisce.
+  L'albero intero (50 ricerche) vuole circa 15.800 punti: con tre studiosi bravi 100 giorni. Si sceglie, non si finisce.
 - **Dall'inizio**, senza ricerca: muro e pavimento di legno, porta, sentiero, letto, tavolo, sedia, fuoco da campo,
   stendardo, scrittoio, trono; il pasto; tagliare, scavare, estirpare, raccogliere, pescare, costruire, distruggere, e
   cacciare con un arco; stanze magazzino, camera, dormitorio, cucina, studio, sala del trono. Tutto il resto, anche
@@ -1001,7 +1002,7 @@ IV, regno, leggi finali, cittadella.
 **Stato**: fatte le fasi 1–4; della 5 una parte dei nodi, l'erudito errante e la protesta. Nel gioco: scrittoio,
 libreria e trono; stanze Studio e Sala del trono; lavori Studiare e Governare; studio e autorità (nelle finestre
 Knowledge e Laws, tasti K e G, o clic su scrittoio e trono; tutte e due scorrono); i tre libri, nei forzieri e nei
-tesori, col monastero; le 33 ricerche segnate ✓; le 19 leggi segnate ✓; il titolo cresce con lo splendore (4.3) e dà i
+tesori, col monastero; le 37 ricerche segnate ✓; le 19 leggi segnate ✓; il titolo cresce con lo splendore (4.3) e dà i
 sigilli (2–5), le fasce delle leggi e l'autorità di ogni giorno; gli eventi d'autorità del 4.7.4 tranne
 l'incoronazione (manca la successione), mai sotto zero. Il granaio è un conto, non una stanza, e niente ci marcisce;
 paga le provviste, poi (Granaio aperto) l'ora senza cibo in magazzino e il pasto di ogni stagione; la festa del
