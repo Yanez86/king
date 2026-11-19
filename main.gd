@@ -91,10 +91,10 @@ const SIDES := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 const TREE_SIDES := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  # da sopra la chioma coprirebbe chi taglia
 
 enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE,
-	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE, DOUSE, FARM, FERTILIZE, OATH, SALVE, RESCUE, TREAT }
+	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE, DOUSE, FARM, FERTILIZE, OATH, SALVE, RESCUE, TREAT, BURY }
 const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FURNISH, Job.HARVEST, Job.COOK, Job.FISH,
 	Job.HUNT, Job.CRAFT, Job.STUDY, Job.GOVERN, Job.REPAIR, Job.CUT_ICE, Job.FARM, Job.FERTILIZE, Job.RESCUE,
-	Job.TREAT]  # contano come ore di lavoro
+	Job.TREAT, Job.BURY]  # contano come ore di lavoro
 # Tabella delle priorità (in cima alla finestra Jobs): per colono e per lavoro da 1 (prima) a PRIORITY_LEVELS (dopo),
 # 0 mai. Si prende il lavoro disponibile con la priorità più alta; a pari priorità nell'ordine di Work, e di un lavoro
 # il più vicino (vedi find_work). All'inizio tutto PRIORITY_DEFAULT: l'ordine di WORK_ORDER
@@ -113,7 +113,7 @@ const WORK_ICONS := [preload("res://art/icon_meal.png"), preload("res://art/icon
 const WORK_INFO := ["Cooking meals at the campfire or the hearth.", "Forge, workbench, spinning wheel, carpenter's bench, furnace.",
 	"Felling the marked trees.", "Mining the marked boulders, cutting ice.", "Picking bushes, flax and herbs, uprooting.",
 	"Sowing, harvesting and fertilizing the garden.", "Fishing at the marked water.", "Hunting the marked animals.",
-	"Building, furnishing, repairing roofs.", "Carrying things into the warehouses.",
+	"Building, furnishing, repairing roofs.", "Carrying things into the warehouses, and the dead to their graves.",
 	"Governing from the throne: only the ruler.", "Studying at a desk.",
 	"Rescuing and treating the downed, the wounded and the sick: only after Medicine."]
 const PRIORITY_COLORS := [Color("c86450"), Color("e8c34a"), Color("e6e2d0"), Color("b0aca0"), Color("8a8678")]  # mai, poi 1-4
@@ -254,7 +254,9 @@ const GET_UP := 30.0
 const DEATH_BASE := 0.25    # il colpo che butta a terra uccide con questa probabilità, meno DEATH_PER_ARMOR per punto
 const DEATH_PER_ARMOR := 0.03  # di protezione, ma almeno DEATH_MIN
 const DEATH_MIN := 0.05
-const CORPSE_DAYS := 1.0    # il corpo resta a terra un giorno, poi sparisce (vedi corpses)
+const CORPSE_DAYS := 2.0    # il corpo resta a terra due giorni, se nessuno lo seppellisce; poi sparisce (vedi corpses)
+const BURY_TIME := 5.0      # secondi per seppellire un corpo nella tomba (vedi Job.BURY)
+const BURIED_LESS := 1.0    # giorni di lutto in meno quando il morto è sepolto (vedi bury)
 
 # --- Avventurieri (vedi GDD 4.4.4): arrivano alla locanda, si ingaggiano con l'oro alla bacheca, esplorano le rovine ---
 enum Hero { NONE, WARRIOR, ARCHER, BURGLAR }  # classe; NONE: un colono
@@ -267,7 +269,7 @@ const DOING := {Job.CHOP: "Chopping a tree", Job.MINE: "Mining", Job.UPROOT: "Up
 	Job.GOVERN: "Holding audience", Job.PROTEST: "Protesting in the throne room", Job.REPAIR: "Repairing a roof",
 	Job.CUT_ICE: "Cutting ice", Job.DOUSE: "Putting out a fire", Job.FARM: "Tending the garden",
 	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne", Job.SALVE: "Tending a wound",
-	Job.RESCUE: "Rescuing the wounded", Job.TREAT: "Treating a patient"}
+	Job.RESCUE: "Rescuing the wounded", Job.TREAT: "Treating a patient", Job.BURY: "Burying the dead"}
 const BOARD_LIST := 400.0  # pixel: la lista di chi può partire sulla bacheca, al più; poi scorre
 const BOARD_PLACES := 230.0  # pixel: le rovine e le spedizioni, sotto la squadra, al più; poi scorrono
 const BOARD_SLOT := 122    # pixel: un posto della squadra (MAX_PARTY in fila)
@@ -555,7 +557,8 @@ enum Build { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE
 	PLASTER,  # intonaco su un muro di legno già fatto: isola di più (PLASTER_INSULATION), diventa bianco (vedi plastered)
 	COMPOST_HEAP,  # il cumulo del compost: ci si porta il marcio, che diventa compost (vedi make_compost)
 	CRADLE,  # la culla: ci dorme un neonato, invece di stare in braccio (vedi place_babies)
-	MEDICINE_CHEST }  # l'armadio dei rimedi: con un letto, la stanza è un'infermeria (vedi Tech.MEDICINE)
+	MEDICINE_CHEST,  # l'armadio dei rimedi: con un letto, la stanza è un'infermeria (vedi Tech.MEDICINE)
+	GRAVE }  # la tomba, all'aperto: ci si seppellisce un morto (vedi graves, Job.BURY)
 # materiale per casella; per i mobili, per pezzo. Un numero: del materiale del progetto; se no risorsa -> quantità, e
 # ogni viaggio porta tutta una risorsa (vedi cost_of, delivered)
 const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3,
@@ -564,7 +567,7 @@ const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1
 	Build.BENCH: 6, Build.BANNER: 4, Build.LANTERN: {Res.WOOD: 3, Res.COAL: 1}, Build.FOUNTAIN: 30, Build.STATUE: 40, Build.NOTICE_BOARD: 8,
 	Build.CHALICE: 1, Build.OLD_BANNER: 1, Build.BUST: 1, Build.CROWN: 1, Build.DESK: 10, Build.BOOKSHELF: 12, Build.THRONE: 12, Build.ROAD: 2, Build.DUMMY: 6, Build.WATCHTOWER: 20,
 	Build.CANOPY_BED: 20, Build.RUG: 4, Build.WARDROBE: 12, Build.HEARTH: 15,
-	Build.WALL_HIDES: 2, Build.DOOR_CURTAIN: 2, Build.TAPESTRY: 4, Build.TILED_STOVE: 20, Build.ICE_PIT: 20, Build.COMPOST_HEAP: 6, Build.CRADLE: 4, Build.MEDICINE_CHEST: 8,
+	Build.WALL_HIDES: 2, Build.DOOR_CURTAIN: 2, Build.TAPESTRY: 4, Build.TILED_STOVE: 20, Build.ICE_PIT: 20, Build.COMPOST_HEAP: 6, Build.CRADLE: 4, Build.MEDICINE_CHEST: 8, Build.GRAVE: 4,
 	Build.PALISADE: 4, Build.GATE: 6, Build.PLASTER: 1}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
 const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
@@ -577,12 +580,13 @@ const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Buil
 	Build.WATCHTOWER: Vector2i.ONE, Build.CANOPY_BED: Vector2i(2, 1), Build.RUG: Vector2i(2, 1), Build.WARDROBE: Vector2i.ONE,
 	Build.HEARTH: Vector2i.ONE, Build.WALL_HIDES: Vector2i.ONE, Build.DOOR_CURTAIN: Vector2i.ONE, Build.TAPESTRY: Vector2i.ONE,
 	Build.TILED_STOVE: Vector2i.ONE, Build.ICE_PIT: Vector2i(2, 2), Build.COMPOST_HEAP: Vector2i.ONE,
-	Build.CRADLE: Vector2i.ONE, Build.MEDICINE_CHEST: Vector2i.ONE}
+	Build.CRADLE: Vector2i.ONE, Build.MEDICINE_CHEST: Vector2i.ONE, Build.GRAVE: Vector2i(1, 2)}
 # mobili animati: secondi per fotogramma; i fotogrammi stanno nelle colonne dei quarti di giro (sono simmetrici)
 const ANIMATED := {Build.CAMPFIRE: 0.15, Build.BANNER: 0.3, Build.FOUNTAIN: 0.2}
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
 const BARRIERS := [Build.WALL, Build.PALISADE]  # solidi: si fanno solo lungo il bordo del riquadro, chiudono la strada
 const PAVING := [Build.FLOOR, Build.PATH, Build.ROAD]  # a terra: si calpestano, ci stanno sopra i mobili, l'erba ci sborda sopra
+const OUTDOOR := [Build.GRAVE]  # solo sul prato, fuori dalle stanze (vedi piece_fits)
 # materiale fisso; il resto solo di legno
 # i cimeli: la decorazione si fa con l'oggetto trovato nelle rovine, uno a pezzo
 const RELICS := {Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}
@@ -693,7 +697,7 @@ const SAVE_LIST := preload("res://save_list.gd")
 # le variabili della partita che si salvano, così come sono (gli oggetti dentro li impacchetta SAVES.Packer); il resto
 # si rifà da queste (vedi restore) o è interfaccia. Una variabile nuova dello stato del gioco va aggiunta qui
 const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today", "hour", "rocks", "boulders", "ores", "water",
-	"trees", "stock", "bushes", "flax", "herbs", "weeds", "chop_marks", "mine_marks", "uproot_marks", "harvest_marks", "fish_marks",
+	"trees", "stock", "bushes", "flax", "herbs", "graves", "weeds", "chop_marks", "mine_marks", "uproot_marks", "harvest_marks", "fish_marks",
 	"fish_spots", "items", "fresh", "draft", "blueprints", "built", "furniture_draft", "furniture_plans", "furniture",
 	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
 	"fallen", "animals", "arrows", "next_animal", "guests", "next_guest", "ruins", "expeditions",
@@ -730,6 +734,7 @@ const BUILD_INFO := {
 	Build.COMPOST_HEAP: "Rotten food and uprooted weeds are brought here: in 10 days every 4 become compost, to fertilize the garden.",
 	Build.CRADLE: "A rocking cradle. A baby sleeps here instead of in their parents' arms.",
 	Build.MEDICINE_CHEST: "Herbs, ointments and bandages. With a bed, the room can be an infirmary, where the sick heal faster.",
+	Build.GRAVE: "A grave with a wooden cross, on open ground. The haulers bury the dead here: their mourning is a day shorter.",
 	Build.HEARTH: "A stone fireplace with a chimney, set against a wall. Cooks and warms like a campfire, more. Half its heat goes through a wooden wall at its back, none through stone.",
 	Build.ANVIL: "An iron anvil on a stump. A forge needs one, and a furnace. Tools and metal armor are made here.",
 	Build.WORKBENCH: "A sturdy bench. A workshop needs one. Leather armor is made here.",
@@ -1469,7 +1474,9 @@ class Colonist:
 	var fellows := []             # il viandante: il suo gruppo, lui compreso (la famiglia); chiedono insieme
 	var oath := false             # deve andare a giurare davanti al trono (vedi try_oath)
 	var patient = null            # Colonist: il malato che il medico soccorre o cura (vedi try_doctor)
-	var carried_by = null         # Colonist: il medico che lo porta in spalla all'infermeria (vedi Job.RESCUE)
+	var carried_by = null         # Colonist: il medico che lo porta in spalla all'infermeria, o chi porta il morto alla tomba
+	var cause := ""               # morto: com'è morto, il testo della cronaca dopo il nome (vedi die)
+	var mourned := 0.0            # morto: `clock` di fine del lutto che ha lasciato (vedi die, bury)
 	var sworn := false            # ha giurato (Law.OATH)
 
 
@@ -1596,7 +1603,8 @@ var wild := RandomNumberGenerator.new()  # tutto il caso degli animali: non spos
 var next_animal := ANIMAL_RESPAWN  # `clock` del prossimo arrivo
 var events := true          # false nei test: il narratore tace (vedi narrator.gd), niente eventi né branchi di lupi
 var deaths := true          # false nei test: a 0 punti ferita si resta a terra, nessuno muore
-var corpses: Array[Colonist] = []  # morti: restano a terra CORPSE_DAYS (vedi die)
+var corpses: Array[Colonist] = []  # morti: restano a terra CORPSE_DAYS, se nessuno li seppellisce (vedi die, bury)
+var graves := {}            # tomba (la sua casella d'origine) -> Colonist sepolto lì; le tombe vuote non ci sono
 var fallen := false         # sono morti tutti i coloni
 var guests: Array[Colonist] = []   # avventurieri sulla mappa: alla locanda, per strada, di ritorno (vedi update_guests)
 var next_guest := GUEST_EVERY      # `clock` del prossimo arrivo alla locanda
@@ -3492,13 +3500,29 @@ func describe(cell: Vector2i) -> Array:
 				about += "\n%s, %s" % [tr(FRESH_WORDS.filter(func(w): return part > w[0] or w[0] == 0.0)[0][1]),
 					tr("frozen: it keeps") if rate == 0 else tr("rots in %.1f days") % (fresh[cell] / rate)]
 			return [tr("%s pile") % item_title(res), about]
+	for d in corpses:
+		if cell_of(d.pos) == cell and d.carried_by == null:
+			return [full_name(d), tr("Dead. Gone in %.1f days, unless buried in a grave.") % maxf(d.died + CORPSE_DAYS - clock, 0.0)]
 	for origin in pieces_at(furniture, cell):
 		var kind: Build = furniture[origin][0]
+		if kind == Build.GRAVE:
+			return [named(Build, kind), grave_text(origin)]
 		return [named(Build, kind), {Build.DESK: tr("Click: knowledge"), Build.THRONE: tr("Click: laws")}.get(kind,
 			tr("Click: what to make") if STATION_ROOM.has(kind) else "")]
 	if built.has(cell):
 		return [named(Build, built[cell][0]), named(Res, built[cell][1], "item")]
 	return []
+
+
+# chi c'è sepolto nella tomba `origin`: nome, anni, il giorno della morte e com'è morto; o che è vuota
+func grave_text(origin: Vector2i) -> String:
+	if not graves.has(origin):
+		return tr("Empty: the haulers will bury the next of the dead here.")
+	var d: Colonist = graves[origin]
+	var lines := [tr("Here lies %s.") % full_name(d), tr("Died on %s, aged %d.") % [date(int(d.died)), age_at(d, d.died)]]
+	if d.cause != "":
+		lines.append(("%s %s" % [d.first_name, d.cause]).strip_edges())
+	return "\n".join(lines)
 
 
 # tasto "Build": il progetto diventa lavoro per i coloni liberi
@@ -3896,7 +3920,7 @@ func tick(delta: float) -> void:
 	update_expeditions()
 	update_scholar()
 	for c in corpses.duplicate():
-		if clock >= c.died + CORPSE_DAYS:
+		if clock >= c.died + CORPSE_DAYS and c.carried_by == null:
 			corpses.erase(c)
 	for a in animals.duplicate():  # un cacciatore può abbatterne uno durante il giro
 		update_animal(a, delta)
@@ -4097,6 +4121,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 				else:
 					furniture[c.target] = plan
 					plans.erase(c.target)
+					graves.erase(c.target)  # una tomba nuova è vuota
 					if RELICS.has(plan[0]):
 						gain(RELIC_AUTHORITY)
 				delivered.erase([c.job, c.target])
@@ -4228,6 +4253,32 @@ func update_colonist(c: Colonist, delta: float) -> void:
 				return
 			treat(c, p)
 			end_job(c)
+		Job.BURY:  # accanto al morto se lo carica in spalla, poi alla tomba vuota più vicina lo seppellisce
+			var d: Colonist = c.patient
+			if d.carried_by != c:
+				var graves_left := empty_graves()
+				if not corpses.has(d) or cell_of(d.pos) != c.dest or graves_left.is_empty():
+					quit_job(c)  # sparito, portato via, o niente più tombe
+					return
+				var to_grave := path_to_nearest(c, graves_left)
+				if to_grave.is_empty():
+					quit_job(c)
+					return
+				reserved.erase(c.target)
+				d.carried_by = c
+				c.path = to_grave
+				c.target = to_grave.back()
+				reserved[c.target] = c
+				c.work_left = BURY_TIME
+				c.work_total = BURY_TIME
+				return
+			c.work_left -= delta
+			if c.work_left > 0:
+				return
+			bury(d, c.target)
+			c.patient = null
+			end_job(c)
+			c.path = path_to_nearest(c, stands_of(d))  # si fa da parte: la tomba è chiusa
 		Job.SALVE:  # al mucchio prende l'unguento (carry_res) e se lo spalma lì
 			if c.carrying == 0:
 				if not items[Res.OINTMENT].has(c.target):  # preso da altri
@@ -5023,7 +5074,8 @@ func backed(origin: Vector2i, plan: Array) -> bool:
 
 # il mobile `plan` sta in `origin`: caselle libere (can_build) e, se va addossato, quello che vuole alle spalle
 func piece_fits(origin: Vector2i, plan: Array) -> bool:
-	return cells_in(piece_rect(origin, plan)).all(func(k): return can_build(k, plan[0])) and backed(origin, plan)
+	return cells_in(piece_rect(origin, plan)).all(func(k): return can_build(k, plan[0]) \
+		and (plan[0] not in OUTDOOR or (room_at(k) == null and not built.has(k)))) and backed(origin, plan)
 
 
 # Il conto dei gradi della stanza, una riga per voce: fuori, i muri, i fuochi (quelli di un'altra stanza col suo nome),
@@ -5413,7 +5465,9 @@ func try_work_kind(c: Colonist, w: Work) -> bool:
 			return try_hunt(c)
 		Work.BUILD:
 			return try_build(c) or try_repair(c)
-		Work.HAUL:  # il marcio anche dai magazzini, al cumulo del compost
+		Work.HAUL:  # prima i morti alle tombe; il marcio anche dai magazzini, al cumulo del compost
+			if try_bury(c):
+				return true
 			var heaps := heap_cells()
 			for res in Res.values():
 				var loose := func(cell): return is_free(cell) and (not heaps.has(cell) if res == Res.ROT else (not stockpile.has(cell) or heaps.has(cell)))
@@ -6356,10 +6410,13 @@ func die(c: Colonist, why: String, away := false) -> void:
 				expeditions.erase(exp)
 			else:
 				leave_if_ready(exp)
+	c.cause = why
 	if was_colonist:
 		gain(DEATH_AUTHORITY)
+		var royal := c == ruler and regent_for == null
+		c.mourned = clock + mourning_days(royal)
 		for o in colonists:  # il sovrano: il lutto regale, al posto del lutto
-			add_cond(o, Cond.ROYAL_MOURNING if c == ruler and regent_for == null else Cond.MOURNING)
+			add_cond(o, Cond.ROYAL_MOURNING if royal else Cond.MOURNING, mourning_days(royal))
 	if shown == c:
 		sheet_panel.hide()
 	note("%s: %s %s" % [date(int(clock)), full_name(c), why])
@@ -6370,6 +6427,55 @@ func die(c: Colonist, why: String, away := false) -> void:
 		succeed(c)
 	elif c == regent_for:
 		heir_died()
+
+
+# i giorni del lutto (regale, se `royal`) per un morto di adesso
+func mourning_days(royal: bool) -> float:
+	return COND_INFO[Cond.ROYAL_MOURNING if royal else Cond.MOURNING][0]
+
+
+# Il morto `c` è sepolto nella tomba `grave`: il corpo non c'è più, la tomba ha il suo nome. Il lutto che ha lasciato
+# (quello che finisce quando finisce il suo, non un altro venuto dopo) dura BURIED_LESS giorni in meno; il lutto regale
+# anche, e l'incoronazione con lui
+func bury(c: Colonist, grave: Vector2i) -> void:
+	c.carried_by = null
+	corpses.erase(c)
+	graves[grave] = c
+	if c.mourned == 0.0:
+		return
+	for o in colonists:
+		for k in [Cond.MOURNING, Cond.ROYAL_MOURNING]:
+			if o.conds.get(k, -1.0) == c.mourned:
+				o.conds[k] = c.mourned - BURIED_LESS
+	if coronation_at == c.mourned:
+		coronation_at -= BURIED_LESS
+	c.mourned -= BURIED_LESS
+
+
+# le tombe vuote dove si può portare un morto
+func empty_graves() -> Array:
+	return furniture.keys().filter(func(o): return furniture[o][0] == Build.GRAVE and not graves.has(o) and is_free(o))
+
+
+# Il trasportatore (Work.HAUL, non i bambini) porta un morto in una tomba vuota (Job.BURY): accanto al corpo se lo
+# carica in spalla, alla tomba lo seppellisce. Il più vicino. false se non ci sono morti, tombe vuote o non ci arriva
+func try_bury(c: Colonist) -> bool:
+	if stage_of(c) == 0 or empty_graves().is_empty():
+		return false
+	var taken := {}
+	for o in colonists:
+		if o.job == Job.BURY and o.patient != null:
+			taken[o.patient] = true
+	var dead := corpses.filter(func(d): return not taken.has(d) and d.carried_by == null)
+	var path := path_to_patient(c, dead)
+	if path.is_empty():
+		return false
+	var near := dead.filter(func(d): return stands_of(d).has(path.back()))
+	near.sort_custom(func(x, y): return x.pos.distance_squared_to(center(path.back())) < y.pos.distance_squared_to(center(path.back())))
+	start_job(c, Job.BURY, path, path.back(), 0.0)
+	c.patient = near[0]
+	c.dest = cell_of(near[0].pos)
+	return true
 
 
 # il lupo `a` può finire `c`: a terra, fuori dalle stanze, entro WOLF_SIGHT (solo se nessuno è in piedi, vedi update_wolf)
@@ -6672,7 +6778,7 @@ func succeed(dead: Colonist) -> void:
 		var regent = regent_of(regent_for)
 		if regent == null:
 			begin_reign(regent_for)
-			coronation_at = clock + ROYAL_MOURNING_DAYS
+			coronation_at = clock + mourning_days(true)
 		else:
 			ruler = regent
 			note(tr("%s: %s is regent for %s.") % [date(today), full_name(ruler), full_name(regent_for)])
@@ -6688,7 +6794,7 @@ func succeed(dead: Colonist) -> void:
 	var regent = regent_of(heir) if age_of(heir) < ADULT else null
 	if regent == null:
 		begin_reign(heir)
-		coronation_at = clock + ROYAL_MOURNING_DAYS
+		coronation_at = clock + mourning_days(true)
 		note(tr("%s: %s inherits the crown.") % [date(today), full_name(heir)])
 	else:
 		regent_for = heir
@@ -6776,7 +6882,7 @@ func found_house(c: Colonist) -> void:
 	house_name = c.last_name
 	begin_reign(c)
 	arms = random_arms()
-	coronation_at = clock + ROYAL_MOURNING_DAYS
+	coronation_at = clock + mourning_days(true)
 	note(founding_text(c))
 	founding_line = chronicle.size() - 1
 	show_title()
@@ -6896,9 +7002,14 @@ func pregnancy() -> float:
 
 # gli anni di `c`, compiuti: uno ogni life_year() giorni
 func age_of(c: Colonist) -> int:
+	return age_at(c, clock)
+
+
+# gli anni che `c` aveva a `when` (un `clock`): per i morti, quanti ne avevano alla morte
+func age_at(c: Colonist, when: float) -> int:
 	if c.born == INF:  # senza nascita (fatto a mano, nelle prove): adulto
 		return ADULT_AGE[0]
-	return floori((clock - c.born) / life_year())
+	return floori((when - c.born) / life_year())
 
 
 # un'età a caso tra `ages[0]` e `ages[1]` anni (compresi), con un giorno di nascita a caso
@@ -8299,6 +8410,8 @@ func doing(c: Colonist) -> String:
 			if c.pilgrim and c.errand == Errand.VISIT:
 				return tr("Bringing a gift to the crown", "doing")
 			return tr(ERRAND_DOING.get(c.errand, "Walking"), "doing")
+		Job.BURY:
+			return tr("Burying %s", "doing") % c.patient.first_name if c.patient != null else tr("Burying the dead", "doing")
 		Job.SLEEP:
 			if in_bed(c) and is_infirmary(room_at(cell_of(c.pos))):
 				return tr("Resting in the infirmary", "doing")
@@ -10359,7 +10472,9 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 
 	# alberi, coloni e tetti dall'alto in basso: chi sta più giù copre chi gli sta dietro
 	# ponytail: si affida a `trees` già in ordine di riga; se gli alberi ricrescono, ordinarli o passare a nodi con y_sort
-	for c in corpses:  # sdraiati e smorti, sotto chi è in piedi
+	for c in corpses:  # sdraiati e smorti, sotto chi è in piedi; quelli in spalla li disegna chi li porta
+		if c.carried_by != null:
+			continue
 		draw_set_transform(c.pos.round(), PI / 2)
 		draw_figure(self, Rect2(-Vector2.ONE * TILE / 2.0, Vector2.ONE * TILE), Rect2(0, 0, TILE, TILE), c, CORPSE_SHADE)
 		draw_set_transform_matrix(Transform2D.IDENTITY)
@@ -10793,6 +10908,8 @@ func room_mid(room: Room) -> Vector2:
 func piece_rects(origin: Vector2i, plan: Array) -> Array[Rect2]:
 	var size := Vector2(piece_rect(origin, plan).size * TILE)
 	var col: int = int(clock * DAY_LENGTH / ANIMATED[plan[0]]) % 4 if ANIMATED.has(plan[0]) else plan[2]  # fiamma, stoffa, acqua
+	if plan[0] == Build.GRAVE:  # in piedi o coricata; il tumulo se c'è qualcuno sepolto
+		col = plan[2] % 2 + (2 if graves.has(origin) and furniture.get(origin) == plan else 0)
 	return [Rect2(Vector2(origin * TILE), size), Rect2(Vector2(col, plan[0] - Build.BED) * 32, size)]
 
 
@@ -10850,6 +10967,10 @@ func draw_colonist(c: Colonist) -> void:
 		draw_set_transform_matrix(Transform2D.IDENTITY)
 	else:  # i giovani più piccoli, coi piedi dove li avrebbe un adulto
 		draw_figure(self, Rect2((c.pos + Vector2(-side / 2.0, TILE / 2.0 - side)).round(), Vector2.ONE * side), src, c)
+	if c.patient != null and c.patient.carried_by == c and c.patient.died != 0.0:  # il morto in spalla, smorto
+		draw_set_transform((c.pos + Vector2(0, -7)).round(), PI / 2)
+		draw_figure(self, Rect2(-Vector2.ONE * TILE / 2.0, Vector2.ONE * TILE), Rect2(0, 0, TILE, TILE), c.patient, CORPSE_SHADE)
+		draw_set_transform_matrix(Transform2D.IDENTITY)
 	if c.hp < MAX_HP:
 		draw_health(c.pos, c.hp / MAX_HP)
 	for b in babies:  # in braccio, senza culla

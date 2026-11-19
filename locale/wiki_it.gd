@@ -99,14 +99,14 @@ Ogni ora è sonno, lavoro o tempo libero. La giornata solita: sonno 22–6, cola
 [color=#e8c34a]Priorità[/color]
 La tabella in cima a Lavori (J): una riga per colono, una colonna per tipo di lavoro (passa sopra le icone). Ogni casella va da 1 (prima) a 4 (per ultimo), o – per mai; clic per dopo, clic destro per prima. All'inizio è tutto 3.
 • Un colono prende il lavoro col numero migliore che ha qualcosa da fare; a numeri uguali, quello più a sinistra; di ogni tipo di lavoro, il più vicino.
-• Le colonne: curare (solo dopo la Medicina), cucinare, produrre (forgia, banco da lavoro, filatoio, banco del falegname), tagliare, scavare (e tagliare il ghiaccio), raccogliere (cespugli, lino, erbe, estirpare), coltivare, pescare, cacciare, costruire (e arredare, riparare i tetti), trasportare, governare (solo il sovrano), studiare.
+• Le colonne: curare (solo dopo la Medicina), cucinare, produrre (forgia, banco da lavoro, filatoio, banco del falegname), tagliare, scavare (e tagliare il ghiaccio), raccogliere (cespugli, lino, erbe, estirpare), coltivare, pescare, cacciare, costruire (e arredare, riparare i tetti), trasportare (e seppellire i morti), governare (solo il sovrano), studiare.
 • Prima della tabella: prendere l'equipaggiamento; il sovrano al trono e i lavoratori dello studio ai loro scrittoi, se li hai spuntati sul cartello. Un tetto in fiamme viene prima di tutto, per tutti.
 
 [color=#e8c34a]Salute[/color]
 • 0–100; risale di 30 al giorno (60 dormendo). Una barretta sopra la testa mostra i feriti.
 • A 0 un colono è a terra: sdraiato, non fa niente e risale di 40 al giorno. A 30 si rialza.
-• I morti restano a terra per un giorno; il loro equipaggiamento cade lì accanto e gli altri sono in lutto per 3 giorni.
-• Unguento, infermeria e medici: vedi Medicina e morte.
+• I morti restano a terra per 2 giorni, se nessuno li seppellisce; il loro equipaggiamento cade lì accanto e gli altri sono in lutto per 3 giorni.
+• Unguento, infermeria, medici e tombe: vedi Medicina e morte.
 
 [color=#e8c34a]Età[/color]
 • La scheda dice l'età di ogni colono, accanto al sesso. Il ritmo della vita si sceglie nella pagina della nuova partita: Veloce, un anno di vita a stagione, quattro volte più in fretta del calendario, così passano le generazioni (i figli crescono in 4 anni); o Reale, un anno all'anno, come il calendario (16 anni per crescere, una gravidanza di 9 mesi veri). I numeri qui sotto sono in anni di vita, qualunque sia il ritmo.
@@ -200,7 +200,7 @@ Goloso e Di poco appetito, Pigro e Stacanovista, Mattiniero e Nottambulo, Dormig
 • Ben nutrito: dopo un pasto; stress dal lavoro -25%. Lauto pasto: dopo un pasto squisito; stress dal lavoro -50%. Un pasto nuovo sostituisce la condizione di quello prima.
 • Mangiato al tavolo: ha mangiato seduto su una sedia accanto a un tavolo.
 • Mangiato crudo: un goloso che ha dovuto mangiare cibo crudo. Il goloso sente il doppio Ben nutrito, Lauto pasto, Mangiato al tavolo e Mangiato crudo.
-• Lutto: è morto un colono; stress dal lavoro +25%.
+• Lutto: è morto un colono; stress dal lavoro +25%. Un giorno in meno quando è sepolto (vedi Medicina e morte).
 • In festa: dopo un giorno di festa, con la legge Festa del raccolto (vedi Leggi).
 • Nozze: tutti, quando il sovrano si sposa.
 • Incinta: nell'ultimo terzo lavora il 20% più piano.
@@ -302,6 +302,7 @@ Non sull'acqua, sugli alberi, sulla roccia, sui cespugli o sulle erbacce (prima 
 [cell]Cumulo del compost[/cell][cell]6 legna[/cell][cell]Concimazione[/cell]
 [cell]Culla[/cell][cell]4 legna[/cell][cell]–[/cell]
 [cell]Armadio dei rimedi[/cell][cell]8 legna[/cell][cell]Medicina[/cell]
+[cell]Tomba (1x2)[/cell][cell]4 legna[/cell][cell]–[/cell]
 [/table]
 Focolare, pelli, arazzo e stufa a olle vanno addossati a un muro alle loro spalle, la portiera a una porta: girali verso di lui. Decorazioni: vedi Splendore."""],
 
@@ -510,7 +511,7 @@ Anche gli attrezzi colpiscono: piccone 10, ascia 12, falcetto 8, mani nude 5. Pr
 [color=#e8c34a]A terra e morti[/color]
 • A 0 punti ferita un colono cade. Il morso che lo manda a terra uccide il 25% delle volte, -3% per ogni punto di protezione (almeno il 5%).
 • A terra guarisce 40 al giorno e si rialza a 30. Un lupo che lo trova all'aperto, senza nessun altro in piedi, lo uccide al primo morso.
-• I morti lasciano cadere il loro equipaggiamento; il corpo resta per un giorno. Gli altri coloni portano il lutto per 3 giorni (Lutto). Se muoiono tutti i coloni, la colonia è caduta."""],
+• I morti lasciano cadere il loro equipaggiamento; il corpo resta per 2 giorni, se nessuno lo seppellisce (vedi Medicina e morte). Gli altri coloni portano il lutto per 3 giorni (Lutto). Se muoiono tutti i coloni, la colonia è caduta."""],
 
 	["Medicina e morte", """[color=#e8c34a]Erbe medicinali[/color] [img=center]res://art/icon_herbs.png[/img]
 Piantine coi fiori bianchi sparse nei prati (col mouse sopra: Erbe medicinali), circa una ogni 150 caselle di prato. Segnale con Raccogli (H): 5 erbe a pianta, colte come le bacche; rifioriscono in 2 giorni, mai d'inverno. Le erbe non marciscono.
@@ -528,7 +529,13 @@ Piantine coi fiori bianchi sparse nei prati (col mouse sopra: Erbe medicinali), 
 La colonna Curare, la prima della tabella (Lavori, J): chi ce l'ha fa, in quest'ordine, prima il più vicino:
 • Soccorrere: un colono a terra fuori da un letto, se c'è un letto libero in infermeria. Il medico se lo carica in spalla e lo mette a letto. Senza letti liberi lo cura dove si trova.
 • Curare: chi è a terra, o a letto ferito (sotto 80) o con la febbre, e non è già medicato. Prima il medico prende un unguento da un mucchio, se ce n'è uno; poi 8 s accanto al malato (abilità Medicina, +1 esperienza). Medicato, per un giorno i punti ferita tornano il doppio più in fretta; con l'unguento anche +30 subito (chi è a terra si rialza). La febbre medicata passa entro mezza giornata.
-• Un medico non cura sé stesso (l'unguento se lo spalma da solo), e due medici non vanno mai dallo stesso malato. A fine turno chi ha qualcuno in spalla lo porta prima a letto."""],
+• Un medico non cura sé stesso (l'unguento se lo spalma da solo), e due medici non vanno mai dallo stesso malato. A fine turno chi ha qualcuno in spalla lo porta prima a letto.
+
+[color=#e8c34a]Le tombe[/color]
+• Una tomba (1x2, 4 legna, dall'inizio) è una fossa con la croce di legno, solo all'aperto: non in una stanza, non su un pavimento o un sentiero.
+• I morti restano dove sono caduti per 2 giorni. Con una tomba vuota, un trasportatore (non un bambino) si carica il corpo in spalla, lo porta lì e lo seppellisce (5 s): la fossa diventa un tumulo. Col mouse sopra la tomba: chi ci giace, il giorno della morte, gli anni, com'è morto.
+• Sepolto, il lutto che ha lasciato dura un giorno in meno: 2 giorni invece di 3, e il lutto regale 6 invece di 7 (l'incoronazione viene un giorno prima). Una morte venuta dopo tiene il suo lutto intero.
+• Chi muore in spedizione nessuno lo seppellisce: non c'è il corpo."""],
 
 	["Splendore", """Lo splendore è la somma di tutte le decorazioni finite sulla mappa, dentro o fuori dalle stanze, più 5 per ogni avventuriero famoso presente. Il totale è nella barra in alto.
 Per ora fa due cose:

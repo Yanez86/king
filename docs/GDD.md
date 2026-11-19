@@ -60,8 +60,8 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 - **Morte**: coloni e avventurieri possono morire.
   - Il colpo che butta a terra uccide con probabilità 25% − 3% per punto di protezione (al minimo 5%: con cotta ed elmo).
   - A terra si è indifesi: un nemico che non ha nessuno in piedi da inseguire attacca chi è a terra, e il primo colpo uccide.
-  - Il corpo resta dove è caduto per un giorno, poi sparisce; l'equipaggiamento cade a terra lì accanto e si riporta in
-    magazzino. Gli altri coloni prendono *lutto* (vedi Condizioni).
+  - Il corpo resta dove è caduto per 2 giorni, se nessuno lo seppellisce (4.2.2), poi sparisce; l'equipaggiamento cade a
+    terra lì accanto e si riporta in magazzino. Gli altri coloni prendono *lutto* (vedi Condizioni).
   - Il re che muore lascia la corona all'erede (vedi 4.3). Se muoiono tutti i coloni, la partita finisce.
   - Tombe e cimitero, funerali, il medico che cura chi è a terra: vedi 4.2.2.
 - **Sesso**: uomo o donna, a caso (metà e metà); il nome viene dalla lista del suo sesso. Nella scheda, sotto il nome,
@@ -201,14 +201,17 @@ accompagnano i morti.
 - **Ordine di lavoro**: (1) Erboristeria: l'abilità Medicina, le erbe, l'unguento, spalmarselo; (2) Medicina: infermeria
   e armadio, il riposo, il medico (soccorrere, curare, la febbre); (3) tombe e sepoltura, il corpo che aspetta, il lutto
   più corto; (4) la legge Funerali e il memoriale dei caduti.
-- **Stato**: fatte le fasi 1–2 il 2026-11-19 (test in `tests/test_medicine.gd`). Le erbe sono un cespuglio come il lino
+- **Stato**: fatte le fasi 1–3 il 2026-11-19 (test in `tests/test_medicine.gd`). Le erbe sono un cespuglio come il lino
   (`herbs`), sparse con un caso loro dal seme della mappa; caricando una partita di prima spuntano sul prato libero. Le
   partite di prima hanno la Medicina a 0 e la scorta di 3 unguenti. Nella wiki la pagina "Medicina e morte". La colonna
   Curare è l'ultimo valore di `Work` (le priorità salvate restano giuste) ma la prima in `WORK_ORDER`, che dà le colonne
   e l'ordine a pari priorità. Il malato in spalla (`carried_by`) segue il medico e si disegna sdraiato sopra di lui; se il
   medico molla (lupi, incendio) resta giù dove si trova; a fine turno no, lo porta prima a letto. Messo a letto, il medico
   si fa da parte. Si cura chi è sdraiato (a terra o a letto): chi ha la febbre e gira per la colonia aspetta di essere a
-  letto.
+  letto. Le tombe sono un mobile (`graves`: tomba -> chi c'è sepolto); il trasportatore usa lo stesso `patient` e
+  `carried_by` del medico. Ogni morto ricorda quando finisce il lutto che ha lasciato (`mourned`): la sepoltura accorcia
+  solo quello, non un lutto venuto dopo; l'incoronazione si anticipa se cade lì. Il morto a terra e la tomba dicono il
+  loro nome col mouse sopra.
 
 ### 4.3 Il re e la dinastia
 - Il **sovrano** (re solo alla fine, vedi Titolo) è un colono come gli altri: lavori e priorità, bisogni, routine, abilità che

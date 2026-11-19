@@ -100,14 +100,14 @@ Every hour is sleep, work or free time. The usual day: sleep 22–6, breakfast a
 [color=#e8c34a]Priorities[/color]
 The table at the top of Jobs (J): one row per colonist, one column per kind of work (hover the icons). Each cell is 1 (first) to 4 (last), or – for never; click for later, right click for sooner. At the start everything is 3.
 • A colonist takes the work with the best number that has something to do; with equal numbers, the one further left; of each kind of work, the nearest.
-• The columns: doctor (only after Medicine), cook, craft (forge, workbench, spinning wheel, carpenter's bench), chop, mine (and cut ice), gather (bushes, flax, herbs, uprooting), farm, fish, hunt, build (and furnish, repair roofs), haul, govern (only the ruler), study.
+• The columns: doctor (only after Medicine), cook, craft (forge, workbench, spinning wheel, carpenter's bench), chop, mine (and cut ice), gather (bushes, flax, herbs, uprooting), farm, fish, hunt, build (and furnish, repair roofs), haul (and bury the dead), govern (only the ruler), study.
 • Before the table: picking up equipment; the ruler to the throne and the study's workers to their desks, if you ticked them on the sign. A roof on fire comes before everything, for everyone.
 
 [color=#e8c34a]Health[/color]
 • 0–100, healing 30 a day (60 asleep). A bar over the head shows the wounded.
 • At 0 a colonist is downed: on the ground, doing nothing, healing 40 a day. At 30 they stand up.
-• The dead stay on the ground for a day; their gear drops beside them and the others mourn for 3 days.
-• Ointment, the infirmary and doctors: see Medicine & Death.
+• The dead stay on the ground for 2 days, unless they are buried; their gear drops beside them and the others mourn for 3 days.
+• Ointment, the infirmary, doctors and graves: see Medicine & Death.
 
 [color=#e8c34a]Age[/color]
 • The sheet shows each colonist's age, next to their sex. The pace of life is chosen on the new-game page: Fast, a year older every season, four times as fast as the calendar, so generations go by (children grow up in 4 years); or Real, a year older every year, like the calendar (16 years to grow up, a pregnancy of 9 true months). The numbers below are in years of life, whichever the pace.
@@ -201,7 +201,7 @@ Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleep
 • Well fed: after a meal; stress from work -25%. Feasted: after a fine meal; stress from work -50%. A new meal replaces the condition of the last one.
 • At table: ate sitting on a chair beside a table.
 • Ate raw: a glutton who had to eat raw food. A glutton feels Well fed, Feasted, At table and Ate raw twice as much.
-• Mourning: a colonist has died; stress from work +25%.
+• Mourning: a colonist has died; stress from work +25%. A day less once they are buried (see Medicine & Death).
 • Festive: after a feast day, with the Harvest feast law (see Laws).
 • Wedding: everyone, when the ruler marries.
 • Pregnant: in the last third she works 20% more slowly.
@@ -303,6 +303,7 @@ Not on water, trees, rock, bushes or weeds (uproot them first), nor on items lyi
 [cell]Compost heap[/cell][cell]6 wood[/cell][cell]Manuring[/cell]
 [cell]Cradle[/cell][cell]4 wood[/cell][cell]–[/cell]
 [cell]Medicine chest[/cell][cell]8 wood[/cell][cell]Medicine[/cell]
+[cell]Grave (1x2)[/cell][cell]4 wood[/cell][cell]–[/cell]
 [/table]
 Hearth, hides, tapestry and tiled stove hang against a wall at their back, the curtain against a door: turn them toward it. Decorations: see Splendor."""],
 
@@ -511,7 +512,7 @@ Tools hit too: pickaxe 10, axe 12, sickle 8, bare hands 5. Armor: see Combat & W
 [color=#e8c34a]Downed and dead[/color]
 • At 0 health a colonist falls. The bite that downs them kills 25% of the time, -3% for every point of armor (at least 5%).
 • Downed, they heal 40 a day and stand up at 30. A wolf that finds them outdoors, with nobody else standing, kills them with the first bite.
-• The dead drop their gear; the body stays a day. The other colonists mourn for 3 days (Mourning). If every colonist dies, the colony has fallen."""],
+• The dead drop their gear; the body stays 2 days, unless it is buried (see Medicine & Death). The other colonists mourn for 3 days (Mourning). If every colonist dies, the colony has fallen."""],
 
 	["Medicine & Death", """[color=#e8c34a]Medicinal herbs[/color] [img=center]res://art/icon_herbs.png[/img]
 Small plants with white flowers scattered in the meadows (hover: Medicinal herbs), about one every 150 tiles of grass. Mark them with Harvest (H): 5 herbs a plant, picked like berries; they flower again in 2 days, never in winter. Herbs don't spoil.
@@ -529,7 +530,13 @@ Small plants with white flowers scattered in the meadows (hover: Medicinal herbs
 The Doctor column, the first of the table (Jobs, J): whoever has it does, in this order, nearest first:
 • Rescue: a colonist downed outside a bed, if an infirmary bed is free. The doctor carries them on their shoulders and lays them in the bed. With no free bed, they treat them where they lie.
 • Treat: whoever is downed, or in bed wounded (under 80) or with a fever, and not yet treated. First the doctor fetches an ointment from a pile, if there is one; then 8 s beside the patient (Medicine skill, +1 XP). Treated, for a day health comes back twice as fast; with the ointment also +30 at once (a downed colonist stands up). A treated fever passes within half a day.
-• A doctor doesn't treat themselves (they spread their own ointment), and two doctors never go to the same patient. At the end of the shift a doctor carrying someone carries them to the bed first."""],
+• A doctor doesn't treat themselves (they spread their own ointment), and two doctors never go to the same patient. At the end of the shift a doctor carrying someone carries them to the bed first.
+
+[color=#e8c34a]Graves[/color]
+• A grave (1x2, 4 wood, from the start) is an open pit with a wooden cross, on open ground only: not in a room, not on a floor or a path.
+• The dead stay where they fell for 2 days. With an empty grave, a hauler (not a child) carries the body there on their shoulders and buries it (5 s): the pit becomes a mound. Hover the grave: who lies there, the day they died, their age, how they died.
+• Buried, the mourning they left is a day shorter: 2 days instead of 3, and the royal mourning 6 instead of 7 (the coronation comes a day earlier). A later death keeps its full mourning.
+• Nobody buries those who die on an expedition: there is no body."""],
 
 	["Splendor", """Splendor is the sum of every finished decoration on the map, inside rooms or out, plus 5 for every famous adventurer around. The total is in the top bar.
 For now it does two things:

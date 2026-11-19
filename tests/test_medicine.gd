@@ -1,6 +1,7 @@
 # Esegui: godot --headless --path . -s tests/test_medicine.gd
 # Medicina e morte (GDD 4.2.2): le erbe medicinali nei prati, l'unguento al fuoco e chi se lo spalma, l'abilità
-# Medicina; l'infermeria, il riposo a letto, il medico che soccorre e cura, la febbre; il salvataggio
+# Medicina; l'infermeria, il riposo a letto, il medico che soccorre e cura, la febbre; le tombe, la sepoltura e il lutto
+# più corto; il salvataggio
 extends SceneTree
 
 const SAVES := preload("res://saves.gd")
@@ -296,6 +297,95 @@ func _initialize() -> void:
 	a.conds.clear()
 	a.hp = 100.0
 
+	# --- Tombe e sepoltura ---
+
+	var MOURN = main.Cond.MOURNING
+	check(main.FURNITURE[B.GRAVE] == Vector2i(1, 2) and main.BUILD_COST[B.GRAVE] == 4 and main.tech_for("builds", B.GRAVE) < 0,
+		"la tomba: 1x2, 4 legna, dall'inizio")
+	check(not main.piece_fits(mid + Vector2i(-12, -1), [B.GRAVE, R.WOOD, 0]), "non dentro una stanza")
+	var yard: Vector2i = mid + Vector2i(-4, 9)
+	clear(Rect2i(yard - Vector2i(2, 2), Vector2i(9, 7)))
+	check(main.piece_fits(yard, [B.GRAVE, R.WOOD, 0]) and main.piece_fits(yard, [B.GRAVE, R.WOOD, 1]), "sul prato sì, anche coricata")
+	main.built[yard] = [B.PATH, R.STONE]
+	check(not main.piece_fits(yard, [B.GRAVE, R.WOOD, 0]), "non su un sentiero")
+	main.built.erase(yard)
+
+	# muore un colono: il lutto (che si ricorda), il corpo a terra per 2 giorni, col mouse sopra
+	var dead = person()
+	main.die(dead, "fell asleep in the snow.")
+	check(main.corpses.has(dead) and dead.cause == "fell asleep in the snow." and dead.mourned == main.clock + 3.0
+		and a.conds[MOURN] == dead.mourned, "il lutto di 3 giorni")
+	check(main.describe(main.cell_of(dead.pos))[0] == main.full_name(dead)
+		and main.describe(main.cell_of(dead.pos))[1].begins_with("Dead. Gone in 2.0 days"), "il morto a terra: %s" % str(main.describe(main.cell_of(dead.pos))))
+	check(not main.try_bury(b), "senza tombe non lo si seppellisce")
+
+	# una tomba vuota: il trasportatore se lo carica in spalla e ce lo seppellisce
+	main.furniture[yard] = [B.GRAVE, R.WOOD, 0]
+	check(main.empty_graves() == [yard] and main.describe(yard)[1].begins_with("Empty"), "una tomba vuota")
+	check(main.piece_rects(yard, main.furniture[yard])[1].position.x == 0, "la fossa aperta")
+	main.set_priority(b, main.Work.HAUL, 1)
+	b.pos = main.center(mid + Vector2i(2, 2))
+	check(main.try_work_kind(b, main.Work.HAUL) and b.job == main.Job.BURY and b.patient == dead, "il trasportatore va dal morto")
+	check(not main.try_bury(c), "un altro non va dallo stesso morto")
+	walk_until(func(): return dead.carried_by == b, 2000)
+	check(main.doing(b) == "Burying %s" % dead.first_name, "cosa fa: %s" % main.doing(b))
+	main.clock = dead.died + main.CORPSE_DAYS + 0.1  # in spalla il corpo non sparisce
+	main.tick(0.05)
+	check(main.corpses.has(dead), "in spalla non sparisce")
+	walk_until(func(): return b.job != main.Job.BURY, 3000)
+	check(main.graves.get(yard) == dead and not main.corpses.has(dead) and dead.carried_by == null, "sepolto")
+	check(dead.mourned == dead.died + 2.0 and a.conds[MOURN] == dead.mourned, "il lutto: un giorno in meno")
+	check(main.piece_rects(yard, main.furniture[yard])[1].position.x == 64, "il tumulo")
+	var epitaph: String = main.describe(yard)[1]
+	check(epitaph.begins_with("Here lies %s." % main.full_name(dead)) and epitaph.contains("Died on")
+		and epitaph.ends_with("%s fell asleep in the snow." % dead.first_name), "la tomba dice chi c'è: %s" % epitaph)
+	check(main.empty_graves().is_empty() and not main.try_bury(b), "piena")
+	check(main.cell_of(b.pos) != yard or not b.path.is_empty(), "si fa da parte")
+
+	# un lutto venuto dopo non si accorcia per la sepoltura del primo; il lutto regale e l'incoronazione sì
+	var first = person()
+	var second = person()
+	main.die(first, "drowned.")
+	main.clock += 0.5
+	main.die(second, "drowned.")
+	var grave2: Vector2i = yard + Vector2i(2, 0)
+	main.furniture[grave2] = [B.GRAVE, R.WOOD, 0]
+	main.bury(first, grave2)
+	check(a.conds[MOURN] == second.mourned, "il lutto del secondo resta intero")
+	main.bury(second, yard + Vector2i(4, 0))
+	check(a.conds[MOURN] == second.died + 2.0, "sepolto anche lui: un giorno in meno")
+	var king = person()
+	king.mourned = main.clock + main.ROYAL_MOURNING_DAYS
+	b.conds[main.Cond.ROYAL_MOURNING] = king.mourned
+	main.coronation_at = king.mourned
+	main.bury(king, yard + Vector2i(6, 0))
+	check(b.conds[main.Cond.ROYAL_MOURNING] == king.mourned and main.coronation_at == king.mourned
+		and is_equal_approx(king.mourned, main.clock + main.ROYAL_MOURNING_DAYS - 1.0), "il lutto regale e l'incoronazione, un giorno prima")
+	main.coronation_at = 0.0
+	for o in main.colonists:
+		o.conds.clear()
+
+	# il corpo che nessuno seppellisce sparisce dopo 2 giorni
+	var lost = person()
+	main.die(lost, "drowned.")
+	main.set_priority(b, main.Work.HAUL, 0)
+	main.clock = lost.died + main.CORPSE_DAYS + 0.01
+	main.tick(0.05)
+	check(not main.corpses.has(lost), "dopo 2 giorni il corpo non c'è più")
+
+	# salvata: le tombe coi loro morti
+	var with_graves: Dictionary = main.game_state()
+	SAVES.pending = with_graves
+	var copy3 = load("res://main.tscn").instantiate()
+	copy3.game_start = false
+	copy3.settings_file = ""
+	root.add_child(copy3)
+	await process_frame
+	check(copy3.graves.size() == 4 and copy3.graves[yard].first_name == dead.first_name
+		and copy3.graves[yard].cause == dead.cause, "ricaricata: le tombe e chi c'è sepolto")
+	copy3.free()
+	Engine.time_scale = 1.0
+
 	# --- Salvataggio ---
 
 	# una partita di prima delle erbe e dell'abilità: caricata, le erbe spuntano sul prato e la Medicina è a 0
@@ -322,8 +412,22 @@ func _initialize() -> void:
 	copy.free()
 	Engine.time_scale = 1.0
 
-	print("OK: medicina e morte (erbe e unguento, infermeria e medico)")
+	print("OK: medicina e morte (erbe e unguento, infermeria e medico, tombe)")
 	quit()
+
+
+# un colono in più, adulto, accanto al centro
+func person():
+	var o = main.Colonist.new()
+	main.dress(o, main.people().map(func(x): return x.first_name))
+	o.pos = main.center(main.MAP_SIZE / 2 + Vector2i(main.colonists.size(), 1))
+	o.skills = main.Skill.values().map(func(_s): return 0)
+	o.xp = main.Skill.values().map(func(_s): return 0)
+	o.needs = main.Need.values().map(func(_n): return 60.0)
+	o.trend = o.needs.map(func(_v): return 0.0)
+	main.give_age(o, main.ADULT_AGE)
+	main.colonists.append(o)
+	return o
 
 
 func walk_until(done: Callable, ticks: int) -> void:

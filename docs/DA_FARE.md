@@ -12,7 +12,7 @@
 | Lavori e priorità | 4.1 | fatto | i lavoratori delle stanze non contano ancora |
 | Coloni | 4.2 | quasi tutto | malattie che si attaccano; relazioni e umore |
 | Nuovi coloni | 4.2.1 | fatto | tarare i numeri |
-| Medicina e morte | 4.2.2 | fasi 1–2 (Erboristeria, Medicina) | le fasi 3–4: tombe, funerali |
+| Medicina e morte | 4.2.2 | fasi 1–3 (Erboristeria, Medicina, tombe) | la fase 4: Funerali e memoriale |
 | Sovrano e dinastia | 4.3 | dinastia fatta (4.3.3); del sovrano fasi 1, 2, 6 e mezza 5 | sovrano sereno/cupo, stile di regno, sguardo, epiteti |
 | Stemma | 4.3.2 | base | linee, pellicce, ornamenti, motto, blasonatura |
 | Risorse ed edifici | 4.4 | fatto | vene d'oro, commercio |
@@ -63,9 +63,8 @@ sfortune, la tregua). Ora si possono fare anche le leggi della dinastia (vedi Le
 
 ## Medicina e morte (4.2.2)
 
-Deciso il 2026-11-19; fatte le fasi 1–2 (Erboristeria, Medicina). Fasi ancora da fare:
+Deciso il 2026-11-19; fatte le fasi 1–3 (Erboristeria, Medicina, tombe e sepoltura). Fase ancora da fare:
 
-- [ ] (3) Tombe e sepoltura: il corpo che aspetta (2 giorni), il tumulo col nome, il lutto un giorno più corto.
 - [ ] (4) La legge Funerali e il memoriale dei caduti (Statuaria).
 
 ## Sovrano e dinastia (4.3, 4.3.1)

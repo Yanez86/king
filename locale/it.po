@@ -3162,8 +3162,8 @@ msgstr "Cacciare gli animali segnati."
 msgid "Building, furnishing, repairing roofs."
 msgstr "Costruire, arredare, riparare i tetti."
 
-msgid "Carrying things into the warehouses."
-msgstr "Portare le cose nei magazzini."
+msgid "Carrying things into the warehouses, and the dead to their graves."
+msgstr "Portare le cose nei magazzini, e i morti alle tombe."
 
 msgid "Governing from the throne: only the ruler."
 msgstr "Governare dal trono: solo il sovrano."
@@ -3304,6 +3304,24 @@ msgstr "Armadio dei rimedi"
 
 msgid "Herbs, ointments and bandages. With a bed, the room can be an infirmary, where the sick heal faster."
 msgstr "Erbe, unguenti e bende. Con un letto, la stanza può essere un'infermeria, dove chi sta male guarisce più in fretta."
+
+msgid "Grave"
+msgstr "Tomba"
+
+msgid "A grave with a wooden cross, on open ground. The haulers bury the dead here: their mourning is a day shorter."
+msgstr "Una tomba con la croce di legno, all'aperto. I trasportatori ci seppelliscono i morti: il loro lutto dura un giorno in meno."
+
+msgid "Dead. Gone in %.1f days, unless buried in a grave."
+msgstr "Morto. Sparirà tra %.1f giorni, se non lo seppelliscono in una tomba."
+
+msgid "Empty: the haulers will bury the next of the dead here."
+msgstr "Vuota: i trasportatori ci seppelliranno il prossimo morto."
+
+msgid "Here lies %s."
+msgstr "Qui giace %s."
+
+msgid "Died on %s, aged %d."
+msgstr "Morto il %s, a %d anni."
 
 msgid "Pregnant"
 msgstr "Incinta"
@@ -3705,6 +3723,14 @@ msgstr "Cura un malato"
 msgctxt "doing"
 msgid "Hauling %s"
 msgstr "Trasporta: %s"
+
+msgctxt "doing"
+msgid "Burying %s"
+msgstr "Seppellisce %s"
+
+msgctxt "doing"
+msgid "Burying the dead"
+msgstr "Seppellisce un morto"
 
 msgctxt "doing"
 msgid "Making %s"

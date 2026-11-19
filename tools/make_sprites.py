@@ -579,6 +579,60 @@ TREATED = """
 ................
 """
 
+# La tomba (Build.GRAVE, 1x2): la fossa aperta o il tumulo di terra, con la croce di legno alla testa. Quattro colonne
+# nel foglio dei mobili: aperta in piedi (16x32, la croce in alto), aperta coricata (32x16, la croce a sinistra), poi
+# le stesse col tumulo (vedi piece_rects in main.gd: la colonna dice anche se c'è qualcuno sepolto)
+GRAVE_CROSS = ["..oooo..", "..owWo..", "ooowWooo", "owwwwwwo", "oWWWWWWo", "ooowWooo", "..owWo..", "..owWo..", "..owWo.."]
+
+
+def grave_pit(w, h, filled):
+    """la fossa (o il tumulo) w x h: il bordo scuro, gli angoli tondi; dentro la terra"""
+    rows = []
+    for y in range(h):
+        if y in (0, h - 1):
+            rows.append(".." + "o" * (w - 4) + "..")
+            continue
+        line = ""
+        for x in range(w):
+            corner = y in (1, h - 2) and x in (0, w - 1)
+            if corner:
+                line += "."
+            elif x in (0, w - 1) or (y in (1, h - 2) and x in (1, w - 2)):
+                line += "o"
+            elif filled:  # il tumulo: terra smossa, chiara in alto e a sinistra, in ombra a destra e in basso, qualche zolla
+                if y <= 2 or x <= 2:
+                    line += "_"
+                elif x >= w - 3 or y >= h - 3:
+                    line += ")"
+                else:
+                    line += ")" if (x * 7 + y * 3) % 11 == 0 else "("
+            elif x in (1, w - 2) or y in (1, h - 2):  # la fossa: un orlo di terra, poi il buco in ombra
+                line += "("
+            else:
+                line += "o" if y <= 3 else ("&" if y >= h - 4 else "$")
+        rows.append(line)
+    return rows
+
+
+def grave(filled, upright):
+    w, h = (16, 32) if upright else (32, 16)
+    grid = [["."] * w for _ in range(h)]
+    def paint(block, x0, y0):
+        for y, line in enumerate(block):
+            for x, ch in enumerate(line):
+                if ch != ".":
+                    grid[y0 + y][x0 + x] = ch
+    if upright:
+        paint(grave_pit(12, 20, filled), 2, 9)
+        paint(["z" * 10], 3, 29)
+        paint(GRAVE_CROSS, 4, 0)
+    else:
+        paint(grave_pit(22, 12, filled), 8, 2)
+        paint(["z" * 20], 9, 14)
+        paint(GRAVE_CROSS, 0, 3)
+    return ["".join(row) for row in grid]
+
+
 # La culla (Build.CRADLE): cassa di legno a dondolo, il lino dentro. Il neonato in fasce (BABY) ci si disegna sopra,
 # o in braccio, piccolo; è anche l'icona della condizione "incinta" (Cond.PREGNANT).
 CRADLE = """
@@ -4189,6 +4243,7 @@ def furniture_sheet():
     rows += [[art(COMPOST_HEAP, 16, 16)] * 4]
     rows += [[art(CRADLE, 16, 16)] * 4]  # dopo, come Build in main.gd
     rows += [[art(MEDICINE_CHEST, 16, 16)] * 4]
+    rows += [[grave(False, True), grave(False, False), grave(True, True), grave(True, False)]]
     slot = lambda g: [line.ljust(32, ".") for line in g] + ["." * 32] * (32 - len(g))
     return [line for row in rows for line in side_by_side([slot(g) for g in (row or [[]] * 4)])]
 
