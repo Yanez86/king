@@ -311,6 +311,12 @@ const FEE_BASE := 10        # monete d'ingaggio: FEE_BASE + FEE_PER_LEVEL per li
 const FEE_PER_LEVEL := 5
 const SHARE := 0.3          # al ritorno si tiene questa parte delle monete trovate
 const TRIPS_PER_LEVEL := 2  # spedizioni tornate per salire di un livello
+# Chi resta (GDD 4.2.1): l'avventuriero tornato alla locanda con almeno STAY_HAPPY di felicità, STAY_TRIPS spedizioni
+# dopo l'ultima volta che gli hanno detto di no (all'inizio: dopo le prime STAY_TRIPS), chiede di restare come colono
+# (vedi ask, welcome). Chi resta è forestiero (Cond.FOREIGNER) per FOREIGNER_DAYS giorni
+const STAY_TRIPS := 3
+const STAY_HAPPY := 60.0
+const FOREIGNER_DAYS := 5.0
 # Rovine, fuori dalla mappa: "danger" pericolo, "rooms" stanze, "travel" giorni di viaggio (andata), "gold" monete per
 # forziere (da-a), "finds" un oggetto per forziere, a caso tra questi [risorsa, quantità]; "books" il libro che c'è al
 # posto dell'oggetto, una volta su BOOK_CHANCE (sempre, con "always"), a caso tra questi; "treasure" i libri che ci sono
@@ -602,7 +608,7 @@ const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today"
 	"granary", "tithe_owed", "next_scholar", "scholar_until", "scholar_books", "scholar_bought", "wanted_hero", "ice_marks", "garden", "sown", "plans", "slot_done", "soil", "soil_year_ago", "soil_known", "compost_since", "manured", "no_manure", "babies",
 	"house_name", "regent_for", "coronation_at", "reigns", "next_suitor", "pace", "tired", "last_yield",
 	"harvests", "wear", "plastered", "burning",
-	"fire_noted", "storm_noted", "delivered"]
+	"fire_noted", "storm_noted", "delivered", "requests"]
 const TOAST_TIME := 2000    # millisecondi: "Saved" in alto, poi sparisce (vedi show_toast)
 const AUTOSAVE_HOUR := 6    # all'alba, quando i coloni si alzano: il salvataggio di ogni giorno
 const MODIFIER_KEYS := [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]  # da soli non sono un tasto
@@ -920,7 +926,7 @@ const TRAIT_INFO := {  # suggerimento col mouse sopra il talento: com'è, poi co
 # condizioni: effetti a tempo, con un'icona 16x16 nella scheda (colonne di CONDITIONS_SHEET nell'ordine di Cond).
 # Dati: [giorni, tempo di lavoro x, stress da lavoro x, felicità +, descrizione]. Vedi add_cond, work_factor, update_needs
 enum Cond { POISONED, WELL_FED, FEASTED, AT_TABLE, ATE_RAW, MOURNING, FESTIVE, PILLORIED, HEARD, WEDDING, PREGNANT,
-	ROYAL_MOURNING, CORONATION }
+	ROYAL_MOURNING, CORONATION, FOREIGNER }
 const CONDITIONS_SHEET := preload("res://art/conditions.png")
 const COND_INFO := {
 	Cond.POISONED: [1.0, 1.5, 1.0, -20.0, "Ate raw food that was going bad. Works slowly."],
@@ -936,6 +942,7 @@ const COND_INFO := {
 	Cond.PREGNANT: [0.0, 1.0, 1.0, 0.0, "Expecting a child. In the last months works more slowly."],  # fino al parto (due)
 	Cond.ROYAL_MOURNING: [ROYAL_MOURNING_DAYS, 1.0, 1.25, -20.0, "The ruler has died."],
 	Cond.CORONATION: [2.0, 1.0, 1.0, 10.0, "Celebrated the coronation of the new ruler."],
+	Cond.FOREIGNER: [FOREIGNER_DAYS, 1.1, 1.0, -5.0, "New to the colony: doesn't know its ways yet. Works a little slower."],
 }
 const GLUTTON_MOOD := 2.0  # il goloso: tanta felicità in più (o in meno) da quello che mangia
 const FOOD_CONDS := [Cond.WELL_FED, Cond.FEASTED, Cond.AT_TABLE, Cond.ATE_RAW]
@@ -1338,6 +1345,8 @@ class Colonist:
 	var kit := []                 # Look del corredo: scudo, faretra, maschera, sacca
 	var hood_tint = null          # Color del cappuccio, se non è di cuoio
 	var gifts := []               # Gift: i talenti da avventuriero
+	var refused_at := 0           # le spedizioni che aveva quando gli hanno detto di no l'ultima volta (vedi wants_to_stay)
+	var former := Hero.NONE       # rimasto come colono: la classe che aveva (vedi welcome)
 
 
 # Animale selvatico: gira da solo per la mappa, fuori dalle stanze (vedi update_animal); si caccia (vedi try_hunt).
@@ -1473,6 +1482,8 @@ var chronicle: PackedStringArray = []  # diari delle spedizioni e morti, dal pi�
 var chronicle_days: PackedInt32Array = []  # il giorno di ogni voce di chronicle: il calendario la segna lì
 var board_key := ""         # quello che mostra la bacheca: se cambia, la si rifà (vedi fill_board)
 var board_pick: Array[Colonist] = []  # spuntati alla bacheca per la prossima spedizione
+var requests := []          # chi chiede di restare e aspetta la risposta: un Array di Colonist per domanda (vedi ask)
+var asking := []            # la domanda nella finestra (una di requests)
 var study := 0.0            # punti studio: il mucchio comune, scritto allo scrittoio (vedi Job.STUDY), speso nelle ricerche
 var researched := {}        # Tech -> true: le ricerche fatte (vedi research)
 var authority := 0.0        # raccolta dal sovrano sul trono (vedi Job.GOVERN), spesa nelle leggi
@@ -1826,6 +1837,9 @@ func _ready() -> void:
 	$HUD/BirthPanel/Box/Row/Name.text_changed.connect(name_child)
 	$HUD/BirthPanel/Box/Row/Dice.pressed.connect(roll_child_name)
 	$HUD/BirthPanel/Box/Ok.pressed.connect($HUD/BirthPanel.hide)
+	$HUD/RequestPanel/Box/Row/Yes.pressed.connect(answer.bind(true))
+	$HUD/RequestPanel/Box/Row/No.pressed.connect(answer.bind(false))
+	$HUD/ColonistSheet/Box/Family/Request.pressed.connect(func(): show_request(request_of(shown)))
 	marriage_menu.id_pressed.connect(marriage_pressed)
 	$HUD/ColonistSheet/Box/Family/Marry.pressed.connect(open_marriage_menu)
 	$HUD/ColonistSheet/Box/Family/House.pressed.connect(open_house)
@@ -1840,7 +1854,8 @@ func _ready() -> void:
 	build_field_popup()
 	build_plan_panel()
 	for window in [room_popup, field_popup, plan_panel, craft_popup, jobs_panel, resources_panel, sheet_panel, $HUD/BoardPanel, $HUD/ReportPanel, $HUD/ChroniclePanel,
-			$HUD/KnowledgePanel, $HUD/LawsPanel, $HUD/WikiPanel, $HUD/BirthPanel, $HUD/SuccessionPanel, $HUD/HousePanel]:  # X in alto a destra, si trascinano
+			$HUD/KnowledgePanel, $HUD/LawsPanel, $HUD/WikiPanel, $HUD/BirthPanel, $HUD/SuccessionPanel, $HUD/HousePanel,
+			$HUD/RequestPanel]:  # X in alto a destra, si trascinano
 		window.get_node("Box/Head/Close").pressed.connect(window.hide)
 		window.gui_input.connect(drag_window.bind(window))
 		window.visibility_changed.connect(window.move_to_front, CONNECT_DEFERRED)  # l'ultima aperta sta sopra
@@ -2073,6 +2088,8 @@ func resume(state: Dictionary) -> void:
 	camera.zoom = state["camera"][1]
 	if fallen:
 		$HUD/Fallen.show()
+	if not requests.is_empty():  # chi aspettava la risposta la chiede di nuovo
+		show_request(requests[0])
 	Engine.time_scale = 0.0
 
 
@@ -2989,11 +3006,16 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 		box.get_node("Head/Arms").texture = arms_texture(c.house_arms)
 	elif c == ruler:
 		box.get_node("Head/Arms").texture = arms_tex
-	box.get_node("Hero").visible = c.hero != Hero.NONE or c == ruler or c == regent_for or c.suitor
-	box.get_node("Hero").text = tr_n("%s, fee %s, %d expedition", "%s, fee %s, %d expeditions", c.trips) % [hero_name(c), coins(fee(c)), c.trips] \
+	var asks := not request_of(c).is_empty()
+	box.get_node("Hero").visible = c.hero != Hero.NONE or c == ruler or c == regent_for or c.suitor or c.former != Hero.NONE or asks
+	box.get_node("Hero").text = (tr_n("%s, fee %s, %d expedition", "%s, fee %s, %d expeditions", c.trips) % [hero_name(c), coins(fee(c)), c.trips] \
 		if c.hero != Hero.NONE else (tr("%s %s of %s") % [CROWN_IMG, ruler_title(c), realm] if c == ruler
 		else (tr("%s Heir of %s") % [CROWN_IMG, realm] if c == regent_for
-		else (tr("Suitor from the house of %s. Dowry: %s.") % [c.last_name, dowry_words(c)] if c.suitor else "")))
+		else (tr("Suitor from the house of %s. Dowry: %s.") % [c.last_name, dowry_words(c)] if c.suitor
+		else (tr_n("Once a %s, level %d, %d expedition", "Once a %s, level %d, %d expeditions", c.trips)
+			% [named(Hero, c.former).to_lower(), c.level, c.trips] if c.former != Hero.NONE else ""))))) \
+		+ ("\n" + tr("Asks to stay in the colony.") if asks else "")
+	box.get_node("Family/Request").visible = asks and box == $HUD/ColonistSheet/Box
 	box.get_node("Health").text = health_text(c)
 	for child in needs_grid.get_children() + skills_grid.get_children() + traits_box.get_children():
 		child.free()
@@ -4300,7 +4322,7 @@ func in_bed(c: Colonist) -> bool:
 func colony_splendor() -> int:
 	return (PALACE[1] if researched.has(Tech.PALACE) and rooms.any(func(r): return r.kind == RoomKind.THRONE_ROOM) else 0) \
 		+ furniture.values().map(func(plan): return SPLENDOR.get(plan[0], 0)).reduce(func(a, b): return a + b, 0) \
-		+ guests.reduce(func(n, g): return n + gift(g, "splendor", 0), 0)  # gli avventurieri famosi
+		+ people().reduce(func(n, g): return n + gift(g, "splendor", 0), 0)  # i famosi: avventurieri, anche rimasti
 
 
 # Comfort dove sta il colono: i mobili della stanza, in proporzione se ha meno di ROOM_SPACE caselle a testa (fuori 0),
@@ -5169,8 +5191,8 @@ func mood_bonus(c: Colonist) -> float:
 	return sum + law_mood(c)
 
 
-func add_cond(c: Colonist, k: Cond) -> void:
-	c.conds[k] = clock + COND_INFO[k][0]
+func add_cond(c: Colonist, k: Cond, days := -1.0) -> void:  # `days`: se no quelli di COND_INFO
+	c.conds[k] = clock + (days if days >= 0.0 else COND_INFO[k][0])
 
 
 # `c` mangia quello che ha in mano (carry_res): sazia secondo FOOD. Il crudo può intossicare (e il goloso lo mangia
@@ -5816,6 +5838,7 @@ func die(c: Colonist, why: String) -> void:
 	c.died = clock
 	corpses.append(c)
 	var was_colonist := c in colonists
+	withdraw(c)
 	colonists.erase(c)
 	guests.erase(c)
 	for room in rooms:
@@ -6442,6 +6465,7 @@ func update_guests() -> void:
 			travel(g)
 	for g in guests:
 		if not g.hired and g.errand == Errand.NONE and clock >= g.stay_until:
+			withdraw(g)  # se aspettava la risposta, non aspetta più
 			g.errand = Errand.LEAVE
 			quit_job(g)
 			travel(g)
@@ -6478,6 +6502,8 @@ func arrive(c: Colonist) -> void:
 			for res in c.loot:
 				drop(res, cell_of(c.pos), c.loot[res])
 			c.loot.clear()
+			if wants_to_stay(c) and request_of(c).is_empty():
+				ask([c])
 		Errand.LEAVE:
 			guests.erase(c)
 		Errand.DEPART:
@@ -6549,6 +6575,7 @@ func send(party: Array, ruin: Ruin) -> bool:
 		exp.food += n
 	var loans := PackedStringArray()
 	for g in party:
+		withdraw(g)  # ingaggiato: non chiede più di restare
 		if researched.has(Tech.LENDING_ARMORY):
 			loans.append_array(lend(g))
 		exp.party.append(g)
@@ -6821,6 +6848,122 @@ func update_expeditions() -> void:
 		report(tr("Back from the %s") % name, exp.lines)
 
 
+# --- Chi resta (GDD 4.2.1): la domanda, la finestra, il forestiero ---
+
+# spedizioni dopo le quali un avventuriero chiede di restare
+func stay_trips() -> int:
+	return STAY_TRIPS
+
+
+# l'avventuriero `g`, appena tornato alla locanda, chiede di restare: è contento, e ha fatto abbastanza spedizioni
+# dall'ultima volta che gli hanno detto di no
+func wants_to_stay(g: Colonist) -> bool:
+	return g.hero != Hero.NONE and not g.suitor and g.trips - g.refused_at >= stay_trips() \
+		and g.needs[Need.HAPPINESS] >= STAY_HAPPY
+
+
+# la domanda in cui c'è `c`, [] se non aspetta una risposta
+func request_of(c: Colonist) -> Array:
+	for group in requests:
+		if c in group:
+			return group
+	return []
+
+
+# `group` chiede di restare: aspetta in coda la risposta; la finestra si apre, se non ne mostra già un'altra
+func ask(group: Array) -> void:
+	requests.append(group)
+	if not $HUD/RequestPanel.visible:
+		show_request(group)
+
+
+# `c` non aspetta più la risposta (se ne va, è ingaggiato, è morto): via la sua domanda, e la finestra se la mostrava
+func withdraw(c: Colonist) -> void:
+	var group := request_of(c)
+	if group.is_empty():
+		return
+	requests.erase(group)
+	if group == asking:
+		asking = []
+		$HUD/RequestPanel.hide()
+		if not requests.is_empty():
+			show_request(requests[0])
+
+
+# La finestra della domanda `group`: chi è (le figurine, col mouse sopra la scheda), cosa chiede, Accogli e No
+func show_request(group: Array) -> void:
+	asking = group
+	var panel: Control = $HUD/RequestPanel
+	var c: Colonist = group[0]
+	var people_row: Control = panel.get_node("Box/People")
+	for child in people_row.get_children():
+		child.free()
+	for o in group:
+		people_row.add_child(figure_icon(o))
+	var days := foreigner_days()
+	panel.get_node("Box/Text").text = tr_n("%s (%s), back from %d expedition, asks to stay in the colony.",
+		"%s (%s), back from %d expeditions, asks to stay in the colony.", c.trips) % [full_name(c), hero_name(c), c.trips] \
+		+ "\n" + tr("Welcomed, they work like the others and keep their gear. For %d days they are a foreigner: -5 happiness, work 10%% slower.") % days
+	panel.get_node("Box/Row/Yes").text = "Welcome"
+	panel.get_node("Box/Row/No").text = "No"
+	panel.get_node("Box/Row/No").tooltip_text = tr("They will ask again after %d more expeditions.") % stay_trips()
+	panel.show()
+	panel.reset_size()
+
+
+# la risposta alla domanda nella finestra: sì, accolti; no, vedi refuse. Poi la prossima domanda, se ce n'è una
+func answer(yes: bool) -> void:
+	var group := asking
+	asking = []
+	$HUD/RequestPanel.hide()
+	if group in requests:
+		requests.erase(group)
+		if yes:
+			welcome(group)
+		else:
+			refuse(group)
+	if sheet_panel.visible and shown in group:  # via il pulsante della risposta
+		open_sheet(shown)
+	if not requests.is_empty():
+		show_request(requests[0])
+
+
+# giorni da forestiero di chi resta
+func foreigner_days() -> float:
+	return FOREIGNER_DAYS
+
+
+# Accolti: diventano coloni, forestieri per un po'. L'avventuriero ricorda la classe; lo scudo del corredo diventa uno
+# scudo vero, nel suo slot; maschera e sacca dello scassinatore si tolgono. Il suo equipaggiamento è della colonia
+func welcome(group: Array) -> void:
+	for c in group:
+		if c.hero != Hero.NONE:
+			c.former = c.hero
+			c.hero = Hero.NONE
+			if Look.SHIELD in c.kit:
+				c.kit.erase(Look.SHIELD)
+				if not c.gear.has(Slot.SHIELD):
+					c.gear[Slot.SHIELD] = Res.SHIELD
+			c.kit.erase(Look.MASK)
+			c.kit.erase(Look.PACK)
+		c.stay_until = 0.0
+		c.errand = Errand.NONE
+		guests.erase(c)
+		board_pick.erase(c)
+		if c not in colonists:
+			colonists.append(c)
+		quit_job(c)
+		add_cond(c, Cond.FOREIGNER, foreigner_days())
+	note(tr("%s: %s stays in the colony.") % [date(today), tr(" and ").join(group.map(full_name))])
+	board_key = ""
+
+
+# No: l'avventuriero lo richiederà dopo altre stay_trips() spedizioni
+func refuse(group: Array) -> void:
+	for c in group:
+		c.refused_at = c.trips
+
+
 # nome di una risorsa nei testi: "leather armor"; le monete con la loro icona (vedi coins)
 func res_name(res: Res) -> String:
 	return named(Res, res, "item").to_lower()
@@ -6903,13 +7046,7 @@ func fill_board() -> void:
 		child.free()
 	for g in waiting:
 		var row := HBoxContainer.new()
-		var icon := Control.new()
-		icon.custom_minimum_size = Vector2.ONE * TILE * 2
-		icon.set_script(TIP)
-		icon.set("make_tip", colonist_tip.bind(g))
-		icon.tooltip_text = full_name(g)
-		icon.draw.connect(draw_figure.bind(icon, Rect2(Vector2.ZERO, Vector2.ONE * TILE * 2), Rect2(0, 0, TILE, TILE), g))
-		row.add_child(icon)
+		row.add_child(figure_icon(g))
 		var label := rich("%s\n%s, %s, %s" % [full_name(g), hero_name(g), gift_names(g), coins(fee(g))])
 		label.custom_minimum_size.x = 280
 		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -6964,6 +7101,17 @@ func fill_board() -> void:
 	box.get_node("Chronicle").visible = not chronicle.is_empty()
 	box.get_node("ChronicleButton").text = tr("Chronicle (%d)") % chronicle.size()
 	$HUD/BoardPanel.reset_size()
+
+
+# la figurina di `c`, al doppio, di fronte; col mouse sopra la sua scheda (bacheca, finestra della domanda)
+func figure_icon(c: Colonist) -> Control:
+	var icon := Control.new()
+	icon.custom_minimum_size = Vector2.ONE * TILE * 2
+	icon.set_script(TIP)
+	icon.set("make_tip", colonist_tip.bind(c))
+	icon.tooltip_text = full_name(c)
+	icon.draw.connect(draw_figure.bind(icon, Rect2(Vector2.ZERO, Vector2.ONE * TILE * 2), Rect2(0, 0, TILE, TILE), c))
+	return icon
 
 
 # Cronaca: tutto quello che è successo (ingaggi, diari delle spedizioni, morti), dal più recente

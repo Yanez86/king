@@ -3419,3 +3419,48 @@ msgstr "Un anno di vita a stagione: passano le generazioni, i figli crescono in 
 
 msgid "A year of life every year, like the calendar: children take 16 years to grow up."
 msgstr "Un anno di vita all'anno, come il calendario: i figli ci mettono 16 anni a crescere."
+
+# --- Nuovi coloni: l'avventuriero che resta, la domanda, il forestiero
+
+msgid "Foreigner"
+msgstr "Forestiero"
+
+msgid "New to the colony: doesn't know its ways yet. Works a little slower."
+msgstr "Nuovo della colonia: non ne conosce ancora le usanze. Lavora un po' più piano."
+
+msgid "Asks to stay"
+msgstr "Chiede di restare"
+
+msgid "Answer later, from their sheet"
+msgstr "Rispondi più tardi, dalla sua scheda"
+
+msgid "Answer…"
+msgstr "Rispondi…"
+
+msgid "Welcome"
+msgstr "Accogli"
+
+msgid "No"
+msgstr "No"
+
+msgid "%s (%s), back from %d expedition, asks to stay in the colony."
+msgid_plural "%s (%s), back from %d expeditions, asks to stay in the colony."
+msgstr[0] "%s (%s), tornato da %d spedizione, chiede di restare nella colonia."
+msgstr[1] "%s (%s), tornato da %d spedizioni, chiede di restare nella colonia."
+
+msgid "Welcomed, they work like the others and keep their gear. For %d days they are a foreigner: -5 happiness, work 10%% slower."
+msgstr "Accolto, lavora come gli altri e tiene la sua roba. Per %d giorni è un forestiero: −5 felicità, lavora il 10%% più piano."
+
+msgid "They will ask again after %d more expeditions."
+msgstr "Lo chiederà di nuovo dopo altre %d spedizioni."
+
+msgid "%s: %s stays in the colony."
+msgstr "%s: %s resta nella colonia."
+
+msgid "Once a %s, level %d, %d expedition"
+msgid_plural "Once a %s, level %d, %d expeditions"
+msgstr[0] "Un tempo %s, livello %d, %d spedizione"
+msgstr[1] "Un tempo %s, livello %d, %d spedizioni"
+
+msgid "Asks to stay in the colony."
+msgstr "Chiede di restare nella colonia."

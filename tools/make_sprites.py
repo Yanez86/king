@@ -457,6 +457,26 @@ WEDDING = """
 ................
 """
 
+# Condizione "forestiero" (Cond.FOREIGNER): il fagotto rosso a pois di chi viene da fuori, sul bastone.
+FOREIGNER = """
+................
+..........oooo..
+.........ojjjjo.
+........ojxjjxJo
+........ojjjjjJo
+........ojjxjJJo
+.........oJJJJo.
+........owooo...
+.......owo......
+......owo.......
+.....owo........
+....owo.........
+...owo..........
+..owo...........
+..oo............
+................
+"""
+
 # La culla (Build.CRADLE): cassa di legno a dondolo, il lino dentro. Il neonato in fasce (BABY) ci si disegna sopra,
 # o in braccio, piccolo; è anche l'icona della condizione "incinta" (Cond.PREGNANT).
 CRADLE = """
@@ -4048,7 +4068,8 @@ def main():
     mourning_crown = [line.translate(str.maketrans("g8</jJ", "ruRuio")) for line in art(CROWN, 16, 16)]
     images["conditions"] = pixels(side_by_side(frames(CONDITIONS, count=6) + [feast, pad12(pillory), pad12(heard),
                                                                               art(WEDDING, 16, 16), art(BABY, 16, 16),
-                                                                              mourning_crown, art(CROWN, 16, 16)]))
+                                                                              mourning_crown, art(CROWN, 16, 16),
+                                                                              art(FOREIGNER, 16, 16)]))
     images["baby"] = pixels(art(BABY, 16, 16))
     images["ground"] = pixels(ground_sheet())
     images["warehouse_day"] = pixels(art(WAREHOUSE, 64, 32))

@@ -110,20 +110,54 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   Ben nutrito e pasto squisito si escludono: vale l'ultimo pasto. Poi: malattie dal narratore, perdita di punti ferita.
 - **Scheda** (clic sul colono): nome, soprannome (facoltativo), cognome, sesso, punti ferita, abilità (ognuna con un'icona 8×8), talenti (solo icone, il nome col mouse sopra), equipaggiamento (4 slot: mani, corpo, testa, scudo). Poi bisogni, relazioni.
 
+### 4.2.1 Nuovi coloni: chi resta e chi arriva
+Decisa il 2026-11-19. Numeri da tarare. La colonia cresce in tre modi: i figli (4.3.3), gli avventurieri che restano e
+i viandanti. Il valore della colonia (lo splendore) attira gente; i tanti coloni la frenano, senza un tetto fisso.
+- **L'avventuriero che resta**: tornato alla locanda dalla sua terza spedizione (dalla seconda con Porte aperte, 4.7.7),
+  se la sua felicità è almeno 60 chiede di restare come colono. Una finestra lo chiede al giocatore: **Accogli** o
+  **No**; chiusa con la X, la domanda resta sulla sua scheda finché è alla locanda (ingaggiato, la ritira). Rifiutato,
+  lo richiede dopo altre 3 spedizioni.
+  - Accolto, diventa un colono: tiene nome, età, aspetto, abilità (quelle della classe), talenti (anche quelli da
+    avventuriero: il Famoso dà ancora splendore, gli altri contano solo in spedizione, vedi Compagnia della corona in
+    4.7.3) e il suo equipaggiamento, che ora è della colonia. Lo scudo del guerriero diventa uno scudo vero, nel suo
+    slot; lo scassinatore si toglie maschera e sacca (la faretra resta all'arciere). Lavora, ha le sue priorità, dorme
+    nei letti dei coloni. Nella scheda: "Un tempo guerriero, livello 3".
+- **Viandanti**: gente di passaggio che chiede di restare. Arrivano dal bordo della mappa e vanno nella sala del trono
+  (se no a un fuoco, se no alla radura); lì una finestra chiede: **Accogli** o **Manda via** (se ne vanno). Aspettano la
+  risposta 2 giorni (la domanda resta sulla loro scheda), poi se ne vanno da sé. Intanto non lavorano: si svagano,
+  mangiano dal magazzino, dormono alla locanda o per terra.
+  - Chi: una persona sola (70%), una coppia sposata (15%) o una famiglia (15%: un genitore, o una coppia, con un figlio
+    di 4–11 anni). Gli adulti tra 16 e 45 anni, 4 punti abilità a caso (al più 3 per abilità) e 0–2 talenti; i figli
+    né abilità né talenti. Una famiglia ha lo stesso cognome. Uno su quattro porta un attrezzo (piccone, ascia, falcetto
+    o arco).
+  - Quanti: dal giorno 10, in media uno ogni 30 giorni ÷ (1 + splendore / 20); sopra 8 coloni l'attesa raddoppia ogni
+    4 coloni in più (×2 a 12, ×4 a 16). Per esempio: senza splendore 30 giorni; a 15 di splendore 17; a 60 di
+    splendore e 15 coloni 25. ±30% a caso. Con Porte aperte la metà, con Porte chiuse non ne arrivano. Uno alla volta:
+    l'attesa del prossimo comincia quando questo ha avuto la risposta o se n'è andato.
+  - Per ora un evento fatto a mano, come l'erudito errante: da portare nel narratore (4.6).
+- **Forestiero** (condizione, con la sua icona): chi resta, avventuriero o viandante, lo è per 5 giorni (10 con Porte
+  aperte): non conosce ancora la colonia, −5 felicità e +10% tempo di lavoro. Col Giuramento (4.7.7) giura davanti al
+  trono e non lo è. I figli nati in colonia e i pretendenti sposati non lo sono.
+- **Ordine di lavoro**: (1) l'avventuriero che chiede di restare, la finestra della domanda, il forestiero; (2) i
+  viandanti, soli o in famiglia; (3) le leggi dell'Accoglienza (Porte chiuse, Porte aperte, Giuramento, 4.7.7); (4) il
+  titolo che sale anche col numero dei coloni (4.3); (5) la Compagnia della corona (4.7.3): i coloni in spedizione con
+  gli avventurieri (vedi 4.4.4).
+
 ### 4.3 Il re e la dinastia
 - Il **sovrano** (re solo alla fine, vedi Titolo) è un colono come gli altri: lavori e priorità, bisogni, routine, abilità che
   crescono, equipaggiamento, combattimento. In più lo crea il giocatore a inizio partita (vedi 4.3.1) e il suo stato
   influisce sugli altri coloni.
 - **Titolo**: cresce con la colonia, e con lui il nome del reame e la corona sullo stemma (vedi 4.3.2); non cala mai.
-  Soglie provvisorie: lo splendore della colonia (poi anche il numero di coloni, quando la colonia potrà crescere).
+  Soglie provvisorie: lo splendore della colonia **e** il numero dei coloni, tutti e due (deciso il 2026-11-19;
+  contano i figli e chi è in spedizione, non gli avventurieri né i neonati).
   È della casata: l'erede lo eredita. Il gioco si chiama King: diventare re è l'arco della partita.
 
-  | Titolo | Reame | Corona sullo stemma | Splendore | Sigilli (4.7.5) |
-  |---|---|---|---|---|
-  | Signore / Signora | Signoria di … | nessuna | — | 2 |
-  | Barone / Baronessa | Baronia di … | cerchio | 15 | 3 |
-  | Conte / Contessa | Contea di … | corona a punte | 35 | 4 |
-  | Re / Regina | Regno di … | corona reale | 60 | 5 |
+  | Titolo | Reame | Corona sullo stemma | Splendore | Coloni | Sigilli (4.7.5) |
+  |---|---|---|---|---|---|
+  | Signore / Signora | Signoria di … | nessuna | — | — | 2 |
+  | Barone / Baronessa | Baronia di … | cerchio | 15 | 6 | 3 |
+  | Conte / Contessa | Contea di … | corona a punte | 35 | 10 | 4 |
+  | Re / Regina | Regno di … | corona reale | 60 | 15 | 5 |
 
   Quando sale, una finestra al centro (e la cronaca) lo annuncia coi sigilli e l'autorità di ogni giorno.
 
@@ -645,9 +679,15 @@ racconta il diario al ritorno.
   | Stendardo antico (strappato, d'una casata caduta) | forte | 4 |
   | Busto di pietra (un re dimenticato) | cripta | 5 |
   | Corona (su un cuscino di velluto) | forte | 6 |
-- Poi: un avventuriero contento dopo 3 spedizioni chiede di **restare come colono** (il primo modo di avere più coloni);
-  coloni in spedizione; vene d'oro e commercio; una rovina sulla mappa da
-  esplorare davvero.
+- **Chi resta**: un avventuriero contento dopo 3 spedizioni chiede di **restare come colono** (vedi 4.2.1).
+- **Coloni in spedizione** (ricerca Compagnia della corona, 4.7.3): sulla bacheca, sotto chi aspetta alla locanda, i
+  coloni che possono partire (adulti, non il sovrano né il reggente, non a terra né incinte); si spuntano come gli
+  avventurieri, ma nel gruppo ci vuole almeno un avventuriero. Non hanno paga né quota. Nella rovina combattono con la
+  loro abilità migliore tra armi da mischia e a distanza (chi era avventuriero, con la sua classe) e prendono la parte
+  media dei colpi; +1 esperienza nell'arma per ogni stanza coi mostri. Fuori dalla mappa non lavorano. Chi muore nella
+  rovina, la colonia lo sa al ritorno (o quando la spedizione si dà per persa): lutto e −5 autorità, come per ogni
+  colono morto. Al ritorno escono dal bordo e tornano al lavoro; il bottino lo porta un avventuriero alla locanda.
+- Poi: vene d'oro e commercio; una rovina sulla mappa da esplorare davvero.
 - **Ordine di lavoro**: (1) locanda e bacheca, oro, un avventuriero alla volta, solo la torre, bottino in risorse che
   esistono già; (2) classi, talenti, gruppi, provviste, diario; (3) altre rovine, mappe, cimeli, effetto dello splendore;
   (4) il resto.
@@ -1011,9 +1051,9 @@ Quattro fasce, una per titolo; sei categorie. ✓ = c'è nel gioco.
 | | Clemenza ✓ | baronia | 80 | Giustizia | sfuriate di un'ora; il sovrano ascolta chi protesta (un'ora, +10 felicità per mezza giornata, niente autorità persa) | tutti +3; iracondo +5 |
 | | Riserva di caccia ✓ | baronia | 100 | — | cervi doppi, solo del sovrano e dei cacciatori (chi ha l'arco); +3 autorità a cervo del sovrano | cacciatori +3; gli altri −3 |
 | | Legge marziale | contea | 150 | — | con nemici in vista nessuno scappa sopra 20 punti ferita; +10% a segno | tutti −5 |
-| Popolo | Porte chiuse | signoria | 30 | Accoglienza | nessuno chiede di restare | tutti +5 |
-| | Porte aperte | signoria | 40 | Accoglienza | un avventuriero chiede di restare dopo 2 spedizioni, i viandanti il doppio; forestieri per 10 giorni | forestieri −5 |
-| | Giuramento | baronia | 80 | — | chi arriva giura davanti al trono (10 autorità): non è forestiero | nuovi coloni +5 |
+| Popolo | Porte chiuse | signoria | 30 | Accoglienza | nessuno chiede di restare: gli avventurieri non lo chiedono, i viandanti non vengono | tutti +5 |
+| | Porte aperte | signoria | 40 | Accoglienza | un avventuriero chiede di restare dopo 2 spedizioni, i viandanti il doppio; forestieri per 10 giorni (vedi 4.2.1) | forestieri −5 |
+| | Giuramento | baronia | 80 | — | chi resta va al trono e giura (un'ora, 10 autorità; senza trono dove si trova, senza autorità resta forestiero): non è forestiero | chi ha giurato +5 |
 | | Padrinato | baronia | 100 | — | un padrino: +50% esperienza per 10 giorni lavorandogli vicino | padrino e figlioccio +3 |
 | | Matrimoni misti | contea | 150 | — | coloni e avventurieri si sposano; l'avventuriero resta come colono | avventurieri +5 |
 | | Scuola | contea | 180 | Scriptorium | un'ora allo scrittoio per figli e forestieri; i figli crescono con 3 punti abilità in più | figli e forestieri +3 |

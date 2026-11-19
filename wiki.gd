@@ -166,6 +166,7 @@ Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleep
 [cell]Pregnant[/cell][cell]¾ year of life[/cell][cell]20% slower at the end[/cell][cell]–[/cell]
 [cell]Royal mourning[/cell][cell]7 days[/cell][cell]–[/cell][cell]-20[/cell]
 [cell]Coronation[/cell][cell]2 days[/cell][cell]–[/cell][cell]+10[/cell]
+[cell]Foreigner[/cell][cell]5 days[/cell][cell]10% slower[/cell][cell]-5[/cell]
 [/table]
 • Poisoned: from raw food, more likely the closer it is to rotting.
 • Well fed: after a meal; stress from work -25%. Feasted: after a fine meal; stress from work -50%. A new meal replaces the condition of the last one.
@@ -176,6 +177,7 @@ Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleep
 • Wedding: everyone, when the ruler marries.
 • Pregnant: in the last third she works 20% more slowly.
 • Royal mourning: the ruler has died, instead of Mourning; stress from work +25%. Coronation: everyone, when the new ruler is crowned.
+• Foreigner: whoever came from outside and stayed, an adventurer or a wanderer (see Adventurers).
 The laws in force that a colonist likes or dislikes show here too, with their icon."""],
 
 	["The Ruler & House", """[color=#e8c34a]New game[/color]
@@ -527,7 +529,13 @@ One each, and 3 times in 10 also a colonist trait.
 [cell]Scholar[/cell][cell]a level every trip; books twice as often[/cell]
 [cell]Famous[/cell][cell]+5 splendor while on the map[/cell]
 [/table]
-With a medic standing, whoever falls is carried home. Stealth doesn't work on the guardian of the treasure."""],
+With a medic standing, whoever falls is carried home. Stealth doesn't work on the guardian of the treasure.
+
+[color=#e8c34a]Staying[/color]
+• An adventurer back at the inn from their third expedition, with 60 happiness or more, asks to stay as a colonist. A window asks you: Welcome or No. Close it and the question waits on their sheet (Answer…) while they are at the inn; hired, they take it back.
+• Said no, they ask again after 3 more expeditions.
+• Welcomed, they become a colonist: they work, have their priorities and sleep in the colonists' beds. They keep their skills, traits and gear, which is now the colony's: the warrior's shield becomes a real shield in its slot, the burglar takes off mask and sack, the archer keeps the quiver. A famous one still gives splendor; the other adventurer traits only count on expeditions. The sheet says "Once a warrior, level 3".
+• For 5 days they are a Foreigner: -5 happiness, work 10% slower."""],
 
 	["Ruins & Expeditions", """[color=#e8c34a]The notice board[/color]
 Click it: the coins and provisions in store, who waits at the inn (Pick up to 4), the ruins you know, the expeditions away and the last page of the chronicle. Every ruin has its Send button, with the fees and provisions it takes; hover it for the days of the trip.

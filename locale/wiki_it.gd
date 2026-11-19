@@ -165,6 +165,7 @@ Goloso e Di poco appetito, Pigro e Stacanovista, Mattiniero e Nottambulo, Dormig
 [cell]Incinta[/cell][cell]¾ d'anno di vita[/cell][cell]20% più piano alla fine[/cell][cell]–[/cell]
 [cell]Lutto regale[/cell][cell]7 giorni[/cell][cell]–[/cell][cell]-20[/cell]
 [cell]Incoronazione[/cell][cell]2 giorni[/cell][cell]–[/cell][cell]+10[/cell]
+[cell]Forestiero[/cell][cell]5 giorni[/cell][cell]10% più lento[/cell][cell]-5[/cell]
 [/table]
 • Intossicato: dal cibo crudo, tanto più probabile quanto più è vicino a marcire.
 • Ben nutrito: dopo un pasto; stress dal lavoro -25%. Lauto pasto: dopo un pasto squisito; stress dal lavoro -50%. Un pasto nuovo sostituisce la condizione di quello prima.
@@ -175,6 +176,7 @@ Goloso e Di poco appetito, Pigro e Stacanovista, Mattiniero e Nottambulo, Dormig
 • Nozze: tutti, quando il sovrano si sposa.
 • Incinta: nell'ultimo terzo lavora il 20% più piano.
 • Lutto regale: è morto il sovrano, al posto del Lutto; stress dal lavoro +25%. Incoronazione: tutti, quando il nuovo sovrano è incoronato.
+• Forestiero: chi è venuto da fuori ed è rimasto, avventuriero o viandante (vedi Avventurieri).
 Qui compaiono anche le leggi in vigore che a un colono piacciono o non piacciono, con la loro icona."""],
 
 	["Il sovrano e la casata", """[color=#e8c34a]Nuova partita[/color]
@@ -526,7 +528,13 @@ Uno a testa, e 3 volte su 10 anche un talento dei coloni.
 [cell]Studioso[/cell][cell]un livello a ogni viaggio; libri il doppio delle volte[/cell]
 [cell]Famoso[/cell][cell]+5 splendore finché è sulla mappa[/cell]
 [/table]
-Con un medico in piedi, chi cade viene riportato a casa. La furtività non funziona col guardiano del tesoro."""],
+Con un medico in piedi, chi cade viene riportato a casa. La furtività non funziona col guardiano del tesoro.
+
+[color=#e8c34a]Chi resta[/color]
+• Un avventuriero tornato alla locanda dalla sua terza spedizione, con almeno 60 di felicità, chiede di restare come colono. Una finestra te lo chiede: Accogli o No. Chiusa, la domanda aspetta sulla sua scheda (Rispondi…) finché è alla locanda; ingaggiato, la ritira.
+• Se gli dici di no, lo richiede dopo altre 3 spedizioni.
+• Accolto, diventa un colono: lavora, ha le sue priorità e dorme nei letti dei coloni. Tiene abilità, talenti ed equipaggiamento, che ora è della colonia: lo scudo del guerriero diventa uno scudo vero nel suo slot, lo scassinatore si toglie maschera e sacca, l'arciere tiene la faretra. Il famoso dà ancora splendore; gli altri talenti da avventuriero contano solo in spedizione. La scheda dice "Un tempo guerriero, livello 3".
+• Per 5 giorni è Forestiero: -5 felicità, lavora il 10% più piano."""],
 
 	["Rovine e spedizioni", """[color=#e8c34a]La bacheca[/color]
 Cliccala: le monete e le provviste in magazzino, chi aspetta alla locanda (Scegli, fino a 4), le rovine che conosci, le spedizioni in corso e l'ultima pagina della cronaca. Ogni rovina ha il suo pulsante Manda, con le paghe e le provviste che servono; col mouse sopra, i giorni del viaggio.
