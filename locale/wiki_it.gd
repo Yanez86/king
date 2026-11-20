@@ -15,7 +15,7 @@ King è un gestionale di colonia medievale. Sei il sovrano di una piccola signor
 [color=#e8c34a]Gli eventi[/color]
 A mezzanotte il narratore sceglie al più un evento per il giorno, ognuno quando gli tocca; avviene alla sua ora. Lo racconta la cronaca e lo segna il calendario.
 • Minacce: i lupi, annunciati dagli ululati (vedi Combattimento e lupi), e l'ondata di freddo, che il meteo decide due giorni e mezzo prima (vedi le previsioni). Tra una minaccia o una sfortuna e la successiva almeno 3 giorni di tregua; niente minacce mentre qualcuno è a terra o i lupi sono ancora in giro.
-• Visite: i viandanti (vedi Coloni), l'erudito errante (vedi Conoscenza), il pellegrino.
+• Visite: i viandanti (vedi Coloni), l'erudito errante (vedi Conoscenza), il mercante di bestiame (vedi Allevamento), il pellegrino.
 • Fortune: il raccolto abbondante (d'estate e d'autunno, con l'orto seminato, in media ogni 40 giorni e mai a meno di 30: per 10 giorni i campi rendono la metà in più); un branco di 4–6 cervi (non d'inverno, ogni 25 giorni: quelli che nessuno caccia se ne vanno dopo 2 giorni); l'ispirazione (un colono adulto con almeno 60 di felicità è Ispirato per un giorno, ogni 15 giorni); il dono del pellegrino (con una sala del trono, ogni 30 giorni: un pellegrino va al trono, lascia 20–40 [img=center]res://art/icon_coin.png[/img] e +5 autorità, poi se ne va).
 • Sfortune: i topi (ogni 25 giorni e mai a meno di 15, quando un magazzino o una dispensa ha almeno 20 di cibo crudo: se ne mangiano un quarto, in quello che ne ha di più); il ladro di notte (dal giorno 15, ogni 30 giorni, con almeno 20 [img=center]res://art/icon_coin.png[/img] nei magazzini: col Turno di guardia e la guardia sveglia lo prendono, +5 autorità; se no si porta via un quarto delle monete, al più 50); la febbre (dal giorno 10, ogni 20 giorni, ogni 10 d'inverno: un colono ha la Febbre per 3 giorni).
 • Quando la colonia è in difficoltà (il cibo nei magazzini basta per meno di 3 giorni, o la felicità media è sotto 40) le fortune vengono il doppio delle volte.
@@ -61,6 +61,7 @@ Un tasto fa come un clic sul suo pulsante (premilo di nuovo per chiudere).
 [cell]Vista stanze[/cell][cell]L[/cell][cell]Vista calore[/cell][cell]N[/cell]
 [cell]Lente della terra[/cell][cell]O[/cell][cell]Tagliare il ghiaccio[/cell][cell]Y[/cell]
 [cell]Tetti[/cell][cell]V[/cell][cell]Wiki[/cell][cell]F1[/cell]
+[cell]Pascolo[/cell][cell]A[/cell][cell][/cell][cell][/cell]
 [/table]
 • Lavori: chi fa cosa per primo (vedi Coloni), e il lavoro in attesa. Risorse: cosa c'è nei magazzini.
 • Conoscenza compare col primo studio, Leggi con la sala del trono. Il pulsante della Wiki è nella barra in alto.
@@ -122,7 +123,7 @@ La colonia cresce coi figli (vedi Il sovrano e la casata), con gli avventurieri 
 • Entrano dal bordo della mappa, vanno nella sala del trono (o a un fuoco, o nella radura) e chiedono di restare: Accogli o Manda via. Chiusa la finestra, la domanda aspetta sulla loro scheda (Rispondi…) per 2 giorni, poi se ne vanno. Intanto non lavorano, mangiano dai tuoi magazzini e dormono alla locanda (o per terra).
 • Accolti, sono coloni, Forestieri per 5 giorni (-5 felicità, lavorano il 10% più piano). Una famiglia resta tale: la coppia è sposata, il figlio ha i suoi genitori."""],
 
-	["Abilità", """Quattordici abilità, con livelli da 0 a 10 (una stellina al 10). I coloni partono da 0 e salgono lavorando; il tuo sovrano ha 12 punti nella pagina della nuova partita.
+	["Abilità", """Quindici abilità, con livelli da 0 a 10 (una stellina al 10). I coloni partono da 0 e salgono lavorando; il tuo sovrano ha 12 punti nella pagina della nuova partita.
 
 [color=#e8c34a]Velocità[/color]
 Un lavoro dura 1,5 volte tanto a livello 0, il tempo normale a livello 5 e la metà a livello 10 (1,4 a livello 1, 1,3 a livello 2...). Quasi tutti i lavori dipendono anche dalle condizioni, e sonno, cucina, lavorazioni e studio dal comfort della stanza.
@@ -143,6 +144,7 @@ Un lavoro dura 1,5 volte tanto a livello 0, il tempo normale a livello 5 e la me
 [cell]Ricerca[/cell][cell]scrivere pagine di studio[/cell]
 [cell]Scassinare[/cell][cell]solo avventurieri: trappole, serrature[/cell]
 [cell]Medicina[/cell][cell]fare l'unguento, curare i malati[/cell]
+[cell]Allevare[/cell][cell]raccogliere le uova, macellare[/cell]
 [/table]
 Con l'arco un cacciatore mira col migliore tra Cacciare e Tiro. A una postazione un livello basso rovina più oggetti, al fuoco da campo brucia più pasti.
 
@@ -410,6 +412,7 @@ La vista calore (N) colora le stanze secondo la temperatura: rosso il caldo, gia
 [cell][img=center]res://art/icon_stew.png[/img] Stufato[/cell][cell]100[/cell][cell]3 giorni[/cell][cell]–[/cell]
 [cell][img=center]res://art/icon_bread.png[/img] Pane[/cell][cell]60[/cell][cell]8 giorni[/cell][cell]–[/cell]
 [cell][img=center]res://art/icon_preserves.png[/img] Conserve[/cell][cell]35[/cell][cell]120 giorni[/cell][cell]1–10%[/cell]
+[cell][img=center]res://art/icon_egg.png[/img] Uova[/cell][cell]25[/cell][cell]10 giorni[/cell][cell]5–30%[/cell]
 [/table]
 • Dura: a terra all'aperto a 15 °C; in un magazzino il doppio. Col caldo marcisce prima, col freddo dopo, sotto lo zero per niente (vedi Tetti e calore). Poi il mucchio marcisce e sparisce. I mucchi che si mescolano prendono la freschezza media. Col mouse sopra un mucchio: Fresco, Non più fresco o Quasi marcio, e i giorni che restano.
 • Chi mangia crudo può restare Intossicato: la probabilità è minima quando il cibo è fresco, massima quando è quasi marcio.
@@ -480,6 +483,33 @@ Segna caselle d'acqua. Il pescatore si mette accanto (anche nell'acqua bassa) e 
 [cell]Lupo[/cell][cell]30[/cell][cell]5, 2[/cell][cell]3 caselle/s[/cell]
 [/table]
 Gli animali girano fuori dalle stanze e dall'acqua e nascono a più di 15 caselle dalla radura: all'inizio 6 conigli e 3 cervi, poi uno nuovo ogni mezza giornata finché sono meno di 12. Un lupo segnato, se gli si tira, attacca il cacciatore."""],
+
+	["Allevamento", """[color=#e8c34a]Il pascolo (A)[/color] [img=center]res://art/icon_pasture.png[/img]
+• Dopo la ricerca Allevamento (Terra I, 100, dopo la Caccia). Trascina sul prato libero, fuori dalle stanze, come l'orto: lungo il bordo si disegna da sé una staccionata, gratis. Distruggi lo toglie. Sul pascolo si costruisce solo il pollaio.
+• Ogni casella ha la sua erba, fino a 100: ricresce di 20 al giorno quando la terra è tiepida (come per seminare), non d'inverno. Più è brucata, più si vede la terra. Col mouse sopra una casella, la sua erba; cliccala per il branco.
+
+[color=#e8c34a]Gli animali[/color]
+[table=6]
+[cell][color=#d9c48a]Animale[/color][/cell][cell][color=#d9c48a]Una coppia[/color][/cell][cell][color=#d9c48a]Pascolo[/color][/cell][cell][color=#d9c48a]Piccoli[/color][/cell][cell][color=#d9c48a]Dà[/color][/cell][cell][color=#d9c48a]Macellato[/color][/cell]
+[cell]Gallina[/cell][cell]12 [img=center]res://art/icon_coin.png[/img][/cell][cell]1 casella[/cell][cell]3 pulcini ogni 30 giorni[/cell][cell]un uovo al giorno[/cell][cell]2 carne[/cell]
+[cell]Maiale[/cell][cell]30 [img=center]res://art/icon_coin.png[/img][/cell][cell]2 caselle[/cell][cell]4 porcellini ogni 60 giorni[/cell][cell]–[/cell][cell]15 carne, 1 pelle[/cell]
+[/table]
+• Stanno nel pascolo, andando verso l'erba. Ogni animale perde 50 di sazietà al giorno e la riprende brucando: gli serve l'erba delle sue caselle di pascolo (20 ciascuna al giorno). Col mouse sopra un animale: sesso, età, quanto è sazio.
+• I piccoli: una femmina adulta e sazia (almeno 30), un maschio adulto e sazio della sua specie, e posto nel pascolo (contano anche i piccoli). Diventano adulti in 30 giorni e si disegnano più piccoli.
+• A sazietà 0 per 3 giorni un animale muore di fame; la cronaca lo dice. D'inverno l'erba non ricresce.
+• I lupi vanno anche contro gli animali del pascolo. Un pascolo chiuso dalla palizzata (col suo cancello) è al sicuro.
+
+[color=#e8c34a]Il mercante di bestiame[/color]
+Con un pascolo, dal Disgelo alla fine dell'autunno, ogni 15 giorni circa si ferma per un giorno (dalle 9). Clicca il pascolo: vende 2–3 coppie (un maschio e una femmina, adulti) al prezzo qui sopra, e compra un adulto a un quarto del prezzo di una coppia. Si paga e si è pagati in [img=center]res://art/icon_coin.png[/img] dei magazzini. Quello che compri entra nel pascolo.
+
+[color=#e8c34a]Il pollaio[/color] [img=center]res://art/icon_egg.png[/img]
+2x1, 8 legna, solo sul pascolo. All'alba, fuori dall'inverno, ogni gallina adulta e sazia fa un uovo in un pollaio: 8 galline a pollaio; un pollaio tiene 12 uova. Senza pollaio niente uova. Le uova sono cibo crudo: 25, durano 10 giorni, intossicano 5–30%; si cucinano in pasti.
+
+[color=#e8c34a]Allevare (la colonna)[/color]
+Chi ha la colonna Allevare, in quest'ordine:
+• raccoglie le uova al pollaio (2 s) e le porta in un magazzino;
+• macella gli animali oltre quelli da tenere (8 s): clicca il pascolo, Tieni N adulti per specie (6 all'inizio). Prima i maschi in più (uno si tiene), poi i più vecchi; mai i piccoli. Carne e pelle cadono lì.
+Tutte e due insegnano l'abilità Allevare."""],
 
 	["Lavorazioni ed equipaggiamento", """[color=#e8c34a]Postazioni[/color]
 Clicca una postazione per il suo menu: una riga per ogni ricetta che conosci, coi suoi ingredienti e Tieni N. Si fa finché in giro ce ne sono meno di N (a terra, nei magazzini, in mano, in lavorazione); la Scorta vale per tutte le postazioni dello stesso tipo. L'equipaggiamento si fa anche per i coloni con uno slot vuoto, e un arco quando ci sono animali segnati e nessuno ne ha uno. All'inizio: Scorta 10 lingotti, 2 corde d'arco, 3 unguenti, 10 farina, 8 pani, 8 pasti, 0 per il resto.
@@ -711,6 +741,7 @@ Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette 
 • [color=#d9c48a]Saggio del terreno[/color] (Terra I, 60, dopo l'Orto): la lente della terra, in tre fasce.
 • [color=#d9c48a]Almanacco agrario[/color] (Terra II, 250 e un quaderno, dopo il Saggio): cinque fasce, e la tendenza di ogni campo.
 • [color=#d9c48a]Catasto[/color] (Terra III, 450 e un tomo, dopo l'Almanacco): i numeri della terra e il prossimo raccolto.
+• [color=#d9c48a]Allevamento[/color] (Terra I, 100, dopo la Caccia): il pascolo, il pollaio, il mercante di bestiame; galline e maiali; la colonna Allevare.
 • [color=#d9c48a]Caccia[/color] (Terra I, 50): filatoio e banco del falegname; corde d'arco e archi; pelli alle pareti e portiere.
 • [color=#d9c48a]Ghiacciaia[/color] (Terra II, 250 e un quaderno, dopo Dispensa fredda): la ghiacciaia, la fossa del ghiaccio, il taglio del ghiaccio.
 • [color=#d9c48a]Forgia[/color] (Fuoco I, 60): fornace e incudine; lingotti, piccone, ascia, falcetto.

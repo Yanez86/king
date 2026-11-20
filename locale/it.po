@@ -4202,3 +4202,122 @@ msgstr "Una cupola di pietra su un fuoco lento, in una cucina. Pane dalla farina
 
 msgid "The stone oven, in a kitchen: bread from flour (it keeps 8 days), stew from vegetables and meat or fish (warms you up), preserves that keep for 120 days."
 msgstr "Il forno di pietra, in una cucina: pane dalla farina (dura 8 giorni), stufato da vegetali e carne o pesce (rifocilla), conserve che durano 120 giorni."
+
+msgctxt "skill"
+msgid "Husbandry"
+msgstr "Allevare"
+
+msgctxt "work"
+msgid "Husbandry"
+msgstr "Allevare"
+
+msgid "Husbandry"
+msgstr "Allevamento"
+
+msgctxt "item"
+msgid "Egg"
+msgstr "Uova"
+
+msgid "Coop"
+msgstr "Pollaio"
+
+msgid "Hen"
+msgstr "Gallina"
+
+msgid "Pig"
+msgstr "Maiale"
+
+msgid "Sheep"
+msgstr "Pecora"
+
+msgid "Cow"
+msgstr "Mucca"
+
+msgid "Pasture"
+msgstr "Pascolo"
+
+msgid "The herd needs more pasture than there is: it goes hungry."
+msgstr "Il branco vuole più pascolo di quanto ce n'è: patisce la fame."
+
+msgid "%d tiles, grass %d%%; the herd needs %d."
+msgstr "%d caselle, erba al %d%%; al branco ne servono %d."
+
+msgid "%d male, %d female, %d young"
+msgstr "%d maschi, %d femmine, %d piccoli"
+
+msgid "Grown-ups to keep: the others are slaughtered, spare males first, then the oldest"
+msgstr "Gli adulti da tenere: gli altri si macellano, prima i maschi in più, poi i più vecchi"
+
+msgid "The livestock dealer, until tomorrow morning:"
+msgstr "Il mercante di bestiame, fino a domattina:"
+
+msgid "Buy %s: %d"
+msgstr "Compra %s: %d"
+
+msgid "Sell a %s: %d"
+msgstr "Vendi un capo (%s): %d"
+
+msgid "a pair of hens"
+msgstr "una coppia di galline"
+
+msgid "a pair of pigs"
+msgstr "una coppia di maiali"
+
+msgid "a pair of sheep"
+msgstr "una coppia di pecore"
+
+msgid "a cow and a bull"
+msgstr "una mucca e un toro"
+
+msgid "Female, %d days old"
+msgstr "Femmina, %d giorni"
+
+msgid "Male, %d days old"
+msgstr "Maschio, %d giorni"
+
+msgid " (young)"
+msgstr " (giovane)"
+
+msgid "Fed: %d%%"
+msgstr "Sazietà: %d%%"
+
+msgid "Too many: to be slaughtered"
+msgstr "Di troppo: da macellare"
+
+msgid "Eggs: %d"
+msgstr "Uova: %d"
+
+msgid "Grass: %d%%. Click: the herd"
+msgstr "Erba: %d%%. Clic: il branco"
+
+msgid "Collect eggs: %d"
+msgstr "Raccogliere le uova: %d"
+
+msgid "Slaughter: %d"
+msgstr "Macellare: %d"
+
+msgid "%s: wolves killed a %s in the pasture."
+msgstr "%s: i lupi hanno sbranato un capo del pascolo (%s)."
+
+msgid "%s: a %s starved to death."
+msgstr "%s: un capo del branco è morto di fame (%s)."
+
+msgid "Day %d: a livestock dealer comes by with %s to sell (click the pasture)."
+msgstr "Giorno %d: passa un mercante di bestiame, con %s da vendere (clicca il pascolo)."
+
+msgctxt "doing"
+msgid "Collecting eggs"
+msgstr "Raccoglie le uova"
+
+msgctxt "doing"
+msgid "Slaughtering"
+msgstr "Macella"
+
+msgid "Collecting eggs at the coop, slaughtering the animals beyond those you keep: after Husbandry."
+msgstr "Raccogliere le uova al pollaio, macellare gli animali oltre quelli da tenere: dopo l'Allevamento."
+
+msgid "A wooden hut with a straw roof, in the pasture: up to 8 hens lay their eggs here, one a day each (not in winter)."
+msgstr "Una casetta di assi col tetto di paglia, nel pascolo: fino a 8 galline ci fanno le uova, una al giorno ciascuna (non d'inverno)."
+
+msgid "The pasture and the coop, and the Husbandry column: a livestock dealer comes by selling hens and pigs. They graze, breed, lay eggs; what is too many gets slaughtered."
+msgstr "Il pascolo e il pollaio, e la colonna Allevare: passa un mercante di bestiame che vende galline e maiali. Brucano, fanno i piccoli, le uova; quelli di troppo si macellano."

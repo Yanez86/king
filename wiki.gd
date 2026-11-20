@@ -16,7 +16,7 @@ King is a medieval colony sim. You are the ruler of a small lordship, but you ne
 [color=#e8c34a]Events[/color]
 At midnight the narrator picks at most one event for the day, each as often as it is due; it happens at its hour. The chronicle tells it and the calendar marks it.
 • Threats: the wolves, announced by their howling (see Combat & Wolves), and the cold wave, which the weather decides two and a half days ahead (see the forecast). Between a threat or a misfortune and the next there are at least 3 days of truce; no threats while someone lies downed or wolves are still around.
-• Visits: the wanderers (see Colonists), the wandering scholar (see Knowledge), the pilgrim.
+• Visits: the wanderers (see Colonists), the wandering scholar (see Knowledge), the livestock dealer (see Livestock), the pilgrim.
 • Good fortune: a bumper harvest (summer and autumn, with sown fields, every 40 days on average and never within 30: for 10 days the fields yield half as much again); a herd of 4–6 deer (not in winter, every 25 days: those nobody hunts leave after 2 days); inspiration (a grown-up colonist with at least 60 happiness is Inspired for a day, every 15 days); the pilgrim's gift (with a throne room, every 30 days: a pilgrim walks to the throne, leaves 20–40 [img=center]res://art/icon_coin.png[/img] and +5 authority, then goes).
 • Misfortunes: rats (every 25 days and never within 15, when a warehouse or pantry holds at least 20 raw food: they eat a quarter of it, in the one that holds the most); a thief at night (from day 15, every 30 days, with at least 20 [img=center]res://art/icon_coin.png[/img] in the warehouses: with the Night Watch law and the watch awake the thief is caught, +5 authority; otherwise a quarter of the coins go, at most 50); a fever (from day 10, every 20 days, every 10 in winter: a colonist has a Fever for 3 days).
 • When the colony struggles (the food in the warehouses lasts less than 3 days, or the average happiness is under 40) good fortune comes twice as often.
@@ -62,6 +62,7 @@ A key works like a click on its button (press it again to close).
 [cell]Rooms lens[/cell][cell]L[/cell][cell]Heat lens[/cell][cell]N[/cell]
 [cell]Soil lens[/cell][cell]O[/cell][cell]Cut ice[/cell][cell]Y[/cell]
 [cell]Roofs[/cell][cell]V[/cell][cell]Wiki[/cell][cell]F1[/cell]
+[cell]Pasture[/cell][cell]A[/cell][cell][/cell][cell][/cell]
 [/table]
 • Jobs: who does what first (see Colonists), and the work waiting. Resources: what is in your warehouses.
 • Knowledge shows up with your first study, Laws with the throne room. The Wiki button is in the top bar.
@@ -123,7 +124,7 @@ The colony grows with children (see The Ruler & House), with adventurers who sta
 • They walk in from the map edge to the throne room (or to a fire, or to the clearing) and ask to stay: Welcome or Send away. Close the window and the question waits on their sheet (Answer…) for 2 days, then they leave. Meanwhile they don't work, eat from your warehouses and sleep at the inn (or on the ground).
 • Welcomed, they are colonists, Foreigner for 5 days (-5 happiness, work 10% slower). A family keeps its ties: the couple is married, the child has their parents."""],
 
-	["Skills", """Fourteen skills, with levels from 0 to 10 (a star at 10). Colonists start at 0 and rise by working; your ruler gets 12 points on the new-game page.
+	["Skills", """Fifteen skills, with levels from 0 to 10 (a star at 10). Colonists start at 0 and rise by working; your ruler gets 12 points on the new-game page.
 
 [color=#e8c34a]Speed[/color]
 A job takes 1.5 times as long at level 0, the normal time at level 5 and half at level 10 (1.4 at level 1, 1.3 at level 2...). Most work also depends on conditions, and sleep, cooking, crafting and study on room comfort.
@@ -144,6 +145,7 @@ A job takes 1.5 times as long at level 0, the normal time at level 5 and half at
 [cell]Research[/cell][cell]writing pages of study[/cell]
 [cell]Lockpicking[/cell][cell]adventurers only: traps, locks[/cell]
 [cell]Medicine[/cell][cell]making ointment, treating the sick[/cell]
+[cell]Husbandry[/cell][cell]collecting eggs, slaughtering[/cell]
 [/table]
 With a bow a hunter aims with the better of Hunting and Ranged. At a workstation a low level ruins more items, at the campfire it burns more meals.
 
@@ -411,6 +413,7 @@ The Heat lens (N) tints rooms by temperature: red warm, yellow cool without a ma
 [cell][img=center]res://art/icon_stew.png[/img] Stew[/cell][cell]100[/cell][cell]3 days[/cell][cell]–[/cell]
 [cell][img=center]res://art/icon_bread.png[/img] Bread[/cell][cell]60[/cell][cell]8 days[/cell][cell]–[/cell]
 [cell][img=center]res://art/icon_preserves.png[/img] Preserves[/cell][cell]35[/cell][cell]120 days[/cell][cell]1–10%[/cell]
+[cell][img=center]res://art/icon_egg.png[/img] Eggs[/cell][cell]25[/cell][cell]10 days[/cell][cell]5–30%[/cell]
 [/table]
 • Lasts: on the ground outdoors at 15 °C; in a warehouse twice as long. Warmer it rots faster, colder slower, below zero not at all (see Roofs & Heat). Then the pile rots away. Piles that mix take the average freshness. Hover a pile: Fresh, Stale or Almost rotten, and the days left.
 • Raw food may leave you Poisoned: the lower chance when it's fresh, the higher when it's almost rotten.
@@ -481,6 +484,33 @@ Mark water tiles. The fisher stands beside them (in shallow water too) and casts
 [cell]Wolf[/cell][cell]30[/cell][cell]5, 2[/cell][cell]3 tiles/s[/cell]
 [/table]
 Animals roam outside rooms and water, born more than 15 tiles from the clearing: 6 rabbits and 3 deer at first, then a new one every half day while there are fewer than 12. A marked wolf, shot at, attacks the hunter."""],
+
+	["Livestock", """[color=#e8c34a]The pasture (A)[/color] [img=center]res://art/icon_pasture.png[/img]
+• After the Husbandry research (Land I, 100, after Hunting). Drag over open grass, outside rooms, like the garden: a fence draws itself along the edge, for free. Destroy removes it. Nothing is built on a pasture but the coop.
+• Every tile has its grass, up to 100: it grows back 20 a day when the soil is mild (as for sowing), not in winter. The more it is grazed, the more earth shows. Hover a tile for its grass; click it for the herd.
+
+[color=#e8c34a]The animals[/color]
+[table=6]
+[cell][color=#d9c48a]Animal[/color][/cell][cell][color=#d9c48a]A pair[/color][/cell][cell][color=#d9c48a]Pasture[/color][/cell][cell][color=#d9c48a]Young[/color][/cell][cell][color=#d9c48a]Gives[/color][/cell][cell][color=#d9c48a]Slaughtered[/color][/cell]
+[cell]Hen[/cell][cell]12 [img=center]res://art/icon_coin.png[/img][/cell][cell]1 tile[/cell][cell]3 chicks every 30 days[/cell][cell]an egg a day[/cell][cell]2 meat[/cell]
+[cell]Pig[/cell][cell]30 [img=center]res://art/icon_coin.png[/img][/cell][cell]2 tiles[/cell][cell]4 piglets every 60 days[/cell][cell]–[/cell][cell]15 meat, 1 hide[/cell]
+[/table]
+• They stay in the pasture, walking toward the grass. Every animal loses 50 fed a day and gets it back grazing: it needs the grass of its pasture tiles (20 each a day). Hover an animal: sex, age, how fed it is.
+• Young: a fed grown-up female (30 or more), a fed grown-up male of her kind, and room in the pasture (young count too). They grow up in 30 days and are drawn smaller.
+• At 0 fed for 3 days an animal starves to death; the chronicle tells of it. In winter the grass doesn't grow back.
+• Wolves go after the animals in the pasture too. A pasture closed by a palisade (with its gate) is safe.
+
+[color=#e8c34a]The livestock dealer[/color]
+With a pasture, from Thaw to the end of autumn, every 15 days or so he stops for a day (from 9:00). Click the pasture: he sells 2–3 pairs (a male and a female, grown up) at the price above, and buys a grown-up for a quarter of the price of a pair. You pay and get paid in [img=center]res://art/icon_coin.png[/img] from the warehouses. What you buy goes into the pasture.
+
+[color=#e8c34a]The coop[/color] [img=center]res://art/icon_egg.png[/img]
+2x1, 8 wood, only on the pasture. At dawn, outside winter, every grown-up fed hen lays an egg in a coop: 8 hens a coop; a coop holds 12 eggs. Without a coop, no eggs. Eggs are raw food: 25, they keep 10 days, 5–30% poison; they cook into meals.
+
+[color=#e8c34a]Husbandry (the column)[/color]
+Whoever has the Husbandry column, in this order:
+• collects the eggs at the coop (2 s) and carries them to a warehouse;
+• slaughters the animals beyond those you keep (8 s): click the pasture, Keep N grown-ups for each kind (6 at the start). Spare males go first (one is kept), then the oldest; never the young. Meat and hide fall on the spot.
+Both teach the Husbandry skill."""],
 
 	["Crafting & Equipment", """[color=#e8c34a]Workstations[/color]
 Click a station for its menu: one row for every recipe you know, with its ingredients and Keep N. Things get made while there are fewer than N around (on the ground, in warehouses, in hand, being made); Keep counts for every station of the kind. Equipment is also made for the colonists with an empty slot, and a bow when animals are marked and nobody has one. At the start: Keep 10 ingots, 2 bowstrings, 3 ointments, 10 flour, 8 bread, 8 meals, 0 of the rest.
@@ -712,6 +742,7 @@ What you haven't researched has no build button, and its recipes don't show at t
 • [color=#d9c48a]Soil survey[/color] (Land I, 60, after Garden): the soil lens, in three bands.
 • [color=#d9c48a]Almanac[/color] (Land II, 250 and a notebook, after Soil survey): five bands, and the trend of every field.
 • [color=#d9c48a]Land register[/color] (Land III, 450 and a tome, after Almanac): the soil's numbers and the next harvest.
+• [color=#d9c48a]Husbandry[/color] (Land I, 100, after Hunting): the pasture, the coop, the livestock dealer; hens and pigs; the Husbandry column.
 • [color=#d9c48a]Hunting[/color] (Land I, 50): spinning wheel and carpenter bench; bowstrings and bows; hides on the walls and door curtains.
 • [color=#d9c48a]Icehouse[/color] (Land II, 250 and a notebook, after Cold store): the icehouse, the ice pit, cutting ice.
 • [color=#d9c48a]Forge[/color] (Fire I, 60): furnace and anvil; ingots, pickaxe, axe, sickle.

@@ -36,8 +36,8 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
 - Tipi di lavoro (MVP): Costruire, Tagliare legna, Estrarre, Raccogliere/Trasportare, Cucinare, Produrre (artigianato), Coltivare.
 - Ogni colono ha una tabella colono × lavoro con priorità 1–4 (o disattivato) ✓: in cima alla finestra Jobs, una riga
   per colono e una colonna per lavoro (cucinare, produrre, tagliare, scavare e tagliare il ghiaccio, raccogliere ed
-  estirpare, coltivare, pescare, cacciare, costruire arredare e riparare, trasportare, governare solo il sovrano,
-  studiare); clic per dopo (1 → 4 → mai), clic destro per prima.
+  estirpare, coltivare, allevare, pescare, cacciare, costruire arredare e riparare, trasportare, governare solo il
+  sovrano, studiare; curare, la prima, con la Medicina); clic per dopo (1 → 4 → mai), clic destro per prima.
 - All'inizio tutto 3: i coloni vanno nell'ordine delle colonne, come prima della tabella.
 - Il colono sceglie il lavoro disponibile con priorità più alta; a pari priorità quello più a sinistra; di un lavoro
   il più vicino. Prima della tabella: prendere l'equipaggiamento, e chi è spuntato su sala del trono o studio ci
@@ -52,7 +52,7 @@ Anno (catene produttive), Crusader Kings (dinastia), Dwarf Fortress (storie emer
   - Lavoro: a fine turno, o finite le ore, molla il lavoro appena ha le mani libere.
   - Tempo libero: mangia anche senza fame (sotto 60), poi si svaga: attorno al fuoco da campo, se no a passeggio.
   - Sempre: stanco va a letto, affamato mangia, annoiato si prende una pausa (controllato a ogni ora).
-- **Abilità** (livelli 0–10, al 10 una stellina; tutti i coloni partono da 0): raccogliere, estrarre, tagliare legna, costruire, forgiare, cucire, cucinare, pescare, cacciare, armi da mischia, armi a distanza, ricerca (lista provvisoria). Velocità e qualità del lavoro; crescono con l'uso.
+- **Abilità** (livelli 0–10, al 10 una stellina; tutti i coloni partono da 0): raccogliere, estrarre, tagliare legna, costruire, forgiare, cucire, cucinare, pescare, cacciare, armi da mischia, armi a distanza, ricerca, scassinare, medicina, allevare (4.4.7). Velocità e qualità del lavoro; crescono con l'uso.
   **Esperienza in proporzione al lavoro** (fatto il 2026-11-19): 0,28 punti per ogni secondo di lavoro, contato a
   livello 5 (un colpo d'ascia 10 s, di piccone 15 s, una bacca 5 s, una semina 4 s, un lancio 10 s, un pezzo costruito
   2 s, una riparazione 3 s, un pasto 8 s, un oggetto il tempo della sua ricetta, una pagina 2,5 s, un tiro di caccia 4 s
@@ -1108,7 +1108,7 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
   pascolo; (4) la Stalla: stalla e mangiatoie, il fieno, l'inverno nella stalla, pecore e mucche, latte e formaggio,
   tosatura e lana, il letame; (5) la macina a trazione; (6) l'Apicoltura: arnia, miele, cera, candele; (7) il Banchetto
   reale.
-- **Stato**: fatte le fasi 1–2 il 2026-11-20 (test in `tests/test_grain.gd`): il torrente (`stream`, salvato: le partite
+- **Stato**: fatte le fasi 1–3 il 2026-11-20 (test in `tests/test_grain.gd` e `tests/test_livestock.gd`): il torrente (`stream`, salvato: le partite
   di prima non ce l'hanno, e lì il mulino non si fa), il grano nella pianificazione col Mulino, il mulino ad acqua e la
   farina. Il mulino è la prima postazione all'aperto: senza stanza, chi ci lavora sta fuori (`station_stand`), col
   comfort a metà (`station_comfort`); la ruota è il lato destro del disegno, girato in senso orario (`wheel_cells`).
@@ -1117,6 +1117,14 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
   primo del gruppo e col mouse sopra gli altri. L'ordine dei cibi è `EATEN` (`COOKED`, poi il crudo); il pane non dà
   bonus, lo stufato *ben nutrito* e *rifocillato* (`WARMED_COLD`). Come ricerca si chiama Forno di pietra (Stone oven),
   come mobile Forno.
+  L'allevamento: gli animali da allevare sono `Animal` come i selvatici (`tame` in `BEASTS`, i dati in `LIVESTOCK`),
+  con sesso, nascita, sazietà e il prossimo parto; i selvatici che arrivano non li contano. Il pascolo è una zona come
+  l'orto (`pasture`: casella -> erba), la staccionata si disegna e basta. Le uova si fanno all'alba (`lay_eggs`), l'erba
+  ricresce ogni ora (`grow_grass`). La finestra del pascolo è una copia del menu delle postazioni (`open_pasture`): il
+  branco, quanti tenerne (`herd_keep`), e col mercante le coppie da comprare e i capi da vendere. I lupi scelgono il più
+  vicino tra coloni e animali del pascolo; se il percorso non c'è (la palizzata) lasciano stare l'animale per un po'
+  (`blocked`) e sbranandolo ne lasciano metà della carne. Pecore e mucche sono già nel foglio degli animali, per la fase
+  4. Il tasto del pascolo è A.
 
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100, con laghi e, nelle mappe nuove, un torrente (4.4.7).
@@ -1302,7 +1310,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Banchetto reale | IV | 1000 | Apicoltura | il banchetto dal forno, nella sala del trono: +15 felicità per 3 giorni, +20 autorità (vedi 4.4.7) |
   | | Caccia ✓ | I | 50 | — | *filatoio, corda d'arco, banco del falegname, falegnameria, arco, pelli alle pareti, portiera* (vedi 4.4.5) |
   | | Affumicatoio ✓ | II | 200 | Caccia | al fuoco: carne e pesce affumicati durano quattro volte tanto (scorta 0 dal menu); si mangiano e si cucinano come il crudo |
-  | | Allevamento | I | 100 | Caccia | il pascolo, il pollaio, il mercante di bestiame: galline e maiali; il lavoro Allevare (vedi 4.4.7) |
+  | | Allevamento ✓ | I | 100 | Caccia | il pascolo, il pollaio, il mercante di bestiame: galline e maiali; il lavoro Allevare (vedi 4.4.7) |
   | | Stalla | II | 250 | Allevamento | stalla e mangiatoia, il fieno, il letame; pecore e mucche: latte, formaggio, lana; la macina a trazione, col Mulino (vedi 4.4.7) |
   | | Dispensa fredda ✓ | I | 100 | — | stanza dispensa, solo per il cibo, che ci va per primo: dura il triplo che fuori (in magazzino il doppio) |
   | | Ghiacciaia ✓ | II | 250 | Dispensa fredda | *ghiacciaia* (muri di pietra o roccia), *fossa del ghiaccio*; Tagliare il ghiaccio d'inverno: col ghiaccio la stanza va verso 0 °C (vedi 4.4.5) |

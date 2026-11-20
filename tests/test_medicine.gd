@@ -31,8 +31,8 @@ func _initialize() -> void:
 
 	# --- Erboristeria ---
 
-	# l'abilità Medicina: l'ultima, a 0 per tutti; col suo nome e la sua icona
-	check(main.Skill.MEDICINE == main.Skill.size() - 1 and main.colonists.all(func(o): return o.skills.size() == main.Skill.size() \
+	# l'abilità Medicina: dopo scassinare, a 0 per tutti; col suo nome e la sua icona
+	check(main.Skill.MEDICINE == main.Skill.LOCKPICKING + 1 and main.colonists.all(func(o): return o.skills.size() == main.Skill.size() \
 		and o.skills[main.Skill.MEDICINE] == 0), "l'abilità Medicina, a 0")
 	check(main.named(main.Skill, main.Skill.MEDICINE, "skill") == "Medicine", "si chiama Medicine")
 

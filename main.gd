@@ -96,31 +96,32 @@ const TREE_SIDES := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  # da sopra l
 
 enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE,
 	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE, DOUSE, FARM, FERTILIZE, OATH, SALVE, RESCUE, TREAT, BURY,
-	FUNERAL }
+	FUNERAL, TEND, BUTCHER }  # TEND: le uova al pollaio; BUTCHER: macellare un animale da allevare (vedi Work.HUSBANDRY)
 const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FURNISH, Job.HARVEST, Job.COOK, Job.FISH,
 	Job.HUNT, Job.CRAFT, Job.STUDY, Job.GOVERN, Job.REPAIR, Job.CUT_ICE, Job.FARM, Job.FERTILIZE, Job.RESCUE,
-	Job.TREAT, Job.BURY]  # contano come ore di lavoro
+	Job.TREAT, Job.BURY, Job.TEND, Job.BUTCHER]  # contano come ore di lavoro
 # Tabella delle priorità (in cima alla finestra Jobs): per colono e per lavoro da 1 (prima) a PRIORITY_LEVELS (dopo),
 # 0 mai. Si prende il lavoro disponibile con la priorità più alta; a pari priorità nell'ordine di Work, e di un lavoro
 # il più vicino (vedi find_work). All'inizio tutto PRIORITY_DEFAULT: l'ordine di WORK_ORDER
-enum Work { COOK, CRAFT, CHOP, MINE, GATHER, FARM, FISH, HUNT, BUILD, HAUL, GOVERN, STUDY, DOCTOR }
+enum Work { COOK, CRAFT, CHOP, MINE, GATHER, FARM, FISH, HUNT, BUILD, HAUL, GOVERN, STUDY, DOCTOR, HUSBANDRY }
 # le colonne nella tabella, da sinistra, e l'ordine a pari priorità: il medico prima di tutti (i valori di Work restano
 # quelli, perché le priorità salvate sono per valore)
-const WORK_ORDER := [Work.DOCTOR, Work.COOK, Work.CRAFT, Work.CHOP, Work.MINE, Work.GATHER, Work.FARM, Work.FISH, Work.HUNT,
-	Work.BUILD, Work.HAUL, Work.GOVERN, Work.STUDY]
+const WORK_ORDER := [Work.DOCTOR, Work.COOK, Work.CRAFT, Work.CHOP, Work.MINE, Work.GATHER, Work.FARM, Work.HUSBANDRY,
+	Work.FISH, Work.HUNT, Work.BUILD, Work.HAUL, Work.GOVERN, Work.STUDY]
 const PRIORITY_DEFAULT := 3
 const PRIORITY_LEVELS := 4
 const WORK_ICONS := [preload("res://art/icon_meal.png"), preload("res://art/icon_ingot.png"), preload("res://art/icon_chop.png"),
 	preload("res://art/icon_mine.png"), preload("res://art/icon_harvest.png"), preload("res://art/icon_garden.png"),
 	preload("res://art/icon_fishing.png"), preload("res://art/icon_hunting.png"), preload("res://art/icon_build.png"),
 	preload("res://art/icon_resources.png"), preload("res://art/icon_authority.png"), preload("res://art/icon_study.png"),
-	preload("res://art/icon_doctor.png")]
+	preload("res://art/icon_doctor.png"), preload("res://art/icon_husbandry.png")]
 const WORK_INFO := ["Cooking meals at the campfire or the hearth.", "Forge, workbench, spinning wheel, carpenter's bench, furnace, mill, oven.",
 	"Felling the marked trees.", "Mining the marked boulders, cutting ice.", "Picking bushes, flax and herbs, uprooting.",
 	"Sowing, harvesting and fertilizing the garden.", "Fishing at the marked water.", "Hunting the marked animals.",
 	"Building, furnishing, repairing roofs.", "Carrying things into the warehouses, and the dead to their graves.",
 	"Governing from the throne: only the ruler.", "Studying at a desk.",
-	"Rescuing and treating the downed, the wounded and the sick: only after Medicine."]
+	"Rescuing and treating the downed, the wounded and the sick: only after Medicine.",
+	"Collecting eggs at the coop, slaughtering the animals beyond those you keep: after Husbandry."]
 const PRIORITY_COLORS := [Color("c86450"), Color("e8c34a"), Color("e6e2d0"), Color("b0aca0"), Color("8a8678")]  # mai, poi 1-4
 # VEG: vegetali, dalle bacche dei cespugli; IRON, COAL: dai massi con le vene; MEAL, FINE_MEAL: pasti, dalla cucina;
 # MEAT, HIDE: carne e pelle, dagli animali cacciati; FISH: pesce, dai punti di pesca; INGOT: lingotti, dalla fornace;
@@ -136,20 +137,20 @@ enum Res { WOOD, STONE, VEG, IRON, COAL, MEAL, FINE_MEAL, MEAT, FISH, HIDE, INGO
 	PICKAXE, AXE, SICKLE, BOW, LEATHER_ARMOR, LEATHER_HOOD, HELMET, CHAINMAIL, SWORD, GOLD, DAGGER,
 	CHALICE, OLD_BANNER, BUST, CROWN, NOTEBOOK, TOME, CODEX, HARDTACK, SMOKED_MEAT, SMOKED_FISH, SHIELD,
 	STEEL, PARCHMENT, INK, ICE, TURNIP, CABBAGE, BEANS, ROT, COMPOST, ASH, HERBS, OINTMENT,
-	GRAIN, FLOUR, BREAD, STEW, PRESERVES }  # ICE: blocchi tagliati
+	GRAIN, FLOUR, BREAD, STEW, PRESERVES, EGG }  # ICE: blocchi tagliati
 	# dall'acqua gelata, per la ghiacciaia (vedi Order.ICE); TURNIP, CABBAGE, BEANS: dall'orto (vedi garden), si conservano
 	# a lungo, le fave secche più di tutto; ROT, COMPOST, ASH: i concimi (vedi Tech.MANURING); HERBS: erbe medicinali, dai
 	# prati (vedi herbs); OINTMENT: l'unguento, dalle erbe al fuoco (vedi Tech.HERBALISM, try_salve); GRAIN: il grano
 	# dell'orto, che non si mangia e non marcisce; FLOUR: la farina, dal grano al mulino (vedi Tech.MILL); BREAD, STEW,
-	# PRESERVES: pane, stufato e conserve, dal forno (vedi Tech.STONE_OVEN)
+	# PRESERVES: pane, stufato e conserve, dal forno (vedi Tech.STONE_OVEN); EGG: le uova, dal pollaio (vedi lay_eggs)
 const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.TURNIP: 50, Res.CABBAGE: 50, Res.BEANS: 50, Res.ROT: 40, Res.COMPOST: 30, Res.ASH: 30, Res.IRON: 50, Res.COAL: 50, Res.MEAL: 20, Res.FINE_MEAL: 20,
 	Res.MEAT: 50, Res.FISH: 50, Res.HIDE: 50, Res.INGOT: 50, Res.FLAX: 50, Res.BOWSTRING: 50, Res.PICKAXE: 10, Res.AXE: 10, Res.SICKLE: 10, Res.BOW: 10,
 	Res.LEATHER_ARMOR: 10, Res.LEATHER_HOOD: 10, Res.HELMET: 10, Res.CHAINMAIL: 10, Res.SWORD: 10, Res.GOLD: 100, Res.DAGGER: 10,
 	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5, Res.NOTEBOOK: 10, Res.TOME: 10, Res.CODEX: 10, Res.HARDTACK: 50, Res.SMOKED_MEAT: 50, Res.SMOKED_FISH: 50, Res.SHIELD: 10, Res.STEEL: 50, Res.PARCHMENT: 50, Res.INK: 20, Res.ICE: 50,
 	Res.HERBS: 50, Res.OINTMENT: 20, Res.GRAIN: 50, Res.FLOUR: 50,
-	Res.BREAD: 30, Res.STEW: 20, Res.PRESERVES: 30}  # quantità massima per mucchio (casella)
+	Res.BREAD: 30, Res.STEW: 20, Res.PRESERVES: 30, Res.EGG: 30}  # quantità massima per mucchio (casella)
 const MEALS := [Res.FINE_MEAL, Res.MEAL]  # i pasti del fuoco: quanti ne vuole il menu (vedi meals_wanted)
-const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT, Res.SMOKED_FISH, Res.SMOKED_MEAT, Res.TURNIP, Res.CABBAGE, Res.BEANS,
+const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT, Res.SMOKED_FISH, Res.SMOKED_MEAT, Res.EGG, Res.TURNIP, Res.CABBAGE, Res.BEANS,
 	Res.PRESERVES]  # crudo: si cucina, o si mangia in quest'ordine se non c'è di meglio (prima quello che dura meno)
 const COOKED := [Res.FINE_MEAL, Res.STEW, Res.MEAL, Res.BREAD]  # chi ha fame li prende in quest'ordine, poi il crudo
 const EATEN := COOKED + RAW_FOOD  # tutto quello che si mangia, nell'ordine in cui lo si prende
@@ -182,22 +183,22 @@ const ITEM_KIND := {
 	Res.STEEL: ItemKind.MATERIAL, Res.PARCHMENT: ItemKind.MATERIAL, Res.INK: ItemKind.MATERIAL, Res.ICE: ItemKind.MATERIAL,
 	Res.ROT: ItemKind.MATERIAL, Res.COMPOST: ItemKind.MATERIAL, Res.ASH: ItemKind.MATERIAL,
 	Res.HERBS: ItemKind.MATERIAL, Res.OINTMENT: ItemKind.MATERIAL, Res.GRAIN: ItemKind.FOOD, Res.FLOUR: ItemKind.FOOD,
-	Res.BREAD: ItemKind.FOOD, Res.STEW: ItemKind.FOOD, Res.PRESERVES: ItemKind.FOOD,
+	Res.BREAD: ItemKind.FOOD, Res.STEW: ItemKind.FOOD, Res.PRESERVES: ItemKind.FOOD, Res.EGG: ItemKind.FOOD,
 }
 # cibo: quanto sazia (vedi eat) e in quanti giorni marcisce a terra fuori (vedi spoil); in magazzino ci mette il doppio.
 # Il crudo sazia meno e può intossicare (vedi poison_chance), i pasti no e danno un bonus (vedi Cond)
 const FOOD := {Res.VEG: 35.0, Res.TURNIP: 35.0, Res.CABBAGE: 35.0, Res.BEANS: 40.0, Res.FISH: 30.0, Res.MEAT: 40.0, Res.MEAL: 100.0, Res.FINE_MEAL: 100.0,
-	Res.SMOKED_FISH: 30.0, Res.SMOKED_MEAT: 40.0, Res.BREAD: 60.0, Res.STEW: 100.0, Res.PRESERVES: 35.0}
+	Res.SMOKED_FISH: 30.0, Res.SMOKED_MEAT: 40.0, Res.BREAD: 60.0, Res.STEW: 100.0, Res.PRESERVES: 35.0, Res.EGG: 25.0}
 const SHELF_LIFE := {Res.VEG: 3.0, Res.FISH: 1.5, Res.MEAT: 2.0, Res.MEAL: 3.0, Res.FINE_MEAL: 3.0,
 	Res.SMOKED_FISH: 6.0, Res.SMOKED_MEAT: 8.0, Res.TURNIP: 10.0, Res.CABBAGE: 14.0, Res.BEANS: 60.0,
 	Res.ROT: 5.0,  # il marcio, fuori dal cumulo del compost, sparisce nella terra  # affumicati: quattro volte il fresco
-	Res.BREAD: 8.0, Res.STEW: 3.0, Res.PRESERVES: 120.0}
+	Res.BREAD: 8.0, Res.STEW: 3.0, Res.PRESERVES: 120.0, Res.EGG: 10.0}
 const SPOIL_STORED := 0.5   # in magazzino il cibo marcisce a metà velocità
 const SPOIL_PANTRY := 1.0 / 3  # in dispensa a un terzo: dura il triplo che fuori
 # probabilità di intossicarsi mangiando crudo: [appena preso, quasi marcio], in mezzo in proporzione
 const POISON := {Res.VEG: [0.05, 0.4], Res.FISH: [0.1, 0.5], Res.MEAT: [0.15, 0.6], Res.SMOKED_FISH: [0.05, 0.5],
 	Res.SMOKED_MEAT: [0.05, 0.6], Res.TURNIP: [0.02, 0.3], Res.CABBAGE: [0.02, 0.3],
-	Res.BEANS: [0.01, 0.15], Res.PRESERVES: [0.01, 0.1]}
+	Res.BEANS: [0.01, 0.15], Res.PRESERVES: [0.01, 0.1], Res.EGG: [0.05, 0.3]}
 const FRESH_WORDS := [[0.5, "Fresh"], [0.2, "Stale"], [0.0, "Almost rotten"]]  # sopra quale parte della durata, nel suggerimento
 # cucinare (vedi try_cook): 2 crudi dello stesso mucchio (vegetali, pesce o carne) -> 1 pasto al fuoco da campo di una
 # cucina, finché in giro ci sono meno pasti di quanti chiede il menu del fuoco (all'inizio MEALS_PER_COLONIST a testa)
@@ -218,16 +219,20 @@ const CATCH_PER_LEVEL := 0.06
 # caccia (vedi try_hunt): animali che girano per la mappa; quelli segnati con "Hunt" li insegue un cacciatore con l'arco,
 # che tira da al più HUNT_RANGE caselle. Ogni tiro: AIM_TIME a livello 5, colpisce con probabilità hit_chance; la freccia
 # vola (vedi shoot) e, arrivata, l'animale scappa
-enum Beast { RABBIT, DEER, WOLF }  # righe di ANIMALS
+enum Beast { RABBIT, DEER, WOLF, HEN, PIG, SHEEP, COW }  # righe di ANIMALS; da HEN gli animali da allevare (LIVESTOCK)
 # "hp": danni per abbatterlo; "speed": caselle al secondo; "start": quanti all'inizio; i lupi ("hostile") arrivano in
 # branco (vedi spawn_pack) e mordono ("bite": danno); "shadow": larghezza in pixel dell'ovale d'ombra sotto le zampe
 const BEASTS := {
 	Beast.RABBIT: {"hp": 10, "meat": 3, "hide": 1, "speed": 2.0, "start": 6, "shadow": 10},
 	Beast.DEER: {"hp": 20, "meat": 10, "hide": 3, "speed": 1.5, "start": 3, "shadow": 12},
 	Beast.WOLF: {"hp": 30, "meat": 5, "hide": 2, "speed": 3.0, "start": 0, "hostile": true, "bite": 8.0, "shadow": 12},
+	Beast.HEN: {"hp": 6, "meat": 2, "hide": 0, "speed": 1.0, "start": 0, "tame": true, "shadow": 8},
+	Beast.PIG: {"hp": 20, "meat": 15, "hide": 1, "speed": 1.0, "start": 0, "tame": true, "shadow": 12},
+	Beast.SHEEP: {"hp": 15, "meat": 6, "hide": 2, "speed": 1.0, "start": 0, "tame": true, "shadow": 12},
+	Beast.COW: {"hp": 40, "meat": 20, "hide": 4, "speed": 0.8, "start": 0, "tame": true, "shadow": 14},
 }
 const ANIMALS := preload("res://art/animals.png")  # 16x16, colonne: fermo, passo; guardano a destra
-const ANIMALS_MAX := 12     # sotto questo numero ogni ANIMAL_RESPAWN giorni ne arriva uno nuovo, lontano dalla radura
+const ANIMALS_MAX := 12     # sotto questo numero (i selvatici) ogni ANIMAL_RESPAWN giorni ne arriva uno nuovo, lontano dalla radura
 const ANIMAL_RESPAWN := 0.5
 const WILD_RADIUS := 15     # caselle dal centro della mappa (la radura) dove non nascono animali
 const WANDER := 5           # caselle: quanto lontano gira un animale ogni volta
@@ -241,6 +246,35 @@ const HIT_PER_LEVEL := 0.05
 const HIT_PER_TILE := 0.05
 const ARROW_SPEED := 20.0   # caselle al secondo
 const ARROW_ARC := 0.1      # altezza della parabola, per pixel di tiro
+# Allevamento (GDD 4.4.7, Tech.HUSBANDRY): gli animali da allevare li vende il mercante di bestiame (vedi drover_arrives);
+# stanno nel pascolo (Order.PASTURE), dove brucano l'erba (vedi update_livestock), e fanno i piccoli. "tech": la
+# ricerca che li fa vendere; "price": una coppia, maschio e femmina (il mercante ne compra uno a SELL_PART); "graze":
+# caselle di pascolo a capo; "litter": piccoli a parto, ogni "every" giorni; "grow": giorni per diventare adulti
+const LIVESTOCK := {
+	Beast.HEN: {"tech": Tech.HUSBANDRY, "price": 12, "graze": 1, "litter": 3, "every": 30.0, "grow": 30.0},
+	Beast.PIG: {"tech": Tech.HUSBANDRY, "price": 30, "graze": 2, "litter": 4, "every": 60.0, "grow": 30.0},
+}
+const PAIR_NAMES := {Beast.HEN: "a pair of hens", Beast.PIG: "a pair of pigs", Beast.SHEEP: "a pair of sheep",
+	Beast.COW: "a cow and a bull"}  # nella cronaca e nel menu del pascolo
+const SELL_PART := 0.25     # il mercante compra un capo a un quarto del prezzo di una coppia: metà del suo
+const GRASS_MAX := 100.0    # l'erba di una casella di pascolo
+const GRASS_REGROW := 20.0  # al giorno, quando la terra è tiepida (SOW_TEMP); d'inverno no
+const FED_DROP := 50.0      # sazietà che un animale da allevare perde al giorno; l'erba di "graze" caselle gliela ridà
+const GRAZE_PACE := 3.0     # quanto bruca al più, rispetto a quello che gli serve: per rifarsi
+const SATED := 95.0         # sopra non bruca
+const FED_LOW := 30.0       # sotto non fa piccoli né uova
+const STARVE_DAYS := 3.0    # a sazietà 0, dopo tanti giorni muore
+const YOUNG_SIZE := 0.6     # i piccoli si disegnano così
+const HERD_KEEP := 6        # quanti adulti tenerne per specie, all'inizio (vedi herd_keep, culls)
+const COOP_HENS := 8        # galline che fanno le uova in un pollaio
+const COOP_EGGS := 12       # uova che tiene un pollaio, finché qualcuno non le raccoglie
+const EGG_TIME := 2.0       # secondi per raccogliere le uova, a livello 5
+const BUTCHER_TIME := 8.0   # secondi per macellare, a livello 5
+const DROVER_STOCK := [2, 3]  # coppie che porta il mercante di bestiame, da-a
+const PASTURE_ONLY := [Build.COOP]  # mobili che stanno solo sul pascolo (e sul pascolo solo loro)
+const FENCE_COLOR := Color("8a6038")  # la staccionata attorno al pascolo (vedi draw_pasture)
+const FENCE_SHADE := Color("5b3a24")
+const GRAZED := Color(0.55, 0.45, 0.25)  # il pascolo brucato, sopra l'erba
 # combattimento (vedi react, Job.FIGHT, update_wolf): i lupi arrivano in branco dal bordo della mappa e inseguono i coloni
 # fuori dalle stanze; chi sta bene combatte, chi è ferito scappa al chiuso. A 0 punti ferita si resta a terra, o si
 # muore (vedi die): coi lupi, con le probabilità di DEATH_BASE; a terra, il primo morso uccide
@@ -291,7 +325,7 @@ const DOING := {Job.CHOP: "Chopping a tree", Job.MINE: "Mining", Job.UPROOT: "Up
 	Job.CUT_ICE: "Cutting ice", Job.DOUSE: "Putting out a fire", Job.FARM: "Tending the garden",
 	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne", Job.SALVE: "Tending a wound",
 	Job.RESCUE: "Rescuing the wounded", Job.TREAT: "Treating a patient", Job.BURY: "Burying the dead",
-	Job.FUNERAL: "At a funeral"}
+	Job.FUNERAL: "At a funeral", Job.TEND: "Collecting eggs", Job.BUTCHER: "Slaughtering"}
 const BOARD_LIST := 400.0  # pixel: la lista di chi può partire sulla bacheca, al più; poi scorre
 const BOARD_PLACES := 230.0  # pixel: le rovine e le spedizioni, sotto la squadra, al più; poi scorrono
 const BOARD_SLOT := 122    # pixel: un posto della squadra (MAX_PARTY in fila)
@@ -557,16 +591,18 @@ const STATION_ROOM := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.HEARTH: RoomKind.
 	Build.OVEN: RoomKind.KITCHEN}
 const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.COAL: 5, Res.OINTMENT: 3, Res.FLOUR: 10, Res.BREAD: 8}  # scorte di partenza, vedi keep; i pasti
 	# MEALS_PER_COLONIST a testa
-enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT, ICE, GARDEN }  # cosa segna il trascinamento del mouse
+enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT, ICE, GARDEN, PASTURE }  # cosa segna il trascinamento del mouse
 const ORDER_COLORS := [Color.TRANSPARENT, Color.ORANGE, Color("8fd3ff"), Color("9be36a"), Color("e6e2d0"),
-	Color("ff5a5a"), Color("c83030"), Color("d84a6a"), Color("6ab0e0"), Color("c87a3a"), Color("bfe6f2"), Color("c8a46a")]  # selezione e segni, per Order
+	Color("ff5a5a"), Color("c83030"), Color("d84a6a"), Color("6ab0e0"), Color("c87a3a"), Color("bfe6f2"), Color("c8a46a"),
+	Color("a8d060")]  # selezione e segni, per Order
 # tasti in HUD/Tools/Row dopo Build, uno alla volta (ButtonGroup "Orders"): vedi toggle_order
 const ORDER_TOOLS := {Order.DEMOLISH: "Destroy", Order.MINE: "Mine", Order.CHOP: "Chop", Order.UPROOT: "Uproot",
-	Order.HARVEST: "Harvest", Order.GARDEN: "Garden", Order.FISH: "Fish", Order.HUNT: "Hunt", Order.ICE: "Ice"}
+	Order.HARVEST: "Harvest", Order.GARDEN: "Garden", Order.PASTURE: "Pasture", Order.FISH: "Fish", Order.HUNT: "Hunt", Order.ICE: "Ice"}
 const ORDER_ICONS := {Order.CHOP: preload("res://art/icon_chop.png"), Order.MINE: preload("res://art/icon_mine.png"),
 	Order.UPROOT: preload("res://art/icon_uproot.png"), Order.HARVEST: preload("res://art/icon_harvest.png"),
 	Order.FISH: preload("res://art/icon_fishing.png"), Order.HUNT: preload("res://art/icon_hunting.png"),
-	Order.ICE: preload("res://art/icon_ice.png"), Order.GARDEN: preload("res://art/icon_garden.png")}  # le stesse dei tasti: piccole e velate sopra ciò che è segnato
+	Order.ICE: preload("res://art/icon_ice.png"), Order.GARDEN: preload("res://art/icon_garden.png"),
+	Order.PASTURE: preload("res://art/icon_pasture.png")}  # le stesse dei tasti: piccole e velate sopra ciò che è segnato
 enum RoomKind { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE, WORKSHOP, CARPENTRY, INN, STUDY, THRONE_ROOM, PANTRY, ICEHOUSE,
 	ARMORY, ARCHERY_RANGE,  # la caserma (vedi CLASS_ROOM)
 	INFIRMARY }  # tipo di stanza, scelto dal cartello
@@ -614,7 +650,8 @@ enum Build { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE
 	GRAVE,  # la tomba, all'aperto: ci si seppellisce un morto (vedi graves, Job.BURY)
 	MEMORIAL,  # il memoriale dei caduti (Statuaria): il lutto un giorno in meno (vedi mourning_days)
 	WATER_MILL,  # il mulino ad acqua, sulla riva del torrente: la farina (vedi Tech.MILL, banked)
-	OVEN }  # il forno di pietra, in cucina: pane, stufato, conserve (vedi Tech.STONE_OVEN)
+	OVEN,  # il forno di pietra, in cucina: pane, stufato, conserve (vedi Tech.STONE_OVEN)
+	COOP }  # il pollaio, nel pascolo: le galline ci fanno le uova (vedi lay_eggs)
 # materiale per casella; per i mobili, per pezzo. Un numero: del materiale del progetto; se no risorsa -> quantità, e
 # ogni viaggio porta tutta una risorsa (vedi cost_of, delivered)
 const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3,
@@ -625,7 +662,7 @@ const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1
 	Build.CANOPY_BED: 20, Build.RUG: 4, Build.WARDROBE: 12, Build.HEARTH: 15,
 	Build.WALL_HIDES: 2, Build.DOOR_CURTAIN: 2, Build.TAPESTRY: 4, Build.TILED_STOVE: 20, Build.ICE_PIT: 20, Build.COMPOST_HEAP: 6, Build.CRADLE: 4,
 	Build.WEAPON_RACK: {Res.WOOD: 6, Res.INGOT: 1}, Build.TARGET: {Res.WOOD: 4, Res.FLAX: 2}, Build.LOCK_BENCH: {Res.WOOD: 4, Res.INGOT: 2},
-	Build.MEDICINE_CHEST: 8, Build.GRAVE: 4, Build.MEMORIAL: 10, Build.WATER_MILL: {Res.WOOD: 20, Res.STONE: 10}, Build.OVEN: 20,
+	Build.MEDICINE_CHEST: 8, Build.GRAVE: 4, Build.MEMORIAL: 10, Build.WATER_MILL: {Res.WOOD: 20, Res.STONE: 10}, Build.OVEN: 20, Build.COOP: 8,
 	Build.PALISADE: 4, Build.GATE: 6, Build.PLASTER: 1}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
 const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
@@ -639,7 +676,7 @@ const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Buil
 	Build.HEARTH: Vector2i.ONE, Build.WALL_HIDES: Vector2i.ONE, Build.DOOR_CURTAIN: Vector2i.ONE, Build.TAPESTRY: Vector2i.ONE,
 	Build.TILED_STOVE: Vector2i.ONE, Build.ICE_PIT: Vector2i(2, 2), Build.COMPOST_HEAP: Vector2i.ONE,
 	Build.CRADLE: Vector2i.ONE, Build.WEAPON_RACK: Vector2i.ONE, Build.TARGET: Vector2i.ONE, Build.LOCK_BENCH: Vector2i.ONE,
-	Build.MEDICINE_CHEST: Vector2i.ONE, Build.GRAVE: Vector2i(1, 2), Build.MEMORIAL: Vector2i.ONE, Build.WATER_MILL: Vector2i(2, 2), Build.OVEN: Vector2i(2, 1)}
+	Build.MEDICINE_CHEST: Vector2i.ONE, Build.GRAVE: Vector2i(1, 2), Build.MEMORIAL: Vector2i.ONE, Build.WATER_MILL: Vector2i(2, 2), Build.OVEN: Vector2i(2, 1), Build.COOP: Vector2i(2, 1)}
 # mobili animati: secondi per fotogramma; i fotogrammi stanno nelle colonne dei quarti di giro (sono simmetrici)
 const ANIMATED := {Build.CAMPFIRE: 0.15, Build.BANNER: 0.3, Build.FOUNTAIN: 0.2}
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
@@ -760,7 +797,7 @@ const ROOM_SPACE := 6        # caselle a testa: chi ne ha meno (stanza piena di 
 # menù delle opzioni (Esc o ingranaggio), tab Keybindings: tasti di partenza dei comandi della barra in basso, per
 # nome del pulsante in HUD/Tools/Row (quelli che non ci sono partono senza). Cambiati, si salvano: vedi bind_key
 const DEFAULT_KEYS := {"Select": KEY_Q, "Build": KEY_B, "Destroy": KEY_X, "Mine": KEY_M, "Chop": KEY_C, "Uproot": KEY_U,
-	"Harvest": KEY_H, "Garden": KEY_P, "Fish": KEY_F, "Hunt": KEY_T, "Ice": KEY_Y, "Jobs": KEY_J, "Resources": KEY_I, "Knowledge": KEY_K, "Laws": KEY_G,
+	"Harvest": KEY_H, "Garden": KEY_P, "Pasture": KEY_A, "Fish": KEY_F, "Hunt": KEY_T, "Ice": KEY_Y, "Jobs": KEY_J, "Resources": KEY_I, "Knowledge": KEY_K, "Laws": KEY_G,
 	"RoomsLens": KEY_L, "HeatLens": KEY_N, "SoilLens": KEY_O, "Roofs": KEY_V, "Wiki": KEY_F1}
 const SPEEDS := {"Pause": 0.0, "Play": 1.0, "Fast": 2.0, "Fastest": 3.0}  # pulsanti in alto a destra, come Space e 1-3
 # tab Video delle opzioni: misure della finestra, solo quelle che stanno nello schermo (la prima sempre)
@@ -776,7 +813,7 @@ const SAVES := preload("res://saves.gd")
 const SAVE_LIST := preload("res://save_list.gd")
 # le variabili della partita che si salvano, così come sono (gli oggetti dentro li impacchetta SAVES.Packer); il resto
 # si rifà da queste (vedi restore) o è interfaccia. Una variabile nuova dello stato del gioco va aggiunta qui
-const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today", "hour", "rocks", "boulders", "ores", "water", "stream",
+const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today", "hour", "rocks", "boulders", "ores", "water", "stream", "pasture", "coop_eggs", "herd_keep", "drover_until", "drover_stock",
 	"trees", "stock", "bushes", "flax", "herbs", "graves", "funerals", "weeds", "chop_marks", "mine_marks", "uproot_marks", "harvest_marks", "fish_marks",
 	"fish_spots", "items", "fresh", "draft", "blueprints", "built", "furniture_draft", "furniture_plans", "furniture",
 	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
@@ -819,6 +856,7 @@ const BUILD_INFO := {
 	Build.MEDICINE_CHEST: "Herbs, ointments and bandages. With a bed, the room can be an infirmary, where the sick heal faster.",
 	Build.GRAVE: "A grave with a wooden cross, on open ground. The haulers bury the dead here: their mourning is a day shorter.",
 	Build.MEMORIAL: "A stone stele for the fallen. With a memorial, every mourning is a day shorter.",
+	Build.COOP: "A wooden hut with a straw roof, in the pasture: up to 8 hens lay their eggs here, one a day each (not in winter).",
 	Build.OVEN: "A dome of stone over a slow fire, in a kitchen. Bread from flour, stew, and preserves that keep for a third of a year. It warms the room like a campfire.",
 	Build.WATER_MILL: "On the bank of the stream, its wheel in the water: turn it so the wheel side lies along the stream. The miller grinds grain into flour. When the stream freezes the wheel stands still.",
 	Build.HEARTH: "A stone fireplace with a chimney, set against a wall. Cooks and warms like a campfire, more. Half its heat goes through a wooden wall at its back, none through stone.",
@@ -1016,6 +1054,7 @@ const ICONS := {
 	Res.BREAD: preload("res://art/icon_bread.png"),
 	Res.STEW: preload("res://art/icon_stew.png"),
 	Res.PRESERVES: preload("res://art/icon_preserves.png"),
+	Res.EGG: preload("res://art/icon_egg.png"),
 	Res.ROT: preload("res://art/icon_rot.png"),
 	Res.COMPOST: preload("res://art/icon_compost.png"),
 	Res.ASH: preload("res://art/icon_ash.png"),
@@ -1065,7 +1104,8 @@ const PLASTER_ROW := 10      # in STRUCTURES: i muri di legno intonacati
 const WALL_LINKS := [Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]  # bit 1, 2, 4, 8 della colonna dei muri
 # scheda del colono, vedi open_sheet
 enum Skill { GATHERING, MINING, WOODCUTTING, CONSTRUCTION, SMITHING, TAILORING, COOKING, FISHING, HUNTING, MELEE, RANGED, RESEARCH,
-	LOCKPICKING, MEDICINE }  # scassinare: per ora solo gli scassinatori (vedi HEROES); medicina: l'unguento e le cure
+	LOCKPICKING, MEDICINE, HUSBANDRY }  # scassinare: per ora solo gli scassinatori (vedi HEROES); medicina: l'unguento e le
+	# cure; allevare: le uova e il macello (vedi Work.HUSBANDRY)
 const SKILL_MAX := 10       # livelli 0-10 (si parte da 0): al massimo, nella scheda, compare la stellina
 # Esperienza (GDD 4.2): ogni lavoro insegna in proporzione al lavoro fatto, XP_PER_SECOND punti per secondo di lavoro
 # contato a livello 5 (un colpo d'ascia 10 s, una pagina 2,5 s, un pezzo costruito 2 s...): un turno di 8 ore a livello 0
@@ -1311,7 +1351,7 @@ const BRANCHES_SHEET := preload("res://art/branches.png")
 enum Tech { FORGE, TAILORING, HUNTING, INN, MASONRY, DECOR, LANTERNS, IRON_ARMS, BOOKSHELF, CHAINMAIL, FOUNTAIN, STATUARY,
 	ASTRONOMY, CHARCOAL, COLD_STORE, PAVED_ROAD, DRY_RATIONS, CARTOGRAPHY, PALISADE, TRAINING_DUMMY, SMOKEHOUSE, RENOWNED_INN,
 	WATCHTOWER, SHIELD, LENDING_ARMORY, STEEL, SCRIPTORIUM, FINE_FURNITURE, PALACE, LOOM, TILED_STOVE, ICEHOUSE, GARDEN,
-	SOIL_SURVEY, ALMANAC, LAND_REGISTER, MANURING, CROWN_COMPANY, BARRACKS, HERBALISM, MEDICINE, MILL, STONE_OVEN }
+	SOIL_SURVEY, ALMANAC, LAND_REGISTER, MANURING, CROWN_COMPANY, BARRACKS, HERBALISM, MEDICINE, MILL, STONE_OVEN, HUSBANDRY }
 const TECHS_SHEET := preload("res://art/techs.png")
 const TECHS := {
 	Tech.FORGE: {"branch": Branch.FIRE, "tier": 1, "cost": 60, "builds": [Build.FURNACE, Build.ANVIL],
@@ -1405,6 +1445,9 @@ const TECHS := {
 	Tech.STONE_OVEN: {"branch": Branch.LAND, "tier": 2, "cost": 300, "needs": [Tech.GARDEN], "builds": [Build.OVEN],
 		"makes": [Res.BREAD, Res.STEW, Res.PRESERVES],
 		"info": "The stone oven, in a kitchen: bread from flour (it keeps 8 days), stew from vegetables and meat or fish (warms you up), preserves that keep for 120 days."},
+	Tech.HUSBANDRY: {"branch": Branch.LAND, "tier": 1, "cost": 100, "needs": [Tech.HUNTING], "builds": [Build.COOP],
+		"orders": [Order.PASTURE],
+		"info": "The pasture and the coop, and the Husbandry column: a livestock dealer comes by selling hens and pigs. They graze, breed, lay eggs; what is too many gets slaughtered."},
 }
 const ROAD_SPEED := 1.25    # sulla strada lastricata si va più svelti
 const MAPPED_TRAVEL := 0.75 # con la cartografia, giorni di viaggio x
@@ -1625,6 +1668,12 @@ class Animal:
 	var marked := false           # da cacciare
 	var hunter = null             # il Colonist che lo insegue
 	var blocked := 0.0            # `clock` fino a cui nessuno ci arriva: lo si lascia stare
+	var female := false           # da allevare
+	var born := 0.0               # da allevare: `clock` della nascita (adulto dopo LIVESTOCK "grow" giorni)
+	var fed := 80.0               # da allevare: sazietà, 0-100 (vedi update_livestock)
+	var starving := -1.0          # da allevare: `clock` da cui è a sazietà 0; -1 no
+	var next_young := INF         # femmina da allevare: `clock` del prossimo parto
+	var butcher = null            # da allevare: il Colonist che lo macella (intanto sta fermo)
 
 
 # Freccia in volo, vedi shoot e fly
@@ -1683,6 +1732,11 @@ var stock := {}             # albero, masso (cella d'origine) o cespuglio -> qua
 var bushes := {}            # cella -> `clock` da cui ha le bacche (attraversabile): raccolte, il cespuglio resta
 var flax := {}              # cella -> true: i cespugli che sono lino; in fiore (le "bacche") danno il lino
 var herbs := {}             # cella -> true: i cespugli che sono erbe medicinali; in fiore danno le erbe (vedi scatter_herbs)
+var pasture := {}           # casella del pascolo -> erba, 0-GRASS_MAX (vedi Order.PASTURE, update_livestock)
+var coop_eggs := {}         # pollaio (origine) -> uova che aspettano di essere raccolte (vedi lay_eggs)
+var herd_keep := {}         # Beast -> quanti adulti tenerne (vedi culls); senza, HERD_KEEP
+var drover_until := -1.0    # il mercante di bestiame resta fino a (clock); -1: non c'è (vedi drover_arrives)
+var drover_stock := []      # Beast: le coppie che ha da vendere
 var stream := {}            # cella d'acqua -> true: il torrente, nelle mappe nuove (vedi carve_stream); il mulino sta sulla riva
 var weeds := {}             # cella -> true: erbacce (attraversabili)
 var chop_marks := {}        # cella -> true: alberi da tagliare
@@ -1804,6 +1858,7 @@ var rooms_made := 0         # per i nomi di default
 var editing: Room           # la stanza aperta nel popup del cartello
 var keep := STOCK.duplicate()  # prodotto -> quanti tenerne (a terra, in magazzino, in mano): si cambia nel menu della postazione
 var crafting := Vector2i(-1, -1)  # la postazione aperta nel menu, vedi open_craft
+var pasture_popup: Control       # la finestra del pascolo: il branco e il mercante (vedi open_pasture)
 var shown: Colonist         # il colono nella scheda: le barre dei bisogni lo seguono
 var gear_menu := PopupMenu.new()  # clic su uno slot della scheda: Auto, Empty o un pezzo (vedi open_gear_menu)
 var marriage_menu := PopupMenu.new()  # "Arrange a marriage…": chi il sovrano può sposare (vedi open_marriage_menu)
@@ -2135,7 +2190,10 @@ func _ready() -> void:
 	$HUD/BoardPanel/Box/Foot/ChronicleButton.pressed.connect(open_chronicle)
 	build_field_popup()
 	build_plan_panel()
-	for window in [room_popup, field_popup, plan_panel, craft_popup, jobs_panel, resources_panel, sheet_panel, $HUD/BoardPanel, $HUD/ReportPanel, $HUD/ChroniclePanel,
+	pasture_popup = craft_popup.duplicate()  # come il menu delle postazioni: titolo, una riga rossa, l'elenco
+	pasture_popup.name = "PasturePopup"
+	$HUD.add_child(pasture_popup)
+	for window in [room_popup, field_popup, plan_panel, craft_popup, pasture_popup, jobs_panel, resources_panel, sheet_panel, $HUD/BoardPanel, $HUD/ReportPanel, $HUD/ChroniclePanel,
 			$HUD/KnowledgePanel, $HUD/LawsPanel, $HUD/WikiPanel, $HUD/BirthPanel, $HUD/SuccessionPanel, $HUD/HousePanel,
 			$HUD/RequestPanel, $HUD/CensusPanel]:  # X in alto a destra, si trascinano
 		window.get_node("Box/Head/Close").pressed.connect(window.hide)
@@ -3259,6 +3317,72 @@ func open_craft(origin: Vector2i) -> void:
 	craft_popup.reset_size()
 
 
+# Finestra del pascolo (clic su una sua casella): l'erba, poi per specie quanti ce ne sono e quanti adulti tenerne
+# (gli altri si macellano, vedi culls). Col mercante di bestiame, le coppie che vende e i capi che compra; si rifà dopo
+# ogni scambio. In rosso, se il branco vuole più pascolo di quanto ce n'è
+func open_pasture() -> void:
+	var box: Control = pasture_popup.get_node("Box")
+	box.get_node("Head/Title").text = tr("Pasture")
+	var herd := animals.filter(tame)
+	var warn: Label = box.get_node("Room")
+	warn.text = tr("The herd needs more pasture than there is: it goes hungry.")
+	warn.visible = herd_space() < 0
+	var list := box.get_node("List")
+	for child in list.get_children():
+		child.free()
+	var info := Label.new()
+	var grass: float = pasture.values().reduce(func(n, g): return n + g, 0.0) / maxf(pasture.size(), 1.0) / GRASS_MAX
+	info.text = tr("%d tiles, grass %d%%; the herd needs %d.") % [pasture.size(), roundi(grass * 100), pasture.size() - herd_space()]
+	list.add_child(info)
+	for kind in LIVESTOCK:
+		if not researched.has(LIVESTOCK[kind]["tech"]):
+			continue
+		var of := herd.filter(func(o): return o.kind == kind)
+		var young := of.filter(func(o): return not grown(o)).size()
+		var females := of.filter(func(o): return grown(o) and o.female).size()
+		var row := HBoxContainer.new()
+		row.add_child(ui_icon(ANIMALS, Rect2(0, kind * TILE, TILE, TILE), Vector2(32, 32)))
+		var label := Label.new()
+		label.text = "%s: %s" % [named(Beast, kind), tr("%d male, %d female, %d young") % [of.size() - young - females, females, young]]
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(label)
+		var count := SpinBox.new()
+		count.prefix = tr("Keep")
+		count.custom_minimum_size.x = 100
+		count.value = herd_keep.get(kind, HERD_KEEP)
+		count.tooltip_text = tr("Grown-ups to keep: the others are slaughtered, spare males first, then the oldest")
+		count.value_changed.connect(func(v): herd_keep[kind] = int(v))
+		row.add_child(count)
+		list.add_child(row)
+	if drover_until >= 0:
+		var head := Label.new()
+		head.text = tr("The livestock dealer, until tomorrow morning:")
+		list.add_child(head)
+		for i in drover_stock.size():
+			var pair: Beast = drover_stock[i]
+			var buy := Button.new()
+			buy.text = tr("Buy %s: %d") % [tr(PAIR_NAMES[pair]), LIVESTOCK[pair]["price"]]
+			buy.icon = KIND_ICONS[ItemKind.COINS]
+			buy.icon_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+			buy.disabled = stored(Res.GOLD) < LIVESTOCK[pair]["price"]
+			buy.pressed.connect(func():
+				buy_pair(i)
+				open_pasture())
+			list.add_child(buy)
+		for kind in LIVESTOCK:
+			if herd.any(func(o): return o.kind == kind and grown(o)):
+				var sell := Button.new()
+				sell.text = tr("Sell a %s: %d") % [named(Beast, kind).to_lower(), sell_price(kind)]
+				sell.icon = KIND_ICONS[ItemKind.COINS]
+				sell.icon_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+				sell.pressed.connect(func():
+					sell_head(kind)
+					open_pasture())
+				list.add_child(sell)
+	pasture_popup.show()
+	pasture_popup.reset_size()
+
+
 # scheda del colono, a sinistra: si aggiorna mentre è aperta (vedi _process)
 func open_sheet(c: Colonist) -> void:
 	fill_sheet($HUD/ColonistSheet/Box, c)
@@ -3602,6 +3726,13 @@ func describe(cell: Vector2i) -> Array:
 	for a in animals:
 		if cell_of(a.pos) == cell:
 			var lines := PackedStringArray()
+			if tame(a):  # sesso ed età, sazietà, il macello
+				var days := floori(clock - a.born)
+				lines.append((tr("Female, %d days old") if a.female else tr("Male, %d days old")) % days
+					+ ("" if grown(a) else tr(" (young)")))
+				lines.append(tr("Fed: %d%%") % roundi(a.fed))
+				if a in culls():
+					lines.append(tr("Too many: to be slaughtered"))
 			if hostile(a):
 				lines.append(tr("Hostile"))
 			if a.damage > 0:
@@ -3658,11 +3789,15 @@ func describe(cell: Vector2i) -> Array:
 			tr("Click: what to make") if is_station(kind) else "")
 		if kind == Build.GRAVE:
 			about = grave_text(origin)
+		elif kind == Build.COOP:
+			about = tr("Eggs: %d") % coop_eggs.get(origin, 0)
 		elif SPLENDOR.has(kind):
 			about = decor_about(origin)
 		return [named(Build, kind), about]
 	if built.has(cell):
 		return [named(Build, built[cell][0]), named(Res, built[cell][1], "item")]
+	if pasture.has(cell):
+		return [tr("Pasture"), tr("Grass: %d%%. Click: the herd") % roundi(pasture[cell] / GRASS_MAX * 100)]
 	return []
 
 
@@ -3771,6 +3906,11 @@ func job_list() -> String:
 		lines.append(tr("Hunt animals: %d%s") % [hunted.size(), "" if colonists.any(has_bow) or available(Res.BOW) > 0 else tr(" (needs a bow)")])
 	if meals_wanted() > 0 and not kitchen_fires().is_empty():
 		lines.append(tr("Cook meals: %d") % meals_wanted())
+	var eggs: int = coop_eggs.values().reduce(func(n, e): return n + e, 0)
+	if eggs > 0:
+		lines.append(tr("Collect eggs: %d") % eggs)
+	if not culls().is_empty():
+		lines.append(tr("Slaughter: %d") % culls().size())
 	for r in RECIPES:  # solo quello che manca, che si sa fare e che ha una postazione
 		if unlocked("makes", r[0]) and gear_wanted(r[0]) > 0 and not stations(r[1]).is_empty():
 			lines.append(tr("Make %s: %d") % [item_name(r[0]), gear_wanted(r[0])])
@@ -4052,6 +4192,8 @@ func _process(delta: float) -> void:
 			room_popup.hide()
 	if craft_popup.visible and not furniture.has(crafting):  # postazione abbattuta: si chiude
 		craft_popup.hide()
+	if pasture_popup.visible and pasture.is_empty():  # pascolo tolto: si chiude
+		pasture_popup.hide()
 	if sheet_panel.visible:
 		update_need_bars(sheet_needs, shown)
 		update_conds($HUD/ColonistSheet/Box, shown)
@@ -4112,6 +4254,9 @@ func tick(delta: float) -> void:
 	update_suitors()
 	update_expeditions()
 	update_scholar()
+	if drover_until >= 0 and clock >= drover_until:  # passato il suo giorno, il mercante di bestiame riparte
+		drover_until = -1.0
+		drover_stock.clear()
 	for c in corpses.duplicate():
 		if clock >= c.died + CORPSE_DAYS and c.carried_by == null:
 			corpses.erase(c)
@@ -4119,8 +4264,8 @@ func tick(delta: float) -> void:
 		update_animal(a, delta)
 	if clock >= next_animal:
 		next_animal = clock + ANIMAL_RESPAWN
-		if animals.size() < ANIMALS_MAX:
-			var prey := BEASTS.keys().filter(func(k): return not BEASTS[k].get("hostile", false))
+		if animals.filter(func(o): return not tame(o)).size() < ANIMALS_MAX:
+			var prey := BEASTS.keys().filter(func(k): return not BEASTS[k].get("hostile", false) and not BEASTS[k].get("tame", false))
 			if enacted.has(Law.HUNTING_RESERVE):  # riserva di caccia: cervi doppi
 				prey.append(Beast.DEER)
 			spawn_animal(prey[wild.randi() % prey.size()])
@@ -4497,6 +4642,30 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			c.carrying = 0
 			c.hp = minf(c.hp + SALVE_HEAL, MAX_HP)
 			end_job(c)
+		Job.TEND:  # accanto al pollaio (target): raccoglie le uova, che cadono ai piedi, e le porta in magazzino
+			face(c, center(c.target) - c.pos)
+			c.work_left -= delta
+			if c.work_left > 0:
+				return
+			var eggs: int = coop_eggs.get(c.target, 0)
+			coop_eggs.erase(c.target)
+			learn(c, Skill.HUSBANDRY, EGG_TIME)
+			var here := cell_of(c.pos)
+			end_job(c)
+			if eggs > 0:
+				produce(Res.EGG, here, eggs)
+				try_haul(c, Res.EGG, [here])
+		Job.BUTCHER:  # accanto all'animale da macellare (prey), che sta fermo: carne e pelle a terra
+			var a: Animal = c.prey
+			if a == null or a not in animals:
+				end_job(c)
+				return
+			face(c, a.pos - c.pos)
+			c.work_left -= delta
+			if c.work_left > 0:
+				return
+			learn(c, Skill.HUSBANDRY, BUTCHER_TIME)
+			kill(a, c)
 		Job.HUNT:  # a tiro (vedi track_prey): mira e tira; colpito o mancato l'animale scappa, abbattuto lascia la carne
 			var a: Animal = c.prey
 			var dist := c.pos.distance_to(a.pos) / TILE
@@ -5304,7 +5473,7 @@ func sowing_season(crop: Crop) -> bool:
 
 # sul prato libero, fuori dalle stanze: ci si può fare l'orto
 func can_plant(cell: Vector2i) -> bool:
-	return not garden.has(cell) and can_build(cell, Build.WALL) and ground_of(cell) == Ground.GRASS and not roofed.has(cell)
+	return not garden.has(cell) and not pasture.has(cell) and can_build(cell, Build.WALL) and ground_of(cell) == Ground.GRASS and not roofed.has(cell)
 
 
 # quello che cresce in `cell`, o la prossima coltura del piano da seminarci; -1 se quest'anno non c'è più niente
@@ -5885,6 +6054,8 @@ func try_work_kind(c: Colonist, w: Work) -> bool:
 			return try_seat(c, Build.DESK, false)
 		Work.DOCTOR:
 			return try_doctor(c)
+		Work.HUSBANDRY:
+			return try_husbandry(c)
 	return false
 
 
@@ -6582,7 +6753,8 @@ func kill(a: Animal, by: Colonist) -> void:
 		if o.prey == a:
 			end_job(o)
 	produce(Res.MEAT, spot, BEASTS[a.kind]["meat"])
-	produce(Res.HIDE, spot, BEASTS[a.kind]["hide"])  # accanto: un mucchio per risorsa
+	if BEASTS[a.kind]["hide"] > 0:  # la gallina no
+		produce(Res.HIDE, spot, BEASTS[a.kind]["hide"])  # accanto: un mucchio per risorsa
 	if a.kind == Beast.DEER and by == ruler and enacted.has(Law.HUNTING_RESERVE):
 		gain(RESERVE_AUTHORITY)
 	try_haul(by, Res.MEAT, [spot])
@@ -6594,7 +6766,7 @@ func kill(a: Animal, by: Colonist) -> void:
 func update_wolf(a: Animal, delta: float) -> bool:
 	a.bite_left = maxf(a.bite_left - delta, 0.0)
 	a.repath -= delta
-	var standing := people().filter(func(c): return fair_game(a, c))
+	var standing := people().filter(func(c): return fair_game(a, c)) + animals.filter(func(o): return fair_game(a, o))
 	if not fair_game(a, a.target) and not (standing.is_empty() and exposed(a, a.target)):
 		a.target = null
 		var prey: Array = standing if not standing.is_empty() else people().filter(func(c): return exposed(a, c))
@@ -6602,7 +6774,7 @@ func update_wolf(a: Animal, delta: float) -> bool:
 			if a.target == null or c.pos.distance_to(a.pos) < a.target.pos.distance_to(a.pos):
 				a.target = c
 		a.path.clear()
-	var t: Colonist = a.target
+	var t = a.target  # un colono, o un animale da allevare
 	if t == null:
 		if clock >= a.leave_at:
 			animals.erase(a)
@@ -6613,19 +6785,43 @@ func update_wolf(a: Animal, delta: float) -> bool:
 		a.left = t.pos.x < a.pos.x
 		if a.bite_left == 0.0:
 			a.bite_left = BITE_TIME
-			bite(a, t)
+			if t is Animal:
+				maul(a, t)
+			else:
+				bite(a, t)
 		return true
 	if a.repath <= 0 and (a.path.is_empty() or center(a.path.back()).distance_to(t.pos) > 1.5 * TILE):
 		a.repath = 0.5
 		a.path = beast_path(cell_of(a.pos), cell_of(t.pos))
+		if a.path.is_empty() and t is Animal:  # chiuso dalla palizzata: lo lascia stare per un po'
+			t.blocked = clock + RETRY_AFTER / DAY_LENGTH
+			a.target = null
 	move_animal(a, delta)
 	return true
 
 
-# il lupo `a` può inseguire `c`: in piedi, fuori dalle stanze, entro WOLF_SIGHT
+# il lupo `a` può inseguire `c`: in piedi, fuori dalle stanze, entro WOLF_SIGHT. Anche un animale da allevare, se ci
+# si arriva (vedi blocked)
 func fair_game(a: Animal, c) -> bool:
+	if c is Animal:
+		return c in animals and tame(c) and c.blocked <= clock and room_at(cell_of(c.pos)) == null \
+			and c.pos.distance_to(a.pos) <= WOLF_SIGHT * TILE
 	return c != null and (c in colonists or c in guests) and not c.downed and room_at(cell_of(c.pos)) == null \
 		and c.pos.distance_to(a.pos) <= WOLF_SIGHT * TILE
+
+
+# il lupo `a` morde l'animale da allevare `prey`: abbattuto, ne lascia metà della carne; lo dice la cronaca
+func maul(a: Animal, prey: Animal) -> void:
+	prey.damage += BEASTS[a.kind]["bite"]
+	if prey.damage < BEASTS[prey.kind]["hp"]:
+		return
+	a.target = null
+	animals.erase(prey)
+	for o in people():
+		if o.prey == prey:
+			end_job(o)
+	drop(Res.MEAT, cell_of(prey.pos), ceili(BEASTS[prey.kind]["meat"] / 2.0))
+	note(tr("%s: wolves killed a %s in the pasture.") % [date(today), named(Beast, prey.kind).to_lower()])
 
 
 # Morso: a segno secondo la mischia di chi è morso; il danno lo riduce la protezione. Fa salire lo stress; a 0 punti
@@ -9070,6 +9266,7 @@ func refresh_unlocks() -> void:
 	$HUD/BuildBar/Row/Materials/Stone.visible = unlocked("materials", Res.STONE)
 	$HUD/Tools/Row/Ice.visible = unlocked("rooms", RoomKind.ICEHOUSE)  # col tasto del ghiaccio, la ghiacciaia
 	$HUD/Tools/Row/Garden.visible = unlocked("orders", Order.GARDEN)
+	$HUD/Tools/Row/Pasture.visible = unlocked("orders", Order.PASTURE)
 	$HUD/Tools/Row/SoilLens.visible = researched.has(Tech.SOIL_SURVEY)
 	if not researched.has(Tech.SOIL_SURVEY):
 		$HUD/Tools/Row/SoilLens.button_pressed = false
@@ -9272,6 +9469,7 @@ func note_harvests() -> void:
 # raccolto; col granaio aperto un pasto a tutti, un pezzo del granaio a testa finché ce n'è
 func new_day() -> void:
 	narrator.new_day()
+	lay_eggs()
 	if feast(today) and posmod(today, YEAR_DAYS) != 0:  # le feste di fine stagione: la manutenzione dello splendore
 		pay_upkeep()
 	for b in babies.duplicate():  # a CHILD_AGE il neonato diventa un bambino della colonia, accanto a chi lo teneva
@@ -9340,6 +9538,7 @@ func new_day() -> void:
 # ponytail: un'ora di attesa al più; un giorno di scorta alla volta
 func new_hour() -> void:
 	make_compost()
+	grow_grass()
 	for c in colonists.duplicate():  # i parti, poi di notte il concepimento
 		if c.due > 0.0 and clock >= c.due:
 			give_birth(c)
@@ -10053,6 +10252,9 @@ func roams(cell: Vector2i) -> bool:
 # Animale: cammina lungo il suo percorso (più veloce se scappa), poi sta fermo un po' e riparte per un giro qui vicino.
 # I lupi invece inseguono i coloni (vedi update_wolf)
 func update_animal(a: Animal, delta: float) -> void:
+	if tame(a):
+		update_livestock(a, delta)
+		return
 	if hostile(a) and update_wolf(a, delta):
 		return
 	if not hostile(a) and clock >= a.leave_at and a.hunter == null:  # il branco di cervi: chi è rimasto se ne va
@@ -10066,6 +10268,205 @@ func update_animal(a: Animal, delta: float) -> void:
 		return
 	a.rest = wild.randf_range(WANDER_REST[0], WANDER_REST[1])
 	a.path = roam_path(a, WANDER, Vector2.INF)
+
+
+# --- Allevamento (GDD 4.4.7) ---
+
+func tame(a: Animal) -> bool:
+	return BEASTS[a.kind].get("tame", false)
+
+
+# l'animale da allevare è adulto
+func grown(a: Animal) -> bool:
+	return clock - a.born >= LIVESTOCK[a.kind]["grow"]
+
+
+# un animale da allevare in `cell`: adulto (dal mercante) o appena nato (`young`); la femmina fa i piccoli dopo un po'
+func add_livestock(kind: Beast, cell: Vector2i, female: bool, young: bool) -> Animal:
+	var a := add_animal(kind, cell)
+	var info: Dictionary = LIVESTOCK[kind]
+	a.female = female
+	a.born = clock if young else clock - info["grow"]
+	if female:
+		a.next_young = clock + (info["grow"] if young else 0.0) + info["every"] * wild.randf_range(0.5, 1.0)
+	return a
+
+
+# Animale da allevare: perde sazietà (FED_DROP al giorno) e la riprende brucando l'erba della casella del pascolo dove
+# sta; a 0 per STARVE_DAYS giorni muore. La femmina fa i piccoli quando è ora, se può (vedi breeds). Gira dentro il
+# pascolo, verso l'erba (vedi graze_path); chi lo macella lo tiene fermo
+func update_livestock(a: Animal, delta: float) -> void:
+	var day := delta / DAY_LENGTH * needs_rate
+	var info: Dictionary = LIVESTOCK[a.kind]
+	var need: float = info["graze"] * GRASS_REGROW  # l'erba che gli serve al giorno
+	var here := cell_of(a.pos)
+	a.fed = maxf(a.fed - FED_DROP * day, 0.0)
+	if a.fed < SATED and pasture.get(here, 0.0) > 0.0:
+		var bite := minf(pasture[here], need * GRAZE_PACE * day)
+		pasture[here] -= bite
+		a.fed = minf(a.fed + bite * FED_DROP / need, NEED_MAX)
+	if a.fed > 0.0:
+		a.starving = -1.0
+	elif a.starving < 0.0:
+		a.starving = clock
+	elif clock - a.starving >= STARVE_DAYS:
+		note(tr("%s: a %s starved to death.") % [date(today), named(Beast, a.kind).to_lower()])
+		animals.erase(a)
+		return
+	if a.female and clock >= a.next_young and breeds(a):
+		a.next_young = clock + info["every"]
+		for i in info["litter"]:
+			add_livestock(a.kind, here, wild.randf() < 0.5, true)
+	if a.butcher != null and (a.butcher.job != Job.BUTCHER or a.butcher.prey != a):  # chi lo macellava ha mollato
+		a.butcher = null
+	if a.butcher != null:
+		a.path.clear()
+		return
+	if move_animal(a, delta):
+		return
+	a.rest -= delta
+	if a.rest > 0:
+		return
+	a.rest = wild.randf_range(WANDER_REST[0], WANDER_REST[1])
+	a.path = graze_path(a)
+
+
+# la femmina `a` fa i piccoli: adulta e sazia, con un maschio adulto e sazio della sua specie, e posto nel pascolo
+func breeds(a: Animal) -> bool:
+	var info: Dictionary = LIVESTOCK[a.kind]
+	return grown(a) and a.fed >= FED_LOW and herd_space() >= info["graze"] * info["litter"] \
+		and animals.any(func(o): return o.kind == a.kind and not o.female and grown(o) and o.fed >= FED_LOW)
+
+
+# caselle di pascolo che non servono già agli animali da allevare (LIVESTOCK "graze" a capo, anche i piccoli)
+func herd_space() -> int:
+	return pasture.size() - animals.filter(tame).reduce(func(n, o): return n + LIVESTOCK[o.kind]["graze"], 0)
+
+
+# Dove va: una casella del pascolo qui vicino, la più erbosa tra alcune a caso; fuori dal pascolo, la più vicina del
+# pascolo. Senza pascolo gira come gli animali selvatici
+func graze_path(a: Animal) -> Array[Vector2i]:
+	var here := cell_of(a.pos)
+	if pasture.is_empty():
+		return roam_path(a, WANDER, Vector2.INF)
+	var to := Vector2i(-1, -1)
+	if pasture.has(here):
+		for attempt in 6:
+			var cell := here + Vector2i(wild.randi_range(-WANDER, WANDER), wild.randi_range(-WANDER, WANDER))
+			if pasture.has(cell) and (to.x < 0 or pasture[cell] > pasture[to]):
+				to = cell
+	else:
+		var tiles := pasture.keys()
+		sort_by_distance(tiles, a.pos)
+		to = tiles[0]
+	var none: Array[Vector2i] = []
+	if to.x < 0 or to == here or astar.is_point_solid(to) or astar.is_point_solid(here):
+		return none
+	return astar.get_id_path(here, to)
+
+
+# All'alba di ogni giorno, fuori dall'inverno, ogni gallina adulta e sazia fa un uovo in un pollaio: COOP_HENS per
+# pollaio; ogni pollaio ne tiene al più COOP_EGGS. Senza pollaio niente uova
+func lay_eggs() -> void:
+	if season(today) == WINTER:
+		return
+	var hens := animals.filter(func(a): return a.kind == Beast.HEN and a.female and grown(a) and a.fed >= FED_LOW).size()
+	for o in furniture.keys().filter(func(k): return furniture[k][0] == Build.COOP):
+		var eggs := mini(hens, COOP_HENS)
+		hens -= eggs
+		coop_eggs[o] = mini(coop_eggs.get(o, 0) + eggs, COOP_EGGS)
+
+
+# l'erba del pascolo ricresce di GRASS_REGROW al giorno, un'ora alla volta, quando la terra è tiepida; d'inverno no
+func grow_grass() -> void:
+	if season(today) == WINTER or (atmosphere.climate and atmosphere.mean_temperature() < SOW_TEMP):
+		return
+	for cell in pasture:
+		pasture[cell] = minf(pasture[cell] + GRASS_REGROW / 24.0, GRASS_MAX)
+
+
+# Gli animali da macellare: per specie, gli adulti oltre quanti tenerne (herd_keep); prima i maschi in più (se ne tiene
+# uno), poi i più vecchi. Mai i piccoli
+func culls() -> Array:
+	var out := []
+	for kind in LIVESTOCK:
+		var adults := animals.filter(func(o): return o.kind == kind and tame(o) and grown(o))
+		var extra: int = adults.size() - herd_keep.get(kind, HERD_KEEP)
+		if extra <= 0:
+			continue
+		adults.sort_custom(func(x, y): return x.born < y.born)  # dal più vecchio
+		var spare := adults.filter(func(o): return not o.female).slice(1)
+		out.append_array((spare + adults.filter(func(o): return o not in spare)).slice(0, extra))
+	return out
+
+
+# Allevare (Work.HUSBANDRY): le uova ai pollai, poi il macello
+func try_husbandry(c: Colonist) -> bool:
+	var coops := coop_eggs.keys().filter(func(o): return coop_eggs[o] > 0 and furniture.get(o, [-1])[0] == Build.COOP)
+	return try_work(c, Job.TEND, coops, SIDES, EGG_TIME * skill_time(c.skills[Skill.HUSBANDRY]) * work_factor(c, Job.TEND)) \
+		or try_butcher(c)
+
+
+# Macellare: va accanto al più vicino da macellare (vedi culls), che intanto sta fermo (vedi update_livestock)
+func try_butcher(c: Colonist) -> bool:
+	var stands := {}  # casella accanto -> animale
+	for a in culls().filter(func(o): return o.butcher == null):
+		var around := {}
+		add_stands(around, [cell_of(a.pos)], cell_of(a.pos), SIDES)
+		for k in around:
+			stands[k] = a
+	var path := path_to_nearest(c, stands.keys())
+	if path.is_empty():
+		return false
+	var prey: Animal = stands[path.back()]
+	start_job(c, Job.BUTCHER, path, cell_of(prey.pos), BUTCHER_TIME * skill_time(c.skills[Skill.HUSBANDRY]) * work_factor(c, Job.BUTCHER))
+	c.prey = prey
+	prey.butcher = c
+	prey.path.clear()
+	return true
+
+
+# Il mercante di bestiame (evento del narratore, con un pascolo): per un giorno vende DROVER_STOCK coppie delle specie
+# che si sanno allevare e compra quello che gli si vende (vedi open_pasture)
+func drover_arrives() -> void:
+	drover_until = clock + 1.0
+	drover_stock.clear()
+	var kinds := LIVESTOCK.keys().filter(func(k): return researched.has(LIVESTOCK[k]["tech"]))
+	for i in randi_range(DROVER_STOCK[0], DROVER_STOCK[1]):
+		drover_stock.append(kinds.pick_random())
+	note(tr("Day %d: a livestock dealer comes by with %s to sell (click the pasture).") % [int(clock) + 1,
+		", ".join(drover_stock.map(func(k): return tr(PAIR_NAMES[k])))])
+
+
+# compra dal mercante la coppia `i` della sua lista: monete dal magazzino, un maschio e una femmina nel pascolo
+func buy_pair(i: int) -> bool:
+	if drover_until < 0 or i >= drover_stock.size() or pasture.is_empty():
+		return false
+	var kind: Beast = drover_stock[i]
+	if stored(Res.GOLD) < LIVESTOCK[kind]["price"]:
+		return false
+	take_stored(Res.GOLD, LIVESTOCK[kind]["price"])
+	var cell: Vector2i = pasture.keys()[wild.randi() % pasture.size()]
+	add_livestock(kind, cell, false, false)
+	add_livestock(kind, cell, true, false)
+	drover_stock.remove_at(i)
+	return true
+
+
+# vende al mercante un capo adulto di `kind` (prima quelli che si macellerebbero, poi il più vecchio): monete in magazzino
+func sell_head(kind: Beast) -> bool:
+	var herd := animals.filter(func(o): return o.kind == kind and tame(o) and grown(o) and o.butcher == null)
+	if drover_until < 0 or herd.is_empty():
+		return false
+	herd.sort_custom(func(x, y): return x.born < y.born)
+	var first := culls().filter(func(o): return o in herd)
+	animals.erase(first[0] if not first.is_empty() else herd[0])
+	store(Res.GOLD, sell_price(kind))
+	return true
+
+
+func sell_price(kind: Beast) -> int:
+	return floori(LIVESTOCK[kind]["price"] * SELL_PART)
 
 
 # un passo lungo il percorso; false se non ne ha
@@ -10489,9 +10890,13 @@ func mark(rect: Rect2i) -> void:
 				if can_plant(cell):
 					garden[cell] = -1.0
 			update_fields()
+		Order.PASTURE:  # come l'orto: sul prato libero, fuori dalle stanze; l'erba è già alta
+			for cell in cells_in(rect):
+				if can_plant(cell):
+					pasture[cell] = GRASS_MAX
 		Order.HUNT:  # una casella di margine: si muovono
 			for a in animals:
-				if rect.grow(1).has_point(cell_of(a.pos)):
+				if rect.grow(1).has_point(cell_of(a.pos)) and not tame(a):
 					a.marked = true
 		Order.BUILD:  # nel progetto; i muri solo sul bordo del rettangolo: trascinando si disegna una stanza
 			if FURNITURE.has(build_kind):  # un mobile per volta, girato di build_turn, dall'angolo del rettangolo
@@ -10508,7 +10913,9 @@ func mark(rect: Rect2i) -> void:
 			for x in range(rect.position.x, rect.end.x):
 				for y in range(rect.position.y, rect.end.y):
 					erase_plan(Vector2i(x, y))
-		Order.DEMOLISH:  # subito, senza recuperare il materiale; anche l'orto, con quello che ci cresce
+		Order.DEMOLISH:  # subito, senza recuperare il materiale; anche l'orto, con quello che ci cresce, e il pascolo
+			for cell in pasture.keys().filter(func(k): return rect.has_point(k)):
+				pasture.erase(cell)
 			for cell in garden.keys().filter(func(k): return rect.has_point(k)):
 				garden.erase(cell)
 				sown.erase(cell)
@@ -10526,6 +10933,7 @@ func mark(rect: Rect2i) -> void:
 				plastered.erase(cell)
 			for origin in furniture.keys().filter(func(o): return rect.intersects(piece_rect(o, furniture[o]))):
 				furniture.erase(origin)
+				coop_eggs.erase(origin)
 			update_rooms()
 
 
@@ -10577,6 +10985,8 @@ func can_build(cell: Vector2i, kind := Build.FLOOR) -> bool:
 	if not (astar.is_in_boundsv(cell) and not astar.is_point_solid(cell) and not water.has(cell) and not trees.has(cell) \
 			and not bushes.has(cell) and not weeds.has(cell) and not garden.has(cell) \
 			and items.values().all(func(ground): return not ground.has(cell))):
+		return false
+	if pasture.has(cell) != (kind in PASTURE_ONLY):  # sul pascolo solo il pollaio, e il pollaio solo lì
 		return false
 	var furnished := [furniture, furniture_plans, furniture_draft].any(func(l): return not pieces_at(l, cell).is_empty())
 	if FURNITURE.has(kind):
@@ -11017,6 +11427,8 @@ func _unhandled_input(event: InputEvent) -> void:
 						open_field(cell)
 					elif pieces_at(furniture, cell).any(func(o): return is_station(furniture[o][0])):
 						open_craft(pieces_at(furniture, cell)[0])
+					elif pasture.has(cell):
+						open_pasture()
 					else:
 						sheet_panel.hide()  # clic altrove: la scheda si chiude
 				elif event.pressed:
@@ -11094,6 +11506,7 @@ func draw_flat() -> void:  # sotto le ombre: il terreno lo disegna lo Sprite2D d
 	for cell in weeds:  # basse: niente ombra
 		flat.draw_texture_rect_region(PLANTS, tile_rect(cell.x, cell.y), tile_rect(0, 0))
 	draw_garden()
+	draw_pasture()
 	for cell in built:
 		if built[cell][0] in PAVING:
 			flat.draw_texture_rect_region(STRUCTURES, tile_rect(cell.x, cell.y), structure_src(cell, built[cell], [built]))
@@ -11118,6 +11531,26 @@ func draw_flat() -> void:  # sotto le ombre: il terreno lo disegna lo Sprite2D d
 		for cell in items[res]:
 			var side: float = 8.0 + 8.0 * mini(items[res][cell], STACK_MAX[res]) / STACK_MAX[res]
 			flat.draw_texture_rect(ICONS[res], Rect2(center(cell) - Vector2.ONE * side / 2, Vector2.ONE * side), false)
+
+
+# Il pascolo: più è brucato più si vede la terra (GRAZED); lungo il bordo la staccionata, due traverse e i pali agli
+# angoli delle caselle
+func draw_pasture() -> void:
+	for cell in pasture:
+		var r := Rect2(tile_rect(cell.x, cell.y))
+		flat.draw_rect(r, Color(GRAZED, 0.5 * (1.0 - pasture[cell] / GRASS_MAX)))
+		for i in 4:
+			if pasture.has(cell + EDGE_SIDES[i]):
+				continue
+			var side: Vector2i = EDGE_SIDES[i]
+			var a := r.position + Vector2(maxi(side.x, 0), maxi(side.y, 0)) * TILE
+			var along := Vector2(absi(side.y), absi(side.x)) * TILE
+			for rail in [4, 9] if side.y != 0 else [0]:  # di fronte due traverse; di lato una sola, si vede di taglio
+				var lift := Vector2(0, -rail) if side.y != 0 else Vector2.ZERO
+				flat.draw_rect(Rect2(a + lift - Vector2(0, 1), along + Vector2(1, 1) if side.y != 0 else along + Vector2(2, 0)),
+					FENCE_COLOR)
+			for post in [a, a + along]:
+				flat.draw_rect(Rect2(post + Vector2(-1, -11), Vector2(2, 12)), FENCE_SHADE)
 
 
 # L'orto: la terra lavorata, e quello che ci cresce: germoglio nel primo terzo, poi la pianta, poi matura
@@ -11692,13 +12125,14 @@ func draw_creature(who) -> void:
 
 # animale nel foglio ANIMALS, specchiato se guarda a sinistra
 func draw_animal(a: Animal) -> void:
-	var at := (a.pos - Vector2.ONE * TILE / 2.0).round()
+	var side: float = TILE * (YOUNG_SIZE if tame(a) and not grown(a) else 1.0)  # i piccoli, più piccoli: coi piedi giù
+	var at := (a.pos + Vector2(-side / 2.0, TILE / 2.0 - side)).round()
 	if a.left:
-		draw_set_transform(at + Vector2(TILE, 0), 0.0, Vector2(-1, 1))
-		draw_texture_rect_region(ANIMALS, Rect2(Vector2.ZERO, Vector2.ONE * TILE), animal_src(a))
+		draw_set_transform(at + Vector2(side, 0), 0.0, Vector2(-1, 1))
+		draw_texture_rect_region(ANIMALS, Rect2(Vector2.ZERO, Vector2.ONE * side), animal_src(a))
 		draw_set_transform_matrix(Transform2D.IDENTITY)
 	else:
-		draw_texture_rect_region(ANIMALS, Rect2(at, Vector2.ONE * TILE), animal_src(a))
+		draw_texture_rect_region(ANIMALS, Rect2(at, Vector2.ONE * side), animal_src(a))
 	if a.damage > 0:
 		draw_health(a.pos, 1.0 - a.damage / BEASTS[a.kind]["hp"])
 

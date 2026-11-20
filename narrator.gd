@@ -16,7 +16,7 @@ const STRUGGLE_FOOD := 3.0   # in difficoltà: il cibo in magazzino basta per me
 const STRUGGLE_HAPPY := 40.0  # o la felicità media è sotto
 const SUMMER := 1    # in main.SEASONS
 const AUTUMN := 2
-enum Event { WANDERERS, SCHOLAR, WOLVES, BUMPER, HERD, INSPIRATION, PILGRIM, RATS, THIEF, FEVER }
+enum Event { WANDERERS, SCHOLAR, WOLVES, BUMPER, HERD, INSPIRATION, PILGRIM, RATS, THIEF, FEVER, DROVER }
 # Gli eventi, una riga per evento.
 # "kind": Kind. "from": giorno da cui può capitare, contato da 0 come main.today. "every": giorni in media tra uno e
 # l'altro, pausa (o tregua) compresa: un numero, o il nome di una funzione (di questo script, se no di main) quando
@@ -56,6 +56,10 @@ const EVENTS := {
 	# la febbre, dal giorno 10; d'inverno il doppio delle volte (vedi fever_every)
 	Event.FEVER: {"kind": Kind.BANE, "from": 10, "every": "fever_every", "hour": 7, "can": "fever_can",
 		"do": "fever_comes"},
+	# GDD 4.4.7: il mercante di bestiame, con un pascolo, dal Disgelo alla fine dell'autunno; per un giorno vende coppie
+	# di animali da allevare e compra (vedi main.drover_arrives)
+	Event.DROVER: {"kind": Kind.VISIT, "from": 5, "every": 15.0, "pause": 8.0, "hour": 9, "can": "drover_can",
+		"busy": "drover_here", "do": "drover_comes"},
 }
 const FEVER_EVERY := 20.0
 const FEVER_WINTER := 10.0
@@ -231,6 +235,18 @@ func scholar_here() -> bool:
 
 func scholar_comes() -> void:
 	main.scholar_arrives()
+
+
+func drover_can() -> bool:
+	return main.researched.has(main.Tech.HUSBANDRY) and not main.pasture.is_empty() and main.season(main.today) != main.WINTER
+
+
+func drover_here() -> bool:
+	return main.drover_until >= 0.0
+
+
+func drover_comes() -> void:
+	main.drover_arrives()
 
 
 # una minaccia aspetta che nessuno sia a terra e che i lupi se ne siano andati

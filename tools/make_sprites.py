@@ -57,6 +57,7 @@ PALETTE = {
     "{": "4d4862", "}": "6f6a88", "|": "322e42",                 # quadratino dei talenti: fondo, luce, ombra
     "à": "2f5cb0", "á": "6a9ae0",                                # azzurro dell'araldica (libri, stemma), luce
     "è": "7a3c8e", "é": "a866bc",                                # porpora, luce
+    "ç": "e8a8a0", "Ç": "c27a76",                                # rosa del maiale (e il muso della mucca), ombra
 }
 
 NIGHT_TINT = (0.40, 0.44, 0.62)  # di notte ogni colore si scurisce e vira al blu...
@@ -4314,6 +4315,167 @@ def outlined_wh(px, w, h):
     return out[:-1] + ["".join("z" if 1 <= x < w - 1 and ch == "." else ch for x, ch in enumerate(out[-1]))]
 
 
+# --- Allevamento (GDD 4.4.7): gli animali da allevare, le uova, il pollaio ---
+
+# Animali da allevare 16x16, come ANIMALS: fermo e passo, guardano a destra. Gallina, maiale, pecora, mucca.
+LIVESTOCK = """
+................ ................
+................ ................
+................ ................
+................ ................
+................ ................
+................ ................
+..........oo.... ..........oo....
+.........ojjo... .........ojjo...
+........o+++o... ........o+++o...
+........o+e+ogo. ........o+e+ogo.
+..oo....o+++oo.. ..oo....o+++oo..
+.o++o..o++++o... .o++o..o++++o...
+.o+++oo+++++o... .o+++oo+++++o...
+..o+++++++XXo... ..o+++++++XXo...
+...oXXXXXXXo.... ...oXXXXXXXo....
+....ogo..ogo.... ...ogo..ogo.....
+................ ................
+................ ................
+................ ................
+................ ................
+................ ................
+................ ................
+...........oo... ...........oo...
+..........oççoo. ..........oççoo.
+..ooooooooççççço ..ooooooooççççço
+.oççççççççççeçoo .oççççççççççeçoo
+oççççççççççççÇÇo oççççççççççççÇÇo
+oçççççççççççççoo oçççççççççççççoo
+oÇçççççççççççÇo. oÇçççççççççççÇo.
+.oÇÇçççççççÇÇo.. .oÇÇçççççççÇÇo..
+..oÇÇoooooÇÇo... .oÇÇoooooÇÇo....
+..oo......oo.... .oo......oo.....
+................ ................
+................ ................
+................ ................
+................ ................
+................ ................
+...oooooooo..... ...oooooooo.....
+..o++++++++o.oo. ..o++++++++o.oo.
+.o++++++++++o66o .o++++++++++o66o
+o+++++++++++o6e6 o+++++++++++o6e6
+o+++++++++++o666 o+++++++++++o666
+o++++++++++++o6o o++++++++++++o6o
+oX++++++++++Xo.. oX++++++++++Xo..
+.oXX++++++XXXo.. .oXX++++++XXXo..
+..ooXXXXXXXoo... ..ooXXXXXXXoo...
+...o6o...o6o.... ..o6o...o6o.....
+...oo....oo..... ..oo....oo......
+...........o..o. ...........o..o.
+..........oxoox. ..........oxoox.
+..........o666o. ..........o666o.
+..........o6e6o. ..........o6e6o.
+.oooooooooo666o. .oooooooooo666o.
+o++66+++++o6ççoo o++66+++++o6ççoo
+o+666++66++oççoo o+666++66++oççoo
+o++6+++666+++oo. o++6+++666+++oo.
+oX+++++66+++Xo.. oX+++++66+++Xo..
+.oXX+++++++XXo.. .oXX+++++++XXo..
+..oXXooooooXXo.. ..oXXooooooXXo..
+..o+o......o+o.. .o+o......o+o...
+..o+o......o+o.. o+o......o+o....
+..o6o......o6o.. o6o......o6o....
+..oo.......oo... oo.......oo.....
+................ ................
+"""
+
+HUSBANDRY_SKILL = """
+...oo...
+..ojjo..
+.o+++o..
+.o+e+ogo
+.o+++oo.
+o++++o..
+oX++Xo..
+.oooo...
+"""
+
+EGG_ICON = """
+................
+................
+................
+................
+.....ooo........
+....o+++o.......
+...o++++Xo......
+...o+++XXo.ooo..
+...o++XXXoo+++o.
+....oXXXoo++++Xo
+.....ooo.o+++XXo
+.........o++XXXo
+..........oXXXo.
+...........ooo..
+................
+................
+"""
+
+
+TECH_HUSBANDRY = """
+.....oo.....
+....ojjo....
+...o+++o....
+...o+e+ogo..
+...o+++oo...
+.oo.o++o....
+o++o+++o....
+o+++++Xo....
+.oX+XXo.....
+..oooo......
+...ogog.....
+............
+"""
+
+
+def fence_icon():
+    """Il tasto Pasture 16x16: un pezzo di staccionata sull'erba"""
+    px = {}
+    for x in (2, 7, 12):  # i pali
+        for y in range(3, 13):
+            px[(x, y)] = "c" if y < 12 else "C"
+            px[(x + 1, y)] = "C"
+    for y in (5, 9):  # le traverse
+        for x in range(1, 15):
+            if (x, y) not in px:
+                px[(x, y)] = "c"
+                px[(x, y + 1)] = "C"
+    for x in range(0, 16):
+        px[(x, 14)] = "," if x % 3 else "-"
+    return outlined(px)
+
+
+def coop():
+    """Pollaio 2x1 nei quattro quarti di giro: una casetta di assi col tetto di paglia, la porticina e la scaletta.
+    Di lato, la casetta lunga vista dall'alto; dietro, senza porta."""
+    def hut(w, h, door):
+        px = {}
+        eave = h // 2 if w > h else h - 7
+        for y in range(1, eave + 1):  # il tetto di paglia
+            inset = max(0, (eave - y) // 2 - 1) if w > h else (1 if y < 3 else 0)
+            for x in range(1 + inset, w - 1 - inset):
+                px[(x, y)] = "g" if (x + y) % 3 else "<"
+        for y in range(eave + 1, h - 2):  # la parete di assi
+            for x in range(2, w - 2):
+                px[(x, y)] = "B" if x % 3 else "w"
+        if door:
+            dx = w // 2 - 1
+            for y in range(h - 6, h - 2):
+                for x in range(dx, dx + 3):
+                    px[(x, y)] = "W"
+            for i, y in enumerate(range(h - 3, h)):  # la scaletta
+                px[(dx + 1 + i, y)] = "c"
+        return px
+    front = outlined_wh(hut(32, 16, True), 32, 16)
+    side = outlined_wh(hut(16, 32, True), 16, 32)
+    back = outlined_wh(hut(32, 16, False), 32, 16)
+    return [front, side, back, ["".join(reversed(r)) for r in side]]
+
+
 def frames(block, height=16, count=3, width=16):
     """Blocco di testo -> lista di fotogrammi, ognuno `height` righe da `width` caratteri."""
     rows = [line.split() for line in block.strip().splitlines()]
@@ -4635,7 +4797,7 @@ def furniture_sheet():
     filatoio, banco del falegname, poi le decorazioni: aiuola, fioriera, panca, stendardo, lampione, fontana, statua;
     la bacheca; i cimeli: calice, stendardo antico, busto, corona; scrittoio, libreria, trono, fantoccio, torre di guardia, baldacchino, tappeto, armadio, focolare, pelli alle pareti, portiera, arazzo, stufa a olle, fossa del ghiaccio, quattro righe vuote (le strutture che vengono dopo
     in Build), il cumulo del compost, la culla; la rastrelliera, il bersaglio e il banco degli scassi; l'armadio dei rimedi,
-    la tomba, il memoriale, il mulino ad acqua, il forno (come Build in main.gd);
+    la tomba, il memoriale, il mulino ad acqua, il forno, il pollaio (come Build in main.gd);
     colonne: quarti di giro in senso orario (per fuoco, stendardo e fontana, fotogrammi), ognuno in alto a sinistra nel suo riquadro 32x32."""
     bed, chair, chair_left = art(BED, 32, 16), art(CHAIR, 16, 16), art(CHAIR_LEFT, 16, 16)
     table, lamp, anvil = art(TABLE, 32, 32), art(LAMP, 16, 16), art(ANVIL, 16, 16)
@@ -4678,7 +4840,7 @@ def furniture_sheet():
     rows += [[art(MEDICINE_CHEST, 16, 16)] * 4]
     rows += [[grave(False, True), grave(False, False), grave(True, True), grave(True, False)]]
     rows += [[art(MEMORIAL, 16, 16)] * 4]
-    rows += [water_mill(), oven()]
+    rows += [water_mill(), oven(), coop()]
     slot = lambda g: [line.ljust(32, ".") for line in g] + ["." * 32] * (32 - len(g))
     return [line for row in rows for line in side_by_side([slot(g) for g in (row or [[]] * 4)])]
 
@@ -4749,6 +4911,10 @@ def main():
     images["icon_bread"] = pixels(art(BREAD_ICON, 16, 16))
     images["icon_stew"] = pixels(art(STEW_ICON, 16, 16))
     images["icon_preserves"] = pixels(art(PRESERVES_ICON, 16, 16))
+    images["icon_egg"] = pixels(art(EGG_ICON, 16, 16))
+    images["icon_pasture"] = pixels(fence_icon())
+    hen = [row[:16] for row in art(LIVESTOCK.replace(" ", ""), 32, 64)[:16]]
+    images["icon_husbandry"] = pixels(hen[5:] + ["." * 16] * 5)  # la gallina, un po' più su
     images["field_sign"] = pixels(art(FIELD_SIGN, 16, 16))
     images["icon_soil"] = pixels(art(SOIL_ICON, 16, 16))
     images["icon_rot"], images["icon_compost"], images["icon_ash"] = (pixels(f) for f in frames(MANURE_ICONS))
@@ -4780,7 +4946,7 @@ def main():
     meat, fish = frames(RAW_ICONS, count=2)  # affumicati: la carne bruna, il pesce dorato
     images["icon_smoked_meat"] = pixels([line.translate(str.maketrans("jJs", "wWc")) for line in meat])
     images["icon_smoked_fish"] = pixels([line.translate(str.maketrans("urR", "c<W")) for line in fish])
-    images["animals"] = pixels(art(ANIMALS.replace(" ", ""), 32, 48))
+    images["animals"] = pixels(art(ANIMALS.replace(" ", ""), 32, 48) + art(LIVESTOCK.replace(" ", ""), 32, 64))
     images["sign"] = pixels(art(SIGN, 16, 16))
     images["structures"] = pixels(structures_sheet())
     images["rock_1x1"] = pixels(art(ROCK_1X1, 16, 16))
@@ -4853,7 +5019,7 @@ def main():
         + frames(TECH_SYMBOLS_10, 12, 3, 12) + [art(TECH_GARDEN, 12, 12)] + frames(TECH_SOIL, 12, 3, 12) \
         + [art(TECH_MANURE, 12, 12), art(TECH_COMPANY, 12, 12), art(TECH_BARRACKS, 12, 12),
            art(TECH_HERBALISM, 12, 12), art(TECH_MEDICINE, 12, 12), tech_mill(),
-           art(TECH_OVEN, 12, 12)]
+           art(TECH_OVEN, 12, 12), art(TECH_HUSBANDRY, 12, 12)]
     images["techs"] = pixels(side_by_side([badge(f) for f in techs]))
     laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 3, 12) + frames(LAW_SYMBOLS_5, 12, 3, 12) + frames(LAW_SYMBOLS_6, 12, 4, 12) \
         + frames(LAW_SYMBOLS_7, 12, 3, 12) + [art(LAW_FUNERALS, 12, 12)]
@@ -4865,7 +5031,7 @@ def main():
     images["icon_arrow"] = pixels(art(ARROW, 4, 7))
     images["icon_stress"] = pixels(art(STRESS_ICON, 8, 8))
     images["icon_male"], images["icon_female"] = (pixels(f) for f in frames(SEX_ICONS, 8, 2, 8))
-    images["skills"] = pixels(side_by_side(frames(SKILLS, 8, 14, 8)))
+    images["skills"] = pixels(side_by_side(frames(SKILLS, 8, 14, 8) + [art(HUSBANDRY_SKILL, 8, 8)]))
     images["equipment"] = pixels(side_by_side(frames(EQUIPMENT, count=4)))
     for name, rows in images.items():
         write_png(out / f"{name}.png", rows)
