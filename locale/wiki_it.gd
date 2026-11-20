@@ -24,7 +24,7 @@ A mezzanotte il narratore sceglie al più un evento per il giorno, ognuno quando
 • Il giorno e l'ora sono nella barra in alto, a destra (col mouse sopra: la stagione e l'anno). La partita comincia alle 8:00 del Giorno della Corona dell'anno 1; a velocità normale un giorno dura 4 minuti, un'ora 10 secondi.
 • L'anno ha 365 giorni: il Giorno della Corona (Capodanno), poi quattro stagioni di tre mesi da 30 giorni, ognuna chiusa da un giorno di festa fuori dai mesi. Primavera: Disgelo, Semina, Fioritura, poi la Festa dei Fiori. Estate: Solleone, Fienagione, Maturazione, poi la Festa della Falce. Autunno: Mietitura, Foglie morte, Nebbie, poi la Festa del Focolare. Inverno: Gelo, Neve alta, Notte lunga, poi la Festa delle Candele.
 • La notte dura dalle 18:00 alle 6:00: si accendono abat-jour e lampioni.
-• I pulsanti della velocità in alto a destra: pausa, 1x, 2x, 3x. Oppure i tasti: Spazio mette in pausa (e dalla pausa torna a 1x), 1, 2 e 3 scelgono la velocità. Anche il menu delle opzioni mette in pausa.
+• I pulsanti della velocità in alto a destra: pausa, 1x, 2x, 3x. Oppure i tasti: Spazio mette in pausa (e dalla pausa torna a 1x), 1, 2 e 3 scelgono la velocità. Anche il menu delle opzioni mette in pausa. Quando tutti i coloni dormono il gioco va da solo a 3x, e torna alla velocità di prima appena uno si sveglia; se di notte scegli un'altra velocità, resta la tua fino al mattino.
 • I tempi di questa wiki sono in secondi a 1x, per chi lavora con l'abilità a livello 5 (vedi Abilità).
 
 [color=#e8c34a]La barra in alto[/color]

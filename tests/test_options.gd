@@ -283,6 +283,59 @@ func _initialize() -> void:
 	press(main, KEY_J)
 	check(main.hud_dots.size() == main.drawer.get_node("Box").get_child_count() + 1, "un pallino che pulsa per finestra del menu, e uno sulla linguetta")
 
+
+	# la notte svelta: quando tutti dormono il gioco va a 3x da solo, e torna com'era appena uno si sveglia
+	var sleep := func(on: bool):
+		for col in main.colonists:
+			col.path.clear()
+			col.job = main.Job.SLEEP if on else main.Job.NONE
+	Engine.time_scale = 1.0
+	sleep.call(false)
+	main.night_speed()
+	check(Engine.time_scale == 1.0, "di giorno la velocità resta la tua")
+	sleep.call(true)
+	main.colonists[0].job = main.Job.NONE
+	main.night_speed()
+	check(Engine.time_scale == 1.0, "con uno sveglio niente")
+	sleep.call(true)
+	main.night_speed()
+	check(main.all_asleep() and Engine.time_scale == 3.0, "tutti a dormire: 3x")
+	main.night_speed()
+	main.colonists[0].job = main.Job.NONE
+	main.night_speed()
+	check(Engine.time_scale == 1.0, "uno si sveglia: di nuovo 1x")
+	Engine.time_scale = 2.0
+	sleep.call(true)
+	main.night_speed()
+	check(Engine.time_scale == 3.0, "da 2x a 3x")
+	Engine.time_scale = 1.0  # il giocatore rallenta di notte: per questa notte vale la sua
+	main.night_speed()
+	main.night_speed()
+	check(Engine.time_scale == 1.0, "scelta un'altra velocità di notte, resta quella")
+	sleep.call(false)
+	main.night_speed()
+	check(Engine.time_scale == 1.0, "e al mattino pure")
+	Engine.time_scale = 0.0  # in pausa aspetta
+	sleep.call(true)
+	main.night_speed()
+	check(Engine.time_scale == 0.0, "in pausa resta in pausa")
+	Engine.time_scale = 2.0
+	main.night_speed()
+	check(Engine.time_scale == 3.0, "tolta la pausa, 3x")
+	Engine.time_scale = 0.0
+	main.night_speed()
+	Engine.time_scale = 3.0
+	main.night_speed()
+	sleep.call(false)
+	main.night_speed()
+	check(Engine.time_scale == 2.0, "la pausa di notte non fa perdere la velocità di prima")
+	Engine.time_scale = 3.0
+	sleep.call(true)
+	main.night_speed()
+	sleep.call(false)
+	main.night_speed()
+	check(Engine.time_scale == 3.0, "chi giocava già a 3x resta a 3x")
+	Engine.time_scale = 1.0
 	print("OK: menù delle opzioni e tasti")
 	quit()
 

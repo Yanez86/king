@@ -107,7 +107,10 @@
 ## Interfaccia: barre, menu, segni e progetto
 Deciso il 2026-11-20 (bozzetti provati sulle schermate). Le idee: in basso a sinistra le azioni sulla mappa, a sinistra
 le finestre in un menu che scompare, in basso a destra il tempo, in alto le informazioni.
-- **La velocità** (pausa, 1×, 2×, 3×) in basso a destra, in un pannello suo; Spazio, 1, 2, 3 restano. Il riquadro con
+- **La velocità** (pausa, 1×, 2×, 3×) in basso a destra, in un pannello suo; Spazio, 1, 2, 3 restano. **La notte
+  svelta**: quando tutti i coloni dormono (a letto o a terra, fermi) il gioco va da solo a 3× e torna alla velocità di
+  prima appena uno si sveglia (`night_speed`, in `_process`); in pausa aspetta, e se di notte il giocatore sceglie
+  un'altra velocità per quella notte vale la sua. Il riquadro con
   quello che c'è sotto il mouse, che stava in quell'angolo, sale sopra il pannello.
 - **La barra in basso**: Seleziona · Costruisci · Ordini · Distruggi | Viste. **Ordini** apre la sua barra, come
   Costruisci apre le categorie: Taglia, Scava, Estirpa, Raccogli, Orto, Pesca, Caccia, Ghiaccio (Orto e Ghiaccio quando

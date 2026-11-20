@@ -25,7 +25,7 @@ At midnight the narrator picks at most one event for the day, each as often as i
 • The day and the hour are in the top bar, on the right (hover them for the season and the year). The game starts at 8:00 on Crown Day, Year 1; a day lasts 4 minutes at normal speed, an hour 10 seconds.
 • The year has 365 days: Crown Day (New Year), then four seasons of three 30-day months, each closed by a feast day outside the months. Spring: Thaw, Sowing, Blossom, then the Flower Feast. Summer: Highsun, Haying, Ripening, then the Sickle Feast. Autumn: Reaping, Leaffall, Mists, then the Hearth Feast. Winter: Frost, Deepsnow, Longnight, then the Candle Feast.
 • Night lasts from 18:00 to 6:00: lamps and lanterns light up.
-• The speed buttons at the top right: pause, 1x, 2x, 3x. Or the keys: Space pauses (and from pause goes back to 1x), 1, 2 and 3 set the speed. The options menu pauses the game too.
+• The speed buttons at the top right: pause, 1x, 2x, 3x. Or the keys: Space pauses (and from pause goes back to 1x), 1, 2 and 3 set the speed. The options menu pauses the game too. When all the colonists are asleep the game goes to 3x by itself, and back to the speed it had as soon as one wakes; choose another speed during the night and it stays yours until morning.
 • Times in this wiki are seconds at 1x, for a worker of skill level 5 (see Skills).
 
 [color=#e8c34a]Top bar[/color]

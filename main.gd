@@ -2130,6 +2130,10 @@ var tool_names := {}        # nome del pulsante -> suggerimento senza il tasto
 var tool_buttons := {}      # nome -> pulsante: quelli della barra in basso e la Wiki, in alto (vedi setup_options)
 var rebinding := ""         # comando che aspetta il suo nuovo tasto, vedi capture_key
 var resume_speed := 1.0     # velocità a cui riprende il gioco chiudendo il menù delle opzioni
+# La notte svelta (vedi night_speed): la velocità a cui tornare quando qualcuno si sveglia, mentre tutti dormono e il
+# gioco è andato da solo a NIGHT_SPEED; -1 se non è notte, -2 se per questa notte la velocità l'ha scelta il giocatore
+var day_speed := -1.0
+const NIGHT_SPEED := 3.0
 var reserved := {}          # cella -> Colonist che la sta usando
 var unreachable := {}       # cella -> `clock` da cui riprovare ad arrivarci, vedi path_to_nearest
 var draft := {}             # cella -> [Build, Res]: progetto in preparazione, i coloni lo ignorano fino a "Build"
@@ -6154,6 +6158,26 @@ func draw_ground(cell: Vector2i, sheet: Image) -> void:
 			ground_image.blend_rect(sheet, tile_rect(i, corner + 3), cell * TILE)
 
 
+# tutti i coloni dormono: sono a letto (o a terra), fermi
+func all_asleep() -> bool:
+	return not colonists.is_empty() and colonists.all(func(c): return c.job == Job.SLEEP and c.path.is_empty())
+
+
+# La notte svelta: quando tutti i coloni dormono il gioco va da solo a NIGHT_SPEED, e appena uno si sveglia torna alla
+# velocità di prima. In pausa aspetta. Se intanto il giocatore sceglie un'altra velocità, per quella notte vale la sua
+func night_speed() -> void:
+	if not all_asleep():
+		if day_speed >= 0 and Engine.time_scale == NIGHT_SPEED:
+			Engine.time_scale = day_speed
+		day_speed = -1.0
+	elif Engine.time_scale > 0:
+		if day_speed == -1.0:
+			day_speed = Engine.time_scale if Engine.time_scale < NIGHT_SPEED else -2.0
+			Engine.time_scale = NIGHT_SPEED
+		elif Engine.time_scale != NIGHT_SPEED:
+			day_speed = -2.0
+
+
 # Il terreno di `cell`: acqua, ghiaia (dove c'era la roccia e l'erba non è tornata) o prato
 func ground_of(cell: Vector2i) -> int:
 	if water.has(cell):
@@ -6221,6 +6245,7 @@ func _process(delta: float) -> void:
 	if autosave_due:
 		autosave_due = false
 		autosave()
+	night_speed()
 	rock_sprite.texture = rock_textures[1 if ceiling_shown() else 0]
 	if shaky_for != [caves.size(), rocks.size(), furniture.hash(), built.size()]:  # un puntello messo o tolto, un muro
 		find_shaky()
@@ -14038,7 +14063,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if not event.echo and not (event.ctrl_pressed or event.alt_pressed or event.meta_pressed) and press_hotkey(event.keycode):
 			return
 		match event.keycode:
-			KEY_SPACE: Engine.time_scale = 0.0 if Engine.time_scale > 0 else 1.0
+			KEY_SPACE: Engine.time_scale = 0.0 if Engine.time_scale > 0 else (NIGHT_SPEED if day_speed >= 0 else 1.0)  # di notte riprende svelto
 			KEY_1: Engine.time_scale = 1.0
 			KEY_2: Engine.time_scale = 2.0
 			KEY_3: Engine.time_scale = 3.0
