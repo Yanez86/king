@@ -1170,7 +1170,7 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
 Deciso il 2026-11-20. La roccia vicina si unisce in un blocco solo e ci si scava dentro: gallerie e stanze sotto la
 montagna, sullo stesso piano della mappa (un piano sotto, con le scale, è un'altra cosa: forse poi).
 - **Massiccio e massi**: la roccia unita da un lato in gruppi di almeno 6 caselle (`MASSIF_MIN`) è **massiccio**: si
-  disegna come un blocco solo, la cima piatta e la parete in vista dove la casella sotto è aperta, gli angoli
+  disegna come un blocco solo, la cima piatta e la parete in vista (alta 10 pixel su 16) dove la casella sotto è aperta, gli angoli
   arrotondati dove due lati vicini sono aperti (`MASSIF_ROUND`). Quella sparsa resta
   di **massi** (1x1, 2x1, 2x2), che si scavano interi come prima. Le **montagne** sono i massicci grandi: il 7% della
   mappa (`MOUNTAIN_SHARE`), fuori dalla radura e dall'acqua, in due o tre blocchi da qualche centinaio di caselle; il

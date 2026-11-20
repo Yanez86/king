@@ -5336,24 +5336,24 @@ def massif_sheet():
         right[y][15], right[y][14] = "o", "R"
         left[y][0], left[y][1] = "o", "u"
     rnd = random.Random(7)
-    down[9] = ["R"] * 16  # l'orlo, poi la parete: più scura, rigata dall'acqua
-    for y in range(10, 15):
+    down[6] = ["R"] * 16  # l'orlo, poi la parete, alta 8 pixel: più scura, rigata dall'acqua
+    for y in range(7, 15):
         down[y] = ["i"] * 16
     for x in range(1, 16, 3):
-        for y in range(10, 10 + rnd.randrange(2, 5)):
+        for y in range(7, 7 + rnd.randrange(3, 8)):
             down[y][x] = "R"
     down[15] = ["o"] * 16
     corners = [blank() for _ in range(4)]
     corners[0][0][0] = corners[1][0][15] = "o"  # e un pixel per lato: l'angolo rientrante viene tondo
     corners[0][0][1] = corners[0][1][0] = corners[1][0][14] = corners[1][1][15] = "o"
-    for y in range(9, 16):
+    for y in range(6, 16):
         corners[2][y][15] = corners[3][y][0] = "o"
 
     def veins(seed, light, dark, big):
         rnd = random.Random(seed)
         g = blank()
         for _ in range(5):
-            x, y = rnd.randrange(2, 12), rnd.randrange(2, 7)
+            x, y = rnd.randrange(2, 12), rnd.randrange(1, 5)  # in alto: sotto, dove è aperto, c'è la parete
             g[y][x:x + 2] = light + dark
             g[y + 1][x:x + 2] = dark * 2
             if big:
