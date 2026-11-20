@@ -533,15 +533,23 @@ const STATION_ROOM := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.HEARTH: RoomKind.
 const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.COAL: 5, Res.OINTMENT: 3}  # scorte di partenza, vedi keep; i pasti
 	# MEALS_PER_COLONIST a testa
 enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT, ICE, GARDEN }  # cosa segna il trascinamento del mouse
-const ORDER_COLORS := [Color.TRANSPARENT, Color.ORANGE, Color("8fd3ff"), Color("9be36a"), Color("e6e2d0"),
-	Color("ff5a5a"), Color("c83030"), Color("d84a6a"), Color("6ab0e0"), Color("c87a3a"), Color("bfe6f2"), Color("c8a46a")]  # selezione e segni, per Order
+const ORDER_COLORS := [Color.TRANSPARENT, Color.ORANGE, Color("8fd3ff"), Color("f0d850"), Color("e6e2d0"),
+	Color("ff5a5a"), Color("c83030"), Color("d84a6a"), Color("6ab0e0"), Color("ff6a40"), Color("bfe6f2"), Color("c8a46a")]  # selezione
+	# e segni, per Order: il contorno di quello che è segnato (vedi draw_outline); estirpare giallo, sul prato si vede
 # Distruggi, e i tasti della barra degli Ordini (HUD/OrdersBar), uno alla volta (ButtonGroup "Orders"): vedi toggle_order
 const ORDER_TOOLS := {Order.DEMOLISH: "Destroy", Order.MINE: "Mine", Order.CHOP: "Chop", Order.UPROOT: "Uproot",
 	Order.HARVEST: "Harvest", Order.GARDEN: "Garden", Order.FISH: "Fish", Order.HUNT: "Hunt", Order.ICE: "Ice"}
-const ORDER_ICONS := {Order.CHOP: preload("res://art/icon_chop.png"), Order.MINE: preload("res://art/icon_mine.png"),
-	Order.UPROOT: preload("res://art/icon_uproot.png"), Order.HARVEST: preload("res://art/icon_harvest.png"),
-	Order.FISH: preload("res://art/icon_fishing.png"), Order.HUNT: preload("res://art/icon_hunting.png"),
-	Order.ICE: preload("res://art/icon_ice.png"), Order.GARDEN: preload("res://art/icon_garden.png")}  # le stesse dei tasti: piccole e velate sopra ciò che è segnato
+# I contorni dei segni (tools/make_sprites.py): un foglio per foglio di sprite, ogni riquadro un pixel più largo per lato
+const TREES_OUTLINE := preload("res://art/trees_outline.png")
+const PLANTS_OUTLINE := preload("res://art/plants_outline.png")
+const ANIMALS_OUTLINE := preload("res://art/animals_outline.png")
+const ROCK_OUTLINES := {  # sprite del masso -> il suo contorno
+	preload("res://art/rock_1x1.png"): preload("res://art/rock_1x1_outline.png"),
+	preload("res://art/rock_2x1.png"): preload("res://art/rock_2x1_outline.png"),
+	preload("res://art/rock_2x2.png"): preload("res://art/rock_2x2_outline.png"),
+	preload("res://art/rock_iron.png"): preload("res://art/rock_iron_outline.png"),
+	preload("res://art/rock_coal.png"): preload("res://art/rock_coal_outline.png"),
+}
 enum RoomKind { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE, WORKSHOP, CARPENTRY, INN, STUDY, THRONE_ROOM, PANTRY, ICEHOUSE,
 	ARMORY, ARCHERY_RANGE,  # la caserma (vedi CLASS_ROOM)
 	INFIRMARY }  # tipo di stanza, scelto dal cartello
@@ -11095,6 +11103,8 @@ func structure_src(cell: Vector2i, plan: Array, layers: Array) -> Rect2i:
 func draw_flat() -> void:  # sotto le ombre: il terreno lo disegna lo Sprite2D di bake_ground
 	for cell in weeds:  # basse: niente ombra
 		flat.draw_texture_rect_region(PLANTS, tile_rect(cell.x, cell.y), tile_rect(0, 0))
+		if uproot_marks.has(cell):
+			draw_outline(flat, PLANTS_OUTLINE, tile_rect(0, 0), tile_rect(cell.x, cell.y), Order.UPROOT)
 	draw_garden()
 	for cell in built:
 		if built[cell][0] in PAVING:
@@ -11210,9 +11220,15 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 				if layer == draft:
 					draw_rect(tile_rect(cell.x, cell.y), Color(0.55, 0.8, 1, 0.45))
 	for cell in boulders:  # stanno dentro le loro caselle: niente ordine per righe
-		draw_texture(boulder_tex(cell), Vector2(cell) * TILE)
+		var rock := boulder_tex(cell)
+		draw_texture(rock, Vector2(cell) * TILE)
+		if mine_marks.has(cell):
+			draw_outline(self, ROCK_OUTLINES[rock], Rect2(Vector2.ZERO, rock.get_size()), Rect2(Vector2(cell) * TILE, rock.get_size()), Order.MINE)
 	for cell in bushes:  # bassi, dentro la loro casella come i massi; con le bacche (o i fiori) se sono maturi
-		draw_texture_rect_region(PLANTS, tile_rect(cell.x, cell.y), tile_rect(plant_col(cell) + (1 if bushes[cell] <= clock else 0), 0))
+		var plant := Rect2(tile_rect(plant_col(cell) + (1 if bushes[cell] <= clock else 0), 0))
+		draw_texture_rect_region(PLANTS, tile_rect(cell.x, cell.y), plant)
+		if uproot_marks.has(cell) or harvest_marks.has(cell):
+			draw_outline(self, PLANTS_OUTLINE, plant, tile_rect(cell.x, cell.y), Order.UPROOT if uproot_marks.has(cell) else Order.HARVEST)
 	var decay := {}
 	for origin in decor_state:
 		decay[origin] = DECAY_TINT[decor_state[origin]]
@@ -11253,8 +11269,11 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 	var next := [0, 0]  # il prossimo da disegnare in `queue` e in `houses`
 	for cell in trees:
 		draw_upto(center(cell).y, queue, houses, holes, next)
-		draw_texture_rect_region(TREES, Rect2(Vector2(cell.x, cell.y - 1) * TILE, Vector2(1, 2) * TILE),
-			Rect2(Vector2(trees[cell], 0) * TILE, Vector2(1, 2) * TILE))
+		var trunk := Rect2(Vector2(cell.x, cell.y - 1) * TILE, Vector2(1, 2) * TILE)
+		var src := Rect2(Vector2(trees[cell], 0) * TILE, Vector2(1, 2) * TILE)
+		draw_texture_rect_region(TREES, trunk, src)
+		if chop_marks.has(cell):  # col suo contorno, sotto chi gli passa davanti
+			draw_outline(self, TREES_OUTLINE, src, trunk, Order.CHOP)
 	draw_upto(INF, queue, houses, holes, next)
 	for arrow in arrows:  # sopra tutto: volano
 		draw_arrow(arrow)
@@ -11263,21 +11282,10 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 			draw_texture(SIGN, Vector2(room.sign) * TILE)
 	draw_fire()
 
-	for cell in chop_marks:
-		draw_mark(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE), Order.CHOP)
-	for origin in mine_marks:
-		draw_mark(Rect2(Vector2(origin) * TILE, Vector2(boulders[origin]) * TILE), Order.MINE)
-	for cell in uproot_marks:
-		draw_mark(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE), Order.UPROOT)
-	for cell in harvest_marks:
-		draw_mark(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE), Order.HARVEST)
-	for cell in fish_marks:
-		draw_mark(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE), Order.FISH)
+	for cell in fish_marks:  # caselle d'acqua, senza un oggetto: la cornice del colore dell'ordine
+		draw_rect(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE).grow(-1.5), ORDER_COLORS[Order.FISH], false, 1.0)
 	for cell in ice_marks:
-		draw_mark(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE), Order.ICE)
-	for a in animals:
-		if a.marked:
-			draw_mark(Rect2(a.pos - Vector2(TILE / 2.0, TILE * 1.25), Vector2.ONE * TILE), Order.HUNT)  # sopra la testa
+		draw_rect(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE).grow(-1.5), ORDER_COLORS[Order.ICE], false, 1.0)
 	for c in people():
 		if is_working(c):  # barra di avanzamento del lavoro
 			draw_rect(Rect2(c.pos + Vector2(-6, -11), Vector2(12 * (1 - c.work_left / c.work_total), 2)), Color.YELLOW)
@@ -11317,10 +11325,12 @@ func draw_arrow(arrow: Arrow) -> void:
 	draw_rect(Rect2(tip - Vector2.ONE * 0.5, Vector2.ONE), Color("d0d0d8"))
 
 
-# Segno di un ordine: la sua icona a mezza misura, velata, al centro
-func draw_mark(rect: Rect2, kind: Order) -> void:
-	draw_texture_rect(ORDER_ICONS[kind], Rect2(rect.get_center() - Vector2.ONE * TILE / 4, Vector2.ONE * TILE / 2),
-		false, Color(1, 1, 1, 0.6))
+# Il segno di un ordine: il contorno dello sprite (il riquadro `src` del suo foglio) disegnato in `dest`, preso dal
+# foglio dei contorni `sheet` (ogni riquadro un pixel più largo per lato) e tinto col colore dell'ordine `which`
+func draw_outline(canvas: CanvasItem, sheet: Texture2D, src: Rect2, dest: Rect2, which: Order) -> void:
+	var at := (src.position / src.size).round()
+	canvas.draw_texture_rect_region(sheet, dest.grow(1), Rect2(at * (src.size + Vector2(2, 2)), src.size + Vector2(2, 2)),
+		ORDER_COLORS[which])
 
 
 # Lente delle stanze: ogni stanza finita velata col colore del suo tipo, il tipo scritto in mezzo (senza tipo, niente)
@@ -11697,10 +11707,11 @@ func draw_animal(a: Animal) -> void:
 	var at := (a.pos - Vector2.ONE * TILE / 2.0).round()
 	if a.left:
 		draw_set_transform(at + Vector2(TILE, 0), 0.0, Vector2(-1, 1))
-		draw_texture_rect_region(ANIMALS, Rect2(Vector2.ZERO, Vector2.ONE * TILE), animal_src(a))
-		draw_set_transform_matrix(Transform2D.IDENTITY)
-	else:
-		draw_texture_rect_region(ANIMALS, Rect2(at, Vector2.ONE * TILE), animal_src(a))
+		at = Vector2.ZERO
+	draw_texture_rect_region(ANIMALS, Rect2(at, Vector2.ONE * TILE), animal_src(a))
+	if a.marked:  # da cacciare: il contorno
+		draw_outline(self, ANIMALS_OUTLINE, animal_src(a), Rect2(at, Vector2.ONE * TILE), Order.HUNT)
+	draw_set_transform_matrix(Transform2D.IDENTITY)
 	if a.damage > 0:
 		draw_health(a.pos, 1.0 - a.damage / BEASTS[a.kind]["hp"])
 

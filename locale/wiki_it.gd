@@ -421,7 +421,7 @@ La vista calore (N) colora le stanze secondo la temperatura: rosso il caldo, gia
 • Pasto squisito: 5% per ogni livello sopra il 5, più 2% per ogni punto di comfort sopra 5 (meno, sotto): 25% a livello 10.
 • Il tempo dipende anche dal comfort della cucina e dalle condizioni del cuoco."""],
 
-	["Raccolta", """Segna cosa prendere con gli ordini della barra in basso, trascinando un rettangolo; le cose segnate portano un'icona tenue. Quello che si raccoglie cade ai piedi del lavoratore, che a lavoro finito lo porta in un magazzino.
+	["Raccolta", """Segna cosa prendere con gli ordini della barra Ordini, trascinando un rettangolo; una cosa segnata prende un contorno sottile del colore dell'ordine: arancio da tagliare, azzurro da scavare, giallo da estirpare, rosa da raccogliere, rosso aranciato da cacciare. L'acqua da pescare o il ghiaccio da tagliare hanno una cornice sulla casella. Quello che si raccoglie cade ai piedi del lavoratore, che a lavoro finito lo porta in un magazzino.
 
 [color=#e8c34a]Taglia (C)[/color] [img=center]res://art/icon_wood.png[/img]
 Alberi: quercia 28 legna, pino 35, betulla 20. Un colpo ogni 10 s ne dà 5.

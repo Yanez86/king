@@ -422,7 +422,7 @@ The Heat lens (N) tints rooms by temperature: red warm, yellow cool without a ma
 • Fine meal: 5% for every level above 5, plus 2% for every point of comfort above 5 (minus below): 25% at level 10.
 • The time also depends on the kitchen's comfort and the cook's conditions."""],
 
-	["Gathering", """Mark what to take with the orders of the bottom bar, dragging a rectangle; marked things carry a faint icon. What is gathered falls at the worker's feet, and when the job is done they carry it to a warehouse.
+	["Gathering", """Mark what to take with the orders of the Orders bar, dragging a rectangle; a marked thing gets a thin outline in the order's color: orange to chop, light blue to mine, yellow to uproot, pink to harvest, red-orange to hunt. Water to fish or ice to cut gets a frame on its tile. What is gathered falls at the worker's feet, and when the job is done they carry it to a warehouse.
 
 [color=#e8c34a]Chop (C)[/color] [img=center]res://art/icon_wood.png[/img]
 Trees: oak 28 wood, pine 35, birch 20. A stroke every 10 s gives 5.

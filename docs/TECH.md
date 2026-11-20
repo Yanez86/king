@@ -117,10 +117,10 @@ le finestre in un menu che scompare, in basso a destra il tempo, in alto le info
   alto apre ancora gli abitanti, la data il calendario. In alto a destra restano Wiki, Schermo e Opzioni.
 - **Esc**: chiude prima quello che è aperto (la costruzione, l'ordine scelto, il menu), poi le opzioni.
 - **I segni di raccolta**: niente più icona velata. L'oggetto segnato ha un contorno di 1 pixel nel colore del suo
-  ordine (arancio tagliare, azzurro scavare, rosa raccogliere, giallo estirpare; prima estirpare era verde chiaro e
-  sul prato spariva), che segue la sua sagoma e si disegna con lui (chi gli passa davanti lo copre). Gli animali da
-  cacciare hanno il contorno sulla loro sagoma; pesca e ghiaccio, caselle d'acqua senza un oggetto, una cornice del
-  colore dell'ordine. I contorni sono fogli fatti da `tools/make_sprites.py`, come le sagome.
+  ordine (arancio tagliare, azzurro scavare, rosa raccogliere, giallo estirpare, rosso aranciato cacciare; prima
+  estirpare era verde chiaro e sul prato spariva), che segue la sua sagoma e si disegna con lui (chi gli passa davanti
+  lo copre). Gli animali da cacciare hanno il contorno sulla loro sagoma; pesca e ghiaccio, caselle d'acqua senza un
+  oggetto, una cornice del colore dell'ordine. I contorni sono fogli fatti da `tools/make_sprites.py`, come le sagome.
 - **Il progetto in blu** (quello posato in costruzione e non ancora confermato) **resta**: uscendo dalla costruzione e
   nel salvataggio. Finché c'è, in alto al centro la **targa del progetto**: cosa c'è (23 muri, 1 porta, 1 letto), quanto
   costa (in rosso quello che in magazzino non basta), Costruisci (diventa lavoro), Modifica (riapre la costruzione, solo
@@ -134,6 +134,10 @@ le finestre in un menu che scompare, in basso a destra il tempo, in alto le info
   diverse (`TOOL_BARS`): il codice e le prove li trovano per nome con `tool()`, non per percorso. La barra delle Viste
   si apre accanto a quella in basso, alla sua altezza (sopra c'è il posto di Ordini e delle categorie di
   Costruisci). Ordini e Viste non hanno un tasto rapido loro (lo hanno i loro comandi), ma si può dare nelle opzioni.
+  Fatta la fase 2 lo stesso giorno (prove dei fogli in `tests/test_jobs.gd`): i fogli dei contorni hanno ogni riquadro
+  largo un pixel in più per lato (se no il contorno di uno sprite che tocca il bordo, come la quercia, resta tagliato),
+  e `draw_outline` li disegna un pixel più grandi, tinti col colore dell'ordine, subito dopo lo sprite. La caccia è
+  passata a un rosso aranciato (`ff6a40`): il marrone di prima sul coniglio non si vedeva.
 
 ## Versionamento
 - Git + GitHub (`Yanez86/king`).

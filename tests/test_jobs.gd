@@ -38,6 +38,16 @@ func _initialize() -> void:
 		check(main.boulders.get(cell) == Vector2i.ONE, "ogni vena è un masso da una casella")
 	check(main.stockpile.is_empty() and main.rooms.is_empty(), "niente magazzino all'inizio")
 
+	# i segni sono contorni: ogni foglio dei contorni ha un riquadro per sprite, un pixel più largo per lato
+	for pair in [[main.TREES, main.TREES_OUTLINE, Vector2(1, 2) * main.TILE], [main.PLANTS, main.PLANTS_OUTLINE, Vector2.ONE * main.TILE],
+			[main.ANIMALS, main.ANIMALS_OUTLINE, Vector2.ONE * main.TILE]]:
+		var tiles: Vector2 = (pair[0].get_size() / pair[2]).round()
+		check(pair[1].get_size() == tiles * (pair[2] + Vector2(2, 2)), "il foglio dei contorni ha un riquadro per sprite")
+	for cell in main.boulders:
+		var rock: Texture2D = main.boulder_tex(cell)
+		check(main.ROCK_OUTLINES.has(rock) and main.ROCK_OUTLINES[rock].get_size() == rock.get_size() + Vector2(2, 2), "ogni masso ha il suo contorno")
+	check(main.ORDER_COLORS[main.Order.UPROOT].h > 0.1 and main.ORDER_COLORS[main.Order.UPROOT].h < 0.2, "estirpare è giallo: sul prato si vede")
+
 	check(main.water.values().has(main.Ground.DEEP) and main.water.values().has(main.Ground.SHALLOW), "ci sono laghi")
 	for cell in main.water:
 		check(not main.rocks.has(cell) and not main.trees.has(cell), "niente rocce né alberi in acqua")
