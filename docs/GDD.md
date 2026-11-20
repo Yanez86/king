@@ -1177,9 +1177,16 @@ montagna, sullo stesso piano della mappa (un piano sotto, con le scale, è un'al
   accanto. Chiusa, è roccia come l'altra, e scavata dà comunque il suo minerale. Perché all'inizio ce ne sia sempre un
   po', su una mappa nuova sono in vista almeno 3 vene di ferro e 3 di carbone (`ORE_SHOWING`), in massi da una casella
   o sul bordo del massiccio.
-- **Stanze nella roccia** (fase 2): la cima del massiccio copre le gallerie come un tetto, e si apre guardandoci
-  dentro come i tetti delle case. Una porta in una galleria fa una stanza: la roccia vale già da muro (isola all'85%,
-  le cantine di 4.4.5). Niente tetto da costruire, niente pioggia né neve, non si coltiva.
+- **Gallerie e imbocco**: scavata dentro il massiccio (tutte le otto caselle attorno erano massiccio all'inizio:
+  `deep`), la casella è una **galleria** e la roccia le resta sopra; scavata sul bordo è a cielo aperto, l'**imbocco**.
+  In galleria si sta al riparo da pioggia e neve, e non si coltiva (sul massiccio scavato non si fa orto né pascolo).
+- **La cima che copre**: la cima del massiccio copre le gallerie come un tetto, sopra chi ci passa e quello che c'è
+  dentro: roccia come l'altra, appena più scura (si intuisce dove passano). Si toglie col pulsante Tetti, come i tetti
+  delle case, e da sola finché è scelto l'ordine Scava (si vede dove si scava); attorno al colono scelto si apre un
+  buco. Fuochi e luci sotto la cima non si vedono.
+- **Stanze nella roccia**: una porta in una galleria fa una stanza. La roccia vale da muro (isola all'85%, le cantine
+  di 4.4.5) e da tetto: niente tetto da costruire, niente usura, niente comignolo, niente incendi. Una stanza mezza
+  dentro e mezza fuori ha il tetto solo sulla parte fuori.
 - **Crolli e puntelli** (fase 3): una casella scavata regge se ha un sostegno entro 2 caselle: roccia piena, un
   puntello, un muro. Gallerie e stanze fino a 4 caselle di larghezza reggono da sole; oltre, al centro serve un pilastro
   di roccia lasciato lì o un **puntello** (di legno, una casella, la occupa). Senza sostegno la casella è
@@ -1190,10 +1197,15 @@ montagna, sullo stesso piano della mappa (un piano sotto, con le scale, è un'al
 - **Il sottosuolo** (fase 4): buio senza candele, temperatura stabile tutto l'anno, forse un malus d'umore a viverci.
 - **Ordine di lavoro**: (1) roccia unita, scavo a caselle, vene nascoste; (2) la cima che copre le gallerie, le stanze
   nella roccia; (3) crolli, puntelli, macerie; (4) buio e temperatura.
-- **Stato**: fatta la fase 1 il 2026-11-20 (prove in `tests/test_jobs.gd`, il salvataggio in `tests/test_saves.gd`). Il
+- **Stato**: fatte le fasi 1 e 2 il 2026-11-20 (prove in `tests/test_jobs.gd` e `tests/test_rock.gd`, il
+  salvataggio in `tests/test_saves.gd`). Le gallerie sono `caves` (non si salva: `find_caves` le rifà da `massif` e
+  `rocks`); `dig` scava una casella. Il massiccio è disegnato in due immagini, con le gallerie aperte e con la cima
+  sopra (lì la roccia accanto a una galleria non ha bordi): `_process` mostra quella giusta (`ceiling_shown`), e la
+  cima sopra le gallerie la disegna `_draw` dopo coloni e mobili (`draw_ceiling`). `update_roofs` salta le caselle
+  del massiccio. Poi: in costruzione la cima resta (come i tetti: si toglie col pulsante). Il
   massiccio è `massif` (com'era all'inizio: dove c'è ancora `rocks` è pieno, dove non c'è è scavato), fatto da
   `raise_mountains` e `find_massifs`; il foglio è `art/massif.png` (`massif_sheet` in `tools/make_sprites.py`). È
-  disegnato una volta in un'immagine grande come la mappa (`bake_rock`), sopra il terreno; scavando si rifanno la
+  disegnato una volta in immagini grandi come la mappa (`bake_rock`), sopra il terreno; scavando si rifanno la
   casella e le otto attorno (`redraw_rock`). `mine_marks` tiene insieme le origini dei massi e le caselle di massiccio.
   Una partita di prima non ha massiccio: la sua roccia resta tutta di massi. I numeri (6 caselle, 7%, 3 vene) sono da
   tarare giocando.

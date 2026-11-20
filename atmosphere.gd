@@ -293,7 +293,7 @@ func _process(delta: float) -> void:
 			smoke.modulate.a = IDLE_SMOKE if use == 0 else 1.0
 			smoke.scale_amount_max = 7.0 if use == 2 else 5.0
 			if fires[cell].size() > 1:
-				fires[cell][1].visible = not (main.roofs_shown and main.roofed.has(cell))
+				fires[cell][1].visible = not main.covered(cell)
 	for cell in blazes.keys():  # tetti spenti o bruciati del tutto
 		if not main.burning.has(cell):
 			blazes[cell].queue_free()
@@ -497,7 +497,7 @@ func draw_halos() -> void:
 	var seconds: float = main.clock * main.DAY_LENGTH
 	for cell in main.furniture:
 		var kind: int = main.furniture[cell][0]
-		if not reach.has(kind) or (main.roofs_shown and main.roofed.has(cell)):  # sotto un tetto non si vede
+		if not reach.has(kind) or main.covered(cell):  # sotto un tetto o sotto la roccia non si vede
 			continue
 		var r: float = reach[kind]
 		if kind == main.Build.CAMPFIRE:

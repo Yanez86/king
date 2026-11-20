@@ -1074,6 +1074,7 @@ const ORE_ROCKS := {Res.IRON: preload("res://art/rock_iron.png"), Res.COAL: prel
 # solo in diagonale (colonne di EDGE_CORNERS), le vene allo scoperto (ferro, carbone, e una seconda variante)
 const MASSIF := preload("res://art/massif.png")
 const MASSIF_SIDES := [2, 0, 1, 3]  # i lati aperti, nell'ordine in cui si disegnano: prima la parete, sopra i contorni
+const CAVE_SHADE := Color(0.84, 0.84, 0.9)  # la cima del massiccio sopra una galleria: un'ombra, si intuisce cosa c'è sotto
 # 128x544, righe: mobili nell'ordine di Build; colonne: quarti di giro in senso orario, ognuno in un riquadro 32x32
 const FURNITURE_SHEET := preload("res://art/furniture.png")
 const FURNITURE_NIGHT := preload("res://art/furniture_night.png")  # abat-jour e lampioni accesi
@@ -1904,8 +1905,13 @@ var massif := {}
 # cella -> Res.IRON o Res.COAL: scavata dà il minerale invece della pietra. Un masso 1x1 fuori dal massiccio, che si
 # vede; dentro il massiccio una casella, che si vede solo quando ha un lato aperto (vedi vein_shows)
 var ores := {}
-var rock_image: Image       # il massiccio disegnato, tutta la mappa (vedi bake_rock, draw_rock)
-var rock_texture: ImageTexture
+# cella -> true: le gallerie, il massiccio scavato che ha ancora la roccia sopra (vedi deep). Ci si sta al riparo; la
+# cima le copre come un tetto (vedi ceiling_shown). Non si salva: si rifà da massif e rocks (find_caves)
+var caves := {}
+# il massiccio disegnato, tutta la mappa (vedi bake_rock, draw_rock): [con le gallerie aperte, con la cima che le copre]
+var rock_images: Array[Image] = []
+var rock_textures: Array[ImageTexture] = []
+var rock_sprite: Sprite2D
 var water := {}             # cella -> Ground.SHALLOW (si guada) o Ground.DEEP (non si attraversa)
 var ground_texture: ImageTexture  # tutto il terreno già disegnato, vedi bake_ground
 var map_seed := 0           # del rumore della mappa: col salvataggio, rifà le chiazze di erba sassosa (vedi ground_noise)
@@ -5809,53 +5815,106 @@ func vein_shows(cell: Vector2i) -> bool:
 	return ores.has(cell) and (not massif.has(cell) or open_side(cell))
 
 
-# Il massiccio disegnato una volta in un'immagine grande come la mappa, sopra il terreno e sotto il resto (i massi li
-# disegna _draw); scavando si rifanno solo le caselle toccate (vedi draw_rock)
+# il massiccio in `cell` ha la roccia sopra: è dentro, non sul bordo di com'era all'inizio. Scavata lì è una galleria;
+# sul bordo è un taglio all'aperto, l'imbocco
+func deep(cell: Vector2i) -> bool:
+	return massif.has(cell) and (EDGE_SIDES + EDGE_CORNERS).all(func(d): return massif.has(cell + d))
+
+
+func find_caves() -> void:
+	caves.clear()
+	for cell in massif:
+		if not rocks.has(cell) and deep(cell):
+			caves[cell] = true
+
+
+# Scava via la roccia in `cell`: ci si passa, e se è massiccio diventa galleria (o imbocco) e si ridisegna
+func dig(cell: Vector2i) -> void:
+	rocks.erase(cell)
+	astar.set_point_solid(cell, false)
+	if deep(cell):
+		caves[cell] = true
+	redraw_rock(cell)
+
+
+# La cima del massiccio copre le gallerie, come i tetti le stanze: la toglie il pulsante Roofs, e l'ordine di scavare
+# finché è scelto (si vede dove si scava)
+func ceiling_shown() -> bool:
+	return roofs_shown and order != Order.MINE
+
+
+# sotto un tetto o sotto la roccia, quando si vedono: quello che c'è lì (fuochi, luci) non si vede
+func covered(cell: Vector2i) -> bool:
+	return (roofs_shown and roofed.has(cell)) or (ceiling_shown() and caves.has(cell))
+
+
+# Il massiccio disegnato una volta in due immagini grandi come la mappa, sopra il terreno e sotto il resto (i massi li
+# disegna _draw): una con le gallerie aperte, una come si vede con la cima sopra (i bordi delle gallerie non ci sono; la
+# cima sopra le gallerie la disegna _draw, sopra chi ci passa: vedi draw_ceiling). _process mostra quella giusta;
+# scavando si rifanno solo le caselle toccate (vedi redraw_rock)
 func bake_rock() -> void:
-	rock_image = Image.create_empty(MAP_SIZE.x * TILE, MAP_SIZE.y * TILE, false, Image.FORMAT_RGBA8)
+	find_caves()
 	var sheet := MASSIF.get_image()
 	sheet.convert(Image.FORMAT_RGBA8)
-	for cell in massif:
-		draw_rock(cell, sheet)
-	rock_texture = ImageTexture.create_from_image(rock_image)
-	var sprite := Sprite2D.new()
-	sprite.texture = rock_texture
-	sprite.centered = false
-	sprite.show_behind_parent = true
-	add_child(sprite)
+	rock_images.clear()
+	rock_textures.clear()
+	for closed in 2:
+		rock_images.append(Image.create_empty(MAP_SIZE.x * TILE, MAP_SIZE.y * TILE, false, Image.FORMAT_RGBA8))
+		for cell in massif:
+			draw_rock(cell, sheet, closed)
+		rock_textures.append(ImageTexture.create_from_image(rock_images[closed]))
+	rock_sprite = Sprite2D.new()
+	rock_sprite.texture = rock_textures[0]
+	rock_sprite.centered = false
+	rock_sprite.show_behind_parent = true
+	add_child(rock_sprite)
 
 
-# La casella `cell` del massiccio in rock_image: la cima (una variante fissa per casella), la parete se sotto è aperto,
-# il contorno sui lati aperti, gli angoli aperti solo in diagonale, la vena se è allo scoperto. Vuota se è scavata
-func draw_rock(cell: Vector2i, sheet: Image) -> void:
+# La casella `cell` del massiccio in rock_images[closed]: la cima (una variante fissa per casella), la parete se sotto è
+# aperto, il contorno sui lati aperti, gli angoli aperti solo in diagonale, la vena se è allo scoperto. Vuota se è
+# scavata. Con `closed` (la cima sopra le gallerie) una galleria accanto non è un lato aperto
+func draw_rock(cell: Vector2i, sheet: Image, closed: int) -> void:
 	var at := cell * TILE
-	rock_image.fill_rect(Rect2i(at, Vector2i.ONE * TILE), Color.TRANSPARENT)
+	var img := rock_images[closed]
+	img.fill_rect(Rect2i(at, Vector2i.ONE * TILE), Color.TRANSPARENT)
 	if not solid_massif(cell):
 		return
 	var variant: int = hash(cell) % 4
-	rock_image.blit_rect(sheet, tile_rect(variant, 0), at)
-	var open := func(d: Vector2i) -> bool: return not rocks.has(cell + d) and astar.is_in_boundsv(cell + d)
-	if vein_shows(cell):
-		rock_image.blend_rect(sheet, tile_rect((0 if ores[cell] == Res.IRON else 1) + variant % 2 * 2, 3), at)
+	img.blit_rect(sheet, tile_rect(variant, 0), at)
+	var open := func(d: Vector2i) -> bool:
+		return not rocks.has(cell + d) and astar.is_in_boundsv(cell + d) and not (closed == 1 and caves.has(cell + d))
+	if ores.has(cell) and SIDES.any(open):
+		img.blend_rect(sheet, tile_rect((0 if ores[cell] == Res.IRON else 1) + variant % 2 * 2, 3), at)
 	for i in MASSIF_SIDES:
 		if open.call(EDGE_SIDES[i]):
-			rock_image.blend_rect(sheet, tile_rect(i, 1), at)
+			img.blend_rect(sheet, tile_rect(i, 1), at)
 	for i in 4:
 		var d: Vector2i = EDGE_CORNERS[i]
 		if open.call(d) and not open.call(Vector2i(d.x, 0)) and not open.call(Vector2i(0, d.y)):
-			rock_image.blend_rect(sheet, tile_rect(i, 2), at)
+			img.blend_rect(sheet, tile_rect(i, 2), at)
 
 
 # dopo uno scavo: ridisegna il massiccio in `cell` e attorno (i vicini cambiano bordo, le vene si scoprono)
 func redraw_rock(cell: Vector2i) -> void:
-	if rock_image == null or not massif.has(cell):
+	if rock_images.is_empty() or not massif.has(cell):
 		return
 	var sheet := MASSIF.get_image()
 	sheet.convert(Image.FORMAT_RGBA8)
-	for k in cells_in(Rect2i(cell - Vector2i.ONE, Vector2i(3, 3))):
-		if massif.has(k):
-			draw_rock(k, sheet)
-	rock_texture.update(rock_image)
+	for closed in 2:
+		for k in cells_in(Rect2i(cell - Vector2i.ONE, Vector2i(3, 3))):
+			if massif.has(k):
+				draw_rock(k, sheet, closed)
+		rock_textures[closed].update(rock_images[closed])
+
+
+# La cima del massiccio sopra le gallerie, sopra chi ci passa e quello che c'è dentro: la roccia di sopra, un po' in
+# ombra. Aperta attorno al colono scelto, come i buchi nei tetti (vedi roof_holes)
+func draw_ceiling() -> void:
+	var chosen: Colonist = shown if sheet_panel.visible else null
+	var hole := Rect2i(cell_of(chosen.pos) - Vector2i.ONE, Vector2i(3, 3)) if chosen != null else Rect2i()
+	for cell in caves:
+		if not hole.has_point(cell):
+			draw_texture_rect_region(MASSIF, tile_rect(cell.x, cell.y), tile_rect(hash(cell) % 4, 0), CAVE_SHADE)
 
 
 # Il torrente (GDD 4.4.7): da un bordo della mappa a quello di fronte, serpeggiando a STREAM_REACH caselle dal centro
@@ -5985,6 +6044,7 @@ func _process(delta: float) -> void:
 	if autosave_due:
 		autosave_due = false
 		autosave()
+	rock_sprite.texture = rock_textures[1 if ceiling_shown() else 0]
 	toast.visible = Time.get_ticks_msec() < toast_until
 	toast.modulate.a = clampf((toast_until - Time.get_ticks_msec()) / 500.0, 0.0, 1.0)  # sparisce nell'ultimo mezzo secondo
 	stored_label.text = str(Res.values().map(stored).reduce(func(a, b): return a + b, 0))
@@ -6175,9 +6235,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 					add_soil(c.target, SOIL_HUMUS)  # l'humus del bosco
 				Job.MINE:
 					for cell in cells:
-						rocks.erase(cell)
-						astar.set_point_solid(cell, false)
-						redraw_rock(cell)
+						dig(cell)
 					boulders.erase(c.target)
 					ores.erase(c.target)
 					mine_marks.erase(c.target)
@@ -7368,7 +7426,7 @@ func sowing_season(crop: Crop) -> bool:
 
 # sul prato libero, fuori dalle stanze: ci si può fare l'orto
 func can_plant(cell: Vector2i) -> bool:
-	return not garden.has(cell) and not pasture.has(cell) and can_build(cell, Build.WALL) and ground_of(cell) == Ground.GRASS and not roofed.has(cell)
+	return not garden.has(cell) and not pasture.has(cell) and can_build(cell, Build.WALL) and ground_of(cell) == Ground.GRASS and not roofed.has(cell) and not massif.has(cell)
 
 
 # quello che cresce in `cell`, o la prossima coltura del piano da seminarci; -1 se quest'anno non c'è più niente
@@ -7587,9 +7645,9 @@ func role(kind: int) -> int:
 	return ROLE.get(kind, kind)
 
 
-# dentro una stanza o sotto il suo tetto (muri e porte), dove il tetto non ha un buco
+# dentro una stanza o sotto il suo tetto (muri e porte), dove il tetto non ha un buco; o in una galleria
 func sheltered(cell: Vector2i) -> bool:
-	return (roofed.has(cell) or room_at(cell) != null) and not holed(cell)
+	return ((roofed.has(cell) or room_at(cell) != null) and not holed(cell)) or caves.has(cell)
 
 
 # 0-COMFORT_MAX: i mobili dentro la stanza, per pezzo, e il pavimento, per la parte di stanza che copre; per materiale
@@ -13402,8 +13460,8 @@ func update_roofs() -> void:
 			for dx in [-1, 0, 1]:
 				for dy in [-1, 0, 1]:
 					var k: Vector2i = cell + Vector2i(dx, dy)
-					if room.cells.has(k) or built.get(k, [Build.FLOOR])[0] not in PAVING:
-						cells[k] = true
+					if (room.cells.has(k) or built.get(k, [Build.FLOOR])[0] not in PAVING) and not massif.has(k):
+						cells[k] = true  # non nel massiccio: lì il tetto è la roccia
 		var spot: int = absi(hash(room.cells.keys().min()))
 		var shade := 1.0 - ROOF_TINT * (spot % 5) / 4.0
 		for rect in rectangles(cells):
@@ -14014,6 +14072,8 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 		if chop_marks.has(cell):  # col suo contorno, sotto chi gli passa davanti
 			draw_outline(self, TREES_OUTLINE, src, trunk, Order.CHOP)
 	draw_upto(INF, queue, houses, holes, next)
+	if ceiling_shown():
+		draw_ceiling()
 	for arrow in arrows:  # sopra tutto: volano
 		draw_arrow(arrow)
 	if roofs_shown:  # di nuovo i cartelli: restano sopra i tetti e si cliccano
@@ -14080,10 +14140,9 @@ func draw_outline(canvas: CanvasItem, sheet: Texture2D, src: Rect2, dest: Rect2,
 func draw_lights() -> void:
 	if sun_height() < 0:
 		var lit := furniture.duplicate()
-		if roofs_shown:  # sotto i tetti non si vedono
-			for origin in furniture:
-				if roofed.has(origin):
-					lit.erase(origin)
+		for origin in furniture:  # sotto i tetti e sotto la roccia non si vedono
+			if covered(origin):
+				lit.erase(origin)
 		draw_pieces(lights_canvas, FURNITURE_GLOW, lit)
 
 

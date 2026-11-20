@@ -68,6 +68,8 @@ func _initialize() -> void:
 	var roof_cell: Vector2i = main.roofed.keys()[0]
 	main.wear[roof_cell] = 0.4
 	main.ice_marks[main.water.keys()[0]] = true
+	var tunnel: Vector2i = main.massif.keys().filter(func(k): return main.deep(k))[0]  # una galleria scavata nella montagna
+	main.dig(tunnel)
 	# lavoro a metà: alberi da tagliare vicino alla radura, legna a terra da portare in magazzino
 	main.order = main.Order.CHOP
 	main.mark(Rect2i(mid - Vector2i(14, 14), Vector2i(28, 28)))
@@ -148,8 +150,9 @@ func _initialize() -> void:
 	check(grid, "la stessa griglia dei percorsi: roccia, acqua, muri, palizzata, strada")
 	check(copy.ground_cols == main.ground_cols and copy.map_seed == main.map_seed and copy.gravel == main.gravel
 		and not copy.gravel.is_empty(), "lo stesso terreno, con la roccia di partenza")
-	check(copy.massif == main.massif and not copy.massif.is_empty() and copy.rock_image.get_data() == main.rock_image.get_data(),
+	check(copy.massif == main.massif and not copy.massif.is_empty() and copy.rock_images[1].get_data() == main.rock_images[1].get_data(),
 		"lo stesso massiccio, disegnato uguale")
+	check(copy.caves == main.caves and copy.caves.has(tunnel) and not copy.rocks.has(tunnel), "le gallerie si ritrovano")
 	check(copy.realm_button.text == main.realm_button.text, "il reame nella barra in alto")
 
 	# avanti insieme: col caso uguale, le due partite restano uguali (senza cartella: niente salvataggi all'alba)

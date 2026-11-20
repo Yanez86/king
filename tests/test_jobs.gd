@@ -54,9 +54,9 @@ func _initialize() -> void:
 	check(sheet.get_size() == Vector2i(4, 4) * main.TILE, "il foglio del massiccio: cima, lati, angoli, vene")
 	var inside: Array = main.massif.keys().filter(func(k): return (main.EDGE_SIDES + main.EDGE_CORNERS).all(func(d): return main.massif.has(k + d)) and not main.ores.has(k))
 	var face: Array = main.massif.keys().filter(func(k): return not main.rocks.has(k + Vector2i.DOWN) and main.astar.is_in_boundsv(k + Vector2i.DOWN))
-	check(main.rock_image.get_pixelv(inside[0] * main.TILE + Vector2i(8, 15)) != main.rock_image.get_pixelv(face[0] * main.TILE + Vector2i(8, 15)),
+	check(main.rock_images[0].get_pixelv(inside[0] * main.TILE + Vector2i(8, 15)) != main.rock_images[0].get_pixelv(face[0] * main.TILE + Vector2i(8, 15)),
 		"dove sotto è aperto il massiccio mostra la parete")
-	check(main.rock_image.get_pixelv(main.boulders.keys()[0] * main.TILE + Vector2i(8, 8)).a == 0.0, "fuori dal massiccio niente: i massi li disegna _draw")
+	check(main.rock_images[0].get_pixelv(main.boulders.keys()[0] * main.TILE + Vector2i(8, 8)).a == 0.0, "fuori dal massiccio niente: i massi li disegna _draw")
 	check(main.stockpile.is_empty() and main.rooms.is_empty(), "niente magazzino all'inizio")
 
 	# i segni sono contorni: ogni foglio dei contorni ha un riquadro per sprite, un pixel più largo per lato
@@ -251,7 +251,7 @@ func _initialize() -> void:
 	for k in main.cells_in(block):
 		main.redraw_rock(k)
 	check(not main.vein_shows(vein) and main.describe(vein)[0] == "Rock", "la vena in mezzo non si vede")
-	var rock_px: Color = main.rock_image.get_pixelv(vein * main.TILE + Vector2i(8, 8))
+	var rock_px: Color = main.rock_images[0].get_pixelv(vein * main.TILE + Vector2i(8, 8))
 	main.mark(Rect2i(vein + Vector2i.LEFT, Vector2i(2, 1)))  # la casella sul bordo e quella in mezzo
 	check(main.mine_marks.size() == 2 and main.mine_marks.has(vein), "il massiccio si segna a caselle")
 	check(main.full_stock(vein) == main.STONE_PER_CELL, "ogni casella ha la sua pietra")
@@ -267,12 +267,12 @@ func _initialize() -> void:
 		if not main.rocks.has(vein + Vector2i.LEFT) and main.rocks.has(vein) and not seen_vein:
 			seen_vein = true
 			check(main.vein_shows(vein) and main.describe(vein) == ["Coal vein", "Coal left: 5 / 5\nMarked: mine"], "scavando accanto la vena si scopre")
-			check(main.rock_image.get_pixelv(vein * main.TILE + Vector2i(8, 8)) != rock_px \
-				or main.rock_image.get_region(Rect2i(vein * main.TILE, Vector2i.ONE * main.TILE)).get_data() != main.rock_image.get_region(Rect2i((vein + Vector2i.UP) * main.TILE, Vector2i.ONE * main.TILE)).get_data(),
+			check(main.rock_images[0].get_pixelv(vein * main.TILE + Vector2i(8, 8)) != rock_px \
+				or main.rock_images[0].get_region(Rect2i(vein * main.TILE, Vector2i.ONE * main.TILE)).get_data() != main.rock_images[0].get_region(Rect2i((vein + Vector2i.UP) * main.TILE, Vector2i.ONE * main.TILE)).get_data(),
 				"e si disegna")
 	check(seen_vein and main.mine_marks.is_empty(), "scavate le due caselle, la seconda dopo la prima")
 	check(not main.rocks.has(vein) and main.massif.has(vein) and not main.astar.is_point_solid(vein), "la casella scavata è una galleria: ci si passa")
-	check(main.rock_image.get_pixelv(vein * main.TILE + Vector2i(8, 8)).a == 0.0, "scavata, il massiccio lì non si disegna più")
+	check(main.rock_images[0].get_pixelv(vein * main.TILE + Vector2i(8, 8)).a == 0.0, "scavata, il massiccio lì non si disegna più")
 	check(main.total(main.Res.COAL) == coal_before + main.STONE_PER_CELL and main.total(S) == stone_before + main.STONE_PER_CELL, "una casella di pietra, una di carbone")
 	check(main.cells_in(block).filter(func(k): return main.rocks.has(k)).size() == 7 and main.solid_massif(vein + Vector2i.UP), "il resto del blocco è ancora roccia")
 	for k in main.cells_in(block):  # via il blocco: il resto delle prove vuole il prato

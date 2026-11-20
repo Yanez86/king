@@ -18,7 +18,7 @@
 | Risorse ed edifici | 4.4 | fatto | vene d'oro, commercio |
 | Cibo e orto | 4.4.1 | fatto, coi concimi | — (il resto è in 4.4.7) |
 | Grano, forno e animali | 4.4.7 | fatto: torrente, grano, mulini, forno, allevamento, stalla, api, banchetto | maiali e marcio, mantello di lana |
-| Roccia e gallerie | 4.4.8 | fase 1: roccia unita, scavo a caselle, vene nascoste | stanze nella roccia, crolli e puntelli, il buio |
+| Roccia e gallerie | 4.4.8 | fasi 1–2: roccia unita, scavo a caselle, vene nascoste, gallerie e stanze nella roccia | crolli e puntelli, il buio |
 | Forgia e sartoria | 4.4.2 | fatto | ordini "fanne N", qualità degli oggetti |
 | Combattimento | 4.4.3 | fatto | predoni, medico e cure |
 | Avventurieri e rovine | 4.4.4 | fasi 1–3, chi resta, coloni in spedizione | vene d'oro, commercio, una rovina sulla mappa |
@@ -137,11 +137,10 @@ mucche, latte, formaggio, lana, letame), 5 (la macina a trazione, poi rifatta co
 
 ## Roccia, gallerie e stanze nella montagna (4.4.8)
 
-Deciso il 2026-11-20; fatta la fase 1 (la roccia unita in massicci, le montagne, lo scavo casella per casella, le vene
-che si vedono solo allo scoperto). Resta:
+Deciso il 2026-11-20; fatte la fase 1 (la roccia unita in massicci, le montagne, lo scavo casella per casella, le vene
+che si vedono solo allo scoperto) e la 2 (le gallerie sotto la cima del massiccio, che si toglie con Tetti o scavando;
+le stanze nella roccia, senza tetto). Resta:
 
-- [ ] Fase 2: la cima del massiccio che copre le gallerie e si apre guardandoci dentro; le stanze nella roccia (porta
-  nella galleria, niente tetto, niente pioggia né neve).
 - [ ] Fase 3: crolli, puntelli e macerie; in rosso, segnando lo scavo, le caselle che resterebbero senza sostegno.
 - [ ] Fase 4: il buio e la temperatura del sottosuolo.
 - [ ] Tarare i numeri: quanta montagna, da quante caselle è massiccio, quante vene in vista, il tempo per casella.
