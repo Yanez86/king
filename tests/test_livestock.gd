@@ -46,6 +46,23 @@ func _initialize() -> void:
 	check(main.pasture.size() == 48 and main.pasture.values().all(func(g): return g == main.GRASS_MAX), "48 caselle di pascolo, l'erba alta")
 	var corner: Vector2i = field.position
 	check(not main.can_build(corner) and not main.can_plant(corner), "sul pascolo non si costruisce né si fa l'orto")
+	# la staccionata: un tratto per lato di bordo, coi pali ai capi; di fronte e dietro la base sta sul bordo della casella
+	var runs: Array = main.fence_runs()
+	var edge := Vector2(corner * main.TILE)
+	check(runs.size() == 2 * (8 + 6) and runs.filter(func(r): return r["src"] == main.FENCE_RUN).size() == 16
+		and runs.filter(func(r): return r["src"] == main.FENCE_SIDE).size() == 12, "28 tratti di staccionata: 16 di fronte e dietro, 12 di lato")
+	check(runs.any(func(r): return r["src"] == main.FENCE_RUN and r["pos"] == edge and r["at"] == edge + Vector2(-2, -12))
+		and runs.any(func(r): return r["src"] == main.FENCE_RUN and r["pos"] == edge + Vector2(0, 6 * main.TILE)),
+		"dietro sul bordo in alto, davanti su quello in basso")
+	check(main.center(corner + Vector2i(0, 5)).y < edge.y + 6 * main.TILE and main.center(corner + Vector2i(0, 6)).y > edge.y + 6 * main.TILE,
+		"chi è nell'ultima fila passa dietro al tratto davanti, chi è fuori gli passa davanti")
+	check(main.FENCE.get_size() == Vector2(56, 29) and main.FENCE_PATCHES.all(func(p): return Rect2(Vector2.ZERO, main.FENCE.get_size()).encloses(p)),
+		"i pezzi stanno nel foglio della staccionata")
+	check(main.fence_runs() == runs, "finché il pascolo non cambia i tratti restano quelli")
+	main.pasture.erase(corner)
+	check(main.fence_runs().size() == 2 * (8 + 6) and main.fence_runs().any(func(r): return r["src"] == main.FENCE_RUN and r["pos"] == edge + Vector2(0, main.TILE)),
+		"tolto un angolo, la staccionata gli gira attorno")
+	main.pasture[corner] = main.GRASS_MAX
 	var coop := corner + Vector2i(1, 0)
 	check(main.piece_fits(coop, [main.Build.COOP, main.Res.WOOD, 0]), "il pollaio sul pascolo")
 	check(not main.piece_fits(corner - Vector2i(3, 0), [main.Build.COOP, main.Res.WOOD, 0]), "il pollaio fuori dal pascolo no")

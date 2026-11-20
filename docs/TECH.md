@@ -80,6 +80,14 @@
 ## Grafica
 - Sprite attuali: disegnati come griglie di caratteri in `tools/make_sprites.py` → PNG in `art/` (`python3 tools/make_sprites.py`). Le parti bianche (capelli, maglia) vengono tinte in gioco per ogni colono.
 - Logo, splash e schermata del titolo: `tools/make_splash.py` (usa gli sprite di `make_sprites.py`) → `art/title_scene.png` (scena di notte, 16 fotogrammi uno sotto l'altro), `art/title_logo.png`, prove di splash in `art/splash/`. Il gioco parte da `title.tscn` (menu), "New Game" apre `main.tscn`.
+- La staccionata del pascolo: `art/fence.png` (`fence_sheet` in `tools/make_sprites.py`), legno chiaro col contorno
+  scuro come il tasto Pasture. Due pezzi: un tratto di fronte (20×13: i pali ai capi, due traverse con l'ombra sotto,
+  tra le quali si vede l'erba) e uno di lato (4×29: due pali e tra loro le traverse viste di taglio, più scure). I pali
+  ai capi sono uguali in tutti i tratti, così dove si toccano si ridisegnano uno sull'altro e gli angoli vengono da sé.
+  Si disegnano in mezzo a coloni e animali, dall'alto in basso (`fence_runs` li mette in coda con loro, vedi
+  `draw_upto`): chi è dentro passa dietro al tratto davanti, chi è fuori gli passa davanti. Prima era fatta di
+  rettangoli a terra, sotto tutto. Nello stesso foglio le quattro chiazze di terra del pascolo brucato: fino a 6 per
+  casella, sempre negli stessi punti, al posto del velo che faceva vedere le caselle a scacchi (`draw_pasture`).
 - Personaggi: fogli 96×64 (4 direzioni × 6 fotogrammi) disegnati uno sull'altro, nell'ordine di `figure_layers` in `main.gd`
   (corpo, maglia, mantello, armatura, capelli, acconciatura, barba, copricapo, oggetto in mano). I fogli con più voci
   (`colonist_hair_styles`, `colonist_gear`, `colonist_hands`) le hanno una sotto l'altra, 64 px ciascuna. Elmo, cappuccio
@@ -171,7 +179,7 @@ quello che manca) e quattro colori (oro si vuole, arancio si sta facendo, rosso 
     insieme, solo icone. I collegamenti hanno il colore dello stato: oro si vuole e si può, arancio si sta facendo,
     rosso è fermo, grigio non è chiesto. Si vedono solo le ricette sbloccate.
 - **Sulla mappa**: sopra la postazione dove si lavora un fumetto con l'oggetto e la barra (al posto della barretta
-  gialla sulla testa di chi lavora); sopra quella che ha qualcosa da fare e non può, un fumetto rosso con quello che
+  gialla sulla testa di chi lavora); sopra quella che ha qualcosa da fare e non può, un fumetto con quello che
   manca e il punto esclamativo. Le postazioni libere niente. Col mouse sopra, il riquadro in basso a destra dice chi
   lavora e a cosa, e cosa viene dopo.
 - **Il perché** (`make_block`): la postazione non lavora; il quaderno senza abbastanza studio; un ingrediente che nei
@@ -212,8 +220,30 @@ quello che manca) e quattro colori (oro si vuole, arancio si sta facendo, rosso 
   postazione non ha più la barretta sulla testa. Le postazioni ferme si ricalcolano ogni 30 fotogrammi (`update_stuck`):
   ferma è quella a cui manca qualcosa, dove nessuno lavora e niente si può cominciare; il fumetto mostra l'ingrediente
   che manca (`short_of`, che usa anche `make_block`) o, se è la postazione a non lavorare, l'oggetto. Il riquadro col
-  mouse sopra è `station_about`. Da vedere giocando: il fumetto rosso resta finché manca l'ingrediente (l'unguento
-  tutto l'inverno, senza erbe); si toglie mettendo la scorta a 0.
+  mouse sopra è `station_about`. Da vedere giocando: il fumetto di una postazione ferma resta finché manca l'ingrediente
+  (l'unguento tutto l'inverno, senza erbe); si toglie mettendo la scorta a 0.
+  I fumetti come quelli dei fumetti (chiesto lo stesso giorno, dopo averli visti): bianchi, col bordo scuro, gli angoli
+  smussati e la punta in basso; l'icona ha un contorno scuro, perché sul bianco quelle chiare (il lingotto, l'elmo)
+  sparivano. Lo stato non è più il colore del bordo: chi lavora ha la barra arancio sotto l'icona, la postazione ferma
+  il punto esclamativo rosso in alto a destra, e dondola di un pixel. Spuntano crescendo (`bubble_born`, 180 ms).
+
+## Interfaccia: le animazioni
+Fatte il 2026-11-20 (prove in `tests/test_options.gd`). Brevi, e solo nel modo di mostrarsi: una finestra c'è e si usa
+dal primo istante, e finita l'animazione tutto è com'era. Vanno col tempo vero, anche a gioco fermo
+(`set_ignore_time_scale`, come il menu a sinistra).
+- **Le finestre** si aprono comparendo e crescendo un poco dal centro (`pop`, 0,16 s, da 0,92; collegata a
+  `visibility_changed` di tutte le finestre e delle opzioni). Chiudendosi spariscono e basta.
+- **Le barre** sopra quella in basso (ordini, viste, categorie, strutture, mobili) salgono dal loro bordo inferiore
+  (`rise_bar`).
+- **I tasti** con la sola icona (barra in basso e le sue barre, velocità, schermo e opzioni) si stringono un attimo,
+  premuti (`press_button`). Quelli del menu a sinistra no: sono larghi, e si vedrebbe male.
+- **I numeri** della barra in alto (coloni, letti, splendore), quando cambiano, si accendono d'oro e fanno un saltello
+  (`set_count`). Il totale del magazzino no: cambia di continuo.
+- **I pallini d'oro** del menu pulsano (`add_dot`, `hud_dots`); **i fumetti** sulle postazioni spuntano crescendo, e
+  quello di una postazione ferma dondola (vedi sopra).
+- Un'animazione nuova sostituisce quella che il controllo stava facendo (`hud_tween`, che la tiene nel suo `meta`). Le
+  prove non aspettano il tempo, che lì non scorre come nel gioco: le fanno avanzare con `custom_step`.
+- Poi: una voce nelle opzioni per spegnerle.
 
 ## Versionamento
 - Git + GitHub (`Yanez86/king`).

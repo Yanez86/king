@@ -235,7 +235,8 @@ func _initialize() -> void:
 	check(shops.visible and not main.production_panel.get_node("Box/Chains").visible, "di nuovo le Officine")
 	# sulla mappa: il fumetto rosso sull'incudine ferma, con quello che manca; la fornace, libera, niente
 	main.update_stuck()
-	check(main.stuck_marks == {anvil: I} and main.map_bubbles() == [[anvil, I, 0.0, true]], "il fumetto rosso sull'incudine: mancano i lingotti")
+	check(main.stuck_marks == {anvil: I} and main.map_bubbles() == [[anvil, I, 0.0, true]], "il fumetto sull'incudine ferma: mancano i lingotti")
+	check(main.bubble_born.keys() == [anvil], "da quando c'è il fumetto: spunta crescendo")
 	check(main.short_of(main.Res.PICKAXE) == [I, 2, 0] and main.short_of(I).is_empty() and main.short_of(main.Res.MEAL).is_empty(),
 		"l'ingrediente che manca, quanti ne servono e quanti ce ne sono")
 	check(main.describe(anvil) == ["Anvil", "Then: 1 pickaxe (stopped), 1 axe (stopped), 3 helmet (stopped)…\nClick: what to make"]

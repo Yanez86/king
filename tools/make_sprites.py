@@ -4544,6 +4544,44 @@ def fence_icon():
     return outlined(px)
 
 
+def fence_sheet():
+    """La staccionata del pascolo e le chiazze di terra brucata, 56x29 (vedi FENCE in main.gd), nello stile del tasto
+    Pasture: legno chiaro col contorno scuro. A sinistra un tratto di fronte, 20x13: i due pali ai capi (4 pixel col
+    contorno, la base sulla riga 12) e due traverse con la sola ombra sotto, così tra l'una e l'altra si vede l'erba.
+    Poi un tratto di lato, 4x29: il palo in alto, quello in basso e tra loro le traverse viste di taglio, una trave
+    più scura. I pali ai capi sono uguali in tutti i tratti: dove due tratti si toccano si ridisegnano uno sull'altro.
+    Infine quattro chiazze di terra battuta, in riquadri 8x6: più l'erba è brucata, più se ne vedono."""
+    g = [["."] * 56 for _ in range(29)]
+
+    def post(x0, y0):
+        for y in range(y0 + 1, y0 + 12):
+            g[y][x0:x0 + 4] = "ocCo"
+        g[y0][x0:x0 + 4] = ".oo."
+        g[y0 + 1][x0:x0 + 4] = "occo"
+        g[y0 + 11][x0:x0 + 4] = "oCwo"
+        g[y0 + 12][x0:x0 + 4] = ".oo."
+
+    for top in (2, 7):  # di fronte: le due traverse, luce, ombra e sotto il contorno
+        for x in range(4, 16):
+            g[top][x], g[top + 1][x], g[top + 2][x] = "c", "C", "o"
+    post(0, 0)
+    post(16, 0)
+    for y in range(4, 26):  # di lato: le traverse di taglio, da un palo all'altro
+        g[y][20:24] = "ocCo"
+    post(20, 0)
+    post(20, 16)
+    for y in range(12, 17):  # tra i due pali le traverse, più scure: una trave sola, senza interruzioni
+        g[y][20:24] = "oCwo"
+    for i, patch in enumerate((
+            ("..((((..", ".((_((()", "((((()((", ".(()))).", "..())...", "........"),
+            (".(((....", "((_(()..", "(((()...", ".()))...", "........", "........"),
+            ("...(((..", ".((_(()(", "((()((()", ".())))).", "........", "........"),
+            ("(((.....", "(_()....", ".))....." , "........", "........", "........"))):
+        for y, row in enumerate(patch):
+            g[y][24 + i * 8:32 + i * 8] = row
+    return ["".join(r) for r in g]
+
+
 def coop():
     """Pollaio 2x1 nei quattro quarti di giro: una casetta di assi col tetto di paglia, la porticina e la scaletta.
     Di lato, la casetta lunga vista dall'alto; dietro, senza porta."""
@@ -5331,6 +5369,7 @@ def main():
                         ("honey", HONEY_ICON), ("wax", WAX_ICON), ("candle", CANDLE_ICON)):
         images["icon_" + name] = pixels(art(block, 16, 16))
     images["icon_pasture"] = pixels(fence_icon())
+    images["fence"] = pixels(fence_sheet())
     hen = [row[:16] for row in art(LIVESTOCK.replace(" ", ""), 32, 64)[:16]]
     images["icon_husbandry"] = pixels(hen[5:] + ["." * 16] * 5)  # la gallina, un po' più su
     images["field_sign"] = pixels(art(FIELD_SIGN, 16, 16))

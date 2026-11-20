@@ -254,7 +254,8 @@ italiano: scheda del colono a due colonne, data e meteo di nuovo nella barra in 
 - [ ] I contatori di studio e autorità nella barra in alto: vedi Ricerca.
 - [ ] La produzione che si vede (fatta il 2026-11-20, vedi [TECH](TECH.md), "Interfaccia: la produzione"): provarla
   giocando col mouse vero (i clic sui riquadri, il trascinamento delle finestre), in inglese e con colonie grandi; il
-  fumetto rosso che resta finché manca un ingrediente (l'unguento d'inverno) è da tarare.
+  fumetto col punto esclamativo che resta finché manca un ingrediente (l'unguento d'inverno) è da tarare.
+- [ ] Le animazioni dell'interfaccia (fatte il 2026-11-20, vedi [TECH](TECH.md)): una voce nelle opzioni per spegnerle.
 
 ## Distribuzione
 

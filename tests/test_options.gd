@@ -261,6 +261,28 @@ func _initialize() -> void:
 	var day: float = main.clock
 	main.get_node("HUD/Options/Window/Box/Body/Pages/Debug/Advance").pressed.emit()
 	check(is_equal_approx(main.clock, day + 0.5), "avanti di 12 ore")
+	# le animazioni dell'interfaccia: brevi, e finite lasciano tutto com'era
+	press(main, KEY_J)
+	check(main.jobs_panel.visible and main.jobs_panel.modulate.a == 0.0, "una finestra che si apre: c'è subito, e compare")
+	main.tool("Build").button_down.emit()
+	check(main.tool("Build").scale == Vector2.ONE * main.PRESS_SCALE, "un tasto premuto si stringe")
+	main.beds_label.text = "3"
+	main.set_count(main.beds_label, "4")
+	check(main.beds_label.text == "4" and main.beds_label.scale == Vector2.ONE * main.BUMP_SCALE and main.beds_label.modulate == main.MARK_GOLD,
+		"un numero che cambia: d'oro, e fa un saltello")
+	main.set_count(main.beds_label, "4")
+	main.get_node("HUD/OrdersBar").show()
+	check(main.get_node("HUD/OrdersBar").modulate.a == 0.0, "una barra che si apre sale dal basso")
+	for moved in [main.jobs_panel, main.tool("Build"), main.beds_label, main.get_node("HUD/OrdersBar")]:
+		moved.get_meta("motion").custom_step(1.0)  # un secondo: più di quanto durano
+	check(main.jobs_panel.scale == Vector2.ONE and main.jobs_panel.modulate.a == 1.0 and main.tool("Build").scale == Vector2.ONE
+		and main.beds_label.scale == Vector2.ONE and main.beds_label.modulate == Color.WHITE
+		and main.get_node("HUD/OrdersBar").scale == Vector2.ONE and main.get_node("HUD/OrdersBar").modulate.a == 1.0,
+		"finite le animazioni, tutto è come prima")
+	main.get_node("HUD/OrdersBar").hide()
+	press(main, KEY_J)
+	check(main.hud_dots.size() == main.drawer.get_node("Box").get_child_count() + 1, "un pallino che pulsa per finestra del menu, e uno sulla linguetta")
+
 	print("OK: menù delle opzioni e tasti")
 	quit()
 

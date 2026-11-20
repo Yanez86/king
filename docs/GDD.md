@@ -1079,9 +1079,10 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
   | Mucca | Stalla | 60 | 4 caselle | 3 fieno | latte (2 al giorno); gira la macina | 1 vitello all'anno | 20 carne, 4 pelli |
 
 - **Pascolo** (tasto "Pasture", dopo "Garden"; con l'Allevamento): si trascina sul prato libero fuori dalle stanze,
-  come l'orto; Distruggi lo toglie. Ci si disegna da sé una staccionata lungo il bordo (non costa niente). Gli animali
+  come l'orto; Distruggi lo toglie. Ci si disegna da sé una staccionata lungo il bordo (non costa niente): pali e due
+  traverse di legno chiaro; chi è dentro passa dietro al tratto davanti. Gli animali
   da allevare ci girano dentro e non ne escono, se non per andare nella stalla. Ogni casella ha la sua **erba**
-  (0–100, si vede più o meno brucata): ricresce di 20 al giorno quando la terra è tiepida (6 °C di media, come la
+  (0–100, si vede: più è brucata, più chiazze di terra): ricresce di 20 al giorno quando la terra è tiepida (6 °C di media, come la
   semina), d'inverno e sotto la neve no. Ogni animale ne bruca ogni giorno 20 per casella a capo: quante caselle a
   testa servono lo dice la tabella. Il pascolo concima la terra: +5 di fertilità a stagione alle sue caselle (un campo
   messo a pascolo si riposa).

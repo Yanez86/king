@@ -329,9 +329,13 @@ const EGG_TIME := 2.0       # secondi per raccogliere le uova, a livello 5
 const BUTCHER_TIME := 8.0   # secondi per macellare, a livello 5
 const DROVER_STOCK := [2, 3]  # coppie che porta il mercante di bestiame, da-a
 const PASTURE_ONLY := [Build.COOP]  # mobili che stanno solo sul pascolo (e sul pascolo solo loro)
-const FENCE_COLOR := Color("8a6038")  # la staccionata attorno al pascolo (vedi draw_pasture)
-const FENCE_SHADE := Color("5b3a24")
-const GRAZED := Color(0.55, 0.45, 0.25)  # il pascolo brucato, sopra l'erba
+# La staccionata attorno al pascolo e le chiazze di terra brucata (tools/make_sprites.py, fence_sheet): un tratto di
+# fronte coi pali ai capi, un tratto di lato, quattro chiazze (vedi fence_runs, draw_pasture)
+const FENCE := preload("res://art/fence.png")
+const FENCE_RUN := Rect2(0, 0, 20, 13)
+const FENCE_SIDE := Rect2(20, 0, 4, 29)
+const FENCE_PATCHES := [Rect2(24, 0, 8, 5), Rect2(32, 0, 6, 4), Rect2(40, 0, 8, 4), Rect2(48, 0, 4, 3)]
+const GRAZED_PATCHES := 6   # chiazze di terra in una casella di pascolo brucata del tutto
 const MOWN := Color(0.85, 0.78, 0.4)    # il prato appena falciato
 # combattimento (vedi react, Job.FIGHT, update_wolf): i lupi arrivano in branco dal bordo della mappa e inseguono i coloni
 # fuori dalle stanze; chi sta bene combatte, chi è ferito scappa al chiuso. A 0 punti ferita si resta a terra, o si
@@ -664,6 +668,10 @@ const CRAFT_GAP := 12                # px: tra le colonne
 const PIPS_WIDTH := 118              # px: il posto delle tacche
 const PIP_MAX := 12                  # oltre, le tacche diventano una barra
 const KEEP_MAX := 100                # la scorta più grande che si può chiedere
+const BUBBLE_FILL := Color("f6f2e6")  # il bianco dei fumetti sulle postazioni (vedi draw_bubble)
+const BUBBLE_TRACK := Color("c9c4b4") # il fondo della barra, dentro il fumetto
+const BUBBLE_POP := 180.0            # millisecondi: quanto ci mette un fumetto a spuntare
+const BUBBLE_BOB := 450              # millisecondi: ogni quanto dondola il fumetto di una postazione ferma
 const COLONISTS_ICON := preload("res://art/icon_colonists.png")
 # i tipi di postazione nell'ordine delle Officine (vedi fill_production): la cucina, il mulino, la forgia, i banchi
 const STATION_ORDER := [Build.CAMPFIRE, Build.OVEN, Build.MILLSTONE, Build.FURNACE, Build.ANVIL, Build.WORKBENCH,
@@ -953,6 +961,13 @@ const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today"
 	"harvests", "wear", "plastered", "burning",
 	"fire_noted", "storm_noted", "delivered", "requests", "bumper_until", "decor_state"]
 const TOAST_TIME := 2000    # millisecondi: "Saved" in alto, poi sparisce (vedi show_toast)
+# Le animazioni dell'interfaccia (vedi pop, rise_bar, press_button, set_count, add_dot)
+const POP_TIME := 0.16      # secondi: una finestra o una barra che si apre, un tasto che torna su
+const POP_FROM := 0.92      # da quanto cresce una finestra che si apre
+const PRESS_SCALE := 0.88   # quanto si stringe un tasto premuto
+const BUMP_TIME := 0.35     # secondi: il saltello di un numero della barra in alto che cambia
+const BUMP_SCALE := 1.3
+const DOT_BEAT := 1.2       # secondi: il battito dei pallini d'oro del menu
 const AUTOSAVE_HOUR := 6    # all'alba, quando i coloni si alzano: il salvataggio di ogni giorno
 const MODIFIER_KEYS := [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]  # da soli non sono un tasto
 const TIP := preload("res://tip_button.gd")  # suggerimento fatto di Control: pulsanti di costruzione, figurine
@@ -2031,7 +2046,11 @@ var craft_key := ""         # quello che il menu mostra: se cambia, lo si rifà 
 var production_panel := PanelContainer.new()  # la finestra Produzione, dal menu a sinistra (vedi fill_production)
 var production_key := ""    # quello che mostrano le Officine: se cambia, le si rifà
 var production_bars := []   # [barra, i secondi, chi lavora]: aggiornate a ogni fotogramma
-var stuck_marks := {}       # postazione ferma -> il bene che manca: il fumetto rosso (vedi update_stuck)
+var stuck_marks := {}       # postazione ferma -> il bene che manca: il fumetto col punto esclamativo (vedi update_stuck)
+var bubble_born := {}       # postazione col fumetto -> quando è comparso, in millisecondi: spunta crescendo (vedi draw_bubble)
+var fence_parts := []       # i tratti della staccionata del pascolo (vedi fence_runs)
+var fence_key := 0          # il pascolo per cui sono fatti: se cambia, si rifanno
+var hud_dots := []          # i pallini d'oro del menu: pulsano (vedi add_dot)
 var production_tabs := ButtonGroup.new()  # le due schede della finestra: Workshops e Chains
 var chains_key := ""        # quello che mostrano le Catene: se cambia, le si rifà (vedi fill_chains)
 var chain_links := []       # [punti, punta della freccia, stato]: i collegamenti, li disegna draw_chains
@@ -2423,6 +2442,13 @@ func _ready() -> void:
 		window.get_node("Box/Head/Close").pressed.connect(window.hide)
 		window.gui_input.connect(drag_window.bind(window))
 		window.visibility_changed.connect(window.move_to_front, CONNECT_DEFERRED)  # l'ultima aperta sta sopra
+		window.visibility_changed.connect(pop.bind(window))  # e si apre crescendo un poco
+	options.visibility_changed.connect(pop.bind($HUD/Options/Window))
+	for bar in [$HUD/OrdersBar, $HUD/ViewsBar, categories, build_bar, furniture_bar]:  # le barre salgono da quella in basso
+		bar.visibility_changed.connect(rise_bar.bind(bar))
+	for button in tool_list().filter(func(b): return b.get_parent() != drawer.get_node("Box")) \
+			+ $HUD/Speed/Row.get_children() + [$HUD/TopBar/Row/Screen, $HUD/TopBar/Row/Options]:
+		button.button_down.connect(press_button.bind(button))  # i tasti con la sola icona si stringono, premuti
 	if not game_start:  # nei test tutto studiato: le prove della ricerca sono in test_research
 		for t in Tech.values():
 			researched[t] = true
@@ -2933,7 +2959,7 @@ func update_dots() -> void:
 	menu_tab.get_node("Dot").visible = any and not menu_tab.button_pressed
 
 
-# un pallino d'oro in alto a sinistra, sopra `parent` (nascosto: vedi update_dots)
+# un pallino d'oro in alto a sinistra, sopra `parent` (nascosto: vedi update_dots); pulsa piano, per farsi notare
 func add_dot(parent: Control, at: Vector2) -> void:
 	var dot := Control.new()
 	dot.name = "Dot"
@@ -2941,9 +2967,73 @@ func add_dot(parent: Control, at: Vector2) -> void:
 	dot.position = at
 	dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	dot.draw.connect(func():
-		dot.draw_circle(Vector2(4, 4), 4.5, OUTLINE)
-		dot.draw_circle(Vector2(4, 4), 3.0, MARK_GOLD))
+		var beat := 0.5 + 0.5 * sin(Time.get_ticks_msec() / 1000.0 * TAU / DOT_BEAT)
+		dot.draw_circle(Vector2(4, 4), 4.5 + beat, OUTLINE)
+		dot.draw_circle(Vector2(4, 4), 3.0 + beat, MARK_GOLD.lightened(0.3 * beat)))
 	parent.add_child(dot)
+	hud_dots.append(dot)
+
+
+# --- Le animazioni dell'interfaccia: brevi, col tempo vero (anche in pausa), e non cambiano niente di quello che c'è ---
+
+# Una finestra che si apre: compare in un attimo, crescendo un poco dal suo centro. La si vede e la si usa subito: è
+# solo come si mostra (collegata a visibility_changed, vedi _ready)
+func pop(window: Control) -> void:
+	if not window.is_visible_in_tree() or not is_inside_tree():
+		return
+	var motion := hud_tween(window)
+	window.modulate.a = 0.0
+	motion.tween_property(window, "modulate:a", 1.0, POP_TIME * 0.6)
+	motion.tween_method(func(grown: float):
+		window.pivot_offset = window.size / 2
+		window.scale = Vector2.ONE * grown, POP_FROM, 1.0, POP_TIME).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+# una barra che si apre sopra quella in basso (ordini, viste, categorie, mobili): sale dal suo bordo inferiore
+func rise_bar(bar: Control) -> void:
+	if not bar.is_visible_in_tree() or not is_inside_tree():
+		return
+	var motion := hud_tween(bar)
+	bar.modulate.a = 0.0
+	motion.tween_property(bar, "modulate:a", 1.0, POP_TIME * 0.6)
+	motion.tween_method(func(grown: float):
+		bar.pivot_offset = Vector2(0, bar.size.y)
+		bar.scale = Vector2(1, grown), 0.5, 1.0, POP_TIME).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+# un tasto premuto: si stringe un attimo e torna
+func press_button(button: Control) -> void:
+	if not is_inside_tree():
+		return
+	button.pivot_offset = button.size / 2
+	button.scale = Vector2.ONE * PRESS_SCALE
+	hud_tween(button).tween_property(button, "scale", Vector2.ONE, POP_TIME).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+# Un numero della barra in alto che cambia (coloni, letti, splendore): il nuovo valore si accende d'oro e torna, e il
+# numero fa un saltello. La prima volta, a partita appena aperta, niente
+func set_count(label: Control, text: String) -> void:
+	if label.text == text:
+		return
+	var first: bool = label.text == ""
+	label.text = text
+	if first or not is_inside_tree():
+		return
+	label.pivot_offset = label.size / 2
+	label.scale = Vector2.ONE * BUMP_SCALE
+	label.modulate = MARK_GOLD
+	var motion := hud_tween(label)
+	motion.tween_property(label, "scale", Vector2.ONE, BUMP_TIME).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	motion.tween_property(label, "modulate", Color.WHITE, BUMP_TIME)
+
+
+# l'animazione di `control`, al posto di quella che stava facendo: più cose insieme, e va avanti anche a gioco fermo
+func hud_tween(control: Control) -> Tween:
+	if control.has_meta("motion") and control.get_meta("motion").is_valid():
+		control.get_meta("motion").kill()
+	var motion := create_tween().set_ignore_time_scale(true).set_parallel(true)
+	control.set_meta("motion", motion)
+	return motion
 
 
 # Esc: chiude prima quello che è aperto (le opzioni, il menu, la costruzione, l'ordine scelto e la sua barra, le
@@ -4089,7 +4179,7 @@ func short_of(res: Res) -> Array:
 
 # --- La produzione sulla mappa: i fumetti sulle postazioni e il riquadro col mouse sopra ---
 
-# Le postazioni ferme, per il fumetto rosso: postazione -> il bene che manca (o l'oggetto che non si può fare). Ferma
+# Le postazioni ferme, per il fumetto col punto esclamativo: postazione -> il bene che manca (o l'oggetto che non si può fare). Ferma
 # vuol dire che al suo tipo manca qualcosa da fare, nessuno ci lavora e niente di quello che manca si può cominciare
 # (vedi shop_state). Rifatte ogni tanto da _process: costano, e cambiano di rado
 func update_stuck() -> void:
@@ -4118,32 +4208,56 @@ func map_bubbles() -> Array:
 	for origin in stuck_marks:
 		if furniture.has(origin) and not busy.has(origin):
 			out.append([origin, stuck_marks[origin], 0.0, true])
+	var now := Time.get_ticks_msec()  # da quando c'è ogni fumetto (vedi draw_bubble); quelli spariti si scordano
+	var born := {}
+	for bubble in out:
+		born[bubble[0]] = bubble_born.get(bubble[0], now)
+	bubble_born = born
 	return out
 
 
-# Un fumetto sopra la postazione (vedi map_bubbles), in pixel del mondo: un riquadro scuro col bordo arancio, dentro
-# l'icona dell'oggetto a metà grandezza e sotto la barra del lavoro; rosso e senza barra, con l'icona smorzata e il punto
-# esclamativo, se è ferma. La punta in basso indica la postazione
+# Un fumetto sopra la postazione (vedi map_bubbles), in pixel del mondo, come quelli dei fumetti: bianco, col bordo
+# scuro, gli angoli smussati e la punta in basso verso la postazione. Dentro l'icona dell'oggetto a metà grandezza e
+# sotto la barra del lavoro, arancio; se è ferma niente barra, e in alto a destra il punto esclamativo rosso. Spunta
+# crescendo (BUBBLE_POP), e quello di una postazione ferma dondola di un pixel, per farsi notare: col tempo vero, anche
+# in pausa
 func draw_bubble(bubble: Array) -> void:
 	var piece := Rect2(piece_rect(bubble[0], furniture[bubble[0]]))
 	var stuck: bool = bubble[3]
-	var color: Color = MAKE_STUCK if stuck else MAKE_BUSY
+	var now := Time.get_ticks_msec()
 	var size := Vector2(12, 12 if stuck else 13)
-	var box := Rect2(Vector2((piece.get_center().x) * TILE - size.x / 2, piece.position.y * TILE - size.y - 3), size)
-	draw_rect(box, OUTLINE)
-	draw_rect(box.grow(-0.5), color, false, 1.0)
-	draw_texture_rect(ICONS[bubble[1]], Rect2(box.position + Vector2(2, 2), Vector2(8, 8)), false, Color(1, 1, 1, 0.6 if stuck else 1.0))
-	var tip := Vector2(box.get_center().x, box.end.y)
-	draw_colored_polygon(PackedVector2Array([tip + Vector2(-2, 0), tip + Vector2(2, 0), tip + Vector2(0, 2)]), color)
+	var foot := Vector2(piece.get_center().x * TILE, piece.position.y * TILE - 1)  # dove arriva la punta
+	if stuck and (now / BUBBLE_BOB) % 2 == 1:
+		foot.y -= 1
+	var grown := clampf((now - bubble_born.get(bubble[0], now)) / BUBBLE_POP, 0.0, 1.0)
+	var scale := Vector2.ONE * (0.4 + 0.6 * grown + 0.15 * sin(grown * PI))  # cresce, un po' oltre, e torna
+	draw_set_transform(foot, 0.0, scale)
+	var box := Rect2(Vector2(-size.x / 2, -size.y - 2), size)
+	var x := box.position.x
+	var y := box.position.y
+	draw_rect(Rect2(x + 2, y, size.x - 4, size.y), OUTLINE)  # il bordo: una croce di tre rettangoli, senza gli angoli
+	draw_rect(Rect2(x, y + 2, size.x, size.y - 4), OUTLINE)
+	draw_rect(Rect2(x + 1, y + 1, size.x - 2, size.y - 2), OUTLINE)
+	draw_rect(Rect2(x + 2, y + 1, size.x - 4, size.y - 2), BUBBLE_FILL)  # il bianco, un pixel dentro
+	draw_rect(Rect2(x + 1, y + 2, size.x - 2, size.y - 4), BUBBLE_FILL)
+	draw_rect(Rect2(-2, -3, 4, 1), OUTLINE)  # la punta: si apre nel bordo in basso e scende di due pixel
+	draw_rect(Rect2(-1, -3, 2, 1), BUBBLE_FILL)
+	draw_rect(Rect2(-1, -2, 3, 1), OUTLINE)
+	draw_rect(Rect2(0, -2, 1, 1), BUBBLE_FILL)
+	draw_rect(Rect2(0, -1, 1, 1), OUTLINE)
+	for nudge in [Vector2(-0.5, 0), Vector2(0.5, 0), Vector2(0, -0.5), Vector2(0, 0.5)]:  # il contorno scuro dell'icona: sul bianco le chiare sparirebbero
+		draw_texture_rect(ICONS[bubble[1]], Rect2(Vector2(x + 2, y + 2) + nudge, Vector2(8, 8)), false, OUTLINE)
+	draw_texture_rect(ICONS[bubble[1]], Rect2(x + 2, y + 2, 8, 8), false)
 	if stuck:
-		var badge := Rect2(box.end.x - 2, box.position.y - 2, 4, 7)
-		draw_rect(badge, MAKE_STUCK)
-		draw_rect(badge.grow(-0.5), OUTLINE, false, 1.0)
-		draw_rect(Rect2(badge.position + Vector2(1.5, 1.5), Vector2(1, 2.5)), Color.WHITE)
-		draw_rect(Rect2(badge.position + Vector2(1.5, 4.5), Vector2(1, 1)), Color.WHITE)
+		var badge := Rect2(x + size.x - 3, y - 3, 5, 8)
+		draw_rect(badge, OUTLINE)
+		draw_rect(badge.grow(-1), MAKE_STUCK)
+		draw_rect(Rect2(badge.position + Vector2(2, 2), Vector2(1, 2)), Color.WHITE)
+		draw_rect(Rect2(badge.position + Vector2(2, 5), Vector2(1, 1)), Color.WHITE)
 	else:
-		draw_rect(Rect2(box.position + Vector2(2, 10.5), Vector2(8, 1)), Color(color, 0.3))
-		draw_rect(Rect2(box.position + Vector2(2, 10.5), Vector2(8 * bubble[2], 1)), color)
+		draw_rect(Rect2(x + 2, y + 10, 8, 1), BUBBLE_TRACK)
+		draw_rect(Rect2(x + 2, y + 10, 8 * bubble[2], 1), MAKE_BUSY)
+	draw_set_transform_matrix(Transform2D.IDENTITY)
 
 
 # Quello che il riquadro col mouse sopra dice della postazione `origin`: chi ci lavora e a cosa, con la percentuale;
@@ -5768,9 +5882,12 @@ func _process(delta: float) -> void:
 	toast.visible = Time.get_ticks_msec() < toast_until
 	toast.modulate.a = clampf((toast_until - Time.get_ticks_msec()) / 500.0, 0.0, 1.0)  # sparisce nell'ultimo mezzo secondo
 	stored_label.text = str(Res.values().map(stored).reduce(func(a, b): return a + b, 0))
-	colonists_label.text = str(colony_size())  # anche chi è in spedizione: conta per il titolo
-	beds_label.text = str(furniture.values().filter(func(plan): return plan[0] in BEDS).size())  # solo quelli finiti
-	splendor_label.text = str(colony_splendor())
+	set_count(colonists_label, str(colony_size()))  # anche chi è in spedizione: conta per il titolo
+	set_count(beds_label, str(furniture.values().filter(func(plan): return plan[0] in BEDS).size()))  # solo quelli finiti
+	set_count(splendor_label, str(colony_splendor()))
+	for dot in hud_dots:  # i pallini del menu pulsano
+		if dot.is_visible_in_tree():
+			dot.queue_redraw()
 	for name in ROOM_TOOLS:
 		tool(name).visible = rooms.any(func(r): return r.kind == ROOM_TOOLS[name])
 	if Engine.get_process_frames() % 30 == 0:  # il conto della manutenzione, ogni tanto: basta per il suggerimento
@@ -13593,28 +13710,43 @@ func draw_flat() -> void:  # sotto le ombre: il terreno lo disegna lo Sprite2D d
 			flat.draw_texture_rect(ICONS[res], Rect2(center(cell) - Vector2.ONE * side / 2, Vector2.ONE * side), false)
 
 
-# Il pascolo: più è brucato più si vede la terra (GRAZED); lungo il bordo la staccionata, due traverse e i pali agli
-# angoli delle caselle
+# Il pascolo, a terra: il prato falciato, e l'erba brucata, che lascia vedere la terra a chiazze (fino a GRAZED_PATCHES
+# per casella, sempre negli stessi punti: più è brucata, più ce ne sono). La staccionata sta con chi le passa davanti e
+# dietro (vedi fence_runs)
 func draw_pasture() -> void:
 	for cell in hay_marks:  # il prato falciato, finché non ricresce
 		var cut := clampf(1.0 - (clock - hay_marks[cell]) / HAY_REGROW, 0.0, 1.0)
 		if cut > 0:
 			flat.draw_rect(Rect2(tile_rect(cell.x, cell.y)), Color(MOWN, 0.45 * cut))
 	for cell in pasture:
-		var r := Rect2(tile_rect(cell.x, cell.y))
-		flat.draw_rect(r, Color(GRAZED, 0.5 * (1.0 - pasture[cell] / GRASS_MAX)))
-		for i in 4:
-			if pasture.has(cell + EDGE_SIDES[i]):
-				continue
-			var side: Vector2i = EDGE_SIDES[i]
-			var a := r.position + Vector2(maxi(side.x, 0), maxi(side.y, 0)) * TILE
-			var along := Vector2(absi(side.y), absi(side.x)) * TILE
-			for rail in [4, 9] if side.y != 0 else [0]:  # di fronte due traverse; di lato una sola, si vede di taglio
-				var lift := Vector2(0, -rail) if side.y != 0 else Vector2.ZERO
-				flat.draw_rect(Rect2(a + lift - Vector2(0, 1), along + Vector2(1, 1) if side.y != 0 else along + Vector2(2, 0)),
-					FENCE_COLOR)
-			for post in [a, a + along]:
-				flat.draw_rect(Rect2(post + Vector2(-1, -11), Vector2(2, 12)), FENCE_SHADE)
+		for i in roundi((1.0 - pasture[cell] / GRASS_MAX) * GRAZED_PATCHES):
+			var spot: int = hash(Vector3i(cell.x, cell.y, i))
+			var src: Rect2 = FENCE_PATCHES[spot % FENCE_PATCHES.size()]
+			var at := Vector2((spot / 7) % int(TILE - src.size.x + 1), (spot / 131) % int(TILE - src.size.y + 1))
+			flat.draw_texture_rect_region(FENCE, Rect2(Vector2(cell * TILE) + at, src.size), src)
+
+
+# I tratti della staccionata, lungo il bordo del pascolo: per ognuno "pos" (la riga a cui sta, per l'ordine di disegno:
+# vedi draw_upto), "at" dove si disegna e "src" il pezzo di FENCE. Di fronte e dietro la base sta sul bordo della
+# casella: chi è dentro passa dietro al tratto davanti, chi è fuori gli passa davanti. Di lato sta a metà casella. Si
+# rifanno solo quando cambia il pascolo
+func fence_runs() -> Array:
+	var key := pasture.keys().hash()
+	if key == fence_key:
+		return fence_parts
+	fence_key = key
+	fence_parts = []
+	for cell in pasture:
+		var corner := Vector2(cell * TILE)
+		if not pasture.has(cell + Vector2i.UP):
+			fence_parts.append({"pos": corner, "at": corner + Vector2(-2, -12), "src": FENCE_RUN})
+		if not pasture.has(cell + Vector2i.DOWN):
+			fence_parts.append({"pos": corner + Vector2(0, TILE), "at": corner + Vector2(-2, TILE - 12), "src": FENCE_RUN})
+		if not pasture.has(cell + Vector2i.LEFT):
+			fence_parts.append({"pos": corner + Vector2(0, TILE / 2.0 + 0.5), "at": corner + Vector2(-2, -12), "src": FENCE_SIDE})
+		if not pasture.has(cell + Vector2i.RIGHT):
+			fence_parts.append({"pos": corner + Vector2(TILE, TILE / 2.0 + 0.5), "at": corner + Vector2(TILE - 2, -12), "src": FENCE_SIDE})
+	return fence_parts
 
 
 # L'orto: la terra lavorata, e quello che ci cresce: germoglio nel primo terzo, poi la pianta, poi matura
@@ -13742,6 +13874,9 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 	queue.sort_custom(func(a, b): return a.pos.y < b.pos.y)
 	var houses: Array = roofs_drawn if roofs_shown else []
 	var holes := roof_holes(queue) if roofs_shown else {}
+	if not pasture.is_empty():  # la staccionata del pascolo, tra chi le passa dietro e chi le passa davanti
+		queue = queue + fence_runs()
+		queue.sort_custom(func(a, b): return a.pos.y < b.pos.y)
 	warm_cells.clear()  # attorno ai comignoli la neve sui tetti si scioglie prima (vedi draw_house)
 	roof_chimneys.clear()
 	for origin in furniture:
@@ -14183,7 +14318,9 @@ func draw_pieces(canvas: CanvasItem, sheet: Texture2D, layer: Dictionary, tint :
 
 
 func draw_creature(who) -> void:
-	if who is Animal:
+	if who is Dictionary:  # un tratto della staccionata (vedi fence_runs)
+		draw_texture_rect_region(FENCE, Rect2(who["at"], who["src"].size), who["src"])
+	elif who is Animal:
 		draw_animal(who)
 	else:
 		draw_colonist(who)
