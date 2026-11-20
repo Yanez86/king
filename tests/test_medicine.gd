@@ -345,7 +345,7 @@ func _initialize() -> void:
 	check(main.corpses.has(dead), "in spalla non sparisce")
 	walk_until(func(): return b.job != main.Job.BURY, 3000)
 	check(main.graves.get(yard) == dead and not main.corpses.has(dead) and dead.carried_by == null, "sepolto")
-	check(dead.mourned == dead.died + 2.0 and a.conds[MOURN] == dead.mourned, "il lutto: un giorno in meno")
+	check(is_equal_approx(dead.mourned, dead.died + 2.0) and a.conds[MOURN] == dead.mourned, "il lutto: un giorno in meno")
 	check(main.piece_rects(yard, main.furniture[yard])[1].position.x == 64, "il tumulo")
 	var epitaph: String = main.describe(yard)[1]
 	check(epitaph.begins_with("Here lies %s." % main.full_name(dead)) and epitaph.contains("Died on")
@@ -364,7 +364,7 @@ func _initialize() -> void:
 	main.bury(first, grave2)
 	check(a.conds[MOURN] == second.mourned, "il lutto del secondo resta intero")
 	main.bury(second, yard + Vector2i(4, 0))
-	check(a.conds[MOURN] == second.died + 2.0, "sepolto anche lui: un giorno in meno")
+	check(is_equal_approx(a.conds[MOURN], second.died + 2.0), "sepolto anche lui: un giorno in meno")
 	var king = person()
 	king.mourned = main.clock + main.ROYAL_MOURNING_DAYS
 	b.conds[main.Cond.ROYAL_MOURNING] = king.mourned
@@ -480,7 +480,7 @@ func _initialize() -> void:
 	main.die(remembered, "drowned.")
 	check(a.conds[MOURN] == main.clock + 2.0, "il lutto di 2 giorni")
 	main.bury(remembered, yard + Vector2i(2, 3))
-	check(a.conds[MOURN] == remembered.died + 1.0, "sepolto: uno")
+	check(is_equal_approx(a.conds[MOURN], remembered.died + 1.0), "sepolto: uno")
 	main.furniture.erase(mid + Vector2i(4, -6))
 	for o in main.colonists:
 		o.conds.clear()

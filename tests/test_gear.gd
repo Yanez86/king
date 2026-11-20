@@ -194,10 +194,11 @@ func _initialize() -> void:
 	tailor.gear.erase(main.Slot.BODY)
 	tailor.gear.erase(main.Slot.HEAD)
 	check(main.gear_wanted(main.Res.BOW) == 1 and main.gear_wanted(main.Res.LEATHER_ARMOR) == 1, "un arco, un corpetto")
-	for i in 30000:
+	for i in 30000:  # finché tutti hanno i loro pezzi e le corde di scorta sono filate
 		main.tick(0.05)
 		check_station(main)
-		if main.colonists.all(func(c): return c.gear.size() == 3):
+		if main.colonists.all(func(c): return c.gear.size() == 3 and c.job != main.Job.CRAFT) \
+				and main.total(main.Res.BOWSTRING) >= main.STOCK[main.Res.BOWSTRING]:
 			break
 	check(hunter.gear[main.Slot.HANDS] == main.Res.BOW, "il cacciatore ha l'arco")
 	check(tailor.gear[main.Slot.BODY] == main.Res.LEATHER_ARMOR and tailor.gear[main.Slot.HEAD] == main.Res.LEATHER_HOOD,
