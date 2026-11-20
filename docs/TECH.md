@@ -193,7 +193,19 @@ quello che manca) e quattro colori (oro si vuole, arancio si sta facendo, rosso 
   (`STATION_ORDER`: una ricetta su una postazione nuova la vuole lì dentro, lo controlla la prova), solo quelle
   costruite, anche fuori dalla loro stanza (`shop_state`, `shop_card`). `fill_shops` rifà i riquadri solo se è cambiato
   qualcosa, e guarda ogni 6 fotogrammi; le barre di chi lavora si aggiornano a ogni fotogramma (`production_bars`). Dei
-  lavoratori si vedono i primi due, degli oggetti che mancano i primi 8. Per ora una scheda sola: le Catene con la fase 3.
+  lavoratori si vedono i primi due, degli oggetti che mancano i primi 8.
+  Fatta la fase 3 lo stesso giorno (prove in `tests/test_gear.gd`). Le due schede sono due tasti in alto a sinistra
+  (`production_tabs`, `show_production_tab`); le Catene stanno in un riquadro che scorre, alto 470 pixel, e in fondo c'è
+  la legenda dei colori. I posti sono scritti a mano in `CHAINS`, fascia per fascia: per i beni col loro riquadro
+  (colonna, riga) e per le postazioni i cui altri oggetti finiti stanno insieme, solo icone (4 per riga). Un ingrediente
+  si collega se sta in una colonna prima e sulla sua riga non c'è un riquadro di mezzo (`chain_wire`: dal bene in
+  orizzontale fino al binario davanti alla postazione, poi in verticale, poi dentro); se no lo dice solo il
+  suggerimento, come la legna dell'incudine. Una ricetta nuova va messa in `CHAINS`: `chain_lost` dice quelle rimaste
+  fuori e la prova lo controlla. Le colonne sono larghe quanto il loro riquadro più largo, uguali in tutte le fasce;
+  con tutte le ricerche e i nomi italiani l'albero è largo circa 1200 pixel, e la finestra quasi tutto lo schermo. Lo
+  stato di un bene è `chain_mood` (busy, stuck, want, done, idle), che è anche il colore del bordo e dei collegamenti
+  (quelli dei beni a posto restano grigi); un gruppo prende lo stato più vivo dei suoi oggetti. Si vedono solo i beni che
+  si sanno fare e quelli che servono a farli; una postazione non costruita è smorzata. Si rifà solo se cambia qualcosa.
 
 ## Versionamento
 - Git + GitHub (`Yanez86/king`).

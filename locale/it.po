@@ -4642,3 +4642,27 @@ msgstr "Libera: aspetta qualcuno che abbia tempo"
 
 msgid "Then"
 msgstr "Poi"
+
+msgid "Workshops"
+msgstr "Officine"
+
+msgid "Chains"
+msgstr "Catene"
+
+msgid "Metal"
+msgstr "Metallo"
+
+msgid "Thread and wood"
+msgstr "Filo e legno"
+
+msgid "Hides and paper"
+msgstr "Cuoio e carte"
+
+msgid "[color=#%s]Orange[/color]: being made. [color=#%s]Gold[/color]: wanted. [color=#%s]Red[/color]: stopped. [color=#%s]Green[/color]: enough. Click an item or a station: its menu."
+msgstr "[color=#%s]Arancio[/color]: si sta facendo. [color=#%s]Oro[/color]: se ne vuole. [color=#%s]Rosso[/color]: fermo. [color=#%s]Verde[/color]: basta. Clicca un bene o una postazione: il suo menu."
+
+msgid "Not built yet"
+msgstr "Non ancora costruita"
+
+msgid "Takes: %s"
+msgstr "Ci vuole: %s"

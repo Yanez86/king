@@ -670,6 +670,28 @@ const STATION_ORDER := [Build.CAMPFIRE, Build.OVEN, Build.MILLSTONE, Build.FURNA
 	Build.SPINNING_WHEEL, Build.CARPENTER_BENCH, Build.DESK]
 const SHOP_WIDTH := 570              # px: il riquadro di un'officina, due per riga
 const SHOP_QUEUE := 8                # oggetti che mancano mostrati in un riquadro, al più
+# Le Catene (vedi fill_chains): fasce di beni collegati, come i rami della Conoscenza. Per fascia il nome, il bene che
+# le fa da icona, "goods" i beni col loro posto (colonna, riga) e "sets" le postazioni i cui altri oggetti finiti stanno
+# insieme in un posto, solo icone. Un ingrediente si collega se sta in una colonna prima e sulla sua riga non c'è un
+# riquadro di mezzo: i posti vanno scelti così. Una ricetta nuova va messa qui (lo controlla la prova, vedi chain_lost)
+const CHAINS := [
+	{"name": "Kitchen", "icon": Res.MEAL, "goods": {Res.VEG: Vector2i(0, 0), Res.MEAT: Vector2i(0, 1), Res.FISH: Vector2i(0, 2),
+		Res.MEAL: Vector2i(1, 0), Res.HERBS: Vector2i(2, 0), Res.OINTMENT: Vector2i(3, 0), Res.MILK: Vector2i(2, 1), Res.CHEESE: Vector2i(3, 1)},
+		"sets": {Build.CAMPFIRE: Vector2i(1, 1), Build.OVEN: Vector2i(1, 2)}},
+	{"name": "Grain", "icon": Res.BREAD, "goods": {Res.GRAIN: Vector2i(0, 0), Res.FLOUR: Vector2i(1, 0), Res.BREAD: Vector2i(2, 0)}, "sets": {}},
+	{"name": "Metal", "icon": Res.INGOT, "goods": {Res.WOOD: Vector2i(0, 0), Res.IRON: Vector2i(0, 1), Res.COAL: Vector2i(1, 0),
+		Res.INGOT: Vector2i(2, 1), Res.STEEL: Vector2i(3, 0)}, "sets": {Build.ANVIL: Vector2i(4, 0)}},
+	{"name": "Thread and wood", "icon": Res.FLAX, "goods": {Res.FLAX: Vector2i(0, 0), Res.BOWSTRING: Vector2i(1, 0), Res.BOW: Vector2i(2, 0)}, "sets": {}},
+	{"name": "Hides and paper", "icon": Res.HIDE, "goods": {Res.HIDE: Vector2i(0, 0), Res.PARCHMENT: Vector2i(1, 0), Res.INK: Vector2i(1, 1),
+		Res.NOTEBOOK: Vector2i(2, 0), Res.WAX: Vector2i(2, 1), Res.CANDLE: Vector2i(3, 1)}, "sets": {Build.WORKBENCH: Vector2i(1, 2)}},
+]
+const CHAIN_BOX := Vector2(150, 44)  # px: il riquadro di un bene, largo almeno così (vedi chain_widths)
+const CHAIN_GAP := Vector2(56, 4)    # px: tra le colonne (ci stanno la postazione e il binario dei collegamenti) e tra le righe
+const CHAIN_BAND := 40               # px: la testata di una fascia, col suo nome
+const CHAIN_SET := 4                 # oggetti finiti per riga, nel gruppo di una postazione
+const CHAINS_TALL := 470             # px: quanto si vede delle Catene, il resto si scorre
+# lo stato di un bene nelle Catene e il suo colore, dal meno vivo al più vivo (vedi chain_mood)
+const CHAIN_COLORS := {"idle": Color("6e6a62"), "done": Color("8fbf4f"), "want": Color("e8c34a"), "stuck": Color("d84a3a"), "busy": Color("f2a03a")}
 const GROUP_NAMES := {ANY_VEG: "vegetables of one kind", ANY_FLESH: "meat or fish of one kind"}  # nei testi, vedi make_block
 const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.COAL: 5, Res.OINTMENT: 3, Res.FLOUR: 10, Res.BREAD: 8, Res.CANDLE: 4}  # scorte di partenza, vedi keep; i pasti
 	# MEALS_PER_COLONIST a testa
@@ -2009,6 +2031,12 @@ var craft_key := ""         # quello che il menu mostra: se cambia, lo si rifà 
 var production_panel := PanelContainer.new()  # la finestra Produzione, dal menu a sinistra (vedi fill_production)
 var production_key := ""    # quello che mostrano le Officine: se cambia, le si rifà
 var production_bars := []   # [barra, i secondi, chi lavora]: aggiornate a ogni fotogramma
+var production_tabs := ButtonGroup.new()  # le due schede della finestra: Workshops e Chains
+var chains_key := ""        # quello che mostrano le Catene: se cambia, le si rifà (vedi fill_chains)
+var chain_links := []       # [punti, punta della freccia, stato]: i collegamenti, li disegna draw_chains
+var chain_bands := []       # Rect2: le fasce, per il velo alternato
+var chain_widths := []      # px: la larghezza di ogni colonna delle Catene
+var chain_cols := []        # px: dove comincia ogni colonna
 var pasture_popup: Control       # la finestra del pascolo: il branco e il mercante (vedi open_pasture)
 var shown: Colonist         # il colono nella scheda: le barre dei bisogni lo seguono
 var gear_menu := PopupMenu.new()  # clic su uno slot della scheda: Auto, Empty o un pezzo (vedi open_gear_menu)
@@ -2802,6 +2830,7 @@ func set_language(code: String) -> void:
 	laws_key = ""
 	census_key = ""
 	production_key = ""
+	chains_key = ""
 	fill_wiki()
 	show_title()  # il nome del reame in alto
 	if settings_file == "":
@@ -4056,9 +4085,25 @@ func build_production_panel() -> void:
 	var box := popup_frame(production_panel, "Production")
 	var top := HBoxContainer.new()
 	top.name = "Top"
-	top.alignment = BoxContainer.ALIGNMENT_END
+	top.add_theme_constant_override("separation", 8)
+	for tab_name in ["Workshops", "Chains"]:
+		var tab := Button.new()
+		tab.name = tab_name
+		tab.text = tab_name
+		tab.toggle_mode = true
+		tab.button_group = production_tabs
+		tab.focus_mode = Control.FOCUS_NONE
+		tab.button_pressed = tab_name == "Workshops"
+		tab.toggled.connect(func(on):
+			if on:
+				show_production_tab())
+		top.add_child(tab)
+	var space := Control.new()
+	space.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top.add_child(space)
 	var summary := rich("")
 	summary.name = "Summary"
+	summary.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	top.add_child(summary)
 	box.add_child(top)
 	var shops := GridContainer.new()
@@ -4072,20 +4117,50 @@ func build_production_panel() -> void:
 	none.text = "No stations yet: a campfire in a kitchen is the first."
 	none.add_theme_color_override("font_color", CENSUS_DIM)
 	box.add_child(none)
+	var chains := ScrollContainer.new()
+	chains.name = "Chains"
+	chains.visible = false
+	chains.custom_minimum_size = Vector2(SHOP_WIDTH * 2 + 10, CHAINS_TALL)
+	var tree := Control.new()
+	tree.name = "Tree"
+	tree.draw.connect(draw_chains.bind(tree))
+	chains.add_child(tree)
+	box.add_child(chains)
 	var hint := Label.new()
 	hint.name = "Hint"
 	hint.text = "Click a workshop: what to make there, and how many to keep. The number by an item: how many are missing."
 	hint.add_theme_color_override("font_color", BUILD_INFO_COLOR)
 	box.add_child(hint)
+	var legend := rich("")
+	legend.name = "Legend"
+	legend.visible = false
+	box.add_child(legend)
 	$HUD.add_child(production_panel)
 	tool("Production").toggled.connect(func(on):
 		production_panel.visible = on
 		if on:  # rifatta subito e messa al centro: dopo resta dove la si trascina
-			production_key = ""
-			fill_production()
-			production_panel.reset_size()
+			show_production_tab()
 			production_panel.position = ((get_viewport_rect().size - production_panel.size) / 2).floor())
 	production_panel.hidden.connect(tool("Production").set_pressed_no_signal.bind(false))
+
+
+# La scheda scelta della finestra Produzione (vedi production_tabs): le Officine, col conto in alto, o le Catene, con
+# la legenda dei colori in fondo; rifatta subito, e la finestra prende la sua misura
+func show_production_tab() -> void:
+	var chains: bool = production_tabs.get_pressed_button().name == "Chains"
+	var box: Control = production_panel.get_node("Box")
+	box.get_node("Shops").visible = not chains
+	box.get_node("None").visible = false
+	box.get_node("Chains").visible = chains
+	box.get_node("Hint").visible = not chains
+	box.get_node("Legend").visible = chains
+	box.get_node("Top/Summary").visible = not chains
+	box.get_node("Legend").text = tr("[color=#%s]Orange[/color]: being made. [color=#%s]Gold[/color]: wanted. [color=#%s]Red[/color]: stopped. [color=#%s]Green[/color]: enough. Click an item or a station: its menu.") % [
+		MAKE_BUSY.to_html(false), MAKE_WANT.to_html(false), TREND_DOWN.to_html(false), TREND_UP.to_html(false)]
+	production_key = ""
+	chains_key = ""
+	fill_production()
+	production_panel.reset_size()
 
 
 # i pezzi costruiti che fanno da postazione `kind` (per il fuoco anche i focolari), dentro la loro stanza o no
@@ -4116,6 +4191,10 @@ func making(c: Colonist) -> Res:
 # il conto: quanti al lavoro, quanti oggetti in attesa di qualcuno, quanti fermi. Si rifà solo quando cambia qualcosa
 # (chi lavora, cosa manca, perché); le barre di chi lavora si aggiornano a ogni fotogramma
 func fill_production() -> void:
+	if production_tabs.get_pressed_button().name == "Chains":
+		if chains_key == "" or Engine.get_process_frames() % 6 == 0:
+			fill_chains()
+		return
 	if production_key == "" or Engine.get_process_frames() % 6 == 0:  # i riquadri ogni tanto: basta
 		fill_shops()
 	for entry in production_bars:  # [barra, i secondi, chi lavora]
@@ -4304,6 +4383,351 @@ func work_bar(wide := 120.0) -> Control:
 # quanta parte del suo lavoro a tempo ha già fatto `c`, da 0 a 1
 func work_part(c: Colonist) -> float:
 	return 1.0 - c.work_left / c.work_total if c.work_total > 0 else 0.0
+
+
+# --- Le Catene (la seconda scheda della finestra Produzione) ---
+
+# gli oggetti delle ricette che nelle Catene non si vedono: né un posto loro, né il gruppo della loro postazione ([] se
+# è tutto a posto: lo controlla la prova, così una ricetta nuova non resta fuori)
+func chain_lost() -> Array:
+	var placed := chain_placed()
+	var grouped := {}
+	for band in CHAINS:
+		grouped.merge(band["sets"])
+	return RECIPES.map(func(r): return r[0]).filter(func(res): return not placed.has(res) and not grouped.has(recipe_of(res)[1]))
+
+
+# si sa fare `res` a una postazione: i pasti sempre, il resto con la sua ricetta sbloccata
+func craftable(res: Res) -> bool:
+	return res == Res.MEAL or (not recipe_of(res).is_empty() and unlocked("makes", res))
+
+
+# la postazione dove si fa `res` (i pasti al fuoco)
+func station_of(res: Res) -> Build:
+	return Build.CAMPFIRE if res == Res.MEAL else recipe_of(res)[1]
+
+
+# Gli ingredienti di `res`, con quelli a scelta sciolti nei loro tipi: bene -> quanti (per il pasto, ogni crudo)
+func inputs_of(res: Res) -> Dictionary:
+	var out := {}
+	if res == Res.MEAL:
+		for raw in RAW_FOOD:
+			out[raw] = COOK_RAW
+		return out
+	var needs := needs_of(recipe_of(res))
+	for key in needs:
+		for member in GROUPS.get(key, [key]):
+			out[member] = needs[key]
+	return out
+
+
+# Come sta un bene nelle Catene, in una parola che è anche il suo colore (vedi CHAIN_COLORS): "busy" lo si sta facendo,
+# "stuck" ne mancano e non si può, "want" ne mancano e si può, "done" ce ne sono e non ne mancano, "idle" il resto (le
+# materie prime sempre)
+func chain_mood(res: Res) -> String:
+	if not craftable(res):
+		return "idle"
+	var s := make_state(res)
+	if not s["makers"].is_empty():
+		return "busy"
+	if s["missing"] > 0:
+		return "stuck" if s["block"] != "" else "want"
+	return "done" if s["have"] > 0 and keep.get(res, 0) > 0 else "idle"
+
+
+# i beni che hanno un posto loro in una fascia delle Catene: gli altri oggetti finiti stanno nel gruppo della loro postazione
+func chain_placed() -> Dictionary:
+	var placed := {}
+	for band in CHAINS:
+		placed.merge(band["goods"])
+	return placed
+
+
+# Quello che una fascia delle Catene mostra adesso. "goods": bene -> posto, i beni col posto loro che si sanno fare, e
+# quelli che servono a fare qualcosa della fascia (le materie prime; il carbone anche prima della carbonaia). "sets":
+# postazione -> [posto, oggetti], gli oggetti finiti di quella postazione che non hanno un posto loro, se si sanno fare
+func chain_nodes(band: Dictionary) -> Dictionary:
+	var placed := chain_placed()
+	var sets := {}
+	for kind in band["sets"]:
+		var items: Array = station_makes(kind).filter(func(res): return not placed.has(res))
+		if not items.is_empty():
+			sets[kind] = [band["sets"][kind], items]
+	var used := {}
+	for res in band["goods"].keys().filter(craftable) + sets.values().reduce(func(all, entry): return all + entry[1], []):
+		used.merge(inputs_of(res))
+	var goods := {}
+	for res in band["goods"]:
+		if craftable(res) or used.has(res):
+			goods[res] = band["goods"][res]
+	return {"goods": goods, "sets": sets}
+
+
+# il riquadro del posto `at` (colonna, riga) di una fascia che comincia a `top`, nei pixel dell'albero delle Catene; le
+# colonne sono larghe quanto il loro riquadro più largo, uguali in tutte le fasce (vedi fill_chains)
+func chain_rect(top: float, at: Vector2i) -> Rect2:
+	return Rect2(Vector2(chain_cols[at.x], top + CHAIN_BAND + at.y * (CHAIN_BOX.y + CHAIN_GAP.y)), Vector2(chain_widths[at.x], CHAIN_BOX.y))
+
+
+# quanti ce ne sono, come lo dice il riquadro di un bene: "6 / 10" se lo si sa fare e ne mancano o ha una scorta, se no "6"
+func chain_count(res: Res) -> String:
+	if not craftable(res):
+		return str(total(res))
+	var s := make_state(res)
+	var aim: int = s["have"] + s["makers"].size() + s["missing"] if not s["makers"].is_empty() or s["missing"] > 0 else keep.get(res, 0)
+	return "%d / %d" % [s["have"], aim] if aim > 0 else str(s["have"])
+
+
+# il riquadro della postazione davanti al posto `at`: nello spazio tra le colonne, subito a sinistra del bene che fa
+func chain_station_rect(top: float, at: Vector2i) -> Rect2:
+	var box := chain_rect(top, at)
+	return Rect2(box.position + Vector2(-TILE_BOX - 10, (CHAIN_BOX.y - TILE_BOX) / 2), Vector2.ONE * TILE_BOX)
+
+
+# Le Catene: per fascia (vedi CHAINS) i beni al loro posto, davanti a ogni bene che si fa la sua postazione, e i
+# collegamenti dagli ingredienti alla postazione (vedi chain_links). Si rifanno solo quando cambia qualcosa: quanti ce ne
+# sono, come stanno (vedi chain_mood), cosa si sa fare
+func fill_chains() -> void:
+	var shown := []  # per fascia [fascia, nodi], solo quelle dove si sa fare qualcosa
+	var moods := []
+	for band in CHAINS:
+		var nodes := chain_nodes(band)
+		var made: Array = nodes["goods"].keys().filter(craftable) + nodes["sets"].values().reduce(func(all, entry): return all + entry[1], [])
+		if made.is_empty():
+			continue
+		shown.append([band, nodes])
+		moods.append(nodes["goods"].keys().map(func(res): return [res, total(res), chain_mood(res), keep.get(res, 0)]))
+		moods.append(made.map(func(res): return [res, total(res), chain_mood(res), make_state(res)["missing"], make_state(res)["block"]]))
+	var key := str([moods, STATION_ORDER.map(func(kind): return station_pieces(kind).size()), TranslationServer.get_locale()])
+	if key == chains_key:
+		return
+	chains_key = key
+	var tree: Control = production_panel.get_node("Box/Chains/Tree")
+	for child in tree.get_children():
+		child.free()
+	chain_links.clear()
+	chain_bands.clear()
+	var font := production_panel.get_theme_default_font()
+	chain_widths.clear()  # ogni colonna larga quanto il suo riquadro più largo: icona, nome, quanti
+	for entry in shown:
+		for res in entry[1]["goods"]:
+			var col: int = entry[1]["goods"][res].x
+			var need: float = 32 + 24 + font.get_string_size(named(Res, res, "item"), HORIZONTAL_ALIGNMENT_LEFT, -1, 22).x \
+				+ font.get_string_size(chain_count(res), HORIZONTAL_ALIGNMENT_LEFT, -1, 22).x
+			while chain_widths.size() <= col:
+				chain_widths.append(CHAIN_BOX.x)
+			chain_widths[col] = maxf(chain_widths[col], need)
+		for kind in entry[1]["sets"]:
+			var col: int = entry[1]["sets"][kind][0].x
+			while chain_widths.size() <= col:
+				chain_widths.append(CHAIN_BOX.x)
+	chain_cols.clear()
+	for col in chain_widths.size():
+		chain_cols.append(0.0 if col == 0 else chain_cols[col - 1] + chain_widths[col - 1] + CHAIN_GAP.x)
+	var y := 0.0
+	var wide := 0.0
+	for entry in shown:
+		var band: Dictionary = entry[0]
+		var nodes: Dictionary = entry[1]
+		var rows := 0
+		var spots := {}  # bene -> il suo riquadro: da lì partono i collegamenti
+		var taken := {}  # posti occupati: un collegamento non passa sopra un riquadro
+		for res in nodes["goods"]:
+			spots[res] = chain_rect(y, nodes["goods"][res])
+			taken[nodes["goods"][res]] = true
+			rows = maxi(rows, nodes["goods"][res].y + 1)
+		for kind in nodes["sets"]:
+			var at: Vector2i = nodes["sets"][kind][0]
+			var lines: int = ceili(float(nodes["sets"][kind][1].size()) / CHAIN_SET)
+			for i in lines:
+				taken[at + Vector2i(0, i)] = true
+			rows = maxi(rows, at.y + lines)
+		var head := HBoxContainer.new()
+		head.position = Vector2(4, y + 4)
+		head.add_child(ui_icon(ICONS[band["icon"]], Rect2(), Vector2(32, 32)))
+		var title := Label.new()
+		title.text = tr(band["name"])
+		title.add_theme_color_override("font_color", BUILD_INFO_COLOR)
+		head.add_child(title)
+		tree.add_child(head)
+		for res in nodes["goods"]:
+			var at: Vector2i = nodes["goods"][res]
+			tree.add_child(chain_box(res, spots[res]))
+			if craftable(res):
+				var station := chain_station_rect(y, at)
+				tree.add_child(chain_station(station_of(res), [res], station))
+				chain_wire(inputs_of(res).keys(), spots, nodes["goods"], taken, at, station, chain_mood(res))
+				chain_links.append([PackedVector2Array([Vector2(station.end.x, station.get_center().y), Vector2(spots[res].position.x - 6, station.get_center().y)]),
+					Vector2(spots[res].position.x, station.get_center().y), chain_mood(res)])
+		for kind in nodes["sets"]:
+			var at: Vector2i = nodes["sets"][kind][0]
+			var items: Array = nodes["sets"][kind][1]
+			var station := chain_station_rect(y, at)
+			var moods_of: Array = items.map(chain_mood)
+			var mood: String = CHAIN_COLORS.keys().filter(func(m): return m in moods_of)[-1]  # il più vivo dei suoi oggetti
+			tree.add_child(chain_station(kind, items, station))
+			var inputs := {}
+			for res in items:
+				inputs.merge(inputs_of(res))
+			chain_wire(inputs.keys(), spots, nodes["goods"], taken, at, station, mood)
+			var first := chain_rect(y, at)
+			chain_links.append([PackedVector2Array([Vector2(station.end.x, station.get_center().y), Vector2(first.position.x - 6, station.get_center().y)]),
+				Vector2(first.position.x, station.get_center().y), mood])
+			for i in items.size():
+				var spot := chain_rect(y, at + Vector2i(0, i / CHAIN_SET))
+				var tile := chain_tile(items[i])
+				tile.position = spot.position + Vector2((i % CHAIN_SET) * (TILE_BOX + 2), (CHAIN_BOX.y - TILE_BOX) / 2)
+				tree.add_child(tile)
+				wide = maxf(wide, tile.position.x + TILE_BOX + 8)
+		var tall := CHAIN_BAND + rows * (CHAIN_BOX.y + CHAIN_GAP.y) + 8
+		chain_bands.append(Rect2(0, y, 0, tall))
+		for res in spots:
+			wide = maxf(wide, spots[res].end.x)
+		y += tall
+	for i in chain_bands.size():
+		chain_bands[i].size.x = wide
+	tree.custom_minimum_size = Vector2(wide, y)
+	tree.queue_redraw()
+	var scroll: Control = production_panel.get_node("Box/Chains")  # larga quanto l'albero, finché sta nello schermo
+	scroll.custom_minimum_size = Vector2(minf(wide + 16, get_viewport_rect().size.x - 60), CHAINS_TALL)
+	production_panel.reset_size()
+
+
+# I collegamenti verso la postazione `station` (davanti al posto `at`) dai beni `inputs` che hanno un riquadro nella
+# fascia (`spots`, ai posti `places`): dal lato destro del bene, in orizzontale fino al binario davanti alla postazione,
+# poi in verticale fino alla sua riga e dentro, con la freccia. Solo se sulla riga del bene non c'è un altro riquadro di
+# mezzo (`taken`): se no quell'ingrediente lo dice il suggerimento della postazione. `mood`: lo stato, cioè il colore
+func chain_wire(inputs: Array, spots: Dictionary, places: Dictionary, taken: Dictionary, at: Vector2i, station: Rect2, mood: String) -> void:
+	for res in inputs:
+		if not spots.has(res) or places[res].x >= at.x:
+			continue
+		var from: Vector2i = places[res]
+		if range(from.x + 1, at.x).any(func(col): return taken.has(Vector2i(col, from.y))):
+			continue
+		var a := Vector2(spots[res].end.x, spots[res].get_center().y)
+		var b := Vector2(station.position.x, station.get_center().y)
+		var bus := b.x - 8
+		var points := PackedVector2Array([a, b - Vector2(6, 0)]) if from.y == at.y \
+			else PackedVector2Array([a, Vector2(bus, a.y), Vector2(bus, b.y), b - Vector2(6, 0)])
+		chain_links.append([points, b, mood])
+
+
+# Le fasce e i collegamenti delle Catene, sotto i riquadri: un velo alternato e una riga in testa a ogni fascia, come i
+# rami della Conoscenza; poi i collegamenti, dal meno vivo al più vivo (grigi sotto, arancio sopra), col loro colore
+func draw_chains(tree: Control) -> void:
+	for i in chain_bands.size():
+		tree.draw_rect(chain_bands[i], Color(1, 1, 1, 0.04 if i % 2 == 0 else 0.0))
+		tree.draw_line(chain_bands[i].position, chain_bands[i].position + Vector2(chain_bands[i].size.x, 0), Color(CENSUS_BORDER, 0.6), 2)
+	for mood in CHAIN_COLORS:
+		for link in chain_links.filter(func(l): return l[2] == mood):
+			draw_link(tree, [link[0], link[1], CHAIN_COLORS[mood if mood != "done" else "idle"], 2.0])
+
+
+# Il riquadro di un bene nelle Catene: l'icona, il nome e quanti ce ne sono (con la scorta, "6 / 10", se ne ha una o ne
+# mancano). Il bordo ha il colore del suo stato (vedi chain_mood). Col mouse sopra cosa ci vuole e perché è fermo;
+# cliccato, se lo si sa fare, apre il menu della sua postazione
+func chain_box(res: Res, rect: Rect2) -> PanelContainer:
+	var mood := chain_mood(res)
+	var box := PanelContainer.new()
+	box.name = Res.keys()[res].capitalize()
+	box.position = rect.position
+	box.size = rect.size
+	box.custom_minimum_size = rect.size
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(CENSUS_CARD, 1.0)
+	style.border_color = CHAIN_COLORS[mood] if mood != "idle" else CENSUS_BORDER
+	style.set_border_width_all(2)
+	style.set_content_margin_all(4)
+	box.add_theme_stylebox_override("panel", style)
+	var row := HBoxContainer.new()
+	row.name = "Row"
+	row.add_theme_constant_override("separation", 6)
+	box.add_child(row)
+	row.add_child(ui_icon(ICONS[res], Rect2(), Vector2(32, 32)))
+	var label := Label.new()
+	label.name = "Name"
+	label.text = named(Res, res, "item")
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.clip_text = true
+	row.add_child(label)
+	var count := Label.new()
+	count.name = "Count"
+	count.text = chain_count(res)
+	var have: int = make_state(res)["have"] if craftable(res) else total(res)
+	if craftable(res):
+		box.tooltip_text = chain_tip(res, make_state(res)["block"])
+		box.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		box.gui_input.connect(func(event):
+			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+				box.accept_event()
+				open_shop(station_of(res)))
+	else:
+		box.tooltip_text = named(Res, res, "item")
+	ink(count, TREND_DOWN if mood == "stuck" else (TREND_UP if mood == "done" else (CENSUS_DIM if have == 0 else null)))
+	row.add_child(count)
+	for node in row.find_children("*", "Control", true, false) + [row]:
+		node.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return box
+
+
+# un oggetto finito nel gruppo della sua postazione: solo l'icona nel suo riquadro, col bordo dello stato e accanto
+# quanti ce ne sono; smorzato se non ce ne sono e non se ne vogliono. Suggerimento e clic come chain_box
+func chain_tile(res: Res) -> PanelContainer:
+	var mood := chain_mood(res)
+	var s := make_state(res)
+	var tile := icon_tile(ICONS[res], Rect2(), 32, CHAIN_COLORS[mood] if mood != "idle" else TILE_EDGE)
+	tile.name = Res.keys()[res].capitalize()
+	tile.tooltip_text = chain_tip(res, s["block"])
+	tile.get_child(0).modulate.a = 0.4 if mood == "idle" and s["have"] == 0 else 1.0
+	tile.get_child(0).mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tile.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	tile.gui_input.connect(func(event):
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			tile.accept_event()
+			open_shop(station_of(res)))
+	if s["have"] > 0 or mood != "idle":  # quanti ce ne sono, nell'angolo in basso a destra, sopra l'icona
+		var icon: Control = tile.get_child(0)
+		icon.draw.connect(func():
+			var font := icon.get_theme_default_font()
+			var text := str(s["have"])
+			var size := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 22)
+			icon.draw_rect(Rect2(icon.size + Vector2(-size.x, -14), Vector2(size.x + 2, 16)), OUTLINE)
+			icon.draw_string(font, icon.size + Vector2(-size.x + 1, 1), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 22,
+				TREND_DOWN if mood == "stuck" else Color.WHITE))
+	return tile
+
+
+# la postazione `kind` davanti ai beni `made` che fa, nelle Catene: il suo disegno nel riquadro, col bordo dello stato
+# più vivo tra i suoi; smorzata se non è costruita. Col mouse sopra il nome e, se non lavora, perché; cliccata il suo menu
+func chain_station(kind: Build, made: Array, rect: Rect2) -> PanelContainer:
+	var moods: Array = made.map(chain_mood)
+	var mood: String = CHAIN_COLORS.keys().filter(func(m): return m in moods)[-1]
+	var pieces := station_pieces(kind)
+	var tile := icon_tile(kind_buttons[furniture[pieces[0]][0] if not pieces.is_empty() else kind].icon, Rect2(), 32,
+		CHAIN_COLORS[mood] if mood != "idle" else CENSUS_BORDER)
+	tile.name = "Station %s" % Res.keys()[made[0]].capitalize()
+	tile.position = rect.position
+	tile.get_child(0).mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tile.modulate.a = 0.45 if pieces.is_empty() else 1.0
+	var block := "" if not stations(kind).is_empty() else (station_block(pieces[0]) if not pieces.is_empty() else tr("Not built yet"))
+	tile.tooltip_text = named(Build, kind) + ("\n" + block if block != "" else "")
+	if not pieces.is_empty():
+		tile.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		tile.gui_input.connect(func(event):
+			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+				tile.accept_event()
+				open_shop(kind))
+	return tile
+
+
+# il suggerimento di un bene che si fa, nelle Catene: il nome, dove, cosa ci vuole e, se è fermo, perché (`block`)
+func chain_tip(res: Res, block: String) -> String:
+	var takes: String = tr("%d raw, one kind") % COOK_RAW
+	if res != Res.MEAL:
+		var needs := needs_of(recipe_of(res))
+		takes = ", ".join(needs.keys().map(func(key): return "%d %s" % [needs[key], tr(GROUP_NAMES[key]) if GROUPS.has(key) else res_name(key)]))
+	return "%s (%s)\n%s%s" % [named(Res, res, "item"), named(Build, station_of(res)).to_lower(), tr("Takes: %s") % takes,
+		"\n" + block if block != "" else ""]
 
 
 # Finestra del pascolo (clic su una sua casella): l'erba, poi per specie quanti ce ne sono e quanti adulti tenerne

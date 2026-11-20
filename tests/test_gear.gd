@@ -193,6 +193,46 @@ func _initialize() -> void:
 	check(summary.contains("0 at work") and summary.contains("1 waiting") and summary.contains("4 stopped"), "in alto il conto")
 	main.open_shop(main.Build.FURNACE)
 	check(main.craft_popup.visible and main.crafting == furnace, "clic su un'officina: il suo menu")
+	# le Catene, la seconda scheda: ogni ricetta ha il suo posto, e i posti di una fascia non si sovrappongono
+	check(main.chain_lost().is_empty(), "nessuna ricetta resta fuori dalle catene")
+	for band in main.CHAINS:
+		var cells := {}
+		for res in band["goods"]:
+			check(not cells.has(band["goods"][res]), "fascia %s: un posto per bene" % band["name"])
+			cells[band["goods"][res]] = true
+		for kind in band["sets"]:
+			check(not cells.has(band["sets"][kind]), "fascia %s: il gruppo ha il suo posto" % band["name"])
+			cells[band["sets"][kind]] = true
+	check(main.chain_mood(I) == "want" and main.chain_mood(main.Res.PICKAXE) == "stuck" and main.chain_mood(main.Res.SWORD) == "idle"
+		and main.chain_mood(main.Res.COAL) == "done" and main.chain_mood(main.Res.IRON) == "idle",
+		"lo stato dei beni: i lingotti si vogliono, il piccone è fermo, la spada no, il carbone basta")
+	check(main.inputs_of(I) == {main.Res.IRON: 1, main.Res.COAL: 1} and main.inputs_of(main.Res.STEW).size() == 8
+		and main.station_of(main.Res.MEAL) == main.Build.CAMPFIRE, "gli ingredienti, con quelli a scelta sciolti")
+	main.production_panel.get_node("Box/Top/Chains").button_pressed = true
+	var tree: Control = main.production_panel.get_node("Box/Chains/Tree")
+	check(main.production_panel.get_node("Box/Chains").visible and not shops.visible and tree.get_child_count() > 20
+		and tree.custom_minimum_size.y > main.CHAINS_TALL, "la scheda delle Catene, che si scorre")
+	var ingot_box: Control = tree.get_node("Ingot")
+	check(ingot_box.get_theme_stylebox("panel").border_color == main.CHAIN_COLORS["want"] and ingot_box.get_node("Row/Count").text == "0 / 10"
+		and tree.get_node("Iron/Row/Count").text == "50" and tree.get_node("Coal/Row/Count").text == "50 / 5"
+		and tree.get_node("Coal").get_theme_stylebox("panel").border_color == main.CHAIN_COLORS["done"],
+		"i riquadri: il lingotto d'oro, 0 su 10; il ferro che c'è; il carbone verde")
+	check(tree.has_node("Station Ingot") and tree.get_node("Pickaxe").get_theme_stylebox("panel").border_color == main.CHAIN_COLORS["stuck"]
+		and tree.get_node("Pickaxe").tooltip_text.contains("Short of ingot") and tree.get_node("Ingot").tooltip_text.contains("Takes: 1 iron, 1 coal"),
+		"davanti al lingotto la sua fornace; il piccone tra gli oggetti dell'incudine, rosso, col perché")
+	var wanted: Array = main.chain_links.filter(func(l): return l[2] == "want")
+	check(wanted.size() == 3 and wanted.any(func(l): return l[1] == Vector2(ingot_box.position.x, ingot_box.position.y + ingot_box.size.y / 2)),
+		"i collegamenti d'oro: dal ferro e dal carbone alla fornace, e da lì al lingotto")
+	var right := func(box: Control): return box.position + Vector2(box.size.x, box.size.y / 2)  # da dove partono i collegamenti
+	var coal_out: Vector2 = right.call(tree.get_node("Coal"))
+	var wood_out: Vector2 = right.call(tree.get_node("Wood"))
+	var from_coal: Array = main.chain_links.filter(func(l): return l[0][0] == coal_out)
+	check(from_coal.size() == 1 and from_coal[0][0].size() == 4 and from_coal[0][2] == "want" and not tree.has_node("Steel")
+		and not main.craftable(main.Res.STEEL), "il carbone va al lingotto girando sul binario; l'acciaio, che non si sa fare, non c'è")
+	check(main.chain_links.filter(func(l): return l[0][0] == wood_out).size() == 1 and main.inputs_of(main.Res.PICKAXE).has(W),
+		"la legna va solo alla carbonaia: per arrivare all'incudine attraverserebbe il carbone")
+	main.production_panel.get_node("Box/Top/Workshops").button_pressed = true
+	check(shops.visible and not main.production_panel.get_node("Box/Chains").visible, "di nuovo le Officine")
 	main.craft_popup.hide()
 	var iron0: int = main.total(main.Res.IRON)
 	var seen_busy := false  # il menu della fornace mentre qualcuno fonde: chi, la barra, la tacca a metà
@@ -224,6 +264,7 @@ func _initialize() -> void:
 				and not card.has_node("Row/Lines/Idle") and main.production_bars.size() == state["makers"].size()
 				and main.production_bars[0][2] == state["makers"][0] and main.production_bars[0][0].get_meta("part") > 0.0,
 				"l'officina dove si lavora: chi, e la barra che avanza")
+			check(main.chain_mood(I) == "busy", "e nelle Catene il lingotto è in arancio")
 		if main.colonists.all(func(c): return c.gear.size() == (2 if c == hunter else 3)):  # l'arco qui non si fa
 			break
 	check(seen_busy, "qualcuno ha fuso i lingotti")
