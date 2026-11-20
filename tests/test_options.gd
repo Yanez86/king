@@ -85,6 +85,20 @@ func _initialize() -> void:
 	check(main.tool("Census").button_pressed, "il numero dei coloni in alto la apre ancora, col tasto del menu")
 	main.get_node("HUD/CensusPanel").hide()
 	check(not main.tool("Census").button_pressed, "chiusa con la X: il tasto si alza")
+	# la Produzione sta nel menu, dopo le Risorse, col tasto S
+	var box: Control = drawer.get_node("Box")
+	check(main.hotkeys["Production"] == KEY_S and main.tool("Production").get_parent() == box
+		and main.tool("Production").get_index() == main.tool("Resources").get_index() + 1 and main.tool("Production").get_node("Key").text == "S",
+		"la Produzione nel menu, dopo le Risorse, col tasto S")
+	press(main, KEY_S)
+	check(main.production_panel.visible and main.tool("Production").button_pressed
+		and main.production_panel.get_node("Box/None").visible and not main.production_panel.get_node("Box/Shops").visible,
+		"S la apre; senza postazioni lo dice")
+	main.production_panel.hide()
+	check(not main.tool("Production").button_pressed, "chiusa con la X: il tasto si alza")
+	press(main, KEY_S)
+	press(main, KEY_S)
+	check(not main.production_panel.visible, "S la richiude")
 	main.chronicle.append("prova")
 	main.update_dots()
 	check(main.tool("Chronicle").get_node("Dot").visible and main.menu_tab.get_node("Dot").visible, "una voce nuova: il pallino")

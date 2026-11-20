@@ -168,6 +168,32 @@ func _initialize() -> void:
 		check(heads[i + 1].text == column and wide > 0 and wide == pick.get_node("Main/" + column).custom_minimum_size.x
 			and wide == sword.get_node("Main/" + column).custom_minimum_size.x, "colonna %s: allineata, col suo titolo" % column)
 	main.craft_popup.hide()
+	# le Officine della finestra Produzione: un riquadro per tipo di postazione costruita, nel loro ordine
+	check(main.RECIPES.all(func(r): return r[1] in main.STATION_ORDER) and main.STATION_ORDER[0] == main.Build.CAMPFIRE,
+		"ogni postazione delle ricette ha il suo posto tra le officine")
+	main.tool("Production").button_pressed = true
+	var shops: Control = main.production_panel.get_node("Box/Shops")
+	check(main.production_panel.visible and shops.get_children().map(func(n): return String(n.name)) == ["Furnace", "Anvil"],
+		"le officine: la fornace e l'incudine")
+	var anvil_shop: Dictionary = main.shop_state(main.Build.ANVIL)
+	check(anvil_shop["pieces"] == [anvil] and anvil_shop["block"] == "" and anvil_shop["workers"].is_empty()
+		and anvil_shop["queue"].map(func(q): return q[0]) == [main.Res.PICKAXE, main.Res.AXE, main.Res.HELMET, main.Res.CHAINMAIL]
+		and anvil_shop["queue"].map(func(q): return q[1]) == [1, 1, 3, 3] and anvil_shop["queue"].all(func(q): return q[2].begins_with("Short of ingot")),
+		"all'incudine mancano un piccone, un'ascia, tre elmi e tre corpetti, tutti fermi senza lingotti")
+	var card: Control = shops.get_node("Anvil")
+	check(card.get_theme_stylebox("panel").border_color == main.MAKE_STUCK and card.get_node("Row/Lines/Idle").text == "Short of ingot: takes 2, 0 free"
+		and card.get_node("Row/Lines/Next").get_child_count() == 1 + 2 * 4 and card.get_node("Row/Lines/Next/Chainmail").tooltip_text.contains("Short of ingot")
+		and card.get_node("Row/Lines/Head/Name").text == "Anvil" and card.get_node("Row/Lines/Head/Where").text == "Forge",
+		"il riquadro dell'incudine: rosso, col perché e gli oggetti che mancano")
+	card = shops.get_node("Furnace")
+	check(card.get_theme_stylebox("panel").border_color == main.CENSUS_BORDER and card.get_node("Row/Lines/Idle").text == "Free: waiting for someone with time"
+		and card.get_node("Row/Lines/Next/Ingot") != null and card.get_node("Row/Lines/Next").get_child(2).text == "10",
+		"la fornace: libera, con dieci lingotti da fare")
+	var summary: String = main.production_panel.get_node("Box/Top/Summary").text
+	check(summary.contains("0 at work") and summary.contains("1 waiting") and summary.contains("4 stopped"), "in alto il conto")
+	main.open_shop(main.Build.FURNACE)
+	check(main.craft_popup.visible and main.crafting == furnace, "clic su un'officina: il suo menu")
+	main.craft_popup.hide()
 	var iron0: int = main.total(main.Res.IRON)
 	var seen_busy := false  # il menu della fornace mentre qualcuno fonde: chi, la barra, la tacca a metà
 	for i in 60000:
@@ -191,9 +217,17 @@ func _initialize() -> void:
 			check(menu.get_node("Head/Lines/Sub/Who").text.ends_with(" at work") and menu.get_node("Head/Lines/Sub/Faces").get_child_count() == state["makers"].size(),
 				"in testa chi lavora, con la figurina")
 			main.craft_popup.hide()
+			main.production_key = ""  # e le Officine: la fornace in arancio, con chi lavora e la sua barra
+			main.fill_production()
+			card = shops.get_node("Furnace")
+			check(card.get_theme_stylebox("panel").border_color == main.MAKE_BUSY and card.get_node("Row/Lines/Now") != null
+				and not card.has_node("Row/Lines/Idle") and main.production_bars.size() == state["makers"].size()
+				and main.production_bars[0][2] == state["makers"][0] and main.production_bars[0][0].get_meta("part") > 0.0,
+				"l'officina dove si lavora: chi, e la barra che avanza")
 		if main.colonists.all(func(c): return c.gear.size() == (2 if c == hunter else 3)):  # l'arco qui non si fa
 			break
 	check(seen_busy, "qualcuno ha fuso i lingotti")
+	main.production_panel.hide()
 	check(smith.gear == {main.Slot.HANDS: main.Res.PICKAXE, main.Slot.BODY: main.Res.CHAINMAIL, main.Slot.HEAD: main.Res.HELMET},
 		"il minatore: piccone, cotta ed elmo")
 	check(tailor.gear[main.Slot.HANDS] == main.Res.AXE and hunter.gear.get(main.Slot.HANDS) == null,

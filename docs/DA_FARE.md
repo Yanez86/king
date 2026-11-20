@@ -253,8 +253,7 @@ italiano: scheda del colono a due colonne, data e meteo di nuovo nella barra in 
   sposta la visuale (provato con eventi finti, la soglia è 4 pixel).
 - [ ] I contatori di studio e autorità nella barra in alto: vedi Ricerca.
 - [ ] La produzione che si vede (decisa il 2026-11-20, vedi [TECH](TECH.md), "Interfaccia: la produzione"; il menu
-  della postazione è fatto): (2) la finestra Produzione con le Officine; (3) le Catene; (4) i fumetti sulla mappa e il
-  riquadro col mouse sopra.
+  della postazione e le Officine sono fatti): (3) le Catene; (4) i fumetti sulla mappa e il riquadro col mouse sopra.
 
 ## Distribuzione
 

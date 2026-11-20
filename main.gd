@@ -665,6 +665,11 @@ const PIPS_WIDTH := 118              # px: il posto delle tacche
 const PIP_MAX := 12                  # oltre, le tacche diventano una barra
 const KEEP_MAX := 100                # la scorta più grande che si può chiedere
 const COLONISTS_ICON := preload("res://art/icon_colonists.png")
+# i tipi di postazione nell'ordine delle Officine (vedi fill_production): la cucina, il mulino, la forgia, i banchi
+const STATION_ORDER := [Build.CAMPFIRE, Build.OVEN, Build.MILLSTONE, Build.FURNACE, Build.ANVIL, Build.WORKBENCH,
+	Build.SPINNING_WHEEL, Build.CARPENTER_BENCH, Build.DESK]
+const SHOP_WIDTH := 570              # px: il riquadro di un'officina, due per riga
+const SHOP_QUEUE := 8                # oggetti che mancano mostrati in un riquadro, al più
 const GROUP_NAMES := {ANY_VEG: "vegetables of one kind", ANY_FLESH: "meat or fish of one kind"}  # nei testi, vedi make_block
 const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.COAL: 5, Res.OINTMENT: 3, Res.FLOUR: 10, Res.BREAD: 8, Res.CANDLE: 4}  # scorte di partenza, vedi keep; i pasti
 	# MEALS_PER_COLONIST a testa
@@ -892,7 +897,7 @@ const ROOM_SPACE := 6        # caselle a testa: chi ne ha meno (stanza piena di 
 # menù delle opzioni (Esc o ingranaggio), tab Keybindings: tasti di partenza dei comandi della barra in basso, per
 # nome del pulsante (vedi TOOL_BARS; quelli che non ci sono partono senza). Cambiati, si salvano: vedi bind_key
 const DEFAULT_KEYS := {"Select": KEY_Q, "Build": KEY_B, "Destroy": KEY_X, "Mine": KEY_M, "Chop": KEY_C, "Uproot": KEY_U,
-	"Harvest": KEY_H, "Garden": KEY_P, "Pasture": KEY_W, "Hay": KEY_Z, "Fish": KEY_F, "Hunt": KEY_T, "Ice": KEY_Y, "Jobs": KEY_J, "Resources": KEY_I, "Knowledge": KEY_K, "Laws": KEY_G,
+	"Harvest": KEY_H, "Garden": KEY_P, "Pasture": KEY_W, "Hay": KEY_Z, "Fish": KEY_F, "Hunt": KEY_T, "Ice": KEY_Y, "Jobs": KEY_J, "Resources": KEY_I, "Production": KEY_S, "Knowledge": KEY_K, "Laws": KEY_G,
 	"RoomsLens": KEY_L, "HeatLens": KEY_N, "SoilLens": KEY_O, "Roofs": KEY_V, "Wiki": KEY_F1, "Census": KEY_A,
 	"Chronicle": KEY_D, "Menu": KEY_TAB}
 # dove stanno i tasti dei comandi (vedi tool): la barra in basso, le barre di Ordini e Viste, il menu a sinistra; poi
@@ -2001,6 +2006,9 @@ var keep := STOCK.duplicate()  # prodotto -> quanti tenerne (a terra, in magazzi
 var crafting := Vector2i(-1, -1)  # la postazione aperta nel menu, vedi open_craft
 var craft_rows := []        # [oggetto, riga] del menu aperto, vedi refresh_craft
 var craft_key := ""         # quello che il menu mostra: se cambia, lo si rifà (vedi craft_signature)
+var production_panel := PanelContainer.new()  # la finestra Produzione, dal menu a sinistra (vedi fill_production)
+var production_key := ""    # quello che mostrano le Officine: se cambia, le si rifà
+var production_bars := []   # [barra, i secondi, chi lavora]: aggiornate a ogni fotogramma
 var pasture_popup: Control       # la finestra del pascolo: il branco e il mercante (vedi open_pasture)
 var shown: Colonist         # il colono nella scheda: le barre dei bisogni lo seguono
 var gear_menu := PopupMenu.new()  # clic su uno slot della scheda: Auto, Empty o un pezzo (vedi open_gear_menu)
@@ -2375,11 +2383,12 @@ func _ready() -> void:
 	$HUD/BoardPanel/Box/Foot/ChronicleButton.pressed.connect(open_chronicle)
 	build_field_popup()
 	build_plan_panel()
+	build_production_panel()
 	pasture_popup = craft_popup.duplicate()  # come il menu delle postazioni: titolo, una riga rossa, l'elenco
 	pasture_popup.name = "PasturePopup"
 	$HUD.add_child(pasture_popup)
 	setup_craft_popup()
-	for window in [room_popup, field_popup, plan_panel, craft_popup, pasture_popup, jobs_panel, resources_panel, sheet_panel, $HUD/BoardPanel, $HUD/ReportPanel, $HUD/ChroniclePanel,
+	for window in [room_popup, field_popup, plan_panel, craft_popup, pasture_popup, production_panel, jobs_panel, resources_panel, sheet_panel, $HUD/BoardPanel, $HUD/ReportPanel, $HUD/ChroniclePanel,
 			$HUD/KnowledgePanel, $HUD/LawsPanel, $HUD/WikiPanel, $HUD/BirthPanel, $HUD/SuccessionPanel, $HUD/HousePanel,
 			$HUD/RequestPanel, $HUD/CensusPanel]:  # X in alto a destra, si trascinano
 		window.get_node("Box/Head/Close").pressed.connect(window.hide)
@@ -2792,6 +2801,7 @@ func set_language(code: String) -> void:
 	knowledge_key = ""
 	laws_key = ""
 	census_key = ""
+	production_key = ""
 	fill_wiki()
 	show_title()  # il nome del reame in alto
 	if settings_file == "":
@@ -3810,14 +3820,8 @@ func craft_row(res: Res) -> PanelContainer:
 	var text := Label.new()
 	text.name = "Text"
 	status.add_child(text)
-	var bar := Control.new()
+	var bar := work_bar()
 	bar.name = "Bar"
-	bar.custom_minimum_size = Vector2(120, 12)
-	bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	bar.draw.connect(func():
-		bar.draw_rect(Rect2(Vector2.ZERO, bar.size), OUTLINE)
-		bar.draw_rect(Rect2(2, 2, (bar.size.x - 4) * bar.get_meta("part", 0.0), bar.size.y - 4), MAKE_BUSY)
-		bar.draw_rect(Rect2(Vector2.ONE, bar.size - Vector2.ONE * 2), MAKE_BUSY, false, 2))
 	status.add_child(bar)
 	var left := Label.new()
 	left.name = "Left"
@@ -3966,7 +3970,7 @@ func refresh_craft_row(res: Res, row: Control, station: String) -> void:
 		var c: Colonist = makers[0]
 		text.text = (tr("%s is making it") if makers.size() == 1 else tr("%s and others are making it")) % c.first_name
 		text.add_theme_color_override("font_color", MAKE_BUSY)
-		status.get_node("Bar").set_meta("part", 1.0 - c.work_left / c.work_total if c.work_total > 0 else 0.0)
+		status.get_node("Bar").set_meta("part", work_part(c))
 		status.get_node("Bar").queue_redraw()
 		status.get_node("Left").text = tr("%d s") % ceili(c.work_left)
 	if res == Res.MEAL:  # i crudi nei mucchi: si rifanno solo quando cambiano
@@ -4040,6 +4044,266 @@ func make_block(res: Res) -> String:
 		if most < needs[key]:
 			return tr("Short of %s: takes %d, %d free") % [tr(GROUP_NAMES[key]) if GROUPS.has(key) else res_name(key), needs[key], most]
 	return ""
+
+
+# --- La finestra Produzione (vedi TECH "Interfaccia: la produzione") ---
+
+# La finestra Produzione, dal menu a sinistra: il titolo, in alto il conto (al lavoro, in attesa, ferme), poi le
+# Officine, un riquadro per tipo di postazione costruita, due per riga (vedi fill_production), e in fondo come si usa
+func build_production_panel() -> void:
+	production_panel.name = "ProductionPanel"
+	production_panel.visible = false
+	var box := popup_frame(production_panel, "Production")
+	var top := HBoxContainer.new()
+	top.name = "Top"
+	top.alignment = BoxContainer.ALIGNMENT_END
+	var summary := rich("")
+	summary.name = "Summary"
+	top.add_child(summary)
+	box.add_child(top)
+	var shops := GridContainer.new()
+	shops.name = "Shops"
+	shops.columns = 2
+	shops.add_theme_constant_override("h_separation", 10)
+	shops.add_theme_constant_override("v_separation", 8)
+	box.add_child(shops)
+	var none := Label.new()
+	none.name = "None"
+	none.text = "No stations yet: a campfire in a kitchen is the first."
+	none.add_theme_color_override("font_color", CENSUS_DIM)
+	box.add_child(none)
+	var hint := Label.new()
+	hint.name = "Hint"
+	hint.text = "Click a workshop: what to make there, and how many to keep. The number by an item: how many are missing."
+	hint.add_theme_color_override("font_color", BUILD_INFO_COLOR)
+	box.add_child(hint)
+	$HUD.add_child(production_panel)
+	tool("Production").toggled.connect(func(on):
+		production_panel.visible = on
+		if on:  # rifatta subito e messa al centro: dopo resta dove la si trascina
+			production_key = ""
+			fill_production()
+			production_panel.reset_size()
+			production_panel.position = ((get_viewport_rect().size - production_panel.size) / 2).floor())
+	production_panel.hidden.connect(tool("Production").set_pressed_no_signal.bind(false))
+
+
+# i pezzi costruiti che fanno da postazione `kind` (per il fuoco anche i focolari), dentro la loro stanza o no
+func station_pieces(kind: Build) -> Array:
+	return furniture.keys().filter(func(o): return role(furniture[o][0]) == kind)
+
+
+# Come sta un tipo di postazione, per il suo riquadro tra le Officine: "pieces" i pezzi costruiti, "block" perché non
+# lavora nessuno di loro ("" se almeno uno lavora, vedi station_block), "workers" chi ci lavora adesso, "queue" quello
+# che manca, [oggetto, quanti, perché è fermo o ""] (vedi make_state)
+func shop_state(kind: Build) -> Dictionary:
+	var pieces := station_pieces(kind)
+	var queue := []
+	for res in station_makes(kind):
+		var s := make_state(res)
+		if s["missing"] > 0:
+			queue.append([res, s["missing"], s["block"]])
+	return {"pieces": pieces, "block": "" if not stations(kind).is_empty() or pieces.is_empty() else station_block(pieces[0]),
+		"workers": station_workers(kind), "queue": queue}
+
+
+# l'oggetto a cui lavora `c` a una postazione: il pasto di chi cucina, se no quello della sua ricetta
+func making(c: Colonist) -> Res:
+	return Res.MEAL if c.job == Job.COOK else RECIPES[c.recipe][0]
+
+
+# Le Officine: un riquadro per tipo di postazione costruita (vedi shop_card), nell'ordine di STATION_ORDER, e in alto
+# il conto: quanti al lavoro, quanti oggetti in attesa di qualcuno, quanti fermi. Si rifà solo quando cambia qualcosa
+# (chi lavora, cosa manca, perché); le barre di chi lavora si aggiornano a ogni fotogramma
+func fill_production() -> void:
+	if production_key == "" or Engine.get_process_frames() % 6 == 0:  # i riquadri ogni tanto: basta
+		fill_shops()
+	for entry in production_bars:  # [barra, i secondi, chi lavora]
+		entry[0].set_meta("part", work_part(entry[2]))
+		entry[0].queue_redraw()
+		entry[1].text = tr("%d s") % ceili(entry[2].work_left)
+
+
+# i riquadri delle Officine e il conto in alto, rifatti se è cambiato qualcosa (vedi fill_production)
+func fill_shops() -> void:
+	var states := {}
+	for kind in STATION_ORDER:
+		var s := shop_state(kind)
+		if not s["pieces"].is_empty():
+			states[kind] = s
+	var key := str([states, states.values().map(func(s): return s["workers"].map(making)), TranslationServer.get_locale()])
+	if key == production_key:
+		return
+	production_key = key
+	production_bars.clear()
+	var box: Control = production_panel.get_node("Box")
+	var shops: Control = box.get_node("Shops")
+	for child in shops.get_children():
+		child.free()
+	var working := 0
+	var waiting := 0
+	var stopped := 0
+	for kind in states:
+		var s: Dictionary = states[kind]
+		working += s["workers"].size()
+		for item in s["queue"]:
+			if item[2] != "":
+				stopped += 1
+			else:
+				waiting += 1
+		shops.add_child(shop_card(kind, s))
+	box.get_node("None").visible = states.is_empty()
+	shops.visible = not states.is_empty()
+	box.get_node("Top/Summary").text = "[color=#%s]%s[/color]     [color=#%s]%s[/color]     [color=#%s]%s[/color]" % [
+		(MAKE_BUSY if working > 0 else CENSUS_DIM).to_html(false), tr("%d at work") % working,
+		(MAKE_WANT if waiting > 0 else CENSUS_DIM).to_html(false), tr("%d waiting") % waiting,
+		(TREND_DOWN if stopped > 0 else CENSUS_DIM).to_html(false), tr("%d stopped") % stopped]
+	production_panel.reset_size()
+
+
+# Il riquadro di un tipo di postazione tra le Officine: il suo disegno, il nome e a destra la stanza; sotto chi ci
+# lavora (figurina, nome, l'oggetto, la barra e i secondi; al più due), o in rosso perché è ferma, o che è libera;
+# poi "Then", gli oggetti che mancano con quanti (in rosso quelli fermi: col mouse sopra il perché). Il bordo è arancio
+# se ci si lavora, rosso se è ferma. Cliccato apre il menu della postazione (lo scrittoio: la Conoscenza)
+func shop_card(kind: Build, s: Dictionary) -> PanelContainer:
+	var workers: Array = s["workers"]
+	var queue: Array = s["queue"]
+	var stuck: bool = workers.is_empty() and (s["block"] != "" or (not queue.is_empty() and queue.all(func(item): return item[2] != "")))
+	var edge: Color = MAKE_BUSY if not workers.is_empty() else (MAKE_STUCK if stuck else CENSUS_BORDER)
+	var piece: Vector2i = stations(kind)[0] if not stations(kind).is_empty() else s["pieces"][0]
+	var card := PanelContainer.new()
+	card.name = Build.keys()[kind].capitalize()
+	card.custom_minimum_size.x = SHOP_WIDTH
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(CENSUS_CARD, 1.0)
+	style.border_color = edge
+	style.set_border_width_all(2)
+	style.set_content_margin_all(8)
+	card.add_theme_stylebox_override("panel", style)
+	card.tooltip_text = tr("Click: what to make")
+	card.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	card.gui_input.connect(func(event):
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			card.accept_event()
+			open_shop(kind))
+	card.mouse_entered.connect(func(): style.bg_color = Color(CENSUS_CARD.lightened(0.12), 1.0))
+	card.mouse_exited.connect(func(): style.bg_color = Color(CENSUS_CARD, 1.0))
+	var row := HBoxContainer.new()
+	row.name = "Row"
+	row.add_theme_constant_override("separation", 12)
+	card.add_child(row)
+	var tile := icon_tile(kind_buttons[furniture[piece][0]].icon, Rect2(), 48, edge if edge != CENSUS_BORDER else TILE_EDGE)
+	tile.name = "Tile"
+	tile.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	row.add_child(tile)
+	var lines := VBoxContainer.new()
+	lines.name = "Lines"
+	lines.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lines.add_theme_constant_override("separation", 2)
+	row.add_child(lines)
+	var head := HBoxContainer.new()
+	head.name = "Head"
+	var title := Label.new()
+	title.name = "Name"
+	title.text = named(Build, furniture[piece][0])
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(title)
+	var where := Label.new()
+	where.name = "Where"
+	where.text = named(RoomKind, STATION_ROOM[kind]) if STATION_ROOM.has(kind) else tr("Outdoors")
+	where.add_theme_color_override("font_color", BUILD_INFO_COLOR)
+	head.add_child(where)
+	lines.add_child(head)
+	for c in workers.slice(0, 2):
+		var now := HBoxContainer.new()
+		now.name = "Now"
+		now.add_theme_constant_override("separation", 8)
+		now.add_child(figure_icon(c))
+		var who := Label.new()
+		who.text = c.first_name
+		who.add_theme_color_override("font_color", MAKE_BUSY)
+		now.add_child(who)
+		var made := making(c)
+		var what := ui_icon(ICONS[made], Rect2(), Vector2(32, 32))
+		what.tooltip_text = named(Res, made, "item")
+		now.add_child(what)
+		var bar := work_bar()
+		bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		now.add_child(bar)
+		var left := Label.new()
+		left.add_theme_color_override("font_color", CENSUS_DIM)
+		left.custom_minimum_size.x = 48
+		left.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		now.add_child(left)
+		production_bars.append([bar, left, c])
+		lines.add_child(now)
+	if workers.is_empty():
+		var idle := Label.new()
+		idle.name = "Idle"
+		idle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART  # i perché lunghi vanno a capo
+		idle.custom_minimum_size.x = SHOP_WIDTH - 100
+		if s["block"] != "":
+			idle.text = s["block"]
+		elif queue.is_empty():
+			idle.text = tr("Nothing to do")
+		elif stuck:
+			idle.text = queue[0][2]
+		else:
+			idle.text = tr("Free: waiting for someone with time")
+		idle.add_theme_color_override("font_color", TREND_DOWN if stuck else CENSUS_DIM)
+		lines.add_child(idle)
+	if not queue.is_empty():
+		var next := HBoxContainer.new()
+		next.name = "Next"
+		next.add_theme_constant_override("separation", 6)
+		var label := Label.new()
+		label.text = tr("Then")
+		label.add_theme_color_override("font_color", CENSUS_DIM)
+		next.add_child(label)
+		for item in queue.slice(0, SHOP_QUEUE):
+			var chip := icon_tile(ICONS[item[0]], Rect2(), 32, MAKE_STUCK if item[2] != "" else TILE_EDGE)
+			chip.name = Res.keys()[item[0]].capitalize()
+			chip.tooltip_text = named(Res, item[0], "item") + ("\n" + item[2] if item[2] != "" else "")
+			next.add_child(chip)
+			var count := Label.new()
+			count.text = str(item[1])
+			if item[2] != "":
+				count.add_theme_color_override("font_color", TREND_DOWN)
+			next.add_child(count)
+		lines.add_child(next)
+	for node in row.find_children("*", "Control", true, false) + [row]:
+		node.mouse_filter = Control.MOUSE_FILTER_PASS  # il clic arriva al riquadro, i suggerimenti restano
+	return card
+
+
+# clic su un'officina: il menu della sua postazione (una che lavora, se c'è); lo scrittoio apre la Conoscenza
+func open_shop(kind: Build) -> void:
+	if kind == Build.DESK:
+		if tool("Knowledge").visible:
+			tool("Knowledge").button_pressed = true
+		return
+	var pieces: Array = stations(kind) if not stations(kind).is_empty() else station_pieces(kind)
+	if pieces.is_empty():
+		return
+	open_craft(pieces[0])
+	craft_popup.move_to_front()
+
+
+# la barra di un lavoro in corso: arancio, piena per la parte fatta (meta "part", da 0 a 1; vedi work_part)
+func work_bar(wide := 120.0) -> Control:
+	var bar := Control.new()
+	bar.custom_minimum_size = Vector2(wide, 12)
+	bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	bar.draw.connect(func():
+		bar.draw_rect(Rect2(Vector2.ZERO, bar.size), OUTLINE)
+		bar.draw_rect(Rect2(2, 2, (bar.size.x - 4) * bar.get_meta("part", 0.0), bar.size.y - 4), MAKE_BUSY)
+		bar.draw_rect(Rect2(Vector2.ONE, bar.size - Vector2.ONE * 2), MAKE_BUSY, false, 2))
+	return bar
+
+
+# quanta parte del suo lavoro a tempo ha già fatto `c`, da 0 a 1
+func work_part(c: Colonist) -> float:
+	return 1.0 - c.work_left / c.work_total if c.work_total > 0 else 0.0
 
 
 # Finestra del pascolo (clic su una sua casella): l'erba, poi per specie quanti ce ne sono e quanti adulti tenerne
@@ -5009,6 +5273,8 @@ func _process(delta: float) -> void:
 		fill_board()
 	if $HUD/CensusPanel.visible:
 		fill_census()
+	if production_panel.visible:
+		fill_production()
 	if $HUD/KnowledgePanel.visible:
 		fill_knowledge()
 	if $HUD/LawsPanel.visible:

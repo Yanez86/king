@@ -160,7 +160,7 @@ quello che manca) e quattro colori (oro si vuole, arancio si sta facendo, rosso 
   al posto di «Keep N». Sotto la riga, solo quando c'è qualcosa da dire: chi lo sta facendo, con la barra e i secondi
   che mancano, o in rosso perché è fermo («servono 6 lingotti, liberi ce ne sono 3»). Il pasto dice «2 crudi uguali»
   e sotto i crudi che ci sono. Si aggiorna mentre è aperto.
-- **La finestra Produzione**, nel menu a sinistra dopo le Risorse (tasto R), con due schede.
+- **La finestra Produzione**, nel menu a sinistra dopo le Risorse (tasto S: E e R girano i mobili), con due schede.
   - **Officine**: un riquadro per tipo di postazione costruita, col suo disegno, il nome e la stanza: chi ci lavora e
     a che punto è (figurina, oggetto, barra), «Poi» gli oggetti che mancano (icona e quanti; in rosso quelli fermi,
     col perché), oppure «Libera» o «Niente da fare». Il bordo: arancio se ci si lavora, rosso se è ferma. In alto il
@@ -187,6 +187,13 @@ quello che manca) e quattro colori (oro si vuole, arancio si sta facendo, rosso 
   e ci mette sopra i titoli; la colonna dei coloni c'è solo dove si fa equipaggiamento. Le parti fisse della finestra
   le aggiunge `setup_craft_popup`, dopo che la finestra del pascolo se n'è fatta una copia (resta com'era, con «Keep»).
   Di quello che non si vuole si vede solo quanti ce ne sono, senza tacche; oltre 12 pezzi le tacche sono una barra.
+  Fatta la fase 2 lo stesso giorno (prove in `tests/test_gear.gd`, il menu e il tasto in `tests/test_options.gd`). La
+  finestra è fatta nel codice (`build_production_panel`), il suo tasto sta in `main.tscn` con gli altri del menu; l'icona
+  (`icon_production`, l'incudine col martello) viene da `tools/make_sprites.py`. Un riquadro per tipo di postazione
+  (`STATION_ORDER`: una ricetta su una postazione nuova la vuole lì dentro, lo controlla la prova), solo quelle
+  costruite, anche fuori dalla loro stanza (`shop_state`, `shop_card`). `fill_shops` rifà i riquadri solo se è cambiato
+  qualcosa, e guarda ogni 6 fotogrammi; le barre di chi lavora si aggiornano a ogni fotogramma (`production_bars`). Dei
+  lavoratori si vedono i primi due, degli oggetti che mancano i primi 8. Per ora una scheda sola: le Catene con la fase 3.
 
 ## Versionamento
 - Git + GitHub (`Yanez86/king`).

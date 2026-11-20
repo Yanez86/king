@@ -4617,3 +4617,28 @@ msgstr "vegetali uguali"
 
 msgid "meat or fish of one kind"
 msgstr "carne o pesce uguali"
+
+# La finestra Produzione (vedi fill_production)
+msgid "Production"
+msgstr "Produzione"
+
+msgid "No stations yet: a campfire in a kitchen is the first."
+msgstr "Ancora nessuna postazione: la prima è un fuoco da campo in una cucina."
+
+msgid "Click a workshop: what to make there, and how many to keep. The number by an item: how many are missing."
+msgstr "Clicca un'officina: cosa farci e quanti tenerne. Il numero accanto a un oggetto: quanti ne mancano."
+
+msgid "%d at work"
+msgstr "%d al lavoro"
+
+msgid "%d waiting"
+msgstr "%d in attesa"
+
+msgid "%d stopped"
+msgstr "%d fermi"
+
+msgid "Free: waiting for someone with time"
+msgstr "Libera: aspetta qualcuno che abbia tempo"
+
+msgid "Then"
+msgstr "Poi"
