@@ -436,13 +436,13 @@ La vista calore (N) colora le stanze secondo la temperatura: rosso il caldo, gia
 
 [color=#e8c34a]Cucinare[/color]
 • A un fuoco da campo o a un focolare dentro una cucina. Il cuoco prende 2 crudi da un mucchio (vegetali, pesce o carne), cucina per 8 s e porta il pasto in un magazzino.
-• Clicca il fuoco da campo: Tieni N pasti (8 all'inizio, 2 a testa). I cuochi cucinano finché ci sono meno pasti di così, contando quelli a terra, nei magazzini e in mano.
+• Clicca il fuoco da campo per il suo menu: la Scorta, quanti pasti tenere (8 all'inizio, 2 a testa). I cuochi cucinano finché ci sono meno pasti di così, contando quelli a terra, nei magazzini e in mano. Sotto la riga del pasto, i crudi che ci sono.
 • Bruciato, e il cibo è perso: 6% per ogni livello di Cucinare sotto il 6, più 3% per ogni punto di comfort della cucina sotto 5 (meno, sopra). A livello 0 in una cucina con comfort 5: 36%.
 • Pasto squisito: 5% per ogni livello sopra il 5, più 2% per ogni punto di comfort sopra 5 (meno, sotto): 25% a livello 10.
 • Il tempo dipende anche dal comfort della cucina e dalle condizioni del cuoco.
 
 [color=#e8c34a]Il forno di pietra[/color] [img=center]res://art/icon_bread.png[/img]
-Dopo la ricerca Forno di pietra (Terra II): 2x1, 20 pietra, in una cucina; scalda la stanza come un fuoco da campo. Cliccalo per il suo menu: pane da 2 farina (3 pani, 10 s; Tieni 8 all'inizio), stufato da 2 vegetali dello stesso tipo (bacche, rape, cavoli o fave) e 1 carne o pesce, anche affumicati (2 stufati, 12 s), conserve da 2 vegetali dello stesso tipo (2 vasi, 10 s). Prende prima quello che marcisce prima. Bruciato e squisito come al fuoco: uno stufato squisito esce come pasti squisiti.
+Dopo la ricerca Forno di pietra (Terra II): 2x1, 20 pietra, in una cucina; scalda la stanza come un fuoco da campo. Cliccalo per il suo menu: pane da 2 farina (3 pani, 10 s; Scorta 8 all'inizio), stufato da 2 vegetali dello stesso tipo (bacche, rape, cavoli o fave) e 1 carne o pesce, anche affumicati (2 stufati, 12 s), conserve da 2 vegetali dello stesso tipo (2 vasi, 10 s). Prende prima quello che marcisce prima. Bruciato e squisito come al fuoco: uno stufato squisito esce come pasti squisiti.
 
 [color=#e8c34a]Il banchetto reale[/color]
 Dopo la ricerca Banchetto reale (Terra IV, 1000 e un codice, dopo l'Apicoltura), in fondo al menu del forno. Una volta a stagione, con una sala del trono che ha un tavolo, e nei magazzini uno stufato, un pane e un miele per ogni colono: si prendono subito (d'estate, col ghiaccio nei magazzini, anche il sorbetto: un ghiaccio e un miele ogni 4 coloni). Il giorno dopo alle 18 chi è in colonia, sveglio e in piedi, lascia quello che fa e va nella sala del trono, prima alle sedie dei tavoli, per due ore; il sovrano guadagna 20 autorità. Dopo, chi c'era ha Banchetto reale, +15 felicità per 3 giorni, e col sorbetto Sorbetto, +5 in più. Il pulsante dice perché, quando non si può ordinare."""],
@@ -544,7 +544,12 @@ Una stanza con almeno una mangiatoia (2x1, 6 legna). I trasportatori portano il 
 Nella stalla gli animali lasciano il letame (una mucca 1 al giorno, una pecora o un maiale 1 ogni 2, le galline 1 ogni 4): i trasportatori lo portano in un magazzino e i contadini lo spargono prima della semina, prima del compost e della cenere: +20 di fertilità."""],
 
 	["Lavorazioni ed equipaggiamento", """[color=#e8c34a]Postazioni[/color]
-Clicca una postazione per il suo menu: una riga per ogni ricetta che conosci, coi suoi ingredienti e Tieni N. Si fa finché in giro ce ne sono meno di N (a terra, nei magazzini, in mano, in lavorazione); la Scorta vale per tutte le postazioni dello stesso tipo. L'equipaggiamento si fa anche per i coloni con uno slot vuoto, e un arco quando ci sono animali segnati e nessuno ne ha uno. All'inizio: Scorta 10 lingotti, 2 corde d'arco, 3 unguenti, 10 farina, 8 pani, 4 candele, 8 pasti, 0 per il resto.
+Clicca una postazione per il suo menu. In testa la sua stanza, col comfort, e chi ci lavora; in rosso perché è ferma, se lo è. Poi una riga per ogni oggetto che sai fare:
+• Ci vuole: gli ingredienti, in rosso quello che nei mucchi liberi non basta.
+• Ce ne sono: quanti ce ne sono su quanti se ne vogliono, e una tacca per pezzo: piena quello che c'è (verde quando non manca niente), a metà quello in lavorazione, vuota quello che manca (rossa quando è fermo).
+• Coloni: quanti lo prenderebbero. L'equipaggiamento si fa anche per i coloni con uno slot vuoto, pure senza chiederne di scorta, e un arco quando ci sono animali segnati e nessuno ne ha uno.
+• Scorta: quanti tenerne, con − e + (Maiusc: cinque alla volta). Si fa finché in giro ce ne sono meno (a terra, nei magazzini, in mano, in lavorazione); vale per tutte le postazioni dello stesso tipo.
+Sotto la riga, solo quando c'è qualcosa da dire: chi lo sta facendo, a che punto è e i secondi che mancano, o in rosso perché è fermo (quale ingrediente manca, quanto ne serve e quanto ce n'è di libero). Con tutto a portata di mano e nessuno al lavoro, aspetta il primo colono che ha tempo. All'inizio: Scorta 10 lingotti, 2 corde d'arco, 3 unguenti, 10 farina, 8 pani, 4 candele, 8 pasti, 0 per il resto.
 L'artigiano porta gli ingredienti uno alla volta, poi lavora. Il tempo dipende da abilità, comfort della stanza e condizioni; un oggetto può rovinarsi, e gli ingredienti vanno persi, tanto spesso quanto brucia un pasto.
 [table=4]
 [cell][color=#d9c48a]Oggetto[/color][/cell][cell][color=#d9c48a]Postazione[/color][/cell][cell][color=#d9c48a]Ingredienti[/color][/cell][cell][color=#d9c48a]Tempo[/color][/cell]

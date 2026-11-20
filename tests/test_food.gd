@@ -184,8 +184,14 @@ func _initialize() -> void:
 	main.open_craft(fire)
 	check(main.craft_popup.visible and menu.get_node("List").get_child_count() == 6 and not menu.get_node("Room").visible,
 		"menu del fuoco: i pasti, le gallette, gli affumicati, l'unguento e il formaggio, nella cucina")
-	menu.get_node("List").get_child(0).get_child(-1).value = 8
+	var meal_row: Control = menu.get_node("List").get_child(0).get_node("Lines")
+	check(meal_row.get_node("Main/Takes").get_child(0).text == "2 raw, one kind" and meal_row.get_node("Main/There are/Count").text == "6 / 6"
+		and not meal_row.get_node("Status").visible and not menu.get_node("ColumnsRow/Columns").get_child(4).visible,
+		"il pasto: 2 crudi uguali, 6 su 6, niente da dire; al fuoco niente colonna dei coloni")
+	for i in 2:  # il + della scorta
+		meal_row.get_node("Main/Spare/More").pressed.emit()
 	check(main.keep[MEAL] == 8 and main.meals_wanted() == 2, "dal menu se ne chiedono 2 in più")
+	check(meal_row.get_node("Main/Spare/Value").text == "8" and meal_row.get_node("Main/There are/Count").text == "6 / 8", "e il menu lo dice subito")
 	main.keep[MEAL] = 6
 	main.craft_popup.hide()
 

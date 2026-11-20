@@ -599,12 +599,17 @@ Decisa il 2026-11-19. Numeri da tarare.
   | Cotta di maglia | incudine | forgiare | 6 lingotti | 30 |
   | Farina (2) | mulino ad acqua (all'aperto) | cucinare | 2 grano | 4 |
 
-- **Menu della postazione**: clic su fuoco da campo, fornace, incudine, banco da lavoro, filatoio o banco del falegname
-  (senza strumenti scelti) apre il suo menu: una riga per ricetta con icona, nome (col mouse sopra l'effetto del pezzo),
-  ingredienti e **"Keep N"**, quanti tenerne. Si fa finché in giro (a terra, in magazzino, in mano, in lavorazione) ce
-  ne sono meno; vale per tutte le postazioni dello stesso tipo. Fuori dalla sua stanza il menu lo dice, in rosso.
-  Al fuoco da campo i pasti, da 2 crudi uguali qualsiasi. Il suggerimento sul mobile dice "Click: what to make".
-  All'inizio: pasti 8 (2 a testa), lingotti 10, corde d'arco 2, equipaggiamento 0.
+- **Menu della postazione**: clic su una postazione (senza strumenti scelti) apre il suo menu. In testa il suo disegno,
+  il nome, la stanza col comfort e chi ci lavora; fuori dalla sua stanza (o con la ruota del mulino ferma) lo dice, in
+  rosso. Una riga per oggetto, con le colonne allineate: icona, tipo e nome (col mouse sopra l'effetto del pezzo); **Ci
+  vuole**, gli ingredienti, in rosso quello che nei mucchi liberi non basta; **Ce ne sono**, quanti su quanti se ne
+  vogliono, con una tacca per pezzo (piena, a metà quello in lavorazione, vuota quello che manca); **Coloni**, quanti lo
+  prenderebbero (solo l'equipaggiamento); **Scorta**, quanti tenerne, con − e +. Si fa finché in giro (a terra, in
+  magazzino, in mano, in lavorazione) ce ne sono meno; vale per tutte le postazioni dello stesso tipo. Sotto la riga,
+  quando serve: chi lo sta facendo con la barra, o in rosso perché è fermo. Al fuoco da campo i pasti, da 2 crudi
+  uguali qualsiasi, coi crudi che ci sono. Il suggerimento sul mobile dice "Click: what to make". All'inizio: pasti 8
+  (2 a testa), lingotti 10, corde d'arco 2, equipaggiamento 0. Come si vede: [TECH](TECH.md), "Interfaccia: la
+  produzione".
 - Equipaggiamento: oltre ai "Keep", quanto manca perché ogni colono abbia pieni i suoi slot; per corpo e testa il primo
   in elenco di cui ci sono gli ingredienti (prima il cuoio, poi il metallo). Almeno un arco se ci sono animali segnati e
   nessuno ne ha uno. "Keep" per un pezzo = quanti tenerne di scorta, oltre a quelli indossati. Un pezzo scelto nella

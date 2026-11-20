@@ -179,6 +179,14 @@ quello che manca) e quattro colori (oro si vuole, arancio si sta facendo, rosso 
   farà il primo che ha tempo.
 - **Ordine di lavoro**: (1) il menu della postazione; (2) la finestra Produzione con le Officine; (3) le Catene; (4) i
   fumetti sulla mappa e il riquadro col mouse sopra.
+- **Stato**: fatta la fase 1 il 2026-11-20 (prove in `tests/test_gear.gd`, il pasto in `tests/test_food.gd`). Il menu
+  si fa una volta (`open_craft`, una riga per oggetto da `craft_row`) e `refresh_craft` lo aggiorna a ogni fotogramma;
+  lo rifà da capo solo se cambiano gli oggetti o il banchetto (`craft_signature`). Lo stato di un oggetto è
+  `make_state` (quanti ce ne sono, chi lo fa, quanti ne mancano, quanti coloni lo chiedono: `gear_asked`), il perché
+  `make_block`. Le celle di una riga hanno il nome della loro colonna (`CRAFT_COLUMNS`): `open_craft` le allarga uguali
+  e ci mette sopra i titoli; la colonna dei coloni c'è solo dove si fa equipaggiamento. Le parti fisse della finestra
+  le aggiunge `setup_craft_popup`, dopo che la finestra del pascolo se n'è fatta una copia (resta com'era, con «Keep»).
+  Di quello che non si vuole si vede solo quanti ce ne sono, senza tacche; oltre 12 pezzi le tacche sono una barra.
 
 ## Versionamento
 - Git + GitHub (`Yanez86/king`).

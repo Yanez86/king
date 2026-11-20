@@ -288,7 +288,7 @@ func _initialize() -> void:
 	main.open_craft(oven)
 	var rows: Array = main.get_node("HUD/CraftPopup/Box/List").get_children()
 	check(rows.size() == 4 and rows[3] is Button, "nel menu del forno pane, stufato e conserve; in fondo il banchetto")
-	var any: Array = rows[1].get_children().filter(func(n): return n is TextureRect and n.tooltip_text.begins_with("Any of: "))
+	var any: Array = rows[1].find_children("*", "TextureRect", true, false).filter(func(n): return n.tooltip_text.begins_with("Any of: "))
 	check(any.size() == 2, "lo stufato: i vegetali e la carne o il pesce, a scelta")
 	main.craft_popup.hide()
 

@@ -133,17 +133,67 @@ func _initialize() -> void:
 	check(main.job_list().contains("Make %s: 10" % main.item_name(I)) and main.job_list().contains("Make %s: 1" % main.item_name(main.Res.PICKAXE)),
 		"finestra Jobs: cosa si fa, col tipo davanti al nome")
 	main.open_craft(anvil)
-	check(main.get_node("HUD/CraftPopup/Box/List").get_child_count() == 8, "menu dell'incudine: otto ricette (con lo scudo e il pugnale)")
-	main.keep[main.Res.SWORD] = 2
-	check(main.gear_wanted(main.Res.SWORD) == 2, "spade di scorta chieste dal menu")
+	var menu: Control = main.get_node("HUD/CraftPopup/Box")
+	check(menu.get_node("List").get_child_count() == 8, "menu dell'incudine: otto ricette (con lo scudo e il pugnale)")
+	check(menu.get_node("Head/Lines/Sub/Where").text == "Forge, comfort %d" % main.room_comfort(forge)
+		and menu.get_node("Head/Lines/Sub/Who").text == "nobody at work", "in testa la stanza col comfort e chi lavora")
+	# il piccone lo chiede il minatore, ma senza lingotti è fermo: la riga dice perché, in rosso
+	var pick: Control = menu.get_node("List/Pickaxe/Lines")
+	check(main.gear_asked(main.Res.PICKAXE) == 1 and main.gear_asked(main.Res.CHAINMAIL) == 3 and main.gear_asked(I) == 0,
+		"chi lo prenderebbe: un piccone, tre corpetti; i lingotti nessuno")
+	check(pick.get_node("Main/Colonists").get_child(1).text == "1" and pick.get_node("Main/There are/Count").text == "0 / 1",
+		"la riga del piccone: un colono lo chiede, 0 su 1")
+	check(main.make_block(main.Res.PICKAXE) == "Short of ingot: takes 2, 0 free" and pick.get_node("Status").visible
+		and pick.get_node("Status/Text").text == main.make_block(main.Res.PICKAXE) and not pick.get_node("Status/Bar").visible,
+		"fermo: mancano i lingotti, e quanti")
+	check(pick.get_node("Main/Tile").get_theme_stylebox("panel").border_color == main.MAKE_STUCK
+		and pick.get_node("Main/There are/Pips").get_meta("state") == {"have": 0, "busy": 0, "want": 1, "stuck": true, "done": false},
+		"il riquadro e la tacca in rosso")
+	# la spada non la chiede nessuno: smorzata, finché non se ne vuole di scorta (+ e −)
+	var sword: Control = menu.get_node("List/Sword/Lines")
+	check(sword.get_node("Main/There are/Count").text == "not made" and not sword.get_node("Status").visible
+		and sword.get_node("Main/Item").modulate.a < 1.0, "la spada non si fa")
+	for i in 3:
+		sword.get_node("Main/Spare/More").pressed.emit()
+	sword.get_node("Main/Spare/Less").pressed.emit()
+	check(main.keep[main.Res.SWORD] == 2 and main.gear_wanted(main.Res.SWORD) == 2, "spade di scorta chieste dal menu")
+	check(sword.get_node("Main/Spare/Value").text == "2" and sword.get_node("Main/There are/Count").text == "0 / 2"
+		and sword.get_node("Main/Item").modulate.a == 1.0, "e la riga si accende: 0 su 2")
 	main.keep.erase(main.Res.SWORD)
+	# le colonne sono larghe uguali in ogni riga, e il titolo sta sopra la sua
+	var heads: Array = menu.get_node("ColumnsRow/Columns").get_children()
+	for i in main.CRAFT_COLUMNS.size():
+		var column: String = main.CRAFT_COLUMNS[i]
+		var wide: float = heads[i + 1].custom_minimum_size.x
+		check(heads[i + 1].text == column and wide > 0 and wide == pick.get_node("Main/" + column).custom_minimum_size.x
+			and wide == sword.get_node("Main/" + column).custom_minimum_size.x, "colonna %s: allineata, col suo titolo" % column)
 	main.craft_popup.hide()
 	var iron0: int = main.total(main.Res.IRON)
+	var seen_busy := false  # il menu della fornace mentre qualcuno fonde: chi, la barra, la tacca a metà
 	for i in 60000:
 		main.tick(0.05)
 		check_station(main)
+		var smelter: Array = main.colonists.filter(func(c): return c.job == main.Job.CRAFT and main.RECIPES[c.recipe][0] == I and c.work_left < c.work_total)
+		if not seen_busy and not smelter.is_empty():
+			seen_busy = true
+			main.open_craft(furnace)
+			var ingot: Control = menu.get_node("List/Ingot/Lines")
+			var state: Dictionary = main.make_state(I)
+			check(state["makers"] == main.station_workers(main.Build.FURNACE) and smelter[0] in state["makers"], "chi sta fondendo")
+			check(ingot.get_node("Status").visible and ingot.get_node("Status/Bar").visible
+				and ingot.get_node("Status/Text").text.begins_with(state["makers"][0].first_name)
+				and ingot.get_node("Status/Text").text.ends_with("making it")
+				and ingot.get_node("Main/Tile").get_theme_stylebox("panel").border_color == main.MAKE_BUSY,
+				"la riga del lingotto: chi lo fa, con la barra, in arancio")
+			check(ingot.get_node("Main/There are/Pips").get_meta("state")["busy"] == state["makers"].size()
+				and ingot.get_node("Main/There are/Count").text == "%d / %d" % [state["have"], state["have"] + state["makers"].size() + state["missing"]],
+				"le tacche: quelli che ci sono, quello in lavorazione, quelli che mancano")
+			check(menu.get_node("Head/Lines/Sub/Who").text.ends_with(" at work") and menu.get_node("Head/Lines/Sub/Faces").get_child_count() == state["makers"].size(),
+				"in testa chi lavora, con la figurina")
+			main.craft_popup.hide()
 		if main.colonists.all(func(c): return c.gear.size() == (2 if c == hunter else 3)):  # l'arco qui non si fa
 			break
+	check(seen_busy, "qualcuno ha fuso i lingotti")
 	check(smith.gear == {main.Slot.HANDS: main.Res.PICKAXE, main.Slot.BODY: main.Res.CHAINMAIL, main.Slot.HEAD: main.Res.HELMET},
 		"il minatore: piccone, cotta ed elmo")
 	check(tailor.gear[main.Slot.HANDS] == main.Res.AXE and hunter.gear.get(main.Slot.HANDS) == null,

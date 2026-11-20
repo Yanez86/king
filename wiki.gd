@@ -437,13 +437,13 @@ The Heat lens (N) tints rooms by temperature: red warm, yellow cool without a ma
 
 [color=#e8c34a]Cooking[/color]
 • At a campfire or a hearth inside a kitchen. The cook takes 2 raw foods from one pile (vegetables, fish or meat), cooks for 8 s and carries the meal to a warehouse.
-• Click the campfire: Keep N meals (8 at the start, 2 a head). Cooks cook while there are fewer meals than that, counting those on the ground, in warehouses and in hand.
+• Click the campfire for its menu: Spare, how many meals to keep (8 at the start, 2 a head). Cooks cook while there are fewer meals than that, counting those on the ground, in warehouses and in hand. Under the meal's row, the raw food there is.
 • Burnt, and the food is lost: 6% for every Cooking level below 6, plus 3% for every point of kitchen comfort below 5 (minus above). At level 0 in a kitchen of comfort 5: 36%.
 • Fine meal: 5% for every level above 5, plus 2% for every point of comfort above 5 (minus below): 25% at level 10.
 • The time also depends on the kitchen's comfort and the cook's conditions.
 
 [color=#e8c34a]The stone oven[/color] [img=center]res://art/icon_bread.png[/img]
-After the Stone oven research (Land II): 2x1, 20 stone, in a kitchen; it warms the room like a campfire. Click it for its menu: bread from 2 flour (3 loaves, 10 s; Keep 8 at the start), stew from 2 vegetables of one kind (berries, turnips, cabbages or beans) and 1 meat or fish, smoked too (2 stews, 12 s), preserves from 2 vegetables of one kind (2 jars, 10 s). It takes first what rots first. Burnt and fine as at the fire: a fine stew comes out as fine meals.
+After the Stone oven research (Land II): 2x1, 20 stone, in a kitchen; it warms the room like a campfire. Click it for its menu: bread from 2 flour (3 loaves, 10 s; Spare 8 at the start), stew from 2 vegetables of one kind (berries, turnips, cabbages or beans) and 1 meat or fish, smoked too (2 stews, 12 s), preserves from 2 vegetables of one kind (2 jars, 10 s). It takes first what rots first. Burnt and fine as at the fire: a fine stew comes out as fine meals.
 
 [color=#e8c34a]The royal banquet[/color]
 After the Royal banquet research (Land IV, 1000 and a codex, after Apiary), at the bottom of the oven's menu. Once a season, with a throne room that has a table, and in the warehouses a stew, a bread and a honey for every colonist: they are taken at once (in summer, with ice in the warehouses, also a sorbet: an ice and a honey every 4 colonists). The next day at 18:00 whoever is in the colony, awake and standing, drops what they do and goes to the throne room, to the chairs at the tables first, for two hours; the ruler gains 20 authority. Afterwards everyone who was there has Banquet, +15 happiness for 3 days, and with the sorbet Sorbet, +5 more. The button says why when it can't be ordered."""],
@@ -545,7 +545,12 @@ A room with at least one manger (2x1, 6 wood). Haulers carry hay to the mangers,
 In the stable the animals leave manure (a cow 1 a day, a sheep or a pig 1 every 2 days, hens 1 every 4): haulers carry it to a warehouse, and farmers spread it before sowing, before compost and ash: +20 fertility."""],
 
 	["Crafting & Equipment", """[color=#e8c34a]Workstations[/color]
-Click a station for its menu: one row for every recipe you know, with its ingredients and Keep N. Things get made while there are fewer than N around (on the ground, in warehouses, in hand, being made); Keep counts for every station of the kind. Equipment is also made for the colonists with an empty slot, and a bow when animals are marked and nobody has one. At the start: Keep 10 ingots, 2 bowstrings, 3 ointments, 10 flour, 8 bread, 4 candles, 8 meals, 0 of the rest.
+Click a station for its menu. At the top its room, with the comfort, and who is working there; in red why it stands still, if it does. Then a row for every item you know how to make:
+• Takes: the ingredients, in red what the free piles are short of.
+• There are: how many there are out of how many are wanted, and a notch a piece: full what is there (green when nothing is missing), half what is being made, empty what is missing (red when it is stopped).
+• Colonists: how many would wear one. Equipment is also made for the colonists with an empty slot, even with no spare ones asked, and a bow when animals are marked and nobody has one.
+• Spare: how many to keep, with − and + (Shift: five at a time). Things get made while there are fewer than that around (on the ground, in warehouses, in hand, being made); it counts for every station of the kind.
+Under a row, only when there is something to say: who is making it, how far along and the seconds left, or in red why it is stopped (which ingredient is short, how much it takes and how much is free). With everything at hand and nobody on it, it waits for the first colonist with time for it. At the start: Spare 10 ingots, 2 bowstrings, 3 ointments, 10 flour, 8 bread, 4 candles, 8 meals, 0 of the rest.
 The crafter brings the ingredients one by one, then works. The time depends on skill, room comfort and conditions; an item may be ruined, losing the ingredients, as often as a meal burns.
 [table=4]
 [cell][color=#d9c48a]Item[/color][/cell][cell][color=#d9c48a]Station[/color][/cell][cell][color=#d9c48a]Needs[/color][/cell][cell][color=#d9c48a]Time[/color][/cell]
@@ -627,7 +632,7 @@ A colonist with a class takes the gear of their class instead, even in place of 
 Small plants with white flowers scattered in the meadows (hover: Medicinal herbs), about one every 150 tiles of grass. Mark them with Harvest (H): 5 herbs a plant, picked like berries; they flower again in 2 days, never in winter. Herbs don't spoil.
 
 [color=#e8c34a]Ointment[/color] [img=center]res://art/icon_ointment.png[/img]
-• After the Herbalism research (Lore I, 100). At a kitchen's campfire or hearth: 2 herbs, 10 s, with the Medicine skill; Keep 3 at the start.
+• After the Herbalism research (Lore I, 100). At a kitchen's campfire or hearth: 2 herbs, 10 s, with the Medicine skill; Spare 3 at the start.
 • A colonist standing with less than 60 health fetches one from a pile and spreads it on (3 s): +30 health. After hunger, before work; guests don't, and nobody does while fighting.
 
 [color=#e8c34a]The infirmary[/color] [img=center]res://art/icon_doctor.png[/img]

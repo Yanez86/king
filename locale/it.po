@@ -4544,3 +4544,76 @@ msgstr "Ha mangiato il sorbetto di ghiaccio e miele al banchetto reale."
 
 msgid "From the oven's menu, once a season: a stew, a bread and a honey a head, and the colony feasts in the throne room. +15 happiness for 3 days (+5 with a summer sorbet), +20 authority."
 msgstr "Dal menu del forno, una volta a stagione: uno stufato, un pane e un miele a testa, e la colonia banchetta nella sala del trono. +15 felicità per 3 giorni (+5 col sorbetto d'estate), +20 autorità."
+
+# Il menu della postazione (vedi open_craft)
+msgid "Item"
+msgstr "Oggetto"
+
+msgid "Takes"
+msgstr "Ci vuole"
+
+msgid "There are"
+msgstr "Ce ne sono"
+
+msgid "Spare"
+msgstr "Scorta"
+
+msgid "Colonists who would wear one: it is made for them too, beyond the spare ones."
+msgstr "I coloni che lo prenderebbero: lo si fa anche per loro, oltre a quelli di scorta."
+
+msgid "How many to keep. Shift: five at a time."
+msgstr "Quanti tenerne. Maiusc: cinque alla volta."
+
+msgid "The same list for every station of this kind."
+msgstr "La stessa lista per ogni postazione di questo tipo."
+
+msgid "%d raw, one kind"
+msgstr "%d crudi uguali"
+
+msgid "Outdoors"
+msgstr "All'aperto"
+
+msgid "%s, comfort %d"
+msgstr "%s, comfort %d"
+
+msgid "%s at work"
+msgstr "%s al lavoro"
+
+msgid "nobody at work"
+msgstr "nessuno al lavoro"
+
+msgid "not made"
+msgstr "non si fa"
+
+msgid "%s is making it"
+msgstr "%s lo sta facendo"
+
+msgid "%s and others are making it"
+msgstr "%s e altri lo stanno facendo"
+
+msgid "%d s"
+msgstr "%d s"
+
+msgid "Raw food:"
+msgstr "Crudi:"
+
+msgid "No raw food."
+msgstr "Niente di crudo."
+
+msgid "Needs a station: %s"
+msgstr "Serve una postazione: %s"
+
+msgid "Needs %d raw food of one kind in a pile"
+msgstr "Servono %d crudi uguali in un mucchio"
+
+msgid "Needs %d study: there is %d"
+msgstr "Servono %d di studio: ce n'è %d"
+
+msgid "Short of %s: takes %d, %d free"
+msgstr "Manca %s: ne servono %d, liberi %d"
+
+msgid "vegetables of one kind"
+msgstr "vegetali uguali"
+
+msgid "meat or fish of one kind"
+msgstr "carne o pesce uguali"

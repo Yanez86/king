@@ -87,7 +87,7 @@ func _initialize() -> void:
 	check(main.kitchen_fires() == [hearth], "il focolare è un fuoco della cucina")
 	main.open_craft(hearth)
 	var rows: Array = main.get_node("HUD/CraftPopup/Box/List").get_children()
-	check(rows.size() > 1 and main.get_node("HUD/CraftPopup/Box/Head/Title").text == "Hearth", "al focolare si cucina come al fuoco da campo")
+	check(rows.size() > 1 and main.get_node("HUD/CraftPopup/Box/Head/Lines/Title").text == "Hearth", "al focolare si cucina come al fuoco da campo")
 	main.craft_popup.hide()
 	var cook = main.colonists[0]
 	cook.pos = main.center(Vector2i(12, 15))

@@ -651,6 +651,21 @@ const SMOKE_TIME := 0.75     # affumicare al fuoco da campo, dove il fumo resta:
 const STATION_ROOM := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.HEARTH: RoomKind.KITCHEN, Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP,
 	Build.SPINNING_WHEEL: RoomKind.WORKSHOP, Build.CARPENTER_BENCH: RoomKind.CARPENTRY, Build.DESK: RoomKind.STUDY,
 	Build.OVEN: RoomKind.KITCHEN, Build.MILLSTONE: RoomKind.MILL}
+# Il menu della postazione e la finestra Produzione (vedi open_craft, TECH "Interfaccia: la produzione"): i quattro colori
+# dello stato, il riquadro delle icone, le tacche
+const MAKE_WANT := Color("e8c34a")   # oro: se ne vuole
+const MAKE_BUSY := Color("f2a03a")   # arancio: lo si sta facendo
+const MAKE_STUCK := Color("d84a3a")  # rosso: è fermo
+const MAKE_DONE := Color("8fbf4f")   # verde: è a posto
+const TILE_EDGE := Color("6f6a88")   # il bordo del riquadro di un'icona
+const TILE_BOX := 36                 # px: il riquadro di un'icona da 32, col suo bordo
+const CRAFT_COLUMNS := ["Item", "Takes", "There are", "Colonists", "Spare"]  # le colonne del menu: i titoli, e i nomi delle celle
+const CRAFT_GAP := 12                # px: tra le colonne
+const PIPS_WIDTH := 118              # px: il posto delle tacche
+const PIP_MAX := 12                  # oltre, le tacche diventano una barra
+const KEEP_MAX := 100                # la scorta più grande che si può chiedere
+const COLONISTS_ICON := preload("res://art/icon_colonists.png")
+const GROUP_NAMES := {ANY_VEG: "vegetables of one kind", ANY_FLESH: "meat or fish of one kind"}  # nei testi, vedi make_block
 const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.COAL: 5, Res.OINTMENT: 3, Res.FLOUR: 10, Res.BREAD: 8, Res.CANDLE: 4}  # scorte di partenza, vedi keep; i pasti
 	# MEALS_PER_COLONIST a testa
 enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT, ICE, GARDEN, PASTURE, HAY }  # cosa segna il trascinamento del mouse
@@ -1984,6 +1999,8 @@ var rooms_made := 0         # per i nomi di default
 var editing: Room           # la stanza aperta nel popup del cartello
 var keep := STOCK.duplicate()  # prodotto -> quanti tenerne (a terra, in magazzino, in mano): si cambia nel menu della postazione
 var crafting := Vector2i(-1, -1)  # la postazione aperta nel menu, vedi open_craft
+var craft_rows := []        # [oggetto, riga] del menu aperto, vedi refresh_craft
+var craft_key := ""         # quello che il menu mostra: se cambia, lo si rifà (vedi craft_signature)
 var pasture_popup: Control       # la finestra del pascolo: il branco e il mercante (vedi open_pasture)
 var shown: Colonist         # il colono nella scheda: le barre dei bisogni lo seguono
 var gear_menu := PopupMenu.new()  # clic su uno slot della scheda: Auto, Empty o un pezzo (vedi open_gear_menu)
@@ -2361,6 +2378,7 @@ func _ready() -> void:
 	pasture_popup = craft_popup.duplicate()  # come il menu delle postazioni: titolo, una riga rossa, l'elenco
 	pasture_popup.name = "PasturePopup"
 	$HUD.add_child(pasture_popup)
+	setup_craft_popup()
 	for window in [room_popup, field_popup, plan_panel, craft_popup, pasture_popup, jobs_panel, resources_panel, sheet_panel, $HUD/BoardPanel, $HUD/ReportPanel, $HUD/ChroniclePanel,
 			$HUD/KnowledgePanel, $HUD/LawsPanel, $HUD/WikiPanel, $HUD/BirthPanel, $HUD/SuccessionPanel, $HUD/HousePanel,
 			$HUD/RequestPanel, $HUD/CensusPanel]:  # X in alto a destra, si trascinano
@@ -3532,59 +3550,39 @@ func people_of(room: Room) -> Array[Colonist]:
 	return nobody
 
 
-# menu della postazione `origin` (fuoco da campo, fornace, incudine, banchi): una riga per ricetta, con gli ingredienti
-# e quanti tenerne (vedi keep). Al fuoco i pasti, da 2 crudi uguali qualsiasi. Fuori dalla sua stanza lo dice: lì non si lavora
+# Il menu della postazione `origin` (clic su una postazione, vedi TECH "Interfaccia: la produzione"). In testa il suo
+# disegno, il nome, la stanza col comfort e chi ci lavora; la riga rossa se non lavora (station_block). Poi una riga per
+# oggetto (vedi craft_row), con le colonne larghe uguali, e in fondo al forno il banchetto reale. Fatto qui una volta;
+# quello che cambia (quanti ce ne sono, chi lavora, perché è fermo) lo aggiorna refresh_craft a ogni fotogramma
 func open_craft(origin: Vector2i) -> void:
 	crafting = origin
 	var kind: Build = role(furniture[origin][0])  # il focolare fa le ricette del fuoco da campo
-	var box: Control = $HUD/CraftPopup/Box
-	box.get_node("Head/Title").text = named(Build, furniture[origin][0])
-	box.get_node("Room").text = station_block(origin)
-	box.get_node("Room").visible = station_block(origin) != ""
+	var box: Control = craft_popup.get_node("Box")
+	box.get_node("Head/Lines/Title").text = named(Build, furniture[origin][0])
+	box.get_node("Head/Tile").get_child(0).texture = kind_buttons[furniture[origin][0]].icon
 	var list := box.get_node("List")
 	for child in list.get_children():
 		child.free()
-	var rows := RECIPES.filter(func(r): return r[1] == kind and unlocked("makes", r[0])).map(func(r): return [r[0], needs_of(r), "+"])  # [prodotto, ingredienti, tra uno e l'altro]
-	if kind == Build.CAMPFIRE:
-		var raw := {}
-		for res in RAW_FOOD:
-			raw[res] = COOK_RAW
-		rows.push_front([Res.MEAL, raw, "or"])
-	for r in rows:
-		var row := HBoxContainer.new()
-		row.add_child(ui_icon(ICONS[r[0]], Rect2(), Vector2(32, 32)))
-		var label := Label.new()
-		label.text = named(Res, r[0], "item")
-		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		label.custom_minimum_size.x = 110
-		label.tooltip_text = GEAR[r[0]]["info"] if GEAR.has(r[0]) else ""
-		label.mouse_filter = Control.MOUSE_FILTER_PASS
-		row.add_child(label)
-		for res in r[1]:
-			if res != r[1].keys()[0]:
-				var between := Label.new()
-				between.text = r[2]
-				row.add_child(between)
-			var amount := Label.new()
-			amount.text = str(r[1][res])
-			row.add_child(amount)
-			var icon := ui_icon(ICONS[GROUPS[res][0] if GROUPS.has(res) else res], Rect2(), Vector2(16, 16))
-			if GROUPS.has(res):  # a scelta: col mouse sopra, quali
-				icon.tooltip_text = tr("Any of: %s") % ", ".join(GROUPS[res].map(func(g): return named(Res, g, "item").to_lower()))
-				icon.mouse_filter = Control.MOUSE_FILTER_PASS
-			row.add_child(icon)
-		var count := SpinBox.new()
-		count.prefix = tr("Keep")  # il prefisso non si traduce da sé
-		count.custom_minimum_size.x = 100  # se no taglia la scritta
-		count.value = keep.get(r[0], 0)
-		count.tooltip_text = tr("Made until there are this many") + (tr(", besides what colonists need to wear") if GEAR.has(r[0]) else "")
-		count.value_changed.connect(func(v): keep[r[0]] = int(v))
-		row.add_child(count)
+	craft_rows.clear()
+	for res in station_makes(kind):
+		var row := craft_row(res)
 		list.add_child(row)
+		craft_rows.append([res, row])
+	var heads: Array = box.get_node("ColumnsRow/Columns").get_children()
+	var worn: bool = station_makes(kind).any(func(res): return GEAR.has(res))  # la colonna dei coloni solo dove serve
+	for i in CRAFT_COLUMNS.size():  # ogni colonna larga quanto la sua cella più larga, e almeno quanto il suo titolo
+		var cells: Array = craft_rows.map(func(entry): return entry[1].get_node("Lines/Main/" + CRAFT_COLUMNS[i]))
+		heads[i + 1].custom_minimum_size.x = 0
+		var wide: float = heads[i + 1].get_combined_minimum_size().x
+		for cell in cells:
+			wide = maxf(wide, cell.get_combined_minimum_size().x)
+		for cell in cells + [heads[i + 1]]:
+			cell.custom_minimum_size.x = wide
+			cell.visible = worn or CRAFT_COLUMNS[i] != "Colonists"
 	if kind == Build.OVEN and researched.has(Tech.BANQUET):  # in fondo, il banchetto reale
 		var feast := Button.new()
-		var heads := colonists.size()
-		feast.text = tr("Royal banquet: %d stew, %d bread, %d honey") % [heads, heads, heads] if banquet_at < 0 \
+		var guests_at := colonists.size()
+		feast.text = tr("Royal banquet: %d stew, %d bread, %d honey") % [guests_at, guests_at, guests_at] if banquet_at < 0 \
 			else tr("Royal banquet: tomorrow at %d:00") % BANQUET_HOUR
 		feast.disabled = banquet_block() != ""
 		feast.tooltip_text = banquet_block() if feast.disabled else tr(TECHS[Tech.BANQUET]["info"])
@@ -3592,8 +3590,456 @@ func open_craft(origin: Vector2i) -> void:
 			order_banquet()
 			open_craft.call_deferred(origin))  # dopo: il pulsante che chiama non si libera mentre chiama
 		list.add_child(feast)
+	craft_key = craft_signature()
+	refresh_craft()
 	craft_popup.show()
 	craft_popup.reset_size()
+
+
+# Le parti del menu della postazione che non cambiano da una postazione all'altra, fatte una volta (dopo aver copiato
+# la finestra per il pascolo, che resta com'era): in testa il riquadro col disegno, sotto il nome la riga della stanza e
+# di chi lavora; sopra l'elenco i titoli delle colonne, in fondo come funziona
+func setup_craft_popup() -> void:
+	var box: Control = craft_popup.get_node("Box")
+	var head: Control = box.get_node("Head")
+	head.add_theme_constant_override("separation", 12)
+	var title: Label = head.get_node("Title")
+	var tile := icon_tile(null, Rect2(), 48, SPLENDOR_COLOR)
+	tile.name = "Tile"
+	head.add_child(tile)
+	head.move_child(tile, 0)
+	var lines := VBoxContainer.new()
+	lines.name = "Lines"
+	lines.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lines.add_theme_constant_override("separation", 0)
+	head.add_child(lines)
+	head.move_child(lines, 1)
+	head.remove_child(title)
+	lines.add_child(title)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	var sub := HBoxContainer.new()
+	sub.name = "Sub"
+	sub.add_theme_constant_override("separation", 8)
+	for part in ["Where", "Who"]:
+		var label := Label.new()
+		label.name = part
+		label.add_theme_color_override("font_color", BUILD_INFO_COLOR)
+		sub.add_child(label)
+	var faces := HBoxContainer.new()
+	faces.name = "Faces"
+	sub.add_child(faces)
+	sub.move_child(faces, 1)
+	lines.add_child(sub)
+	head.get_node("Close").size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	var columns := HBoxContainer.new()
+	columns.name = "Columns"
+	columns.add_theme_constant_override("separation", CRAFT_GAP)
+	for text in [""] + CRAFT_COLUMNS:
+		var label := Label.new()
+		label.text = text
+		label.add_theme_color_override("font_color", CENSUS_DIM)
+		columns.add_child(label)
+	columns.get_child(0).custom_minimum_size.x = TILE_BOX  # sopra i riquadri delle icone
+	columns.get_child(1).size_flags_horizontal = Control.SIZE_EXPAND_FILL  # il posto che avanza va ai nomi
+	columns.get_child(4).tooltip_text = "Colonists who would wear one: it is made for them too, beyond the spare ones."
+	columns.get_child(4).mouse_filter = Control.MOUSE_FILTER_PASS
+	columns.get_child(5).tooltip_text = "How many to keep. Shift: five at a time."
+	columns.get_child(5).mouse_filter = Control.MOUSE_FILTER_PASS
+	columns.get_child(5).horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	var pad := StyleBoxEmpty.new()  # come le righe sotto, così i titoli stanno sopra le loro colonne
+	pad.set_content_margin_all(2)
+	var holder := PanelContainer.new()
+	holder.name = "ColumnsRow"
+	holder.add_theme_stylebox_override("panel", pad)
+	holder.add_child(columns)
+	box.add_child(holder)
+	box.move_child(holder, box.get_node("List").get_index())
+	box.get_node("List").add_theme_constant_override("separation", 2)
+	var foot := Label.new()
+	foot.name = "Foot"
+	foot.text = "The same list for every station of this kind."
+	foot.add_theme_color_override("font_color", BUILD_INFO_COLOR)
+	box.add_child(foot)
+
+
+# il colore del testo di `label`; senza, quello del tema
+func ink(label: Control, color = null) -> void:
+	if color == null:
+		label.remove_theme_color_override("font_color")
+	else:
+		label.add_theme_color_override("font_color", color)
+
+
+# Il riquadro di un'icona, come nelle ricerche: fondo scuro, bordo di 2 pixel del colore `edge`, l'icona grande `size`
+func icon_tile(tex: Texture2D, region := Rect2(), size := 32, edge := TILE_EDGE) -> PanelContainer:
+	var tile := PanelContainer.new()
+	var style := StyleBoxFlat.new()
+	style.bg_color = OUTLINE
+	style.border_color = edge
+	style.set_border_width_all(2)
+	style.set_content_margin_all(2)
+	tile.add_theme_stylebox_override("panel", style)
+	tile.add_child(ui_icon(tex, region, Vector2(size, size)))
+	tile.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	return tile
+
+
+# Gli oggetti che si fanno alla postazione `kind`, nell'ordine del suo menu: al fuoco prima i pasti (da due crudi
+# uguali, vedi try_cook), poi le ricette sbloccate
+func station_makes(kind: Build) -> Array:
+	var out: Array = RECIPES.filter(func(r): return r[1] == kind and unlocked("makes", r[0])).map(func(r): return r[0])
+	if kind == Build.CAMPFIRE:
+		out.push_front(Res.MEAL)
+	return out
+
+
+# la ricetta di `res` (vedi RECIPES); [] per i pasti, che non ne hanno una
+func recipe_of(res: Res) -> Array:
+	for r in RECIPES:
+		if r[0] == res:
+			return r
+	return []
+
+
+# La riga di `res` nel menu della postazione: il riquadro con l'icona; il tipo e il nome (col mouse sopra l'effetto del
+# pezzo); gli ingredienti con le icone grandi (quelli a scelta col mouse sopra dicono quali; il pasto "2 crudi uguali");
+# le tacche e quanti ce ne sono; quanti coloni lo prenderebbero; la scorta con − e + (con Maiusc cinque alla volta).
+# Sotto, nascoste finché non servono, la riga di chi lo fa o del perché è fermo e, per il pasto, i crudi che ci sono.
+# Le celle hanno il nome della loro colonna (CRAFT_COLUMNS): open_craft le allarga uguali, refresh_craft_row le riempie
+func craft_row(res: Res) -> PanelContainer:
+	var row := PanelContainer.new()
+	row.name = Res.keys()[res].capitalize()
+	var back := StyleBoxFlat.new()  # acceso quando lo si sta facendo, vedi refresh_craft_row
+	back.bg_color = Color.TRANSPARENT
+	back.border_color = Color.TRANSPARENT
+	back.set_border_width_all(2)
+	back.set_content_margin_all(2)
+	row.add_theme_stylebox_override("panel", back)
+	var lines := VBoxContainer.new()
+	lines.name = "Lines"
+	lines.add_theme_constant_override("separation", 0)
+	row.add_child(lines)
+	var main := HBoxContainer.new()
+	main.name = "Main"
+	main.add_theme_constant_override("separation", CRAFT_GAP)
+	lines.add_child(main)
+	var tile := icon_tile(ICONS[res])
+	tile.name = "Tile"
+	main.add_child(tile)
+	var item := HBoxContainer.new()
+	item.name = "Item"
+	item.size_flags_horizontal = Control.SIZE_EXPAND_FILL  # il posto che avanza va ai nomi, in ogni riga uguale
+	var kind := ui_icon(KIND_ICONS[ITEM_KIND[res]], Rect2(), Vector2(16, 16))  # il tipo, prima del nome
+	kind.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	item.add_child(kind)
+	var label := Label.new()
+	label.text = named(Res, res, "item")
+	label.tooltip_text = GEAR[res]["info"] if GEAR.has(res) else ""
+	label.mouse_filter = Control.MOUSE_FILTER_PASS
+	item.add_child(label)
+	main.add_child(item)
+	var takes := HBoxContainer.new()
+	takes.name = "Takes"
+	if res == Res.MEAL:
+		var raw := Label.new()
+		raw.text = tr("%d raw, one kind") % COOK_RAW
+		raw.tooltip_text = tr("Any of: %s") % ", ".join(RAW_FOOD.map(func(r): return named(Res, r, "item").to_lower()))
+		raw.mouse_filter = Control.MOUSE_FILTER_PASS
+		takes.add_child(raw)
+	else:
+		var needs := needs_of(recipe_of(res))
+		for key in needs:
+			var amount := Label.new()
+			amount.text = str(needs[key])
+			amount.set_meta("need", [key, needs[key]])  # in rosso quando non basta, vedi refresh_craft_row
+			takes.add_child(amount)
+			var icon := ui_icon(ICONS[GROUPS[key][0] if GROUPS.has(key) else key], Rect2(), Vector2(32, 32))
+			icon.tooltip_text = tr("Any of: %s") % ", ".join(GROUPS[key].map(func(g): return named(Res, g, "item").to_lower())) \
+				if GROUPS.has(key) else named(Res, key, "item")
+			icon.mouse_filter = Control.MOUSE_FILTER_PASS
+			takes.add_child(icon)
+	main.add_child(takes)
+	var there := HBoxContainer.new()
+	there.name = "There are"
+	there.add_theme_constant_override("separation", 8)
+	var count := Label.new()  # "2 / 4", a destra così i numeri stanno in colonna; poi le tacche
+	count.name = "Count"
+	count.custom_minimum_size.x = 76
+	there.add_child(count)
+	var pips := Control.new()
+	pips.name = "Pips"
+	pips.custom_minimum_size = Vector2(PIPS_WIDTH, 14)
+	pips.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	pips.draw.connect(draw_pips.bind(pips))
+	there.add_child(pips)
+	main.add_child(there)
+	var asked := HBoxContainer.new()
+	asked.name = "Colonists"
+	asked.tooltip_text = tr("Colonists who would wear one: it is made for them too, beyond the spare ones.")
+	asked.add_child(ui_icon(COLONISTS_ICON, Rect2(), Vector2(32, 32)))
+	asked.add_child(Label.new())
+	main.add_child(asked)
+	var spare := HBoxContainer.new()
+	spare.name = "Spare"
+	spare.alignment = BoxContainer.ALIGNMENT_END
+	spare.tooltip_text = tr("Made until there are this many") + (tr(", besides what colonists need to wear") if GEAR.has(res) else "")
+	for step in [-1, 1]:
+		var button := Button.new()
+		button.name = "Less" if step < 0 else "More"
+		button.text = "-" if step < 0 else "+"
+		button.focus_mode = Control.FOCUS_NONE
+		button.custom_minimum_size = Vector2(28, 28)
+		button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		button.pressed.connect(func():
+			keep[res] = clampi(keep.get(res, 0) + step * (5 if Input.is_key_pressed(KEY_SHIFT) else 1), 0, KEEP_MAX)
+			refresh_craft())
+		spare.add_child(button)
+	var value := Label.new()
+	value.name = "Value"
+	value.custom_minimum_size.x = 36
+	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	spare.add_child(value)
+	spare.move_child(value, 1)
+	main.add_child(spare)
+	var status := HBoxContainer.new()
+	status.name = "Status"
+	status.add_theme_constant_override("separation", 8)
+	var gap := Control.new()
+	gap.custom_minimum_size.x = TILE_BOX + CRAFT_GAP - 8  # sotto il nome, non sotto il riquadro
+	status.add_child(gap)
+	var text := Label.new()
+	text.name = "Text"
+	status.add_child(text)
+	var bar := Control.new()
+	bar.name = "Bar"
+	bar.custom_minimum_size = Vector2(120, 12)
+	bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	bar.draw.connect(func():
+		bar.draw_rect(Rect2(Vector2.ZERO, bar.size), OUTLINE)
+		bar.draw_rect(Rect2(2, 2, (bar.size.x - 4) * bar.get_meta("part", 0.0), bar.size.y - 4), MAKE_BUSY)
+		bar.draw_rect(Rect2(Vector2.ONE, bar.size - Vector2.ONE * 2), MAKE_BUSY, false, 2))
+	status.add_child(bar)
+	var left := Label.new()
+	left.name = "Left"
+	left.add_theme_color_override("font_color", CENSUS_DIM)
+	status.add_child(left)
+	lines.add_child(status)
+	if res == Res.MEAL:  # i crudi che ci sono, vedi refresh_craft_row
+		var raw := HBoxContainer.new()
+		raw.name = "Raw"
+		lines.add_child(raw)
+	return row
+
+
+# Le tacche di una riga, una per pezzo: piene quelle che ci sono (verdi se è a posto), a metà quelle in lavorazione,
+# vuote quelle che mancano (col bordo rosso se è fermo). Oltre PIP_MAX pezzi una barra sola, con le stesse parti
+func draw_pips(pips: Control) -> void:
+	var s: Dictionary = pips.get_meta("state", {})
+	var have: int = s.get("have", 0)
+	var busy: int = s.get("busy", 0)
+	var all: int = maxi(s.get("want", 0), have)
+	if all == 0:
+		return
+	var fill: Color = MAKE_DONE if s.get("done", false) else MAKE_WANT
+	var edge: Color = MAKE_STUCK if s.get("stuck", false) else TILE_EDGE
+	var h := pips.size.y
+	if all > PIP_MAX:
+		var wide := pips.size.x - 4
+		pips.draw_rect(Rect2(Vector2.ZERO, pips.size), OUTLINE)
+		pips.draw_rect(Rect2(2, 2, wide * mini(have, all) / all, h - 4), fill)
+		pips.draw_rect(Rect2(2 + wide * have / all, 2, wide * mini(busy, all - have) / all, h - 4), MAKE_BUSY)
+		pips.draw_rect(Rect2(Vector2.ONE, pips.size - Vector2.ONE * 2), fill if have >= all else edge, false, 2)
+		return
+	var w := minf(floorf((pips.size.x + 2) / all) - 2, 12)
+	for i in all:
+		var box := Rect2(i * (w + 2), 0, w, h)
+		pips.draw_rect(box, OUTLINE)
+		if i < have:
+			pips.draw_rect(box, fill)
+		elif i < have + busy:
+			pips.draw_rect(Rect2(box.position, Vector2(ceilf(w / 2), h)), MAKE_BUSY)
+			pips.draw_rect(box.grow(-1), MAKE_BUSY, false, 2)
+		else:
+			pips.draw_rect(box.grow(-1), edge, false, 2)
+
+
+# Quello che il menu della postazione mostra e che, cambiato, lo fa rifare da capo: gli oggetti (una ricerca nuova) e
+# il banchetto (ordinato, o che ora si può)
+func craft_signature() -> String:
+	var kind: Build = role(furniture[crafting][0])
+	return str([crafting, station_makes(kind), needs_key(kind),
+		[banquet_at, banquet_block()] if kind == Build.OVEN and researched.has(Tech.BANQUET) else []])
+
+
+# gli ingredienti delle ricette della postazione `kind`: con l'acciaio cambiano (vedi needs_of)
+func needs_key(kind: Build) -> Array:
+	return RECIPES.filter(func(r): return r[1] == kind).map(needs_of)
+
+
+# Il menu della postazione aperto, a ogni fotogramma: la stanza e chi lavora in testa, la riga rossa, poi ogni riga
+# (vedi refresh_craft_row). Se sono cambiati gli oggetti o il banchetto lo rifà (vedi craft_signature)
+func refresh_craft() -> void:
+	if not furniture.has(crafting):
+		return
+	if craft_key != craft_signature():
+		open_craft(crafting)
+		return
+	var kind: Build = role(furniture[crafting][0])
+	var box: Control = craft_popup.get_node("Box")
+	var block := station_block(crafting)
+	box.get_node("Room").text = block
+	box.get_node("Room").visible = block != ""
+	var room := room_at(crafting)
+	var sub: Control = box.get_node("Head/Lines/Sub")
+	sub.get_node("Where").text = tr("Outdoors") if room == null else (named(RoomKind, room.kind) if room.kind != STATION_ROOM.get(kind, room.kind)
+		else tr("%s, comfort %d") % [named(RoomKind, room.kind), room_comfort(room)])
+	var workers := station_workers(kind)
+	var who: Label = sub.get_node("Who")
+	who.text = tr("%s at work") % ", ".join(workers.map(func(c): return c.first_name)) if not workers.is_empty() else tr("nobody at work")
+	who.add_theme_color_override("font_color", MAKE_BUSY if not workers.is_empty() else CENSUS_DIM)
+	var faces: Control = sub.get_node("Faces")
+	if faces.get_meta("who", []) != workers:  # le figurine solo quando cambia chi lavora
+		faces.set_meta("who", workers)
+		for child in faces.get_children():
+			child.free()
+		for c in workers:
+			faces.add_child(figure_icon(c))
+	for entry in craft_rows:
+		refresh_craft_row(entry[0], entry[1], block)
+	for face in faces.get_children():
+		face.queue_redraw()
+
+
+# chi sta lavorando a una postazione `kind` (al fuoco anche chi cucina i pasti), nell'ordine dei coloni
+func station_workers(kind: Build) -> Array:
+	return colonists.filter(func(c): return c.job in [Job.CRAFT, Job.COOK] and furniture.has(c.target) and role(furniture[c.target][0]) == kind)
+
+
+# La riga di `res` (vedi craft_row) com'è adesso (vedi make_state). Il riquadro e le tacche prendono il colore dello
+# stato: arancio lo si sta facendo, rosso è fermo, verde è a posto; smorzata la riga di quello che non si fa. Sotto, chi
+# lo fa con la barra e i secondi, o in rosso perché è fermo (`station`: quello che la postazione dice già in testa, e
+# qui non si ripete)
+func refresh_craft_row(res: Res, row: Control, station: String) -> void:
+	var s := make_state(res)
+	var makers: Array = s["makers"]
+	var busy := not makers.is_empty()
+	var have: int = s["have"]
+	var aim: int = have + makers.size() + s["missing"] if busy or s["missing"] > 0 else keep.get(res, 0)
+	var stuck: bool = not busy and s["block"] != ""
+	var done: bool = not busy and s["missing"] == 0 and have > 0 and aim > 0
+	var main: Control = row.get_node("Lines/Main")
+	var edge: Color = MAKE_BUSY if busy else (MAKE_STUCK if stuck else (TILE_EDGE if aim > 0 else TILE_EDGE.darkened(0.4)))
+	main.get_node("Tile").get_theme_stylebox("panel").border_color = edge
+	var back: StyleBoxFlat = row.get_theme_stylebox("panel")
+	back.bg_color = CENSUS_CARD if busy else Color.TRANSPARENT
+	back.border_color = CENSUS_BORDER if busy else Color.TRANSPARENT
+	for part in ["Tile", "Item", "Takes"]:  # quello che non si fa, smorzato
+		main.get_node(part).modulate.a = 1.0 if aim > 0 or have > 0 else 0.45
+	for amount in main.get_node("Takes").get_children():
+		if amount.has_meta("need"):
+			var need: Array = amount.get_meta("need")
+			var short: bool = GROUPS.get(need[0], [need[0]]).map(available).max() < need[1] and not busy
+			ink(amount, TREND_DOWN if short and aim > 0 else null)
+	var pips: Control = main.get_node("There are/Pips")
+	pips.set_meta("state", {"have": have, "busy": makers.size(), "want": aim, "stuck": stuck, "done": done})
+	pips.queue_redraw()
+	var count: Label = main.get_node("There are/Count")
+	count.text = "%d / %d" % [have, aim] if aim > 0 else (str(have) if have > 0 else tr("not made"))
+	count.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT if aim > 0 else HORIZONTAL_ALIGNMENT_LEFT
+	ink(count, TREND_UP if done else (null if aim > 0 or have > 0 else CENSUS_DIM))
+	pips.visible = aim > 0  # di quello che non si vuole, solo quanti ce ne sono
+	var asked: Control = main.get_node("Colonists")
+	asked.get_child(0).modulate.a = 1.0 if s["asked"] > 0 else 0.0
+	asked.get_child(1).text = str(s["asked"]) if s["asked"] > 0 else ""
+	var value: Label = main.get_node("Spare/Value")
+	value.text = str(keep.get(res, 0))
+	ink(value, null if keep.get(res, 0) > 0 else CENSUS_DIM)
+	var status: Control = row.get_node("Lines/Status")
+	var why: String = s["block"] if stuck and s["block"] != station else ""
+	status.visible = busy or why != ""
+	var text: Label = status.get_node("Text")
+	text.text = why
+	text.add_theme_color_override("font_color", TREND_DOWN)
+	status.get_node("Bar").visible = busy
+	status.get_node("Left").visible = busy
+	if busy:
+		var c: Colonist = makers[0]
+		text.text = (tr("%s is making it") if makers.size() == 1 else tr("%s and others are making it")) % c.first_name
+		text.add_theme_color_override("font_color", MAKE_BUSY)
+		status.get_node("Bar").set_meta("part", 1.0 - c.work_left / c.work_total if c.work_total > 0 else 0.0)
+		status.get_node("Bar").queue_redraw()
+		status.get_node("Left").text = tr("%d s") % ceili(c.work_left)
+	if res == Res.MEAL:  # i crudi nei mucchi: si rifanno solo quando cambiano
+		var raw: Control = row.get_node("Lines/Raw")
+		var piles := {}
+		for r in RAW_FOOD:
+			if total(r) > 0:
+				piles[r] = total(r)
+		if raw.get_meta("piles", {}) != piles or raw.get_child_count() == 0:
+			raw.set_meta("piles", piles)
+			for child in raw.get_children():
+				child.free()
+			var gap := Control.new()
+			gap.custom_minimum_size.x = TILE_BOX + CRAFT_GAP - 4
+			raw.add_child(gap)
+			var head := Label.new()
+			head.text = tr("Raw food:") if not piles.is_empty() else tr("No raw food.")
+			head.add_theme_color_override("font_color", CENSUS_DIM)
+			raw.add_child(head)
+			for r in piles:
+				var icon := ui_icon(ICONS[r], Rect2(), Vector2(32, 32))
+				icon.tooltip_text = named(Res, r, "item")
+				raw.add_child(icon)
+				var amount := Label.new()
+				amount.text = str(piles[r])
+				raw.add_child(amount)
+
+
+# Come sta l'oggetto `res` tra quelli da fare: "have" quanti ce ne sono (a terra, in magazzino, in mano), "makers" chi
+# lo sta facendo, "missing" quanti ne mancano ancora da cominciare (vedi gear_wanted; i pasti meals_wanted), "asked"
+# quanti coloni lo prenderebbero (vedi gear_asked), "block" perché non si può cominciare, "" se si può o non ne mancano
+func make_state(res: Res) -> Dictionary:
+	var meal := res == Res.MEAL
+	var makers: Array = colonists.filter(func(c): return c.job == Job.COOK) if meal \
+		else colonists.filter(func(c): return c.job == Job.CRAFT and RECIPES[c.recipe][0] == res)
+	var have: int = MEALS.reduce(func(sum, r): return sum + total(r), 0) if meal else total(res)
+	var missing: int = meals_wanted() if meal else maxi(gear_wanted(res), 0)
+	return {"have": have, "makers": makers, "missing": missing, "asked": gear_asked(res),
+		"block": make_block(res) if missing > 0 else ""}
+
+
+# Quanti coloni prenderebbero il pezzo `res` se ci fosse (vedi fits): chi ha lo slot vuoto e chi l'ha scelto nella
+# scheda. Per loro lo si fa anche con la scorta a 0 (vedi gear_wanted); un arco almeno, se c'è da cacciare e nessuno ne ha
+func gear_asked(res: Res) -> int:
+	if not GEAR.has(res):
+		return 0
+	var slot: Slot = GEAR[res]["slot"]
+	var asking := colonists.filter(func(c): return res in fits(c, slot)).size()
+	if res == Res.BOW and animals.any(func(a): return a.marked) and not colonists.any(has_bow):
+		asking = maxi(asking, 1)
+	return asking
+
+
+# Perché `res` non si può cominciare a fare adesso, "" se si può: la sua postazione non c'è o non lavora (vedi
+# station_block), il quaderno senza abbastanza studio, il pasto senza due crudi uguali in un mucchio, un ingrediente che
+# nei mucchi liberi non basta (il primo che manca, con quanto ce n'è). Con tutto quello che serve, lo farà il primo che
+# ha tempo (vedi try_craft, try_cook)
+func make_block(res: Res) -> String:
+	var kind: Build = Build.CAMPFIRE if res == Res.MEAL else recipe_of(res)[1]
+	if stations(kind).is_empty():
+		var there := furniture.keys().filter(func(o): return role(furniture[o][0]) == kind)
+		return station_block(there[0]) if not there.is_empty() else tr("Needs a station: %s") % named(Build, kind).to_lower()
+	if res == Res.MEAL:
+		return "" if RAW_FOOD.any(func(raw): return items[raw].keys().any(func(cell): return items[raw][cell] >= COOK_RAW and is_free(cell))) \
+			else tr("Needs %d raw food of one kind in a pile") % COOK_RAW
+	if res == Res.NOTEBOOK and study < COPY_STUDY:
+		return tr("Needs %d study: there is %d") % [int(COPY_STUDY), floori(study)]
+	var needs := needs_of(recipe_of(res))
+	for key in needs:
+		var most: int = GROUPS.get(key, [key]).map(available).max()
+		if most < needs[key]:
+			return tr("Short of %s: takes %d, %d free") % [tr(GROUP_NAMES[key]) if GROUPS.has(key) else res_name(key), needs[key], most]
+	return ""
 
 
 # Finestra del pascolo (clic su una sua casella): l'erba, poi per specie quanti ce ne sono e quanti adulti tenerne
@@ -4580,6 +5026,8 @@ func _process(delta: float) -> void:
 			room_popup.hide()
 	if craft_popup.visible and not furniture.has(crafting):  # postazione abbattuta: si chiude
 		craft_popup.hide()
+	elif craft_popup.visible:
+		refresh_craft()
 	if pasture_popup.visible and pasture.is_empty():  # pascolo tolto: si chiude
 		pasture_popup.hide()
 	if sheet_panel.visible:
