@@ -155,7 +155,7 @@ pre i { color: #8fb87a; }
 <body>
 <nav>
 <h1>King</h1>
-<small>Meccaniche · commit 5b69e18 · 2026-11-20 · <a class="lang" href="en.html">English</a></small>
+<small>Meccaniche · commit d1cebf0 · 2026-11-20 · <a class="lang" href="en.html">English</a></small>
 <h2>Wiki</h2>
 <a href="#le-basi"><i class="sp s106" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Le basi</a><a href="#comandi"><i class="sp s107" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Comandi</a><a href="#coloni"><i class="sp s94" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Coloni</a><a href="#abilità"><i class="sp s103" style="width:16px;height:16px;background-position:-144px 0px;background-size:240px 16px"></i> Abilità</a><a href="#talenti"><i class="sp s97" style="width:16px;height:16px;background-position:0px 0px;background-size:240px 16px"></i> Talenti</a><a href="#condizioni"><i class="sp s98" style="width:16px;height:16px;background-position:-16px 0px;background-size:336px 16px"></i> Condizioni</a><a href="#il-sovrano-e-la-casata"><i class="sp s49" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Il sovrano e la casata</a><a href="#costruire"><i class="sp s78" style="width:15px;height:15px;background-position:0px 0px;background-size:15px 15px"></i> Costruire</a><a href="#stanze"><i class="sp s87" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Stanze</a><a href="#tetti-e-calore"><i class="sp s88" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Tetti e calore</a><a href="#cibo-e-cucina"><i class="sp s25" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Cibo e cucina</a><a href="#raccolta"><i class="sp s83" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Raccolta</a><a href="#allevamento"><i class="sp s30" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Allevamento</a><a href="#lavorazioni-ed-equipaggiamento"><i class="sp s105" style="width:16px;height:16px;background-position:0px -32px;background-size:32px 112px"></i> Lavorazioni ed equipaggiamento</a><a href="#combattimento-e-lupi"><i class="sp s33" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Combattimento e lupi</a><a href="#medicina-e-morte"><i class="sp s76" style="width:16px;height:16px;background-position:0px -416px;background-size:128px 1824px"></i> Medicina e morte</a><a href="#splendore"><i class="sp s45" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Splendore</a><a href="#avventurieri"><i class="sp s46" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Avventurieri</a><a href="#rovine-e-spedizioni"><i class="sp s95" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Rovine e spedizioni</a><a href="#conoscenza"><i class="sp s96" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Conoscenza</a><a href="#leggi"> Leggi</a><h2>Sviluppo</h2><a href="#todo"><i class="sp s58" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Da sviluppare</a><h2>Numeri</h2><a href="#main-gd">main.gd</a><a href="#atmosphere-gd">atmosphere.gd</a><a href="#narrator-gd">narrator.gd</a>
 </nav>
@@ -384,7 +384,7 @@ pre i { color: #8fb87a; }
 <li>Il progetto in blu resta quando chiudi Costruisci, e nei salvataggi: resta anche la targa, con Modifica (torna a costruire) e Scarta (tutto il progetto non confermato; chiede un secondo clic per sicurezza).</li>
 <li>In costruzione il clic destro su un pezzo lo toglie dal progetto, anche confermato (prima il mobile, poi il pavimento sotto); Maiusc + trascinamento, o la gomma sulla targa, toglie un'area intera. Il materiale già portato torna in magazzino. Trascinare col destro sposta sempre la visuale.</li>
 <li>Il costruttore va a prendere il materiale da un mucchio (a terra o in un magazzino) e ci mette 2 s a casella o a pezzo. Un pezzo di due materiali (abat-jour, lampione) vuole un viaggio per ciascuno: quello già portato aspetta al cantiere, e torna a terra se annulli il progetto.</li>
-<li><i class="sp s80" style="width:15px;height:15px;background-position:0px 0px;background-size:15px 15px"></i> Distruggi (X): trascina sopra strutture e mobili per buttarli giù subito. Il materiale si perde.</li>
+<li><i class="sp s80" style="width:15px;height:15px;background-position:0px 0px;background-size:15px 15px"></i> Distruggi (X): trascina sopra strutture e mobili per segnarli (una cornice rossa). Buttarli giù è un lavoro di chi costruisce: prima il mobile, poi la struttura sotto, 2 s a casella o a pezzo come a costruirli, più svelti con l'abilità Costruire, che così si allena. Il materiale si perde. Per cambiare idea, la gomma o Maiusc + trascinamento in costruzione tolgono il segno. Orto e pascolo spariscono subito.</li>
 <li>I pezzi che non hai ancora ricercato non hanno un pulsante.</li>
 </ul>
 <h3>Dove </h3>
@@ -819,7 +819,7 @@ pre i { color: #8fb87a; }
 <h3>In programma</h3>
 <h4>4.2 Coloni</h4><ul><li>malattie che si attaccano, perdita di punti ferita.</li></ul>
 <h4>4.3.2 Stemma</h4><ul><li>una versione a 32 px, con gli animali (leone, lupo, orso…), che a 8 px non si leggono.</li><li>lo stendardo antico dei cimeli (4.4.4) con uno stemma a caso e il nome della casata caduta ("Stendardo dei Valdora"); il matrimonio unisce i due stemmi (partito); l'erede porta il lambello finché non regna; le casate finite in una "Sala delle casate" nel menu.</li></ul>
-<h4>4.4 Risorse ed edifici</h4><ul><li>vene d'oro nella roccia, commercio.</li></ul>
+<h4>4.4 Risorse ed edifici</h4><ul><li>vene d'oro nella roccia, commercio.</li><li>recuperare parte del materiale.</li></ul>
 <h4>4.4.1 Cibo e cucina</h4><ul><li>animali che si difendono. Stufato e conserve: vedi 4.4.7.</li></ul>
 <h4>4.4.2 Forgia, sartoria ed equipaggiamento</h4><ul><li>ordini "fanne N" e "per sempre", sospendere una ricetta, qualità degli oggetti, cambiare un pezzo con uno migliore.</li></ul>
 <h4>4.4.3 Combattimento</h4><ul><li>predoni (umani), animali che fuggono o si difendono, ordini di combattimento dati dal re.</li><li>strade che collegano le case, alberi piantati, feste.</li><li>i sentieri che collegano le case danno splendore.</li></ul>
@@ -937,10 +937,10 @@ const <b id="c-SIDES">SIDES</b> := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, V
 const <b id="c-TREE_SIDES">TREE_SIDES</b> := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  <i># da sopra la chioma coprirebbe chi taglia</i></pre>
 <pre>enum <b id="c-Job">Job</b> { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE,
 	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE, DOUSE, FARM, FERTILIZE, OATH, SALVE, RESCUE, TREAT, BURY,
-	FUNERAL, TEND, BUTCHER, MILK, SHEAR, MOW, HONEY, FEAST }  <i># TEND: le uova al pollaio; BUTCHER, MILK, SHEAR: macellare, mungere e</i>
+	FUNERAL, TEND, BUTCHER, MILK, SHEAR, MOW, HONEY, FEAST, DEMOLISH }  <i># TEND: le uova al pollaio; BUTCHER, MILK, SHEAR: macellare, mungere e</i>
 const <b id="c-WORK_JOBS">WORK_JOBS</b> := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FURNISH, Job.HARVEST, Job.COOK, Job.FISH,
 	Job.HUNT, Job.CRAFT, Job.STUDY, Job.GOVERN, Job.REPAIR, Job.CUT_ICE, Job.FARM, Job.FERTILIZE, Job.RESCUE,
-	Job.TREAT, Job.BURY, Job.TEND, Job.BUTCHER, Job.MILK, Job.SHEAR, Job.MOW, Job.HONEY]  <i># contano come ore di lavoro</i></pre>
+	Job.TREAT, Job.BURY, Job.TEND, Job.BUTCHER, Job.MILK, Job.SHEAR, Job.MOW, Job.HONEY, Job.DEMOLISH]  <i># contano come ore di lavoro</i></pre>
 <pre><i># Tabella delle priorità (in cima alla finestra Jobs): per colono e per lavoro da 1 (prima) a PRIORITY_LEVELS (dopo),</i>
 <i># 0 mai. Si prende il lavoro disponibile con la priorità più alta; a pari priorità nell'ordine di Work, e di un lavoro</i>
 <i># il più vicino (vedi find_work). All'inizio tutto PRIORITY_DEFAULT: l'ordine di WORK_ORDER</i>
@@ -954,7 +954,7 @@ const <b id="c-PRIORITY_LEVELS">PRIORITY_LEVELS</b> := 4
 const <b id="c-WORK_INFO">WORK_INFO</b> := ["Cooking meals at the campfire or the hearth.", "Forge, workbench, spinning wheel, carpenter's bench, furnace, mill, oven.",
 	"Felling the marked trees.", "Mining the marked rock, cutting ice.", "Picking bushes, flax and herbs, uprooting, taking honey.",
 	"Sowing, harvesting and fertilizing the garden, mowing hay.", "Fishing at the marked water.", "Hunting the marked animals.",
-	"Building, furnishing, repairing roofs.", "Carrying things into the warehouses, and the dead to their graves.",
+	"Building, furnishing, demolishing, repairing roofs.", "Carrying things into the warehouses, and the dead to their graves.",
 	"Governing from the throne: only the ruler.", "Studying at a desk.",
 	"Rescuing and treating the downed, the wounded and the sick: only after Medicine.",
 	"Collecting eggs, milking, shearing, slaughtering the animals beyond those you keep: after Husbandry."]</pre>
@@ -1195,7 +1195,7 @@ enum <b id="c-Hero">Hero</b> { NONE, WARRIOR, ARCHER, BURGLAR }  <i># classe; NO
 <pre><i># dove va un avventuriero col Job.TRAVEL: alla locanda, via per sempre, al bordo per partire, alla locanda di ritorno</i>
 enum <b id="c-Errand">Errand</b> { NONE, ARRIVE, LEAVE, DEPART, RETURN, VISIT }  <i># VISIT: il viandante, al trono (vedi visit_cells)</i></pre>
 <pre><i># cosa sta facendo chi ha questo lavoro, nell'elenco degli abitanti (vedi doing; tradotti col contesto "doing")</i>
-const <b id="c-DOING">DOING</b> := {Job.CHOP: "Chopping a tree", Job.MINE: "Mining", Job.UPROOT: "Uprooting", Job.HARVEST: "Harvesting",
+const <b id="c-DOING">DOING</b> := {Job.CHOP: "Chopping a tree", Job.MINE: "Mining", Job.DEMOLISH: "Demolishing", Job.UPROOT: "Uprooting", Job.HARVEST: "Harvesting",
 	Job.EAT: "Eating", Job.COOK: "Cooking", Job.FISH: "Fishing", Job.HUNT: "Hunting", Job.EQUIP: "Fetching gear",
 	Job.FIGHT: "Fighting", Job.FLEE: "Fleeing", Job.TANTRUM: "Storming off in a rage", Job.STUDY: "Studying",
 	Job.GOVERN: "Holding audience", Job.PROTEST: "Protesting in the throne room", Job.REPAIR: "Repairing a roof",
@@ -1717,7 +1717,7 @@ const <b id="c-FIXED_KEYS">FIXED_KEYS</b> := [KEY_SPACE, KEY_1, KEY_2, KEY_3, KE
 <pre><i># le variabili della partita che si salvano, così come sono (gli oggetti dentro li impacchetta SAVES.Packer); il resto</i>
 <i># si rifà da queste (vedi restore) o è interfaccia. Una variabile nuova dello stato del gioco va aggiunta qui</i>
 const <b id="c-SAVED">SAVED</b> := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today", "hour", "rocks", "boulders", "massif", "rubble", "ores", "water", "stream", "pasture", "hives", "candles", "banquet_at", "last_banquet", "banquet_sorbet", "hay_marks", "coop_eggs", "herd_keep", "drover_until", "drover_stock",
-	"trees", "stock", "bushes", "flax", "herbs", "graves", "funerals", "weeds", "chop_marks", "mine_marks", "uproot_marks", "harvest_marks", "fish_marks",
+	"trees", "stock", "bushes", "flax", "herbs", "graves", "funerals", "weeds", "chop_marks", "mine_marks", "demolish_marks", "unfurnish_marks", "uproot_marks", "harvest_marks", "fish_marks",
 	"fish_spots", "items", "fresh", "draft", "blueprints", "built", "furniture_draft", "furniture_plans", "furniture",
 	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
 	"fallen", "animals", "arrows", "next_animal", "guests", "next_guest", "ruins", "expeditions",
@@ -1816,6 +1816,13 @@ enum <b id="c-Crop">Crop</b> { TURNIP, CABBAGE, BEANS, GREEN, GRAIN }  <i># GRAI
 <pre><i># Il massiccio: riquadri 16x16. Righe: la cima (4 varianti), i lati aperti (colonne di EDGE_SIDES), gli angoli aperti</i>
 <i># solo in diagonale (colonne di EDGE_CORNERS), le vene allo scoperto (ferro, carbone, e una seconda variante)</i>
 const <b id="c-MASSIF_SIDES">MASSIF_SIDES</b> := [2, 0, 1, 3]  <i># i lati aperti, nell'ordine in cui si disegnano: prima la parete, sopra i contorni</i></pre>
+<pre><i># Gli angoli arrotondati: dove due lati vicini sono aperti, i pixel da togliere nell'angolo (colonne di EDGE_CORNERS;</i>
+<i># sotto meno, c'è la parete); sopra ci va l'arco del contorno, la riga 5 del foglio</i>
+const <b id="c-MASSIF_ROUND">MASSIF_ROUND</b> := [
+	[Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(0, 1), Vector2i(1, 1), Vector2i(0, 2), Vector2i(0, 3)],
+	[Vector2i(15, 0), Vector2i(14, 0), Vector2i(13, 0), Vector2i(12, 0), Vector2i(15, 1), Vector2i(14, 1), Vector2i(15, 2), Vector2i(15, 3)],
+	[Vector2i(15, 15), Vector2i(14, 15), Vector2i(13, 15), Vector2i(15, 14), Vector2i(14, 14), Vector2i(15, 13)],
+	[Vector2i(0, 15), Vector2i(1, 15), Vector2i(2, 15), Vector2i(0, 14), Vector2i(1, 14), Vector2i(0, 13)]]</pre>
 <pre><i># 128x544, righe: mobili nell'ordine di Build; colonne: quarti di giro in senso orario, ognuno in un riquadro 32x32</i>
 enum <b id="c-Chimney">Chimney</b> { NONE = -1, STONE, VENT }  <i># colonne di CHIMNEYS</i>
 const <b id="c-ROOF_TINT">ROOF_TINT</b> := 0.08      <i># differenza di luce, al massimo, tra un tetto e l'altro</i></pre>
