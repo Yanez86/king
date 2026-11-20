@@ -18,7 +18,7 @@ func _initialize() -> void:
 
 	# il glossario: ogni cosa di ogni tipo ha titolo e testo; ogni collegamento porta a una cosa che ne ha uno
 	var names := {"tech": main.Tech, "law": main.Law, "build": main.Build, "item": main.Res, "room": main.RoomKind,
-		"cond": main.Cond, "trait": main.Trait, "skill": main.Skill, "work": main.Work}
+		"cond": main.Cond, "trait": main.Trait, "gift": main.Gift, "skill": main.Skill, "work": main.Work}
 	var keys: Array = g.CONCEPTS.keys().map(func(c): return "concept:" + c)
 	for kind in names:
 		for value in names[kind].values():
@@ -110,6 +110,82 @@ func _initialize() -> void:
 	main.fill_laws()
 	var laws: Array = main.get_node("HUD/LawsPanel").find_children("*", "Control", true, false).filter(func(b): return str(b.get_meta("tip", "")).begins_with("law:"))
 	check(laws.size() >= main.Law.size(), "le leggi, col loro suggerimento")
+
+	main.get_node("HUD/LawsPanel").hide()
+
+	# una nota in fondo (quello che cambia, come le ore di una condizione)
+	tips.close_all()
+	tips.attach(thing, "cond:POISONED", "5 h left")
+	tips.source = thing
+	tips.source_since = 30.0
+	tips.update(30.5, over)
+	check(tips.levels.size() == 1 and tips.levels[0].label.text.ends_with("\n\n5 h left"), "la nota in fondo")
+	tips.close_all()
+	tips.source = null
+	thing.queue_free()
+
+	# fase 2: i mobili da costruire, le risorse, i menu delle postazioni, le colonne dei lavori, la scheda
+	for b in main.kind_buttons:
+		check(main.kind_buttons[b].get_meta("tip", "") == g.key_of("build", main.Build, b) and main.kind_buttons[b].tooltip_text == "",
+			"il mobile %s col suo suggerimento" % main.Build.keys()[b])
+	var rows: Array = main.resources_list.get_children()
+	check(rows.size() == main.Res.size(), "una riga per risorsa")
+	for r in rows:
+		check(str(r.get_child(0).get_meta("tip", "")).begins_with("item:") and r.get_child(2).get_meta("tip", "") == r.get_child(0).get_meta("tip"),
+			"le risorse: icona e nome")
+	var fire := Vector2i(3, 3)
+	main.furniture[fire] = [main.Build.CAMPFIRE, main.Res.WOOD, 0]
+	main.open_craft(fire)
+	var menu: Array = main.get_node("HUD/CraftPopup/Box/List").get_children()
+	var fish: Array = menu[0].get_children().filter(func(n): return str(n.get_meta("tip", "")) == "item:FISH")
+	check(menu[0].get_child(0).get_meta("tip", "") == "item:MEAL" and menu[0].get_child(1).get_meta("tip", "") == "item:MEAL"
+		and fish.size() == 1, "al fuoco: il pasto e i crudi")
+	main.craft_popup.hide()
+	main.furniture.erase(fire)
+	main.priorities_key = ""
+	main.refresh_priorities()
+	var heads: Array = main.priority_grid.get_children().slice(1, main.Work.size() + 1)
+	check(heads.all(func(i): return str(i.get_meta("tip", "")).begins_with("work:")), "le colonne dei lavori")
+	main.open_sheet(main.colonists[0])
+	var sheet: Array = main.get_node("HUD/ColonistSheet/Box/Skills").get_children()
+	check(sheet[0].get_meta("tip", "") == "skill:" + main.Skill.keys()[0] and sheet[1].get_meta("tip", "") == sheet[0].get_meta("tip"), "le abilità nella scheda")
+	main.sheet_panel.hide()
+
+	# fase 3: la wiki coi collegamenti; col mouse sopra il suggerimento, col clic la pagina che ne parla
+	for lang in ["en", "it"]:
+		TranslationServer.set_locale(lang)
+		var pages: Array = main.WIKI.pages()
+		var total := 0
+		for i in pages.size():
+			var text: String = g.wikify(pages[i][1])
+			for m in link.search_all(text):
+				total += 1
+				check(not g.content(m.get_string(1)).is_empty(), "%s: il collegamento %s porta a qualcosa" % [lang, m.get_string(1)])
+			check(not RegEx.create_from_string("\\[img[^\\]]*\\][^\\[]*\\[url").search(text), "%s, %s: niente collegamenti nei nomi delle immagini" % [lang, pages[i][0]])
+			check(not RegEx.create_from_string("(?m)^\\[color=#e8c34a\\][^\\n]*\\[url=").search(text), "%s, %s: niente collegamenti nei titoli" % [lang, pages[i][0]])
+		check(total > 500, "%s: tanti collegamenti nella wiki (%d)" % [lang, total])
+		var home: Array = g.wiki_home("item:BREAD")
+		check(home[0] >= 0 and pages[home[0]][1].contains("[color=#e8c34a]%s[/color]" % home[1]), "%s: il pane ha la sua pagina e sezione (%s)" % [lang, home])
+	TranslationServer.set_locale("it")
+	var verbs: String = g.wikify("Un gruppo porta un attrezzo; la Porta, una porta.\nUn puntino d'oro, un forno di pietra e un forno.")
+	check(verbs == "Un gruppo porta un attrezzo; la [url=build:DOOR][color=#e8c34a]Porta[/color][/url], una porta.\nUn puntino d'oro, un [url=tech:STONE_OVEN][color=#e8c34a]forno di pietra[/color][/url] e un [url=build:OVEN][color=#e8c34a]forno[/color][/url].",
+		"porta minuscola è il verbo, d'oro è il colore, il nome lungo prima del corto, una volta per paragrafo (%s)" % verbs)
+	TranslationServer.set_locale("en")
+	var wiki_text: RichTextLabel = main.wiki_text
+	main.fill_wiki()
+	check(wiki_text.text.contains("[url="), "la pagina mostrata coi collegamenti")
+	wiki_text.meta_hover_started.emit("build:OVEN")
+	check(tips.source == wiki_text and tips.source_tip() == "build:OVEN", "col mouse su un collegamento della wiki")
+	wiki_text.meta_hover_ended.emit("build:OVEN")
+	check(tips.source == null, "e via")
+	wiki_text.meta_clicked.emit("item:BREAD")
+	var topics: ItemList = main.get_node("HUD/WikiPanel/Box/Body/Topics")
+	check(main.get_node("HUD/WikiPanel").visible and topics.get_selected_items()[0] == g.wiki_home("item:BREAD")[0]
+		and wiki_text.text.contains("[url=item:BREAD]"), "il clic apre la pagina del pane")
+	main.get_node("HUD/WikiPanel").hide()
+	tips.clicked.emit("law:FUNERALS")  # anche dai suggerimenti
+	check(main.get_node("HUD/WikiPanel").visible and main.WIKI.pages()[topics.get_selected_items()[0]][1].contains("Funerals"), "il clic in un suggerimento apre la wiki")
+	main.get_node("HUD/WikiPanel").hide()
 
 	print("OK: suggerimenti annidati (%d cose, %d collegamenti diversi)" % [keys.size(), links.size()])
 	quit()

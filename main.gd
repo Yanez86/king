@@ -873,7 +873,6 @@ const HEAT_SCALE := [Color("e8442a"), Color("e8c34a"), Color("8ad0e8"), Color("4
 const FROST_COLOR := Color("eef8ff")  # sotto lo zero: il cibo non marcisce
 const BLOCKED_COLOR := Color("d84a3a")  # la ✕ sul muro di pietra che il calore non passa
 const ROOM_SPACE := 6        # caselle a testa: chi ne ha meno (stanza piena di gente) ha il comfort in proporzione
-# suggerimento dei pulsanti di costruzione (vedi build_tip): sotto nome e costo il comfort, poi la descrizione colorata
 # menù delle opzioni (Esc o ingranaggio), tab Keybindings: tasti di partenza dei comandi della barra in basso, per
 # nome del pulsante (vedi TOOL_BARS; quelli che non ci sono partono senza). Cambiati, si salvano: vedi bind_key
 const DEFAULT_KEYS := {"Select": KEY_Q, "Build": KEY_B, "Destroy": KEY_X, "Mine": KEY_M, "Chop": KEY_C, "Uproot": KEY_U,
@@ -2048,6 +2047,7 @@ var lights := CanvasLayer.new()
 var lights_canvas := Node2D.new()
 
 @onready var camera: Camera2D = $Camera2D
+@onready var wiki_text: RichTextLabel = $HUD/WikiPanel/Box/Body/Text  # la pagina della wiki, coi collegamenti
 @onready var stored_label: Label = $HUD/TopBar/Row/Stored  # risorse in tutti i magazzini, sommate: il dettaglio è in Resources
 @onready var colonists_label: Button = $HUD/TopBar/Row/Colonists  # cliccato: l'elenco degli abitanti (vedi fill_census)
 @onready var beds_label: Label = $HUD/TopBar/Row/Beds
@@ -2269,9 +2269,7 @@ func _ready() -> void:
 		var bar := furniture_bar if FURNITURE.has(kind) else build_bar
 		var button: Button = bar.find_child(Build.keys()[kind].capitalize(), true, false)
 		kind_buttons[kind] = button
-		button.set_script(TIP)
-		button.set("make_tip", build_tip.bind(kind))
-		button.tooltip_text = Build.keys()[kind].capitalize()  # Godot lo mostra da sé col mouse sopra, via build_tip
+		tip(button, "build", Build, kind)  # costo, comfort, calore, splendore, cosa ci si fa (glossary.gd)
 		button.pressed.connect(choose_kind.bind(kind))
 	$HUD/FurnitureBar/Row/Turn/Left.pressed.connect(turn.bind(-1))
 	$HUD/FurnitureBar/Row/Turn/Right.pressed.connect(turn.bind(1))
@@ -2302,7 +2300,9 @@ func _ready() -> void:
 	jobs_panel.hidden.connect(tool("Jobs").set_pressed_no_signal.bind(false))  # chiusa con la X: tasto su
 	resources_panel.hidden.connect(tool("Resources").set_pressed_no_signal.bind(false))
 	var topics: ItemList = $HUD/WikiPanel/Box/Body/Topics
-	topics.item_selected.connect(func(i): $HUD/WikiPanel/Box/Body/Text.text = WIKI.pages()[i][1])
+	topics.item_selected.connect(func(i): wiki_text.text = glossary.wikify(WIKI.pages()[i][1]))  # coi collegamenti
+	tips.attach_text(wiki_text)  # col mouse sopra il loro suggerimento, col clic la loro pagina (vedi open_wiki_at)
+	tips.clicked.connect(open_wiki_at)  # anche dai suggerimenti
 	fill_wiki()
 	$HUD/TopBar/Row/Wiki.toggled.connect($HUD/WikiPanel.set_visible)
 	$HUD/WikiPanel.hidden.connect($HUD/TopBar/Row/Wiki.set_pressed_no_signal.bind(false))
@@ -2322,7 +2322,9 @@ func _ready() -> void:
 	for res in Res.values():
 		var row := HBoxContainer.new()
 		row.visible = false  # solo le risorse che ci sono, vedi update_resources
-		row.add_child(ui_icon(ICONS[res], Rect2(), Vector2(32, 32)))
+		var big := ui_icon(ICONS[res], Rect2(), Vector2(32, 32))
+		tip(big, "item", Res, res)
+		row.add_child(big)
 		var kind := ui_icon(KIND_ICONS[ITEM_KIND[res]], Rect2(), Vector2(16, 16))  # il tipo, prima del nome
 		kind.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		kind.tooltip_text = KIND_NAMES[ITEM_KIND[res]]
@@ -2333,6 +2335,8 @@ func _ready() -> void:
 			label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 			label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT if text == "" else HORIZONTAL_ALIGNMENT_LEFT
+			if text != "":
+				tip(label, "item", Res, res)
 			row.add_child(label)
 		resources_list.add_child(row)
 	if state.is_empty():
@@ -2791,6 +2795,23 @@ func set_language(code: String) -> void:
 
 
 # finestra Wiki: gli argomenti nella lingua del gioco, aperta sulla pagina che si stava leggendo (all'inizio la prima)
+# la wiki aperta alla pagina che parla di `key` (vedi glossary.wiki_home), alla sua sezione: un clic su un collegamento
+func open_wiki_at(key: String) -> void:
+	var home: Array = glossary.wiki_home(key)
+	if home[0] < 0:
+		return
+	var topics: ItemList = $HUD/WikiPanel/Box/Body/Topics
+	$HUD/TopBar/Row/Wiki.button_pressed = true
+	$HUD/WikiPanel.move_to_front()  # sopra le altre finestre
+	topics.select(home[0])
+	topics.item_selected.emit(home[0])
+	topics.ensure_current_is_visible()
+	var heading := "%s\n" % home[1]
+	var at := wiki_text.get_parsed_text().find(heading) if home[1] != "" else -1
+	if at >= 0:
+		wiki_text.scroll_to_paragraph.call_deferred(wiki_text.get_character_paragraph(at))
+
+
 func fill_wiki() -> void:
 	var topics: ItemList = $HUD/WikiPanel/Box/Body/Topics
 	var page := maxi(0, topics.get_selected_items()[0] if topics.is_anything_selected() else 0)
@@ -2983,66 +3004,6 @@ func choose_kind(kind: Build) -> void:
 
 # nome in alto a sinistra, a destra i materiali in colonna (muri e pavimenti: legno o pietra, per casella; il resto
 # i suoi materiali, per pezzo); sotto il comfort che dà, una riga e la descrizione colorata
-func build_tip(kind: Build) -> Control:
-	var box := VBoxContainer.new()
-	var head := HBoxContainer.new()
-	head.add_theme_constant_override("separation", 24)
-	var title := Label.new()
-	title.text = named(Build, kind)
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	var costs := VBoxContainer.new()
-	var cost := cost_of([kind, BUILD_RES.get(kind, Res.WOOD)])
-	if kind in ANY_MATERIAL:
-		cost[Res.STONE] = cost[Res.WOOD]
-	for res in cost:
-		var row := HBoxContainer.new()
-		row.alignment = BoxContainer.ALIGNMENT_END
-		var amount := Label.new()
-		amount.text = "%s%d%s" % [tr("or ") if res == Res.STONE and kind in ANY_MATERIAL else "", cost[res], "" if FURNITURE.has(kind) else tr("/tile")]
-		row.add_child(amount)
-		row.add_child(ui_icon(ICONS[res], Rect2(), Vector2(16, 16)))
-		costs.add_child(row)
-	head.add_child(title)
-	head.add_child(costs)
-	box.add_child(head)
-	if COMFORT.has(kind):  # chi non dà comfort salta la sezione
-		var bonus := Label.new()
-		bonus.text = tr("+%s room comfort") % str(COMFORT[kind]).trim_suffix(".0")
-		if kind == Build.FLOOR:
-			bonus.text += tr(" paving it all, x%s in stone") % COMFORT_MATERIAL[Res.STONE]
-		bonus.add_theme_color_override("font_color", TREND_UP)
-		box.add_child(bonus)
-	if HEAT.has(kind):
-		var heat := Label.new()
-		heat.text = tr("+%d °C in the room") % HEAT[kind]
-		if kind in THROUGH_STONE:
-			heat.text += tr(", +%s °C behind a wall, even of stone") % str(HEAT[kind] * THROUGH[kind]).trim_suffix(".0")
-		elif THROUGH.has(kind):
-			heat.text += tr(", +%s °C behind a wooden wall") % str(HEAT[kind] * THROUGH[kind]).trim_suffix(".0")
-		heat.add_theme_color_override("font_color", HEAT_COLOR)
-		box.add_child(heat)
-	if INSULATES.has(kind):
-		var keeps := Label.new()
-		keeps.text = tr("+%d%% room insulation") % roundi(INSULATES[kind][0] * 100)
-		keeps.add_theme_color_override("font_color", HEAT_COLOR)
-		box.add_child(keeps)
-	if SPLENDOR.has(kind):
-		var splendor := Label.new()
-		var text := tr("+%d colony splendor, only the first one") if kind in SPLENDOR_ONCE else tr("+%d colony splendor")
-		splendor.text = text % SPLENDOR[kind]
-		splendor.add_theme_color_override("font_color", SPLENDOR_COLOR)
-		box.add_child(splendor)
-	box.add_child(HSeparator.new())
-	var info := Label.new()
-	info.text = BUILD_INFO[kind]
-	info.add_theme_color_override("font_color", BUILD_INFO_COLOR)
-	info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART  # le frasi lunghe vanno a capo invece di allargare il riquadro
-	info.custom_minimum_size.x = 240
-	box.add_child(info)
-	return box
-
-
 # E / R e le frecce nella barra: gira il prossimo mobile di un quarto, in senso antiorario o orario
 func turn(by: int) -> void:
 	build_turn = posmod(build_turn + by, 4)
@@ -3558,13 +3519,14 @@ func open_craft(origin: Vector2i) -> void:
 		rows.push_front([Res.MEAL, raw, "or"])
 	for r in rows:
 		var row := HBoxContainer.new()
-		row.add_child(ui_icon(ICONS[r[0]], Rect2(), Vector2(32, 32)))
+		var product := ui_icon(ICONS[r[0]], Rect2(), Vector2(32, 32))
+		tip(product, "item", Res, r[0])  # cos'è, da cosa si fa, a cosa serve (glossary.gd)
+		row.add_child(product)
 		var label := Label.new()
 		label.text = named(Res, r[0], "item")
 		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		label.custom_minimum_size.x = 110
-		label.tooltip_text = GEAR[r[0]]["info"] if GEAR.has(r[0]) else ""
-		label.mouse_filter = Control.MOUSE_FILTER_PASS
+		tip(label, "item", Res, r[0])
 		row.add_child(label)
 		for res in r[1]:
 			if res != r[1].keys()[0]:
@@ -3578,6 +3540,8 @@ func open_craft(origin: Vector2i) -> void:
 			if GROUPS.has(res):  # a scelta: col mouse sopra, quali
 				icon.tooltip_text = tr("Any of: %s") % ", ".join(GROUPS[res].map(func(g): return named(Res, g, "item").to_lower()))
 				icon.mouse_filter = Control.MOUSE_FILTER_PASS
+			else:
+				tip(icon, "item", Res, res)
 			row.add_child(icon)
 		var count := SpinBox.new()
 		count.prefix = tr("Keep")  # il prefisso non si traduce da sé
@@ -3770,15 +3734,18 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 			else tr("%d of %d XP to level %d") % [floori(c.xp[s]), XP_STEP * (c.skills[s] + 1), c.skills[s] + 1]
 		level.mouse_filter = Control.MOUSE_FILTER_PASS  # se no il suggerimento non compare
 		var star := ui_icon(STAR if c.skills[s] == SKILL_MAX else null, Rect2(), Vector2(18, 18))  # vuota, tiene la colonna
-		for node in [ui_icon(SKILLS_SHEET, Rect2(s * 8, 0, 8, 8), Vector2(16, 16)), skill, level, star]:
+		var skill_icon := ui_icon(SKILLS_SHEET, Rect2(s * 8, 0, 8, 8), Vector2(16, 16))
+		tip(skill_icon, "skill", Skill, s)
+		tip(skill, "skill", Skill, s)
+		for node in [skill_icon, skill, level, star]:
 			skills_grid.add_child(node)
 	for t in c.traits:
 		var icon := ui_icon(TRAITS_SHEET, Rect2(tile_rect(t, 0)), Vector2(32, 32))
-		icon.tooltip_text = "%s\n%s" % [named(Trait, t), tr(TRAIT_INFO[t])]
+		tip(icon, "trait", Trait, t)
 		traits_box.add_child(icon)
 	for g in c.gifts:  # degli avventurieri
 		var icon := ui_icon(HERO_TRAITS_SHEET, Rect2(tile_rect(g, 0)), Vector2(32, 32))
-		icon.tooltip_text = "%s\n%s" % [named(Gift, g), tr(GIFT_INFO[g])]
+		tip(icon, "gift", Gift, g)
 		traits_box.add_child(icon)
 	traits_box.get_parent().visible = not (c.traits.is_empty() and c.gifts.is_empty())  # col titolo "Traits"
 	var hours: Control = box.get_node("Routine/Hours")  # una casella per ora, colorata secondo la routine
@@ -3896,12 +3863,11 @@ func update_conds(box: Control, c: Colonist) -> void:
 		for icon in icons.get_children():
 			icon.mouse_filter = Control.MOUSE_FILTER_PASS
 	for i in now.size():
-		icons.get_child(i).tooltip_text = tr("%s\n%s\n%d h left") % [named(Cond, now[i]), tr(COND_INFO[now[i]][4]),
-			ceili((c.conds[now[i]] - clock) * 24)]
+		tips.attach(icons.get_child(i), glossary.key_of("cond", Cond, now[i]), tr("%d h left") % ceili((c.conds[now[i]] - clock) * 24))
 	for i in laws.size():
 		var mood := law_mood_of(c, laws[i])
-		icons.get_child(now.size() + i).tooltip_text = tr("%s: %s\n%s happiness while it is in force") % [
-			tr("Approves") if mood > 0 else tr("Disapproves"), law_name(laws[i]), signed(mood)]
+		tips.attach(icons.get_child(now.size() + i), glossary.key_of("law", Law, laws[i]),
+			tr("%s: %s happiness while it is in force") % [tr("Approves") if mood > 0 else tr("Disapproves"), signed(mood)])
 	icons.get_parent().visible = not (now.is_empty() and laws.is_empty())  # col titolo "Conditions"
 
 
@@ -4223,8 +4189,7 @@ func refresh_priorities() -> void:
 		priority_grid.add_child(Control.new())  # sopra i nomi
 		for w in WORK_ORDER:
 			var icon := ui_icon(WORK_ICONS[w], Rect2(), Vector2(16, 16))
-			icon.tooltip_text = "%s\n%s" % [named(Work, w, "work"), tr(WORK_INFO[w])]
-			icon.mouse_filter = Control.MOUSE_FILTER_STOP  # il suggerimento
+			tip(icon, "work", Work, w)
 			priority_grid.add_child(icon)
 		for c in colonists:
 			var label := Label.new()
@@ -9486,13 +9451,11 @@ func board_card(g: Colonist) -> PanelContainer:
 	if hero:
 		for gift_kind in g.gifts:
 			var icon := ui_icon(HERO_TRAITS_SHEET, Rect2(tile_rect(gift_kind, 0)), Vector2(32, 32))
-			icon.tooltip_text = "%s\n%s" % [named(Gift, gift_kind), tr(GIFT_INFO[gift_kind])]
-			icon.mouse_filter = Control.MOUSE_FILTER_PASS
+			tip(icon, "gift", Gift, gift_kind)
 			bottom.add_child(icon)
 		for t in g.traits:
 			var icon := ui_icon(TRAITS_SHEET, Rect2(tile_rect(t, 0)), Vector2(32, 32))
-			icon.tooltip_text = "%s\n%s" % [named(Trait, t), tr(TRAIT_INFO[t])]
-			icon.mouse_filter = Control.MOUSE_FILTER_PASS
+			tip(icon, "trait", Trait, t)
 			bottom.add_child(icon)
 		var gap := Control.new()
 		gap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -9507,8 +9470,7 @@ func board_card(g: Colonist) -> PanelContainer:
 		for s in [Skill.MELEE, Skill.RANGED]:
 			var icon := ui_icon(SKILLS_SHEET, Rect2(s * 8, 0, 8, 8), Vector2(16, 16))
 			icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-			icon.tooltip_text = named(Skill, s, "skill")
-			icon.mouse_filter = Control.MOUSE_FILTER_PASS
+			tip(icon, "skill", Skill, s)
 			bottom.add_child(icon)
 			var level := Label.new()
 			level.text = str(g.skills[s])

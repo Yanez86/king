@@ -332,12 +332,12 @@ func _initialize() -> void:
 	check(main.draft.has(at) and main.draft.has(at + Vector2i.DOWN), "cambiando barra il pavimento in progetto resta")
 	check(main.order == main.Order.NONE and main.kind_group.get_pressed_button() == null, "il muro scelto prima qui non vale")
 	main.choose_kind(main.Build.ANVIL)
-	check(main.build_res == main.Res.IRON and tip_texts(main, "FurnitureBar/Row/Crafts/Anvil").slice(0, 2) == ["Anvil", "10"], "incudine: solo di ferro")
+	check(main.build_res == main.Res.IRON and tip_text(main, "FurnitureBar/Row/Crafts/Anvil").begins_with("Anvil\n") and tip_text(main, "FurnitureBar/Row/Crafts/Anvil").contains("Cost: 10 Iron "), "incudine: solo di ferro")
 	main.choose_kind(main.Build.BED)
 	check(main.order == main.Order.BUILD and main.build_res == W, "letto: solo di legno")
-	check(tip_texts(main, "FurnitureBar/Row/Home/Bed") == ["Bed", "10", "+1 room comfort", main.BUILD_INFO[main.Build.BED]],
-		"suggerimento: nome, costo, comfort, descrizione")
-	check(tip_texts(main, "BuildBar/Row/Wall").slice(0, 3) == ["Wall", "5/tile", "or 5/tile"], "muro: legno o pietra, per casella")
+	check(tip_text(main, "FurnitureBar/Row/Home/Bed").begins_with("Bed\n" + main.BUILD_INFO[main.Build.BED] + "\n\nCost: 10 Wood  2x1\n+1 room Comfort"),
+		"suggerimento: nome, descrizione, costo, comfort (%s)" % tip_text(main, "FurnitureBar/Row/Home/Bed"))
+	check(tip_text(main, "BuildBar/Row/Wall").contains("Cost: 5 Wood or 5 Stone a tile"), "muro: legno o pietra, per casella")
 	for i in 3:
 		main.turn(-1)
 	check(main.build_turn == 1, "tre quarti a sinistra sono uno a destra")
@@ -361,7 +361,7 @@ func _initialize() -> void:
 	main.mark(Rect2i(at + Vector2i.DOWN, Vector2i.ONE))
 	check(main.furniture.is_empty(), "Destroy toglie anche i mobili")
 	# abat-jour: 2 legna e 1 carbone, un viaggio per materiale; quello già portato aspetta al cantiere
-	check(tip_texts(main, "FurnitureBar/Row/Home/Lamp").slice(0, 3) == ["Lamp", "2", "1"], "abat-jour: legna e carbone")
+	check(tip_text(main, "FurnitureBar/Row/Home/Lamp").contains("Cost: 2 Wood, 1 Coal"), "abat-jour: legna e carbone")
 	var C: int = main.Res.COAL
 	main.drop(C, at + Vector2i(0, 3), 3)
 	var lamp := [main.Build.LAMP, W, 0]
@@ -393,13 +393,13 @@ func _initialize() -> void:
 	main.items[lamp_res].erase(at)  # via, che qui sotto si costruisce ancora
 	main.items[C].erase(at + Vector2i(0, 3))
 	# fuoco da campo: quinta riga del foglio; al posto dei quarti di giro, le colonne sono i fotogrammi della fiamma
-	check(tip_texts(main, "FurnitureBar/Row/Fire/Campfire").slice(0, 2) == ["Campfire", "5"], "tasto del fuoco da campo")
+	check(tip_text(main, "FurnitureBar/Row/Fire/Campfire").contains("Cost: 5 Wood "), "tasto del fuoco da campo")
 	var fire := [main.Build.CAMPFIRE, W, 0]
 	var flame: Rect2 = main.piece_rects(at, fire)[1]
 	main.clock += 1.5 * main.ANIMATED[main.Build.CAMPFIRE] / main.DAY_LENGTH
 	check(flame.position.y == 4 * 32 and main.piece_rects(at, fire)[1].position.x != flame.position.x, "la fiamma guizza")
 	# sentiero: un pavimento di pietra a 1 per casella; ci stanno i mobili, l'erba ci sborda sopra ma non dai muri
-	check(tip_texts(main, "BuildBar/Row/Path").slice(0, 2) == ["Path", "1/tile"], "tasto del sentiero")
+	check(tip_text(main, "BuildBar/Row/Path").contains("Cost: 1 Stone a tile"), "tasto del sentiero")
 	main.built[at] = [main.Build.PATH, main.Res.STONE]
 	check(main.can_build(at, main.Build.LAMP) and not main.can_build(at, main.Build.FLOOR), "mobili sul sentiero")
 	check(main.structure_src(at, main.built[at], [main.built]) == main.tile_rect(2, 2), "sentiero nel foglio")
@@ -410,7 +410,7 @@ func _initialize() -> void:
 	# decorazioni: ognuna col suo tasto e il suo splendore; la panca girata sta in piedi, fontana e stendardo si muovono
 	for kind in main.SPLENDOR:
 		check(main.FURNITURE.has(kind) and main.BUILD_INFO.has(kind), "decorazione %s" % main.Build.keys()[kind])
-	check(tip_texts(main, "FurnitureBar/Row/Decor/Statue").slice(0, 2) == ["Statue", "40"], "tasto della statua")
+	check(tip_text(main, "FurnitureBar/Row/Decor/Statue").contains("Cost: 40 Stone "), "tasto della statua")
 	check(main.piece_rect(at, [main.Build.BENCH, W, 1]).size == Vector2i(1, 2), "panca girata in verticale")
 	var water: Rect2 = main.piece_rects(at, [main.Build.FOUNTAIN, main.Res.STONE, 0])[1]
 	main.clock += 1.5 * main.ANIMATED[main.Build.FOUNTAIN] / main.DAY_LENGTH
@@ -679,7 +679,7 @@ func _initialize() -> void:
 	check(grid[main.Skill.COOKING * 4].texture.region == Rect2(main.Skill.COOKING * 8, 0, 8, 8), "ogni abilità con la sua icona 8x8")
 	check(grid[main.Skill.MINING * 4 + 3].texture == main.STAR and grid[main.Skill.COOKING * 4 + 3].texture == null, "stellina solo al massimo")
 	var icons: Array = main.get_node("HUD/ColonistSheet/Box/Traits/Icons").get_children()
-	check(icons.size() == 2 and icons[1].tooltip_text.begins_with("Hothead\n"), "talenti: solo icone, il nome nel suggerimento")
+	check(icons.size() == 2 and icons[1].get_meta("tip") == "trait:HOTHEAD", "talenti: solo icone, il nome nel suggerimento")
 	check(main.full_name(guy) == '%s "Owl" %s' % [guy.first_name, guy.last_name], "soprannome tra virgolette")
 	guy.nickname = ""
 	check(main.full_name(guy) == "%s %s" % [guy.first_name, guy.last_name], "senza soprannome")
@@ -1234,9 +1234,8 @@ func check(ok: bool, what: String) -> void:
 		quit(1)
 
 
-# testi del suggerimento di un pulsante di costruzione, in ordine: nome, costi, bonus, descrizione
-func tip_texts(main, button: String) -> Array:
-	var tip: Control = main.get_node("HUD/" + button)._make_custom_tooltip("")
-	var texts: Array = tip.find_children("*", "Label", true, false).map(func(l): return l.text)
-	tip.free()
-	return texts
+# il suggerimento (annidato, vedi glossary.gd) di un pulsante di costruzione, senza icone né BBCode: nome, poi il testo
+func tip_text(main, button: String) -> String:
+	var said: Array = main.glossary.content(main.get_node("HUD/" + button).get_meta("tip"))
+	var plain := RegEx.create_from_string("\\[img[^\\]]*\\][^\\[]*\\[/img\\] ?").sub(said[1], "", true)
+	return said[0] + "\n" + RegEx.create_from_string("\\[[^\\]]*\\]").sub(plain, "", true)

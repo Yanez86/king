@@ -253,9 +253,11 @@ italiano: scheda del colono a due colonne, data e meteo di nuovo nella barra in 
   sposta la visuale (provato con eventi finti, la soglia è 4 pixel).
 - [ ] I contatori di studio e autorità nella barra in alto: vedi Ricerca.
 - [x] Suggerimenti annidati come in Crusader Kings, fase 1: Conoscenza e Leggi (vedi [TECH](TECH.md)).
-- [ ] Suggerimenti annidati, fase 2: mobili da costruire, menu delle postazioni, scheda del colono, risorse, colonne
-  dei lavori.
-- [ ] Suggerimenti annidati, fase 3: la wiki in gioco, i nomi delle cose come collegamenti (un clic apre la pagina).
+- [x] Suggerimenti annidati, fase 2: mobili da costruire, menu delle postazioni, scheda del colono, risorse, colonne
+  dei lavori, bacheca.
+- [x] Suggerimenti annidati, fase 3: la wiki in gioco, i nomi delle cose come collegamenti (un clic apre la pagina).
+- [ ] Rileggere in gioco i collegamenti della wiki nelle due lingue: i nomi che sono anche parole comuni (vedi
+  [TECH](TECH.md), «La wiki coi collegamenti») e le pagine dove un clic porta.
 - [ ] Provare col mouse vero i suggerimenti annidati (provati chiamando update con tempo e mouse finti).
 
 ## Distribuzione

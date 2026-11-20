@@ -1240,17 +1240,11 @@ msgstr "o "
 msgid "/tile"
 msgstr "/casella"
 
-msgid "+%s room comfort"
-msgstr "+%s comfort alla stanza"
-
 msgid " paving it all, x%s in stone"
 msgstr " pavimentandola tutta, x%s in pietra"
 
 msgid "+%d colony splendor"
 msgstr "+%d splendore alla colonia"
-
-msgid "+%d colony splendor, only the first one"
-msgstr "+%d splendore alla colonia, solo il primo"
 
 msgid "Comfort: %d / %d    %d°C"
 msgstr "Comfort: %d / %d    %d°C"
@@ -1319,21 +1313,11 @@ msgstr "Automatico"
 msgid "Empty"
 msgstr "Vuoto"
 
-msgid ""
-"%s\n"
-"%s\n"
-"%d h left"
-msgstr ""
-"%s\n"
-"%s\n"
-"Ancora %d h"
+msgid "%d h left"
+msgstr "Ancora %d h"
 
-msgid ""
-"%s: %s\n"
-"%s happiness while it is in force"
-msgstr ""
-"%s: %s\n"
-"%s felicità finché è in vigore"
+msgid "%s: %s happiness while it is in force"
+msgstr "%s: %s felicità finché è in vigore"
 
 msgid "Approves"
 msgstr "Approva"
@@ -4642,10 +4626,10 @@ msgid "meat or fish"
 msgstr "carne o pesce"
 
 msgid "at the %s from %s"
-msgstr "a: %s, da %s"
+msgstr "%s, da %s"
 
 msgid "at the %s from 2 raw foods"
-msgstr "a: %s, da 2 crudi"
+msgstr "%s, da 2 crudi"
 
 msgid "Made:"
 msgstr "Si fa:"
@@ -4679,3 +4663,15 @@ msgstr "Livelli da 0 a 10: a 0 un lavoro dura la metà in più, a 10 la metà. S
 
 msgid "A column of the Jobs window: who does it first."
 msgstr "Una colonna della finestra Lavori: chi lo fa per primo."
+
+msgid "+%s room {concept:comfort}"
+msgstr "+%s di {concept:comfort} alla stanza"
+
+msgid "+%d colony {concept:splendor}"
+msgstr "+%d di {concept:splendor} alla colonia"
+
+msgid "+%d colony {concept:splendor}, only the first one"
+msgstr "+%d di {concept:splendor} alla colonia, solo il primo"
+
+msgid "A gift of the adventurers."
+msgstr "Un dono degli avventurieri."

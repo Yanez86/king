@@ -6,7 +6,7 @@ extends RefCounted
 
 const LINK_COLOR := "e8c34a"
 const DIM := "b8b0a0"
-const KINDS := ["tech", "law", "build", "item", "room", "cond", "trait", "skill", "work", "concept"]
+const KINDS := ["tech", "law", "build", "item", "room", "cond", "trait", "gift", "skill", "work", "concept"]
 # I concetti, che non stanno in una tabella: titolo e testo (in inglese, tradotti dal .po). Nel testo {tipo:NOME} è un
 # collegamento, col nome della cosa
 const CONCEPTS := {
@@ -51,7 +51,8 @@ func parse(key: String) -> Array:
 	if parts[0] == "concept":
 		return ["concept", parts[1]] if CONCEPTS.has(parts[1]) else []
 	var names: Dictionary = {"tech": main.Tech, "law": main.Law, "build": main.Build, "item": main.Res,
-		"room": main.RoomKind, "cond": main.Cond, "trait": main.Trait, "skill": main.Skill, "work": main.Work}[parts[0]]
+		"room": main.RoomKind, "cond": main.Cond, "trait": main.Trait, "gift": main.Gift, "skill": main.Skill,
+		"work": main.Work}[parts[0]]
 	return [parts[0], names[parts[1]]] if names.has(parts[1]) else []
 
 
@@ -67,6 +68,7 @@ func title_of(key: String) -> String:
 		"room": return main.named(main.RoomKind, p[1])
 		"cond": return main.named(main.Cond, p[1])
 		"trait": return main.named(main.Trait, p[1])
+		"gift": return main.named(main.Gift, p[1])
 		"skill": return main.named(main.Skill, p[1], "skill")
 		"work": return main.named(main.Work, p[1], "work")
 		"concept": return tr(CONCEPTS[p[1]][0])
@@ -91,6 +93,10 @@ func icon_of(key: String) -> String:
 			return img.call(main.LAWS_SHEET.resource_path, Rect2(p[1] * 16, 0, 16, 16))
 		"cond":
 			return img.call(main.CONDITIONS_SHEET.resource_path, Rect2(p[1] * 16, 0, 16, 16))
+		"trait":
+			return img.call(main.TRAITS_SHEET.resource_path, Rect2(p[1] * 16, 0, 16, 16))
+		"gift":
+			return img.call(main.HERO_TRAITS_SHEET.resource_path, Rect2(p[1] * 16, 0, 16, 16))
 		"skill":
 			return img.call(main.SKILLS_SHEET.resource_path, Rect2(p[1] * 8, 0, 8, 8))
 		"work":
@@ -180,10 +186,29 @@ func about_build(b: int) -> String:
 	var text: String = tr(main.BUILD_INFO.get(b, ""))
 	var cost: Dictionary = main.cost_of([b, main.BUILD_RES.get(b, main.Res.WOOD)])
 	var parts := cost.keys().map(func(r): return "%d %s" % [cost[r], item(r)])
+	if b in main.ANY_MATERIAL:  # di legno o di pietra, uguale
+		parts = ["%d %s %s%d %s" % [cost[main.Res.WOOD], item(main.Res.WOOD), tr("or "), cost[main.Res.WOOD], item(main.Res.STONE)]]
 	text += "\n\n" + tr("Cost:") + " " + ", ".join(parts) + (tr(" a tile") if not main.FURNITURE.has(b) else "")
 	if main.FURNITURE.has(b):
 		var size: Vector2i = main.FURNITURE[b]
 		text += dim("  %dx%d" % [size.x, size.y])
+	if main.COMFORT.has(b):
+		var bonus := linked(tr("+%s room {concept:comfort}") % str(main.COMFORT[b]).trim_suffix(".0"))
+		if b == main.Build.FLOOR:
+			bonus += tr(" paving it all, x%s in stone") % main.COMFORT_MATERIAL[main.Res.STONE]
+		text += "\n" + colored(bonus, main.TREND_UP)
+	if main.HEAT.has(b):
+		var heat := tr("+%d °C in the room") % main.HEAT[b]
+		if b in main.THROUGH_STONE:
+			heat += tr(", +%s °C behind a wall, even of stone") % str(main.HEAT[b] * main.THROUGH[b]).trim_suffix(".0")
+		elif main.THROUGH.has(b):
+			heat += tr(", +%s °C behind a wooden wall") % str(main.HEAT[b] * main.THROUGH[b]).trim_suffix(".0")
+		text += "\n" + colored(heat, main.HEAT_COLOR)
+	if main.INSULATES.has(b):
+		text += "\n" + colored(tr("+%d%% room insulation") % roundi(main.INSULATES[b][0] * 100), main.HEAT_COLOR)
+	if main.SPLENDOR.has(b):
+		var splendor := tr("+%d colony {concept:splendor}, only the first one") if b in main.SPLENDOR_ONCE else tr("+%d colony {concept:splendor}")
+		text += "\n" + colored(linked(splendor % main.SPLENDOR[b]), main.SPLENDOR_COLOR)
 	var t: int = main.tech_for("builds", b)
 	text += line("Research:", [tech(t)] if t >= 0 else [])
 	text += line("Needed by:", main.ROOM_NEEDS.keys().filter(func(k): return main.ROOM_NEEDS[k].has(b)).map(room))
@@ -197,20 +222,18 @@ func about_build(b: int) -> String:
 	text += line("Makes:", made)
 	if main.STATION_ROOM.has(station):
 		text += line("Works in:", [room(main.STATION_ROOM[station])])
-	var extra := PackedStringArray()
-	if main.HEAT.has(b):
-		extra.append(tr("+%d °C in the room") % main.HEAT[b])
-	if main.COMFORT.has(b):
-		extra.append(linked(tr("{concept:comfort} %s") % str(main.COMFORT[b]).trim_suffix(".0")))
-	if main.SPLENDOR.has(b):
-		extra.append(linked(tr("{concept:splendor} %d") % main.SPLENDOR[b]))
-	if not extra.is_empty():
-		text += "\n" + ", ".join(extra)
 	return text
+
+
+# `text` nel colore `color` (i collegamenti dentro restano d'oro)
+func colored(text: String, color: Color) -> String:
+	return "[color=#%s]%s[/color]" % [color.to_html(false), text]
 
 
 func about_item(r: int) -> String:
 	var text: String = tr(main.KIND_NAMES[main.ITEM_KIND[r]])
+	if main.GEAR.has(r):
+		text += ". " + tr(main.GEAR[r]["info"])
 	if main.FOOD.has(r):
 		text += ". " + tr("Fills %d") % main.FOOD[r]
 		text += (tr(", keeps %s days outdoors") % str(main.SHELF_LIFE[r]).trim_suffix(".0")) if main.SHELF_LIFE.has(r) else tr(", never spoils")
@@ -272,6 +295,10 @@ func about_trait(t: int) -> String:
 	return tr(main.TRAIT_INFO[t])
 
 
+func about_gift(g: int) -> String:
+	return tr(main.GIFT_INFO[g]) + "\n" + dim(tr("A gift of the adventurers."))
+
+
 func about_skill(s: int) -> String:
 	var made := []
 	for r in main.RECIPES:
@@ -288,3 +315,145 @@ func about_work(w: int) -> String:
 func about_concept(name: String) -> String:
 	return linked(tr(CONCEPTS[name][1]))
 
+
+
+# --- la wiki in gioco: i nomi delle cose nel testo come collegamenti (docs/TECH.md) ---
+
+# i tipi che si cercano nella wiki, in quest'ordine se due cose hanno lo stesso nome (lo Studio è i punti, non la
+# stanza; il mobile prima della ricerca che lo sblocca, che è a un passo). I lavori no: sono anche i comandi in basso
+const WIKI_KINDS := ["concept", "build", "room", "item", "law", "tech", "cond", "trait", "gift", "skill"]
+const WIKI_EXACT := ["cond", "trait", "gift", "skill"]  # solo scritti come nel gioco, con la maiuscola: se no sono parole
+# per lingua, i nomi che minuscoli sono un'altra parola (il verbo "porta", "d'oro", la tabella): solo con la maiuscola
+const WIKI_CAPS := {"en": ["gold", "hide", "table", "target", "court"],
+	"it": ["oro", "porta", "guida", "caccia", "corte", "cucina", "taglia"]}
+
+var wiki_cache := {}  # per lingua: {"rx": RegEx, "names": nome minuscolo -> [chiavi], "home": chiave -> [pagina, titolo]}
+
+
+# i nomi di tutte le cose dei WIKI_KINDS nella lingua attuale, in una RegEx (i più lunghi prima: "forno di pietra"
+# prima di "forno"), e le chiavi per nome
+func wiki_names() -> Dictionary:
+	var lang := TranslationServer.get_locale().substr(0, 2)
+	if wiki_cache.has(lang):
+		return wiki_cache[lang]
+	var names := {}
+	var tables := {"build": main.Build, "room": main.RoomKind, "item": main.Res, "law": main.Law, "tech": main.Tech,
+		"cond": main.Cond, "trait": main.Trait, "gift": main.Gift, "skill": main.Skill}
+	for kind in WIKI_KINDS:
+		var keys: Array = CONCEPTS.keys().map(func(c): return "concept:" + c) if kind == "concept" \
+			else tables[kind].keys().map(func(n): return "%s:%s" % [kind, n])
+		for key in keys:
+			if key == "room:NONE":
+				continue
+			var name := title_of(key).to_lower()
+			names[name] = names.get(name, []) + [key]
+	var sorted := names.keys()
+	sorted.sort_custom(func(a, b): return a.length() > b.length())
+	var escaped := sorted.map(func(n):
+		var out := ""
+		for ch in n:
+			out += ("\\" + ch) if ch in "\\^$.|?*+()[]{}" else ch
+		return out)
+	var rx := RegEx.create_from_string("(?i)(?<![\\p{L}\\d])(" + "|".join(escaped) + ")(?![\\p{L}\\d])")
+	wiki_cache[lang] = {"rx": rx, "names": names, "caps": WIKI_CAPS.get(lang, [])}
+	return wiki_cache[lang]
+
+
+# la chiave di un nome trovato nel testo così com'è scritto (`said`), o "" se lì è un'altra parola
+func wiki_key(said: String, w: Dictionary) -> String:
+	var lower := said.to_lower()
+	for key in w["names"].get(lower, []):
+		var kind: String = key.get_slice(":", 0)
+		var capital := said.left(1) != said.left(1).to_lower()
+		if kind in WIKI_EXACT and said != title_of(key):
+			continue
+		if lower in w["caps"] and not capital:
+			continue
+		return key
+	return ""
+
+
+# i nomi nel testo `text` (BBCode della wiki), fuori dai tag e da quello che è colorato (titoli, intestazioni delle
+# tabelle), dalle immagini e dai collegamenti: [[inizio, fine, chiave, paragrafo]], in ordine
+func wiki_mentions(text: String) -> Array:
+	var w := wiki_names()
+	var found := []
+	var tag := RegEx.create_from_string("\\[(/?)(\\w+)[^\\]]*\\]")
+	var skip := 0
+	var at := 0
+	var paragraph := 0
+	var spans := []  # [inizio, fine] del testo semplice
+	for m in tag.search_all(text):
+		if skip == 0 and m.get_start() > at:
+			spans.append([at, m.get_start()])
+		if m.get_string(2) in ["color", "img", "url"]:
+			skip += -1 if m.get_string(1) == "/" else 1
+			skip = maxi(skip, 0)
+		at = m.get_end()
+	if at < text.length():
+		spans.append([at, text.length()])
+	var last := 0
+	for span in spans:
+		for m in w["rx"].search_all(text, span[0], span[1]):
+			var key := wiki_key(m.get_string(1), w)
+			if key != "":
+				paragraph += text.substr(last, m.get_start() - last).count("\n")
+				last = m.get_start()
+				found.append([m.get_start(), m.get_end(), key, paragraph])
+	return found
+
+
+# il testo di una pagina della wiki coi nomi delle cose come collegamenti: la prima volta per paragrafo
+func wikify(text: String) -> String:
+	var out := ""
+	var at := 0
+	var seen := {}
+	for m in wiki_mentions(text):
+		if seen.get(m[2], -1) == m[3]:
+			continue
+		seen[m[2]] = m[3]
+		out += text.substr(at, m[0] - at)
+		out += "[url=%s][color=#%s]%s[/color][/url]" % [m[2], LINK_COLOR, text.substr(m[0], m[1] - m[0])]
+		at = m[1]
+	return out + text.substr(at)
+
+
+# la pagina della wiki che parla di `key` e il titolo della sezione dove ne parla: quella che ha il suo nome in un
+# titolo, se no quella che lo nomina più volte (a pari, la prima), alla sezione della prima volta. [-1, ""] se nessuna
+func wiki_home(key: String) -> Array:
+	var w := wiki_names()
+	if not w.has("home"):
+		var home := {}
+		var counts := {}
+		var heading := RegEx.create_from_string("(?m)^\\[color=#e8c34a\\]([^\\[]*)\\[/color\\]$")
+		var pages: Array = main.WIKI.pages()
+		for i in pages.size():
+			var text: String = pages[i][1]
+			var titles := heading.search_all(text)
+			var title_at := func(pos: int) -> String:  # il titolo della sezione dove sta `pos`
+				var said := ""
+				for t in titles:
+					if t.get_start() <= pos:
+						said = t.get_string(1)
+				return said
+			for t in titles:
+				for m in w["rx"].search_all(t.get_string(1)):
+					var key_here := wiki_key(m.get_string(1), w)
+					if key_here != "" and not home.has(key_here):
+						home[key_here] = [i, t.get_string(1)]
+			for m in wiki_mentions(text):
+				var c: Dictionary = counts.get(m[2], {})
+				if not c.has(i):
+					c[i] = [0, title_at.call(m[0])]
+				c[i][0] += 1
+				counts[m[2]] = c
+		for k in counts:
+			if home.has(k):
+				continue
+			var best := -1
+			for i in counts[k]:
+				if best < 0 or counts[k][i][0] > counts[k][best][0]:
+					best = i
+			home[k] = [best, counts[k][best][1]]
+		w["home"] = home
+	return w["home"].get(key, [-1, ""])
