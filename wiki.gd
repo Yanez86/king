@@ -546,6 +546,7 @@ The crafter brings the ingredients one by one, then works. The time depends on s
 [cell]Dagger[/cell][cell]anvil[/cell][cell]1 ingot, 1 wood[/cell][cell]12 s[/cell]
 [cell]Ointment[/cell][cell]campfire[/cell][cell]2 herbs[/cell][cell]10 s[/cell]
 [cell]Flour (2)[/cell][cell]water mill[/cell][cell]2 grain[/cell][cell]4 s[/cell]
+[cell]Flour (2)[/cell][cell]animal mill[/cell][cell]2 grain[/cell][cell]8 s[/cell]
 [cell]Bread (3)[/cell][cell]oven[/cell][cell]2 flour[/cell][cell]10 s[/cell]
 [cell]Stew (2)[/cell][cell]oven[/cell][cell]2 vegetables, 1 meat or fish[/cell][cell]12 s[/cell]
 [cell]Preserves (2)[/cell][cell]oven[/cell][cell]2 vegetables[/cell][cell]10 s[/cell]
@@ -555,6 +556,7 @@ Skill: Smithing at furnace and anvil, Tailoring at spinning wheel and workbench,
 
 [color=#e8c34a]The water mill[/color] [img=center]res://art/icon_flour.png[/img]
 After the Mill research: 2x2, 20 wood and 10 stone, in the open, on the bank of the stream (lakes don't flow): turn it until the whole side of its wheel lies along the stream. The miller grinds grain into flour there; nothing is ever ruined, and comfort doesn't count. When the stream freezes the wheel stands still, and its menu says so.
+The animal mill (with the Stable and the Mill): 2x2, 15 stone and 5 wood, in the open. The miller hitches the nearest grown-up, fed cow to the beam; she walks over and turns the millstone while he pours: 8 s for 2 flour, in winter too. Without such a cow the mill stands still, and its menu says so.
 
 [color=#e8c34a]Equipment[/color]
 Three slots: hands, body, head. A colonist with an empty slot fetches a piece by themselves, before any other job. In their hands they want the tool of their best skill among Mining, Woodcutting, Gathering, Hunting and Melee. Nobody trades a piece for a better one; only a hunter swaps for a bow.
@@ -759,7 +761,7 @@ What you haven't researched has no build button, and its recipes don't show at t
 • [color=#d9c48a]Almanac[/color] (Land II, 250 and a notebook, after Soil survey): five bands, and the trend of every field.
 • [color=#d9c48a]Land register[/color] (Land III, 450 and a tome, after Almanac): the soil's numbers and the next harvest.
 • [color=#d9c48a]Husbandry[/color] (Land I, 100, after Hunting): the pasture, the coop, the livestock dealer; hens and pigs; the Husbandry column.
-• [color=#d9c48a]Stable[/color] (Land II, 250 and a notebook, after Husbandry): the stable and its mangers, hay, manure; sheep and cows, milk, cheese, wool.
+• [color=#d9c48a]Stable[/color] (Land II, 250 and a notebook, after Husbandry): the stable and its mangers, hay, manure; sheep and cows, milk, cheese, wool; with the Mill, the animal mill.
 • [color=#d9c48a]Hunting[/color] (Land I, 50): spinning wheel and carpenter bench; bowstrings and bows; hides on the walls and door curtains.
 • [color=#d9c48a]Icehouse[/color] (Land II, 250 and a notebook, after Cold store): the icehouse, the ice pit, cutting ice.
 • [color=#d9c48a]Forge[/color] (Fire I, 60): furnace and anvil; ingots, pickaxe, axe, sickle.

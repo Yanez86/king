@@ -1020,9 +1020,9 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
   mugnaio (lavoro Produrre, abilità cucinare) ci porta il grano: 2 grano → 2 farina, 4 s a livello 5; non si rovina
   mai, e all'aperto il comfort non conta. Si macina finché in giro c'è meno farina di quanta ne chiede il menu del
   mulino (all'inizio 10). Col torrente gelato la ruota si ferma (lo dice il menu). La farina non marcisce.
-- **Macina a trazione** (mobile 3x3, 15 pietra e 5 legna, all'aperto, con la Stalla e il Mulino): una mola di pietra
-  con la stanga, accanto a un pascolo o dentro. Per macinare il mugnaio va a prendere una mucca adulta e sazia del
-  pascolo e la attacca alla stanga: lei gira, lui versa il grano. 2 grano → 2 farina in 8 s, anche d'inverno.
+- **Macina a trazione** (mobile 2x2, 15 pietra e 5 legna, all'aperto, con la Stalla e il Mulino): una mola di pietra
+  con la stanga. Per macinare il mugnaio attacca alla stanga la mucca adulta e sazia più vicina: lei ci va e gira, lui
+  versa il grano. 2 grano → 2 farina in 8 s, anche d'inverno. Senza una mucca così sta ferma (lo dice il menu).
 - **Forno di pietra** (mobile 2x1, 20 pietra, in una cucina; scalda la stanza come il fuoco da campo): ha il suo menu,
   come le altre postazioni (4.4.2). "Vegetali" sono tutti i crudi dell'orto e dei cespugli: bacche, rape, cavoli, fave.
 
@@ -1108,7 +1108,7 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
   pascolo; (4) la Stalla: stalla e mangiatoie, il fieno, l'inverno nella stalla, pecore e mucche, latte e formaggio,
   tosatura e lana, il letame; (5) la macina a trazione; (6) l'Apicoltura: arnia, miele, cera, candele; (7) il Banchetto
   reale.
-- **Stato**: fatte le fasi 1–4 il 2026-11-20 (test in `tests/test_grain.gd` e `tests/test_livestock.gd`): il torrente (`stream`, salvato: le partite
+- **Stato**: fatte le fasi 1–5 il 2026-11-20 (test in `tests/test_grain.gd` e `tests/test_livestock.gd`): il torrente (`stream`, salvato: le partite
   di prima non ce l'hanno, e lì il mulino non si fa), il grano nella pianificazione col Mulino, il mulino ad acqua e la
   farina. Il mulino è la prima postazione all'aperto: senza stanza, chi ci lavora sta fuori (`station_stand`), col
   comfort a metà (`station_comfort`); la ruota è il lato destro del disegno, girato in senso orario (`wheel_cells`).
@@ -1129,7 +1129,8 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
   lo portano per primo (`dest_cells`), anche dai magazzini se una mangiatoia ne vuole; chi mangia ne toglie uno ogni
   fieno intero (`eat_hay`). Le galline mangiano da una mangiatoia qualsiasi e lasciano il letame nel pascolo. Mungere,
   tosare e macellare tengono fermo l'animale (`handler`, `try_handle`). Il fieno si falcia nella colonna Coltivare (tasto
-  Z). Poi: i maiali che mangiano anche il marcio.
+  Z). La macina tiene la mucca come chi munge (`handler`); il mugnaio aspetta che arrivi, e mentre macina lei gira
+  attorno al centro della macina (`mill_hub`). Poi: i maiali che mangiano anche il marcio.
 
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100, con laghi e, nelle mappe nuove, un torrente (4.4.7).

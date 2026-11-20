@@ -545,6 +545,7 @@ L'artigiano porta gli ingredienti uno alla volta, poi lavora. Il tempo dipende d
 [cell]Pugnale[/cell][cell]incudine[/cell][cell]1 lingotto, 1 legna[/cell][cell]12 s[/cell]
 [cell]Unguento[/cell][cell]fuoco da campo[/cell][cell]2 erbe[/cell][cell]10 s[/cell]
 [cell]Farina (2)[/cell][cell]mulino ad acqua[/cell][cell]2 grano[/cell][cell]4 s[/cell]
+[cell]Farina (2)[/cell][cell]macina a trazione[/cell][cell]2 grano[/cell][cell]8 s[/cell]
 [cell]Pane (3)[/cell][cell]forno[/cell][cell]2 farina[/cell][cell]10 s[/cell]
 [cell]Stufato (2)[/cell][cell]forno[/cell][cell]2 vegetali, 1 carne o pesce[/cell][cell]12 s[/cell]
 [cell]Conserve (2)[/cell][cell]forno[/cell][cell]2 vegetali[/cell][cell]10 s[/cell]
@@ -554,6 +555,7 @@ Abilità: Forgiare a fornace e incudine, Cucire a filatoio e banco da lavoro, Ti
 
 [color=#e8c34a]Il mulino ad acqua[/color] [img=center]res://art/icon_flour.png[/img]
 Dopo la ricerca Mulino: 2x2, 20 legna e 10 pietra, all'aperto, sulla riva del torrente (i laghi non scorrono): giralo finché tutto il lato della ruota sta lungo il torrente. Lì il mugnaio macina il grano in farina; non si rovina mai niente, e il comfort non conta. Quando il torrente gela la ruota si ferma, e il suo menu lo dice.
+La macina a trazione (con la Stalla e il Mulino): 2x2, 15 pietra e 5 legna, all'aperto. Il mugnaio attacca alla stanga la mucca adulta e sazia più vicina; lei arriva e gira la mola mentre lui versa il grano: 8 s per 2 farina, anche d'inverno. Senza una mucca così la macina sta ferma, e il suo menu lo dice.
 
 [color=#e8c34a]Equipaggiamento[/color]
 Tre slot: mani, corpo, testa. Un colono con uno slot vuoto va da sé a prendere un pezzo, prima di ogni altro lavoro. In mano vuole l'attrezzo della sua abilità migliore tra Estrarre, Tagliare legna, Raccogliere, Cacciare e Mischia. Nessuno cambia un pezzo con uno migliore; solo chi caccia lo cambia con un arco.
@@ -758,7 +760,7 @@ Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette 
 • [color=#d9c48a]Almanacco agrario[/color] (Terra II, 250 e un quaderno, dopo il Saggio): cinque fasce, e la tendenza di ogni campo.
 • [color=#d9c48a]Catasto[/color] (Terra III, 450 e un tomo, dopo l'Almanacco): i numeri della terra e il prossimo raccolto.
 • [color=#d9c48a]Allevamento[/color] (Terra I, 100, dopo la Caccia): il pascolo, il pollaio, il mercante di bestiame; galline e maiali; la colonna Allevare.
-• [color=#d9c48a]Stalla[/color] (Terra II, 250 e un quaderno, dopo l'Allevamento): la stalla e le mangiatoie, il fieno, il letame; pecore e mucche, latte, formaggio, lana.
+• [color=#d9c48a]Stalla[/color] (Terra II, 250 e un quaderno, dopo l'Allevamento): la stalla e le mangiatoie, il fieno, il letame; pecore e mucche, latte, formaggio, lana; col Mulino, la macina a trazione.
 • [color=#d9c48a]Caccia[/color] (Terra I, 50): filatoio e banco del falegname; corde d'arco e archi; pelli alle pareti e portiere.
 • [color=#d9c48a]Ghiacciaia[/color] (Terra II, 250 e un quaderno, dopo Dispensa fredda): la ghiacciaia, la fossa del ghiaccio, il taglio del ghiaccio.
 • [color=#d9c48a]Forgia[/color] (Fuoco I, 60): fornace e incudine; lingotti, piccone, ascia, falcetto.

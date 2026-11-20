@@ -17,7 +17,7 @@
 | Stemma | 4.3.2 | base | linee, pellicce, ornamenti, motto, blasonatura |
 | Risorse ed edifici | 4.4 | fatto | vene d'oro, commercio |
 | Cibo e orto | 4.4.1 | fatto, coi concimi | — (il resto è in 4.4.7) |
-| Grano, forno e animali | 4.4.7 | fasi 1–4: torrente, grano, mulino ad acqua, forno, allevamento, stalla | macina, api, banchetto |
+| Grano, forno e animali | 4.4.7 | fasi 1–5: torrente, grano, mulini, forno, allevamento, stalla | api, banchetto |
 | Forgia e sartoria | 4.4.2 | fatto | ordini "fanne N", qualità degli oggetti |
 | Combattimento | 4.4.3 | fatto | predoni, medico e cure |
 | Avventurieri e rovine | 4.4.4 | fasi 1–3, chi resta, coloni in spedizione | vene d'oro, commercio, una rovina sulla mappa |
@@ -38,8 +38,8 @@ sfortune, la tregua). Ora si possono fare anche le leggi della dinastia (vedi Le
 
 Medicina e morte è fatta (4.2.2: erbe e unguento, infermeria e medico, tombe, Funerali e memoriale).
 
-1. **Cucina e animali** (in corso, 4.4.7) — fatti torrente, grano, mulino, forno, allevamento e stalla; poi la macina
-   a trazione, l'Apicoltura, il Banchetto reale.
+1. **Cucina e animali** (in corso, 4.4.7) — fatti torrente, grano, mulini, forno, allevamento e stalla; poi
+   l'Apicoltura e il Banchetto reale.
 2. **Le leggi della dinastia** — Primogenitura (manca solo nella finestra), Successione elettiva, Matrimoni misti,
    Scuola: i loro sistemi ci sono già (vedi Leggi).
 
@@ -127,9 +127,8 @@ Dinastia (4.3.3, fatta): quello che resta.
 
 Deciso il 2026-11-20; fatte le fasi 1 (torrente, grano, mulino ad acqua), 2 (forno: pane, stufato, conserve) e 3
 (allevamento: pascolo, galline e maiali, pollaio, macello, mercante di bestiame), 4 (stalla: fieno, mangiatoie, pecore e
-mucche, latte, formaggio, lana, letame). Fasi ancora da fare:
+mucche, latte, formaggio, lana, letame), 5 (la macina a trazione). Fasi ancora da fare:
 
-- [ ] (5) La macina a trazione.
 - [ ] (6) L'Apicoltura: arnia, miele, cera, candele.
 - [ ] (7) Il Banchetto reale.
 - [ ] Poi: il mantello imbottito di lana al telaio (vedi Forgia); i maiali che mangiano anche il marcio.

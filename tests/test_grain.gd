@@ -131,6 +131,45 @@ func _initialize() -> void:
 	main.craft_popup.hide()
 	check(main.describe(mill)[1] == "Click: what to make", "col mouse sopra: cosa fare")
 
+	# la macina a trazione (con la Stalla e il Mulino): 2x2 all'aperto, la gira una mucca adulta e sazia; il doppio del
+	# tempo, ma anche col gelo
+	main.atmosphere.frozen = true
+	check(main.TECHS[main.Tech.STABLE]["builds"].has(main.Build.ANIMAL_MILL) and main.Build.ANIMAL_MILL in main.OUTDOOR
+		and main.FURNITURE[main.Build.ANIMAL_MILL] == Vector2i(2, 2), "la macina: con la Stalla, all'aperto, 2x2")
+	var quern := by + Vector2i(3, 0)
+	for k in main.cells_in(Rect2i(Vector2i.ZERO, main.MAP_SIZE)):
+		if main.piece_fits(k, [main.Build.ANIMAL_MILL, main.Res.STONE, 0]) and (k - main.MAP_SIZE / 2).length() < 10:
+			quern = k
+			break
+	main.furniture[quern] = [main.Build.ANIMAL_MILL, main.Res.STONE, 0]
+	check(main.stations(main.Build.ANIMAL_MILL).is_empty(), "senza una mucca la macina sta ferma")
+	main.open_craft(quern)
+	check(note.visible and note.text == "No grown-up, fed cow to turn it.", "il menu lo dice")
+	main.craft_popup.hide()
+	var cow = main.add_livestock(main.Beast.COW, quern + Vector2i(4, 4), true, false)
+	var calf = main.add_livestock(main.Beast.COW, quern + Vector2i(5, 4), false, true)
+	check(main.stations(main.Build.ANIMAL_MILL) == [quern] and main.draft_cows(quern) == [cow], "una mucca adulta: si macina (il vitello no)")
+	main.drop(main.Res.GRAIN, quern + Vector2i(-2, 0), 2)
+	for c in main.colonists:
+		c.pos = main.center(quern + Vector2i(-1, 1))
+		main.end_job(c)
+	var circled := false
+	for i in 4000:
+		main.tick(0.05)
+		var miller: Array = main.colonists.filter(func(c): return c.job == main.Job.CRAFT and c.prey == cow)
+		if not miller.is_empty() and miller[0].work_left < miller[0].work_total:
+			circled = circled or is_equal_approx(cow.pos.distance_to(main.mill_hub(quern)), main.TILE)
+		if main.available(main.Res.GRAIN) == 0 and main.colonists.all(func(c): return c.job != main.Job.CRAFT):
+			break
+	flour = main.items[main.Res.FLOUR].values().reduce(func(a, b): return a + b, 0) \
+		+ main.colonists.filter(func(c): return c.carry_res == main.Res.FLOUR).map(func(c): return c.carrying).reduce(func(a, b): return a + b, 0)
+	check(flour == 8 and circled, "col gelo, la mucca gira attorno alla macina: 2 farina in più (%d)" % flour)
+	check(cow.handler == null, "finito, la mucca torna libera")
+	main.atmosphere.frozen = false
+	main.furniture.erase(quern)
+	main.animals.erase(cow)
+	main.animals.erase(calf)
+
 	# il forno di pietra (Terra II, dopo l'Orto): 2x1, in una cucina, scalda come il fuoco; pane, stufato, conserve
 	check(main.TECHS[main.Tech.STONE_OVEN]["tier"] == 2 and main.TECHS[main.Tech.STONE_OVEN]["needs"] == [main.Tech.GARDEN], "il Forno di pietra: Terra II, dopo l'Orto")
 	check(main.FURNITURE[main.Build.OVEN] == Vector2i(2, 1) and main.HEAT[main.Build.OVEN] == main.FIRE_HEAT

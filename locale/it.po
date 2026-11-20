@@ -4396,5 +4396,14 @@ msgstr "Falcia il fieno"
 msgid "A trough of planks for hay. With one, a room can be a stable, where the animals spend the winter."
 msgstr "Una cassa di assi per il fieno. Con una, la stanza può essere una stalla, dove gli animali passano l'inverno."
 
-msgid "The stable and its mangers: in winter the animals eat the hay mown in summer, and leave manure for the garden. The dealer sells sheep (milk, wool) and cows (milk); cheese at the campfire."
-msgstr "La stalla e le mangiatoie: d'inverno gli animali mangiano il fieno falciato d'estate, e lasciano il letame per l'orto. Il mercante vende pecore (latte, lana) e mucche (latte); il formaggio al fuoco da campo."
+msgid "The stable and its mangers: in winter the animals eat the hay mown in summer, and leave manure for the garden. The dealer sells sheep (milk, wool) and cows (milk); cheese at the campfire. With the Mill, the animal mill, turned by a cow."
+msgstr "La stalla e le mangiatoie: d'inverno gli animali mangiano il fieno falciato d'estate, e lasciano il letame per l'orto. Il mercante vende pecore (latte, lana) e mucche (latte); il formaggio al fuoco da campo. Col Mulino, la macina a trazione, girata da una mucca."
+
+msgid "Animal Mill"
+msgstr "Macina a trazione"
+
+msgid "No grown-up, fed cow to turn it."
+msgstr "Nessuna mucca adulta e sazia per girarla."
+
+msgid "A millstone with a beam, in the open. A grown-up, fed cow turns it while the miller pours: slower than the water mill, but it works in winter too."
+msgstr "Una mola con la stanga, all'aperto. La gira una mucca adulta e sazia mentre il mugnaio versa il grano: più lenta del mulino ad acqua, ma lavora anche d'inverno."
