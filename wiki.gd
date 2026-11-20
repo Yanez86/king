@@ -397,7 +397,7 @@ The Heat lens (N) tints rooms by temperature: red warm, yellow cool without a ma
 • Everyone fights a fire first: they fetch a bucket at the water and throw it, 2 hours off the fire each."""],
 
 	["Food & Cooking", """[color=#e8c34a]Eating[/color]
-• Hungry colonists (under 30 food; the glutton at 50) take the nearest food: fine meals first, then stew, meals, bread, cheese, raw food only when there is none of those (vegetables, fish, meat, smoked, then turnips, cabbages, beans and preserves, which keep longer). In free time they also snack under 60.
+• Hungry colonists (under 30 food; the glutton at 50) take the nearest food: fine meals first, then stew, meals, bread, cheese, honey, raw food only when there is none of those (vegetables, fish, meat, smoked, then turnips, cabbages, beans and preserves, which keep longer). In free time they also snack under 60.
 • If a chair beside a table is free within 20 tiles, they carry the food there and eat sitting: +5 happiness (At table).
 
 [color=#e8c34a]Food[/color]
@@ -417,6 +417,7 @@ The Heat lens (N) tints rooms by temperature: red warm, yellow cool without a ma
 [cell][img=center]res://art/icon_egg.png[/img] Eggs[/cell][cell]25[/cell][cell]10 days[/cell][cell]5–30%[/cell]
 [cell][img=center]res://art/icon_milk.png[/img] Milk[/cell][cell]20[/cell][cell]1 day[/cell][cell]5–40%[/cell]
 [cell][img=center]res://art/icon_cheese.png[/img] Cheese[/cell][cell]50[/cell][cell]60 days[/cell][cell]–[/cell]
+[cell][img=center]res://art/icon_honey.png[/img] Honey[/cell][cell]20[/cell][cell]never rots[/cell][cell]–[/cell]
 [/table]
 • Lasts: on the ground outdoors at 15 °C; in a warehouse twice as long. Warmer it rots faster, colder slower, below zero not at all (see Roofs & Heat). Then the pile rots away. Piles that mix take the average freshness. Hover a pile: Fresh, Stale or Almost rotten, and the days left.
 • Raw food may leave you Poisoned: the lower chance when it's fresh, the higher when it's almost rotten.
@@ -444,12 +445,13 @@ Boulders of 1x1, 2x1 or 2x2 tiles, 5 stone a tile. A stroke every 15 s gives 5. 
 Weeds, bushes, flax and herbs go in 1.5 s. Clear them before building there.
 
 [color=#e8c34a]Harvest (H)[/color] [img=center]res://art/icon_veg.png[/img] [img=center]res://art/icon_flax.png[/img] [img=center]res://art/icon_herbs.png[/img]
-Bushes, flax and medicinal herbs. A ripe bush has 5 berries (vegetables), flowering flax 5 flax, flowering herbs 5 herbs, picked one every 5 s. Nothing flowers in winter. They grow back in 2 days and the mark stays: they are picked every time. Marking Uproot removes the Harvest mark, and the other way round.
+Bushes, flax and medicinal herbs (and full beehives: see below). A ripe bush has 5 berries (vegetables), flowering flax 5 flax, flowering herbs 5 herbs, picked one every 5 s. Nothing flowers in winter. They grow back in 2 days and the mark stays: they are picked every time. Marking Uproot removes the Harvest mark, and the other way round.
 
 [color=#e8c34a]Garden (P)[/color] [img=center]res://art/icon_veg.png[/img]
 • After the Garden research. Drag over open grass, outside rooms, to make garden plots: weeds and bushes have to go first, and nothing can be built on a plot. Turnips and cabbages grow in alternate rows.
 • A colonist sows a plot in 4 s (Gathering, like every job time). Turnips ripen in 60 days, cabbages in 90, broad beans in 100; then the plot is sown again. On average soil a plot gives 30 turnips, 45 cabbages or 20 beans.
 • Turnips and cabbages keep far longer than berries, dried beans longest of all: the winter food (see Food).
+• Beehives (after the Apiary research, Land III, 450 and a tome, after Stone oven) [img=center]res://art/icon_honey.png[/img]: 1x1, 6 wood, in the open. Every day of spring and summer a hive makes half a honey with at least 4 flowers within 5 tiles (flower beds, planters, flax and herbs in bloom), a quarter with fewer, nothing without. Full (4), a gatherer takes 4 honey and 1 wax (4 s). Hover a hive: honey and flowers. Wax makes candles at the workbench (see Knowledge).
 • With the Mill research, grain too [img=center]res://art/icon_grain.png[/img]: 100 days, 25 a plot, and it tires the soil (−12). Grain is not eaten and never rots: the miller grinds it into flour.
 
 [color=#e8c34a]Fields and rotation[/color]
@@ -528,7 +530,7 @@ A room with at least one manger (2x1, 6 wood). Haulers carry hay to the mangers,
 In the stable the animals leave manure (a cow 1 a day, a sheep or a pig 1 every 2 days, hens 1 every 4): haulers carry it to a warehouse, and farmers spread it before sowing, before compost and ash: +20 fertility."""],
 
 	["Crafting & Equipment", """[color=#e8c34a]Workstations[/color]
-Click a station for its menu: one row for every recipe you know, with its ingredients and Keep N. Things get made while there are fewer than N around (on the ground, in warehouses, in hand, being made); Keep counts for every station of the kind. Equipment is also made for the colonists with an empty slot, and a bow when animals are marked and nobody has one. At the start: Keep 10 ingots, 2 bowstrings, 3 ointments, 10 flour, 8 bread, 8 meals, 0 of the rest.
+Click a station for its menu: one row for every recipe you know, with its ingredients and Keep N. Things get made while there are fewer than N around (on the ground, in warehouses, in hand, being made); Keep counts for every station of the kind. Equipment is also made for the colonists with an empty slot, and a bow when animals are marked and nobody has one. At the start: Keep 10 ingots, 2 bowstrings, 3 ointments, 10 flour, 8 bread, 4 candles, 8 meals, 0 of the rest.
 The crafter brings the ingredients one by one, then works. The time depends on skill, room comfort and conditions; an item may be ruined, losing the ingredients, as often as a meal burns.
 [table=4]
 [cell][color=#d9c48a]Item[/color][/cell][cell][color=#d9c48a]Station[/color][/cell][cell][color=#d9c48a]Needs[/color][/cell][cell][color=#d9c48a]Time[/color][/cell]
@@ -551,6 +553,7 @@ The crafter brings the ingredients one by one, then works. The time depends on s
 [cell]Stew (2)[/cell][cell]oven[/cell][cell]2 vegetables, 1 meat or fish[/cell][cell]12 s[/cell]
 [cell]Preserves (2)[/cell][cell]oven[/cell][cell]2 vegetables[/cell][cell]10 s[/cell]
 [cell]Cheese[/cell][cell]campfire[/cell][cell]3 milk[/cell][cell]10 s[/cell]
+[cell]Candles (4)[/cell][cell]workbench[/cell][cell]1 wax[/cell][cell]6 s[/cell]
 [/table]
 Skill: Smithing at furnace and anvil, Tailoring at spinning wheel and workbench, Ranged at the carpenter bench, Medicine for the ointment, Cooking at the mill and the oven.
 
@@ -743,7 +746,7 @@ Coins in a chest, its item, its book, and the treasure's books:
 
 	["Knowledge", """[color=#e8c34a]Study[/color] [img=center]res://art/icon_study.png[/img]
 • A room with a desk can become a study; the desk needs no research. One colonist at a desk writes pages: every page is +1 study for the colony's shared pool and +1 Research XP.
-• A page takes 2.5 s, more or less with room comfort and conditions. From 19:00 to 6:00, without a lamp in the room, it takes 50% longer; every bookshelf in the room takes off 10% (up to 3).
+• A page takes 2.5 s, more or less with room comfort and conditions. From 19:00 to 6:00, without a lamp in the room, it takes 50% longer; every bookshelf in the room takes off 10% (up to 3). With the Apiary, a desk at night burns a candle from the warehouses (one a night): then it needs no lamp, and with a lamp a page is 10% faster.
 • The study's workers study before any other job and stay at the desk all their shift. The others write a page only when there is nothing else to do.
 
 [color=#e8c34a]The Knowledge window[/color]
@@ -761,6 +764,7 @@ What you haven't researched has no build button, and its recipes don't show at t
 • [color=#d9c48a]Almanac[/color] (Land II, 250 and a notebook, after Soil survey): five bands, and the trend of every field.
 • [color=#d9c48a]Land register[/color] (Land III, 450 and a tome, after Almanac): the soil's numbers and the next harvest.
 • [color=#d9c48a]Husbandry[/color] (Land I, 100, after Hunting): the pasture, the coop, the livestock dealer; hens and pigs; the Husbandry column.
+• [color=#d9c48a]Apiary[/color] (Land III, 450 and a tome, after Stone oven): beehives, honey, wax; candles at the workbench.
 • [color=#d9c48a]Stable[/color] (Land II, 250 and a notebook, after Husbandry): the stable and its mangers, hay, manure; sheep and cows, milk, cheese, wool; with the Mill, the animal mill.
 • [color=#d9c48a]Hunting[/color] (Land I, 50): spinning wheel and carpenter bench; bowstrings and bows; hides on the walls and door curtains.
 • [color=#d9c48a]Icehouse[/color] (Land II, 250 and a notebook, after Cold store): the icehouse, the ice pit, cutting ice.

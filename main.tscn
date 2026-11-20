@@ -1,4 +1,4 @@
-[gd_scene load_steps=106 format=3]
+[gd_scene load_steps=107 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Script" path="res://columns.gd" id="columns"]
@@ -257,6 +257,10 @@ region = Rect2(0, 1632, 32, 16)
 [sub_resource type="AtlasTexture" id="AnimalMillIcon"]
 atlas = ExtResource("8")
 region = Rect2(0, 1664, 32, 32)
+
+[sub_resource type="AtlasTexture" id="HiveIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 1696, 16, 16)
 
 [sub_resource type="AtlasTexture" id="PlasterIcon"]
 atlas = ExtResource("5")
@@ -915,6 +919,15 @@ focus_mode = 0
 toggle_mode = true
 button_group = SubResource("Kinds")
 icon = SubResource("AnimalMillIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Hive" type="Button" parent="HUD/FurnitureBar/Row/Crafts"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("HiveIcon")
 icon_alignment = 1
 expand_icon = true
 

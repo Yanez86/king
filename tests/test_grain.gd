@@ -232,8 +232,8 @@ func _initialize() -> void:
 	main.craft_popup.hide()
 
 	# mangiare: prima il pasto squisito, lo stufato, il pasto, il pane, poi il crudo; lo stufato rifocilla, il pane sazia
-	check(main.EATEN.slice(0, 5) == [main.Res.FINE_MEAL, main.Res.STEW, main.Res.MEAL, main.Res.BREAD, main.Res.CHEESE]
-		and main.EATEN.slice(5) == main.RAW_FOOD and main.Res.PRESERVES in main.RAW_FOOD, "l'ordine dei cibi (il formaggio: la stalla)")
+	check(main.EATEN.slice(0, 6) == [main.Res.FINE_MEAL, main.Res.STEW, main.Res.MEAL, main.Res.BREAD, main.Res.CHEESE, main.Res.HONEY]
+		and main.EATEN.slice(6) == main.RAW_FOOD and main.Res.PRESERVES in main.RAW_FOOD, "l'ordine dei cibi (il formaggio della stalla, il miele)")
 	check(main.FOOD[main.Res.BREAD] == 60.0 and main.SHELF_LIFE[main.Res.BREAD] == 8.0 and main.FOOD[main.Res.STEW] == 100.0
 		and main.SHELF_LIFE[main.Res.STEW] == 3.0 and main.SHELF_LIFE[main.Res.PRESERVES] == 120.0, "quanto saziano, quanto durano")
 	var eater = main.colonists[0]
@@ -267,7 +267,77 @@ func _initialize() -> void:
 	main.needs_rate = 0.0
 	main.atmosphere.climate = false
 
-	print("OK: torrente di %d caselle, mulino in %s; il forno" % [stream.size(), mill])
+	# l'apicoltura (Terra III, dopo il Forno di pietra): l'arnia fa il miele coi fiori vicini, in primavera e d'estate
+	var bees: Dictionary = main.TECHS[main.Tech.APIARY]
+	check(bees["tier"] == 3 and bees["needs"] == [main.Tech.STONE_OVEN] and main.Build.HIVE in bees["builds"]
+		and main.Res.CANDLE in bees["makes"], "Apicoltura: Terra III, dopo il Forno di pietra")
+	main.clock = 3 * main.YEAR_DAYS + 120.5  # d'estate
+	main.tick(0.0)
+	var hive := spot + Vector2i(0, 8)
+	var beds: Array = main.cells_in(Rect2i(hive + Vector2i(1, -1), Vector2i(4, 1)))
+	check(main.can_build(hive) and beds.all(func(k): return main.can_build(k)), "c'è posto per l'arnia e le aiuole")
+	main.furniture[hive] = [main.Build.HIVE, main.Res.WOOD, 0]
+	main.flax.clear()
+	main.herbs.clear()
+	main.bushes.clear()
+	main.make_honey()
+	check(main.hives[hive] == 0.0 and main.flowers_near(hive) == 0, "senza fiori niente miele")
+	main.furniture[beds[0]] = [main.Build.FLOWER_BED, main.Res.WOOD, 0]
+	main.make_honey()
+	check(main.hives[hive] == main.HIVE_RATE[1], "con pochi fiori, poco")
+	for k in beds.slice(1):
+		main.furniture[k] = [main.Build.FLOWER_BED, main.Res.WOOD, 0]
+	main.make_honey()
+	check(main.hives[hive] == main.HIVE_RATE[1] + main.HIVE_RATE[0] and main.flowers_near(hive) == 4, "con quattro fiori, mezzo al giorno")
+	check(main.describe(hive)[1].begins_with("Honey: 0 / 4. Flowers nearby: 4"), "col mouse sopra: il miele e i fiori")
+	main.hives[hive] = float(main.HIVE_FULL)
+	for c in main.colonists:
+		c.pos = main.center(hive + Vector2i(0, 2))
+		main.end_job(c)
+	for i in 3000:
+		main.tick(0.05)
+		if main.hives[hive] == 0.0 and main.colonists.all(func(c): return c.job != main.Job.HONEY):
+			break
+	check(total.call(main.Res.HONEY) == 4 and total.call(main.Res.WAX) == 1, "piena: 4 miele e 1 cera")
+	check(main.FOOD[main.Res.HONEY] == 20.0 and not main.SHELF_LIFE.has(main.Res.HONEY) and main.Res.HONEY in main.COOKED, "il miele sazia 20 e non marcisce")
+	var winter_clock: float = main.clock
+	main.clock = main.YEAR_DAYS * 2 - 20.5
+	main.tick(0.0)
+	main.hives[hive] = 1.0
+	main.make_honey()
+	check(main.hives[hive] == 1.0, "d'inverno niente miele")
+	main.clock = winter_clock
+	main.tick(0.0)
+
+	# le candele: di notte lo scrittoio con la candela non vuole l'abat-jour, con l'abat-jour è più svelto
+	var candle_recipe: Array = main.RECIPES.filter(func(r): return r[0] == main.Res.CANDLE)[0]
+	check(candle_recipe[1] == main.Build.WORKBENCH and candle_recipe[3] == {main.Res.WAX: 1} and candle_recipe[5] == 4, "al banco da lavoro: 1 cera, 4 candele")
+	var study = main.Room.new()
+	var desk := spot + Vector2i(0, 10)
+	for k in main.cells_in(Rect2i(desk, Vector2i(3, 2))):
+		study.cells[k] = true
+	study.kind = main.RoomKind.STUDY
+	main.rooms.append(study)
+	main.furniture[desk] = [main.Build.DESK, main.Res.WOOD, 0]
+	var shelf := spot + Vector2i(4, 10)
+	main.stockpile = {shelf: true}
+	main.add_item(main.Res.CANDLE, shelf, 2)
+	var scholar = main.colonists[0]
+	main.clock = floorf(main.clock) + 22.0 / 24.0  # le dieci di sera
+	main.tick(0.0)
+	var dark: float = main.page_time(scholar, study)
+	var lit: float = main.page_time(scholar, study, desk)
+	check(is_equal_approx(lit * main.NIGHT_STUDY, dark) and main.stored(main.Res.CANDLE) == 1, "una candela: come di giorno, senza abat-jour")
+	main.page_time(scholar, study, desk)
+	check(main.stored(main.Res.CANDLE) == 1, "una sola a notte")
+	main.furniture[desk + Vector2i(1, 0)] = [main.Build.LAMP, main.Res.WOOD, 0]
+	check(is_equal_approx(main.page_time(scholar, study, desk), main.page_time(scholar, study) * main.CANDLE_STUDY), "con l'abat-jour il 10% più svelto")
+	main.clock += 1.0  # la notte dopo
+	main.tick(0.0)
+	main.page_time(scholar, study, desk)
+	check(main.stored(main.Res.CANDLE) == 0, "la notte dopo, un'altra candela")
+
+	print("OK: torrente di %d caselle, mulino in %s; il forno; le api" % [stream.size(), mill])
 	quit()
 
 

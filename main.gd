@@ -96,11 +96,12 @@ const TREE_SIDES := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  # da sopra l
 
 enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE,
 	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE, DOUSE, FARM, FERTILIZE, OATH, SALVE, RESCUE, TREAT, BURY,
-	FUNERAL, TEND, BUTCHER, MILK, SHEAR, MOW }  # TEND: le uova al pollaio; BUTCHER, MILK, SHEAR: macellare, mungere e
-	# tosare un animale da allevare (vedi Work.HUSBANDRY); MOW: falciare il fieno (vedi Order.HAY)
+	FUNERAL, TEND, BUTCHER, MILK, SHEAR, MOW, HONEY }  # TEND: le uova al pollaio; BUTCHER, MILK, SHEAR: macellare, mungere e
+	# tosare un animale da allevare (vedi Work.HUSBANDRY); MOW: falciare il fieno (vedi Order.HAY); HONEY: smielare
+	# un'arnia piena (vedi Work.GATHER)
 const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FURNISH, Job.HARVEST, Job.COOK, Job.FISH,
 	Job.HUNT, Job.CRAFT, Job.STUDY, Job.GOVERN, Job.REPAIR, Job.CUT_ICE, Job.FARM, Job.FERTILIZE, Job.RESCUE,
-	Job.TREAT, Job.BURY, Job.TEND, Job.BUTCHER, Job.MILK, Job.SHEAR, Job.MOW]  # contano come ore di lavoro
+	Job.TREAT, Job.BURY, Job.TEND, Job.BUTCHER, Job.MILK, Job.SHEAR, Job.MOW, Job.HONEY]  # contano come ore di lavoro
 # Tabella delle priorità (in cima alla finestra Jobs): per colono e per lavoro da 1 (prima) a PRIORITY_LEVELS (dopo),
 # 0 mai. Si prende il lavoro disponibile con la priorità più alta; a pari priorità nell'ordine di Work, e di un lavoro
 # il più vicino (vedi find_work). All'inizio tutto PRIORITY_DEFAULT: l'ordine di WORK_ORDER
@@ -117,7 +118,7 @@ const WORK_ICONS := [preload("res://art/icon_meal.png"), preload("res://art/icon
 	preload("res://art/icon_resources.png"), preload("res://art/icon_authority.png"), preload("res://art/icon_study.png"),
 	preload("res://art/icon_doctor.png"), preload("res://art/icon_husbandry.png")]
 const WORK_INFO := ["Cooking meals at the campfire or the hearth.", "Forge, workbench, spinning wheel, carpenter's bench, furnace, mill, oven.",
-	"Felling the marked trees.", "Mining the marked boulders, cutting ice.", "Picking bushes, flax and herbs, uprooting.",
+	"Felling the marked trees.", "Mining the marked boulders, cutting ice.", "Picking bushes, flax and herbs, uprooting, taking honey.",
 	"Sowing, harvesting and fertilizing the garden, mowing hay.", "Fishing at the marked water.", "Hunting the marked animals.",
 	"Building, furnishing, repairing roofs.", "Carrying things into the warehouses, and the dead to their graves.",
 	"Governing from the throne: only the ruler.", "Studying at a desk.",
@@ -138,25 +139,27 @@ enum Res { WOOD, STONE, VEG, IRON, COAL, MEAL, FINE_MEAL, MEAT, FISH, HIDE, INGO
 	PICKAXE, AXE, SICKLE, BOW, LEATHER_ARMOR, LEATHER_HOOD, HELMET, CHAINMAIL, SWORD, GOLD, DAGGER,
 	CHALICE, OLD_BANNER, BUST, CROWN, NOTEBOOK, TOME, CODEX, HARDTACK, SMOKED_MEAT, SMOKED_FISH, SHIELD,
 	STEEL, PARCHMENT, INK, ICE, TURNIP, CABBAGE, BEANS, ROT, COMPOST, ASH, HERBS, OINTMENT,
-	GRAIN, FLOUR, BREAD, STEW, PRESERVES, EGG, HAY, MILK, CHEESE, WOOL, MANURE }  # ICE: blocchi tagliati
+	GRAIN, FLOUR, BREAD, STEW, PRESERVES, EGG, HAY, MILK, CHEESE, WOOL, MANURE, HONEY, WAX, CANDLE }  # ICE: blocchi tagliati
 	# dall'acqua gelata, per la ghiacciaia (vedi Order.ICE); TURNIP, CABBAGE, BEANS: dall'orto (vedi garden), si conservano
 	# a lungo, le fave secche più di tutto; ROT, COMPOST, ASH: i concimi (vedi Tech.MANURING); HERBS: erbe medicinali, dai
 	# prati (vedi herbs); OINTMENT: l'unguento, dalle erbe al fuoco (vedi Tech.HERBALISM, try_salve); GRAIN: il grano
 	# dell'orto, che non si mangia e non marcisce; FLOUR: la farina, dal grano al mulino (vedi Tech.MILL); BREAD, STEW,
 	# PRESERVES: pane, stufato e conserve, dal forno (vedi Tech.STONE_OVEN); EGG: le uova, dal pollaio (vedi lay_eggs);
 	# HAY: il fieno, dal prato falciato, per le mangiatoie; MILK, CHEESE, WOOL, MANURE: latte, formaggio, lana e letame
-	# della stalla (vedi Tech.STABLE)
+	# della stalla (vedi Tech.STABLE); HONEY, WAX: miele e cera, dalle arnie; CANDLE: le candele, per studiare di notte
+	# (vedi Tech.APIARY)
 const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.TURNIP: 50, Res.CABBAGE: 50, Res.BEANS: 50, Res.ROT: 40, Res.COMPOST: 30, Res.ASH: 30, Res.IRON: 50, Res.COAL: 50, Res.MEAL: 20, Res.FINE_MEAL: 20,
 	Res.MEAT: 50, Res.FISH: 50, Res.HIDE: 50, Res.INGOT: 50, Res.FLAX: 50, Res.BOWSTRING: 50, Res.PICKAXE: 10, Res.AXE: 10, Res.SICKLE: 10, Res.BOW: 10,
 	Res.LEATHER_ARMOR: 10, Res.LEATHER_HOOD: 10, Res.HELMET: 10, Res.CHAINMAIL: 10, Res.SWORD: 10, Res.GOLD: 100, Res.DAGGER: 10,
 	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5, Res.NOTEBOOK: 10, Res.TOME: 10, Res.CODEX: 10, Res.HARDTACK: 50, Res.SMOKED_MEAT: 50, Res.SMOKED_FISH: 50, Res.SHIELD: 10, Res.STEEL: 50, Res.PARCHMENT: 50, Res.INK: 20, Res.ICE: 50,
 	Res.HERBS: 50, Res.OINTMENT: 20, Res.GRAIN: 50, Res.FLOUR: 50,
 	Res.BREAD: 30, Res.STEW: 20, Res.PRESERVES: 30, Res.EGG: 30,
-	Res.HAY: 50, Res.MILK: 20, Res.CHEESE: 20, Res.WOOL: 50, Res.MANURE: 30}  # quantità massima per mucchio (casella)
+	Res.HAY: 50, Res.MILK: 20, Res.CHEESE: 20, Res.WOOL: 50, Res.MANURE: 30, Res.HONEY: 30, Res.WAX: 30,
+	Res.CANDLE: 40}  # quantità massima per mucchio (casella)
 const MEALS := [Res.FINE_MEAL, Res.MEAL]  # i pasti del fuoco: quanti ne vuole il menu (vedi meals_wanted)
 const RAW_FOOD := [Res.MILK, Res.VEG, Res.FISH, Res.MEAT, Res.SMOKED_FISH, Res.SMOKED_MEAT, Res.EGG, Res.TURNIP, Res.CABBAGE, Res.BEANS,
 	Res.PRESERVES]  # crudo: si cucina, o si mangia in quest'ordine se non c'è di meglio (prima quello che dura meno)
-const COOKED := [Res.FINE_MEAL, Res.STEW, Res.MEAL, Res.BREAD, Res.CHEESE]  # chi ha fame li prende in quest'ordine, poi il crudo
+const COOKED := [Res.FINE_MEAL, Res.STEW, Res.MEAL, Res.BREAD, Res.CHEESE, Res.HONEY]  # chi ha fame li prende in quest'ordine, poi il crudo
 const EATEN := COOKED + RAW_FOOD  # tutto quello che si mangia, nell'ordine in cui lo si prende
 # il bonus di quello che si mangia (vedi eat), che prende il posto di quello del pasto prima; lo stufato in più rifocilla
 const FOOD_BONUS := {Res.FINE_MEAL: Cond.FEASTED, Res.MEAL: Cond.WELL_FED, Res.STEW: Cond.WELL_FED}
@@ -189,12 +192,12 @@ const ITEM_KIND := {
 	Res.HERBS: ItemKind.MATERIAL, Res.OINTMENT: ItemKind.MATERIAL, Res.GRAIN: ItemKind.FOOD, Res.FLOUR: ItemKind.FOOD,
 	Res.BREAD: ItemKind.FOOD, Res.STEW: ItemKind.FOOD, Res.PRESERVES: ItemKind.FOOD, Res.EGG: ItemKind.FOOD,
 	Res.HAY: ItemKind.MATERIAL, Res.MILK: ItemKind.FOOD, Res.CHEESE: ItemKind.FOOD, Res.WOOL: ItemKind.MATERIAL,
-	Res.MANURE: ItemKind.MATERIAL,
+	Res.MANURE: ItemKind.MATERIAL, Res.HONEY: ItemKind.FOOD, Res.WAX: ItemKind.MATERIAL, Res.CANDLE: ItemKind.MATERIAL,
 }
 # cibo: quanto sazia (vedi eat) e in quanti giorni marcisce a terra fuori (vedi spoil); in magazzino ci mette il doppio.
 # Il crudo sazia meno e può intossicare (vedi poison_chance), i pasti no e danno un bonus (vedi Cond)
 const FOOD := {Res.VEG: 35.0, Res.TURNIP: 35.0, Res.CABBAGE: 35.0, Res.BEANS: 40.0, Res.FISH: 30.0, Res.MEAT: 40.0, Res.MEAL: 100.0, Res.FINE_MEAL: 100.0,
-	Res.SMOKED_FISH: 30.0, Res.SMOKED_MEAT: 40.0, Res.BREAD: 60.0, Res.STEW: 100.0, Res.PRESERVES: 35.0, Res.EGG: 25.0, Res.MILK: 20.0, Res.CHEESE: 50.0}
+	Res.SMOKED_FISH: 30.0, Res.SMOKED_MEAT: 40.0, Res.BREAD: 60.0, Res.STEW: 100.0, Res.PRESERVES: 35.0, Res.EGG: 25.0, Res.MILK: 20.0, Res.CHEESE: 50.0, Res.HONEY: 20.0}  # il miele non marcisce
 const SHELF_LIFE := {Res.VEG: 3.0, Res.FISH: 1.5, Res.MEAT: 2.0, Res.MEAL: 3.0, Res.FINE_MEAL: 3.0,
 	Res.SMOKED_FISH: 6.0, Res.SMOKED_MEAT: 8.0, Res.TURNIP: 10.0, Res.CABBAGE: 14.0, Res.BEANS: 60.0,
 	Res.ROT: 5.0,  # il marcio, fuori dal cumulo del compost, sparisce nella terra  # affumicati: quattro volte il fresco
@@ -286,6 +289,18 @@ const HAY_REGROW := 20.0    # giorni perché l'erba falciata ricresca
 const MOW_TIME := 3.0       # secondi per falciare una casella, a livello 5 (col falcetto -25%)
 const HANDLING := {Job.BUTCHER: BUTCHER_TIME, Job.MILK: MILK_TIME, Job.SHEAR: SHEAR_TIME}  # chi tiene un animale fermo
 const MILL_LAP := 4.0       # secondi per un giro della mucca attorno alla macina
+# Apicoltura (Tech.APIARY): ogni giorno di primavera e d'estate un'arnia fa HIVE_RATE[0] miele se entro HIVE_REACH
+# caselle ci sono almeno HIVE_FLOWERS fiori (aiuole, fioriere, lino e erbe in fiore), HIVE_RATE[1] con meno, niente
+# senza; piena (HIVE_FULL), chi raccoglie prende il miele e HIVE_WAX cera. Le candele: di notte lo scrittoio con una
+# candela (CANDLE_NIGHT a notte) non vuole l'abat-jour; con l'abat-jour si studia CANDLE_STUDY volte il tempo
+const HIVE_REACH := 5
+const HIVE_FLOWERS := 4
+const HIVE_RATE := [0.5, 0.25]
+const HIVE_FULL := 4
+const HIVE_WAX := 1
+const HONEY_TIME := 4.0     # secondi per smielare, a livello 5
+const CANDLE_STUDY := 0.9
+const FLOWERS := [Build.FLOWER_BED, Build.PLANTER]  # i fiori dei mobili
 const GRASS_MAX := 100.0    # l'erba di una casella di pascolo
 const GRASS_REGROW := 20.0  # al giorno, quando la terra è tiepida (SOW_TEMP); d'inverno no
 const FED_DROP := 50.0      # sazietà che un animale da allevare perde al giorno; l'erba di "graze" caselle gliela ridà
@@ -356,7 +371,7 @@ const DOING := {Job.CHOP: "Chopping a tree", Job.MINE: "Mining", Job.UPROOT: "Up
 	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne", Job.SALVE: "Tending a wound",
 	Job.RESCUE: "Rescuing the wounded", Job.TREAT: "Treating a patient", Job.BURY: "Burying the dead",
 	Job.FUNERAL: "At a funeral", Job.TEND: "Collecting eggs", Job.BUTCHER: "Slaughtering",
-	Job.MILK: "Milking", Job.SHEAR: "Shearing", Job.MOW: "Mowing hay"}
+	Job.MILK: "Milking", Job.SHEAR: "Shearing", Job.MOW: "Mowing hay", Job.HONEY: "Taking honey"}
 const BOARD_LIST := 400.0  # pixel: la lista di chi può partire sulla bacheca, al più; poi scorre
 const BOARD_PLACES := 230.0  # pixel: le rovine e le spedizioni, sotto la squadra, al più; poi scorrono
 const BOARD_SLOT := 122    # pixel: un posto della squadra (MAX_PARTY in fila)
@@ -610,6 +625,7 @@ const RECIPES := [
 	[Res.STEW, Build.OVEN, Skill.COOKING, {ANY_VEG: 2, ANY_FLESH: 1}, 12.0, 2],  # squisito: pasti squisiti (vedi craft)
 	[Res.PRESERVES, Build.OVEN, Skill.COOKING, {ANY_VEG: 2}, 10.0, 2],  # cotte e chiuse nei vasi
 	[Res.CHEESE, Build.CAMPFIRE, Skill.COOKING, {Res.MILK: 3}, 10.0],  # il latte cagliato e stagionato
+	[Res.CANDLE, Build.WORKBENCH, Skill.TAILORING, {Res.WAX: 1}, 6.0, 4],  # lo stoppino nella cera fusa
 ]
 # Ingredienti a scelta delle ricette (chiavi negative): uno qualsiasi dei tipi del gruppo, tutto dello stesso tipo. Si
 # prende il primo di cui ce n'è abbastanza, nell'ordine: prima quello che marcisce prima (vedi resolve)
@@ -622,7 +638,7 @@ const SMOKE_TIME := 0.75     # affumicare al fuoco da campo, dove il fumo resta:
 const STATION_ROOM := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.HEARTH: RoomKind.KITCHEN, Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP,
 	Build.SPINNING_WHEEL: RoomKind.WORKSHOP, Build.CARPENTER_BENCH: RoomKind.CARPENTRY, Build.DESK: RoomKind.STUDY,
 	Build.OVEN: RoomKind.KITCHEN}
-const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.COAL: 5, Res.OINTMENT: 3, Res.FLOUR: 10, Res.BREAD: 8}  # scorte di partenza, vedi keep; i pasti
+const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.COAL: 5, Res.OINTMENT: 3, Res.FLOUR: 10, Res.BREAD: 8, Res.CANDLE: 4}  # scorte di partenza, vedi keep; i pasti
 	# MEALS_PER_COLONIST a testa
 enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT, ICE, GARDEN, PASTURE, HAY }  # cosa segna il trascinamento del mouse
 const ORDER_COLORS := [Color.TRANSPARENT, Color.ORANGE, Color("8fd3ff"), Color("9be36a"), Color("e6e2d0"),
@@ -688,7 +704,8 @@ enum Build { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE
 	OVEN,  # il forno di pietra, in cucina: pane, stufato, conserve (vedi Tech.STONE_OVEN)
 	COOP,  # il pollaio, nel pascolo: le galline ci fanno le uova (vedi lay_eggs)
 	MANGER,  # la mangiatoia: con una, la stanza è una stalla; ci si porta il fieno (vedi Tech.STABLE, manger_cells)
-	ANIMAL_MILL }  # la macina a trazione: la gira una mucca, anche d'inverno (vedi draft_cows)
+	ANIMAL_MILL,  # la macina a trazione: la gira una mucca, anche d'inverno (vedi draft_cows)
+	HIVE }  # l'arnia: miele e cera, coi fiori vicini (vedi make_honey)
 # materiale per casella; per i mobili, per pezzo. Un numero: del materiale del progetto; se no risorsa -> quantità, e
 # ogni viaggio porta tutta una risorsa (vedi cost_of, delivered)
 const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3,
@@ -699,7 +716,7 @@ const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1
 	Build.CANOPY_BED: 20, Build.RUG: 4, Build.WARDROBE: 12, Build.HEARTH: 15,
 	Build.WALL_HIDES: 2, Build.DOOR_CURTAIN: 2, Build.TAPESTRY: 4, Build.TILED_STOVE: 20, Build.ICE_PIT: 20, Build.COMPOST_HEAP: 6, Build.CRADLE: 4,
 	Build.WEAPON_RACK: {Res.WOOD: 6, Res.INGOT: 1}, Build.TARGET: {Res.WOOD: 4, Res.FLAX: 2}, Build.LOCK_BENCH: {Res.WOOD: 4, Res.INGOT: 2},
-	Build.MEDICINE_CHEST: 8, Build.GRAVE: 4, Build.MEMORIAL: 10, Build.WATER_MILL: {Res.WOOD: 20, Res.STONE: 10}, Build.OVEN: 20, Build.COOP: 8, Build.MANGER: 6, Build.ANIMAL_MILL: {Res.STONE: 15, Res.WOOD: 5},
+	Build.MEDICINE_CHEST: 8, Build.GRAVE: 4, Build.MEMORIAL: 10, Build.WATER_MILL: {Res.WOOD: 20, Res.STONE: 10}, Build.OVEN: 20, Build.COOP: 8, Build.MANGER: 6, Build.ANIMAL_MILL: {Res.STONE: 15, Res.WOOD: 5}, Build.HIVE: 6,
 	Build.PALISADE: 4, Build.GATE: 6, Build.PLASTER: 1}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
 const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
@@ -713,13 +730,13 @@ const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Buil
 	Build.HEARTH: Vector2i.ONE, Build.WALL_HIDES: Vector2i.ONE, Build.DOOR_CURTAIN: Vector2i.ONE, Build.TAPESTRY: Vector2i.ONE,
 	Build.TILED_STOVE: Vector2i.ONE, Build.ICE_PIT: Vector2i(2, 2), Build.COMPOST_HEAP: Vector2i.ONE,
 	Build.CRADLE: Vector2i.ONE, Build.WEAPON_RACK: Vector2i.ONE, Build.TARGET: Vector2i.ONE, Build.LOCK_BENCH: Vector2i.ONE,
-	Build.MEDICINE_CHEST: Vector2i.ONE, Build.GRAVE: Vector2i(1, 2), Build.MEMORIAL: Vector2i.ONE, Build.WATER_MILL: Vector2i(2, 2), Build.OVEN: Vector2i(2, 1), Build.COOP: Vector2i(2, 1), Build.MANGER: Vector2i(2, 1), Build.ANIMAL_MILL: Vector2i(2, 2)}
+	Build.MEDICINE_CHEST: Vector2i.ONE, Build.GRAVE: Vector2i(1, 2), Build.MEMORIAL: Vector2i.ONE, Build.WATER_MILL: Vector2i(2, 2), Build.OVEN: Vector2i(2, 1), Build.COOP: Vector2i(2, 1), Build.MANGER: Vector2i(2, 1), Build.ANIMAL_MILL: Vector2i(2, 2), Build.HIVE: Vector2i.ONE}
 # mobili animati: secondi per fotogramma; i fotogrammi stanno nelle colonne dei quarti di giro (sono simmetrici)
 const ANIMATED := {Build.CAMPFIRE: 0.15, Build.BANNER: 0.3, Build.FOUNTAIN: 0.2}
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
 const BARRIERS := [Build.WALL, Build.PALISADE]  # solidi: si fanno solo lungo il bordo del riquadro, chiudono la strada
 const PAVING := [Build.FLOOR, Build.PATH, Build.ROAD]  # a terra: si calpestano, ci stanno sopra i mobili, l'erba ci sborda sopra
-const OUTDOOR := [Build.GRAVE, Build.WATER_MILL, Build.ANIMAL_MILL]  # solo sul prato, fuori dalle stanze (vedi piece_fits)
+const OUTDOOR := [Build.GRAVE, Build.WATER_MILL, Build.ANIMAL_MILL, Build.HIVE]  # solo sul prato, fuori dalle stanze (vedi piece_fits)
 # materiale fisso; il resto solo di legno
 # i cimeli: la decorazione si fa con l'oggetto trovato nelle rovine, uno a pezzo
 const RELICS := {Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}
@@ -851,7 +868,7 @@ const SAVES := preload("res://saves.gd")
 const SAVE_LIST := preload("res://save_list.gd")
 # le variabili della partita che si salvano, così come sono (gli oggetti dentro li impacchetta SAVES.Packer); il resto
 # si rifà da queste (vedi restore) o è interfaccia. Una variabile nuova dello stato del gioco va aggiunta qui
-const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today", "hour", "rocks", "boulders", "ores", "water", "stream", "pasture", "hay_marks", "coop_eggs", "herd_keep", "drover_until", "drover_stock",
+const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today", "hour", "rocks", "boulders", "ores", "water", "stream", "pasture", "hives", "candles", "hay_marks", "coop_eggs", "herd_keep", "drover_until", "drover_stock",
 	"trees", "stock", "bushes", "flax", "herbs", "graves", "funerals", "weeds", "chop_marks", "mine_marks", "uproot_marks", "harvest_marks", "fish_marks",
 	"fish_spots", "items", "fresh", "draft", "blueprints", "built", "furniture_draft", "furniture_plans", "furniture",
 	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
@@ -894,6 +911,7 @@ const BUILD_INFO := {
 	Build.MEDICINE_CHEST: "Herbs, ointments and bandages. With a bed, the room can be an infirmary, where the sick heal faster.",
 	Build.GRAVE: "A grave with a wooden cross, on open ground. The haulers bury the dead here: their mourning is a day shorter.",
 	Build.MEMORIAL: "A stone stele for the fallen. With a memorial, every mourning is a day shorter.",
+	Build.HIVE: "A straw skep on a stand, in the open. In spring and summer the bees make honey from the flowers within 5 tiles: flower beds, planters, flax and herbs in bloom.",
 	Build.ANIMAL_MILL: "A millstone with a beam, in the open. A grown-up, fed cow turns it while the miller pours: slower than the water mill, but it works in winter too.",
 	Build.MANGER: "A trough of planks for hay. With one, a room can be a stable, where the animals spend the winter.",
 	Build.COOP: "A wooden hut with a straw roof, in the pasture: up to 8 hens lay their eggs here, one a day each (not in winter).",
@@ -1101,6 +1119,9 @@ const ICONS := {
 	Res.CHEESE: preload("res://art/icon_cheese.png"),
 	Res.WOOL: preload("res://art/icon_wool.png"),
 	Res.MANURE: preload("res://art/icon_manure.png"),
+	Res.HONEY: preload("res://art/icon_honey.png"),
+	Res.WAX: preload("res://art/icon_wax.png"),
+	Res.CANDLE: preload("res://art/icon_candle.png"),
 	Res.ROT: preload("res://art/icon_rot.png"),
 	Res.COMPOST: preload("res://art/icon_compost.png"),
 	Res.ASH: preload("res://art/icon_ash.png"),
@@ -1397,7 +1418,7 @@ const BRANCHES_SHEET := preload("res://art/branches.png")
 enum Tech { FORGE, TAILORING, HUNTING, INN, MASONRY, DECOR, LANTERNS, IRON_ARMS, BOOKSHELF, CHAINMAIL, FOUNTAIN, STATUARY,
 	ASTRONOMY, CHARCOAL, COLD_STORE, PAVED_ROAD, DRY_RATIONS, CARTOGRAPHY, PALISADE, TRAINING_DUMMY, SMOKEHOUSE, RENOWNED_INN,
 	WATCHTOWER, SHIELD, LENDING_ARMORY, STEEL, SCRIPTORIUM, FINE_FURNITURE, PALACE, LOOM, TILED_STOVE, ICEHOUSE, GARDEN,
-	SOIL_SURVEY, ALMANAC, LAND_REGISTER, MANURING, CROWN_COMPANY, BARRACKS, HERBALISM, MEDICINE, MILL, STONE_OVEN, HUSBANDRY, STABLE }
+	SOIL_SURVEY, ALMANAC, LAND_REGISTER, MANURING, CROWN_COMPANY, BARRACKS, HERBALISM, MEDICINE, MILL, STONE_OVEN, HUSBANDRY, STABLE, APIARY }
 const TECHS_SHEET := preload("res://art/techs.png")
 const TECHS := {
 	Tech.FORGE: {"branch": Branch.FIRE, "tier": 1, "cost": 60, "builds": [Build.FURNACE, Build.ANVIL],
@@ -1497,6 +1518,9 @@ const TECHS := {
 	Tech.STABLE: {"branch": Branch.LAND, "tier": 2, "cost": 250, "needs": [Tech.HUSBANDRY], "builds": [Build.MANGER, Build.ANIMAL_MILL],
 		"rooms": [RoomKind.STABLE], "orders": [Order.HAY], "makes": [Res.CHEESE],
 		"info": "The stable and its mangers: in winter the animals eat the hay mown in summer, and leave manure for the garden. The dealer sells sheep (milk, wool) and cows (milk); cheese at the campfire. With the Mill, the animal mill, turned by a cow."},
+	Tech.APIARY: {"branch": Branch.LAND, "tier": 3, "cost": 450, "needs": [Tech.STONE_OVEN], "builds": [Build.HIVE],
+		"makes": [Res.CANDLE],
+		"info": "Beehives near the flowers: honey, which never spoils, and wax. At the workbench, candles: at night a desk with a candle needs no lamp, and with a lamp study is 10% faster."},
 }
 const ROAD_SPEED := 1.25    # sulla strada lastricata si va più svelti
 const MAPPED_TRAVEL := 0.75 # con la cartografia, giorni di viaggio x
@@ -1787,6 +1811,8 @@ var bushes := {}            # cella -> `clock` da cui ha le bacche (attraversabi
 var flax := {}              # cella -> true: i cespugli che sono lino; in fiore (le "bacche") danno il lino
 var herbs := {}             # cella -> true: i cespugli che sono erbe medicinali; in fiore danno le erbe (vedi scatter_herbs)
 var pasture := {}           # casella del pascolo -> erba, 0-GRASS_MAX (vedi Order.PASTURE, update_livestock)
+var hives := {}             # arnia (origine) -> miele fatto, 0-HIVE_FULL (vedi make_honey)
+var candles := {}           # scrittoio (origine) -> la notte (il giorno in cui è cominciata) della candela accesa
 var hay_marks := {}         # casella di prato -> `clock` dell'ultima falciatura (vedi Order.HAY, mow_ready)
 var coop_eggs := {}         # pollaio (origine) -> uova che aspettano di essere raccolte (vedi lay_eggs)
 var herd_keep := {}         # Beast -> quanti adulti tenerne (vedi culls); senza, HERD_KEEP
@@ -3863,6 +3889,8 @@ func describe(cell: Vector2i) -> Array:
 			about = grave_text(origin)
 		elif kind == Build.COOP:
 			about = tr("Eggs: %d") % coop_eggs.get(origin, 0)
+		elif kind == Build.HIVE:
+			about = tr("Honey: %d / %d. Flowers nearby: %d") % [floori(hives.get(origin, 0.0)), HIVE_FULL, flowers_near(origin)]
 		elif SPLENDOR.has(kind):
 			about = decor_about(origin)
 		return [named(Build, kind), about]
@@ -4763,6 +4791,18 @@ func update_colonist(c: Colonist, delta: float) -> void:
 					end_job(c)
 					produce(Res.WOOL, here, LIVESTOCK[a.kind]["wool"])
 					try_haul(c, Res.WOOL, [here])
+		Job.HONEY:  # accanto all'arnia piena (target): miele e cera ai piedi
+			face(c, center(c.target) - c.pos)
+			c.work_left -= delta
+			if c.work_left > 0:
+				return
+			learn(c, Skill.GATHERING, HONEY_TIME)
+			hives[c.target] = 0.0
+			var here := cell_of(c.pos)
+			end_job(c)
+			produce(Res.HONEY, here, HIVE_FULL)
+			produce(Res.WAX, here, HIVE_WAX)
+			try_haul(c, Res.HONEY, [here])
 		Job.MOW:  # accanto alla casella di prato (target): la falcia, il fieno cade ai piedi
 			face(c, center(c.target) - c.pos)
 			c.work_left -= delta
@@ -4872,7 +4912,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			else:
 				authority += govern_rate(c)
 			if c in room_at(c.target).workers:  # il lavoratore della stanza resta seduto: la pagina dopo, l'ora dopo
-				c.work_left = page_time(c, room_at(c.target)) if c.job == Job.STUDY else DAY_LENGTH / 24
+				c.work_left = page_time(c, room_at(c.target), c.target) if c.job == Job.STUDY else DAY_LENGTH / 24
 				c.work_total = c.work_left
 				return
 			end_job(c)
@@ -6146,7 +6186,9 @@ func try_work_kind(c: Colonist, w: Work) -> bool:
 				or try_work(c, Job.CUT_ICE, ice_ready(), SIDES, gather_time(c, Job.CUT_ICE))
 		Work.GATHER:
 			return try_work(c, Job.UPROOT, uproot_marks.keys(), SIDES, UPROOT_TIME * work_factor(c, Job.UPROOT)) \
-				or try_work(c, Job.HARVEST, harvest_ready(), SIDES, gather_time(c, Job.HARVEST))
+				or try_work(c, Job.HARVEST, harvest_ready(), SIDES, gather_time(c, Job.HARVEST)) \
+				or try_work(c, Job.HONEY, hives.keys().filter(func(o): return hives[o] >= HIVE_FULL and furniture.get(o, [-1])[0] == Build.HIVE),
+					SIDES, HONEY_TIME * skill_time(c.skills[Skill.GATHERING]) * work_factor(c, Job.HONEY))
 		Work.FARM:
 			return try_work(c, Job.FARM, farm_ready(), SIDES, FARM_TIME * skill_time(c.skills[Skill.GATHERING]) * work_factor(c, Job.FARM)) \
 				or try_fertilize(c) \
@@ -9499,7 +9541,7 @@ func try_seat(c: Colonist, kind: Build, mine: bool) -> bool:
 		return false
 	var seat: Vector2i = stands[path.back()]
 	if kind == Build.DESK:
-		start_job(c, Job.STUDY, path, seat, page_time(c, room_at(seat)))
+		start_job(c, Job.STUDY, path, seat, page_time(c, room_at(seat), seat))
 	else:
 		start_job(c, Job.GOVERN, path, seat, DAY_LENGTH / 24)
 	c.dest = path.back()
@@ -9508,13 +9550,31 @@ func try_seat(c: Colonist, kind: Build, mine: bool) -> bool:
 
 # secondi per una pagina di studio di `c` nella stanza `room`: PAGE_TIME a livello 5, secondo il comfort e le condizioni;
 # di notte senza un abat-jour di più, con le librerie di meno
-func page_time(c: Colonist, room: Room) -> float:
+func page_time(c: Colonist, room: Room, desk := Vector2i(-1, -1)) -> float:
 	var inside: Array = furniture.keys().filter(func(o): return room.cells.has(o)).map(func(o): return furniture[o][0])
 	var t := PAGE_TIME * skill_time(c.skills[Skill.RESEARCH]) * comfort_time(room_comfort(room)) * work_factor(c, Job.STUDY)
 	var hour := hour_now()
-	if (hour >= DARK_FROM or hour < DARK_TO) and Build.LAMP not in inside:
-		t *= NIGHT_STUDY
+	if hour >= DARK_FROM or hour < DARK_TO:
+		var lit := desk.x >= 0 and light_candle(desk)
+		if lit and Build.LAMP in inside:
+			t *= CANDLE_STUDY
+		elif not lit and Build.LAMP not in inside:
+			t *= NIGHT_STUDY
 	return t * (1.0 - SHELF_BONUS * mini(inside.count(Build.BOOKSHELF), SHELVES_MAX))
+
+
+# la candela sullo scrittoio `desk`: accesa per tutta la notte, se ce n'è una in magazzino (una a notte). true se c'è
+func light_candle(desk: Vector2i) -> bool:
+	if not researched.has(Tech.APIARY):
+		return false
+	var night: int = today if hour_now() >= DARK_FROM else today - 1
+	if candles.get(desk, -1) == night:
+		return true
+	if stored(Res.CANDLE) == 0:
+		return false
+	take_stored(Res.CANDLE, 1)
+	candles[desk] = night
+	return true
 
 
 # autorità di un'ora d'udienza del sovrano `c`: di più se è sereno, di meno se è cupo (vedi RULER_MOODS)
@@ -9619,6 +9679,7 @@ func note_harvests() -> void:
 func new_day() -> void:
 	narrator.new_day()
 	lay_eggs()
+	make_honey()
 	if feast(today) and posmod(today, YEAR_DAYS) != 0:  # le feste di fine stagione: la manutenzione dello splendore
 		pay_upkeep()
 	for b in babies.duplicate():  # a CHILD_AGE il neonato diventa un bambino della colonia, accanto a chi lo teneva
@@ -10631,6 +10692,29 @@ func lay_eggs() -> void:
 		var eggs := mini(hens, COOP_HENS)
 		hens -= eggs
 		coop_eggs[o] = mini(coop_eggs.get(o, 0) + eggs, COOP_EGGS)
+
+
+# Ogni giorno di primavera e d'estate le arnie fanno il miele, secondo i fiori qui vicino (vedi flowers_near)
+func make_honey() -> void:
+	for o in furniture.keys().filter(func(k): return furniture[k][0] == Build.HIVE):
+		if season(today) > SUMMER:
+			hives[o] = hives.get(o, 0.0)
+			continue
+		var n := flowers_near(o)
+		var rate: float = HIVE_RATE[0] if n >= HIVE_FLOWERS else (HIVE_RATE[1] if n > 0 else 0.0)
+		hives[o] = minf(hives.get(o, 0.0) + rate, HIVE_FULL)
+
+
+# i fiori entro HIVE_REACH caselle da `cell`: aiuole e fioriere, lino ed erbe in fiore
+func flowers_near(cell: Vector2i) -> int:
+	var n := 0
+	for o in furniture:
+		if furniture[o][0] in FLOWERS and (o - cell).length() <= HIVE_REACH:
+			n += 1
+	for k in bushes:
+		if (flax.has(k) or herbs.has(k)) and bushes[k] <= clock and (k - cell).length() <= HIVE_REACH:
+			n += 1
+	return n
 
 
 # l'erba del pascolo ricresce di GRASS_REGROW al giorno, un'ora alla volta, quando la terra è tiepida; d'inverno no

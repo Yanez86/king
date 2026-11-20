@@ -3162,8 +3162,8 @@ msgstr "Abbattere gli alberi segnati."
 msgid "Mining the marked boulders, cutting ice."
 msgstr "Scavare i massi segnati, tagliare il ghiaccio."
 
-msgid "Picking bushes, flax and herbs, uprooting."
-msgstr "Raccogliere da cespugli, lino ed erbe, estirpare."
+msgid "Picking bushes, flax and herbs, uprooting, taking honey."
+msgstr "Raccogliere da cespugli, lino ed erbe, estirpare, smielare."
 
 msgid "Sowing, harvesting and fertilizing the garden, mowing hay."
 msgstr "Seminare, raccogliere e concimare l'orto, falciare il fieno."
@@ -4407,3 +4407,34 @@ msgstr "Nessuna mucca adulta e sazia per girarla."
 
 msgid "A millstone with a beam, in the open. A grown-up, fed cow turns it while the miller pours: slower than the water mill, but it works in winter too."
 msgstr "Una mola con la stanga, all'aperto. La gira una mucca adulta e sazia mentre il mugnaio versa il grano: più lenta del mulino ad acqua, ma lavora anche d'inverno."
+
+msgctxt "item"
+msgid "Honey"
+msgstr "Miele"
+
+msgctxt "item"
+msgid "Wax"
+msgstr "Cera"
+
+msgctxt "item"
+msgid "Candle"
+msgstr "Candele"
+
+msgid "Hive"
+msgstr "Arnia"
+
+msgid "Apiary"
+msgstr "Apicoltura"
+
+msgid "Honey: %d / %d. Flowers nearby: %d"
+msgstr "Miele: %d / %d. Fiori vicini: %d"
+
+msgctxt "doing"
+msgid "Taking honey"
+msgstr "Smiela"
+
+msgid "A straw skep on a stand, in the open. In spring and summer the bees make honey from the flowers within 5 tiles: flower beds, planters, flax and herbs in bloom."
+msgstr "Un bugno di paglia su un sostegno, all'aperto. In primavera e d'estate le api fanno il miele dai fiori entro 5 caselle: aiuole, fioriere, lino ed erbe in fiore."
+
+msgid "Beehives near the flowers: honey, which never spoils, and wax. At the workbench, candles: at night a desk with a candle needs no lamp, and with a lamp study is 10% faster."
+msgstr "Arnie vicino ai fiori: il miele, che non marcisce, e la cera. Al banco da lavoro, le candele: di notte uno scrittoio con la candela non vuole l'abat-jour, e con l'abat-jour si studia il 10% più svelti."

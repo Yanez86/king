@@ -1092,7 +1092,7 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
 - **Lana**: la compra il mercante; poi il mantello imbottito al telaio (4.4.2).
 - **Apicoltura** (Terra III): l'**arnia** (1x1, 6 legna, all'aperto). In primavera e in estate fa 1 miele ogni 2 giorni
   se entro 5 caselle ci sono almeno 4 fiori (aiuole, fioriere, lino e erbe in fiore), 1 ogni 4 con meno, niente senza;
-  ne tiene al più 4. Il raccoglitore (lavoro Raccogliere, segno Harvest sull'arnia) prende 4 miele e 1 cera. Al banco
+  ne tiene al più 4. Piena, il raccoglitore (lavoro Raccogliere, da sé, senza segno) prende 4 miele e 1 cera (4 s). Al banco
   da lavoro 1 cera → 4 **candele** (abilità cucire, 6 s, scorta 4). Di notte uno scrittoio con una candela (se ne
   brucia una a notte) non ha bisogno dell'abat-jour, e con l'abat-jour si studia il 10% più svelti.
 - **Banchetto reale** (Terra IV): dal menu del forno, "Banchetto reale…", se c'è una sala del trono coi tavoli e
@@ -1108,7 +1108,7 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
   pascolo; (4) la Stalla: stalla e mangiatoie, il fieno, l'inverno nella stalla, pecore e mucche, latte e formaggio,
   tosatura e lana, il letame; (5) la macina a trazione; (6) l'Apicoltura: arnia, miele, cera, candele; (7) il Banchetto
   reale.
-- **Stato**: fatte le fasi 1–5 il 2026-11-20 (test in `tests/test_grain.gd` e `tests/test_livestock.gd`): il torrente (`stream`, salvato: le partite
+- **Stato**: fatte le fasi 1–6 il 2026-11-20 (test in `tests/test_grain.gd` e `tests/test_livestock.gd`): il torrente (`stream`, salvato: le partite
   di prima non ce l'hanno, e lì il mulino non si fa), il grano nella pianificazione col Mulino, il mulino ad acqua e la
   farina. Il mulino è la prima postazione all'aperto: senza stanza, chi ci lavora sta fuori (`station_stand`), col
   comfort a metà (`station_comfort`); la ruota è il lato destro del disegno, girato in senso orario (`wheel_cells`).
@@ -1130,7 +1130,9 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
   fieno intero (`eat_hay`). Le galline mangiano da una mangiatoia qualsiasi e lasciano il letame nel pascolo. Mungere,
   tosare e macellare tengono fermo l'animale (`handler`, `try_handle`). Il fieno si falcia nella colonna Coltivare (tasto
   Z). La macina tiene la mucca come chi munge (`handler`); il mugnaio aspetta che arrivi, e mentre macina lei gira
-  attorno al centro della macina (`mill_hub`). Poi: i maiali che mangiano anche il marcio.
+  attorno al centro della macina (`mill_hub`). Le arnie fanno il miele all'alba (`make_honey`); la candela si accende
+  quando si calcola una pagina di notte allo scrittoio (`light_candle`, una a notte per scrittoio: `candles`). Poi: i
+  maiali che mangiano anche il marcio.
 
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100, con laghi e, nelle mappe nuove, un torrente (4.4.7).
@@ -1312,7 +1314,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Almanacco agrario ✓ | II | 250 | Saggio del terreno | cinque fasce; se un campo sale o scende rispetto a un anno prima |
   | | Catasto ✓ | III | 450 | Almanacco agrario | i numeri della terra e il prossimo raccolto di ogni campo |
   | | Concimazione ✓ | I | 80 | Orto | cumulo del compost, marcio e cenere, lavoro Concimare, il sovescio |
-  | | Apicoltura | III | 450 | Forno di pietra | arnia vicino ai fiori: miele (non marcisce), cera (candele: si studia di notte) (vedi 4.4.7) |
+  | | Apicoltura ✓ | III | 450 | Forno di pietra | arnia vicino ai fiori: miele (non marcisce), cera (candele: si studia di notte) (vedi 4.4.7) |
   | | Banchetto reale | IV | 1000 | Apicoltura | il banchetto dal forno, nella sala del trono: +15 felicità per 3 giorni, +20 autorità (vedi 4.4.7) |
   | | Caccia ✓ | I | 50 | — | *filatoio, corda d'arco, banco del falegname, falegnameria, arco, pelli alle pareti, portiera* (vedi 4.4.5) |
   | | Affumicatoio ✓ | II | 200 | Caccia | al fuoco: carne e pesce affumicati durano quattro volte tanto (scorta 0 dal menu); si mangiano e si cucinano come il crudo |

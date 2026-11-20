@@ -396,7 +396,7 @@ La vista calore (N) colora le stanze secondo la temperatura: rosso il caldo, gia
 • Al fuoco tutti lasciano il resto: prendono un secchio all'acqua e lo gettano, 2 ore di fuoco in meno ciascuno."""],
 
 	["Cibo e cucina", """[color=#e8c34a]Mangiare[/color]
-• I coloni affamati (sotto 30 di cibo; il goloso a 50) prendono il cibo più vicino: prima i pasti squisiti, poi lo stufato, i pasti, il pane, il formaggio, il crudo solo quando non c'è niente di questo (vegetali, pesce, carne, affumicati, poi rape, cavoli, fave e conserve, che durano di più). Nel tempo libero fanno anche uno spuntino sotto 60.
+• I coloni affamati (sotto 30 di cibo; il goloso a 50) prendono il cibo più vicino: prima i pasti squisiti, poi lo stufato, i pasti, il pane, il formaggio, il miele, il crudo solo quando non c'è niente di questo (vegetali, pesce, carne, affumicati, poi rape, cavoli, fave e conserve, che durano di più). Nel tempo libero fanno anche uno spuntino sotto 60.
 • Se entro 20 caselle c'è una sedia libera accanto a un tavolo, portano lì il cibo e mangiano seduti: +5 felicità (Mangiato al tavolo).
 
 [color=#e8c34a]Cibo[/color]
@@ -416,6 +416,7 @@ La vista calore (N) colora le stanze secondo la temperatura: rosso il caldo, gia
 [cell][img=center]res://art/icon_egg.png[/img] Uova[/cell][cell]25[/cell][cell]10 giorni[/cell][cell]5–30%[/cell]
 [cell][img=center]res://art/icon_milk.png[/img] Latte[/cell][cell]20[/cell][cell]1 giorno[/cell][cell]5–40%[/cell]
 [cell][img=center]res://art/icon_cheese.png[/img] Formaggio[/cell][cell]50[/cell][cell]60 giorni[/cell][cell]–[/cell]
+[cell][img=center]res://art/icon_honey.png[/img] Miele[/cell][cell]20[/cell][cell]non marcisce[/cell][cell]–[/cell]
 [/table]
 • Dura: a terra all'aperto a 15 °C; in un magazzino il doppio. Col caldo marcisce prima, col freddo dopo, sotto lo zero per niente (vedi Tetti e calore). Poi il mucchio marcisce e sparisce. I mucchi che si mescolano prendono la freschezza media. Col mouse sopra un mucchio: Fresco, Non più fresco o Quasi marcio, e i giorni che restano.
 • Chi mangia crudo può restare Intossicato: la probabilità è minima quando il cibo è fresco, massima quando è quasi marcio.
@@ -443,12 +444,13 @@ Massi di 1x1, 2x1 o 2x2 caselle, 5 pietra a casella. Un colpo ogni 15 s ne dà 5
 Erbacce, cespugli, lino ed erbe se ne vanno in 1,5 s. Toglili prima di costruirci sopra.
 
 [color=#e8c34a]Raccogli (H)[/color] [img=center]res://art/icon_veg.png[/img] [img=center]res://art/icon_flax.png[/img]
-Cespugli, lino ed erbe medicinali. Un cespuglio maturo ha 5 bacche (vegetali), il lino in fiore 5 lino, le erbe in fiore 5 erbe, colti uno ogni 5 s. D'inverno non fiorisce niente. Ricrescono in 2 giorni e il segno resta: si raccolgono ogni volta. Segnare Estirpa toglie il segno di Raccogli, e viceversa.
+Cespugli, lino ed erbe medicinali (e le arnie piene: vedi sotto). Un cespuglio maturo ha 5 bacche (vegetali), il lino in fiore 5 lino, le erbe in fiore 5 erbe, colti uno ogni 5 s. D'inverno non fiorisce niente. Ricrescono in 2 giorni e il segno resta: si raccolgono ogni volta. Segnare Estirpa toglie il segno di Raccogli, e viceversa.
 
 [color=#e8c34a]Orto (P)[/color] [img=center]res://art/icon_veg.png[/img]
 • Dopo la ricerca Orto. Trascina sul prato libero, fuori dalle stanze, per fare le caselle dell'orto: prima vanno tolte erbacce e cespugli, e sull'orto non si costruisce. Rape e cavoli crescono a file alterne.
 • Un colono semina una casella in 4 s (Raccogliere, come ogni tempo di lavoro). Le rape maturano in 60 giorni, i cavoli in 90, le fave in 100; poi la casella si risemina. Su terra media una casella dà 30 rape, 45 cavoli o 20 fave.
 • Rape e cavoli si conservano molto più delle bacche, le fave secche più di tutto: il cibo dell'inverno (vedi Cibo).
+• Le arnie (dopo la ricerca Apicoltura, Terra III, 450 e un tomo, dopo il Forno di pietra) [img=center]res://art/icon_honey.png[/img]: 1x1, 6 legna, all'aperto. Ogni giorno di primavera e d'estate un'arnia fa mezzo miele con almeno 4 fiori entro 5 caselle (aiuole, fioriere, lino ed erbe in fiore), un quarto con meno, niente senza. Piena (4), un raccoglitore prende 4 miele e 1 cera (4 s). Col mouse sopra un'arnia: il miele e i fiori. Con la cera si fanno le candele al banco da lavoro (vedi Conoscenza).
 • Con la ricerca Mulino anche il grano [img=center]res://art/icon_grain.png[/img]: 100 giorni, 25 a casella, e stanca la terra (−12). Il grano non si mangia e non marcisce: il mugnaio lo macina in farina.
 
 [color=#e8c34a]Campi e rotazione[/color]
@@ -527,7 +529,7 @@ Una stanza con almeno una mangiatoia (2x1, 6 legna). I trasportatori portano il 
 Nella stalla gli animali lasciano il letame (una mucca 1 al giorno, una pecora o un maiale 1 ogni 2, le galline 1 ogni 4): i trasportatori lo portano in un magazzino e i contadini lo spargono prima della semina, prima del compost e della cenere: +20 di fertilità."""],
 
 	["Lavorazioni ed equipaggiamento", """[color=#e8c34a]Postazioni[/color]
-Clicca una postazione per il suo menu: una riga per ogni ricetta che conosci, coi suoi ingredienti e Tieni N. Si fa finché in giro ce ne sono meno di N (a terra, nei magazzini, in mano, in lavorazione); la Scorta vale per tutte le postazioni dello stesso tipo. L'equipaggiamento si fa anche per i coloni con uno slot vuoto, e un arco quando ci sono animali segnati e nessuno ne ha uno. All'inizio: Scorta 10 lingotti, 2 corde d'arco, 3 unguenti, 10 farina, 8 pani, 8 pasti, 0 per il resto.
+Clicca una postazione per il suo menu: una riga per ogni ricetta che conosci, coi suoi ingredienti e Tieni N. Si fa finché in giro ce ne sono meno di N (a terra, nei magazzini, in mano, in lavorazione); la Scorta vale per tutte le postazioni dello stesso tipo. L'equipaggiamento si fa anche per i coloni con uno slot vuoto, e un arco quando ci sono animali segnati e nessuno ne ha uno. All'inizio: Scorta 10 lingotti, 2 corde d'arco, 3 unguenti, 10 farina, 8 pani, 4 candele, 8 pasti, 0 per il resto.
 L'artigiano porta gli ingredienti uno alla volta, poi lavora. Il tempo dipende da abilità, comfort della stanza e condizioni; un oggetto può rovinarsi, e gli ingredienti vanno persi, tanto spesso quanto brucia un pasto.
 [table=4]
 [cell][color=#d9c48a]Oggetto[/color][/cell][cell][color=#d9c48a]Postazione[/color][/cell][cell][color=#d9c48a]Ingredienti[/color][/cell][cell][color=#d9c48a]Tempo[/color][/cell]
@@ -550,6 +552,7 @@ L'artigiano porta gli ingredienti uno alla volta, poi lavora. Il tempo dipende d
 [cell]Stufato (2)[/cell][cell]forno[/cell][cell]2 vegetali, 1 carne o pesce[/cell][cell]12 s[/cell]
 [cell]Conserve (2)[/cell][cell]forno[/cell][cell]2 vegetali[/cell][cell]10 s[/cell]
 [cell]Formaggio[/cell][cell]fuoco da campo[/cell][cell]3 latte[/cell][cell]10 s[/cell]
+[cell]Candele (4)[/cell][cell]banco da lavoro[/cell][cell]1 cera[/cell][cell]6 s[/cell]
 [/table]
 Abilità: Forgiare a fornace e incudine, Cucire a filatoio e banco da lavoro, Tiro al banco del falegname, Medicina per l'unguento, Cucinare al mulino e al forno.
 
@@ -742,7 +745,7 @@ Monete in un forziere, il suo oggetto, il suo libro, e i libri del tesoro:
 
 	["Conoscenza", """[color=#e8c34a]Studio[/color] [img=center]res://art/icon_study.png[/img]
 • Una stanza con uno scrittoio può diventare uno studio; lo scrittoio non richiede ricerche. Un colono allo scrittoio scrive pagine: ogni pagina è +1 studio per la riserva comune della colonia e +1 XP in Ricerca.
-• Una pagina richiede 2,5 s, più o meno secondo il comfort della stanza e le condizioni. Dalle 19:00 alle 6:00, senza un abat-jour nella stanza, ci vuole il 50% in più; ogni libreria nella stanza toglie il 10% (fino a 3).
+• Una pagina richiede 2,5 s, più o meno secondo il comfort della stanza e le condizioni. Dalle 19:00 alle 6:00, senza un abat-jour nella stanza, ci vuole il 50% in più; ogni libreria nella stanza toglie il 10% (fino a 3). Con l'Apicoltura, di notte uno scrittoio accende una candela dei magazzini (una a notte): allora non vuole l'abat-jour, e con l'abat-jour una pagina è il 10% più svelta.
 • I lavoratori dello studio studiano prima di ogni altro lavoro e restano allo scrittoio per tutto il turno. Gli altri scrivono una pagina solo quando non c'è altro da fare.
 
 [color=#e8c34a]La finestra Conoscenza[/color]
@@ -760,6 +763,7 @@ Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette 
 • [color=#d9c48a]Almanacco agrario[/color] (Terra II, 250 e un quaderno, dopo il Saggio): cinque fasce, e la tendenza di ogni campo.
 • [color=#d9c48a]Catasto[/color] (Terra III, 450 e un tomo, dopo l'Almanacco): i numeri della terra e il prossimo raccolto.
 • [color=#d9c48a]Allevamento[/color] (Terra I, 100, dopo la Caccia): il pascolo, il pollaio, il mercante di bestiame; galline e maiali; la colonna Allevare.
+• [color=#d9c48a]Apicoltura[/color] (Terra III, 450 e un tomo, dopo il Forno di pietra): le arnie, il miele, la cera; le candele al banco da lavoro.
 • [color=#d9c48a]Stalla[/color] (Terra II, 250 e un quaderno, dopo l'Allevamento): la stalla e le mangiatoie, il fieno, il letame; pecore e mucche, latte, formaggio, lana; col Mulino, la macina a trazione.
 • [color=#d9c48a]Caccia[/color] (Terra I, 50): filatoio e banco del falegname; corde d'arco e archi; pelli alle pareti e portiere.
 • [color=#d9c48a]Ghiacciaia[/color] (Terra II, 250 e un quaderno, dopo Dispensa fredda): la ghiacciaia, la fossa del ghiaccio, il taglio del ghiaccio.
