@@ -54,16 +54,42 @@ func _initialize() -> void:
 	main.add_item(R.NOTEBOOK, free[-1], 1)
 	check(main.research(T.CHAINMAIL) and main.stored(R.NOTEBOOK) == 0 and is_equal_approx(main.study, 120.0), "il quaderno si consuma")
 
-	# la finestra Knowledge: un pulsante per ricerca; cliccato, studia
+	# la finestra Knowledge: un riquadro per ricerca, a destra di quelle che richiede, collegato a loro; cliccato, studia
 	main.study = 40.0
 	main.get_node("HUD/Tools/Row/Knowledge").button_pressed = true
 	main.fill_knowledge()
 	var buttons: Array = main.get_node("HUD/KnowledgePanel/Box/Scroll/Tree").find_children("*", "Button", true, false)
-	check(buttons.size() == T.size(), "un pulsante per ricerca")
-	var inn_button: Button = buttons.filter(func(b): return b.text.begins_with("Inn"))[0]
-	check(not inn_button.disabled, "la locanda si può studiare")
+	check(buttons.size() == T.size(), "un riquadro per ricerca")
+	var boxes: Dictionary = main.tech_boxes
+	check(boxes.size() == T.size() and buttons.all(func(b): return b.get_rect() == boxes[b.get_meta("tech")]), "ognuno al suo posto")
+	for t in T.values():
+		for n in main.TECHS[t].get("needs", []):
+			check(boxes[n].end.x + main.TECH_GAP.x <= boxes[t].position.x + 0.5, "%s dopo %s" % [T.keys()[t], T.keys()[n]])
+		for u in T.values():
+			check(u == t or not boxes[t].intersects(boxes[u]), "%s e %s non si coprono" % [T.keys()[t], T.keys()[u]])
+		var band: Rect2 = main.tech_bands.filter(func(b): return b[0] == main.TECHS[t]["branch"])[0][1]
+		check(band.encloses(boxes[t]), "%s nella fascia del suo ramo" % T.keys()[t])
+	check(boxes[T.SOIL_SURVEY].position.y == boxes[T.GARDEN].position.y and boxes[T.ALMANAC].position.y == boxes[T.GARDEN].position.y
+		and boxes[T.MANURING].position.y > boxes[T.GARDEN].position.y, "le catene dritte, il secondo figlio sotto")
+	var inn_button: Button = buttons.filter(func(b): return b.get_meta("tech") == T.INN)[0]
+	var cost: RichTextLabel = inn_button.find_children("*", "RichTextLabel", true, false)[0]
+	check(not inn_button.disabled and cost.text.begins_with("40 ") and inn_button.tooltip_text.ends_with("Tier I"),
+		"la locanda si può studiare: il costo e il livello (%s)" % cost.text)
+	var later: Array = buttons.filter(func(b): return not main.researched.has(b.get_meta("tech")) \
+		and main.TECHS[b.get_meta("tech")]["tier"] > 1)
+	var book_of := func(b): return main.ICONS[main.BOOKS[main.TECHS[b.get_meta("tech")]["tier"] - 2]].resource_path
+	check(not later.is_empty() and later.all(func(b): return b.find_children("*", "RichTextLabel", true, false)[0].text \
+		.contains(book_of.call(b))), "dal livello II il libro del suo livello")
+	main.tech_hover = T.TILED_STOVE  # si disegnano anche i collegamenti accesi
+	main.get_node("HUD/KnowledgePanel/Box/Scroll/Tree").queue_redraw()
+	await process_frame
+	main.tech_hover = -1
 	inn_button.pressed.emit()
-	check(main.researched.has(T.INN) and is_zero_approx(main.study), "il pulsante studia")
+	check(main.researched.has(T.INN) and is_zero_approx(main.study), "il riquadro studia")
+	main.fill_knowledge()
+	var inn_after: Button = main.get_node("HUD/KnowledgePanel/Box/Scroll/Tree").find_children("*", "Button", true, false) \
+		.filter(func(b): return b.get_meta("tech") == T.INN)[0]
+	check(inn_after.find_children("*", "RichTextLabel", true, false)[0].text.contains("Studied"), "poi dice Studied")
 	main.get_node("HUD/KnowledgePanel/Box/Head/Close").pressed.emit()
 	check(not main.get_node("HUD/Tools/Row/Knowledge").button_pressed, "la X chiude Knowledge e alza il tasto")
 	for t in T.values():

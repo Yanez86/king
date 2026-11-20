@@ -2038,13 +2038,10 @@ max_value = 20.0
 text = "notebooks, copied at the desk (each: 3 parchment, 1 ink, 150 study)"
 
 [node name="Scroll" type="ScrollContainer" parent="HUD/KnowledgePanel/Box"]
-custom_minimum_size = Vector2(0, 440)
+custom_minimum_size = Vector2(0, 470)
 horizontal_scroll_mode = 0
 
-[node name="Tree" type="GridContainer" parent="HUD/KnowledgePanel/Box/Scroll"]
-theme_override_constants/h_separation = 8
-theme_override_constants/v_separation = 8
-columns = 5
+[node name="Tree" type="Control" parent="HUD/KnowledgePanel/Box/Scroll"]
 
 [node name="LawsPanel" type="PanelContainer" parent="HUD"]
 visible = false

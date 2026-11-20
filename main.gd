@@ -1248,6 +1248,15 @@ const SHELVES_MAX := 3
 const SEAT_ROOM := {Build.DESK: RoomKind.STUDY, Build.THRONE: RoomKind.THRONE_ROOM}  # dove si studia e si governa
 const ROOM_TOOLS := {"Knowledge": RoomKind.STUDY, "Laws": RoomKind.THRONE_ROOM}  # pulsanti in basso: si vedono con la stanza
 const STUDY_ICON := preload("res://art/icon_study.png")
+# L'albero della finestra Knowledge (vedi fill_knowledge): un riquadro per ricerca, in colonne per profondità (quante
+# ricerche vengono prima, al più) e in fasce per ramo; i collegamenti alle ricerche richieste passano tra le colonne
+const TECH_BOX := Vector2(256, 64)  # px: il riquadro; più alto se il nome va a capo
+const TECH_GAP := Vector2(48, 8)    # px: tra le colonne (ci passano i collegamenti) e tra le righe
+const TECH_BAND := 40               # px: la testata di ogni ramo, col suo nome
+const TECH_LINE := 26               # px: una riga di testo nel riquadro
+const TECH_READY := Color("8fbf4f") # il bordo di quello che si può studiare adesso
+const LINK_TODO := Color("6e6a62")  # collegamento da una ricerca non ancora fatta; da una fatta è d'oro
+const LINK_LIT := Color("f2ead0")   # i collegamenti della ricerca sotto il mouse
 const AUTHORITY_ICON := preload("res://art/icon_authority.png")
 const BOOKS := [Res.NOTEBOOK, Res.TOME, Res.CODEX]  # il libro che consuma una ricerca di livello II, III, IV
 # Erudito errante (GDD 4.7.2), un evento del narratore (narrator.gd: con una locanda, quanto spesso): passa per un
@@ -1708,6 +1717,9 @@ var tithe_owed := {}        # Res -> parte di pezzo dovuta alla decima, che si a
 var today := 0              # il giorno visto per ultimo: cambiato, è l'alba di uno nuovo (vedi new_day)
 var hour := 0               # lo stesso per l'ora (vedi new_hour)
 var knowledge_key := ""     # quello che mostra la finestra Knowledge: se cambia, la si rifà (vedi fill_knowledge)
+var tech_boxes := {}        # Tech -> Rect2: il suo riquadro nell'albero di Knowledge (vedi place_techs)
+var tech_bands := []        # [ramo, Rect2]: le fasce dei rami nell'albero
+var tech_hover := -1        # la ricerca sotto il mouse: i suoi collegamenti si accendono (vedi draw_tech_links)
 var scholar_until := -1.0   # `clock` fino a cui l'erudito è alla locanda
 var decor_state := {}       # origine di una decorazione -> Decay, se non è KEPT (vedi pay_upkeep)
 var decor_key := []         # da cosa dipende decor_memo: se cambia, si rifà (vedi decor_splendor)
@@ -9441,11 +9453,12 @@ func law_tip(law: Law) -> String:
 		+ (tr("\nNeeds a %s") % named(Build, LAWS[law]["piece"]).to_lower() if LAWS[law].has("piece") else "")
 
 
-# Finestra Knowledge (tasto in basso, o clic su uno scrittoio): studio e libri, poi l'albero, una riga per ramo e una
-# colonna per livello. Ogni ricerca è un pulsante: col mouse sopra cosa sblocca e cosa manca, cliccato la studia.
-# Si rifà solo quando cambia qualcosa, se no i pulsanti non si premono
+# Finestra Knowledge (tasto in basso, o clic su uno scrittoio): studio e libri, poi l'albero: un riquadro per ricerca,
+# collegato a quelle che richiede (vedi place_techs, tech_card, draw_tech_links). Cliccato, la studia; col mouse sopra
+# cosa sblocca e cosa manca. Si rifà solo quando cambia qualcosa, se no i riquadri non si premono
 func fill_knowledge() -> void:
-	var key := str([floori(study), BOOKS.map(stored), researched.keys(), scholar_until, scholar_books, scholar_bought, stored(Res.GOLD)])
+	var key := str([floori(study), BOOKS.map(stored), researched.keys(), scholar_until, scholar_books, scholar_bought,
+		stored(Res.GOLD), TranslationServer.get_locale()])
 	if key == knowledge_key:
 		return
 	knowledge_key = key
@@ -9459,29 +9472,207 @@ func fill_knowledge() -> void:
 	if not copies.value_changed.is_connected(set_keep):
 		copies.value_changed.connect(set_keep.bind(Res.NOTEBOOK))
 	copies.set_value_no_signal(keep.get(Res.NOTEBOOK, 0))
-	var grid: GridContainer = box.get_node("Scroll/Tree")
-	for child in grid.get_children():
+	var tree: Control = box.get_node("Scroll/Tree")
+	if not tree.draw.is_connected(draw_tech_links):
+		tree.draw.connect(draw_tech_links.bind(tree))
+	for child in tree.get_children():
 		child.free()
-	grid.add_child(Control.new())
-	for tier in range(1, 5):  # in testa i livelli, col libro che chiedono
-		grid.add_child(rich(["I", "II", "III", "IV"][tier - 1] + ("" if tier == 1 else " [img=center]%s[/img]" % ICONS[BOOKS[tier - 2]].resource_path)))
+	tree.custom_minimum_size = place_techs()
+	for band in tech_bands:  # la testata del ramo: icona e nome
+		var head := HBoxContainer.new()
+		head.position = band[1].position + Vector2(4, 4)
+		head.add_child(ui_icon(BRANCHES_SHEET, Rect2(tile_rect(band[0], 0)), Vector2(32, 32)))
+		var title := Label.new()
+		title.text = named(Branch, band[0], "branch")
+		title.add_theme_color_override("font_color", BUILD_INFO_COLOR)
+		head.add_child(title)
+		tree.add_child(head)
+	for t in TECHS:
+		tree.add_child(tech_card(t))
+	tree.queue_redraw()
+	$HUD/KnowledgePanel.reset_size()
+
+
+# quante ricerche vengono prima di `t`, al più: la sua colonna nell'albero
+func tech_depth(t: Tech) -> int:
+	var needs: Array = TECHS[t].get("needs", [])
+	return 0 if needs.is_empty() else 1 + needs.map(tech_depth).max()
+
+
+# Dispone l'albero: per ricerca la colonna (tech_depth) e la riga dentro la fascia del suo ramo. Una ricerca va sulla
+# riga di quella del suo ramo che viene prima, se lì la colonna è libera, se no in una riga nuova subito sotto: così le
+# catene restano dritte. Le righe sono alte quanto il riquadro più alto (un nome lungo va a capo). Riempie tech_boxes
+# e tech_bands; dà la grandezza dell'albero
+func place_techs() -> Vector2:
+	tech_boxes.clear()
+	tech_bands.clear()
+	var font: Font = $HUD/KnowledgePanel.get_theme_default_font()
+	var text_w := TECH_BOX.x - 12 - 40  # accanto all'icona
+	var cols: int = TECHS.keys().map(tech_depth).max() + 1
+	var y := 0.0
 	for branch in Branch.values():
 		var techs := TECHS.keys().filter(func(t): return TECHS[t]["branch"] == branch)
 		if techs.is_empty():
 			continue
-		var label := HBoxContainer.new()
-		label.add_child(ui_icon(BRANCHES_SHEET, Rect2(tile_rect(branch, 0)), Vector2(32, 32)))
-		var title := Label.new()
-		title.text = named(Branch, branch, "branch")
-		label.add_child(title)
-		grid.add_child(label)
-		for tier in range(1, 5):
-			var cell := VBoxContainer.new()
-			for t in techs:
-				if TECHS[t]["tier"] == tier:
-					cell.add_child(tech_button(t))
-			grid.add_child(cell)
-	$HUD/KnowledgePanel.reset_size()
+		techs.sort_custom(func(a, b): return tech_depth(a) * 1000 + a < tech_depth(b) * 1000 + b)
+		var lanes := []  # per riga: la ricerca in ogni colonna, o null
+		var lane_of := {}
+		var opened := {}  # ricerca -> righe nuove già aperte sotto la sua
+		for t in techs:
+			var d := tech_depth(t)
+			var before = null  # la ricerca del ramo che viene prima, nella colonna subito a sinistra se c'è
+			for n in TECHS[t].get("needs", []):
+				if lane_of.has(n) and (before == null or tech_depth(n) > tech_depth(before)):
+					before = n
+			var lane: Array
+			if before != null and lane_of[before][d] == null:
+				lane = lane_of[before]
+			else:
+				lane = []
+				lane.resize(cols)
+				if before != null:
+					lanes.insert(lanes.find(lane_of[before]) + 1 + opened.get(before, 0), lane)
+					opened[before] = opened.get(before, 0) + 1
+				else:
+					lanes.append(lane)
+			lane[d] = t
+			lane_of[t] = lane
+		var top := y
+		y += TECH_BAND
+		for lane in lanes:
+			var tall := TECH_BOX.y
+			for t in lane.filter(func(x): return x != null):
+				if font.get_string_size(tech_name(t), HORIZONTAL_ALIGNMENT_LEFT, -1, 22).x > text_w:
+					tall = TECH_BOX.y + TECH_LINE  # il nome su due righe
+			for d in cols:
+				if lane[d] != null:
+					tech_boxes[lane[d]] = Rect2(Vector2(d * (TECH_BOX.x + TECH_GAP.x), y), Vector2(TECH_BOX.x, tall))
+			y += tall + TECH_GAP.y
+		tech_bands.append([branch, Rect2(0, top, cols * (TECH_BOX.x + TECH_GAP.x) - TECH_GAP.x, y - top)])
+		y += TECH_GAP.y
+	return Vector2(cols * (TECH_BOX.x + TECH_GAP.x) - TECH_GAP.x, y)
+
+
+# Il riquadro di una ricerca, al suo posto nell'albero: icona, nome, costo (studio e libro; in rosso quello che manca) o
+# "Studied". Il bordo: d'oro se fatta, verde se si può studiare adesso; velato se mancano le ricerche prima. Cliccato
+# la studia; col mouse sopra cosa fa, cosa sblocca, cosa manca, e si accendono i suoi collegamenti
+func tech_card(t: Tech) -> Button:
+	var data: Dictionary = TECHS[t]
+	var rect: Rect2 = tech_boxes[t]
+	var block := research_block(t)
+	var done := researched.has(t)
+	var waiting: bool = data.get("needs", []).any(func(n): return not researched.has(n))
+	var card := Button.new()
+	card.set_meta("tech", t)
+	card.position = rect.position
+	card.size = rect.size
+	card.focus_mode = Control.FOCUS_NONE
+	card.disabled = block != ""
+	var edge := SPLENDOR_COLOR if done else (TECH_READY if block == "" else CENSUS_BORDER)
+	for state in ["normal", "hover", "pressed", "disabled"]:
+		var style := StyleBoxFlat.new()
+		style.bg_color = Color(CENSUS_CARD.lightened(0.12 if state == "hover" else (0.05 if done else 0.0)), 1.0)  # pieno
+		style.border_color = edge
+		style.set_border_width_all(2)
+		card.add_theme_stylebox_override(state, style)
+	var row := HBoxContainer.new()
+	row.position = Vector2(6, 6)
+	row.size = rect.size - Vector2(12, 12)
+	row.add_theme_constant_override("separation", 8)
+	var icon := ui_icon(TECHS_SHEET, Rect2(tile_rect(t, 0)), Vector2(32, 32))
+	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(icon)
+	var lines := VBoxContainer.new()
+	lines.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lines.add_theme_constant_override("separation", 0)
+	var name_label := Label.new()
+	name_label.text = tech_name(t)
+	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	name_label.custom_minimum_size.x = TECH_BOX.x - 12 - 40
+	lines.add_child(name_label)
+	lines.add_child(rich(tech_cost(t)))
+	row.add_child(lines)
+	card.add_child(row)
+	if waiting and not done:
+		row.modulate = Color(1, 1, 1, 0.45)
+	for node in row.find_children("*", "Control", true, false) + [row]:
+		node.mouse_filter = Control.MOUSE_FILTER_IGNORE  # i clic e il mouse sopra al riquadro
+	card.tooltip_text = "%s\n%s%s%s" % [tr(data["info"]), unlocks_text(t), tr("\nTier %s") % ["I", "II", "III", "IV"][data["tier"] - 1],
+		"" if block in ["", tr("Studied")] else "\n" + block]
+	card.pressed.connect(research.bind(t))
+	card.mouse_entered.connect(func():
+		tech_hover = t
+		card.get_parent().queue_redraw())
+	card.mouse_exited.connect(func():
+		if tech_hover == t:
+			tech_hover = -1
+			card.get_parent().queue_redraw())
+	return card
+
+
+# il costo di `t` nel riquadro, in testo ricco: i punti studio e il libro del suo livello, in rosso quelli che mancano;
+# "Studied" (d'oro) se è fatta
+func tech_cost(t: Tech) -> String:
+	if researched.has(t):
+		return "[color=#%s]%s[/color]" % [SPLENDOR_COLOR.to_html(false), tr("Studied")]
+	var short := "[color=#%s]%%s[/color]" % BLOCKED_COLOR.lightened(0.2).to_html(false)
+	var points := "%d [img=center]%s[/img]" % [TECHS[t]["cost"], STUDY_ICON.resource_path]
+	var cost := points if study >= TECHS[t]["cost"] else short % points
+	if TECHS[t]["tier"] > 1:
+		var book: Res = BOOKS[TECHS[t]["tier"] - 2]
+		var needed := "1 [img=center]%s[/img]" % ICONS[book].resource_path
+		cost += "  +  " + (needed if stored(book) > 0 else short % needed)
+	return cost
+
+
+# I collegamenti dell'albero, sotto i riquadri: da ogni ricerca richiesta (lato destro) a quella che la richiede (lato
+# sinistro, con la freccia). Prima in orizzontale, poi in verticale nello spazio tra le colonne, su un binario per
+# ricerca richiesta (così due collegamenti non si confondono), poi di nuovo in orizzontale. D'oro se la ricerca
+# richiesta è fatta, se no grigi; quelli della ricerca sotto il mouse più chiari e spessi. Le fasce dei rami: un velo
+# alternato
+func draw_tech_links(tree: Control) -> void:
+	for i in tech_bands.size():
+		tree.draw_rect(tech_bands[i][1], Color(1, 1, 1, 0.04 if i % 2 == 0 else 0.0))
+		tree.draw_line(tech_bands[i][1].position, tech_bands[i][1].position + Vector2(tech_bands[i][1].size.x, 0),
+			Color(CENSUS_BORDER, 0.6), 2)
+	var tracks := {}  # colonna -> le ricerche richieste che ne partono verso destra, dall'alto
+	for t in tech_boxes:
+		for n in TECHS[t].get("needs", []):
+			var col := tech_depth(n)
+			if not tracks.has(col):
+				tracks[col] = []
+			if n not in tracks[col]:
+				tracks[col].append(n)
+	for col in tracks:
+		tracks[col].sort_custom(func(a, b): return tech_boxes[a].position.y < tech_boxes[b].position.y)
+	var lit := []  # quelli accesi si disegnano sopra gli altri
+	for t in tech_boxes:
+		for n in TECHS[t].get("needs", []):
+			var from: Rect2 = tech_boxes[n]
+			var to: Rect2 = tech_boxes[t]
+			var a := Vector2(from.end.x, from.get_center().y)
+			var b := Vector2(to.position.x, to.get_center().y)
+			var lane: Array = tracks[tech_depth(n)]
+			var x := a.x + TECH_GAP.x * (lane.find(n) + 1) / (lane.size() + 1)
+			var points := PackedVector2Array([a, Vector2(x, a.y), Vector2(x, b.y), b - Vector2(6, 0)]).duplicate()
+			if is_equal_approx(a.y, b.y):
+				points = PackedVector2Array([a, b - Vector2(6, 0)])
+			var link := [points, b, SPLENDOR_COLOR if researched.has(n) else LINK_TODO, 2.0]
+			if tech_hover in [t, n]:
+				link[2] = LINK_LIT
+				link[3] = 3.0
+				lit.append(link)
+			else:
+				draw_link(tree, link)
+	for link in lit:
+		draw_link(tree, link)
+
+
+# un collegamento [punti, punta della freccia, colore, spessore]
+func draw_link(tree: Control, link: Array) -> void:
+	tree.draw_polyline(link[0], link[2], link[3])
+	var tip: Vector2 = link[1]
+	tree.draw_colored_polygon(PackedVector2Array([tip, tip + Vector2(-7, -5), tip + Vector2(-7, 5)]), link[2])
 
 
 # L'erudito alla locanda, finché c'è: i libri che vende (Buy, col prezzo) e quelli del magazzino che comprerebbe
@@ -9514,32 +9705,6 @@ func fill_scholar(row: Control) -> void:
 			sell.tooltip_text = "He buys one book, at half price"
 			sell.pressed.connect(sell_book.bind(book))
 			row.add_child(sell)
-
-
-# pulsante di una ricerca: icona, nome e costo; dorato se fatta, velato se mancano le ricerche prima
-func tech_button(t: Tech) -> Button:
-	var data: Dictionary = TECHS[t]
-	var button := Button.new()
-	var icon := AtlasTexture.new()
-	icon.atlas = TECHS_SHEET
-	icon.region = Rect2(tile_rect(t, 0))
-	button.icon = icon
-	button.expand_icon = true
-	button.add_theme_constant_override("icon_max_width", 32)
-	button.custom_minimum_size = Vector2(190, 44)
-	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	button.focus_mode = Control.FOCUS_NONE
-	var cost := tr("%d study%s") % [data["cost"], "" if data["tier"] == 1 else " + 1 " + res_name(BOOKS[data["tier"] - 2])]
-	button.text = "%s\n%s" % [tech_name(t), tr("studied") if researched.has(t) else cost]
-	var block := research_block(t)
-	button.disabled = block != ""
-	if researched.has(t):
-		button.modulate = SPLENDOR_COLOR.lightened(0.4)
-	elif data.get("needs", []).any(func(n): return not researched.has(n)):
-		button.modulate = Color(1, 1, 1, 0.5)
-	button.tooltip_text = "%s\n%s%s" % [tr(data["info"]), unlocks_text(t), "" if block in ["", tr("Studied")] else "\n" + block]
-	button.pressed.connect(research.bind(t))
-	return button
 
 
 # Finestra Laws (tasto in basso, o clic sul trono): autorità, sigilli e granaio; poi le leggi per categoria, ognuna col

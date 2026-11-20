@@ -682,9 +682,9 @@ Coins in a chest, its item, its book, and the treasure's books:
 • The study's workers study before any other job and stay at the desk all their shift. The others write a page only when there is nothing else to do.
 
 [color=#e8c34a]The Knowledge window[/color]
-Press K or click a desk: your study and the books in your warehouses, then the tree, a row for every branch and a column for every tier. Hover a research for what it unlocks and what is missing; click it to research it at once. It spends the study and, from tier II, a book from a warehouse:
+Press K or click a desk: your study and the books in your warehouses, then the tree: a box for every research, with its cost (study, and from tier II a book; in red what you don't have yet). A gold border: studied; green: you can study it now; faded: the research it needs comes first. Every research sits to the right of those it needs, linked to them by a line with an arrow, gold once the needed one is studied; branches are bands, one below the other, and the links between branches cross them. Hover a box for what it unlocks, its tier and what is missing (its links light up); click it to research it at once. It spends the study and, from tier II, a book from a warehouse:
 • Tier II: a notebook [img=center]res://art/icon_notebook.png[/img]. Tier III: a tome [img=center]res://art/icon_tome.png[/img]. Tier IV: a codex [img=center]res://art/icon_codex.png[/img].
-Books come only from ruins (see Ruins & Expeditions). There is no tier IV research yet.
+Books come only from ruins (see Ruins & Expeditions).
 What you haven't researched has no build button, and its recipes don't show at the stations. From the start you have wooden walls and floors, doors, paths, beds, tables, chairs, campfires, banners, desks, thrones, relics and meals.
 
 [color=#e8c34a]The tree[/color]

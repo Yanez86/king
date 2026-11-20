@@ -681,9 +681,9 @@ Monete in un forziere, il suo oggetto, il suo libro, e i libri del tesoro:
 • I lavoratori dello studio studiano prima di ogni altro lavoro e restano allo scrittoio per tutto il turno. Gli altri scrivono una pagina solo quando non c'è altro da fare.
 
 [color=#e8c34a]La finestra Conoscenza[/color]
-Premi K o clicca uno scrittoio: il tuo studio e i libri nei tuoi magazzini, poi l'albero, una riga per ogni ramo e una colonna per ogni livello. Col mouse sopra una ricerca vedi cosa sblocca e cosa manca; cliccala per studiarla subito. Consuma lo studio e, dal livello II, un libro da un magazzino:
+Premi K o clicca uno scrittoio: il tuo studio e i libri nei tuoi magazzini, poi l'albero: un riquadro per ogni ricerca, col suo costo (studio e, dal livello II, un libro; in rosso quello che ancora non hai). Il bordo d'oro: studiata; verde: puoi studiarla adesso; sbiadita: prima viene la ricerca che richiede. Ogni ricerca sta a destra di quelle che richiede, legata a loro da una linea con la freccia, d'oro quando quella richiesta è studiata; i rami sono fasce, una sotto l'altra, e i collegamenti tra rami le attraversano. Col mouse sopra un riquadro vedi cosa sblocca, il livello e cosa manca (e i suoi collegamenti si accendono); cliccalo per studiarlo subito. Consuma lo studio e, dal livello II, un libro da un magazzino:
 • Livello II: un quaderno [img=center]res://art/icon_notebook.png[/img]. Livello III: un tomo [img=center]res://art/icon_tome.png[/img]. Livello IV: un codice [img=center]res://art/icon_codex.png[/img].
-I libri vengono solo dalle rovine (vedi Rovine e spedizioni). Non ci sono ancora ricerche di livello IV.
+I libri vengono solo dalle rovine (vedi Rovine e spedizioni).
 Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette non compaiono alle postazioni. Dall'inizio hai muri e pavimenti di legno, porte, sentieri, letti, tavoli, sedie, fuochi da campo, stendardi, scrittoi, troni, cimeli e pasti.
 
 [color=#e8c34a]L'albero[/color]

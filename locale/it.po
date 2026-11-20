@@ -1629,6 +1629,9 @@ msgstr "Non è ancora successo niente che valga la pena di raccontare."
 msgid "Studied"
 msgstr "Studiata"
 
+msgid "\nTier %s"
+msgstr "\nLivello %s"
+
 msgid "First: %s"
 msgstr "Prima: %s"
 

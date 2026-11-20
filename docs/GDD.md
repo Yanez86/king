@@ -1138,8 +1138,13 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   meno di partire per la Cittadella.
 
 #### 4.7.3 Le ricerche
-- Finestra **Knowledge** (tasto in basso, che compare col primo studio; K, o clic su uno scrittoio): lo studio e i libri in magazzino, poi l'albero,
-  una riga per ramo e una colonna per livello. Una ricerca si studia se ci sono quelle prima, i punti e (dal livello II)
+- Finestra **Knowledge** (tasto in basso, che compare col primo studio; K, o clic su uno scrittoio): lo studio e i libri in magazzino, poi l'albero
+  (rifatto il 2026-11-20): un riquadro per ricerca con icona, nome e costo (studio e libro; in rosso quello che manca),
+  il bordo d'oro se fatta, verde se si può studiare adesso, sbiadito se mancano le ricerche prima. Ogni ricerca sta a
+  destra di quelle che richiede (le colonne sono la profondità, non il livello: alcune richiedono una ricerca dello
+  stesso livello), legata a loro da una linea a gomito con la freccia, d'oro quando la richiesta è fatta; i rami sono
+  fasce una sotto l'altra, e una catena resta sulla stessa riga. Col mouse sopra: cosa sblocca, il livello, cosa manca,
+  e i suoi collegamenti si accendono. Una ricerca si studia se ci sono quelle prima, i punti e (dal livello II)
   il libro in magazzino: **Studia** la sblocca subito, consumando punti e libro.
 
   | Livello | Studio | Libro | Uno studioso a livello 5 |
