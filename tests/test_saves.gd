@@ -70,6 +70,12 @@ func _initialize() -> void:
 	main.ice_marks[main.water.keys()[0]] = true
 	var tunnel: Vector2i = main.massif.keys().filter(func(k): return main.deep(k))[0]  # una galleria scavata nella montagna
 	main.dig(tunnel)
+	var lawn: Vector2i = main.boulders.keys()[0]  # un masso scavato, e l'erba che è tornata
+	for k in main.boulder_cells(lawn):
+		main.dig(k)
+	main.boulders.erase(lawn)
+	main.regrown[lawn] = true
+	main.bare_ground.erase(lawn)
 	# lavoro a metà: alberi da tagliare vicino alla radura, legna a terra da portare in magazzino
 	main.order = main.Order.CHOP
 	main.mark(Rect2i(mid - Vector2i(14, 14), Vector2i(28, 28)))
@@ -153,6 +159,8 @@ func _initialize() -> void:
 	check(copy.massif == main.massif and not copy.massif.is_empty() and copy.rock_images[1].get_data() == main.rock_images[1].get_data(),
 		"lo stesso massiccio, disegnato uguale")
 	check(copy.caves == main.caves and copy.caves.has(tunnel) and not copy.rocks.has(tunnel), "le gallerie si ritrovano")
+	check(copy.bare_ground == main.bare_ground and copy.regrown == main.regrown and copy.regrown.has(lawn) and copy.is_bare(tunnel),
+		"la terra nuda e l'erba tornata si ritrovano")
 	check(copy.realm_button.text == main.realm_button.text, "il reame nella barra in alto")
 
 	# avanti insieme: col caso uguale, le due partite restano uguali (senza cartella: niente salvataggi all'alba)

@@ -35,6 +35,36 @@ func _initialize() -> void:
 	check(way.all(func(k): return not main.rocks.has(k) and not main.astar.is_point_solid(k)), "ci si passa")
 	check(not main.sheltered(way[0]) and main.sheltered(way[1]), "in galleria si sta al riparo, all'imbocco no")
 	check(way.all(func(k): return not main.can_plant(k)) and main.can_build(way[1]) and main.can_build(way[1], B.DOOR), "nella roccia non si coltiva; si costruisce")
+
+	# sotto la roccia c'è terra nuda, non erba: l'erba torna piano dall'erba accanto, ma solo a cielo aperto
+	var mouth: Vector2i = way[0]
+	check(way.all(func(k): return main.is_bare(k) and main.ground_of(k) == main.Ground.GRAVEL), "scavata, resta terra nuda")
+	check(main.describe(mouth)[0] == "Bare ground" and main.describe(way[1])[0] == "Tunnel", "col mouse sopra")
+	check(main.ground_of(mouth + Vector2i.LEFT) == main.Ground.GRASS, "accanto all'imbocco c'è l'erba")
+	var bare_px: PackedByteArray = main.ground_image.get_region(Rect2i(mouth * main.TILE, Vector2i.ONE * main.TILE)).get_data()
+	var day: int = main.today
+	main.today = 3 * main.SEASON_DAYS + 10  # d'inverno
+	check(main.season(main.today) == main.WINTER, "è inverno")
+	for i in 24 * 60:
+		main.spread_grass()
+	check(main.regrown.is_empty(), "d'inverno l'erba non avanza")
+	main.today = main.SEASON_DAYS + 10  # d'estate
+	main.built[mouth] = [B.FLOOR, W]
+	for i in 24 * 60:
+		main.spread_grass()
+	check(main.regrown.is_empty(), "né sotto un pavimento")
+	main.built.erase(mouth)
+	var grass_hours := 0
+	while not main.regrown.has(mouth) and grass_hours < 24 * 200:
+		main.spread_grass()
+		grass_hours += 1
+	check(main.regrown.has(mouth) and grass_hours > 1 and grass_hours < 24 * 100, "a cielo aperto torna erba, piano (%d ore)" % grass_hours)
+	check(not main.is_bare(mouth) and main.ground_of(mouth) == main.Ground.GRASS and main.can_plant(mouth), "ed è prato come il resto")
+	check(main.ground_image.get_region(Rect2i(mouth * main.TILE, Vector2i.ONE * main.TILE)).get_data() != bare_px, "si ridisegna")
+	for i in 24 * 100:
+		main.spread_grass()
+	check(main.regrown.size() == 1 and way.slice(1).all(func(k): return main.is_bare(k)), "in galleria mai: il sole non ci arriva, anche con l'erba accanto")
+	main.today = day
 	var door: Vector2i = Vector2i(block.position.x, block.position.y + 2)
 	check(way[-1] == door, "la galleria arriva al blocco")
 	var room_rect := Rect2i(block.position + Vector2i.ONE, Vector2i(4, 3))

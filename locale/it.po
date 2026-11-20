@@ -4206,6 +4206,12 @@ msgstr "Macerie"
 msgid "Tunnel"
 msgstr "Galleria"
 
+msgid "Bare ground"
+msgstr "Terra nuda"
+
+msgid "Under the open sky: grass creeps back from the grass beside it."
+msgstr "A cielo aperto: l'erba torna piano dall'erba accanto."
+
 msgid "The rock overhead holds."
 msgstr "La roccia di sopra regge."
 

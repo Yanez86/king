@@ -1187,6 +1187,13 @@ montagna, sullo stesso piano della mappa (un piano sotto, con le scale, è un'al
 - **Gallerie e imbocco**: scavata dentro il massiccio (tutte le otto caselle attorno erano massiccio all'inizio:
   `deep`), la casella è una **galleria** e la roccia le resta sopra; scavata sul bordo è a cielo aperto, l'**imbocco**.
   In galleria si sta al riparo da pioggia e neve, e non si coltiva (sul massiccio scavato non si fa orto né pascolo).
+- **Terra nuda ed erba che torna**: sotto la roccia non c'è erba ma terra nuda (ghiaia), e resta così dove si scava,
+  massi compresi: non è prato, niente orto né pascolo. L'erba avanza da sola, come in Minecraft: una casella di terra
+  nuda con l'erba accanto (di lato) torna erba con 1 probabilità su 10 al giorno (`GRASS_SPREAD`, tirata ogni ora:
+  `spread_grass`), una casella per volta dal bordo. Solo dove arriva il sole: a cielo aperto (l'imbocco, un masso
+  scavato), non sotto un tetto né sotto quello che è costruito, e non d'inverno. In galleria mai: la roccia sopra non
+  si toglie. La terra nuda è `gravel` meno `regrown` (salvato) dove non c'è più `rocks`; il terreno si ridisegna
+  attorno alle caselle tornate erba (`draw_ground`).
 - **La cima che copre**: la cima del massiccio copre le gallerie come un tetto, sopra chi ci passa e quello che c'è
   dentro: roccia come l'altra, appena più scura (si intuisce dove passano). Si toglie col pulsante Tetti, come i tetti
   delle case, e da sola finché è scelto l'ordine Scava (si vede dove si scava); attorno al colono scelto si apre un

@@ -11,6 +11,7 @@ const ORE_VEIN := 0.35      # soglia del rumore delle vene: più alta, meno mine
 const MASSIF_MIN := 6       # caselle di roccia unite da un lato: da qui in su sono un massiccio, sotto restano massi
 const MOUNTAIN_SHARE := 0.07  # della mappa: le montagne, i massicci grandi dove si scava dentro (vedi raise_mountains)
 const ORE_SHOWING := 3      # vene di ferro e di carbone in vista all'inizio, almeno (vedi show_ores)
+const GRASS_SPREAD := 0.1   # al giorno: la terra nuda a cielo aperto con l'erba accanto torna erba (vedi spread_grass)
 # Crolli (GDD 4.4.8): una galleria regge se entro SUPPORT_REACH caselle (anche di sbieco) c'è un sostegno: roccia, un
 # puntello, un muro. Se no è pericolante, e ogni giorno cede con probabilità COLLAPSE_DAILY: si riempie di macerie
 # (RUBBLE_STONE pietra a scavarle di nuovo), chi è sotto perde COLLAPSE_HURT punti ferita (meno con l'armatura)
@@ -962,7 +963,7 @@ const SAVES := preload("res://saves.gd")
 const SAVE_LIST := preload("res://save_list.gd")
 # le variabili della partita che si salvano, così come sono (gli oggetti dentro li impacchetta SAVES.Packer); il resto
 # si rifà da queste (vedi restore) o è interfaccia. Una variabile nuova dello stato del gioco va aggiunta qui
-const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today", "hour", "rocks", "boulders", "massif", "rubble", "ores", "water", "stream", "pasture", "hives", "candles", "banquet_at", "last_banquet", "banquet_sorbet", "hay_marks", "coop_eggs", "herd_keep", "drover_until", "drover_stock",
+const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "regrown", "clock", "today", "hour", "rocks", "boulders", "massif", "rubble", "ores", "water", "stream", "pasture", "hives", "candles", "banquet_at", "last_banquet", "banquet_sorbet", "hay_marks", "coop_eggs", "herd_keep", "drover_until", "drover_stock",
 	"trees", "stock", "bushes", "flax", "herbs", "graves", "funerals", "weeds", "chop_marks", "mine_marks", "demolish_marks", "unfurnish_marks", "uproot_marks", "harvest_marks", "fish_marks",
 	"fish_spots", "items", "fresh", "draft", "blueprints", "built", "furniture_draft", "furniture_plans", "furniture",
 	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
@@ -1939,7 +1940,14 @@ var water := {}             # cella -> Ground.SHALLOW (si guada) o Ground.DEEP (
 var ground_texture: ImageTexture  # tutto il terreno già disegnato, vedi bake_ground
 var map_seed := 0           # del rumore della mappa: col salvataggio, rifà le chiazze di erba sassosa (vedi ground_noise)
 var ground_cols := PackedByteArray()  # per casella, riga per riga: la variante del terreno (colonna di GROUND, vedi bake_ground)
-var gravel := {}            # cella -> true: la roccia com'era all'inizio; il terreno disegnato resta ghiaia anche dove si scava
+var gravel := {}            # cella -> true: la roccia com'era all'inizio; sotto c'è ghiaia, terra nuda anche dove si scava
+# cella -> true: la terra nuda dove l'erba è tornata (vedi spread_grass): da lì è prato come il resto
+var regrown := {}
+# cella -> true: dove il terreno è ghiaia, `gravel` meno `regrown` (lo rifà bake_ground). Con la roccia sopra o
+# scavata (terra nuda, vedi is_bare): non è prato, non ci si fa orto né pascolo
+var bare_ground := {}
+var ground_image: Image     # il terreno disegnato (vedi bake_ground, draw_ground)
+var ground_bumps: FastNoiseLite  # il rumore della mappa: dove l'erba è sassosa
 var delivered := {}         # [Job, cella d'origine] -> {Res: quantità} già al cantiere, per chi vuole più materiali
 var game_id := ""           # la cartella dei salvataggi della colonia (vedi SAVES.create); vuota: non si salva
 var autosave_due := false   # è l'alba: si salva finito il tick (vedi _process)
@@ -5455,6 +5463,8 @@ func describe(cell: Vector2i) -> Array:
 		return [named(Build, built[cell][0]), named(Res, built[cell][1], "item")]
 	if pasture.has(cell):
 		return [tr("Pasture"), tr("Grass: %d%%. Click: the herd") % roundi(pasture[cell] / GRASS_MAX * 100)]
+	if is_bare(cell) and not caves.has(cell):
+		return [tr("Bare ground"), tr("Under the open sky: grass creeps back from the grass beside it.")]
 	if caves.has(cell):
 		return [tr("Tunnel"), tr("The rock overhead holds.") if not shaky.has(cell) else tr("Unsafe: no rock, prop or wall within %d tiles. It may give way.") % SUPPORT_REACH]
 	if hay_marks.has(cell):
@@ -6097,34 +6107,26 @@ func ground_noise(from: int) -> FastNoiseLite:
 
 
 # Disegna il terreno una volta sola in un'unica immagine, che _draw mostra come una texture. Le varianti delle caselle
-# sono a caso la prima volta, poi quelle di ground_cols; la roccia è quella di partenza (`gravel`): una partita
-# caricata si rivede uguale, anche dove si è scavato.
-# ponytail: si fa solo alla generazione; quando il terreno cambierà (scavi, ponti) ridisegnare le caselle toccate
+# sono a caso la prima volta, poi quelle di ground_cols; la ghiaia è dove c'era la roccia all'inizio (`gravel`) e l'erba
+# non è tornata (`regrown`): una partita caricata si rivede uguale, anche dove si è scavato. Dove l'erba torna si
+# ridisegnano le caselle toccate (vedi spread_grass)
 func bake_ground(noise: FastNoiseLite) -> void:
+	bare_ground = gravel.duplicate()
+	for cell in regrown:
+		bare_ground.erase(cell)
+	ground_bumps = noise
 	var sheet := GROUND.get_image()
 	sheet.convert(Image.FORMAT_RGBA8)
-	var img := Image.create_empty(MAP_SIZE.x * TILE, MAP_SIZE.y * TILE, false, Image.FORMAT_RGBA8)
+	ground_image = Image.create_empty(MAP_SIZE.x * TILE, MAP_SIZE.y * TILE, false, Image.FORMAT_RGBA8)
 	var fresh_cols := ground_cols.size() != MAP_SIZE.x * MAP_SIZE.y
 	if fresh_cols:
 		ground_cols.resize(MAP_SIZE.x * MAP_SIZE.y)
 	for y in MAP_SIZE.y:
 		for x in MAP_SIZE.x:
-			var cell := Vector2i(x, y)
-			var own := ground_of(cell, gravel)
-			var row := Ground.STONY_GRASS if own == Ground.GRASS and noise.get_noise_2d(x, y) > 0.15 else own
 			if fresh_cols:
 				ground_cols[y * MAP_SIZE.x + x] = randi() % 4
-			img.blit_rect(sheet, tile_rect(ground_cols[y * MAP_SIZE.x + x], row), cell * TILE)
-			for i in 4:  # i vicini "più alti" sbordano su questa casella: lati, e angoli se nessun lato li copre già
-				var side := edge_row(own, cell + EDGE_SIDES[i], gravel)
-				if side >= 0:
-					img.blend_rect(sheet, tile_rect(i, side), cell * TILE)
-				var d: Vector2i = EDGE_CORNERS[i]
-				var corner := edge_row(own, cell + d, gravel)
-				if corner >= 0 and edge_row(own, cell + Vector2i(d.x, 0), gravel) != corner \
-						and edge_row(own, cell + Vector2i(0, d.y), gravel) != corner:
-					img.blend_rect(sheet, tile_rect(i, corner + 3), cell * TILE)
-	ground_texture = ImageTexture.create_from_image(img)
+			draw_ground(Vector2i(x, y), sheet)
+	ground_texture = ImageTexture.create_from_image(ground_image)
 	water_fx = ShaderMaterial.new()
 	water_fx.shader = WATER_SHADER
 	water_fx.set_shader_parameter("shallow", sheet.get_pixel(0, Ground.SHALLOW * TILE))  # colori base dell'acqua
@@ -6137,18 +6139,68 @@ func bake_ground(noise: FastNoiseLite) -> void:
 	add_child(sprite)
 
 
-# `rock`: la roccia da guardare; quella di adesso, o per il terreno disegnato quella di partenza (`gravel`)
-func ground_of(cell: Vector2i, rock := rocks) -> int:
+# la casella `cell` in ground_image: il suo terreno, e sopra i bordi dei vicini
+func draw_ground(cell: Vector2i, sheet: Image) -> void:
+	var own := ground_of(cell)
+	var row := Ground.STONY_GRASS if own == Ground.GRASS and ground_bumps.get_noise_2d(cell.x, cell.y) > 0.15 else own
+	ground_image.blit_rect(sheet, tile_rect(ground_cols[cell.y * MAP_SIZE.x + cell.x], row), cell * TILE)
+	for i in 4:  # i vicini "più alti" sbordano su questa casella: lati, e angoli se nessun lato li copre già
+		var side := edge_row(own, cell + EDGE_SIDES[i])
+		if side >= 0:
+			ground_image.blend_rect(sheet, tile_rect(i, side), cell * TILE)
+		var d: Vector2i = EDGE_CORNERS[i]
+		var corner := edge_row(own, cell + d)
+		if corner >= 0 and edge_row(own, cell + Vector2i(d.x, 0)) != corner and edge_row(own, cell + Vector2i(0, d.y)) != corner:
+			ground_image.blend_rect(sheet, tile_rect(i, corner + 3), cell * TILE)
+
+
+# Il terreno di `cell`: acqua, ghiaia (dove c'era la roccia e l'erba non è tornata) o prato
+func ground_of(cell: Vector2i) -> int:
 	if water.has(cell):
 		return water[cell]
-	return Ground.GRAVEL if rock.has(cell) else Ground.GRASS
+	return Ground.GRAVEL if bare_ground.has(cell) else Ground.GRASS
+
+
+# terra nuda: roccia scavata dove l'erba non è (ancora) tornata
+func is_bare(cell: Vector2i) -> bool:
+	return bare_ground.has(cell) and not rocks.has(cell)
+
+
+# Un'ora d'erba che avanza, come un prato che si riprende la terra: una casella di terra nuda con l'erba accanto (di
+# lato) torna erba, con la probabilità che in un giorno fa GRASS_SPREAD. Solo dove arriva il sole: a cielo aperto, non
+# in galleria né sotto un tetto, e non sotto quello che è costruito; d'inverno no
+func spread_grass() -> void:
+	if season(today) == WINTER:
+		return
+	var grown := []
+	for cell in bare_ground:
+		if rocks.has(cell) or caves.has(cell) or built.has(cell) or water.has(cell):
+			continue
+		if not SIDES.any(func(d): return astar.is_in_boundsv(cell + d) and ground_of(cell + d) == Ground.GRASS) or sheltered(cell):
+			continue
+		if randf() < 1.0 - pow(1.0 - GRASS_SPREAD, 1.0 / 24.0):
+			grown.append(cell)
+	if grown.is_empty():
+		return
+	for cell in grown:  # dopo, tutte insieme: in un'ora l'erba avanza di una casella sola
+		regrown[cell] = true
+		bare_ground.erase(cell)
+	var sheet := GROUND.get_image()
+	sheet.convert(Image.FORMAT_RGBA8)
+	var redrawn := {}
+	for cell in grown:
+		for k in cells_in(Rect2i(cell - Vector2i.ONE, Vector2i(3, 3))):
+			if astar.is_in_boundsv(k) and not redrawn.has(k):
+				redrawn[k] = true
+				draw_ground(k, sheet)
+	ground_texture.update(ground_image)
 
 
 # Riga del bordo che la casella `next` disegna su una casella di terreno `own`, -1 se nessuno.
-func edge_row(own: int, next: Vector2i, rock := rocks) -> int:
+func edge_row(own: int, next: Vector2i) -> int:
 	if not astar.is_in_boundsv(next):
 		return -1
-	var other := ground_of(next, rock)
+	var other := ground_of(next)
 	if own >= Ground.SHALLOW and other < Ground.SHALLOW:
 		return Ground.SHORE
 	if own == Ground.DEEP and other == Ground.SHALLOW:
@@ -7570,7 +7622,7 @@ func sowing_season(crop: Crop) -> bool:
 
 # sul prato libero, fuori dalle stanze: ci si può fare l'orto
 func can_plant(cell: Vector2i) -> bool:
-	return not garden.has(cell) and not pasture.has(cell) and can_build(cell, Build.WALL) and ground_of(cell) == Ground.GRASS and not roofed.has(cell) and not massif.has(cell)
+	return not garden.has(cell) and not pasture.has(cell) and can_build(cell, Build.WALL) and ground_of(cell) == Ground.GRASS and not roofed.has(cell)
 
 
 # quello che cresce in `cell`, o la prossima coltura del piano da seminarci; -1 se quest'anno non c'è più niente
@@ -11865,6 +11917,7 @@ func new_hour() -> void:
 	place_babies()
 	wear_roofs()
 	collapse_hour()
+	spread_grass()
 	melt_ice()
 	ignite_roofs()
 	narrator.new_hour()
