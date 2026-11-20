@@ -3,6 +3,7 @@
 Esegui dalla cartella del progetto: python3 tools/make_sprites.py
 """
 import math
+import random
 import struct
 import zlib
 from pathlib import Path
@@ -5281,6 +5282,64 @@ def trees_sheet():
     return side_by_side(frames(TREES, TREES_HEIGHT))
 
 
+def massif_sheet():
+    """Il massiccio di roccia, foglio 64x64 (vedi MASSIF in main.gd): le caselle di roccia vicine si disegnano come un
+    blocco solo, ognuna con la cima piatta e sopra i bordi dei lati aperti. Righe: la cima (4 varianti, a caso come il
+    terreno); i lati aperti (su, destra, giù, sinistra: il contorno, e in basso la parete in vista); gli angoli dove la
+    roccia c'è sui due lati ma non in diagonale (in alto a sx, alto a dx, basso a dx, basso a sx: sotto, il fianco
+    della parete del vicino); le vene allo scoperto (ferro, carbone, due varianti)."""
+    def top(seed):
+        rnd = random.Random(seed)
+        g = [["r"] * 16 for _ in range(16)]
+        for _ in range(5):  # scaglie in luce, con l'ombra sotto
+            x, y = rnd.randrange(1, 13), rnd.randrange(1, 14)
+            g[y][x:x + 2] = "uu"
+            g[y + 1][x + 1] = "R"
+        for _ in range(3):  # crepe corte, di sbieco
+            x, y = rnd.randrange(2, 12), rnd.randrange(2, 12)
+            for i in range(rnd.randrange(2, 4)):
+                g[y + i][x + i] = "R"
+        for _ in range(4):
+            g[rnd.randrange(16)][rnd.randrange(16)] = "R"
+        return ["".join(r) for r in g]
+
+    def blank():
+        return [["."] * 16 for _ in range(16)]
+
+    up, right, down, left = blank(), blank(), blank(), blank()
+    up[0], up[1] = ["o"] * 16, ["u"] * 16
+    for y in range(16):
+        right[y][15], right[y][14] = "o", "R"
+        left[y][0], left[y][1] = "o", "u"
+    rnd = random.Random(7)
+    down[9] = ["R"] * 16  # l'orlo, poi la parete: più scura, rigata dall'acqua
+    for y in range(10, 15):
+        down[y] = ["i"] * 16
+    for x in range(1, 16, 3):
+        for y in range(10, 10 + rnd.randrange(2, 5)):
+            down[y][x] = "R"
+    down[15] = ["o"] * 16
+    corners = [blank() for _ in range(4)]
+    corners[0][0][0] = corners[1][0][15] = "o"
+    for y in range(9, 16):
+        corners[2][y][15] = corners[3][y][0] = "o"
+
+    def veins(seed, light, dark, big):
+        rnd = random.Random(seed)
+        g = blank()
+        for _ in range(5):
+            x, y = rnd.randrange(2, 12), rnd.randrange(2, 7)
+            g[y][x:x + 2] = light + dark
+            g[y + 1][x:x + 2] = dark * 2
+            if big:
+                g[y + 1][x + 2] = dark
+        return g
+
+    rows = [[top(s) for s in (1, 2, 3, 4)], [up, right, down, left], corners,
+            [veins(1, "4", "5", False), veins(2, "7", "6", True), veins(3, "4", "5", False), veins(4, "7", "6", True)]]
+    return [line for fs in rows for line in side_by_side([["".join(r) for r in f] for f in fs])]
+
+
 def outline(grid, w, h):
     """I segni di raccolta: il contorno di 1 pixel attorno alle parti piene di ogni riquadro w x h del foglio (l'ombra a
     terra non conta), bianco: in gioco lo si tinge col colore dell'ordine. Ogni riquadro esce di un pixel per lato
@@ -5412,6 +5471,7 @@ def main():
     images["rock_2x1"] = pixels(art(ROCK_2X1, 32, 16))
     images["rock_2x2"] = pixels(art(ROCK_2X2, 32, 32))
     images["rock_iron"] = pixels(art(ROCK_IRON, 16, 16))
+    images["massif"] = pixels(massif_sheet())
     images["rock_coal"] = pixels(art(ROCK_COAL, 16, 16))
     for name, block, w, h in (("rock_1x1", ROCK_1X1, 16, 16), ("rock_2x1", ROCK_2X1, 32, 16), ("rock_2x2", ROCK_2X2, 32, 32),
                               ("rock_iron", ROCK_IRON, 16, 16), ("rock_coal", ROCK_COAL, 16, 16)):  # un masso, un riquadro

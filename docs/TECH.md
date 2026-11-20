@@ -57,7 +57,7 @@
   diventano `{"@": classe, "#": indice}`, così dopo il caricamento sono di nuovo lo stesso oggetto.
 - **Cosa si rifà** (`restore`, `resume`): la griglia dei percorsi (`rebuild_grid`: roccia, acqua, muri, strade, ghiaccio),
   tetti e magazzini (`update_roofs`, `update_stockpile`), il terreno disegnato (dal seme della mappa, `map_seed`, dalle
-  varianti delle caselle, `ground_cols`, e dalla roccia di partenza, `gravel`: dove si è scavato resta ghiaia), i fuochi e le luci (da sé), le finestre.
+  varianti delle caselle, `ground_cols`, e dalla roccia di partenza, `gravel`: dove si è scavato resta ghiaia), il massiccio disegnato (`bake_rock`, da `massif` e `rocks`), i fuochi e le luci (da sé), le finestre.
 - **Una variabile nuova dello stato della partita in `main.gd` va aggiunta a `SAVED`** (in `atmosphere.gd` e
   `narrator.gd` al loro `SAVED`); quelle delle classi interne no. Un campo che non c'è più nel salvataggio si ignora, uno nuovo resta al valore
   di partenza. Se cambia il senso dei dati (per esempio un valore nuovo in mezzo a un enum) si alza `SAVES.VERSION` e si

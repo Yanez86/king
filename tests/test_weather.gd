@@ -53,6 +53,7 @@ func _initialize() -> void:
 	# COLD_WAVE gradi in meno; d'estate mai
 	main.clock = midwinter
 	sky.waves.clear()
+	main.narrator.bad.clear()  # se le prove di prima ne hanno già decisa una, la tregua non ne lascia venire altre
 	for i in 500:
 		sky.waves_until = int(main.clock)  # di nuovo i tiri per i prossimi giorni
 		sky.update_weather(0.0)

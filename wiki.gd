@@ -3,7 +3,7 @@
 # Traduzioni: locale/wiki_<lingua>.gd (per ora wiki_it.gd), con le stesse pagine nello stesso ordine (vedi pages).
 const PAGES := [
 	["Basics", """[color=#e8c34a]Your lordship[/color]
-King is a medieval colony sim. You are the ruler of a small lordship, but you never move anyone by hand: you mark trees to chop and boulders to mine, plan buildings, choose what the workshops make and pass laws. Colonists pick their jobs by themselves, following their needs and their daily routine.
+King is a medieval colony sim. You are the ruler of a small lordship, but you never move anyone by hand: you mark trees to chop and rock to mine, plan buildings, choose what the workshops make and pass laws. Colonists pick their jobs by themselves, following their needs and their daily routine.
 
 [color=#e8c34a]The start[/color]
 • Your ruler, made on the new-game page, and three colonists stand in a clearing. Nothing is built yet: no rooms, no warehouse.
@@ -140,7 +140,7 @@ A job takes 1.5 times as long at level 0, the normal time at level 5 and half at
 [color=#e8c34a]What each skill does[/color]
 [table=2]
 [cell]Gathering[/cell][cell]picking bushes, flax and herbs, the garden[/cell]
-[cell]Mining[/cell][cell]mining boulders[/cell]
+[cell]Mining[/cell][cell]mining rock[/cell]
 [cell]Woodcutting[/cell][cell]chopping trees[/cell]
 [cell]Construction[/cell][cell]building: 2 s a tile or a piece[/cell]
 [cell]Smithing[/cell][cell]at the furnace and the anvil[/cell]
@@ -456,7 +456,7 @@ After the Royal banquet research (Land IV, 1000 and a codex, after Apiary), at t
 Trees: oak 28 wood, pine 35, birch 20. A stroke every 10 s gives 5.
 
 [color=#e8c34a]Mine (M)[/color] [img=center]res://art/icon_stone.png[/img]
-Boulders of 1x1, 2x1 or 2x2 tiles, 5 stone a tile. A stroke every 15 s gives 5. Iron and coal veins are 1x1 boulders (hover: "Iron vein", "Coal vein") that give 5 iron or 5 coal instead of stone.
+Rock joined in groups of 6 tiles or more is a massif: one block, with a flat top and a rock face where the tile below is open. The mountains are the big ones. Mine marks it tile by tile, and miners dig from where they can reach inwards: a dug tile is open ground you walk on, so a row of them is a tunnel into the rock. Scattered rock is boulders of 1x1, 2x1 or 2x2 tiles, mined whole. Either way 5 stone a tile, and a stroke every 15 s gives 5. Iron and coal veins give 5 iron or 5 coal instead of stone (hover: "Iron vein", "Coal vein"). A vein in a boulder shows; one inside a massif shows only when a side of its tile is open, so digging uncovers them. At least 3 veins of each are in sight on a new map.
 
 [color=#e8c34a]Uproot (U)[/color]
 Weeds, bushes, flax and herbs go in 1.5 s. Clear them before building there.

@@ -70,7 +70,7 @@ func _initialize() -> void:
 	main.ice_marks[main.water.keys()[0]] = true
 	# lavoro a metà: alberi da tagliare vicino alla radura, legna a terra da portare in magazzino
 	main.order = main.Order.CHOP
-	main.mark(Rect2i(mid - Vector2i(10, 10), Vector2i(20, 20)))
+	main.mark(Rect2i(mid - Vector2i(14, 14), Vector2i(28, 28)))
 	main.order = main.Order.NONE
 	main.drop(W, mid + Vector2i(0, 2), 30)
 	# un avventuriero spuntato alla bacheca
@@ -148,6 +148,8 @@ func _initialize() -> void:
 	check(grid, "la stessa griglia dei percorsi: roccia, acqua, muri, palizzata, strada")
 	check(copy.ground_cols == main.ground_cols and copy.map_seed == main.map_seed and copy.gravel == main.gravel
 		and not copy.gravel.is_empty(), "lo stesso terreno, con la roccia di partenza")
+	check(copy.massif == main.massif and not copy.massif.is_empty() and copy.rock_image.get_data() == main.rock_image.get_data(),
+		"lo stesso massiccio, disegnato uguale")
 	check(copy.realm_button.text == main.realm_button.text, "il reame nella barra in alto")
 
 	# avanti insieme: col caso uguale, le due partite restano uguali (senza cartella: niente salvataggi all'alba)

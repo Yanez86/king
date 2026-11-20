@@ -1362,6 +1362,9 @@ msgstr ""
 msgid "Boulder"
 msgstr "Masso"
 
+msgid "Rock"
+msgstr "Roccia"
+
 msgid "%s left: %d / %d%s"
 msgstr "%s rimanente: %d / %d%s"
 
@@ -1422,8 +1425,8 @@ msgstr "Clic: cosa produrre"
 msgid "Chop trees: %d"
 msgstr "Tagliare alberi: %d"
 
-msgid "Mine boulders: %d"
-msgstr "Scavare massi: %d"
+msgid "Mine rock: %d"
+msgstr "Scavare la roccia: %d"
 
 msgid "Uproot plants: %d"
 msgstr "Estirpare piante: %d"
@@ -3179,8 +3182,8 @@ msgstr "Forgia, banco da lavoro, filatoio, banco del falegname, fornace, mulino,
 msgid "Felling the marked trees."
 msgstr "Abbattere gli alberi segnati."
 
-msgid "Mining the marked boulders, cutting ice."
-msgstr "Scavare i massi segnati, tagliare il ghiaccio."
+msgid "Mining the marked rock, cutting ice."
+msgstr "Scavare la roccia segnata, tagliare il ghiaccio."
 
 msgid "Picking bushes, flax and herbs, uprooting, taking honey."
 msgstr "Raccogliere da cespugli, lino ed erbe, estirpare, smielare."

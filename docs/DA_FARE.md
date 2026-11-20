@@ -18,6 +18,7 @@
 | Risorse ed edifici | 4.4 | fatto | vene d'oro, commercio |
 | Cibo e orto | 4.4.1 | fatto, coi concimi | — (il resto è in 4.4.7) |
 | Grano, forno e animali | 4.4.7 | fatto: torrente, grano, mulini, forno, allevamento, stalla, api, banchetto | maiali e marcio, mantello di lana |
+| Roccia e gallerie | 4.4.8 | fase 1: roccia unita, scavo a caselle, vene nascoste | stanze nella roccia, crolli e puntelli, il buio |
 | Forgia e sartoria | 4.4.2 | fatto | ordini "fanne N", qualità degli oggetti |
 | Combattimento | 4.4.3 | fatto | predoni, medico e cure |
 | Avventurieri e rovine | 4.4.4 | fasi 1–3, chi resta, coloni in spedizione | vene d'oro, commercio, una rovina sulla mappa |
@@ -51,7 +52,7 @@ animali è fatto (4.4.7: torrente e mulini, forno, pascolo e stalla, api, banche
 ## Coloni (4.2)
 
 - [ ] Tarare l'esperienza (le soglie ci sono: un punto ogni 3,6 secondi di lavoro). In una giornata vera, a livello 0:
-  taglio 11, raccolta 13–15, scavo 8 (i massi sono più lontani).
+  taglio 11, raccolta 13–15, scavo 8 (la roccia è più lontana).
 - [ ] Altri effetti dello stress, oltre alla felicità.
 - [ ] Condizioni nuove: malattie che si attaccano (la febbre del narratore c'è), perdita di punti ferita.
 - [ ] Talenti nuovi: Robusto (resiste al freddo), Pirofobo (non cucina); più talenti in generale (dopo-MVP n. 5).
@@ -133,6 +134,18 @@ mucche, latte, formaggio, lana, letame), 5 (la macina a trazione, poi rifatta co
 - [ ] I maiali che mangiano anche il marcio, alla mangiatoia.
 - [ ] I cuochi che portano le portate del banchetto in tavola (oggi si prendono dai magazzini).
 - [ ] Tarare i numeri: rese del grano, erba e sazietà, prezzi del mercante, miele, latte.
+
+## Roccia, gallerie e stanze nella montagna (4.4.8)
+
+Deciso il 2026-11-20; fatta la fase 1 (la roccia unita in massicci, le montagne, lo scavo casella per casella, le vene
+che si vedono solo allo scoperto). Resta:
+
+- [ ] Fase 2: la cima del massiccio che copre le gallerie e si apre guardandoci dentro; le stanze nella roccia (porta
+  nella galleria, niente tetto, niente pioggia né neve).
+- [ ] Fase 3: crolli, puntelli e macerie; in rosso, segnando lo scavo, le caselle che resterebbero senza sostegno.
+- [ ] Fase 4: il buio e la temperatura del sottosuolo.
+- [ ] Tarare i numeri: quanta montagna, da quante caselle è massiccio, quante vene in vista, il tempo per casella.
+- [ ] Togliere un segno di scavo (oggi i segni non si tolgono).
 
 ## Forgia, sartoria ed equipaggiamento (4.4.2)
 

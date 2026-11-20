@@ -31,11 +31,32 @@ func _initialize() -> void:
 				var k: Vector2i = cell + Vector2i(dx, dy)
 				check(main.rocks.has(k) and not covered.has(k), "massi solo sulla roccia, senza sovrapporsi")
 				covered[k] = true
-	check(covered.size() == main.rocks.size(), "i massi coprono tutta la roccia")
+	# la roccia unita è massiccio, quella sparsa è coperta di massi
+	check(covered.size() + main.massif.size() == main.rocks.size() and covered.keys().all(func(k): return not main.massif.has(k)),
+		"i massi coprono tutta la roccia fuori dal massiccio")
 	check(main.boulders.values().has(Vector2i(2, 2)), "ci sono anche massi grandi")
+	var rock_sets: Array = rock_groups(main)
+	for group in rock_sets:
+		check(group.all(func(k): return main.massif.has(k)) == (group.size() >= main.MASSIF_MIN) \
+			and group.any(func(k): return main.massif.has(k)) == (group.size() >= main.MASSIF_MIN), "massiccio da MASSIF_MIN caselle unite in su")
+	check(rock_sets.any(func(g): return g.size() >= 150), "c'è una montagna dove scavare dentro: %d" % rock_sets.map(func(g): return g.size()).max())
+	check(main.massif.keys().all(func(k): return (k - main.MAP_SIZE / 2).length() >= main.CLEARING[0]), "niente massiccio nella radura")
 	check(main.ores.values().has(main.Res.IRON) and main.ores.values().has(main.Res.COAL), "ci sono vene di ferro e di carbone")
 	for cell in main.ores:
-		check(main.boulders.get(cell) == Vector2i.ONE, "ogni vena è un masso da una casella")
+		check(main.boulders.get(cell) == Vector2i.ONE or main.massif.has(cell), "ogni vena è un masso da una casella, o una casella del massiccio")
+	for res in [main.Res.IRON, main.Res.COAL]:
+		check(main.ores.keys().filter(func(k): return main.ores[k] == res and main.vein_shows(k)).size() >= main.ORE_SHOWING, "vene in vista all'inizio")
+	var hidden: Array = main.ores.keys().filter(func(k): return not main.vein_shows(k))
+	check(not hidden.is_empty() and hidden.all(func(k): return main.massif.has(k) and main.SIDES.all(func(d): return main.rocks.has(k + d) or not main.astar.is_in_boundsv(k + d))),
+		"le vene chiuse nel massiccio non si vedono")
+	check(main.describe(hidden[0]) == ["Rock", "Stone left: 5 / 5"], "una vena nascosta si legge come roccia")
+	var sheet: Image = main.MASSIF.get_image()
+	check(sheet.get_size() == Vector2i(4, 4) * main.TILE, "il foglio del massiccio: cima, lati, angoli, vene")
+	var inside: Array = main.massif.keys().filter(func(k): return (main.EDGE_SIDES + main.EDGE_CORNERS).all(func(d): return main.massif.has(k + d)) and not main.ores.has(k))
+	var face: Array = main.massif.keys().filter(func(k): return not main.rocks.has(k + Vector2i.DOWN) and main.astar.is_in_boundsv(k + Vector2i.DOWN))
+	check(main.rock_image.get_pixelv(inside[0] * main.TILE + Vector2i(8, 15)) != main.rock_image.get_pixelv(face[0] * main.TILE + Vector2i(8, 15)),
+		"dove sotto è aperto il massiccio mostra la parete")
+	check(main.rock_image.get_pixelv(main.boulders.keys()[0] * main.TILE + Vector2i(8, 8)).a == 0.0, "fuori dal massiccio niente: i massi li disegna _draw")
 	check(main.stockpile.is_empty() and main.rooms.is_empty(), "niente magazzino all'inizio")
 
 	# i segni sono contorni: ogni foglio dei contorni ha un riquadro per sprite, un pixel più largo per lato
@@ -216,6 +237,50 @@ func _initialize() -> void:
 	check(not main.ores.has(vein) and not main.boulders.has(vein), "vena scavata")
 	check(main.total(main.Res.IRON) == iron_before + main.STONE_PER_CELL and main.total(S) == stone_before, "dà ferro, niente pietra")
 
+	# il massiccio si scava una casella per volta, da dove ci si arriva verso dentro: un blocco 3x3 in mezzo al prato,
+	# con una vena nel mezzo che non si vede finché lo scavo non la scopre
+	var bare := func(k): return main.can_build(k) and main.colonists.all(func(o): return main.cell_of(o.pos) != k) \
+		and main.items.values().all(func(heap): return not heap.has(k))
+	vein = main.cells_in(area).filter(func(k): return main.cells_in(Rect2i(k - Vector2i(2, 2), Vector2i(5, 5))).all(bare))[0]
+	var block := Rect2i(vein - Vector2i.ONE, Vector2i(3, 3))
+	for k in main.cells_in(block):
+		main.rocks[k] = true
+		main.massif[k] = true
+		main.astar.set_point_solid(k)
+	main.ores[vein] = main.Res.COAL
+	for k in main.cells_in(block):
+		main.redraw_rock(k)
+	check(not main.vein_shows(vein) and main.describe(vein)[0] == "Rock", "la vena in mezzo non si vede")
+	var rock_px: Color = main.rock_image.get_pixelv(vein * main.TILE + Vector2i(8, 8))
+	main.mark(Rect2i(vein + Vector2i.LEFT, Vector2i(2, 1)))  # la casella sul bordo e quella in mezzo
+	check(main.mine_marks.size() == 2 and main.mine_marks.has(vein), "il massiccio si segna a caselle")
+	check(main.full_stock(vein) == main.STONE_PER_CELL, "ogni casella ha la sua pietra")
+	var digger = main.colonists[0]
+	check(main.find_work(digger) and digger.target == vein + Vector2i.LEFT, "si comincia da dove ci si arriva")
+	main.quit_job(digger)
+	var coal_before: int = main.total(main.Res.COAL)
+	stone_before = main.total(S)
+	var seen_vein := false
+	for i in 3000:
+		main.tick(0.05)
+		check_work(main)
+		if not main.rocks.has(vein + Vector2i.LEFT) and main.rocks.has(vein) and not seen_vein:
+			seen_vein = true
+			check(main.vein_shows(vein) and main.describe(vein) == ["Coal vein", "Coal left: 5 / 5\nMarked: mine"], "scavando accanto la vena si scopre")
+			check(main.rock_image.get_pixelv(vein * main.TILE + Vector2i(8, 8)) != rock_px \
+				or main.rock_image.get_region(Rect2i(vein * main.TILE, Vector2i.ONE * main.TILE)).get_data() != main.rock_image.get_region(Rect2i((vein + Vector2i.UP) * main.TILE, Vector2i.ONE * main.TILE)).get_data(),
+				"e si disegna")
+	check(seen_vein and main.mine_marks.is_empty(), "scavate le due caselle, la seconda dopo la prima")
+	check(not main.rocks.has(vein) and main.massif.has(vein) and not main.astar.is_point_solid(vein), "la casella scavata è una galleria: ci si passa")
+	check(main.rock_image.get_pixelv(vein * main.TILE + Vector2i(8, 8)).a == 0.0, "scavata, il massiccio lì non si disegna più")
+	check(main.total(main.Res.COAL) == coal_before + main.STONE_PER_CELL and main.total(S) == stone_before + main.STONE_PER_CELL, "una casella di pietra, una di carbone")
+	check(main.cells_in(block).filter(func(k): return main.rocks.has(k)).size() == 7 and main.solid_massif(vein + Vector2i.UP), "il resto del blocco è ancora roccia")
+	for k in main.cells_in(block):  # via il blocco: il resto delle prove vuole il prato
+		main.rocks.erase(k)
+		main.massif.erase(k)
+		main.astar.set_point_solid(k, false)
+		main.redraw_rock(k)
+
 	# fase 5: un muro di legno e un pavimento di pietra, col materiale preso dal magazzino o da terra
 	var spots := []
 	for y in range(area.position.y, area.end.y):
@@ -347,6 +412,7 @@ func _initialize() -> void:
 	for kind in [main.Build.WALL, main.Build.LAMP]:
 		check(not main.can_build(at + Vector2i.DOWN, kind), "girato, il letto prende la casella sotto: niente muri né mobili")
 	check(main.can_build(at + Vector2i.DOWN), "ma il pavimento sì")
+	main.drop(W, main.cell_of(main.colonists[0].pos), 90)  # legna per i mobili: vicino alla partenza ora c'è anche la montagna, e meno alberi
 	var wood_bed: int = main.total(W)
 	main.confirm_build()
 	check(main.furniture_draft.is_empty() and main.furniture_plans.get(at) == bed, "confermato: il letto diventa lavoro")
@@ -1206,7 +1272,7 @@ func check_work(main) -> void:
 		if c.work_left < c.work_total:
 			var cells: Array = [c.target]  # albero
 			if c.job == main.Job.MINE:
-				cells = main.boulder_cells(c.target)
+				cells = main.work_cells(c.job, c.target)
 			elif c.job in [main.Job.BUILD, main.Job.FURNISH]:  # un mobile può prendere più caselle
 				cells = main.cells_in(main.piece_rect(c.target, main.plans_of(c.job)[c.target]))
 			check(cells.has(main.cell_of(c.pos) + ahead[c.facing]), "lavora dalla casella vicina, guardando il bersaglio")
@@ -1239,3 +1305,23 @@ func tip_text(main, button: String) -> String:
 	var said: Array = main.glossary.content(main.get_node("HUD/" + button).get_meta("tip"))
 	var plain := RegEx.create_from_string("\\[img[^\\]]*\\][^\\[]*\\[/img\\] ?").sub(said[1], "", true)
 	return said[0] + "\n" + RegEx.create_from_string("\\[[^\\]]*\\]").sub(plain, "", true)
+
+
+# la roccia in gruppi di caselle unite da un lato
+func rock_groups(main) -> Array:
+	var seen := {}
+	var groups := []
+	for start in main.rocks:
+		if seen.has(start):
+			continue
+		var group := [start]
+		seen[start] = true
+		var i := 0
+		while i < group.size():
+			for side in main.SIDES:
+				if main.rocks.has(group[i] + side) and not seen.has(group[i] + side):
+					seen[group[i] + side] = true
+					group.append(group[i] + side)
+			i += 1
+		groups.append(group)
+	return groups

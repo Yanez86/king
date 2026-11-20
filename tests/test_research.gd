@@ -459,6 +459,9 @@ func _initialize() -> void:
 	trainee.pos = main.center(post + Vector2i.LEFT)
 	main.relax(trainee)
 	check(trainee.job == main.Job.RELAX and trainee.target == post and trainee.work_total > 0, "svago al fantoccio, prenotato")
+	if not trainee.path.is_empty():  # già accanto al fantoccio, dal lato che ha scelto
+		trainee.pos = main.center(trainee.path.back())
+		trainee.path.clear()
 	var melee: float = main.xp_total(trainee, main.Skill.MELEE)
 	for i in 30:
 		main.update_colonist(trainee, 0.1)
@@ -725,6 +728,8 @@ func _initialize() -> void:
 
 	# armeria di prestito: per la spedizione gli avventurieri prendono di meglio dal magazzino, e lo riportano
 	var borrower = main.new_hero(main.Hero.ARCHER, 1)
+	while borrower.gear[main.Slot.BODY] == R.CHAINMAIL:  # uno che la cotta non ce l'ha già
+		borrower = main.new_hero(main.Hero.ARCHER, 1)
 	var own_body = borrower.gear[main.Slot.BODY]
 	main.guests.append(borrower)
 	main.stockpile = {free[50]: true, free[51]: true, free[52]: true, free[53]: true}

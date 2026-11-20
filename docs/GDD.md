@@ -393,7 +393,7 @@ Decisa il 2026-11-19. Numeri da tarare.
   regno all'incoronazione quando ci sarà.
 
 ### 4.4 Risorse ed edifici
-- Materie prime: legname, pietra, ferro, carbone, oro, cibo crudo. Ferro e carbone vengono dalle vene nella roccia (massi 1x1).
+- Materie prime: legname, pietra, ferro, carbone, oro, cibo crudo. Ferro e carbone vengono dalle vene nella roccia (vedi 4.4.8).
 - **Tipi di oggetto**: ogni oggetto ha un tipo, con una piccola icona 16×16 che sta sempre davanti al suo nome (elenco
   delle risorse, riquadro del mucchio, suggerimenti dell'equipaggiamento, finestra Jobs, diari e cronaca):
 
@@ -1159,6 +1159,44 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
   quando si calcola una pagina di notte allo scrittoio (`light_candle`, una a notte per scrittoio: `candles`). Il
   banchetto è come un funerale (`hold_banquet`, Job.FEAST): le portate non si vedono, si prendono dai magazzini quando
   lo si ordina (`order_banquet`). Poi: i maiali che mangiano anche il marcio; i cuochi che portano le portate in tavola.
+
+### 4.4.8 Roccia, gallerie e stanze nella montagna
+Deciso il 2026-11-20. La roccia vicina si unisce in un blocco solo e ci si scava dentro: gallerie e stanze sotto la
+montagna, sullo stesso piano della mappa (un piano sotto, con le scale, è un'altra cosa: forse poi).
+- **Massiccio e massi**: la roccia unita da un lato in gruppi di almeno 6 caselle (`MASSIF_MIN`) è **massiccio**: si
+  disegna come un blocco solo, la cima piatta e la parete in vista dove la casella sotto è aperta. Quella sparsa resta
+  di **massi** (1x1, 2x1, 2x2), che si scavano interi come prima. Le **montagne** sono i massicci grandi: il 7% della
+  mappa (`MOUNTAIN_SHARE`), fuori dalla radura e dall'acqua, in due o tre blocchi da qualche centinaio di caselle; il
+  torrente ci passa in mezzo.
+- **Scavare**: l'ordine Scava segna il massiccio casella per casella (il contorno azzurro attorno alla zona segnata).
+  Si scava da dove ci si arriva verso dentro: una casella chiusa da tutti i lati aspetta che lo scavo le arrivi
+  accanto. 5 pietra a casella, un colpo. La casella scavata è terreno aperto (ghiaia): ci si cammina, ci si costruisce.
+  Una fila è una galleria.
+- **Vene nascoste**: ferro e carbone stanno nella roccia come prima, ma dentro il massiccio non si vedono: una vena
+  si vede (e si legge col mouse) solo quando la sua casella ha un lato aperto, sul bordo o perché lo scavo le è arrivato
+  accanto. Chiusa, è roccia come l'altra, e scavata dà comunque il suo minerale. Perché all'inizio ce ne sia sempre un
+  po', su una mappa nuova sono in vista almeno 3 vene di ferro e 3 di carbone (`ORE_SHOWING`), in massi da una casella
+  o sul bordo del massiccio.
+- **Stanze nella roccia** (fase 2): la cima del massiccio copre le gallerie come un tetto, e si apre guardandoci
+  dentro come i tetti delle case. Una porta in una galleria fa una stanza: la roccia vale già da muro (isola all'85%,
+  le cantine di 4.4.5). Niente tetto da costruire, niente pioggia né neve, non si coltiva.
+- **Crolli e puntelli** (fase 3): una casella scavata regge se ha un sostegno entro 2 caselle: roccia piena, un
+  puntello, un muro. Gallerie e stanze fino a 4 caselle di larghezza reggono da sole; oltre, al centro serve un pilastro
+  di roccia lasciato lì o un **puntello** (di legno, una casella, la occupa). Senza sostegno la casella è
+  **pericolante** (crepe, polvere, un avviso) e ogni giorno può cedere (1 su 4): si riempie di **macerie** (non ci si
+  passa; si scavano di nuovo, un po' di pietra), chi è sotto si ferisce (l'elmo ripara), i mobili si rompono. Le
+  macerie reggono: un crollo riempie solo il centro scoperto e si ferma. Segnando lo scavo, le caselle che resterebbero
+  senza sostegno si vedono in rosso; si scava lo stesso. Poi: l'arco in muratura (ramo Pietra), che regge a 3 caselle.
+- **Il sottosuolo** (fase 4): buio senza candele, temperatura stabile tutto l'anno, forse un malus d'umore a viverci.
+- **Ordine di lavoro**: (1) roccia unita, scavo a caselle, vene nascoste; (2) la cima che copre le gallerie, le stanze
+  nella roccia; (3) crolli, puntelli, macerie; (4) buio e temperatura.
+- **Stato**: fatta la fase 1 il 2026-11-20 (prove in `tests/test_jobs.gd`, il salvataggio in `tests/test_saves.gd`). Il
+  massiccio è `massif` (com'era all'inizio: dove c'è ancora `rocks` è pieno, dove non c'è è scavato), fatto da
+  `raise_mountains` e `find_massifs`; il foglio è `art/massif.png` (`massif_sheet` in `tools/make_sprites.py`). È
+  disegnato una volta in un'immagine grande come la mappa (`bake_rock`), sopra il terreno; scavando si rifanno la
+  casella e le otto attorno (`redraw_rock`). `mine_marks` tiene insieme le origini dei massi e le caselle di massiccio.
+  Una partita di prima non ha massiccio: la sua roccia resta tutta di massi. I numeri (6 caselle, 7%, 3 vene) sono da
+  tarare giocando.
 
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100, con laghi e, nelle mappe nuove, un torrente (4.4.7).

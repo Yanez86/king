@@ -2,7 +2,7 @@
 # vengono da main.gd: se cambiano là, vanno cambiati qui e in wiki.gd.
 const PAGES := [
 	["Le basi", """[color=#e8c34a]La tua signoria[/color]
-King è un gestionale di colonia medievale. Sei il sovrano di una piccola signoria, ma non muovi mai nessuno a mano: segni gli alberi da tagliare e i massi da scavare, progetti gli edifici, scegli cosa producono le postazioni e promulghi le leggi. I coloni scelgono da soli i lavori, seguendo i loro bisogni e la loro routine quotidiana.
+King è un gestionale di colonia medievale. Sei il sovrano di una piccola signoria, ma non muovi mai nessuno a mano: segni gli alberi da tagliare e la roccia da scavare, progetti gli edifici, scegli cosa producono le postazioni e promulghi le leggi. I coloni scelgono da soli i lavori, seguendo i loro bisogni e la loro routine quotidiana.
 
 [color=#e8c34a]L'inizio[/color]
 • Il tuo sovrano, creato nella pagina della nuova partita, e tre coloni stanno in una radura. Non c'è ancora niente di costruito: né stanze né magazzino.
@@ -139,7 +139,7 @@ Un lavoro dura 1,5 volte tanto a livello 0, il tempo normale a livello 5 e la me
 [color=#e8c34a]Cosa fa ogni abilità[/color]
 [table=2]
 [cell]Raccogliere[/cell][cell]raccolta da cespugli, lino ed erbe, l'orto[/cell]
-[cell]Estrarre[/cell][cell]scavare i massi[/cell]
+[cell]Estrarre[/cell][cell]scavare la roccia[/cell]
 [cell]Tagliare legna[/cell][cell]abbattere gli alberi[/cell]
 [cell]Costruire[/cell][cell]costruzione: 2 s a casella o a pezzo[/cell]
 [cell]Forgiare[/cell][cell]alla fornace e all'incudine[/cell]
@@ -455,7 +455,7 @@ Dopo la ricerca Banchetto reale (Terra IV, 1000 e un codice, dopo l'Apicoltura),
 Alberi: quercia 28 legna, pino 35, betulla 20. Un colpo ogni 10 s ne dà 5.
 
 [color=#e8c34a]Scava (M)[/color] [img=center]res://art/icon_stone.png[/img]
-Massi di 1x1, 2x1 o 2x2 caselle, 5 pietra a casella. Un colpo ogni 15 s ne dà 5. Le vene di ferro e di carbone sono massi 1x1 (col mouse sopra: "Vena di ferro", "Vena di carbone") che danno 5 ferro o 5 carbone al posto della pietra.
+La roccia unita in gruppi di 6 caselle o più è un massiccio: un blocco solo, con la cima piatta e la parete dove la casella sotto è aperta. Le montagne sono quelli grandi. Scava lo segna casella per casella, e i minatori scavano da dove arrivano verso dentro: una casella scavata è terreno aperto, ci si cammina, e una fila è una galleria nella roccia. La roccia sparsa è di massi da 1x1, 2x1 o 2x2 caselle, che si scavano interi. In ogni caso 5 pietra a casella, e un colpo ogni 15 s ne dà 5. Le vene di ferro e di carbone danno 5 ferro o 5 carbone al posto della pietra (col mouse sopra: "Vena di ferro", "Vena di carbone"). Una vena in un masso si vede; una dentro un massiccio si vede solo quando la sua casella ha un lato aperto: è lo scavo a scoprirle. Su una mappa nuova ce ne sono in vista almeno 3 di ognuna.
 
 [color=#e8c34a]Estirpa (U)[/color]
 Erbacce, cespugli, lino ed erbe se ne vanno in 1,5 s. Toglili prima di costruirci sopra.

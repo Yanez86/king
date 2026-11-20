@@ -8,6 +8,9 @@ const TILE := 16            # pixel per tile
 const SPEED := 4.0          # tile al secondo
 const STONE_PER_CELL := 5   # pietra (o ferro, carbone) in un masso, per casella (un 2x2 ne ha 20): vedi full_stock
 const ORE_VEIN := 0.35      # soglia del rumore delle vene: più alta, meno minerale nella roccia (vedi generate_map)
+const MASSIF_MIN := 6       # caselle di roccia unite da un lato: da qui in su sono un massiccio, sotto restano massi
+const MOUNTAIN_SHARE := 0.07  # della mappa: le montagne, i massicci grandi dove si scava dentro (vedi raise_mountains)
+const ORE_SHOWING := 3      # vene di ferro e di carbone in vista all'inizio, almeno (vedi show_ores)
 const UPROOT_TIME := 1.5    # secondi per estirpare un'erbaccia o un cespuglio
 const BERRIES_PER_BUSH := 5 # bacche (vegetali) su un cespuglio maturo
 const BERRY_REGROW := 2.0   # giorni prima che il cespuglio rifaccia le bacche (e il lino i fiori, e le erbe medicinali)
@@ -118,7 +121,7 @@ const WORK_ICONS := [preload("res://art/icon_meal.png"), preload("res://art/icon
 	preload("res://art/icon_resources.png"), preload("res://art/icon_authority.png"), preload("res://art/icon_study.png"),
 	preload("res://art/icon_doctor.png"), preload("res://art/icon_husbandry.png")]
 const WORK_INFO := ["Cooking meals at the campfire or the hearth.", "Forge, workbench, spinning wheel, carpenter's bench, furnace, mill, oven.",
-	"Felling the marked trees.", "Mining the marked boulders, cutting ice.", "Picking bushes, flax and herbs, uprooting, taking honey.",
+	"Felling the marked trees.", "Mining the marked rock, cutting ice.", "Picking bushes, flax and herbs, uprooting, taking honey.",
 	"Sowing, harvesting and fertilizing the garden, mowing hay.", "Fishing at the marked water.", "Hunting the marked animals.",
 	"Building, furnishing, repairing roofs.", "Carrying things into the warehouses, and the dead to their graves.",
 	"Governing from the throne: only the ruler.", "Studying at a desk.",
@@ -949,7 +952,7 @@ const SAVES := preload("res://saves.gd")
 const SAVE_LIST := preload("res://save_list.gd")
 # le variabili della partita che si salvano, così come sono (gli oggetti dentro li impacchetta SAVES.Packer); il resto
 # si rifà da queste (vedi restore) o è interfaccia. Una variabile nuova dello stato del gioco va aggiunta qui
-const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today", "hour", "rocks", "boulders", "ores", "water", "stream", "pasture", "hives", "candles", "banquet_at", "last_banquet", "banquet_sorbet", "hay_marks", "coop_eggs", "herd_keep", "drover_until", "drover_stock",
+const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today", "hour", "rocks", "boulders", "massif", "ores", "water", "stream", "pasture", "hives", "candles", "banquet_at", "last_banquet", "banquet_sorbet", "hay_marks", "coop_eggs", "herd_keep", "drover_until", "drover_stock",
 	"trees", "stock", "bushes", "flax", "herbs", "graves", "funerals", "weeds", "chop_marks", "mine_marks", "uproot_marks", "harvest_marks", "fish_marks",
 	"fish_spots", "items", "fresh", "draft", "blueprints", "built", "furniture_draft", "furniture_plans", "furniture",
 	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
@@ -1067,6 +1070,10 @@ const BOULDERS := {  # massi: dimensione in caselle -> sprite, dal più grande (
 	Vector2i(1, 1): preload("res://art/rock_1x1.png"),
 }
 const ORE_ROCKS := {Res.IRON: preload("res://art/rock_iron.png"), Res.COAL: preload("res://art/rock_coal.png")}  # massi 1x1
+# Il massiccio: riquadri 16x16. Righe: la cima (4 varianti), i lati aperti (colonne di EDGE_SIDES), gli angoli aperti
+# solo in diagonale (colonne di EDGE_CORNERS), le vene allo scoperto (ferro, carbone, e una seconda variante)
+const MASSIF := preload("res://art/massif.png")
+const MASSIF_SIDES := [2, 0, 1, 3]  # i lati aperti, nell'ordine in cui si disegnano: prima la parete, sopra i contorni
 # 128x544, righe: mobili nell'ordine di Build; colonne: quarti di giro in senso orario, ognuno in un riquadro 32x32
 const FURNITURE_SHEET := preload("res://art/furniture.png")
 const FURNITURE_NIGHT := preload("res://art/furniture_night.png")  # abat-jour e lampioni accesi
@@ -1891,7 +1898,14 @@ class Roof:
 var astar := AStarGrid2D.new()
 var rocks := {}             # cella -> true (non attraversabile)
 var boulders := {}          # cella in alto a sinistra -> dimensione del masso che copre quelle rocce
-var ores := {}              # cella -> Res.IRON o Res.COAL: massi 1x1 che scavati danno il minerale invece della pietra
+# cella -> true: il massiccio com'era all'inizio, la roccia unita che si scava casella per casella (vedi find_massifs).
+# Dove c'è ancora `rocks` è roccia piena, dove non c'è più è scavata. La roccia fuori da qui è coperta dai massi
+var massif := {}
+# cella -> Res.IRON o Res.COAL: scavata dà il minerale invece della pietra. Un masso 1x1 fuori dal massiccio, che si
+# vede; dentro il massiccio una casella, che si vede solo quando ha un lato aperto (vedi vein_shows)
+var ores := {}
+var rock_image: Image       # il massiccio disegnato, tutta la mappa (vedi bake_rock, draw_rock)
+var rock_texture: ImageTexture
 var water := {}             # cella -> Ground.SHALLOW (si guada) o Ground.DEEP (non si attraversa)
 var ground_texture: ImageTexture  # tutto il terreno già disegnato, vedi bake_ground
 var map_seed := 0           # del rumore della mappa: col salvataggio, rifà le chiazze di erba sassosa (vedi ground_noise)
@@ -1923,7 +1937,7 @@ var drover_stock := []      # Beast: le coppie che ha da vendere
 var stream := {}            # cella d'acqua -> true: il torrente, nelle mappe nuove (vedi carve_stream); il mulino sta sulla riva
 var weeds := {}             # cella -> true: erbacce (attraversabili)
 var chop_marks := {}        # cella -> true: alberi da tagliare
-var mine_marks := {}        # cella d'origine -> true: massi da scavare
+var mine_marks := {}        # cella -> true: da scavare; l'origine di un masso, o una casella di massiccio
 var uproot_marks := {}      # cella -> true: erbacce e cespugli da estirpare
 var harvest_marks := {}     # cella -> true: cespugli da cui raccogliere le bacche, ogni volta che maturano
 var fish_marks := {}        # cella d'acqua -> true: punti di pesca
@@ -2663,6 +2677,7 @@ func restore(state: Dictionary) -> void:
 	update_roofs()
 	update_stockpile()
 	bake_ground(ground_noise(map_seed))
+	bake_rock()
 
 
 # la griglia dei percorsi da quello che c'è sulla mappa, come la lasciano generate_map, build e mark: roccia e acqua
@@ -5351,6 +5366,11 @@ func describe(cell: Vector2i) -> Array:
 			return [tr("Boulder") if res == Res.STONE else tr("%s vein" % Res.keys()[res].capitalize()), tr("%s left: %d / %d%s") % [
 				named(Res, res, "item"), stock.get(origin, full_stock(origin)), full_stock(origin),
 				tr("\nMarked: mine") if mine_marks.has(origin) else ""]]
+	if solid_massif(cell):  # la vena si legge solo se è allo scoperto: se no è roccia come l'altra
+		var res: Res = ores[cell] if vein_shows(cell) else Res.STONE
+		return [tr("Rock") if res == Res.STONE else tr("%s vein" % Res.keys()[res].capitalize()), tr("%s left: %d / %d%s") % [
+			named(Res, res, "item"), stock.get(cell, full_stock(cell)), full_stock(cell),
+			tr("\nMarked: mine") if mine_marks.has(cell) else ""]]
 	var uproot := tr("\nMarked: uproot") if uproot_marks.has(cell) else (tr("\nMarked: harvest") if harvest_marks.has(cell) else "")
 	if bushes.has(cell):
 		var ripe: bool = bushes[cell] <= clock
@@ -5563,7 +5583,7 @@ func job_list() -> String:
 	if not chop_marks.is_empty():
 		lines.append(tr("Chop trees: %d") % chop_marks.size())
 	if not mine_marks.is_empty():
-		lines.append(tr("Mine boulders: %d") % mine_marks.size())
+		lines.append(tr("Mine rock: %d") % mine_marks.size())
 	if not uproot_marks.is_empty():
 		lines.append(tr("Uproot plants: %d") % uproot_marks.size())
 	if not harvest_ready().is_empty():
@@ -5658,6 +5678,7 @@ func generate_map() -> void:
 			elif randf() < 0.015 * open:  # erbacce sparse nei prati
 				weeds[cell] = true
 
+	raise_mountains()
 	carve_stream()
 	for cell in water:  # l'acqua alta non tocca mai la riva, neanche in diagonale: in mezzo c'è sempre quella bassa
 		if water[cell] == Ground.DEEP and not (EDGE_SIDES + EDGE_CORNERS).all(func(d): return water.has(cell + d)):
@@ -5676,8 +5697,10 @@ func generate_map() -> void:
 		if absf(v) > ORE_VEIN:
 			ores[cell] = Res.COAL if v > 0 else Res.IRON
 
-	# copre la roccia di massi: in ordine di riga, il più grande che entra (a volte uno più piccolo, per varietà)
-	var covered := {}
+	# la roccia unita è massiccio; quella sparsa si copre di massi: in ordine di riga, il più grande che entra (a
+	# volte uno più piccolo, per varietà)
+	find_massifs()
+	var covered := massif.duplicate()
 	for cell in rocks:
 		if covered.has(cell):
 			continue
@@ -5691,6 +5714,7 @@ func generate_map() -> void:
 					covered[k] = true
 				boulders[cell] = size
 				break
+	show_ores()
 
 	scatter_herbs()
 	wild.seed = noise.seed + 3
@@ -5709,6 +5733,129 @@ func generate_map() -> void:
 	make_soil()
 	gravel = rocks.duplicate()
 	bake_ground(noise)
+	bake_rock()
+
+
+# Le montagne: i massicci grandi, dove c'è posto per scavare gallerie e stanze. Le caselle dove il loro rumore (largo,
+# col caso suo dal seme della mappa) è più alto, MOUNTAIN_SHARE della mappa: fuori dalla radura e dall'acqua, al posto
+# di alberi e piante. Il torrente, che viene dopo, ci passa in mezzo
+func raise_mountains() -> void:
+	var peaks := FastNoiseLite.new()
+	peaks.seed = map_seed + 7
+	peaks.frequency = 0.02
+	var heights := []
+	for y in MAP_SIZE.y:
+		for x in MAP_SIZE.x:
+			var cell := Vector2i(x, y)
+			if (cell - MAP_SIZE / 2).length() >= CLEARING[1] and not water.has(cell):
+				heights.append([peaks.get_noise_2d(x, y), cell])
+	heights.sort_custom(func(a, b): return a[0] > b[0])
+	for i in int(MAP_SIZE.x * MAP_SIZE.y * MOUNTAIN_SHARE):
+		var cell: Vector2i = heights[i][1]
+		rocks[cell] = true
+		astar.set_point_solid(cell)
+		for plants in [trees, bushes, flax, weeds]:
+			plants.erase(cell)
+
+
+# Il massiccio: la roccia unita da un lato in gruppi di almeno MASSIF_MIN caselle. Si disegna come un blocco solo e
+# si scava una casella per volta; il resto della roccia, sparso, resta di massi
+func find_massifs() -> void:
+	var seen := {}
+	for start in rocks:
+		if seen.has(start):
+			continue
+		var group := [start]
+		seen[start] = true
+		var i := 0
+		while i < group.size():
+			for side in SIDES:
+				var k: Vector2i = group[i] + side
+				if rocks.has(k) and not seen.has(k):
+					seen[k] = true
+					group.append(k)
+			i += 1
+		if group.size() >= MASSIF_MIN:
+			for cell in group:
+				massif[cell] = true
+
+
+# Le vene dentro il massiccio non si vedono finché lo scavo non le scopre: perché all'inizio ci sia sempre un po' di
+# ferro e di carbone da trovare, almeno ORE_SHOWING vene in vista di ognuno. Quelle che mancano, in massi da una
+# casella e sul bordo del massiccio, col caso loro (dal seme della mappa)
+func show_ores() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = map_seed + 8
+	var spots: Array = rocks.keys().filter(func(k): return not ores.has(k) and (boulders.get(k) == Vector2i.ONE or (massif.has(k) and open_side(k))))
+	for res in [Res.IRON, Res.COAL]:
+		var showing: int = ores.keys().filter(func(k): return ores[k] == res and vein_shows(k)).size()
+		while showing < ORE_SHOWING and not spots.is_empty():
+			ores[spots.pop_at(rng.randi() % spots.size())] = res
+			showing += 1
+
+
+# roccia piena del massiccio: non ancora scavata
+func solid_massif(cell: Vector2i) -> bool:
+	return massif.has(cell) and rocks.has(cell)
+
+
+# un lato della casella dà sull'aperto: lì la roccia è in vista
+func open_side(cell: Vector2i) -> bool:
+	return SIDES.any(func(d): return astar.is_in_boundsv(cell + d) and not rocks.has(cell + d))
+
+
+# la vena in `cell` si vede: è un masso, o una casella del massiccio con un lato aperto
+func vein_shows(cell: Vector2i) -> bool:
+	return ores.has(cell) and (not massif.has(cell) or open_side(cell))
+
+
+# Il massiccio disegnato una volta in un'immagine grande come la mappa, sopra il terreno e sotto il resto (i massi li
+# disegna _draw); scavando si rifanno solo le caselle toccate (vedi draw_rock)
+func bake_rock() -> void:
+	rock_image = Image.create_empty(MAP_SIZE.x * TILE, MAP_SIZE.y * TILE, false, Image.FORMAT_RGBA8)
+	var sheet := MASSIF.get_image()
+	sheet.convert(Image.FORMAT_RGBA8)
+	for cell in massif:
+		draw_rock(cell, sheet)
+	rock_texture = ImageTexture.create_from_image(rock_image)
+	var sprite := Sprite2D.new()
+	sprite.texture = rock_texture
+	sprite.centered = false
+	sprite.show_behind_parent = true
+	add_child(sprite)
+
+
+# La casella `cell` del massiccio in rock_image: la cima (una variante fissa per casella), la parete se sotto è aperto,
+# il contorno sui lati aperti, gli angoli aperti solo in diagonale, la vena se è allo scoperto. Vuota se è scavata
+func draw_rock(cell: Vector2i, sheet: Image) -> void:
+	var at := cell * TILE
+	rock_image.fill_rect(Rect2i(at, Vector2i.ONE * TILE), Color.TRANSPARENT)
+	if not solid_massif(cell):
+		return
+	var variant: int = hash(cell) % 4
+	rock_image.blit_rect(sheet, tile_rect(variant, 0), at)
+	var open := func(d: Vector2i) -> bool: return not rocks.has(cell + d) and astar.is_in_boundsv(cell + d)
+	if vein_shows(cell):
+		rock_image.blend_rect(sheet, tile_rect((0 if ores[cell] == Res.IRON else 1) + variant % 2 * 2, 3), at)
+	for i in MASSIF_SIDES:
+		if open.call(EDGE_SIDES[i]):
+			rock_image.blend_rect(sheet, tile_rect(i, 1), at)
+	for i in 4:
+		var d: Vector2i = EDGE_CORNERS[i]
+		if open.call(d) and not open.call(Vector2i(d.x, 0)) and not open.call(Vector2i(0, d.y)):
+			rock_image.blend_rect(sheet, tile_rect(i, 2), at)
+
+
+# dopo uno scavo: ridisegna il massiccio in `cell` e attorno (i vicini cambiano bordo, le vene si scoprono)
+func redraw_rock(cell: Vector2i) -> void:
+	if rock_image == null or not massif.has(cell):
+		return
+	var sheet := MASSIF.get_image()
+	sheet.convert(Image.FORMAT_RGBA8)
+	for k in cells_in(Rect2i(cell - Vector2i.ONE, Vector2i(3, 3))):
+		if massif.has(k):
+			draw_rock(k, sheet)
+	rock_texture.update(rock_image)
 
 
 # Il torrente (GDD 4.4.7): da un bordo della mappa a quello di fronte, serpeggiando a STREAM_REACH caselle dal centro
@@ -6030,6 +6177,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 					for cell in cells:
 						rocks.erase(cell)
 						astar.set_point_solid(cell, false)
+						redraw_rock(cell)
 					boulders.erase(c.target)
 					ores.erase(c.target)
 					mine_marks.erase(c.target)
@@ -7897,7 +8045,7 @@ func try_work(c: Colonist, job: Job, targets: Array, sides: Array, time: float) 
 
 
 func work_cells(job: Job, target: Vector2i) -> Array:
-	return boulder_cells(target) if job == Job.MINE else [target]
+	return boulder_cells(target) if job == Job.MINE and boulders.has(target) else [target]
 
 
 # secondi per colpo di `c` nel lavoro di raccolta `job`: quelli di GATHER a livello 5, 1.5 volte tanto a livello 0,
@@ -12595,6 +12743,8 @@ func full_stock(target: Vector2i) -> int:
 		return TREE_LOGS[trees[target]]
 	if boulders.has(target):
 		return STONE_PER_CELL * boulder_cells(target).size()
+	if rocks.has(target):  # una casella di massiccio
+		return STONE_PER_CELL
 	if water.has(target):
 		return ICE_PER_SPOT if atmosphere.frozen else FISH_PER_SPOT
 	return BERRIES_PER_BUSH
@@ -12949,6 +13099,9 @@ func mark(rect: Rect2i) -> void:
 			for origin in boulders:
 				if rect.intersects(Rect2i(origin, boulders[origin])):
 					mine_marks[origin] = true
+			for cell in cells_in(rect):  # il massiccio casella per casella: si scava da dove ci si arriva, verso dentro
+				if solid_massif(cell):
+					mine_marks[cell] = true
 		Order.UPROOT:  # un cespuglio da estirpare non si raccoglie più
 			for cell in bushes.keys() + weeds.keys():
 				if rect.has_point(cell):
@@ -13801,6 +13954,12 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 		draw_texture(rock, Vector2(cell) * TILE)
 		if mine_marks.has(cell):
 			draw_outline(self, ROCK_OUTLINES[rock], Rect2(Vector2.ZERO, rock.get_size()), Rect2(Vector2(cell) * TILE, rock.get_size()), Order.MINE)
+	for cell in mine_marks:  # il massiccio segnato: il contorno della zona, dove la casella accanto non è segnata
+		if massif.has(cell):
+			for side in SIDES:
+				if not (mine_marks.has(cell + side) and massif.has(cell + side)):
+					var from := Vector2(cell) * TILE + Vector2(maxi(side.x, 0), maxi(side.y, 0)) * TILE - Vector2(side) * 0.5
+					draw_line(from, from + Vector2(absi(side.y), absi(side.x)) * TILE, ORDER_COLORS[Order.MINE], 1.0)
 	for cell in bushes:  # bassi, dentro la loro casella come i massi; con le bacche (o i fiori) se sono maturi
 		var plant := Rect2(tile_rect(plant_col(cell) + (1 if bushes[cell] <= clock else 0), 0))
 		draw_texture_rect_region(PLANTS, tile_rect(cell.x, cell.y), plant)

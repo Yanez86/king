@@ -106,7 +106,8 @@ func _initialize() -> void:
 	var grass: float = main.pasture[corner + Vector2i(4, 3)]
 	main.update_livestock(pig, main.DAY_LENGTH * 0.05)
 	check(pig.fed > 40.0 and main.pasture[corner + Vector2i(4, 3)] < grass, "bruca: più sazio, meno erba")
-	var hungry = main.add_livestock(PIG, corner - Vector2i(5, 5), false, false)  # fuori dal pascolo, sul prato
+	var outside: Vector2i = main.cells_in(Rect2i(corner - Vector2i(6, 6), Vector2i(5, 5))).filter(func(k): return not main.astar.is_point_solid(k))[-1]
+	var hungry = main.add_livestock(PIG, outside, false, false)  # fuori dal pascolo, sul prato
 	hungry.fed = 40.0
 	main.update_livestock(hungry, main.DAY_LENGTH * 0.1)
 	check(is_equal_approx(hungry.fed, 40.0 - main.FED_DROP * 0.1), "fuori dal pascolo non mangia")
@@ -289,7 +290,7 @@ func _initialize() -> void:
 	main.needs_rate = 1.0
 	cow.fed = 50.0
 	ram.fed = 50.0
-	ram.pos = main.center(field.position - Vector2i(3, 3))  # fuori dal pascolo, dove non c'è erba
+	ram.pos = main.center(outside)  # fuori dal pascolo, dove non c'è erba
 	main.update_livestock(cow, main.DAY_LENGTH * 0.05)
 	main.update_livestock(ram, main.DAY_LENGTH * 0.05)
 	check(cow.fed > 50.0, "nella stalla mangia il fieno")
