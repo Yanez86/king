@@ -137,7 +137,7 @@ pre i { color: #8fb87a; }
 <body>
 <nav>
 <h1>King</h1>
-<small>Meccaniche · commit ef73d23 · 2026-11-19 · <a class="lang" href="en.html">English</a></small>
+<small>Meccaniche · commit e0b801a · 2026-11-20 · <a class="lang" href="en.html">English</a></small>
 <h2>Wiki</h2>
 <a href="#le-basi"><i class="sp s87" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Le basi</a><a href="#comandi"><i class="sp s88" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Comandi</a><a href="#coloni"><i class="sp s89" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Coloni</a><a href="#abilità"><i class="sp s84" style="width:16px;height:16px;background-position:-144px 0px;background-size:224px 16px"></i> Abilità</a><a href="#talenti"><i class="sp s78" style="width:16px;height:16px;background-position:0px 0px;background-size:240px 16px"></i> Talenti</a><a href="#condizioni"><i class="sp s79" style="width:16px;height:16px;background-position:-16px 0px;background-size:288px 16px"></i> Condizioni</a><a href="#il-sovrano-e-la-casata"><i class="sp s35" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Il sovrano e la casata</a><a href="#costruire"><i class="sp s64" style="width:15px;height:15px;background-position:0px 0px;background-size:15px 15px"></i> Costruire</a><a href="#stanze"><i class="sp s74" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Stanze</a><a href="#tetti-e-calore"><i class="sp s75" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Tetti e calore</a><a href="#cibo-e-cucina"><i class="sp s11" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Cibo e cucina</a><a href="#raccolta"><i class="sp s67" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Raccolta</a><a href="#lavorazioni-ed-equipaggiamento"><i class="sp s16" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Lavorazioni ed equipaggiamento</a><a href="#combattimento-e-lupi"><i class="sp s86" style="width:16px;height:16px;background-position:0px -32px;background-size:32px 48px"></i> Combattimento e lupi</a><a href="#medicina-e-morte"><i class="sp s19" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Medicina e morte</a><a href="#splendore"><i class="sp s62" style="width:16px;height:16px;background-position:0px -416px;background-size:128px 1536px"></i> Splendore</a><a href="#avventurieri"><i class="sp s31" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Avventurieri</a><a href="#rovine-e-spedizioni"><i class="sp s32" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Rovine e spedizioni</a><a href="#conoscenza"><i class="sp s72" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Conoscenza</a><a href="#leggi"><i class="sp s73" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Leggi</a><h2>Sviluppo</h2><a href="#todo"><i class="sp s44" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Da sviluppare</a><h2>Numeri</h2><a href="#main-gd">main.gd</a><a href="#atmosphere-gd">atmosphere.gd</a><a href="#narrator-gd">narrator.gd</a>
 </nav>
@@ -640,11 +640,11 @@ pre i { color: #8fb87a; }
 <li>I lavoratori dello studio studiano prima di ogni altro lavoro e restano allo scrittoio per tutto il turno. Gli altri scrivono una pagina solo quando non c'è altro da fare.</li>
 </ul>
 <h3>La finestra Conoscenza </h3>
-<p>Premi K o clicca uno scrittoio: il tuo studio e i libri nei tuoi magazzini, poi l'albero, una riga per ogni ramo e una colonna per ogni livello. Col mouse sopra una ricerca vedi cosa sblocca e cosa manca; cliccala per studiarla subito. Consuma lo studio e, dal livello II, un libro da un magazzino:</p>
+<p>Premi K o clicca uno scrittoio: il tuo studio e i libri nei tuoi magazzini, poi l'albero: un riquadro per ogni ricerca, col suo costo (studio e, dal livello II, un libro; in rosso quello che ancora non hai). Il bordo d'oro: studiata; verde: puoi studiarla adesso; sbiadita: prima viene la ricerca che richiede. Ogni ricerca sta a destra di quelle che richiede, legata a loro da una linea con la freccia, d'oro quando quella richiesta è studiata; i rami sono fasce, una sotto l'altra, e i collegamenti tra rami le attraversano. Col mouse sopra un riquadro vedi cosa sblocca, il livello e cosa manca (e i suoi collegamenti si accendono); cliccalo per studiarlo subito. Consuma lo studio e, dal livello II, un libro da un magazzino:</p>
 <ul>
 <li>Livello II: un quaderno <i class="sp s36" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i>. Livello III: un tomo <i class="sp s37" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i>. Livello IV: un codice <i class="sp s38" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i>.</li>
 </ul>
-<p>I libri vengono solo dalle rovine (vedi Rovine e spedizioni). Non ci sono ancora ricerche di livello IV.</p>
+<p>I libri vengono solo dalle rovine (vedi Rovine e spedizioni).</p>
 <p>Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette non compaiono alle postazioni. Dall'inizio hai muri e pavimenti di legno, porte, sentieri, letti, tavoli, sedie, fuochi da campo, stendardi, scrittoi, troni, cimeli e pasti.</p>
 <h3>L'albero </h3>
 <ul>
@@ -1819,7 +1819,13 @@ const <b id="c-NIGHT_STUDY">NIGHT_STUDY</b> := 1.5
 const <b id="c-SHELF_BONUS">SHELF_BONUS</b> := 0.1
 const <b id="c-SHELVES_MAX">SHELVES_MAX</b> := 3
 const <b id="c-SEAT_ROOM">SEAT_ROOM</b> := {Build.DESK: RoomKind.STUDY, Build.THRONE: RoomKind.THRONE_ROOM}  <i># dove si studia e si governa</i>
-const <b id="c-ROOM_TOOLS">ROOM_TOOLS</b> := {"Knowledge": RoomKind.STUDY, "Laws": RoomKind.THRONE_ROOM}  <i># pulsanti in basso: si vedono con la stanza</i>
+const <b id="c-ROOM_TOOLS">ROOM_TOOLS</b> := {"Knowledge": RoomKind.STUDY, "Laws": RoomKind.THRONE_ROOM}  <i># pulsanti in basso: si vedono con la stanza</i></pre>
+<pre><i># L'albero della finestra Knowledge (vedi fill_knowledge): un riquadro per ricerca, in colonne per profondità (quante</i>
+<i># ricerche vengono prima, al più) e in fasce per ramo; i collegamenti alle ricerche richieste passano tra le colonne</i>
+const <b id="c-TECH_BOX">TECH_BOX</b> := Vector2(256, 64)  <i># px: il riquadro; più alto se il nome va a capo</i>
+const <b id="c-TECH_GAP">TECH_GAP</b> := Vector2(48, 8)    <i># px: tra le colonne (ci passano i collegamenti) e tra le righe</i>
+const <b id="c-TECH_BAND">TECH_BAND</b> := 40               <i># px: la testata di ogni ramo, col suo nome</i>
+const <b id="c-TECH_LINE">TECH_LINE</b> := 26               <i># px: una riga di testo nel riquadro</i>
 const <b id="c-BOOKS">BOOKS</b> := [Res.NOTEBOOK, Res.TOME, Res.CODEX]  <i># il libro che consuma una ricerca di livello II, III, IV</i></pre>
 <pre><i># Erudito errante (GDD 4.7.2), un evento del narratore (narrator.gd: con una locanda, quanto spesso): passa per un</i>
 <i># giorno; vende 1-2 libri (quaderni, a volte un tomo; mai codici) a BOOK_PRICE e ne compra uno a metà prezzo. Si tratta</i>

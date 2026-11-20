@@ -137,7 +137,7 @@ pre i { color: #8fb87a; }
 <body>
 <nav>
 <h1>King</h1>
-<small>Mechanics · commit ef73d23 · 2026-11-19 · <a class="lang" href="index.html">Italiano</a></small>
+<small>Mechanics · commit e0b801a · 2026-11-20 · <a class="lang" href="index.html">Italiano</a></small>
 <h2>Wiki</h2>
 <a href="#basics"><i class="sp s87" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Basics</a><a href="#controls"><i class="sp s88" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Controls</a><a href="#colonists"><i class="sp s89" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Colonists</a><a href="#skills"><i class="sp s84" style="width:16px;height:16px;background-position:-144px 0px;background-size:224px 16px"></i> Skills</a><a href="#traits"><i class="sp s78" style="width:16px;height:16px;background-position:0px 0px;background-size:240px 16px"></i> Traits</a><a href="#conditions"><i class="sp s79" style="width:16px;height:16px;background-position:-16px 0px;background-size:288px 16px"></i> Conditions</a><a href="#the-ruler-house"><i class="sp s35" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> The Ruler &amp; House</a><a href="#building"><i class="sp s64" style="width:15px;height:15px;background-position:0px 0px;background-size:15px 15px"></i> Building</a><a href="#rooms"><i class="sp s74" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Rooms</a><a href="#roofs-heat"><i class="sp s75" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Roofs &amp; Heat</a><a href="#food-cooking"><i class="sp s11" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Food &amp; Cooking</a><a href="#gathering"><i class="sp s67" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Gathering</a><a href="#crafting-equipment"><i class="sp s16" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Crafting &amp; Equipment</a><a href="#combat-wolves"><i class="sp s86" style="width:16px;height:16px;background-position:0px -32px;background-size:32px 48px"></i> Combat &amp; Wolves</a><a href="#medicine-death"><i class="sp s19" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Medicine &amp; Death</a><a href="#splendor"><i class="sp s62" style="width:16px;height:16px;background-position:0px -416px;background-size:128px 1536px"></i> Splendor</a><a href="#adventurers"><i class="sp s31" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Adventurers</a><a href="#ruins-expeditions"><i class="sp s32" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Ruins &amp; Expeditions</a><a href="#knowledge"><i class="sp s72" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Knowledge</a><a href="#laws"><i class="sp s73" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Laws</a><h2>Development</h2><a href="#todo"><i class="sp s44" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Still to develop</a><h2>Numbers</h2><a href="#main-gd">main.gd</a><a href="#atmosphere-gd">atmosphere.gd</a><a href="#narrator-gd">narrator.gd</a>
 </nav>
@@ -640,11 +640,11 @@ pre i { color: #8fb87a; }
 <li>The study's workers study before any other job and stay at the desk all their shift. The others write a page only when there is nothing else to do.</li>
 </ul>
 <h3>The Knowledge window </h3>
-<p>Press K or click a desk: your study and the books in your warehouses, then the tree, a row for every branch and a column for every tier. Hover a research for what it unlocks and what is missing; click it to research it at once. It spends the study and, from tier II, a book from a warehouse:</p>
+<p>Press K or click a desk: your study and the books in your warehouses, then the tree: a box for every research, with its cost (study, and from tier II a book; in red what you don't have yet). A gold border: studied; green: you can study it now; faded: the research it needs comes first. Every research sits to the right of those it needs, linked to them by a line with an arrow, gold once the needed one is studied; branches are bands, one below the other, and the links between branches cross them. Hover a box for what it unlocks, its tier and what is missing (its links light up); click it to research it at once. It spends the study and, from tier II, a book from a warehouse:</p>
 <ul>
 <li>Tier II: a notebook <i class="sp s36" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i>. Tier III: a tome <i class="sp s37" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i>. Tier IV: a codex <i class="sp s38" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i>.</li>
 </ul>
-<p>Books come only from ruins (see Ruins &amp; Expeditions). There is no tier IV research yet.</p>
+<p>Books come only from ruins (see Ruins &amp; Expeditions).</p>
 <p>What you haven't researched has no build button, and its recipes don't show at the stations. From the start you have wooden walls and floors, doors, paths, beds, tables, chairs, campfires, banners, desks, thrones, relics and meals.</p>
 <h3>The tree </h3>
 <ul>
@@ -1819,7 +1819,13 @@ const <b id="c-NIGHT_STUDY">NIGHT_STUDY</b> := 1.5
 const <b id="c-SHELF_BONUS">SHELF_BONUS</b> := 0.1
 const <b id="c-SHELVES_MAX">SHELVES_MAX</b> := 3
 const <b id="c-SEAT_ROOM">SEAT_ROOM</b> := {Build.DESK: RoomKind.STUDY, Build.THRONE: RoomKind.THRONE_ROOM}  <i># dove si studia e si governa</i>
-const <b id="c-ROOM_TOOLS">ROOM_TOOLS</b> := {"Knowledge": RoomKind.STUDY, "Laws": RoomKind.THRONE_ROOM}  <i># pulsanti in basso: si vedono con la stanza</i>
+const <b id="c-ROOM_TOOLS">ROOM_TOOLS</b> := {"Knowledge": RoomKind.STUDY, "Laws": RoomKind.THRONE_ROOM}  <i># pulsanti in basso: si vedono con la stanza</i></pre>
+<pre><i># L'albero della finestra Knowledge (vedi fill_knowledge): un riquadro per ricerca, in colonne per profondità (quante</i>
+<i># ricerche vengono prima, al più) e in fasce per ramo; i collegamenti alle ricerche richieste passano tra le colonne</i>
+const <b id="c-TECH_BOX">TECH_BOX</b> := Vector2(256, 64)  <i># px: il riquadro; più alto se il nome va a capo</i>
+const <b id="c-TECH_GAP">TECH_GAP</b> := Vector2(48, 8)    <i># px: tra le colonne (ci passano i collegamenti) e tra le righe</i>
+const <b id="c-TECH_BAND">TECH_BAND</b> := 40               <i># px: la testata di ogni ramo, col suo nome</i>
+const <b id="c-TECH_LINE">TECH_LINE</b> := 26               <i># px: una riga di testo nel riquadro</i>
 const <b id="c-BOOKS">BOOKS</b> := [Res.NOTEBOOK, Res.TOME, Res.CODEX]  <i># il libro che consuma una ricerca di livello II, III, IV</i></pre>
 <pre><i># Erudito errante (GDD 4.7.2), un evento del narratore (narrator.gd: con una locanda, quanto spesso): passa per un</i>
 <i># giorno; vende 1-2 libri (quaderni, a volte un tomo; mai codici) a BOOK_PRICE e ne compra uno a metà prezzo. Si tratta</i>
