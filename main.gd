@@ -11,6 +11,14 @@ const ORE_VEIN := 0.35      # soglia del rumore delle vene: più alta, meno mine
 const MASSIF_MIN := 6       # caselle di roccia unite da un lato: da qui in su sono un massiccio, sotto restano massi
 const MOUNTAIN_SHARE := 0.07  # della mappa: le montagne, i massicci grandi dove si scava dentro (vedi raise_mountains)
 const ORE_SHOWING := 3      # vene di ferro e di carbone in vista all'inizio, almeno (vedi show_ores)
+# Crolli (GDD 4.4.8): una galleria regge se entro SUPPORT_REACH caselle (anche di sbieco) c'è un sostegno: roccia, un
+# puntello, un muro. Se no è pericolante, e ogni giorno cede con probabilità COLLAPSE_DAILY: si riempie di macerie
+# (RUBBLE_STONE pietra a scavarle di nuovo), chi è sotto perde COLLAPSE_HURT punti ferita (meno con l'armatura)
+const SUPPORT_REACH := 2
+const COLLAPSE_DAILY := 0.25
+const RUBBLE_STONE := 2
+const COLLAPSE_HURT := 30.0
+const UNSAFE := Color("d84a3a")  # le crepe di una galleria pericolante; velato, dove lo scavo segnato non reggerebbe
 const UPROOT_TIME := 1.5    # secondi per estirpare un'erbaccia o un cespuglio
 const BERRIES_PER_BUSH := 5 # bacche (vegetali) su un cespuglio maturo
 const BERRY_REGROW := 2.0   # giorni prima che il cespuglio rifaccia le bacche (e il lino i fiori, e le erbe medicinali)
@@ -781,7 +789,8 @@ enum Build { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE
 	MANGER,  # la mangiatoia: con una, la stanza è una stalla; ci si porta il fieno (vedi Tech.STABLE, manger_cells)
 	CAPSTAN,  # il maneggio, contro il muro esterno del mulino: lo gira una mucca, o a mano (vedi mill_drive, draft_cows)
 	HIVE,  # l'arnia: miele e cera, coi fiori vicini (vedi make_honey)
-	MILL_GEAR, MILLSTONE }  # il pignone sul muro del mulino, dove passa l'asse della ruota; la macina, dentro
+	MILL_GEAR, MILLSTONE,  # il pignone sul muro del mulino, dove passa l'asse della ruota; la macina, dentro
+	PROP }  # il puntello: regge la roccia sopra una galleria (vedi holds), solo lì
 # materiale per casella; per i mobili, per pezzo. Un numero: del materiale del progetto; se no risorsa -> quantità, e
 # ogni viaggio porta tutta una risorsa (vedi cost_of, delivered)
 const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3,
@@ -792,7 +801,7 @@ const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1
 	Build.CANOPY_BED: 20, Build.RUG: 4, Build.WARDROBE: 12, Build.HEARTH: 15,
 	Build.WALL_HIDES: 2, Build.DOOR_CURTAIN: 2, Build.TAPESTRY: 4, Build.TILED_STOVE: 20, Build.ICE_PIT: 20, Build.COMPOST_HEAP: 6, Build.CRADLE: 4,
 	Build.WEAPON_RACK: {Res.WOOD: 6, Res.INGOT: 1}, Build.TARGET: {Res.WOOD: 4, Res.FLAX: 2}, Build.LOCK_BENCH: {Res.WOOD: 4, Res.INGOT: 2},
-	Build.MEDICINE_CHEST: 8, Build.GRAVE: 4, Build.MEMORIAL: 10, Build.WATER_WHEEL: 16, Build.OVEN: 20, Build.COOP: 8, Build.MANGER: 6, Build.CAPSTAN: 10, Build.HIVE: 6, Build.MILL_GEAR: {Res.WOOD: 6, Res.INGOT: 1}, Build.MILLSTONE: {Res.STONE: 15, Res.WOOD: 4},
+	Build.MEDICINE_CHEST: 8, Build.GRAVE: 4, Build.MEMORIAL: 10, Build.WATER_WHEEL: 16, Build.OVEN: 20, Build.COOP: 8, Build.MANGER: 6, Build.CAPSTAN: 10, Build.HIVE: 6, Build.MILL_GEAR: {Res.WOOD: 6, Res.INGOT: 1}, Build.MILLSTONE: {Res.STONE: 15, Res.WOOD: 4}, Build.PROP: 4,
 	Build.PALISADE: 4, Build.GATE: 6, Build.PLASTER: 1}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
 const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
@@ -806,7 +815,7 @@ const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Buil
 	Build.HEARTH: Vector2i.ONE, Build.WALL_HIDES: Vector2i.ONE, Build.DOOR_CURTAIN: Vector2i.ONE, Build.TAPESTRY: Vector2i.ONE,
 	Build.TILED_STOVE: Vector2i.ONE, Build.ICE_PIT: Vector2i(2, 2), Build.COMPOST_HEAP: Vector2i.ONE,
 	Build.CRADLE: Vector2i.ONE, Build.WEAPON_RACK: Vector2i.ONE, Build.TARGET: Vector2i.ONE, Build.LOCK_BENCH: Vector2i.ONE,
-	Build.MEDICINE_CHEST: Vector2i.ONE, Build.GRAVE: Vector2i(1, 2), Build.MEMORIAL: Vector2i.ONE, Build.WATER_WHEEL: Vector2i(2, 2), Build.OVEN: Vector2i(2, 1), Build.COOP: Vector2i(2, 1), Build.MANGER: Vector2i(2, 1), Build.CAPSTAN: Vector2i(2, 2), Build.HIVE: Vector2i.ONE, Build.MILL_GEAR: Vector2i.ONE, Build.MILLSTONE: Vector2i.ONE}
+	Build.MEDICINE_CHEST: Vector2i.ONE, Build.GRAVE: Vector2i(1, 2), Build.MEMORIAL: Vector2i.ONE, Build.WATER_WHEEL: Vector2i(2, 2), Build.OVEN: Vector2i(2, 1), Build.COOP: Vector2i(2, 1), Build.MANGER: Vector2i(2, 1), Build.CAPSTAN: Vector2i(2, 2), Build.HIVE: Vector2i.ONE, Build.MILL_GEAR: Vector2i.ONE, Build.MILLSTONE: Vector2i.ONE, Build.PROP: Vector2i.ONE}
 # mobili animati: secondi per fotogramma; i fotogrammi stanno nelle colonne dei quarti di giro (sono simmetrici)
 const ANIMATED := {Build.CAMPFIRE: 0.15, Build.BANNER: 0.3, Build.FOUNTAIN: 0.2}
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
@@ -952,7 +961,7 @@ const SAVES := preload("res://saves.gd")
 const SAVE_LIST := preload("res://save_list.gd")
 # le variabili della partita che si salvano, così come sono (gli oggetti dentro li impacchetta SAVES.Packer); il resto
 # si rifà da queste (vedi restore) o è interfaccia. Una variabile nuova dello stato del gioco va aggiunta qui
-const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today", "hour", "rocks", "boulders", "massif", "ores", "water", "stream", "pasture", "hives", "candles", "banquet_at", "last_banquet", "banquet_sorbet", "hay_marks", "coop_eggs", "herd_keep", "drover_until", "drover_stock",
+const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today", "hour", "rocks", "boulders", "massif", "rubble", "ores", "water", "stream", "pasture", "hives", "candles", "banquet_at", "last_banquet", "banquet_sorbet", "hay_marks", "coop_eggs", "herd_keep", "drover_until", "drover_stock",
 	"trees", "stock", "bushes", "flax", "herbs", "graves", "funerals", "weeds", "chop_marks", "mine_marks", "uproot_marks", "harvest_marks", "fish_marks",
 	"fish_spots", "items", "fresh", "draft", "blueprints", "built", "furniture_draft", "furniture_plans", "furniture",
 	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
@@ -1011,6 +1020,7 @@ const BUILD_INFO := {
 	Build.OVEN: "A dome of stone over a slow fire, in a kitchen. Bread from flour, stew, and preserves that keep for a third of a year. It warms the room like a campfire.",
 	Build.WATER_WHEEL: "A paddle wheel in the stream, against the outer wall of the mill. Its axle goes through the wall to the gear inside. When the stream freezes it stands still.",
 	Build.MILL_GEAR: "The pinion on the inside of the mill's wall, where the axle of the water wheel comes through: it turns the millstone.",
+	Build.PROP: "Two posts and a beam, in a tunnel. Holds the rock overhead for 2 tiles around: a hall wider than 4 tiles needs them, or the middle gives way.",
 	Build.MILLSTONE: "Two stones and a hopper. With the gear on a wall, the room can be a mill: the miller grinds grain into flour, as long as the wheel turns.",
 	Build.HEARTH: "A stone fireplace with a chimney, set against a wall. Cooks and warms like a campfire, more. Half its heat goes through a wooden wall at its back, none through stone.",
 	Build.ANVIL: "An iron anvil on a stump. A forge needs one, and a furnace. Tools and metal armor are made here.",
@@ -1908,6 +1918,11 @@ var ores := {}
 # cella -> true: le gallerie, il massiccio scavato che ha ancora la roccia sopra (vedi deep). Ci si sta al riparo; la
 # cima le copre come un tetto (vedi ceiling_shown). Non si salva: si rifà da massif e rocks (find_caves)
 var caves := {}
+var rubble := {}            # cella -> true: le macerie di un crollo. Roccia a tutti gli effetti (regge, si scava), più povera
+var shaky := {}             # cella -> true: le gallerie pericolanti, senza sostegno (vedi holds, find_shaky); non si salva
+var shaky_for := []         # con cosa è fatto `shaky`: quando cambia si rifà (vedi _process)
+var unsafe_marks := {}      # cella -> true: dove lo scavo segnato non reggerebbe (vedi find_unsafe), con Mine scelto
+var unsafe_for := []
 # il massiccio disegnato, tutta la mappa (vedi bake_rock, draw_rock): [con le gallerie aperte, con la cima che le copre]
 var rock_images: Array[Image] = []
 var rock_textures: Array[ImageTexture] = []
@@ -5372,6 +5387,9 @@ func describe(cell: Vector2i) -> Array:
 			return [tr("Boulder") if res == Res.STONE else tr("%s vein" % Res.keys()[res].capitalize()), tr("%s left: %d / %d%s") % [
 				named(Res, res, "item"), stock.get(origin, full_stock(origin)), full_stock(origin),
 				tr("\nMarked: mine") if mine_marks.has(origin) else ""]]
+	if rubble.has(cell):
+		return [tr("Rubble"), tr("%s left: %d / %d%s") % [named(Res, Res.STONE, "item"), stock.get(cell, full_stock(cell)), full_stock(cell),
+			tr("\nMarked: mine") if mine_marks.has(cell) else ""]]
 	if solid_massif(cell):  # la vena si legge solo se è allo scoperto: se no è roccia come l'altra
 		var res: Res = ores[cell] if vein_shows(cell) else Res.STONE
 		return [tr("Rock") if res == Res.STONE else tr("%s vein" % Res.keys()[res].capitalize()), tr("%s left: %d / %d%s") % [
@@ -5426,6 +5444,8 @@ func describe(cell: Vector2i) -> Array:
 		return [named(Build, built[cell][0]), named(Res, built[cell][1], "item")]
 	if pasture.has(cell):
 		return [tr("Pasture"), tr("Grass: %d%%. Click: the herd") % roundi(pasture[cell] / GRASS_MAX * 100)]
+	if caves.has(cell):
+		return [tr("Tunnel"), tr("The rock overhead holds.") if not shaky.has(cell) else tr("Unsafe: no rock, prop or wall within %d tiles. It may give way.") % SUPPORT_REACH]
 	if hay_marks.has(cell):
 		var back: float = hay_marks[cell] + HAY_REGROW - clock
 		return [tr("Hay meadow"), tr("Ready to mow") if back <= 0 else tr("Grows back in %d days") % ceili(back)]
@@ -5831,9 +5851,91 @@ func find_caves() -> void:
 # Scava via la roccia in `cell`: ci si passa, e se è massiccio diventa galleria (o imbocco) e si ridisegna
 func dig(cell: Vector2i) -> void:
 	rocks.erase(cell)
+	rubble.erase(cell)
 	astar.set_point_solid(cell, false)
 	if deep(cell):
 		caves[cell] = true
+	redraw_rock(cell)
+	find_shaky()
+
+
+# La roccia sopra `cell` regge: entro SUPPORT_REACH caselle, anche di sbieco, c'è roccia (anche macerie), un puntello o
+# un muro. `gone`: la roccia da non contare, quella che lo scavo segnato toglierà (vedi find_unsafe)
+func holds(cell: Vector2i, gone := {}) -> bool:
+	for k in cells_in(Rect2i(cell - Vector2i.ONE * SUPPORT_REACH, Vector2i.ONE * (2 * SUPPORT_REACH + 1))):
+		if (rocks.has(k) and not gone.has(k)) or furniture.get(k, [-1])[0] == Build.PROP or built.get(k, [-1])[0] == Build.WALL:
+			return true
+	return false
+
+
+# le gallerie pericolanti: quelle che niente regge
+func find_shaky() -> void:
+	shaky.clear()
+	for cell in caves:
+		if not holds(cell):
+			shaky[cell] = true
+	shaky_for = [caves.size(), rocks.size(), furniture.hash(), built.size()]
+
+
+# Dove lo scavo non reggerebbe, scavato tutto il massiccio segnato e quello del rettangolo `more` che si sta
+# trascinando: le caselle da scavare e le gallerie che resterebbero senza sostegno. In rosso con Mine scelto
+func find_unsafe(more: Rect2i) -> void:
+	var gone := {}
+	for cell in mine_marks.keys() + cells_in(more):
+		if solid_massif(cell):
+			gone[cell] = true
+	unsafe_marks.clear()
+	for cell in gone.keys() + caves.keys():
+		if deep(cell) and not holds(cell, gone):
+			unsafe_marks[cell] = true
+
+
+# Un'ora di crolli: ogni galleria pericolante cede con la probabilità che in un giorno fa COLLAPSE_DAILY. Le macerie
+# reggono: una caduta può salvare quelle accanto
+func collapse_hour() -> void:
+	find_shaky()
+	var fell := []
+	for cell in shaky.keys():
+		if randf() < 1.0 - pow(1.0 - COLLAPSE_DAILY, 1.0 / 24.0) and not holds(cell):
+			collapse(cell)
+			fell.append(cell)
+	if not fell.is_empty():
+		update_rooms()
+		find_shaky()
+		note(tr("The rock gave way in a tunnel.") if fell.size() == 1 else tr("The rock gave way in a tunnel: %d tiles.") % fell.size())
+
+
+# La galleria `cell` cede: si riempie di macerie, roccia di nuovo (non ci si passa, regge quelle accanto). Quello che
+# c'era si perde: mobili, porta, pavimento, progetti; quello che era a terra resta sotto. Chi era lì si ferisce
+# (COLLAPSE_HURT, meno con l'armatura) e si ritrova sulla casella libera più vicina
+func collapse(cell: Vector2i) -> void:
+	rubble[cell] = true
+	rocks[cell] = true
+	stock.erase(cell)
+	caves.erase(cell)
+	astar.set_point_solid(cell)
+	erase_plan(cell)
+	built.erase(cell)
+	for origin in furniture.keys().filter(func(o): return piece_rect(o, furniture[o]).has_point(cell)):
+		furniture.erase(origin)
+		coop_eggs.erase(origin)
+	var out: Array = cells_in(Rect2i(cell - Vector2i.ONE * 2, Vector2i(5, 5))).filter(func(k): return astar.is_in_boundsv(k) and not astar.is_point_solid(k))
+	sort_by_distance(out, center(cell))
+	for c in people():
+		if cell_of(c.pos) == cell:
+			quit_job(c)
+			if not out.is_empty():
+				c.pos = center(out[0])
+			c.hp = maxf(c.hp - COLLAPSE_HURT * armor_factor(c), 0.0)
+			c.needs[Need.STRESS] = minf(c.needs[Need.STRESS] + HIT_STRESS, NEED_MAX)
+			if c.hp == 0.0:
+				c.downed = true
+		elif c.path.has(cell):
+			quit_job(c)
+	for a in animals:
+		if cell_of(a.pos) == cell and not out.is_empty():
+			a.pos = center(out[0])
+			a.path.clear()
 	redraw_rock(cell)
 
 
@@ -5854,6 +5956,7 @@ func covered(cell: Vector2i) -> bool:
 # scavando si rifanno solo le caselle toccate (vedi redraw_rock)
 func bake_rock() -> void:
 	find_caves()
+	find_shaky()
 	var sheet := MASSIF.get_image()
 	sheet.convert(Image.FORMAT_RGBA8)
 	rock_images.clear()
@@ -5880,6 +5983,9 @@ func draw_rock(cell: Vector2i, sheet: Image, closed: int) -> void:
 	if not solid_massif(cell):
 		return
 	var variant: int = hash(cell) % 4
+	if rubble.has(cell) and closed == 0:  # le macerie, a cima tolta: sassi caduti, senza bordi
+		img.blit_rect(sheet, tile_rect(variant % 2, 4), at)
+		return
 	img.blit_rect(sheet, tile_rect(variant, 0), at)
 	var open := func(d: Vector2i) -> bool:
 		return not rocks.has(cell + d) and astar.is_in_boundsv(cell + d) and not (closed == 1 and caves.has(cell + d))
@@ -5915,6 +6021,8 @@ func draw_ceiling() -> void:
 	for cell in caves:
 		if not hole.has_point(cell):
 			draw_texture_rect_region(MASSIF, tile_rect(cell.x, cell.y), tile_rect(hash(cell) % 4, 0), CAVE_SHADE)
+	for cell in rubble:  # anche le macerie sono sotto la cima
+		draw_texture_rect_region(MASSIF, tile_rect(cell.x, cell.y), tile_rect(hash(cell) % 4, 0), CAVE_SHADE)
 
 
 # Il torrente (GDD 4.4.7): da un bordo della mappa a quello di fronte, serpeggiando a STREAM_REACH caselle dal centro
@@ -6045,6 +6153,8 @@ func _process(delta: float) -> void:
 		autosave_due = false
 		autosave()
 	rock_sprite.texture = rock_textures[1 if ceiling_shown() else 0]
+	if shaky_for != [caves.size(), rocks.size(), furniture.hash(), built.size()]:  # un puntello messo o tolto, un muro
+		find_shaky()
 	toast.visible = Time.get_ticks_msec() < toast_until
 	toast.modulate.a = clampf((toast_until - Time.get_ticks_msec()) / 500.0, 0.0, 1.0)  # sparisce nell'ultimo mezzo secondo
 	stored_label.text = str(Res.values().map(stored).reduce(func(a, b): return a + b, 0))
@@ -11680,6 +11790,7 @@ func new_hour() -> void:
 		coronation()
 	place_babies()
 	wear_roofs()
+	collapse_hour()
 	melt_ice()
 	ignite_roofs()
 	narrator.new_hour()
@@ -12801,8 +12912,8 @@ func full_stock(target: Vector2i) -> int:
 		return TREE_LOGS[trees[target]]
 	if boulders.has(target):
 		return STONE_PER_CELL * boulder_cells(target).size()
-	if rocks.has(target):  # una casella di massiccio
-		return STONE_PER_CELL
+	if rocks.has(target):  # una casella di massiccio, o le macerie di un crollo
+		return RUBBLE_STONE if rubble.has(target) else STONE_PER_CELL
 	if water.has(target):
 		return ICE_PER_SPOT if atmosphere.frozen else FISH_PER_SPOT
 	return BERRIES_PER_BUSH
@@ -13308,6 +13419,8 @@ func quit_job(c: Colonist) -> void:
 func can_build(cell: Vector2i, kind := Build.FLOOR) -> bool:
 	if kind == Build.WATER_WHEEL:  # nel torrente, dove non c'è già un mobile
 		return stream.has(cell) and [furniture, furniture_plans, furniture_draft].all(func(l): return pieces_at(l, cell).is_empty())
+	if kind == Build.PROP and not caves.has(cell):  # il puntello solo in galleria: regge la roccia che c'è sopra
+		return false
 	if kind == Build.PLASTER:  # sopra un muro di legno già fatto, non ancora intonacato
 		return built.get(cell, [-1, -1]) == [Build.WALL, Res.WOOD] and not plastered.has(cell) and not blueprints.has(cell)
 	if not (astar.is_in_boundsv(cell) and not astar.is_point_solid(cell) and not water.has(cell) and not trees.has(cell) \
@@ -14074,6 +14187,16 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 	draw_upto(INF, queue, houses, holes, next)
 	if ceiling_shown():
 		draw_ceiling()
+	for cell in shaky:  # le crepe di una galleria pericolante: a terra, o sulla cima che la copre
+		draw_texture_rect_region(MASSIF, tile_rect(cell.x, cell.y), tile_rect(2 + hash(cell) % 2, 4), UNSAFE)
+	if order == Order.MINE:  # dove lo scavo segnato (e quello che si sta trascinando) non reggerebbe
+		var more := selection_rect() if drag_start != null else Rect2i()
+		var key := [mine_marks.size(), more, rocks.size(), caves.size(), furniture.hash(), built.size()]
+		if key != unsafe_for:
+			unsafe_for = key
+			find_unsafe(more)
+		for cell in unsafe_marks:
+			draw_rect(Rect2(tile_rect(cell.x, cell.y)), Color(UNSAFE, 0.45))
 	for arrow in arrows:  # sopra tutto: volano
 		draw_arrow(arrow)
 	if roofs_shown:  # di nuovo i cartelli: restano sopra i tetti e si cliccano

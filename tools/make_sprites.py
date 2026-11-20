@@ -636,6 +636,26 @@ def grave(filled, upright):
     return ["".join(row) for row in grid]
 
 
+# Il puntello (Build.PROP): due pali e una trave, il telaio di legno che regge la roccia in una galleria
+PROP = """
+................
+.oooooooooooooo.
+.occcccccccccCo.
+.oCCCCCCCCCCCWo.
+.oooooooooooooo.
+..owo......owo..
+..owo......owo..
+..owo......owo..
+..owo......owo..
+..owo......owo..
+..owo......owo..
+..owo......owo..
+..owo......owo..
+..oWo......oWo..
+..ooo......ooo..
+..zzz......zzz..
+"""
+
 # Il memoriale dei caduti (Build.MEMORIAL, con la Statuaria): una stele di pietra sul suo basamento, la croce e le righe
 # dei nomi incise.
 MEMORIAL = """
@@ -5228,7 +5248,7 @@ def furniture_sheet():
     la bacheca; i cimeli: calice, stendardo antico, busto, corona; scrittoio, libreria, trono, fantoccio, torre di guardia, baldacchino, tappeto, armadio, focolare, pelli alle pareti, portiera, arazzo, stufa a olle, fossa del ghiaccio, quattro righe vuote (le strutture che vengono dopo
     in Build), il cumulo del compost, la culla; la rastrelliera, il bersaglio e il banco degli scassi; l'armadio dei rimedi,
     la tomba, il memoriale, la ruota del mulino, il forno, il pollaio, la mangiatoia, il maneggio, l'arnia, il pignone e la
-    macina del mulino (come Build in main.gd);
+    macina del mulino, il puntello (come Build in main.gd);
     colonne: quarti di giro in senso orario (per fuoco, stendardo e fontana, fotogrammi), ognuno in alto a sinistra nel suo riquadro 32x32."""
     bed, chair, chair_left = art(BED, 32, 16), art(CHAIR, 16, 16), art(CHAIR_LEFT, 16, 16)
     table, lamp, anvil = art(TABLE, 32, 32), art(LAMP, 16, 16), art(ANVIL, 16, 16)
@@ -5273,6 +5293,7 @@ def furniture_sheet():
     rows += [[art(MEMORIAL, 16, 16)] * 4]
     rows += [water_wheel(), oven(), coop(), manger(), capstan(), [art(HIVE, 16, 16)] * 4]
     rows += [(lambda g: [g[0], g[1], g[2], mirror(g[1])])(frames(MILL_GEAR)), [art(MILLSTONE, 16, 16)] * 4]
+    rows += [[art(PROP, 16, 16)] * 4]
     slot = lambda g: [line.ljust(32, ".") for line in g] + ["." * 32] * (32 - len(g))
     return [line for row in rows for line in side_by_side([slot(g) for g in (row or [[]] * 4)])]
 
@@ -5284,10 +5305,11 @@ def trees_sheet():
 
 def massif_sheet():
     """Il massiccio di roccia, foglio 64x64 (vedi MASSIF in main.gd): le caselle di roccia vicine si disegnano come un
-    blocco solo, ognuna con la cima piatta e sopra i bordi dei lati aperti. Righe: la cima (4 varianti, a caso come il
+    blocco solo, ognuna con la cima piatta e sopra i bordi dei lati aperti. Foglio 64x80. Righe: la cima (4 varianti, a caso come il
     terreno); i lati aperti (su, destra, giù, sinistra: il contorno, e in basso la parete in vista); gli angoli dove la
     roccia c'è sui due lati ma non in diagonale (in alto a sx, alto a dx, basso a dx, basso a sx: sotto, il fianco
-    della parete del vicino); le vene allo scoperto (ferro, carbone, due varianti)."""
+    della parete del vicino); le vene allo scoperto (ferro, carbone, due varianti); le macerie di un crollo (due
+    varianti) e le crepe di una galleria che non regge (due varianti, bianche: in gioco si tingono di rosso)."""
     def top(seed):
         rnd = random.Random(seed)
         g = [["r"] * 16 for _ in range(16)]
@@ -5335,8 +5357,32 @@ def massif_sheet():
                 g[y + 1][x + 2] = dark
         return g
 
+    def rubble(seed):
+        rnd = random.Random(seed)
+        g = [["V"] * 16 for _ in range(16)]
+        for _ in range(9):  # sassi caduti uno sull'altro: luce in alto, ombra sotto, il contorno scuro
+            x, y, w = rnd.randrange(0, 12), rnd.randrange(0, 12), rnd.randrange(3, 6)
+            for dx in range(w):
+                if x + dx < 16:
+                    g[y][x + dx] = "u" if dx < w - 1 else "r"
+                    g[y + 1][x + dx] = "r" if dx < w - 1 else "R"
+                    g[y + 2][x + dx] = "R"
+                    g[y + 3][x + dx] = "o"
+        return g
+
+    def cracks(seed):
+        rnd = random.Random(seed)
+        g = blank()
+        for x0 in (3, 9):  # due crepe a zigzag, dall'alto in basso
+            x = x0 + rnd.randrange(3)
+            for y in range(1 + rnd.randrange(3), 15 - rnd.randrange(3)):
+                g[y][x] = "h"
+                x = max(1, min(14, x + rnd.choice((-1, 0, 0, 1))))
+        return g
+
     rows = [[top(s) for s in (1, 2, 3, 4)], [up, right, down, left], corners,
-            [veins(1, "4", "5", False), veins(2, "7", "6", True), veins(3, "4", "5", False), veins(4, "7", "6", True)]]
+            [veins(1, "4", "5", False), veins(2, "7", "6", True), veins(3, "4", "5", False), veins(4, "7", "6", True)],
+            [rubble(1), rubble(2), cracks(1), cracks(2)]]
     return [line for fs in rows for line in side_by_side([["".join(r) for r in f] for f in fs])]
 
 

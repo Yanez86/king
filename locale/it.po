@@ -4187,6 +4187,30 @@ msgstr "Pignone"
 msgid "Millstone"
 msgstr "Macina"
 
+msgid "Prop"
+msgstr "Puntello"
+
+msgid "Two posts and a beam, in a tunnel. Holds the rock overhead for 2 tiles around: a hall wider than 4 tiles needs them, or the middle gives way."
+msgstr "Due pali e una trave, in galleria. Regge la roccia di sopra per 2 caselle attorno: una sala più larga di 4 caselle ne ha bisogno, o il centro cede."
+
+msgid "Rubble"
+msgstr "Macerie"
+
+msgid "Tunnel"
+msgstr "Galleria"
+
+msgid "The rock overhead holds."
+msgstr "La roccia di sopra regge."
+
+msgid "Unsafe: no rock, prop or wall within %d tiles. It may give way."
+msgstr "Pericolante: né roccia né puntello né muro entro %d caselle. Può cedere."
+
+msgid "The rock gave way in a tunnel."
+msgstr "La roccia ha ceduto in una galleria."
+
+msgid "The rock gave way in a tunnel: %d tiles."
+msgstr "La roccia ha ceduto in una galleria: %d caselle."
+
 msgid "Mill"
 msgstr "Mulino"
 

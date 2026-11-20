@@ -276,6 +276,10 @@ region = Rect2(0, 1728, 16, 16)
 atlas = ExtResource("8")
 region = Rect2(0, 1760, 16, 16)
 
+[sub_resource type="AtlasTexture" id="PropIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 1792, 16, 16)
+
 [sub_resource type="AtlasTexture" id="PlasterIcon"]
 atlas = ExtResource("5")
 region = Rect2(160, 160, 16, 16)
@@ -879,6 +883,15 @@ focus_mode = 0
 toggle_mode = true
 button_group = SubResource("Kinds")
 icon = SubResource("MillstoneIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Prop" type="Button" parent="HUD/FurnitureBar/Row/Crafts"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("PropIcon")
 icon_alignment = 1
 expand_icon = true
 

@@ -51,7 +51,7 @@ func _initialize() -> void:
 		"le vene chiuse nel massiccio non si vedono")
 	check(main.describe(hidden[0]) == ["Rock", "Stone left: 5 / 5"], "una vena nascosta si legge come roccia")
 	var sheet: Image = main.MASSIF.get_image()
-	check(sheet.get_size() == Vector2i(4, 4) * main.TILE, "il foglio del massiccio: cima, lati, angoli, vene")
+	check(sheet.get_size() == Vector2i(4, 5) * main.TILE, "il foglio del massiccio: cima, lati, angoli, vene, macerie e crepe")
 	var inside: Array = main.massif.keys().filter(func(k): return (main.EDGE_SIDES + main.EDGE_CORNERS).all(func(d): return main.massif.has(k + d)) and not main.ores.has(k))
 	var face: Array = main.massif.keys().filter(func(k): return not main.rocks.has(k + Vector2i.DOWN) and main.astar.is_in_boundsv(k + Vector2i.DOWN))
 	check(main.rock_images[0].get_pixelv(inside[0] * main.TILE + Vector2i(8, 15)) != main.rock_images[0].get_pixelv(face[0] * main.TILE + Vector2i(8, 15)),

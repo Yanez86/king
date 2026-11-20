@@ -1187,22 +1187,28 @@ montagna, sullo stesso piano della mappa (un piano sotto, con le scale, è un'al
 - **Stanze nella roccia**: una porta in una galleria fa una stanza. La roccia vale da muro (isola all'85%, le cantine
   di 4.4.5) e da tetto: niente tetto da costruire, niente usura, niente comignolo, niente incendi. Una stanza mezza
   dentro e mezza fuori ha il tetto solo sulla parte fuori.
-- **Crolli e puntelli** (fase 3): una casella scavata regge se ha un sostegno entro 2 caselle: roccia piena, un
-  puntello, un muro. Gallerie e stanze fino a 4 caselle di larghezza reggono da sole; oltre, al centro serve un pilastro
-  di roccia lasciato lì o un **puntello** (di legno, una casella, la occupa). Senza sostegno la casella è
-  **pericolante** (crepe, polvere, un avviso) e ogni giorno può cedere (1 su 4): si riempie di **macerie** (non ci si
-  passa; si scavano di nuovo, un po' di pietra), chi è sotto si ferisce (l'elmo ripara), i mobili si rompono. Le
-  macerie reggono: un crollo riempie solo il centro scoperto e si ferma. Segnando lo scavo, le caselle che resterebbero
-  senza sostegno si vedono in rosso; si scava lo stesso. Poi: l'arco in muratura (ramo Pietra), che regge a 3 caselle.
+- **Crolli e puntelli**: una galleria regge se ha un sostegno entro 2 caselle (`SUPPORT_REACH`, anche di sbieco):
+  roccia piena, un puntello, un muro costruito. Gallerie e stanze fino a 4 caselle di larghezza reggono da sole; oltre,
+  al centro serve un pilastro di roccia lasciato lì o un **puntello** (4 legna, una casella, la occupa; si costruisce
+  solo in galleria, dai Mestieri). Senza sostegno la casella è **pericolante** (crepe rosse, a terra e sulla cima; col
+  mouse sopra lo dice) e ogni giorno cede con 1 probabilità su 4 (`COLLAPSE_DAILY`, tirata ogni ora): si riempie di
+  **macerie**, roccia di nuovo (non ci si passa; si scavano per 2 pietra, `RUBBLE_STONE`), chi è sotto perde 30 punti
+  ferita (`COLLAPSE_HURT`, meno con l'armatura: l'elmo ripara) e si ritrova sulla casella libera più vicina, mobili,
+  porta, pavimento e progetti lì si perdono, quello che era a terra resta sotto; lo dice la cronaca. Le macerie reggono:
+  un crollo riempie solo il centro scoperto e si ferma. Con Scava scelto, le caselle che resterebbero senza sostegno
+  (scavato tutto il segnato, e quello che si sta trascinando) sono velate di rosso; si scava lo stesso. Poi: l'arco in
+  muratura (ramo Pietra), che regge a 3 caselle; la polvere che cade prima del crollo; un allarme in alto.
 - **Il sottosuolo** (fase 4): buio senza candele, temperatura stabile tutto l'anno, forse un malus d'umore a viverci.
 - **Ordine di lavoro**: (1) roccia unita, scavo a caselle, vene nascoste; (2) la cima che copre le gallerie, le stanze
   nella roccia; (3) crolli, puntelli, macerie; (4) buio e temperatura.
-- **Stato**: fatte le fasi 1 e 2 il 2026-11-20 (prove in `tests/test_jobs.gd` e `tests/test_rock.gd`, il
+- **Stato**: fatte le fasi 1, 2 e 3 il 2026-11-20 (prove in `tests/test_jobs.gd` e `tests/test_rock.gd`, il
   salvataggio in `tests/test_saves.gd`). Le gallerie sono `caves` (non si salva: `find_caves` le rifà da `massif` e
   `rocks`); `dig` scava una casella. Il massiccio è disegnato in due immagini, con le gallerie aperte e con la cima
   sopra (lì la roccia accanto a una galleria non ha bordi): `_process` mostra quella giusta (`ceiling_shown`), e la
   cima sopra le gallerie la disegna `_draw` dopo coloni e mobili (`draw_ceiling`). `update_roofs` salta le caselle
-  del massiccio. Poi: in costruzione la cima resta (come i tetti: si toglie col pulsante). Il
+  del massiccio. I crolli: `holds` (il sostegno), `shaky` (le pericolanti: `find_shaky`, rifatto quando cambiano
+  roccia, mobili o muri), `collapse_hour` e `collapse`, `rubble` (le macerie, salvate), `find_unsafe` (l'anteprima in
+  rosso); il puntello è `Build.PROP`, un mobile. Poi: in costruzione la cima resta (come i tetti: si toglie col pulsante). Il
   massiccio è `massif` (com'era all'inizio: dove c'è ancora `rocks` è pieno, dove non c'è è scavato), fatto da
   `raise_mountains` e `find_massifs`; il foglio è `art/massif.png` (`massif_sheet` in `tools/make_sprites.py`). È
   disegnato una volta in immagini grandi come la mappa (`bake_rock`), sopra il terreno; scavando si rifanno la

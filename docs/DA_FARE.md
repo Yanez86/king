@@ -18,7 +18,7 @@
 | Risorse ed edifici | 4.4 | fatto | vene d'oro, commercio |
 | Cibo e orto | 4.4.1 | fatto, coi concimi | — (il resto è in 4.4.7) |
 | Grano, forno e animali | 4.4.7 | fatto: torrente, grano, mulini, forno, allevamento, stalla, api, banchetto | maiali e marcio, mantello di lana |
-| Roccia e gallerie | 4.4.8 | fasi 1–2: roccia unita, scavo a caselle, vene nascoste, gallerie e stanze nella roccia | crolli e puntelli, il buio |
+| Roccia e gallerie | 4.4.8 | fasi 1–3: roccia unita, scavo a caselle, vene nascoste, gallerie e stanze nella roccia, crolli e puntelli | il buio e la temperatura del sottosuolo |
 | Forgia e sartoria | 4.4.2 | fatto | ordini "fanne N", qualità degli oggetti |
 | Combattimento | 4.4.3 | fatto | predoni, medico e cure |
 | Avventurieri e rovine | 4.4.4 | fasi 1–3, chi resta, coloni in spedizione | vene d'oro, commercio, una rovina sulla mappa |
@@ -139,11 +139,13 @@ mucche, latte, formaggio, lana, letame), 5 (la macina a trazione, poi rifatta co
 
 Deciso il 2026-11-20; fatte la fase 1 (la roccia unita in massicci, le montagne, lo scavo casella per casella, le vene
 che si vedono solo allo scoperto) e la 2 (le gallerie sotto la cima del massiccio, che si toglie con Tetti o scavando;
-le stanze nella roccia, senza tetto). Resta:
+le stanze nella roccia, senza tetto) e la 3 (crolli, puntelli e macerie; in rosso, con Scava scelto, le caselle che
+resterebbero senza sostegno). Resta:
 
-- [ ] Fase 3: crolli, puntelli e macerie; in rosso, segnando lo scavo, le caselle che resterebbero senza sostegno.
+- [ ] Crolli: l'arco in muratura (regge a 3 caselle), la polvere che cade prima, un allarme in alto.
 - [ ] Fase 4: il buio e la temperatura del sottosuolo.
-- [ ] Tarare i numeri: quanta montagna, da quante caselle è massiccio, quante vene in vista, il tempo per casella.
+- [ ] Tarare i numeri: quanta montagna, da quante caselle è massiccio, quante vene in vista, il tempo per casella; il
+  raggio del sostegno, la probabilità e il danno del crollo, il costo del puntello.
 - [ ] Togliere un segno di scavo (oggi i segni non si tolgono).
 
 ## Forgia, sartoria ed equipaggiamento (4.4.2)
