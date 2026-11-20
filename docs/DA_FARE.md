@@ -157,7 +157,7 @@ mucche, latte, formaggio, lana, letame), 5 (la macina a trazione, poi rifatta co
 Deciso il 2026-11-19: il giocatore dà a un colono la classe di un avventuriero (guerriero, arciere, scassinatore) dalla
 sua scheda, e il colono si allena nelle stanze della caserma (sala d'armi, tiro a segno). Fatte le fasi 1 (le abilità
 salgono di livello) e 2 (la ricerca Caserma, le sue stanze e i mobili, la classe dalla scheda, il corredo, il pugnale).
-Fasi ancora da fare:
+Fase ancora da fare:
 
 - [ ] (3) L'esercitazione: un'ora al giorno nella routine, il lavoro Esercitarsi, i lavoratori della stanza a tempo
   pieno, la milizia in caserma.
@@ -201,7 +201,7 @@ Fatto il 2026-11-19 (fasi 1–4, la tabella degli eventi è nel GDD): il narrato
 
 ## Ricerca (4.7.3)
 
-Fasi ancora da fare: (5) il resto dell'albero, un nodo alla volta (in parte); (6) livello IV, regno, leggi finali,
+Fase ancora da fare: (5) il resto dell'albero, un nodo alla volta (in parte); (6) livello IV, regno, leggi finali,
 Cittadella.
 
 | Ramo | Ricerca | Liv. | Richiede | Cosa sblocca |
@@ -249,6 +249,8 @@ italiano: scheda del colono a due colonne, data e meteo di nuovo nella barra in 
 - [ ] Rivedere a 22 le schermate in inglese, le altre risoluzioni (1920×1080, 1366×768, finestre non 16:9) e i
   suggerimenti col mouse sopra (finora: scheda del colono e mobili).
 - [ ] Provare col mouse vero il trascinamento nella squadra della bacheca (provato solo chiamando le funzioni).
+- [ ] Provare col mouse vero il clic destro in costruzione: lasciato fermo toglie un pezzo dal progetto, trascinato
+  sposta la visuale (provato con eventi finti, la soglia è 4 pixel).
 - [ ] I contatori di studio e autorità nella barra in alto: vedi Ricerca.
 
 ## Distribuzione

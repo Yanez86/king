@@ -1299,7 +1299,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   meno di partire per la Cittadella.
 
 #### 4.7.3 Le ricerche
-- Finestra **Knowledge** (tasto in basso, che compare col primo studio; K, o clic su uno scrittoio): lo studio e i libri in magazzino, poi l'albero
+- Finestra **Knowledge** (nel menu a sinistra, dove compare col primo studio; K, o clic su uno scrittoio): lo studio e i libri in magazzino, poi l'albero
   (rifatto il 2026-11-20): un riquadro per ricerca con icona, nome e costo (studio e libro; in rosso quello che manca),
   il bordo d'oro se fatta, verde se si può studiare adesso, sbiadito se mancano le ricerche prima. Ogni ricerca sta a
   destra di quelle che richiede (le colonne sono la profondità, non il livello: alcune richiedono una ricerca dello
@@ -1391,7 +1391,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   colono morto −5, ogni colono sotto 20 di felicità −1 al giorno.
 
 #### 4.7.5 Codificare, promulgare, revocare
-- Finestra **Laws** (tasto in basso, che compare con la sala del trono; G, o clic sul trono): autorità, sigilli, granaio, poi le leggi per categoria.
+- Finestra **Laws** (nel menu a sinistra, dove compare con la sala del trono; G, o clic sul trono): autorità, sigilli, granaio, poi le leggi per categoria.
 - **Codificare** è la ricerca civica: una volta sola, con autorità. Serve il titolo della fascia della legge e a volte
   una ricerca.
 - **Promulgare** costa 10 autorità e prende un **sigillo**: signoria 2, baronia 3, contea 4, regno 5. La successione ha

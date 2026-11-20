@@ -96,6 +96,55 @@
   la barra in alto ci sta di misura (numeri senza larghezza fissa, Debug come tab delle opzioni, Wiki accanto
   all'ingranaggio): con nomi lunghi o gli allarmi la data si accorcia coi puntini.
 
+## Interfaccia: barre, menu, segni e progetto
+Deciso il 2026-11-20 (bozzetti provati sulle schermate). Le idee: in basso a sinistra le azioni sulla mappa, a sinistra
+le finestre in un menu che scompare, in basso a destra il tempo, in alto le informazioni.
+- **La velocità** (pausa, 1×, 2×, 3×) in basso a destra, in un pannello suo; Spazio, 1, 2, 3 restano. Il riquadro con
+  quello che c'è sotto il mouse, che stava in quell'angolo, sale sopra il pannello.
+- **La barra in basso**: Seleziona · Costruisci · Ordini · Distruggi | Viste. **Ordini** apre la sua barra, come
+  Costruisci apre le categorie: Taglia, Scava, Estirpa, Raccogli, Orto, Pesca, Caccia, Ghiaccio (Orto e Ghiaccio quando
+  la ricerca li sblocca). **Viste** apre la sua: Stanze, Calore, Terra, Tetti. I tasti restano tutti (C, M, U, H, P, F,
+  T, Y; L, N, O, V): scelgono direttamente e aprono la barra. Un triangolino d'oro nell'angolo del tasto dice che apre
+  una barra.
+- **In costruzione non si danno ordini**: il tasto Ordini è spento (col mouse sopra: prima chiudi la costruzione) e i
+  suoi tasti rapidi non fanno niente. Distruggi resta: abbattere fa parte del rifare. Seleziona, Distruggi, Esc o di
+  nuovo Costruisci chiudono la costruzione. Le Viste, il menu e la velocità restano.
+- **Il menu a scomparsa a sinistra**: chiuso, una linguetta sul bordo sinistro sotto la barra in alto; con un clic o
+  con Tab scivola fuori: Lavori (J), Risorse (I), Abitanti (A), Conoscenza (K, con uno studio), Leggi (G, con una sala del
+  trono), Cronaca (D), ognuna con icona, nome e tasto. Scelta una finestra si richiude. La finestra aperta in oro; un
+  pallino d'oro dove c'è qualcosa da fare (una ricerca da studiare subito, una legge da codificare o promulgare,
+  qualcuno che chiede di restare, voci nuove nella cronaca), e sulla linguetta a menu chiuso. Il numero dei coloni in
+  alto apre ancora gli abitanti, la data il calendario. In alto a destra restano Wiki, Schermo e Opzioni.
+- **Esc**: chiude prima quello che è aperto (la costruzione, l'ordine scelto, il menu), poi le opzioni.
+- **I segni di raccolta**: niente più icona velata. L'oggetto segnato ha un contorno di 1 pixel nel colore del suo
+  ordine (arancio tagliare, azzurro scavare, rosa raccogliere, giallo estirpare, rosso aranciato cacciare; prima
+  estirpare era verde chiaro e sul prato spariva), che segue la sua sagoma e si disegna con lui (chi gli passa davanti
+  lo copre). Gli animali da cacciare hanno il contorno sulla loro sagoma; pesca e ghiaccio, caselle d'acqua senza un
+  oggetto, una cornice del colore dell'ordine. I contorni sono fogli fatti da `tools/make_sprites.py`, come le sagome.
+- **Il progetto in blu** (quello posato in costruzione e non ancora confermato) **resta**: uscendo dalla costruzione e
+  nel salvataggio. Finché c'è, in alto al centro la **targa del progetto**: cosa c'è (23 muri, 1 porta, 1 letto), quanto
+  costa (in rosso quello che in magazzino non basta), Costruisci (diventa lavoro), Modifica (riapre la costruzione, solo
+  da fuori), Scarta (via tutto il blu: il primo clic chiede conferma). In costruzione il **clic destro** su un pezzo lo
+  toglie dal progetto, anche già confermato ma non costruito (il materiale portato torna in magazzino); per un'area la
+  **gomma** (il tasto che prima era la X rossa) o Maiusc + trascinamento. Il destro trascinato resta per spostare la
+  telecamera.
+- **Ordine di lavoro**: (1) barre e menu (velocità, Ordini e Viste, gli ordini spenti in costruzione, il menu a
+  sinistra, Esc); (2) i segni a contorno; (3) il progetto in blu che resta, la targa, il clic destro e la gomma.
+- **Stato**: fatta la fase 1 il 2026-11-20 (prove in `tests/test_options.gd`). I tasti dei comandi stanno in barre
+  diverse (`TOOL_BARS`): il codice e le prove li trovano per nome con `tool()`, non per percorso. La barra delle Viste
+  si apre accanto a quella in basso, alla sua altezza (sopra c'è il posto di Ordini e delle categorie di
+  Costruisci). Ordini e Viste non hanno un tasto rapido loro (lo hanno i loro comandi), ma si può dare nelle opzioni.
+  Fatta la fase 2 lo stesso giorno (prove dei fogli in `tests/test_jobs.gd`): i fogli dei contorni hanno ogni riquadro
+  largo un pixel in più per lato (se no il contorno di uno sprite che tocca il bordo, come la quercia, resta tagliato),
+  e `draw_outline` li disegna un pixel più grandi, tinti col colore dell'ordine, subito dopo lo sprite. La caccia è
+  passata a un rosso aranciato (`ff6a40`): il marrone di prima sul coniglio non si vedeva.
+  Fatta la fase 3 lo stesso giorno (prove in `tests/test_jobs.gd`, il salvataggio in `tests/test_saves.gd`): chiudere la
+  costruzione non scarta più `draft` e `furniture_draft` (che si salvavano già). La targa è `$HUD/Actions`, rifatta da
+  `update_plate` solo quando cambia quello che dice; in costruzione senza progetto dice come si toglie. Il clic
+  destro conta se lo si lascia entro 4 pixel da dove lo si è premuto (se no era la telecamera) e toglie prima il
+  mobile, poi la struttura (`erase_piece`); la gomma e Maiusc usano `erase_area`. Il clic sulla mappa prende il punto
+  dall'evento (`map_point`), non dal mouse: le prove possono così cliccare e trascinare sulla mappa (`map_click`).
+
 ## Versionamento
 - Git + GitHub (`Yanez86/king`).
 - Git LFS se gli asset binari crescono molto (non necessario ora).

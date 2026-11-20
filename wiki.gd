@@ -46,31 +46,37 @@ Hover a figure for the sheet; click a name to open it. Click the number again to
 [color=#e8c34a]Mouse[/color]
 • With Select (the arrow), a left click opens things: a colonist's sheet, a room's sign, a workstation's menu, the notice board, a desk (Knowledge) or a throne (Laws). A click elsewhere closes the sheet.
 • With an order chosen (Build, Destroy, Mine...), drag a rectangle with the left button to mark the area.
-• The box at the bottom right tells what is under the mouse: logs left in a tree, how fresh a pile of food is, and so on.
+• While building, a right click (without dragging) takes a piece out of the plan, Shift + drag an area.
+• The box at the bottom right, above the speed, tells what is under the mouse: logs left in a tree, how fresh a pile of food is, and so on.
 • Windows can be dragged around; the X closes them.
 
 [color=#e8c34a]Bottom bar[/color]
-A key works like a click on its button (press it again to close).
+Select (Q), Build (B), Orders, Destroy (X) | Views. Orders and Views (a small gold triangle) open a bar of their own: the orders above, the views beside. A key works like a click on its button (press it again to close), and an order's key opens its bar too.
 [table=4]
-[cell]Select[/cell][cell]Q[/cell][cell]Build[/cell][cell]B[/cell]
-[cell]Destroy[/cell][cell]X[/cell][cell]Mine[/cell][cell]M[/cell]
-[cell]Chop[/cell][cell]C[/cell][cell]Uproot[/cell][cell]U[/cell]
-[cell]Harvest[/cell][cell]H[/cell][cell]Garden[/cell][cell]P[/cell]
-[cell]Fish[/cell][cell]F[/cell][cell]Hunt[/cell][cell]T[/cell]
-[cell]Jobs[/cell][cell]J[/cell][cell]Resources[/cell][cell]I[/cell]
-[cell]Knowledge[/cell][cell]K[/cell][cell]Laws[/cell][cell]G[/cell]
+[cell]Mine[/cell][cell]M[/cell][cell]Chop[/cell][cell]C[/cell]
+[cell]Uproot[/cell][cell]U[/cell][cell]Harvest[/cell][cell]H[/cell]
+[cell]Garden[/cell][cell]P[/cell][cell]Fish[/cell][cell]F[/cell]
+[cell]Hunt[/cell][cell]T[/cell][cell]Cut ice[/cell][cell]Y[/cell]
+[cell]Pasture[/cell][cell]W[/cell][cell]Hay[/cell][cell]Z[/cell]
 [cell]Rooms lens[/cell][cell]L[/cell][cell]Heat lens[/cell][cell]N[/cell]
-[cell]Soil lens[/cell][cell]O[/cell][cell]Cut ice[/cell][cell]Y[/cell]
-[cell]Roofs[/cell][cell]V[/cell][cell]Wiki[/cell][cell]F1[/cell]
-[cell]Pasture[/cell][cell]A[/cell][cell]Hay[/cell][cell]Z[/cell]
+[cell]Soil lens[/cell][cell]O[/cell][cell]Roofs[/cell][cell]V[/cell]
+[/table]
+• While building no orders can be given: the Orders button is off and its keys do nothing. Destroy works, and closes building like Select.
+
+[color=#e8c34a]The menu on the left[/color]
+A tab on the left edge, below the top bar: click it or press Tab and the menu slides out with the windows; choose one and it closes. A gold dot where something waits (a research you can study now, a law you can codify or enact, someone asking to stay, new lines in the chronicle), and on the tab while the menu is closed.
+[table=4]
+[cell]Jobs[/cell][cell]J[/cell][cell]Resources[/cell][cell]I[/cell]
+[cell]Inhabitants[/cell][cell]A[/cell][cell]Knowledge[/cell][cell]K[/cell]
+[cell]Laws[/cell][cell]G[/cell][cell]Chronicle[/cell][cell]D[/cell]
 [/table]
 • Jobs: who does what first (see Colonists), and the work waiting. Resources: what is in your warehouses.
-• Knowledge shows up with your first study, Laws with the throne room. The Wiki button is in the top bar.
+• Knowledge shows up with your first study, Laws with the throne room. The colonists' number in the top bar opens the inhabitants too, the date the calendar. Wiki (F1), fullscreen and options stay at the top right.
 
 [color=#e8c34a]Fixed keys[/color]
-• Space: pause; 1, 2, 3: speed.
+• Space: pause; 1, 2, 3: speed (the buttons at the bottom right).
 • E and R: turn the next piece of furniture left or right.
-• Esc: the options (also the gear at the top right).
+• Esc: first closes what is open (the menu, building, the chosen order, the views); with nothing open, the options (also the gear at the top right).
 
 [color=#e8c34a]Options[/color]
 • System: language, load another colony, back to the main menu, quit the game. Video: window size and fullscreen (also the screen button at the top right).
@@ -274,7 +280,9 @@ A window and the chronicle announce it; the realm's name, the ruler's title and 
 • Walls and floors are made of wood or stone (stone after the Masonry research). Doors, furniture and decorations have their own material.
 • Drag on the map: the plan shows in blue. Walls go only along the border of the rectangle, so one drag outlines a room; floors, paths and doors fill it. Drawing over your unconfirmed plan replaces it: that is how to put a door into a wall you are planning.
 • Furniture goes one piece at a time, where you let go of the button. E and R (or the arrows in the bar) turn it; the preview is red where it doesn't fit.
-• Press Build in the middle of the bottom to confirm: only then do colonists start. The red X erases cells from the plan, even confirmed ones. Closing Build without confirming throws the plan away.
+• The plan's plate, at the top in the middle, says what is in it (each piece's icon and how many) and what it costs, in red what the stores lack. Press Build on it to confirm: only then do colonists start.
+• The blue plan stays when you close Build, and in the saves: the plate stays too, with Edit (back to building) and Discard (all the unconfirmed plan; it asks to click again to be sure).
+• While building, a right click on a piece takes it out of the plan, even if confirmed (the furniture first, then the floor under it); Shift + drag, or the eraser on the plate, takes out a whole area. The material already carried goes back to the stores. Dragging with the right button still moves the view.
 • The builder fetches the material from a pile (on the ground or in a warehouse) and needs 2 s a tile or a piece. A piece made of two materials (lamp, lantern) takes a trip for each: what is already there waits at the site, and goes back on the ground if you cancel the plan.
 • Destroy (X): drag over structures and furniture to pull them down at once. The material is lost.
 • Pieces you haven't researched yet have no button.
@@ -440,7 +448,7 @@ After the Stone oven research (Land II): 2x1, 20 stone, in a kitchen; it warms t
 [color=#e8c34a]The royal banquet[/color]
 After the Royal banquet research (Land IV, 1000 and a codex, after Apiary), at the bottom of the oven's menu. Once a season, with a throne room that has a table, and in the warehouses a stew, a bread and a honey for every colonist: they are taken at once (in summer, with ice in the warehouses, also a sorbet: an ice and a honey every 4 colonists). The next day at 18:00 whoever is in the colony, awake and standing, drops what they do and goes to the throne room, to the chairs at the tables first, for two hours; the ruler gains 20 authority. Afterwards everyone who was there has Banquet, +15 happiness for 3 days, and with the sorbet Sorbet, +5 more. The button says why when it can't be ordered."""],
 
-	["Gathering", """Mark what to take with the orders of the bottom bar, dragging a rectangle; marked things carry a faint icon. What is gathered falls at the worker's feet, and when the job is done they carry it to a warehouse.
+	["Gathering", """Mark what to take with the orders of the Orders bar, dragging a rectangle; a marked thing gets a thin outline in the order's color: orange to chop, light blue to mine, yellow to uproot, pink to harvest, red-orange to hunt. Water to fish or ice to cut gets a frame on its tile. What is gathered falls at the worker's feet, and when the job is done they carry it to a warehouse.
 
 [color=#e8c34a]Chop (C)[/color] [img=center]res://art/icon_wood.png[/img]
 Trees: oak 28 wood, pine 35, birch 20. A stroke every 10 s gives 5.
@@ -497,7 +505,7 @@ Mark water tiles. The fisher stands beside them (in shallow water too) and casts
 [/table]
 Animals roam outside rooms and water, born more than 15 tiles from the clearing: 6 rabbits and 3 deer at first, then a new one every half day while there are fewer than 12. A marked wolf, shot at, attacks the hunter."""],
 
-	["Livestock", """[color=#e8c34a]The pasture (A)[/color] [img=center]res://art/icon_pasture.png[/img]
+	["Livestock", """[color=#e8c34a]The pasture (W)[/color] [img=center]res://art/icon_pasture.png[/img]
 • After the Husbandry research (Land I, 100, after Hunting). Drag over open grass, outside rooms, like the garden: a fence draws itself along the edge, for free. Destroy removes it. Nothing is built on a pasture but the coop.
 • Every tile has its grass, up to 100: it grows back 20 a day when the soil is mild (as for sowing), not in winter. The more it is grazed, the more earth shows. Hover a tile for its grass; click it for the herd.
 

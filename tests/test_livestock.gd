@@ -24,7 +24,7 @@ func _initialize() -> void:
 	# la ricerca e il tasto: Terra I, dopo la Caccia
 	var tech: Dictionary = main.TECHS[main.Tech.HUSBANDRY]
 	check(tech["tier"] == 1 and tech["needs"] == [main.Tech.HUNTING] and main.Build.COOP in tech["builds"], "Allevamento: Terra I, dopo la Caccia")
-	var button: Button = main.get_node("HUD/Tools/Row/Pasture")
+	var button: Button = main.tool("Pasture")
 	check(button.visible and button.button_group == main.order_group, "tasto Pasture nel gruppo delle azioni")
 	main.researched.erase(main.Tech.HUSBANDRY)
 	main.refresh_unlocks()

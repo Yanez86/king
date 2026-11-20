@@ -1,6 +1,7 @@
 # Esegui: godot --headless --path . -s tests/test_options.gd
 # Menù delle opzioni: apertura con Esc e con l'ingranaggio, pausa, tab (System, Video, Audio, Keybindings, Debug), tasti della
-# barra in basso; velocità in alto, finestra Wiki
+# barra in basso; le barre di Ordini e Viste, gli ordini spenti in costruzione, il menu a sinistra, Esc che chiude prima
+# quello che è aperto; la velocità in basso a destra, finestra Wiki
 extends SceneTree
 
 const SAVED := "user://test_settings.cfg"
@@ -21,16 +22,89 @@ func _initialize() -> void:
 	check(main.hotkeys["Build"] == KEY_B and main.hotkeys["RoomsLens"] == KEY_L, "tasti di partenza")
 	check(main.hotkeys.values().all(func(k): return not k in main.FIXED_KEYS), "nessun tasto fisso tra quelli di partenza")
 	var keys: Array = main.hotkeys.values().filter(func(k): return k != KEY_NONE)
-	check(keys.size() == main.hotkeys.size() and keys.all(func(k): return keys.count(k) == 1), "tutti diversi")
+	check(keys.all(func(k): return keys.count(k) == 1), "tutti diversi")
+	check(main.hotkeys.keys().filter(func(n): return main.hotkeys[n] == KEY_NONE) == ["Orders", "Views"],
+		"senza tasto solo Ordini e Viste: i loro tasti ce l'hanno")
+	check(main.hotkeys["Census"] == KEY_A and main.hotkeys["Chronicle"] == KEY_D and main.hotkeys["Menu"] == KEY_TAB,
+		"A gli abitanti, D la cronaca, Tab il menu")
 	check(main.build_button.tooltip_text == "Build (B)", "il tasto nel suggerimento del pulsante")
 	check(main.key_list.get_node("Build").text == "B", "e nella sua riga del menù")
 	check(main.key_list.get_child_count() == 3 * main.hotkeys.size(), "righe: icona, nome, tasto")
 
-	# tasti della barra: come cliccarne i pulsanti
+	# la barra in basso: Seleziona, Costruisci, Ordini, Distruggi | Viste; gli ordini e le viste nelle loro barre
+	check(main.hotbar.get_children().filter(func(b): return b is Button).map(func(b): return String(b.name))
+		== ["Select", "Build", "Orders", "Destroy", "Views"], "cinque tasti in basso")
+	check(main.tool("Chop").get_parent() == main.get_node("HUD/OrdersBar/Row") and main.tool("RoomsLens").get_parent()
+		== main.get_node("HUD/ViewsBar/Row") and not main.get_node("HUD/OrdersBar").visible, "ordini e viste nelle loro barre, chiuse")
+
+	# tasti della barra: come cliccarne i pulsanti; in costruzione niente ordini, Distruggi sì
 	press(main, KEY_B)
-	check(main.build_button.button_pressed and main.categories.visible, "B apre Build")
+	check(main.build_button.button_pressed and main.categories.visible and main.orders_button.disabled, "B apre Build, Ordini spento")
+	check(main.orders_button.tooltip_text.ends_with("close it first (Esc)"), "e dice perché")
 	press(main, KEY_M)
-	check(main.order == main.Order.MINE and not main.build_button.button_pressed, "M sceglie Mine e chiude Build")
+	check(main.order != main.Order.MINE and main.build_button.button_pressed, "in costruzione M non fa niente")
+	press(main, KEY_X)
+	check(main.order == main.Order.DEMOLISH and not main.build_button.button_pressed and not main.orders_button.disabled,
+		"X sceglie Distruggi e chiude Build")
+	press(main, KEY_M)
+	check(main.order == main.Order.MINE and main.orders_button.button_pressed and main.get_node("HUD/OrdersBar").visible,
+		"M sceglie Mine e apre la barra degli Ordini")
+	press(main, KEY_X)
+	check(main.order == main.Order.DEMOLISH and not main.get_node("HUD/OrdersBar").visible, "Distruggi chiude la barra")
+	main.orders_button.button_pressed = true
+	main.tool("Chop").button_pressed = true
+	main.orders_button.button_pressed = false
+	check(main.order == main.Order.NONE and main.select_button.button_pressed, "chiusa la barra, l'ordine scelto si lascia")
+	main.orders_button.button_pressed = true
+	main.tool("Chop").button_pressed = true
+	press(main, KEY_Q)
+	check(main.order == main.Order.NONE and main.select_button.button_pressed and not main.get_node("HUD/OrdersBar").visible,
+		"Q torna a Select e chiude la barra")
+	press(main, KEY_L)
+	check(main.lens.visible and not main.get_node("HUD/ViewsBar").visible, "L, la lente delle stanze, anche a barra chiusa")
+	main.views_button.button_pressed = true
+	var views: Control = main.get_node("HUD/ViewsBar")
+	await process_frame
+	check(views.visible and views.get_global_rect().position.x >= main.get_node("HUD/Tools").get_global_rect().end.x,
+		"le viste accanto alla barra in basso")
+	press(main, KEY_L)
+	main.views_button.button_pressed = false
+
+	# il menu a sinistra: Tab lo apre, una finestra scelta lo chiude; i tasti rapidi accanto ai nomi
+	var drawer: Control = main.drawer
+	check(not drawer.visible and main.tool("Census").get_parent() == drawer.get_node("Box"), "il menu chiuso")
+	press(main, KEY_TAB)
+	check(drawer.visible and main.menu_tab.button_pressed and main.menu_tab.text == "<", "Tab lo apre")
+	check(main.tool("Jobs").get_node("Key").text == "J" and main.tool("Census").get_node("Key").text == "A", "i tasti accanto")
+	main.tool("Census").button_pressed = true
+	main.tool("Census").pressed.emit()
+	check(main.get_node("HUD/CensusPanel").visible and not main.menu_tab.button_pressed, "scelta una finestra, si chiude")
+	press(main, KEY_A)
+	check(not main.get_node("HUD/CensusPanel").visible and not main.tool("Census").button_pressed, "A la richiude")
+	main.toggle_census()
+	check(main.tool("Census").button_pressed, "il numero dei coloni in alto la apre ancora, col tasto del menu")
+	main.get_node("HUD/CensusPanel").hide()
+	check(not main.tool("Census").button_pressed, "chiusa con la X: il tasto si alza")
+	main.chronicle.append("prova")
+	main.update_dots()
+	check(main.tool("Chronicle").get_node("Dot").visible and main.menu_tab.get_node("Dot").visible, "una voce nuova: il pallino")
+	press(main, KEY_D)
+	main.update_dots()
+	check(main.get_node("HUD/ChroniclePanel").visible and not main.tool("Chronicle").get_node("Dot").visible, "letta, via il pallino")
+	press(main, KEY_D)
+	check(not main.get_node("HUD/ChroniclePanel").visible, "D la richiude")
+	main.chronicle.clear()
+
+	# Esc chiude prima quello che è aperto: il menu, la costruzione, l'ordine; poi apre le opzioni
+	press(main, KEY_TAB)
+	press(main, KEY_ESCAPE)
+	check(not main.menu_tab.button_pressed and not main.options.visible, "Esc chiude il menu")
+	press(main, KEY_B)
+	press(main, KEY_ESCAPE)
+	check(not main.build_button.button_pressed and not main.options.visible, "poi la costruzione")
+	press(main, KEY_C)
+	press(main, KEY_ESCAPE)
+	check(main.order == main.Order.NONE and not main.get_node("HUD/OrdersBar").visible and not main.options.visible, "poi l'ordine")
 	press(main, KEY_Q)
 	check(main.order == main.Order.NONE and main.select_button.button_pressed, "Q torna a Select")
 	press(main, KEY_J)
@@ -40,10 +114,15 @@ func _initialize() -> void:
 	press(main, KEY_B, true)
 	check(not main.build_button.button_pressed, "con Ctrl il tasto non vale")
 
-	# velocità in alto: i pulsanti la cambiano e mostrano quella attuale, anche cambiata coi tasti
-	var top: Node = main.get_node("HUD/TopBar/Row")
-	check(not top.has_node("Fullscreen") and top.get_node("Screen").icon != null and top.get_node("Screen").text == "",
-		"in alto lo schermo, senza scritta")
+	# velocità in basso a destra: i pulsanti la cambiano e mostrano quella attuale, anche cambiata coi tasti
+	var top: Node = main.get_node("HUD/Speed/Row")
+	var bar: Node = main.get_node("HUD/TopBar/Row")
+	check(not bar.has_node("Fullscreen") and bar.get_node("Screen").icon != null and bar.get_node("Screen").text == ""
+		and not bar.has_node("Pause"), "in alto lo schermo, senza scritta; la velocità non più")
+	await process_frame
+	var corner: Rect2 = main.get_node("HUD/Speed").get_global_rect()
+	check(corner.end.x > main.get_viewport().get_visible_rect().size.x - 20 and corner.end.y > main.get_viewport().get_visible_rect().size.y - 20,
+		"in basso a destra")
 	top.get_node("Fast").pressed.emit()
 	check(Engine.time_scale == 2.0, "Fast: 2x")
 	press(main, KEY_3)
@@ -111,7 +190,7 @@ func _initialize() -> void:
 	press(main, KEY_B)
 	check(main.hotkeys["Mine"] == KEY_B and main.hotkeys["Build"] == KEY_NONE and main.rebinding == "", "B passa a Mine, Build resta senza")
 	check(main.key_list.get_node("Build").text == "-" and main.build_button.tooltip_text == "Build", "senza tasto: un trattino")
-	check(main.get_node("HUD/Tools/Row/Mine").tooltip_text == "Mine (B)", "suggerimento aggiornato")
+	check(main.tool("Mine").tooltip_text == "Mine (B)", "suggerimento aggiornato")
 	check(main.options.visible, "il tasto preso non chiude il menù")
 	main.start_rebind("Chop")
 	press(main, KEY_ESCAPE)
@@ -163,7 +242,7 @@ func _initialize() -> void:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVED))
 	# tab Debug: Advance 12 hours fa andare avanti la partita davvero, mezza giornata di tick; in alto niente più Debug,
 	# ma la data e il meteo
-	check(not top.has_node("Debug") and top.get_node("Info") == main.info_label and main.forecast_strip.get_parent() == top
+	check(not bar.has_node("Debug") and bar.get_node("Info") == main.info_label and main.forecast_strip.get_parent() == bar
 		and main.forecast_strip.get_index() == main.info_label.get_index() + 1, "in alto data e meteo, niente Debug")
 	var day: float = main.clock
 	main.get_node("HUD/Options/Window/Box/Body/Pages/Debug/Advance").pressed.emit()

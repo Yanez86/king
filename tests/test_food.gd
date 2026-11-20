@@ -252,7 +252,7 @@ func _initialize() -> void:
 	for i in 200:
 		main.tick(0.05)
 	check(main.total(V) == veg0, "senza segno le bacche restano sul cespuglio")
-	main.get_node("HUD/Tools/Row/Harvest").button_pressed = true
+	main.tool("Harvest").button_pressed = true
 	check(main.order == main.Order.HARVEST, "tasto Harvest")
 	main.mark(Rect2i(bush, Vector2i.ONE))
 	check(main.harvest_marks.has(bush) and main.describe(bush)[1].ends_with("Marked: harvest"), "cespuglio segnato")
@@ -293,7 +293,7 @@ func _initialize() -> void:
 		and not main.trees.has(k + d)))
 	main.sort_by_distance(shore, main.center(main.MAP_SIZE / 2))
 	var spot: Vector2i = shore[0]
-	main.get_node("HUD/Tools/Row/Fish").button_pressed = true
+	main.tool("Fish").button_pressed = true
 	check(main.order == main.Order.FISH, "tasto Fish")
 	main.mark(Rect2i(spot, Vector2i.ONE))
 	main.mark(Rect2i(free[0], Vector2i.ONE))  # sulla terra non segna niente
@@ -329,7 +329,7 @@ func _initialize() -> void:
 	for i in 400:  # gira da solo, senza entrare nelle stanze
 		main.tick(0.05)
 	check(main.roams(main.cell_of(deer.pos)) and deer.hunter == null, "il cervo gira per conto suo")
-	main.get_node("HUD/Tools/Row/Hunt").button_pressed = true
+	main.tool("Hunt").button_pressed = true
 	main.mark(Rect2i(main.cell_of(deer.pos), Vector2i.ONE))
 	check(deer.marked and main.job_list().contains("Hunt animals: 1") and main.describe(main.cell_of(deer.pos)) == ["Deer", "Marked: hunt"],
 		"cervo da cacciare")
@@ -383,14 +383,14 @@ func _initialize() -> void:
 	check(main.animals.size() == count + 1 and (main.cell_of(main.animals[-1].pos) - main.MAP_SIZE / 2).length() > main.WILD_RADIUS,
 		"arriva un animale nuovo")
 	for name in ["Fish", "Hunt"]:
-		var b: Button = main.get_node("HUD/Tools/Row/" + name)
+		var b: Button = main.tool(name)
 		check(b.icon != null and b.button_group == main.order_group, "tasto %s nel gruppo delle azioni" % name)
 
 	# orto: col tasto Garden si segna il prato libero; le caselle che si toccano fanno un campo col suo cartello. Il
 	# contadino semina e, coi tempi veri (CROP_DAYS), raccoglie secondo la fertilità della casella; la coltura dell'anno
 	# la dice il piano di rotazione del campo. Si semina con la terra tiepida e solo se si fa in tempo prima
 	# dell'inverno; il primo giorno d'inverno il gelo si prende quello che è nei campi
-	var garden_button: Button = main.get_node("HUD/Tools/Row/Garden")
+	var garden_button: Button = main.tool("Garden")
 	check(garden_button.visible and garden_button.button_group == main.order_group, "tasto Garden nel gruppo delle azioni")
 	main.researched.erase(main.Tech.GARDEN)
 	main.refresh_unlocks()
@@ -557,11 +557,11 @@ func _initialize() -> void:
 	main.researched.erase(main.Tech.ALMANAC)
 	main.refresh_field()
 	check(soil_text.text == "Soil: average.", "col Saggio del terreno: tre fasce")
-	check(main.get_node("HUD/Tools/Row/SoilLens").visible, "e la lente")
+	check(main.tool("SoilLens").visible, "e la lente")
 	main.researched.erase(main.Tech.SOIL_SURVEY)
 	main.refresh_unlocks()
 	main.refresh_field()
-	check(not soil_text.visible and not main.get_node("HUD/Tools/Row/SoilLens").visible, "senza ricerche la terra non si vede")
+	check(not soil_text.visible and not main.tool("SoilLens").visible, "senza ricerche la terra non si vede")
 	var farmer = main.colonists[0]
 	farmer.skills[main.Skill.GATHERING] = main.SOIL_EYE - 1
 	main.learn_soil(farmer, plot)
@@ -573,10 +573,10 @@ func _initialize() -> void:
 	for t in [main.Tech.SOIL_SURVEY, main.Tech.ALMANAC, main.Tech.LAND_REGISTER]:
 		main.researched[t] = true
 	main.refresh_unlocks()
-	var soil_lens: Button = main.get_node("HUD/Tools/Row/SoilLens")
-	main.get_node("HUD/Tools/Row/HeatLens").button_pressed = true
+	var soil_lens: Button = main.tool("SoilLens")
+	main.tool("HeatLens").button_pressed = true
 	soil_lens.button_pressed = true
-	check(main.soil_lens.visible and not main.get_node("HUD/Tools/Row/HeatLens").button_pressed, "la lente della terra, una lente alla volta")
+	check(main.soil_lens.visible and not main.tool("HeatLens").button_pressed, "la lente della terra, una lente alla volta")
 	soil_lens.button_pressed = false
 	check(not main.soil_lens.visible, "e si chiude")
 	main.field_popup.hide()

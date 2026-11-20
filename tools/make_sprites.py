@@ -1446,6 +1446,70 @@ BOWSTRING_ICON = """
 """
 
 # Icone 16x16 delle azioni accanto a "distruggi" -> scava (piccone), taglia (ascia), estirpa (pianta con le radici).
+def orders_icon():
+    """Icona 16x16 del tasto Ordini: un piccone e un'ascia incrociati, i manici di legno, i ferri in alto; il contorno
+    scuro attorno a tutto"""
+    g = [["."] * 16 for _ in range(16)]
+    for t in range(10):  # i manici: il piccone da in basso a destra in su a sinistra, l'ascia al contrario
+        g[13 - t][12 - t], g[13 - t][13 - t] = "w", "W"
+        g[13 - t][2 + t], g[13 - t][3 + t] = "w", "W"
+    for k in range(6):  # il ferro del piccone, di traverso sulla cima del suo manico
+        g[6 - k][k] = "u"
+        if k < 5:
+            g[6 - k][k + 1] = "r"
+    for y, xs in ((1, range(10, 13)), (2, range(9, 14)), (3, range(9, 14)), (4, range(10, 13))):  # la lama dell'ascia
+        for x in xs:
+            g[y][x] = "u" if x < 12 else "R"
+    for y in range(16):  # il contorno
+        for x in range(16):
+            if g[y][x] == "." and any(0 <= y + dy < 16 and 0 <= x + dx < 16 and g[y + dy][x + dx] not in ".o"
+                                     for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                g[y][x] = "o"
+    return ["".join(r) for r in g]
+
+
+def eraser_icon():
+    """Icona 16x16 della gomma, che toglie pezzi dal progetto: un blocchetto di traverso, rosso con la fascia bianca in
+    basso a sinistra, l'ombra sul lato in basso; sotto, la riga cancellata; il contorno scuro attorno"""
+    g = [["."] * 16 for _ in range(16)]
+    for y in range(16):
+        for x in range(16):
+            px, py = x + 0.5 - 8.5, y + 0.5 - 7.0
+            u, v = (px - py) / 2 ** 0.5, (px + py) / 2 ** 0.5  # lungo la gomma (in su a destra) e di traverso
+            if abs(u) <= 6.0 and abs(v) <= 2.6:
+                shade = v > 1.0
+                g[y][x] = ("H" if shade else "h") if u < -1.6 else ("J" if shade else "j")
+    for x in range(1, 7):  # la riga cancellata, sotto la punta
+        g[14][x] = "R"
+    for y in range(16):  # il contorno
+        for x in range(16):
+            if g[y][x] == "." and any(0 <= y + dy < 16 and 0 <= x + dx < 16 and g[y + dy][x + dx] not in ".oR"
+                                     for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                g[y][x] = "o"
+    return ["".join(r) for r in g]
+
+
+def views_icon():
+    """Icona 16x16 del tasto Viste: un occhio, il bianco, l'iride azzurra con la pupilla e il riflesso"""
+    rows = []
+    for y in range(16):
+        line = ""
+        for x in range(16):
+            ex, ey = (x - 7.5) / 7.5, (y - 7.5) / 4.6  # la mandorla dell'occhio
+            r = ((x - 7.5) ** 2 + (y - 7.5) ** 2) ** 0.5
+            if ex * ex + ey * ey > 1.0:
+                inside_ring = ((x - 7.5) / 8.5) ** 2 + ((y - 7.5) / 5.6) ** 2 <= 1.0
+                line += "o" if inside_ring else "."
+            elif r < 1.2:
+                line += "o"  # la pupilla
+            elif r < 3.2:
+                line += "u" if (x, y) == (6, 6) else "à"  # l'iride, col riflesso
+            else:
+                line += "+" if y < 8 else "x"
+        rows.append(line)
+    return rows
+
+
 MINE_ICON = """
 ................
 ...ooooooo......
@@ -5159,6 +5223,23 @@ def trees_sheet():
     return side_by_side(frames(TREES, TREES_HEIGHT))
 
 
+def outline(grid, w, h):
+    """I segni di raccolta: il contorno di 1 pixel attorno alle parti piene di ogni riquadro w x h del foglio (l'ombra a
+    terra non conta), bianco: in gioco lo si tinge col colore dell'ordine. Ogni riquadro esce di un pixel per lato
+    ((w + 2) x (h + 2)), così il contorno c'è anche dove lo sprite tocca il bordo: si disegna un pixel più in là"""
+    cols, rows_n = len(grid[0]) // w, len(grid) // h
+    full = lambda x, y: 0 <= x < len(grid[0]) and 0 <= y < len(grid) and grid[y][x] not in ".z"
+    out = [["."] * (cols * (w + 2)) for _ in range(rows_n * (h + 2))]
+    for ty in range(rows_n):
+        for tx in range(cols):
+            for y in range(-1, h + 1):
+                for x in range(-1, w + 1):
+                    inside = lambda dx, dy: 0 <= x + dx < w and 0 <= y + dy < h and full(tx * w + x + dx, ty * h + y + dy)
+                    if not inside(0, 0) and any(inside(dx, dy) for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                        out[ty * (h + 2) + y + 1][tx * (w + 2) + x + 1] = "h"
+    return ["".join(r) for r in out]
+
+
 def write_png(path, rows):
     """rows: righe di pixel (r, g, b, a)."""
     raw = b"".join(b"\0" + bytes(v for px in row for v in px) for row in rows)
@@ -5201,12 +5282,17 @@ def main():
     images["colonist_gear"] = pixels(gear_sheets(grid))
     images["colonist_hands"] = pixels([line for name in HANDS for line in hand_sheet(name)])
     images["trees"] = pixels(trees_sheet())
+    images["trees_outline"] = pixels(outline(trees_sheet(), 16, 32))
     images["icon_wood"], images["icon_stone"], images["icon_veg"] = (pixels(f) for f in frames(ICONS))
     images["plants"] = pixels(side_by_side(frames(PLANTS, count=7)))
+    images["plants_outline"] = pixels(outline(side_by_side(frames(PLANTS, count=7)), 16, 16))
     images["icon_build"] = pixels(art(BUILD_ICON, 15, 15))
     images["icon_cancel"] = pixels(art(CANCEL_ICON, 16, 16))
     images["icon_destroy"] = pixels(art(DESTROY_ICON, 15, 15))
     images["icon_mine"] = pixels(art(MINE_ICON, 16, 16))
+    images["icon_orders"] = pixels(orders_icon())
+    images["icon_views"] = pixels(views_icon())
+    images["icon_eraser"] = pixels(eraser_icon())
     images["icon_chop"] = pixels(art(CHOP_ICON, 16, 16))
     images["icon_uproot"] = pixels(art(UPROOT_ICON, 16, 16))
     images["icon_harvest"] = pixels(art(HARVEST_ICON, 16, 16))
@@ -5258,7 +5344,9 @@ def main():
     meat, fish = frames(RAW_ICONS, count=2)  # affumicati: la carne bruna, il pesce dorato
     images["icon_smoked_meat"] = pixels([line.translate(str.maketrans("jJs", "wWc")) for line in meat])
     images["icon_smoked_fish"] = pixels([line.translate(str.maketrans("urR", "c<W")) for line in fish])
-    images["animals"] = pixels(art(ANIMALS.replace(" ", ""), 32, 48) + art(LIVESTOCK.replace(" ", ""), 32, 64))
+    animals = art(ANIMALS.replace(" ", ""), 32, 48) + art(LIVESTOCK.replace(" ", ""), 32, 64)  # i selvatici, poi quelli da allevare
+    images["animals"] = pixels(animals)
+    images["animals_outline"] = pixels(outline(animals, 16, 16))
     images["sign"] = pixels(art(SIGN, 16, 16))
     images["structures"] = pixels(structures_sheet())
     images["rock_1x1"] = pixels(art(ROCK_1X1, 16, 16))
@@ -5266,6 +5354,9 @@ def main():
     images["rock_2x2"] = pixels(art(ROCK_2X2, 32, 32))
     images["rock_iron"] = pixels(art(ROCK_IRON, 16, 16))
     images["rock_coal"] = pixels(art(ROCK_COAL, 16, 16))
+    for name, block, w, h in (("rock_1x1", ROCK_1X1, 16, 16), ("rock_2x1", ROCK_2X1, 32, 16), ("rock_2x2", ROCK_2X2, 32, 32),
+                              ("rock_iron", ROCK_IRON, 16, 16), ("rock_coal", ROCK_COAL, 16, 16)):  # un masso, un riquadro
+        images[name + "_outline"] = pixels(outline(art(block, w, h), w, h))
     images["icon_iron"], images["icon_coal"] = (pixels(f) for f in frames(ORE_ICONS, count=2))
     images["icon_meal"], images["icon_fine_meal"] = (pixels(f) for f in frames(MEALS, count=2))
     feast = ["." * 16] * 2 + [".." + line + ".." for line in art(FEAST_SYMBOL, 12, 12)] + ["." * 16] * 2

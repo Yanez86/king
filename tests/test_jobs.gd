@@ -38,6 +38,16 @@ func _initialize() -> void:
 		check(main.boulders.get(cell) == Vector2i.ONE, "ogni vena è un masso da una casella")
 	check(main.stockpile.is_empty() and main.rooms.is_empty(), "niente magazzino all'inizio")
 
+	# i segni sono contorni: ogni foglio dei contorni ha un riquadro per sprite, un pixel più largo per lato
+	for pair in [[main.TREES, main.TREES_OUTLINE, Vector2(1, 2) * main.TILE], [main.PLANTS, main.PLANTS_OUTLINE, Vector2.ONE * main.TILE],
+			[main.ANIMALS, main.ANIMALS_OUTLINE, Vector2.ONE * main.TILE]]:
+		var tiles: Vector2 = (pair[0].get_size() / pair[2]).round()
+		check(pair[1].get_size() == tiles * (pair[2] + Vector2(2, 2)), "il foglio dei contorni ha un riquadro per sprite")
+	for cell in main.boulders:
+		var rock: Texture2D = main.boulder_tex(cell)
+		check(main.ROCK_OUTLINES.has(rock) and main.ROCK_OUTLINES[rock].get_size() == rock.get_size() + Vector2(2, 2), "ogni masso ha il suo contorno")
+	check(main.ORDER_COLORS[main.Order.UPROOT].h > 0.1 and main.ORDER_COLORS[main.Order.UPROOT].h < 0.2, "estirpare è giallo: sul prato si vede")
+
 	check(main.water.values().has(main.Ground.DEEP) and main.water.values().has(main.Ground.SHALLOW), "ci sono laghi")
 	for cell in main.water:
 		check(not main.rocks.has(cell) and not main.trees.has(cell), "niente rocce né alberi in acqua")
@@ -297,16 +307,17 @@ func _initialize() -> void:
 	main.build_res = W
 	main.mark(Rect2i(at, Vector2i(1, 2)))
 	main.build_button.button_pressed = true  # tasto "Build": sopra compaiono le categorie, ancora nessuna aperta
-	check(main.categories.visible and not main.build_bar.visible and not main.furniture_bar.visible and not main.actions.visible,
-		"Build apre le categorie, senza barre né Build e X")
+	main.update_plate()
+	check(main.categories.visible and not main.build_bar.visible and not main.furniture_bar.visible and main.actions.visible,
+		"Build apre le categorie, senza barre; in alto la targa del progetto")
 	main.structures_button.button_pressed = true
-	check(main.build_bar.visible and main.actions.visible, "categoria Structures: la sua barra, con Build e X")
+	check(main.build_bar.visible, "categoria Structures: la sua barra")
 	main.get_node("HUD/BuildBar/Row/Wall").button_pressed = true
 	var home: Button = main.get_node("HUD/Categories/Row/Home")
 	var crafts: Button = main.get_node("HUD/Categories/Row/Crafts")
 	home.button_pressed = true  # categoria "Home": la barra dei mobili al posto di quella delle strutture, col solo gruppo di casa
 	var groups: Array = main.FURNITURE_GROUPS.map(func(g): return main.furniture_bar.get_node("Row/" + g))
-	check(main.furniture_bar.visible and not main.build_bar.visible and main.actions.visible, "barra dei mobili, con Build e X")
+	check(main.furniture_bar.visible and not main.build_bar.visible, "barra dei mobili")
 	check(not main.structures_button.button_pressed, "una categoria alla volta")
 	check(groups.filter(func(g): return g.visible) == [groups[0]] and main.kind_buttons[main.Build.BED].is_visible_in_tree()
 		and not main.kind_buttons[main.Build.ANVIL].is_visible_in_tree(), "solo i mobili di casa")
@@ -500,9 +511,9 @@ func _initialize() -> void:
 	check(main.colonists.all(func(c): return c.job == main.Job.NONE), "chi non ha niente da fare resta fermo")
 
 	# tasti dopo Destroy: uno alla volta; Uproot segna erbacce e cespugli, anche a clic su una casella
-	main.get_node("HUD/Tools/Row/Chop").button_pressed = true
+	main.tool("Chop").button_pressed = true
 	check(main.order == main.Order.CHOP, "tasto Chop: si tagliano alberi")
-	var uproot: Button = main.get_node("HUD/Tools/Row/Uproot")
+	var uproot: Button = main.tool("Uproot")
 	uproot.button_pressed = true
 	check(main.order == main.Order.UPROOT and main.order_group.get_pressed_button() == uproot, "un'azione alla volta")
 	main.mark(Rect2i(bush, Vector2i.ONE))
@@ -517,15 +528,50 @@ func _initialize() -> void:
 	var lamp_at: Vector2i = main.cells_in(area).filter(func(k): return main.can_build(k, main.Build.LAMP))[0]
 	main.mark(Rect2i(lamp_at, Vector2i.ONE))
 	check(main.furniture_draft.has(lamp_at), "lampada nel progetto")
+	main.update_plate()
+	check(main.actions.visible and main.erase.visible and not main.edit_button.visible and not main.confirm.disabled,
+		"in costruzione la targa: Costruisci, Scarta e la gomma")
 	main.build_button.button_pressed = false
-	check(not main.categories.visible and not main.furniture_bar.visible and not main.actions.visible, "Build chiude categorie e barra")
-	check(main.category_group.get_pressed_button() == null and main.furniture_draft.is_empty(), "chiuso Build, il progetto si scarta")
+	check(not main.categories.visible and not main.furniture_bar.visible, "Build chiude categorie e barra")
+	check(main.category_group.get_pressed_button() == null and main.furniture_draft.has(lamp_at), "chiuso Build, il progetto resta")
 	check(main.select_button.button_pressed, "chiuso l'ultimo strumento torna Select")
+	main.update_plate()
+	check(main.actions.visible and main.edit_button.visible and not main.erase.visible, "fuori la targa resta: Costruisci, Modifica, Scarta")
+	check(main.plan_summary.get_parsed_text().contains("1") and main.plan_summary.tooltip_text.contains("Lamp: 1"), "la targa dice cosa c'è")
+	main.discard_button.pressed.emit()
+	check(main.furniture_draft.has(lamp_at) and main.discard_button.text == "Sure?", "Scarta: il primo clic chiede conferma")
+	main.discard_button.pressed.emit()
+	main.update_plate()
+	check(main.furniture_draft.is_empty() and not main.actions.visible and main.discard_button.text == "Discard", "il secondo scarta: la targa sparisce")
+	main.edit_button.pressed.emit()
+	check(main.build_button.button_pressed, "Modifica riapre la costruzione")
+	main.update_plate()
+	check(main.actions.visible and main.confirm.disabled and main.plan_summary.get_parsed_text().begins_with("Right click"),
+		"in costruzione senza progetto: la targa dice come si toglie")
+	# il clic destro toglie un pezzo (il mobile prima del pavimento sotto); trascinato sposta la telecamera e non toglie
+	var floor_at: Vector2i = main.cells_in(area).filter(func(k): return main.can_build(k, main.Build.FLOOR))[0]
+	main.draft[floor_at] = [main.Build.FLOOR, W]
+	main.draft[floor_at + Vector2i.RIGHT] = [main.Build.FLOOR, W]
+	main.furniture_draft[floor_at] = [main.Build.LAMP, W, 0]
+	map_click(main, MOUSE_BUTTON_RIGHT, floor_at, floor_at + Vector2i(3, 0))
+	check(main.furniture_draft.has(floor_at), "il destro trascinato non toglie niente")
+	map_click(main, MOUSE_BUTTON_RIGHT, floor_at, floor_at)
+	check(not main.furniture_draft.has(floor_at) and main.draft.has(floor_at), "il destro toglie il mobile, il pavimento resta")
+	map_click(main, MOUSE_BUTTON_RIGHT, floor_at, floor_at)
+	check(not main.draft.has(floor_at) and main.draft.has(floor_at + Vector2i.RIGHT), "poi il pavimento, una casella")
+	main.build_button.button_pressed = false
+	main.draft[floor_at] = [main.Build.FLOOR, W]
+	map_click(main, MOUSE_BUTTON_RIGHT, floor_at, floor_at)
+	check(main.draft.has(floor_at), "fuori dalla costruzione il destro non toglie")
+	main.build_button.button_pressed = true
+	map_click(main, MOUSE_BUTTON_LEFT, floor_at, floor_at + Vector2i.RIGHT, true)
+	check(main.draft.is_empty() and main.drag_start == null, "Maiusc + trascinamento: la gomma su un'area")
+	main.build_button.button_pressed = false
 	main.build_button.button_pressed = true
 	main.structures_button.button_pressed = true
-	main.get_node("HUD/Tools/Row/Mine").button_pressed = true
+	main.tool("Mine").button_pressed = true
 	check(not main.build_button.button_pressed and not main.categories.visible and not main.build_bar.visible, "un'azione chiude Build")
-	main.get_node("HUD/Tools/Row/Mine").button_pressed = true
+	main.tool("Mine").button_pressed = true
 	main.select_button.button_pressed = true
 	check(main.order == main.Order.NONE and main.order_group.get_pressed_button() == null, "Select chiude le azioni")
 	main.select_button.button_pressed = false
@@ -589,9 +635,9 @@ func _initialize() -> void:
 	check(jobs.contains("Chop trees: 1") and jobs.contains("Build wall (%s): 2" % main.item_name(W)), "la finestra Jobs conta i lavori per tipo")
 
 	# finestre: si aprono insieme, la X chiude (e il tasto torna su), si trascinano restando nello schermo
-	var jobs_button: Button = main.get_node("HUD/Tools/Row/Jobs")
+	var jobs_button: Button = main.tool("Jobs")
 	jobs_button.button_pressed = true
-	main.get_node("HUD/Tools/Row/Resources").button_pressed = true
+	main.tool("Resources").button_pressed = true
 	check(main.resources_panel.visible and main.jobs_panel.visible, "Resources e Jobs aperte insieme")
 	main.get_node("HUD/JobsPanel/Box/Head/Close").pressed.emit()
 	check(not main.jobs_panel.visible and not jobs_button.button_pressed, "la X chiude Jobs e alza il tasto")
@@ -1122,6 +1168,25 @@ var last_pos := {}  # colono -> posizione al controllo prima, vedi check_work
 
 
 # chi lavora usa i fotogrammi d'azione, dalla casella vicina, guardando l'albero o il masso
+# un clic sulla mappa col tasto `button`, premuto su `from` e lasciato su `to` (col sinistro passando dal mouse mosso);
+# `shift` col tasto Maiusc giù
+func map_click(main, button: MouseButton, from: Vector2i, to: Vector2i, shift := false) -> void:
+	var screen := func(cell: Vector2i): return main.get_canvas_transform() * main.center(cell)
+	var event := InputEventMouseButton.new()
+	event.button_index = button
+	event.pressed = true
+	event.shift_pressed = shift
+	event.position = screen.call(from)
+	main._unhandled_input(event)
+	var motion := InputEventMouseMotion.new()
+	motion.position = screen.call(to)
+	main._unhandled_input(motion)
+	var release: InputEventMouseButton = event.duplicate()
+	release.pressed = false
+	release.position = screen.call(to)
+	main._unhandled_input(release)
+
+
 func check_work(main) -> void:
 	var ahead := {main.Facing.DOWN: Vector2i.DOWN, main.Facing.LEFT: Vector2i.LEFT,
 		main.Facing.RIGHT: Vector2i.RIGHT, main.Facing.UP: Vector2i.UP}

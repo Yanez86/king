@@ -1,4 +1,4 @@
-[gd_scene load_steps=109 format=3]
+[gd_scene load_steps=120 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Script" path="res://columns.gd" id="columns"]
@@ -45,6 +45,11 @@
 [ext_resource type="Texture2D" path="res://art/icon_soil.png" id="soil_icon"]
 [ext_resource type="Texture2D" path="res://art/icon_dice.png" id="dice_icon"]
 [ext_resource type="Texture2D" path="res://art/icon_debug.png" id="debug_icon"]
+
+[ext_resource type="Texture2D" path="res://art/icon_orders.png" id="orders_icon"]
+[ext_resource type="Texture2D" path="res://art/icon_views.png" id="views_icon"]
+[ext_resource type="Texture2D" path="res://art/icon_eraser.png" id="eraser_icon"]
+[ext_resource type="Texture2D" path="res://art/icon_parchment.png" id="chronicle_icon"]
 
 [sub_resource type="AtlasTexture" id="HandsSlot"]
 atlas = ExtResource("equipment")
@@ -395,42 +400,6 @@ size_flags_horizontal = 3
 horizontal_alignment = 2
 vertical_alignment = 1
 text_overrun_behavior = 3
-
-[node name="Pause" type="Button" parent="HUD/TopBar/Row"]
-custom_minimum_size = Vector2(32, 32)
-focus_mode = 0
-tooltip_text = "Pause (Space)"
-toggle_mode = true
-icon = ExtResource("pause_icon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Play" type="Button" parent="HUD/TopBar/Row"]
-custom_minimum_size = Vector2(32, 32)
-focus_mode = 0
-tooltip_text = "Normal speed (1)"
-toggle_mode = true
-icon = ExtResource("play_icon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Fast" type="Button" parent="HUD/TopBar/Row"]
-custom_minimum_size = Vector2(32, 32)
-focus_mode = 0
-tooltip_text = "Fast (2)"
-toggle_mode = true
-icon = ExtResource("fast_icon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Fastest" type="Button" parent="HUD/TopBar/Row"]
-custom_minimum_size = Vector2(32, 32)
-focus_mode = 0
-tooltip_text = "Very fast (3)"
-toggle_mode = true
-icon = ExtResource("fastest_icon")
-icon_alignment = 1
-expand_icon = true
 
 [node name="Screen" type="Button" parent="HUD/TopBar/Row"]
 custom_minimum_size = Vector2(32, 32)
@@ -1168,29 +1137,57 @@ icon = ExtResource("10")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Actions" type="HBoxContainer" parent="HUD"]
+[node name="Actions" type="PanelContainer" parent="HUD"]
 visible = false
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_top = 64.0
-offset_bottom = 104.0
+offset_bottom = 64.0
 grow_horizontal = 2
+theme_type_variation = &"Bar"
+
+[node name="Box" type="VBoxContainer" parent="HUD/Actions"]
+theme_override_constants/separation = 4
+
+[node name="Summary" type="RichTextLabel" parent="HUD/Actions/Box"]
+mouse_filter = 1
+bbcode_enabled = true
+fit_content = true
+autowrap_mode = 0
+horizontal_alignment = 1
+scroll_active = false
+
+[node name="Row" type="HBoxContainer" parent="HUD/Actions/Box"]
+alignment = 1
 theme_override_constants/separation = 6
 
-[node name="Confirm" type="Button" parent="HUD/Actions"]
+[node name="Confirm" type="Button" parent="HUD/Actions/Box/Row"]
 custom_minimum_size = Vector2(120, 40)
 focus_mode = 0
+tooltip_text = "The plan becomes work for the colonists"
 text = "Build"
 icon = ExtResource("4")
 expand_icon = true
 
-[node name="Erase" type="Button" parent="HUD/Actions"]
+[node name="Edit" type="Button" parent="HUD/Actions/Box/Row"]
+custom_minimum_size = Vector2(100, 40)
+focus_mode = 0
+tooltip_text = "Back to building, to change the plan"
+text = "Edit"
+
+[node name="Discard" type="Button" parent="HUD/Actions/Box/Row"]
+custom_minimum_size = Vector2(100, 40)
+focus_mode = 0
+tooltip_text = "Throw away the whole plan not yet confirmed"
+text = "Discard"
+
+[node name="Erase" type="Button" parent="HUD/Actions/Box/Row"]
 custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
-tooltip_text = "Erase blueprint"
+tooltip_text = "Eraser: drag to remove from the plan, even if confirmed"
 toggle_mode = true
-icon = ExtResource("6")
+icon = ExtResource("eraser_icon")
 icon_alignment = 1
 expand_icon = true
 
@@ -1227,6 +1224,15 @@ icon = ExtResource("4")
 icon_alignment = 1
 expand_icon = true
 
+[node name="Orders" type="Button" parent="HUD/Tools/Row"]
+custom_minimum_size = Vector2(38, 38)
+focus_mode = 0
+tooltip_text = "Orders"
+toggle_mode = true
+icon = ExtResource("orders_icon")
+icon_alignment = 1
+expand_icon = true
+
 [node name="Destroy" type="Button" parent="HUD/Tools/Row"]
 custom_minimum_size = Vector2(38, 38)
 focus_mode = 0
@@ -1237,7 +1243,32 @@ icon = ExtResource("7")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Mine" type="Button" parent="HUD/Tools/Row"]
+[node name="ViewsSeparator" type="VSeparator" parent="HUD/Tools/Row"]
+
+[node name="Views" type="Button" parent="HUD/Tools/Row"]
+custom_minimum_size = Vector2(38, 38)
+focus_mode = 0
+tooltip_text = "Views"
+toggle_mode = true
+icon = ExtResource("views_icon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="OrdersBar" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = -78.0
+offset_bottom = -78.0
+grow_vertical = 0
+theme_type_variation = &"Bar"
+
+[node name="Row" type="HBoxContainer" parent="HUD/OrdersBar"]
+theme_override_constants/separation = 6
+
+[node name="Mine" type="Button" parent="HUD/OrdersBar/Row"]
 custom_minimum_size = Vector2(38, 38)
 focus_mode = 0
 tooltip_text = "Mine"
@@ -1247,7 +1278,7 @@ icon = ExtResource("mine_icon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Chop" type="Button" parent="HUD/Tools/Row"]
+[node name="Chop" type="Button" parent="HUD/OrdersBar/Row"]
 custom_minimum_size = Vector2(38, 38)
 focus_mode = 0
 tooltip_text = "Chop"
@@ -1257,7 +1288,7 @@ icon = ExtResource("chop_icon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Uproot" type="Button" parent="HUD/Tools/Row"]
+[node name="Uproot" type="Button" parent="HUD/OrdersBar/Row"]
 custom_minimum_size = Vector2(38, 38)
 focus_mode = 0
 tooltip_text = "Uproot"
@@ -1267,7 +1298,7 @@ icon = ExtResource("uproot_icon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Harvest" type="Button" parent="HUD/Tools/Row"]
+[node name="Harvest" type="Button" parent="HUD/OrdersBar/Row"]
 custom_minimum_size = Vector2(38, 38)
 focus_mode = 0
 tooltip_text = "Harvest"
@@ -1277,7 +1308,7 @@ icon = ExtResource("harvest_icon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Garden" type="Button" parent="HUD/Tools/Row"]
+[node name="Garden" type="Button" parent="HUD/OrdersBar/Row"]
 custom_minimum_size = Vector2(38, 38)
 focus_mode = 0
 tooltip_text = "Garden"
@@ -1287,7 +1318,7 @@ icon = ExtResource("garden_icon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Pasture" type="Button" parent="HUD/Tools/Row"]
+[node name="Pasture" type="Button" parent="HUD/OrdersBar/Row"]
 custom_minimum_size = Vector2(38, 38)
 focus_mode = 0
 tooltip_text = "Pasture"
@@ -1297,7 +1328,7 @@ icon = ExtResource("pasture_icon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Hay" type="Button" parent="HUD/Tools/Row"]
+[node name="Hay" type="Button" parent="HUD/OrdersBar/Row"]
 custom_minimum_size = Vector2(38, 38)
 focus_mode = 0
 tooltip_text = "Hay"
@@ -1307,7 +1338,7 @@ icon = ExtResource("hay_icon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Fish" type="Button" parent="HUD/Tools/Row"]
+[node name="Fish" type="Button" parent="HUD/OrdersBar/Row"]
 custom_minimum_size = Vector2(38, 38)
 focus_mode = 0
 tooltip_text = "Fish"
@@ -1317,7 +1348,7 @@ icon = ExtResource("fishing_icon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Hunt" type="Button" parent="HUD/Tools/Row"]
+[node name="Hunt" type="Button" parent="HUD/OrdersBar/Row"]
 custom_minimum_size = Vector2(38, 38)
 focus_mode = 0
 tooltip_text = "Hunt"
@@ -1327,7 +1358,7 @@ icon = ExtResource("hunting_icon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Ice" type="Button" parent="HUD/Tools/Row"]
+[node name="Ice" type="Button" parent="HUD/OrdersBar/Row"]
 custom_minimum_size = Vector2(38, 38)
 focus_mode = 0
 tooltip_text = "Cut ice"
@@ -1336,6 +1367,196 @@ button_group = SubResource("Orders")
 icon = ExtResource("ice_icon")
 icon_alignment = 1
 expand_icon = true
+
+[node name="ViewsBar" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = -54.0
+offset_bottom = -8.0
+grow_vertical = 0
+theme_type_variation = &"Bar"
+
+[node name="Row" type="HBoxContainer" parent="HUD/ViewsBar"]
+theme_override_constants/separation = 6
+
+[node name="RoomsLens" type="Button" parent="HUD/ViewsBar/Row"]
+custom_minimum_size = Vector2(38, 38)
+focus_mode = 0
+tooltip_text = "Rooms lens"
+toggle_mode = true
+icon = ExtResource("sign_icon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="HeatLens" type="Button" parent="HUD/ViewsBar/Row"]
+custom_minimum_size = Vector2(38, 38)
+focus_mode = 0
+tooltip_text = "Heat lens"
+toggle_mode = true
+icon = ExtResource("heat_icon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="SoilLens" type="Button" parent="HUD/ViewsBar/Row"]
+custom_minimum_size = Vector2(38, 38)
+focus_mode = 0
+tooltip_text = "Soil lens"
+toggle_mode = true
+icon = ExtResource("soil_icon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Roofs" type="Button" parent="HUD/ViewsBar/Row"]
+custom_minimum_size = Vector2(38, 38)
+focus_mode = 0
+tooltip_text = "Hide roofs"
+toggle_mode = true
+icon = ExtResource("roofs_icon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Speed" type="PanelContainer" parent="HUD"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -8.0
+offset_top = -8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_type_variation = &"Bar"
+
+[node name="Row" type="HBoxContainer" parent="HUD/Speed"]
+theme_override_constants/separation = 6
+
+[node name="Pause" type="Button" parent="HUD/Speed/Row"]
+focus_mode = 0
+tooltip_text = "Pause (Space)"
+toggle_mode = true
+icon = ExtResource("pause_icon")
+icon_alignment = 1
+expand_icon = true
+custom_minimum_size = Vector2(38, 38)
+
+[node name="Play" type="Button" parent="HUD/Speed/Row"]
+focus_mode = 0
+tooltip_text = "Normal speed (1)"
+toggle_mode = true
+icon = ExtResource("play_icon")
+icon_alignment = 1
+expand_icon = true
+custom_minimum_size = Vector2(38, 38)
+
+[node name="Fast" type="Button" parent="HUD/Speed/Row"]
+focus_mode = 0
+tooltip_text = "Fast (2)"
+toggle_mode = true
+icon = ExtResource("fast_icon")
+icon_alignment = 1
+expand_icon = true
+custom_minimum_size = Vector2(38, 38)
+
+[node name="Fastest" type="Button" parent="HUD/Speed/Row"]
+focus_mode = 0
+tooltip_text = "Very fast (3)"
+toggle_mode = true
+icon = ExtResource("fastest_icon")
+icon_alignment = 1
+expand_icon = true
+custom_minimum_size = Vector2(38, 38)
+
+[node name="Drawer" type="PanelContainer" parent="HUD"]
+visible = false
+offset_top = 64.0
+theme_type_variation = &"Bar"
+
+[node name="Box" type="VBoxContainer" parent="HUD/Drawer"]
+theme_override_constants/separation = 4
+
+[node name="Jobs" type="Button" parent="HUD/Drawer/Box"]
+focus_mode = 0
+tooltip_text = "Jobs"
+toggle_mode = true
+icon = ExtResource("jobs_icon")
+custom_minimum_size = Vector2(250, 40)
+text = "Jobs"
+alignment = 0
+icon_alignment = 0
+theme_override_constants/icon_max_width = 32
+expand_icon = true
+
+[node name="Resources" type="Button" parent="HUD/Drawer/Box"]
+focus_mode = 0
+tooltip_text = "Resources"
+toggle_mode = true
+icon = ExtResource("resources_icon")
+custom_minimum_size = Vector2(250, 40)
+text = "Resources"
+alignment = 0
+icon_alignment = 0
+theme_override_constants/icon_max_width = 32
+expand_icon = true
+
+[node name="Census" type="Button" parent="HUD/Drawer/Box"]
+focus_mode = 0
+tooltip_text = "Inhabitants"
+toggle_mode = true
+icon = ExtResource("colonists_icon")
+custom_minimum_size = Vector2(250, 40)
+text = "Inhabitants"
+alignment = 0
+icon_alignment = 0
+theme_override_constants/icon_max_width = 32
+expand_icon = true
+
+[node name="Knowledge" type="Button" parent="HUD/Drawer/Box"]
+focus_mode = 0
+tooltip_text = "Knowledge"
+toggle_mode = true
+icon = ExtResource("study_icon")
+custom_minimum_size = Vector2(250, 40)
+text = "Knowledge"
+alignment = 0
+icon_alignment = 0
+theme_override_constants/icon_max_width = 32
+expand_icon = true
+
+[node name="Laws" type="Button" parent="HUD/Drawer/Box"]
+focus_mode = 0
+tooltip_text = "Laws"
+toggle_mode = true
+icon = ExtResource("authority_icon")
+custom_minimum_size = Vector2(250, 40)
+text = "Laws"
+alignment = 0
+icon_alignment = 0
+theme_override_constants/icon_max_width = 32
+expand_icon = true
+
+[node name="Chronicle" type="Button" parent="HUD/Drawer/Box"]
+focus_mode = 0
+tooltip_text = "Chronicle"
+toggle_mode = true
+icon = ExtResource("chronicle_icon")
+custom_minimum_size = Vector2(250, 40)
+text = "Chronicle"
+alignment = 0
+icon_alignment = 0
+theme_override_constants/icon_max_width = 32
+expand_icon = true
+
+[node name="Menu" type="Button" parent="HUD"]
+custom_minimum_size = Vector2(26, 56)
+offset_top = 70.0
+focus_mode = 0
+tooltip_text = "Menu"
+text = ">"
 
 [node name="RoomPopup" type="PanelContainer" parent="HUD"]
 visible = false
@@ -1425,82 +1646,6 @@ expand_icon = true
 theme_override_colors/font_color = Color(1, 0.415686, 0.290196, 1)
 
 [node name="List" type="VBoxContainer" parent="HUD/CraftPopup/Box"]
-
-[node name="Separator" type="VSeparator" parent="HUD/Tools/Row"]
-
-[node name="Jobs" type="Button" parent="HUD/Tools/Row"]
-custom_minimum_size = Vector2(38, 38)
-focus_mode = 0
-tooltip_text = "Jobs"
-toggle_mode = true
-icon = ExtResource("jobs_icon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Resources" type="Button" parent="HUD/Tools/Row"]
-custom_minimum_size = Vector2(38, 38)
-focus_mode = 0
-tooltip_text = "Resources"
-toggle_mode = true
-icon = ExtResource("resources_icon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Knowledge" type="Button" parent="HUD/Tools/Row"]
-custom_minimum_size = Vector2(38, 38)
-focus_mode = 0
-tooltip_text = "Knowledge"
-toggle_mode = true
-icon = ExtResource("study_icon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Laws" type="Button" parent="HUD/Tools/Row"]
-custom_minimum_size = Vector2(38, 38)
-focus_mode = 0
-tooltip_text = "Laws"
-toggle_mode = true
-icon = ExtResource("authority_icon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Separator2" type="VSeparator" parent="HUD/Tools/Row"]
-
-[node name="RoomsLens" type="Button" parent="HUD/Tools/Row"]
-custom_minimum_size = Vector2(38, 38)
-focus_mode = 0
-tooltip_text = "Rooms lens"
-toggle_mode = true
-icon = ExtResource("sign_icon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="HeatLens" type="Button" parent="HUD/Tools/Row"]
-custom_minimum_size = Vector2(38, 38)
-focus_mode = 0
-tooltip_text = "Heat lens"
-toggle_mode = true
-icon = ExtResource("heat_icon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="SoilLens" type="Button" parent="HUD/Tools/Row"]
-custom_minimum_size = Vector2(38, 38)
-focus_mode = 0
-tooltip_text = "Soil lens"
-toggle_mode = true
-icon = ExtResource("soil_icon")
-icon_alignment = 1
-expand_icon = true
-
-[node name="Roofs" type="Button" parent="HUD/Tools/Row"]
-custom_minimum_size = Vector2(38, 38)
-focus_mode = 0
-tooltip_text = "Hide roofs"
-toggle_mode = true
-icon = ExtResource("roofs_icon")
-icon_alignment = 1
-expand_icon = true
 
 [node name="JobsPanel" type="PanelContainer" parent="HUD"]
 visible = false

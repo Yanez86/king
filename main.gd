@@ -654,17 +654,24 @@ const STATION_ROOM := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.HEARTH: RoomKind.
 const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.COAL: 5, Res.OINTMENT: 3, Res.FLOUR: 10, Res.BREAD: 8, Res.CANDLE: 4}  # scorte di partenza, vedi keep; i pasti
 	# MEALS_PER_COLONIST a testa
 enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT, ICE, GARDEN, PASTURE, HAY }  # cosa segna il trascinamento del mouse
-const ORDER_COLORS := [Color.TRANSPARENT, Color.ORANGE, Color("8fd3ff"), Color("9be36a"), Color("e6e2d0"),
-	Color("ff5a5a"), Color("c83030"), Color("d84a6a"), Color("6ab0e0"), Color("c87a3a"), Color("bfe6f2"), Color("c8a46a"),
-	Color("a8d060"), Color("e8c34a")]  # selezione e segni, per Order
-# tasti in HUD/Tools/Row dopo Build, uno alla volta (ButtonGroup "Orders"): vedi toggle_order
+const ORDER_COLORS := [Color.TRANSPARENT, Color.ORANGE, Color("8fd3ff"), Color("f0d850"), Color("e6e2d0"),
+	Color("ff5a5a"), Color("c83030"), Color("d84a6a"), Color("6ab0e0"), Color("ff6a40"), Color("bfe6f2"), Color("c8a46a"),
+	Color("a8d060"), Color("e8c34a")]  # selezione
+	# e segni, per Order: il contorno di quello che è segnato (vedi draw_outline); estirpare giallo, sul prato si vede
+# Distruggi, e i tasti della barra degli Ordini (HUD/OrdersBar), uno alla volta (ButtonGroup "Orders"): vedi toggle_order
 const ORDER_TOOLS := {Order.DEMOLISH: "Destroy", Order.MINE: "Mine", Order.CHOP: "Chop", Order.UPROOT: "Uproot",
 	Order.HARVEST: "Harvest", Order.GARDEN: "Garden", Order.PASTURE: "Pasture", Order.HAY: "Hay", Order.FISH: "Fish", Order.HUNT: "Hunt", Order.ICE: "Ice"}
-const ORDER_ICONS := {Order.CHOP: preload("res://art/icon_chop.png"), Order.MINE: preload("res://art/icon_mine.png"),
-	Order.UPROOT: preload("res://art/icon_uproot.png"), Order.HARVEST: preload("res://art/icon_harvest.png"),
-	Order.FISH: preload("res://art/icon_fishing.png"), Order.HUNT: preload("res://art/icon_hunting.png"),
-	Order.ICE: preload("res://art/icon_ice.png"), Order.GARDEN: preload("res://art/icon_garden.png"),
-	Order.PASTURE: preload("res://art/icon_pasture.png"), Order.HAY: preload("res://art/icon_hay.png")}  # le stesse dei tasti: piccole e velate sopra ciò che è segnato
+# I contorni dei segni (tools/make_sprites.py): un foglio per foglio di sprite, ogni riquadro un pixel più largo per lato
+const TREES_OUTLINE := preload("res://art/trees_outline.png")
+const PLANTS_OUTLINE := preload("res://art/plants_outline.png")
+const ANIMALS_OUTLINE := preload("res://art/animals_outline.png")
+const ROCK_OUTLINES := {  # sprite del masso -> il suo contorno
+	preload("res://art/rock_1x1.png"): preload("res://art/rock_1x1_outline.png"),
+	preload("res://art/rock_2x1.png"): preload("res://art/rock_2x1_outline.png"),
+	preload("res://art/rock_2x2.png"): preload("res://art/rock_2x2_outline.png"),
+	preload("res://art/rock_iron.png"): preload("res://art/rock_iron_outline.png"),
+	preload("res://art/rock_coal.png"): preload("res://art/rock_coal_outline.png"),
+}
 enum RoomKind { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE, WORKSHOP, CARPENTRY, INN, STUDY, THRONE_ROOM, PANTRY, ICEHOUSE,
 	ARMORY, ARCHERY_RANGE,  # la caserma (vedi CLASS_ROOM)
 	INFIRMARY,
@@ -868,11 +875,18 @@ const BLOCKED_COLOR := Color("d84a3a")  # la ✕ sul muro di pietra che il calor
 const ROOM_SPACE := 6        # caselle a testa: chi ne ha meno (stanza piena di gente) ha il comfort in proporzione
 # suggerimento dei pulsanti di costruzione (vedi build_tip): sotto nome e costo il comfort, poi la descrizione colorata
 # menù delle opzioni (Esc o ingranaggio), tab Keybindings: tasti di partenza dei comandi della barra in basso, per
-# nome del pulsante in HUD/Tools/Row (quelli che non ci sono partono senza). Cambiati, si salvano: vedi bind_key
+# nome del pulsante (vedi TOOL_BARS; quelli che non ci sono partono senza). Cambiati, si salvano: vedi bind_key
 const DEFAULT_KEYS := {"Select": KEY_Q, "Build": KEY_B, "Destroy": KEY_X, "Mine": KEY_M, "Chop": KEY_C, "Uproot": KEY_U,
-	"Harvest": KEY_H, "Garden": KEY_P, "Pasture": KEY_A, "Hay": KEY_Z, "Fish": KEY_F, "Hunt": KEY_T, "Ice": KEY_Y, "Jobs": KEY_J, "Resources": KEY_I, "Knowledge": KEY_K, "Laws": KEY_G,
-	"RoomsLens": KEY_L, "HeatLens": KEY_N, "SoilLens": KEY_O, "Roofs": KEY_V, "Wiki": KEY_F1}
-const SPEEDS := {"Pause": 0.0, "Play": 1.0, "Fast": 2.0, "Fastest": 3.0}  # pulsanti in alto a destra, come Space e 1-3
+	"Harvest": KEY_H, "Garden": KEY_P, "Pasture": KEY_W, "Hay": KEY_Z, "Fish": KEY_F, "Hunt": KEY_T, "Ice": KEY_Y, "Jobs": KEY_J, "Resources": KEY_I, "Knowledge": KEY_K, "Laws": KEY_G,
+	"RoomsLens": KEY_L, "HeatLens": KEY_N, "SoilLens": KEY_O, "Roofs": KEY_V, "Wiki": KEY_F1, "Census": KEY_A,
+	"Chronicle": KEY_D, "Menu": KEY_TAB}
+# dove stanno i tasti dei comandi (vedi tool): la barra in basso, le barre di Ordini e Viste, il menu a sinistra; poi
+# la linguetta del menu e la Wiki, in alto
+const TOOL_BARS := ["HUD/Tools/Row", "HUD/OrdersBar/Row", "HUD/ViewsBar/Row", "HUD/Drawer/Box", "HUD", "HUD/TopBar/Row"]
+const TOOL_EXTRAS := ["Menu", "Wiki"]  # di HUD e della barra in alto, solo questi sono comandi
+const DRAWER_TIME := 0.12   # secondi: il menu a sinistra che scivola fuori o rientra
+const MARK_GOLD := Color("e8c34a")  # il triangolino dei tasti che aprono una barra, il pallino del menu
+const SPEEDS := {"Pause": 0.0, "Play": 1.0, "Fast": 2.0, "Fastest": 3.0}  # pulsanti in basso a destra, come Space e 1-3
 # tab Video delle opzioni: misure della finestra, solo quelle che stanno nello schermo (la prima sempre)
 const RESOLUTIONS := [Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440)]
 # tab System delle opzioni: lingue, col nome nella loro lingua; i testi tradotti sono in locale/<lingua>.po (vedi named)
@@ -1906,6 +1920,7 @@ var next_guest := GUEST_EVERY      # `clock` del prossimo arrivo alla locanda
 var ruins: Array[Ruin] = []
 var expeditions: Array[Expedition] = []
 var chronicle: PackedStringArray = []  # diari delle spedizioni e morti, dal più vecchio (vedi note)
+var chronicle_seen := 0       # le voci della cronaca già viste: le altre, nuove, mettono il pallino al menu (vedi update_dots)
 var chronicle_days: PackedInt32Array = []  # il giorno di ogni voce di chronicle: il calendario la segna lì
 var board_key := ""         # quello che mostra la bacheca: se cambia, la si rifà (vedi fill_board)
 var board_pick: Array[Colonist] = []  # spuntati alla bacheca per la prossima spedizione
@@ -1980,8 +1995,8 @@ var needs_rate := 1.0       # 0 nei test: i bisogni restano fermi e non cambiano
 var routines := true        # false nei test: niente orari né ore massime, chi è libero prende il primo lavoro
 var game_start := true      # false nei test: TEST_PEOPLE coloni, niente monete né arma a terra, tutto studiato (prima di _ready)
 var settings_file := "user://settings.cfg"  # "" nei test: tasti di partenza, niente da leggere né da salvare
-var hotkeys := {}           # nome del pulsante in HUD/Tools/Row -> Key, KEY_NONE se non ne ha: vedi bind_key
-var tool_names := {}        # nome del pulsante in HUD/Tools/Row -> suggerimento senza il tasto
+var hotkeys := {}           # nome del pulsante (vedi tool) -> Key, KEY_NONE se non ne ha: vedi bind_key
+var tool_names := {}        # nome del pulsante -> suggerimento senza il tasto
 var tool_buttons := {}      # nome -> pulsante: quelli della barra in basso e la Wiki, in alto (vedi setup_options)
 var rebinding := ""         # comando che aspetta il suo nuovo tasto, vedi capture_key
 var resume_speed := 1.0     # velocità a cui riprende il gioco chiudendo il menù delle opzioni
@@ -2008,6 +2023,10 @@ var build_res := Res.WOOD
 var build_turn := 0         # quarti di giro in senso orario del prossimo mobile (E / R)
 var drag_start = null       # cella d'inizio della selezione, o null
 var drag_end := Vector2i.ZERO
+var drag_erase := false       # la selezione è della gomma (Maiusc in costruzione): toglie dal progetto
+var right_from := Vector2.INF  # dove si è premuto il destro: lasciato lì, senza trascinare, toglie un pezzo
+var discard_until := 0         # fino a quando (ms) Scarta aspetta il secondo clic, quello che scarta davvero
+var plate_key := ""            # quello che dice la targa del progetto: si rifà quando cambia
 var clock := 8.0 / 24       # giorni passati: la parte intera conta i giorni, quella decimale è l'ora
 var sky := CanvasModulate.new()   # tinge il mondo secondo SKY
 var sky_colors := Gradient.new()
@@ -2036,20 +2055,23 @@ var lights_canvas := Node2D.new()
 @onready var build_bar: Control = $HUD/BuildBar  # sopra le categorie: quella scelta
 @onready var furniture_bar: Control = $HUD/FurnitureBar
 @onready var materials: Control = $HUD/BuildBar/Row/Materials
-@onready var actions: Control = $HUD/Actions  # in alto al centro, sotto la barra: "Build" e la X rossa
-@onready var confirm: Button = $HUD/Actions/Confirm
-@onready var erase: Button = $HUD/Actions/Erase
+@onready var actions: Control = $HUD/Actions  # in alto al centro, sotto la barra: la targa del progetto, vedi update_plate
+@onready var plan_summary: RichTextLabel = $HUD/Actions/Box/Summary
+@onready var confirm: Button = $HUD/Actions/Box/Row/Confirm
+@onready var edit_button: Button = $HUD/Actions/Box/Row/Edit
+@onready var discard_button: Button = $HUD/Actions/Box/Row/Discard
+@onready var erase: Button = $HUD/Actions/Box/Row/Erase  # la gomma
 @onready var material_group: ButtonGroup = $HUD/BuildBar/Row/Materials/Wood.button_group
 @onready var kind_group: ButtonGroup = $HUD/BuildBar/Row/Wall.button_group  # anche dei mobili
-@onready var select_button: Button = $HUD/Tools/Row/Select  # la freccia, prima a sinistra: vedi select_tool
-@onready var build_button: Button = $HUD/Tools/Row/Build  # sega e martello: apre le categorie, vedi toggle_build
+@onready var select_button: Button = tool("Select")  # la freccia, prima a sinistra: vedi select_tool
+@onready var build_button: Button = tool("Build")  # sega e martello: apre le categorie, vedi toggle_build
 @onready var structures_button: Button = $HUD/Categories/Row/Structures
 # categorie dei mobili, accanto a Structures: ognuna mostra il suo gruppo della barra dei mobili (stesso nome, in
 # main.tscn), così la barra non esce dallo schermo: casa, fuoco e calore, mestieri e provviste, corte e difesa, decorazioni
 const FURNITURE_GROUPS := ["Home", "Fire", "Crafts", "Court", "Decor"]
 var kind_buttons := {}  # Build -> il suo pulsante, nella barra delle strutture o in un gruppo di quella dei mobili
 @onready var category_group: ButtonGroup = structures_button.button_group
-@onready var order_group: ButtonGroup = $HUD/Tools/Row/Destroy.button_group  # Destroy, Mine, Chop, Uproot
+@onready var order_group: ButtonGroup = tool("Destroy").button_group  # Destroy, Mine, Chop, Uproot
 @onready var room_popup: Control = $HUD/RoomPopup  # pannello al centro
 @onready var room_name: LineEdit = $HUD/RoomPopup/Box/Name
 @onready var room_kind: OptionButton = $HUD/RoomPopup/Box/Kind  # solo i tipi possibili, vedi refresh_room
@@ -2065,6 +2087,10 @@ var priorities_key := ""    # coloni, sovrano e lingua con cui è fatta la tabel
 @onready var object_sheet: Control = $HUD/ObjectSheet  # in basso a destra: la casella sotto il mouse, vedi show_tip
 @onready var sheet_needs: GridContainer = $HUD/ColonistSheet/Box/Needs  # 4 colonne: nome, freccia giù, barra, freccia su
 @onready var hotbar: Control = $HUD/Tools/Row
+@onready var orders_button: Button = $HUD/Tools/Row/Orders  # apre la barra degli Ordini (vedi toggle_orders_bar)
+@onready var views_button: Button = $HUD/Tools/Row/Views    # apre la barra delle Viste
+@onready var drawer: Control = $HUD/Drawer        # il menu a sinistra, con le finestre (vedi toggle_drawer)
+@onready var menu_tab: Button = $HUD/Menu          # la sua linguetta, sul bordo sinistro o accanto al menu aperto
 @onready var options: Control = $HUD/Options  # velo su tutto lo schermo con la finestra al centro: vedi toggle_options
 @onready var key_list: GridContainer = $HUD/Options/Window/Box/Body/Pages/Keybindings/List  # icona, nome, tasto
 
@@ -2134,7 +2160,7 @@ func _ready() -> void:
 			toggle_census())
 	camera.position = center(MAP_SIZE / 2)
 	for name in SPEEDS:
-		get_node("HUD/TopBar/Row/" + name).pressed.connect(func(): Engine.time_scale = SPEEDS[name])
+		get_node("HUD/Speed/Row/" + name).pressed.connect(func(): Engine.time_scale = SPEEDS[name])
 	$HUD/TopBar/Row/Screen.pressed.connect(func():
 		set_fullscreen(DisplayServer.window_get_mode() != DisplayServer.WINDOW_MODE_FULLSCREEN))
 	$HUD/TopBar/Row/Options.pressed.connect(toggle_options)
@@ -2144,7 +2170,36 @@ func _ready() -> void:
 	for group in FURNITURE_GROUPS:
 		get_node("HUD/Categories/Row/" + group).toggled.connect(toggle_furniture.bind(furniture_bar.get_node("Row/" + group)))
 	for o in ORDER_TOOLS:
-		get_node("HUD/Tools/Row/" + ORDER_TOOLS[o]).toggled.connect(toggle_order.bind(o))
+		tool(ORDER_TOOLS[o]).toggled.connect(toggle_order.bind(o))
+	orders_button.toggled.connect(toggle_orders_bar)
+	views_button.toggled.connect(toggle_views_bar)
+	for button in [orders_button, views_button]:  # il triangolino d'oro: apre una barra
+		button.draw.connect(func():
+			var w: float = button.size.x
+			button.draw_colored_polygon(PackedVector2Array([Vector2(w - 11, 4), Vector2(w - 4, 4), Vector2(w - 4, 11)]), MARK_GOLD))
+	menu_tab.toggle_mode = true
+	menu_tab.toggled.connect(toggle_drawer)
+	add_dot(menu_tab, Vector2(14, 2))
+	for row in drawer.get_node("Box").get_children():  # il tasto rapido a destra, il pallino sull'icona; scelta, si chiude
+		var shortcut := Label.new()
+		shortcut.name = "Key"
+		shortcut.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		shortcut.add_theme_color_override("font_color", CENSUS_DIM)
+		shortcut.set_anchors_and_offsets_preset(Control.PRESET_CENTER_RIGHT, Control.PRESET_MODE_MINSIZE, 10)
+		shortcut.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+		row.add_child(shortcut)
+		add_dot(row, Vector2(30, 2))
+		row.pressed.connect(func(): menu_tab.button_pressed = false)
+	show_keys()  # i tasti rapidi accanto ai nomi
+	tool("Census").toggled.connect(show_census)
+	$HUD/CensusPanel.visibility_changed.connect(func(): tool("Census").set_pressed_no_signal($HUD/CensusPanel.visible))
+	tool("Chronicle").toggled.connect(func(on):
+		if on:
+			open_chronicle()
+		else:
+			$HUD/ChroniclePanel.hide())
+	$HUD/ChroniclePanel.visibility_changed.connect(func():
+		tool("Chronicle").set_pressed_no_signal($HUD/ChroniclePanel.visible))
 	select_button.toggled.connect(select_tool.unbind(1))
 	for button in [build_button] + order_group.get_buttons():
 		button.toggled.connect(sync_select.unbind(1))
@@ -2197,14 +2252,14 @@ func _ready() -> void:
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			calendar.visible = not calendar.visible)
 	for name in ["RoomsLens", "HeatLens", "SoilLens"]:  # una lente alla volta
-		get_node("HUD/Tools/Row/" + name).toggled.connect(func(on):
+		tool(name).toggled.connect(func(on):
 			if on:
 				for other in ["RoomsLens", "HeatLens", "SoilLens"]:
 					if other != name:
-						get_node("HUD/Tools/Row/" + other).button_pressed = false)
-	$HUD/Tools/Row/RoomsLens.toggled.connect(func(on): lens.visible = on)
-	$HUD/Tools/Row/SoilLens.toggled.connect(func(on): soil_lens.visible = on)
-	$HUD/Tools/Row/Roofs.toggled.connect(func(on): roofs_shown = not on)
+						tool(other).button_pressed = false)
+	tool("RoomsLens").toggled.connect(func(on): lens.visible = on)
+	tool("SoilLens").toggled.connect(func(on): soil_lens.visible = on)
+	tool("Roofs").toggled.connect(func(on): roofs_shown = not on)
 	$HUD/RoomPopup/Box/Ok.pressed.connect(room_popup.hide)
 	for kind in Build.values():  # un pulsante per tipo, con lo stesso nome: Wall, Floor, ... Lamp
 		var bar := furniture_bar if FURNITURE.has(kind) else build_bar
@@ -2219,8 +2274,10 @@ func _ready() -> void:
 	$HUD/BuildBar/Row/Materials/Wood.pressed.connect(choose_res.bind(Res.WOOD))
 	$HUD/BuildBar/Row/Materials/Stone.pressed.connect(choose_res.bind(Res.STONE))
 	confirm.pressed.connect(confirm_build)
+	edit_button.pressed.connect(func(): build_button.button_pressed = true)
+	discard_button.pressed.connect(discard_plan)
 	erase.toggled.connect(toggle_erase)
-	$HUD/Tools/Row/Jobs.toggled.connect(jobs_panel.set_visible)
+	tool("Jobs").toggled.connect(jobs_panel.set_visible)
 	var jobs_box: Control = jobs_panel.get_node("Box")
 	priority_grid.columns = Work.size() + 1
 	priority_grid.add_theme_constant_override("h_separation", 2)
@@ -2237,9 +2294,9 @@ func _ready() -> void:
 	var line := HSeparator.new()
 	jobs_box.add_child(line)
 	jobs_box.move_child(line, jobs_list.get_index())
-	$HUD/Tools/Row/Resources.toggled.connect(resources_panel.set_visible)
-	jobs_panel.hidden.connect($HUD/Tools/Row/Jobs.set_pressed_no_signal.bind(false))  # chiusa con la X: tasto su
-	resources_panel.hidden.connect($HUD/Tools/Row/Resources.set_pressed_no_signal.bind(false))
+	tool("Resources").toggled.connect(resources_panel.set_visible)
+	jobs_panel.hidden.connect(tool("Jobs").set_pressed_no_signal.bind(false))  # chiusa con la X: tasto su
+	resources_panel.hidden.connect(tool("Resources").set_pressed_no_signal.bind(false))
 	var topics: ItemList = $HUD/WikiPanel/Box/Body/Topics
 	topics.item_selected.connect(func(i): $HUD/WikiPanel/Box/Body/Text.text = WIKI.pages()[i][1])
 	fill_wiki()
@@ -2247,7 +2304,7 @@ func _ready() -> void:
 	$HUD/WikiPanel.hidden.connect($HUD/TopBar/Row/Wiki.set_pressed_no_signal.bind(false))
 	for name in ["Knowledge", "Laws"]:  # le finestre della ricerca, al centro: si rifanno aprendole (vedi fill_knowledge)
 		var panel: Control = get_node("HUD/%sPanel" % name)
-		get_node("HUD/Tools/Row/" + name).toggled.connect(func(on):
+		tool(name).toggled.connect(func(on):
 			knowledge_key = ""
 			laws_key = ""
 			panel.visible = on
@@ -2257,7 +2314,7 @@ func _ready() -> void:
 				else:
 					fill_laws()
 				panel.position = ((get_viewport_rect().size - panel.size) / 2).floor())
-		panel.hidden.connect(get_node("HUD/Tools/Row/" + name).set_pressed_no_signal.bind(false))
+		panel.hidden.connect(tool(name).set_pressed_no_signal.bind(false))
 	for res in Res.values():
 		var row := HBoxContainer.new()
 		row.visible = false  # solo le risorse che ci sono, vedi update_resources
@@ -2394,9 +2451,7 @@ func setup_options() -> void:
 	# all'inizio quella del sistema (o salvata, vedi title.gd); se non c'è, l'inglese
 	languages.select(maxi(0, LANGUAGES.keys().find(TranslationServer.get_locale().get_slice("_", 0))))
 	languages.item_selected.connect(func(i): set_language(LANGUAGES.keys()[i]))
-	for button in hotbar.get_children() + [$HUD/TopBar/Row/Wiki]:
-		if not button is Button:
-			continue
+	for button in tool_list():
 		tool_buttons[String(button.name)] = button
 		tool_names[String(button.name)] = button.tooltip_text
 		key_list.add_child(ui_icon(button.icon, Rect2(), Vector2(32, 32)))
@@ -2649,10 +2704,15 @@ func save_keys() -> void:
 func show_keys() -> void:
 	for name in hotkeys:
 		var key: Key = hotkeys[name]
+		var shortcut: Label = tool_buttons[name].get_node_or_null("Key")  # nel menu a sinistra
+		if shortcut:
+			shortcut.text = "" if key == KEY_NONE else OS.get_keycode_string(key)
 		tool_buttons[name].tooltip_text = tr(tool_names[name]) + ("" if key == KEY_NONE else " (%s)" % OS.get_keycode_string(key))
 		var button: Button = key_list.get_node(NodePath(name))
 		button.text = "Press a key" if name == rebinding else "-" if key == KEY_NONE else OS.get_keycode_string(key)
 		button.set_pressed_no_signal(name == rebinding)
+	if orders_button.disabled:
+		orders_button.tooltip_text += "\n" + tr("While building, no orders: close it first (Esc)")
 
 
 # clic sul tasto di un comando nel menù: aspetta il nuovo, vedi capture_key
@@ -2682,6 +2742,8 @@ func press_hotkey(key: Key) -> bool:
 	if key == KEY_NONE or name == null or not tool_buttons[name].visible:
 		return false
 	var button: Button = tool_buttons[name]
+	if button.disabled or (build_button.button_pressed and button.get_parent() == $HUD/OrdersBar/Row):
+		return true  # in costruzione gli ordini non si danno: il tasto non fa niente
 	button.button_pressed = not button.button_pressed
 	return true
 
@@ -2748,10 +2810,105 @@ func set_resolution(size: Vector2i) -> void:
 	DisplayServer.window_set_position(screen.position + (screen.size - size) / 2)
 
 
+# il tasto del comando `name`, dovunque stia (vedi TOOL_BARS); null se non c'è
+func tool(name: String) -> Button:
+	for bar in TOOL_BARS:
+		var button := get_node_or_null(NodePath(bar + "/" + name))
+		if button is Button and (bar not in ["HUD", "HUD/TopBar/Row"] or name in TOOL_EXTRAS):
+			return button
+	return null
+
+
+# tutti i tasti dei comandi, nell'ordine del menù dei tasti: la barra in basso, Ordini, Viste, il menu, la linguetta, la Wiki
+func tool_list() -> Array:
+	var list := []
+	for bar in TOOL_BARS.slice(0, 4):
+		list.append_array(get_node(bar).get_children().filter(func(b): return b is Button))
+	return list + TOOL_EXTRAS.map(tool)
+
+
+# tasto Ordini: sopra la barra in basso la sua barra (taglia, scava, estirpa...). Chiudendola si lascia l'ordine scelto
+# lì (Distruggi no: sta nella barra in basso)
+func toggle_orders_bar(on: bool) -> void:
+	$HUD/OrdersBar.visible = on
+	if not on:
+		var chosen := order_group.get_pressed_button()
+		if chosen and chosen.get_parent() == $HUD/OrdersBar/Row:
+			chosen.button_pressed = false
+
+
+# tasto Viste: accanto alla barra in basso la sua (stanze, calore, terra, tetti); le viste accese restano accese
+func toggle_views_bar(on: bool) -> void:
+	var bar: Control = $HUD/ViewsBar
+	bar.visible = on
+	bar.offset_left = $HUD/Tools.get_rect().end.x + 6
+	bar.offset_right = bar.offset_left
+
+
+# Il menu a sinistra (la linguetta, o Tab): scivola fuori dal bordo, con le finestre; la linguetta lo segue. Si
+# richiude con la linguetta, con Tab o scegliendo una finestra (vedi _ready)
+func toggle_drawer(on: bool) -> void:
+	var w: float = drawer.get_combined_minimum_size().x
+	drawer.visible = true
+	menu_tab.text = "<" if on else ">"
+	var slide := create_tween().set_ignore_time_scale(true).set_parallel(true)  # anche in pausa
+	slide.tween_property(drawer, "position:x", 0.0 if on else -w, DRAWER_TIME).from(-w if on else 0.0)
+	slide.tween_property(menu_tab, "position:x", w - 2.0 if on else 0.0, DRAWER_TIME)
+	if not on:
+		slide.chain().tween_callback(drawer.hide)
+
+
+# il pallino d'oro sulle finestre del menu dove c'è qualcosa da fare, e sulla linguetta: una ricerca da studiare subito,
+# una legge da codificare o promulgare, qualcuno che chiede di restare, voci nuove nella cronaca
+func update_dots() -> void:
+	var waiting := {
+		"Knowledge": TECHS.keys().any(func(t): return research_block(t) == ""),
+		"Laws": LAWS.keys().any(func(l): return codify_block(l) == "" or (codified.has(l) and enact_block(l) == "")),
+		"Census": not requests.is_empty(),
+		"Chronicle": chronicle.size() > chronicle_seen,
+	}
+	var any := false
+	for row in drawer.get_node("Box").get_children():
+		var on: bool = waiting.get(String(row.name), false) and row.visible
+		row.get_node("Dot").visible = on
+		any = any or on
+	menu_tab.get_node("Dot").visible = any and not menu_tab.button_pressed
+
+
+# un pallino d'oro in alto a sinistra, sopra `parent` (nascosto: vedi update_dots)
+func add_dot(parent: Control, at: Vector2) -> void:
+	var dot := Control.new()
+	dot.name = "Dot"
+	dot.visible = false
+	dot.position = at
+	dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	dot.draw.connect(func():
+		dot.draw_circle(Vector2(4, 4), 4.5, OUTLINE)
+		dot.draw_circle(Vector2(4, 4), 3.0, MARK_GOLD))
+	parent.add_child(dot)
+
+
+# Esc: chiude prima quello che è aperto (le opzioni, il menu, la costruzione, l'ordine scelto e la sua barra, le
+# Viste); se non c'è niente, apre le opzioni
+func escape() -> void:
+	if options.visible:
+		toggle_options()
+	elif menu_tab.button_pressed:
+		menu_tab.button_pressed = false
+	elif build_button.button_pressed:
+		build_button.button_pressed = false
+	elif order_group.get_pressed_button() or orders_button.button_pressed:
+		select_tool()
+	elif views_button.button_pressed:
+		views_button.button_pressed = false
+	else:
+		toggle_options()
+
+
 # tasto "Select" (freccia): nessuno strumento, il clic sulla mappa apre le schede. Premuto chiude quello aperto;
 # resta premuto finché non se ne sceglie un altro e torna su da solo quando si chiude l'ultimo (vedi sync_select)
 func select_tool() -> void:
-	for button in [build_button, order_group.get_pressed_button()]:
+	for button in [build_button, order_group.get_pressed_button(), orders_button]:
 		if button:
 			button.button_pressed = false
 	sync_select()  # cliccato già premuto si spegnerebbe: lo riaccende
@@ -2762,30 +2919,30 @@ func sync_select() -> void:
 
 
 # tasto "Build" (sega e martello) in basso a sinistra: sopra compaiono le categorie di costruzione, ancora nessuna
-# scelta. Chiuderlo chiude anche la categoria aperta e scarta il progetto non confermato
+# scelta. Chiuderlo chiude anche la categoria aperta; il progetto non confermato resta (vedi update_plate)
 func toggle_build(on: bool) -> void:
 	categories.visible = on
+	orders_button.disabled = on  # in costruzione non si danno ordini (Distruggi sì: la chiude)
+	show_keys()
 	if on:
-		var tool := order_group.get_pressed_button()
-		if tool:
-			tool.button_pressed = false
+		var chosen := order_group.get_pressed_button()
+		if chosen:
+			chosen.button_pressed = false
+		orders_button.button_pressed = false
 		return
 	var open := category_group.get_pressed_button()
 	if open:
-		open.button_pressed = false  # nasconde la sua barra e "Build" al centro
-	draft.clear()  # chiudere senza confermare scarta il progetto
-	furniture_draft.clear()
+		open.button_pressed = false  # nasconde la sua barra
 	reset_choice()
 
 
 # categorie "Structures" (muro) e quelle dei mobili (FURNITURE_GROUPS), una alla volta: sopra compare la sua barra
-# (strutture e materiale, o il gruppo di mobili e le frecce per girarli), al centro "Build" e la X per cancellare.
-# Passando dall'una all'altra il progetto resta (es. un letto sul pavimento appena disegnato)
+# (strutture e materiale, o il gruppo di mobili e le frecce per girarli). Passando dall'una all'altra il progetto
+# resta (es. un letto sul pavimento appena disegnato)
 func toggle_category(on: bool, bar: Control) -> void:
 	bar.visible = on
 	if on:
 		reset_choice()  # il tipo scelto nell'altra barra qui non c'è
-	actions.visible = category_group.get_pressed_button() != null
 
 
 # una categoria dei mobili: la barra dei mobili col solo gruppo `group`
@@ -2891,7 +3048,7 @@ func choose_res(res: Res) -> void:
 	order = Order.BUILD  # da qui il trascinamento disegna il progetto
 
 
-# X rossa: finché è premuta il trascinamento cancella caselle del progetto
+# la gomma nella targa: finché è premuta il trascinamento cancella caselle del progetto
 func toggle_erase(on: bool) -> void:
 	if on:
 		order = Order.ERASE
@@ -2906,6 +3063,7 @@ func toggle_order(on: bool, which: Order) -> void:
 	if on:
 		build_button.button_pressed = false
 		order = which
+		orders_button.button_pressed = which != Order.DEMOLISH  # la sua barra, aperta (anche scelto col tasto rapido)
 	elif order == which:
 		order = Order.NONE
 
@@ -3845,6 +4003,7 @@ func show_tip(cell: Vector2i) -> void:
 		$HUD/ObjectSheet/Box/Info.text = about[1]
 		$HUD/ObjectSheet/Box/Info.visible = about[1] != ""
 		object_sheet.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_MINSIZE, 8)  # si stringe nell'angolo
+		object_sheet.position.y -= $HUD/Speed.size.y + 8  # sopra la velocità
 
 
 # [titolo, testo] del suggerimento per l'oggetto in `cell`, [] se non c'è niente. Gli alberi valgono anche sulla
@@ -3972,6 +4131,77 @@ func confirm_build() -> void:
 	for origin in pieces:
 		if cells_in(piece_rect(origin, pieces[origin])).all(func(k): return can_build(k, pieces[origin][0])):
 			furniture_plans[origin] = pieces[origin]
+
+
+# Scarta nella targa: il primo clic chiede conferma (il tasto dice "Sure?" per 3 s), il secondo butta via tutto il
+# progetto non ancora confermato; quello già diventato lavoro resta (si toglie con la gomma)
+func discard_plan() -> void:
+	if Time.get_ticks_msec() > discard_until:
+		discard_until = Time.get_ticks_msec() + 3000
+		discard_button.text = "Sure?"
+		return
+	discard_until = 0
+	discard_button.text = "Discard"
+	draft.clear()
+	furniture_draft.clear()
+
+
+# La targa del progetto, in alto al centro: c'è finché c'è un progetto da confermare, anche fuori dalla costruzione, e
+# mentre si costruisce. Sopra cosa c'è (l'icona del tipo e quanti) e quanto costa, in rosso quello che in magazzino non
+# basta; sotto Costruisci, Modifica (solo da fuori: riapre la costruzione), Scarta e la gomma (solo dentro)
+func update_plate() -> void:
+	var building := build_button.button_pressed
+	var empty := draft.is_empty() and furniture_draft.is_empty()
+	actions.visible = building or not empty
+	if not actions.visible:
+		return
+	confirm.disabled = empty
+	discard_button.disabled = empty
+	edit_button.visible = not building
+	erase.visible = building
+	if discard_until and Time.get_ticks_msec() > discard_until:
+		discard_until = 0
+		discard_button.text = "Discard"
+	var count := {}  # Build -> quanti pezzi (caselle per le strutture)
+	var cost := {}   # Res -> quanto
+	for layer in [draft, furniture_draft]:
+		for at in layer:
+			count[layer[at][0]] = count.get(layer[at][0], 0) + 1
+			var need := cost_of(layer[at])
+			for res in need:
+				cost[res] = cost.get(res, 0) + need[res]
+	var short := cost.keys().filter(func(res): return stored(res) < cost[res])
+	var key := str(count) + str(cost) + str(short) + TranslationServer.get_locale()
+	if key == plate_key:
+		return
+	plate_key = key
+	plan_summary.clear()
+	if empty:  # in costruzione, niente ancora: come si toglie
+		plan_summary.push_color(BUILD_INFO_COLOR)
+		plan_summary.add_text(tr("Right click: remove a piece\nShift + drag: remove an area"))
+		plan_summary.pop()
+		plan_summary.tooltip_text = ""
+		return
+	var kinds := count.keys()
+	kinds.sort()
+	var lines := []
+	for kind in kinds:
+		var button: Button = kind_buttons.get(kind)
+		if button and button.icon:
+			plan_summary.add_image(button.icon, 20, 20)
+		plan_summary.add_text(" %d   " % count[kind])
+		lines.append("%s: %d" % [named(Build, kind), count[kind]])
+	plan_summary.add_text("  " + tr("Cost:"))
+	lines.append("")
+	for res in cost:
+		if res in short:
+			plan_summary.push_color(BLOCKED_COLOR)
+		plan_summary.add_text(" %d " % cost[res])
+		plan_summary.add_image(ICONS[res], 20, 20)
+		if res in short:
+			plan_summary.pop()
+		lines.append(tr("%s: %d needed, %d in store") % [named(Res, res, "item"), cost[res], stored(res)])
+	plan_summary.tooltip_text = "\n".join(lines)
 
 
 # Tabella delle priorità in cima alla finestra Jobs: in testa le icone dei lavori (Work), poi una riga per colono col
@@ -4319,10 +4549,11 @@ func _process(delta: float) -> void:
 	beds_label.text = str(furniture.values().filter(func(plan): return plan[0] in BEDS).size())  # solo quelli finiti
 	splendor_label.text = str(colony_splendor())
 	for name in ROOM_TOOLS:
-		hotbar.get_node(name).visible = rooms.any(func(r): return r.kind == ROOM_TOOLS[name])
+		tool(name).visible = rooms.any(func(r): return r.kind == ROOM_TOOLS[name])
 	if Engine.get_process_frames() % 30 == 0:  # il conto della manutenzione, ogni tanto: basta per il suggerimento
 		splendor_label.tooltip_text = splendor_tip()
-	confirm.disabled = draft.is_empty() and furniture_draft.is_empty()
+		update_dots()
+	update_plate()
 	if jobs_panel.visible:
 		refresh_priorities()
 		jobs_list.text = job_list()
@@ -4358,7 +4589,7 @@ func _process(delta: float) -> void:
 		$HUD/ColonistSheet/Box/Health.text = health_text(shown)
 		update_routine_row($HUD/ColonistSheet/Box/Routine, shown)
 	for name in SPEEDS:  # premuto quello della velocità attuale, anche cambiata coi tasti
-		get_node("HUD/TopBar/Row/" + name).set_pressed_no_signal(Engine.time_scale == SPEEDS[name])
+		get_node("HUD/Speed/Row/" + name).set_pressed_no_signal(Engine.time_scale == SPEEDS[name])
 	var t := fmod(clock, 1.0)
 	var wolves := animals.filter(hostile).size()
 	# nella barra in alto gli allarmi, il giorno e l'ora; la stagione, l'anno e l'ordine nel suggerimento
@@ -4375,7 +4606,7 @@ func _process(delta: float) -> void:
 	if lens.visible:
 		lens_canvas.queue_redraw()
 		place_owners()
-	heat_lens.visible = $HUD/Tools/Row/HeatLens.button_pressed or previewing_heat()
+	heat_lens.visible = tool("HeatLens").button_pressed or previewing_heat()
 	if heat_lens.visible:
 		heat_canvas.queue_redraw()
 	if soil_lens.visible:
@@ -9385,8 +9616,12 @@ func figure_icon(c: Colonist, scale := 2) -> Control:
 # --- Abitanti: chi c'è, chi arriva, chi è fuori ---
 
 func toggle_census() -> void:
-	$HUD/CensusPanel.visible = not $HUD/CensusPanel.visible
-	if $HUD/CensusPanel.visible:
+	tool("Census").button_pressed = not tool("Census").button_pressed
+
+
+func show_census(on: bool) -> void:
+	$HUD/CensusPanel.visible = on
+	if on:
 		census_key = ""
 		fill_census()
 
@@ -9595,6 +9830,7 @@ func doing(c: Colonist) -> String:
 # Cronaca: tutto quello che è successo (ingaggi, diari delle spedizioni, morti), dal più recente
 func open_chronicle() -> void:
 	fill_chronicle()
+	chronicle_seen = chronicle.size()
 	$HUD/ChroniclePanel.show()
 
 
@@ -9631,13 +9867,13 @@ func refresh_unlocks() -> void:
 	for kind in Build.values():
 		kind_buttons[kind].visible = unlocked("builds", kind)
 	$HUD/BuildBar/Row/Materials/Stone.visible = unlocked("materials", Res.STONE)
-	$HUD/Tools/Row/Ice.visible = unlocked("rooms", RoomKind.ICEHOUSE)  # col tasto del ghiaccio, la ghiacciaia
-	$HUD/Tools/Row/Garden.visible = unlocked("orders", Order.GARDEN)
-	$HUD/Tools/Row/Pasture.visible = unlocked("orders", Order.PASTURE)
-	$HUD/Tools/Row/Hay.visible = unlocked("orders", Order.HAY)
-	$HUD/Tools/Row/SoilLens.visible = researched.has(Tech.SOIL_SURVEY)
+	tool("Ice").visible = unlocked("rooms", RoomKind.ICEHOUSE)  # col tasto del ghiaccio, la ghiacciaia
+	tool("Garden").visible = unlocked("orders", Order.GARDEN)
+	tool("Pasture").visible = unlocked("orders", Order.PASTURE)
+	tool("Hay").visible = unlocked("orders", Order.HAY)
+	tool("SoilLens").visible = researched.has(Tech.SOIL_SURVEY)
 	if not researched.has(Tech.SOIL_SURVEY):
-		$HUD/Tools/Row/SoilLens.button_pressed = false
+		tool("SoilLens").button_pressed = false
 
 
 # la ricerca che sblocca `value` nella lista `key` di TECHS ("builds", "makes", "materials"); -1 se c'è dall'inizio
@@ -11457,9 +11693,7 @@ func mark(rect: Rect2i) -> void:
 					if can_build(Vector2i(x, y), build_kind) and (edge or build_kind not in BARRIERS):
 						draft[Vector2i(x, y)] = [build_kind, build_res]  # sovrascrive: ripassando si cambia idea
 		Order.ERASE:
-			for x in range(rect.position.x, rect.end.x):
-				for y in range(rect.position.y, rect.end.y):
-					erase_plan(Vector2i(x, y))
+			erase_area(rect)
 		Order.DEMOLISH:  # subito, senza recuperare il materiale; anche l'orto, con quello che ci cresce, e il pascolo
 			for cell in pasture.keys().filter(func(k): return rect.has_point(k)):
 				pasture.erase(cell)
@@ -11486,18 +11720,45 @@ func mark(rect: Rect2i) -> void:
 			update_rooms()
 
 
+# la gomma (o Maiusc + trascinamento in costruzione): toglie dal progetto tutto quello che c'è nel rettangolo
+func erase_area(rect: Rect2i) -> void:
+	for cell in cells_in(rect):
+		erase_plan(cell)
+
+
 # toglie la casella dal progetto, anche già confermato, coi mobili che la coprono
 func erase_plan(cell: Vector2i) -> void:
+	erase_structure_plan(cell)
+	erase_furniture_plan(cell)
+
+
+# il clic destro in costruzione: toglie dal progetto il pezzo sotto il mouse, il mobile se c'è (sta sopra il
+# pavimento), se no la struttura della casella
+func erase_piece(cell: Vector2i) -> void:
+	if not erase_furniture_plan(cell):
+		erase_structure_plan(cell)
+
+
+# la struttura in progetto in `cell`, anche confermata: il materiale già portato torna in magazzino
+func erase_structure_plan(cell: Vector2i) -> void:
 	draft.erase(cell)
 	if blueprints.erase(cell):
 		drop_job(cell, Job.BUILD)
 		give_back_delivered(Job.BUILD, cell)
+
+
+# i mobili in progetto che coprono `cell`, anche confermati; vero se ce n'era almeno uno
+func erase_furniture_plan(cell: Vector2i) -> bool:
+	var found := false
 	for origin in pieces_at(furniture_draft, cell):
 		furniture_draft.erase(origin)
+		found = true
 	for origin in pieces_at(furniture_plans, cell):
 		furniture_plans.erase(origin)
 		drop_job(origin, Job.FURNISH)
 		give_back_delivered(Job.FURNISH, origin)
+		found = true
+	return found
 
 
 # progetto tolto: il materiale già portato al cantiere torna a terra, i trasportatori lo riportano in magazzino
@@ -11959,10 +12220,14 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		match event.button_index:
 			MOUSE_BUTTON_LEFT:
-				var cell := cell_of(get_global_mouse_position())
+				var cell := cell_of(map_point(event))
 				var signed := rooms.filter(func(r): return r.sign == cell)
-				if event.pressed and order == Order.NONE:  # senza un'azione scelta il clic non segna niente: apre le schede
-					var picked := colonist_at(get_global_mouse_position())
+				if event.pressed and build_button.button_pressed and event.shift_pressed:  # in costruzione: gomma
+					drag_start = cell
+					drag_end = cell
+					drag_erase = true
+				elif event.pressed and order == Order.NONE:  # senza un'azione scelta il clic non segna niente: apre le schede
+					var picked := colonist_at(map_point(event))
 					var boards := pieces_at(furniture, cell).filter(func(o): return furniture[o][0] == Build.NOTICE_BOARD)
 					var seats := pieces_at(furniture, cell).filter(func(o): return SEAT_ROOM.has(furniture[o][0]))
 					if picked:
@@ -11970,8 +12235,7 @@ func _unhandled_input(event: InputEvent) -> void:
 					elif not boards.is_empty():
 						open_board()
 					elif not seats.is_empty():  # scrittoio: il sapere; trono: le leggi
-						var tool: Button = get_node("HUD/Tools/Row/" + ("Knowledge" if furniture[seats[0]][0] == Build.DESK else "Laws"))
-						tool.button_pressed = true
+						tool("Knowledge" if furniture[seats[0]][0] == Build.DESK else "Laws").button_pressed = true
 					elif not signed.is_empty():
 						open_room(signed[0])
 					elif garden.has(cell):
@@ -11985,16 +12249,26 @@ func _unhandled_input(event: InputEvent) -> void:
 				elif event.pressed:
 					drag_start = cell
 					drag_end = cell
+					drag_erase = false
 				elif drag_start != null:
-					mark(selection_rect())
+					if drag_erase:
+						erase_area(selection_rect())
+					else:
+						mark(selection_rect())
 					drag_start = null
+					drag_erase = false
+			MOUSE_BUTTON_RIGHT:  # in costruzione il destro lasciato dov'era (trascinato sposta la telecamera) toglie un pezzo
+				if event.pressed:
+					right_from = event.position
+				elif build_button.button_pressed and event.position.distance_to(right_from) < 4:
+					erase_piece(cell_of(map_point(event)))
 			MOUSE_BUTTON_WHEEL_UP:
 				if event.pressed: zoom_by(1.1)
 			MOUSE_BUTTON_WHEEL_DOWN:
 				if event.pressed: zoom_by(1 / 1.1)
 	elif event is InputEventMouseMotion:
 		if drag_start != null:
-			drag_end = cell_of(get_global_mouse_position())
+			drag_end = cell_of(map_point(event))
 	elif event is InputEventPanGesture:      # trackpad: due dita
 		camera.position += event.delta * 10 / camera.zoom
 	elif event is InputEventMagnifyGesture:  # trackpad: pizzico
@@ -12004,7 +12278,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			capture_key(event.keycode)
 	elif event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
 		if not event.echo:
-			toggle_options()
+			escape()
 	elif event is InputEventKey and event.pressed and not options.visible:  # col menù aperto il gioco è fermo
 		if not event.echo and not (event.ctrl_pressed or event.alt_pressed or event.meta_pressed) and press_hotkey(event.keycode):
 			return
@@ -12017,12 +12291,17 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_R: turn(1)
 
 
+# il punto della mappa sotto il mouse dell'evento: come get_global_mouse_position, ma le prove possono dare l'evento
+func map_point(event: InputEventMouse) -> Vector2:
+	return get_canvas_transform().affine_inverse() * event.position
+
+
 func zoom_by(factor: float) -> void:
 	camera.zoom = (camera.zoom * factor).clamp(Vector2.ONE * 0.5, Vector2.ONE * 8)
 
 
 func selection_rect() -> Rect2i:
-	if order == Order.BUILD and FURNITURE.has(build_kind):  # un mobile: dove si lascia il tasto, grande quanto lui
+	if order == Order.BUILD and FURNITURE.has(build_kind) and not drag_erase:  # un mobile: dove si lascia il tasto, grande quanto lui
 		return piece_rect(drag_end, [build_kind, build_res, build_turn])
 	var r := Rect2i(drag_start, Vector2i.ZERO).expand(drag_end)
 	r.size += Vector2i.ONE  # include entrambe le celle agli estremi
@@ -12056,6 +12335,8 @@ func structure_src(cell: Vector2i, plan: Array, layers: Array) -> Rect2i:
 func draw_flat() -> void:  # sotto le ombre: il terreno lo disegna lo Sprite2D di bake_ground
 	for cell in weeds:  # basse: niente ombra
 		flat.draw_texture_rect_region(PLANTS, tile_rect(cell.x, cell.y), tile_rect(0, 0))
+		if uproot_marks.has(cell):
+			draw_outline(flat, PLANTS_OUTLINE, tile_rect(0, 0), tile_rect(cell.x, cell.y), Order.UPROOT)
 	draw_garden()
 	draw_pasture()
 	for cell in built:
@@ -12196,9 +12477,15 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 				if layer == draft:
 					draw_rect(tile_rect(cell.x, cell.y), Color(0.55, 0.8, 1, 0.45))
 	for cell in boulders:  # stanno dentro le loro caselle: niente ordine per righe
-		draw_texture(boulder_tex(cell), Vector2(cell) * TILE)
+		var rock := boulder_tex(cell)
+		draw_texture(rock, Vector2(cell) * TILE)
+		if mine_marks.has(cell):
+			draw_outline(self, ROCK_OUTLINES[rock], Rect2(Vector2.ZERO, rock.get_size()), Rect2(Vector2(cell) * TILE, rock.get_size()), Order.MINE)
 	for cell in bushes:  # bassi, dentro la loro casella come i massi; con le bacche (o i fiori) se sono maturi
-		draw_texture_rect_region(PLANTS, tile_rect(cell.x, cell.y), tile_rect(plant_col(cell) + (1 if bushes[cell] <= clock else 0), 0))
+		var plant := Rect2(tile_rect(plant_col(cell) + (1 if bushes[cell] <= clock else 0), 0))
+		draw_texture_rect_region(PLANTS, tile_rect(cell.x, cell.y), plant)
+		if uproot_marks.has(cell) or harvest_marks.has(cell):
+			draw_outline(self, PLANTS_OUTLINE, plant, tile_rect(cell.x, cell.y), Order.UPROOT if uproot_marks.has(cell) else Order.HARVEST)
 	var decay := {}
 	for origin in decor_state:
 		decay[origin] = DECAY_TINT[decor_state[origin]]
@@ -12239,8 +12526,11 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 	var next := [0, 0]  # il prossimo da disegnare in `queue` e in `houses`
 	for cell in trees:
 		draw_upto(center(cell).y, queue, houses, holes, next)
-		draw_texture_rect_region(TREES, Rect2(Vector2(cell.x, cell.y - 1) * TILE, Vector2(1, 2) * TILE),
-			Rect2(Vector2(trees[cell], 0) * TILE, Vector2(1, 2) * TILE))
+		var trunk := Rect2(Vector2(cell.x, cell.y - 1) * TILE, Vector2(1, 2) * TILE)
+		var src := Rect2(Vector2(trees[cell], 0) * TILE, Vector2(1, 2) * TILE)
+		draw_texture_rect_region(TREES, trunk, src)
+		if chop_marks.has(cell):  # col suo contorno, sotto chi gli passa davanti
+			draw_outline(self, TREES_OUTLINE, src, trunk, Order.CHOP)
 	draw_upto(INF, queue, houses, holes, next)
 	for arrow in arrows:  # sopra tutto: volano
 		draw_arrow(arrow)
@@ -12249,21 +12539,10 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 			draw_texture(SIGN, Vector2(room.sign) * TILE)
 	draw_fire()
 
-	for cell in chop_marks:
-		draw_mark(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE), Order.CHOP)
-	for origin in mine_marks:
-		draw_mark(Rect2(Vector2(origin) * TILE, Vector2(boulders[origin]) * TILE), Order.MINE)
-	for cell in uproot_marks:
-		draw_mark(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE), Order.UPROOT)
-	for cell in harvest_marks:
-		draw_mark(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE), Order.HARVEST)
-	for cell in fish_marks:
-		draw_mark(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE), Order.FISH)
+	for cell in fish_marks:  # caselle d'acqua, senza un oggetto: la cornice del colore dell'ordine
+		draw_rect(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE).grow(-1.5), ORDER_COLORS[Order.FISH], false, 1.0)
 	for cell in ice_marks:
-		draw_mark(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE), Order.ICE)
-	for a in animals:
-		if a.marked:
-			draw_mark(Rect2(a.pos - Vector2(TILE / 2.0, TILE * 1.25), Vector2.ONE * TILE), Order.HUNT)  # sopra la testa
+		draw_rect(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE).grow(-1.5), ORDER_COLORS[Order.ICE], false, 1.0)
 	for c in people():
 		if is_working(c):  # barra di avanzamento del lavoro
 			draw_rect(Rect2(c.pos + Vector2(-6, -11), Vector2(12 * (1 - c.work_left / c.work_total), 2)), Color.YELLOW)
@@ -12274,7 +12553,7 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 		draw_pieces(self, FURNITURE_SHEET, {at: plan}, Color(1, 1, 1, 0.6) if fits else Color(1, 0.3, 0.3, 0.6))
 	if drag_start != null:
 		var r := selection_rect()
-		draw_rect(Rect2(Vector2(r.position) * TILE, Vector2(r.size) * TILE), ORDER_COLORS[order], false, 1.0)
+		draw_rect(Rect2(Vector2(r.position) * TILE, Vector2(r.size) * TILE), ORDER_COLORS[Order.ERASE if drag_erase else order], false, 1.0)
 
 
 # colonna di PLANTS del cespuglio (o del lino, delle erbe) in `cell` senza bacche (fiori); quella dopo è con
@@ -12303,10 +12582,12 @@ func draw_arrow(arrow: Arrow) -> void:
 	draw_rect(Rect2(tip - Vector2.ONE * 0.5, Vector2.ONE), Color("d0d0d8"))
 
 
-# Segno di un ordine: la sua icona a mezza misura, velata, al centro
-func draw_mark(rect: Rect2, kind: Order) -> void:
-	draw_texture_rect(ORDER_ICONS[kind], Rect2(rect.get_center() - Vector2.ONE * TILE / 4, Vector2.ONE * TILE / 2),
-		false, Color(1, 1, 1, 0.6))
+# Il segno di un ordine: il contorno dello sprite (il riquadro `src` del suo foglio) disegnato in `dest`, preso dal
+# foglio dei contorni `sheet` (ogni riquadro un pixel più largo per lato) e tinto col colore dell'ordine `which`
+func draw_outline(canvas: CanvasItem, sheet: Texture2D, src: Rect2, dest: Rect2, which: Order) -> void:
+	var at := (src.position / src.size).round()
+	canvas.draw_texture_rect_region(sheet, dest.grow(1), Rect2(at * (src.size + Vector2(2, 2)), src.size + Vector2(2, 2)),
+		ORDER_COLORS[which])
 
 
 # Lente delle stanze: ogni stanza finita velata col colore del suo tipo, il tipo scritto in mezzo (senza tipo, niente)
@@ -12684,10 +12965,11 @@ func draw_animal(a: Animal) -> void:
 	var at := (a.pos + Vector2(-side / 2.0, TILE / 2.0 - side)).round()
 	if a.left:
 		draw_set_transform(at + Vector2(side, 0), 0.0, Vector2(-1, 1))
-		draw_texture_rect_region(ANIMALS, Rect2(Vector2.ZERO, Vector2.ONE * side), animal_src(a))
-		draw_set_transform_matrix(Transform2D.IDENTITY)
-	else:
-		draw_texture_rect_region(ANIMALS, Rect2(at, Vector2.ONE * side), animal_src(a))
+		at = Vector2.ZERO
+	draw_texture_rect_region(ANIMALS, Rect2(at, Vector2.ONE * side), animal_src(a))
+	if a.marked:  # da cacciare: il contorno
+		draw_outline(self, ANIMALS_OUTLINE, animal_src(a), Rect2(at, Vector2.ONE * side), Order.HUNT)
+	draw_set_transform_matrix(Transform2D.IDENTITY)
 	if a.damage > 0:
 		draw_health(a.pos, 1.0 - a.damage / BEASTS[a.kind]["hp"])
 

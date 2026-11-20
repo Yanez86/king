@@ -187,8 +187,8 @@ func _initialize() -> void:
 	check(main.heat_color(-2.0) == main.FROST_COLOR and main.heat_color(20.0) == main.HEAT_SCALE[0]
 		and main.heat_color(9.0) == main.HEAT_SCALE[1] and main.heat_color(5.0) == main.HEAT_SCALE[2],
 		"i colori della lente: ghiaccio, caldo, fresco senza malus, un punto di freddo")
-	var rooms_button: Button = main.get_node("HUD/Tools/Row/RoomsLens")
-	var heat_button: Button = main.get_node("HUD/Tools/Row/HeatLens")
+	var rooms_button: Button = main.tool("RoomsLens")
+	var heat_button: Button = main.tool("HeatLens")
 	rooms_button.button_pressed = true
 	heat_button.button_pressed = true
 	main._process(0.0)

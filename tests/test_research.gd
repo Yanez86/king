@@ -56,7 +56,7 @@ func _initialize() -> void:
 
 	# la finestra Knowledge: un riquadro per ricerca, a destra di quelle che richiede, collegato a loro; cliccato, studia
 	main.study = 40.0
-	main.get_node("HUD/Tools/Row/Knowledge").button_pressed = true
+	main.tool("Knowledge").button_pressed = true
 	main.fill_knowledge()
 	var buttons: Array = main.get_node("HUD/KnowledgePanel/Box/Scroll/Tree").find_children("*", "Button", true, false)
 	check(buttons.size() == T.size(), "un riquadro per ricerca")
@@ -91,7 +91,7 @@ func _initialize() -> void:
 		.filter(func(b): return b.get_meta("tech") == T.INN)[0]
 	check(inn_after.find_children("*", "RichTextLabel", true, false)[0].text.contains("Studied"), "poi dice Studied")
 	main.get_node("HUD/KnowledgePanel/Box/Head/Close").pressed.emit()
-	check(not main.get_node("HUD/Tools/Row/Knowledge").button_pressed, "la X chiude Knowledge e alza il tasto")
+	check(not main.tool("Knowledge").button_pressed, "la X chiude Knowledge e alza il tasto")
 	for t in T.values():
 		main.researched[t] = true
 	main.researched.erase(T.PALACE)
@@ -114,12 +114,11 @@ func _initialize() -> void:
 		throne_room.cells[k] = true
 	study_room.kind = main.RoomKind.STUDY
 	throne_room.kind = main.RoomKind.THRONE_ROOM
-	var tools: Node = main.get_node("HUD/Tools/Row")
 	await process_frame
-	check(not tools.get_node("Knowledge").visible and not tools.get_node("Laws").visible, "senza studio né sala del trono niente Knowledge e Laws")
+	check(not main.tool("Knowledge").visible and not main.tool("Laws").visible, "senza studio né sala del trono niente Knowledge e Laws")
 	main.rooms.append_array([study_room, throne_room])
 	await process_frame
-	check(tools.get_node("Knowledge").visible and tools.get_node("Laws").visible, "con lo studio e la sala del trono sì")
+	check(main.tool("Knowledge").visible and main.tool("Laws").visible, "con lo studio e la sala del trono sì")
 	var desk: Vector2i = spots[0][4]
 	var throne: Vector2i = spots[1][4]
 	main.furniture = {desk: [B.DESK, R.WOOD, 0], throne: [B.THRONE, R.WOOD, 0]}
@@ -211,7 +210,7 @@ func _initialize() -> void:
 	main.produce(R.WOOD, free[1], 5)
 	check(main.granary[R.WOOD] == 1 and main.items[R.WOOD][free[1]] == 9, "5 e 5: uno al granaio")
 	check(main.food_stored() >= 1, "le provviste contano anche il granaio")
-	main.get_node("HUD/Tools/Row/Laws").button_pressed = true
+	main.tool("Laws").button_pressed = true
 	main.fill_laws()
 	var law_buttons: Array = main.get_node("HUD/LawsPanel/Box/Scroll/List").find_children("*", "Button", true, false)
 	check(law_buttons.size() == L.size() and law_buttons.filter(func(b): return b.text == "Revoke").size() == 1, "una riga per legge, la decima da revocare")

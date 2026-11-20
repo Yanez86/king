@@ -45,31 +45,37 @@ Col mouse sopra una figurina vedi la scheda; cliccando un nome la apri. Clicca d
 [color=#e8c34a]Mouse[/color]
 • Con Seleziona (la freccia), il clic sinistro apre le cose: la scheda di un colono, il cartello di una stanza, il menu di una postazione, la bacheca, uno scrittoio (Conoscenza) o un trono (Leggi). Un clic altrove chiude la scheda.
 • Con un ordine scelto (Costruisci, Distruggi, Scava...), trascina un rettangolo col tasto sinistro per segnare l'area.
-• Il riquadro in basso a destra dice cosa c'è sotto il mouse: i tronchi rimasti in un albero, quanto è fresco un mucchio di cibo e così via.
+• In costruzione il clic destro (senza trascinare) toglie un pezzo dal progetto, Maiusc + trascinamento un'area.
+• Il riquadro in basso a destra, sopra la velocità, dice cosa c'è sotto il mouse: i tronchi rimasti in un albero, quanto è fresco un mucchio di cibo e così via.
 • Le finestre si possono trascinare; la X le chiude.
 
 [color=#e8c34a]La barra in basso[/color]
-Un tasto fa come un clic sul suo pulsante (premilo di nuovo per chiudere).
+Seleziona (Q), Costruisci (B), Ordini, Distruggi (X) | Viste. Ordini e Viste (un triangolino d'oro) aprono una barra loro: gli ordini sopra, le viste accanto. Un tasto fa come un clic sul suo pulsante (premilo di nuovo per chiudere), e il tasto di un ordine apre anche la sua barra.
 [table=4]
-[cell]Seleziona[/cell][cell]Q[/cell][cell]Costruisci[/cell][cell]B[/cell]
-[cell]Distruggi[/cell][cell]X[/cell][cell]Scava[/cell][cell]M[/cell]
-[cell]Taglia[/cell][cell]C[/cell][cell]Estirpa[/cell][cell]U[/cell]
-[cell]Raccogli[/cell][cell]H[/cell][cell]Orto[/cell][cell]P[/cell]
-[cell]Pesca[/cell][cell]F[/cell][cell]Caccia[/cell][cell]T[/cell]
-[cell]Lavori[/cell][cell]J[/cell][cell]Risorse[/cell][cell]I[/cell]
-[cell]Conoscenza[/cell][cell]K[/cell][cell]Leggi[/cell][cell]G[/cell]
+[cell]Scava[/cell][cell]M[/cell][cell]Taglia[/cell][cell]C[/cell]
+[cell]Estirpa[/cell][cell]U[/cell][cell]Raccogli[/cell][cell]H[/cell]
+[cell]Orto[/cell][cell]P[/cell][cell]Pesca[/cell][cell]F[/cell]
+[cell]Caccia[/cell][cell]T[/cell][cell]Tagliare il ghiaccio[/cell][cell]Y[/cell]
+[cell]Pascolo[/cell][cell]W[/cell][cell]Fieno[/cell][cell]Z[/cell]
 [cell]Vista stanze[/cell][cell]L[/cell][cell]Vista calore[/cell][cell]N[/cell]
-[cell]Lente della terra[/cell][cell]O[/cell][cell]Tagliare il ghiaccio[/cell][cell]Y[/cell]
-[cell]Tetti[/cell][cell]V[/cell][cell]Wiki[/cell][cell]F1[/cell]
-[cell]Pascolo[/cell][cell]A[/cell][cell]Fieno[/cell][cell]Z[/cell]
+[cell]Lente della terra[/cell][cell]O[/cell][cell]Tetti[/cell][cell]V[/cell]
+[/table]
+• In costruzione non si danno ordini: il tasto Ordini è spento e i suoi tasti non fanno niente. Distruggi funziona, e chiude la costruzione come Seleziona.
+
+[color=#e8c34a]Il menu a sinistra[/color]
+Una linguetta sul bordo sinistro, sotto la barra in alto: cliccala o premi Tab e il menu scivola fuori con le finestre; scegline una e si richiude. Un pallino d'oro dove c'è qualcosa da fare (una ricerca da studiare subito, una legge da codificare o promulgare, qualcuno che chiede di restare, voci nuove nella cronaca), e sulla linguetta a menu chiuso.
+[table=4]
+[cell]Lavori[/cell][cell]J[/cell][cell]Risorse[/cell][cell]I[/cell]
+[cell]Abitanti[/cell][cell]A[/cell][cell]Conoscenza[/cell][cell]K[/cell]
+[cell]Leggi[/cell][cell]G[/cell][cell]Cronaca[/cell][cell]D[/cell]
 [/table]
 • Lavori: chi fa cosa per primo (vedi Coloni), e il lavoro in attesa. Risorse: cosa c'è nei magazzini.
-• Conoscenza compare col primo studio, Leggi con la sala del trono. Il pulsante della Wiki è nella barra in alto.
+• Conoscenza compare col primo studio, Leggi con la sala del trono. Il numero dei coloni nella barra in alto apre anche gli abitanti, la data il calendario. Wiki (F1), schermo intero e opzioni restano in alto a destra.
 
 [color=#e8c34a]Tasti fissi[/color]
-• Spazio: pausa; 1, 2, 3: velocità.
+• Spazio: pausa; 1, 2, 3: velocità (i pulsanti in basso a destra).
 • E e R: girano a sinistra o a destra il prossimo mobile.
-• Esc: le opzioni (anche l'ingranaggio in alto a destra).
+• Esc: chiude prima quello che è aperto (il menu, la costruzione, l'ordine scelto, le viste); se non c'è niente, le opzioni (anche l'ingranaggio in alto a destra).
 
 [color=#e8c34a]Opzioni[/color]
 • Sistema: la lingua, carica un'altra colonia, torna al menu principale, esci dal gioco. Video: misura della finestra e schermo intero (anche il pulsante dello schermo in alto a destra).
@@ -273,7 +279,9 @@ Lo annunciano una finestra e la cronaca; cambiano il nome del reame, il titolo d
 • Muri e pavimenti si fanno con legna o pietra (la pietra dopo la ricerca Muratura). Porte, mobili e decorazioni hanno il loro materiale.
 • Trascina sulla mappa: il progetto si vede in blu. I muri vanno solo lungo il bordo del rettangolo, così con un solo trascinamento tracci il contorno di una stanza; pavimenti, sentieri e porte lo riempiono. Disegnare sopra il tuo progetto non ancora confermato lo sostituisce: è così che metti una porta in un muro che stai progettando.
 • I mobili si mettono un pezzo alla volta, dove rilasci il tasto. E e R (o le frecce nella barra) girano il pezzo; l'anteprima è rossa dove non ci sta.
-• Premi Costruisci in basso al centro per confermare: solo allora i coloni cominciano. La X rossa cancella caselle dal progetto, anche quelle confermate. Se chiudi Costruisci senza confermare, il progetto si butta via.
+• La targa del progetto, in alto al centro, dice cosa c'è (l'icona di ogni pezzo e quanti) e quanto costa, in rosso quello che in magazzino manca. Premi Costruisci sulla targa per confermare: solo allora i coloni cominciano.
+• Il progetto in blu resta quando chiudi Costruisci, e nei salvataggi: resta anche la targa, con Modifica (torna a costruire) e Scarta (tutto il progetto non confermato; chiede un secondo clic per sicurezza).
+• In costruzione il clic destro su un pezzo lo toglie dal progetto, anche confermato (prima il mobile, poi il pavimento sotto); Maiusc + trascinamento, o la gomma sulla targa, toglie un'area intera. Il materiale già portato torna in magazzino. Trascinare col destro sposta sempre la visuale.
 • Il costruttore va a prendere il materiale da un mucchio (a terra o in un magazzino) e ci mette 2 s a casella o a pezzo. Un pezzo di due materiali (abat-jour, lampione) vuole un viaggio per ciascuno: quello già portato aspetta al cantiere, e torna a terra se annulli il progetto.
 • Distruggi (X): trascina sopra strutture e mobili per buttarli giù subito. Il materiale si perde.
 • I pezzi che non hai ancora ricercato non hanno un pulsante.
@@ -439,7 +447,7 @@ Dopo la ricerca Forno di pietra (Terra II): 2x1, 20 pietra, in una cucina; scald
 [color=#e8c34a]Il banchetto reale[/color]
 Dopo la ricerca Banchetto reale (Terra IV, 1000 e un codice, dopo l'Apicoltura), in fondo al menu del forno. Una volta a stagione, con una sala del trono che ha un tavolo, e nei magazzini uno stufato, un pane e un miele per ogni colono: si prendono subito (d'estate, col ghiaccio nei magazzini, anche il sorbetto: un ghiaccio e un miele ogni 4 coloni). Il giorno dopo alle 18 chi è in colonia, sveglio e in piedi, lascia quello che fa e va nella sala del trono, prima alle sedie dei tavoli, per due ore; il sovrano guadagna 20 autorità. Dopo, chi c'era ha Banchetto reale, +15 felicità per 3 giorni, e col sorbetto Sorbetto, +5 in più. Il pulsante dice perché, quando non si può ordinare."""],
 
-	["Raccolta", """Segna cosa prendere con gli ordini della barra in basso, trascinando un rettangolo; le cose segnate portano un'icona tenue. Quello che si raccoglie cade ai piedi del lavoratore, che a lavoro finito lo porta in un magazzino.
+	["Raccolta", """Segna cosa prendere con gli ordini della barra Ordini, trascinando un rettangolo; una cosa segnata prende un contorno sottile del colore dell'ordine: arancio da tagliare, azzurro da scavare, giallo da estirpare, rosa da raccogliere, rosso aranciato da cacciare. L'acqua da pescare o il ghiaccio da tagliare hanno una cornice sulla casella. Quello che si raccoglie cade ai piedi del lavoratore, che a lavoro finito lo porta in un magazzino.
 
 [color=#e8c34a]Taglia (C)[/color] [img=center]res://art/icon_wood.png[/img]
 Alberi: quercia 28 legna, pino 35, betulla 20. Un colpo ogni 10 s ne dà 5.
@@ -496,7 +504,7 @@ Segna caselle d'acqua. Il pescatore si mette accanto (anche nell'acqua bassa) e 
 [/table]
 Gli animali girano fuori dalle stanze e dall'acqua e nascono a più di 15 caselle dalla radura: all'inizio 6 conigli e 3 cervi, poi uno nuovo ogni mezza giornata finché sono meno di 12. Un lupo segnato, se gli si tira, attacca il cacciatore."""],
 
-	["Allevamento", """[color=#e8c34a]Il pascolo (A)[/color] [img=center]res://art/icon_pasture.png[/img]
+	["Allevamento", """[color=#e8c34a]Il pascolo (W)[/color] [img=center]res://art/icon_pasture.png[/img]
 • Dopo la ricerca Allevamento (Terra I, 100, dopo la Caccia). Trascina sul prato libero, fuori dalle stanze, come l'orto: lungo il bordo si disegna da sé una staccionata, gratis. Distruggi lo toglie. Sul pascolo si costruisce solo il pollaio.
 • Ogni casella ha la sua erba, fino a 100: ricresce di 20 al giorno quando la terra è tiepida (come per seminare), non d'inverno. Più è brucata, più si vede la terra. Col mouse sopra una casella, la sua erba; cliccala per il branco.
 
