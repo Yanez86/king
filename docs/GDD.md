@@ -478,7 +478,7 @@ Decisa il 2026-11-19. Numeri da tarare.
 - **Cucinare** (abilità cucinare): in una stanza di tipo cucina, accanto al fuoco da campo. Il cuoco prende 2 crudi dal
   mucchio più vicino, cucina, il pasto cade ai suoi piedi e lo porta in magazzino. Si cucina finché in giro
   (a terra, in magazzino, in mano) ci sono meno pasti di quanti ne chiede il menu del fuoco (vedi 4.4.2; all'inizio
-  2 a colono, 8); nella finestra Jobs: "Cook meals: N". Poi: altre ricette (stufato, conserve).
+  2 a colono, 8); nella finestra Jobs: "Cook meals: N". Il forno (pane, stufato, conserve): vedi 4.4.7.
   - Tempo: 8 s a livello 5 (×1,5 a livello 0, ×0,5 a livello 10), secondo il comfort della cucina (±20%) e le condizioni del cuoco.
   - +1 punto esperienza per pasto.
   - **Bruciato** (vegetali persi): 6% per livello sotto il 6 (36% a livello 0), +3% per punto di comfort della cucina sotto 5 (sopra lo abbassa).
@@ -504,7 +504,7 @@ Decisa il 2026-11-19. Numeri da tarare.
 
   Nascono a più di 15 caselle dalla radura; ogni mezza giornata ne arriva uno nuovo, fino a 12.
 - Ordine dei lavori: vedi la tabella delle priorità (4.1).
-- Poi: animali che si difendono; stufato (vegetali + carne o pesce), conserve per l'inverno.
+- Poi: animali che si difendono. Stufato e conserve: vedi 4.4.7.
 - **Raccogliere** (tasto "Harvest", cestino, dopo "Uproot"): si segnano i cespugli; i coloni ne raccolgono le bacche ogni
   volta che maturano (5 ogni 2 giorni), finché il segno resta, e le portano in magazzino. Segnare "Uproot" toglie il segno e viceversa.
   - **Lino**: ciuffi coi fiori azzurri sparsi nei prati (circa 1 casella su 100). Si segna e si raccoglie come i cespugli
@@ -575,7 +575,7 @@ Decisa il 2026-11-19. Numeri da tarare.
     bilancio dell'anno).
   - **Stato**: fatte le fasi 1–3, la pianificazione a gantt e i concimi (test in `tests/test_food.gd`; la cenere in
     `tests/test_gear.gd`).
-  - Poi: letame con la stalla, quando ci saranno gli animali da allevare.
+  - Il letame della stalla: vedi 4.4.7.
 
 ### 4.4.2 Forgia, sartoria ed equipaggiamento
 - **Stanze**: forgia (fornace e incudine), laboratorio (banco da lavoro, 15 legna; ci lavora anche il filatoio, 10 legna),
@@ -991,8 +991,121 @@ studio e un quaderno, dopo Fantoccio). Si appoggia alle soglie di livello delle 
   cappuccio, il pugnale all'incudine. Il guerriero prende lo scudo solo con la spada in mano. Sulla bacheca la classe
   arriva con la fase 5. Il resto è solo design.
 
+### 4.4.7 Grano, forno e animali da allevare
+Deciso il 2026-11-20. Numeri da tarare. Il pane viene dal grano dell'orto, macinato al mulino: ad acqua sul torrente,
+o girato da una mucca. Il forno fa pane, stufato e conserve. Gli animali da allevare li vende il mercante di bestiame:
+d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e lasciano il letame per l'orto.
+- **Ricerche** (ramo Terra, vedi 4.7.3):
+
+  | Ricerca | Liv. | Studio | Richiede | Sblocca |
+  |---|---|---|---|---|
+  | Mulino | I | 100 | Orto | il grano nei campi, il mulino ad acqua, la farina |
+  | Forno di pietra | II | 300 | Orto | il forno: pane (con la farina), stufato, conserve |
+  | Allevamento | I | 100 | Caccia | il pascolo, il pollaio, il mercante di bestiame; galline e maiali; il lavoro Allevare |
+  | Stalla | II | 250 | Allevamento | stalla e mangiatoia, il fieno, il letame; pecore e mucche, latte, formaggio, lana; la macina a trazione (col Mulino) |
+  | Apicoltura | III | 450 | Forno di pietra | l'arnia: miele, cera, candele |
+  | Banchetto reale | IV | 1000 | Apicoltura | il banchetto nella sala del trono |
+
+- **Il torrente**: nelle mappe nuove, oltre ai laghi, un torrente attraversa la mappa da un bordo a quello di fronte,
+  serpeggiando, a più di 16 caselle dalla radura: 2–3 caselle d'acqua bassa (si guada, piano come quella dei laghi),
+  qua e là una pozza d'acqua alta. Si pesca e gela come i laghi. Le partite cominciate prima non ce l'hanno: lì niente
+  mulino ad acqua, resta la macina a trazione.
+- **Grano**: una coltura nuova della pianificazione (4.4.1), color oro: matura in 100 giorni, 25 a casella, −12 di
+  fertilità a raccolto. Non si mangia e non marcisce: si macina.
+- **Mulino ad acqua** (mobile 2x2, 20 legna e 10 pietra, all'aperto): sulla riva del torrente, con la ruota nell'acqua
+  (un suo lato tocca almeno 2 caselle del torrente). Il mugnaio (lavoro Cucinare, abilità cucinare) ci porta il grano:
+  2 grano → 2 farina, 4 s a livello 5. Si macina finché in giro c'è meno farina di quanta ne chiede il menu del mulino
+  (all'inizio 10). Col torrente gelato la ruota si ferma. La farina non marcisce.
+- **Macina a trazione** (mobile 3x3, 15 pietra e 5 legna, all'aperto, con la Stalla e il Mulino): una mola di pietra
+  con la stanga, accanto a un pascolo o dentro. Per macinare il mugnaio va a prendere una mucca adulta e sazia del
+  pascolo e la attacca alla stanga: lei gira, lui versa il grano. 2 grano → 2 farina in 8 s, anche d'inverno.
+- **Forno di pietra** (mobile 2x1, 20 pietra, in una cucina; scalda la stanza come il fuoco da campo): ha il suo menu,
+  come le altre postazioni (4.4.2). "Vegetali" sono tutti i crudi dell'orto e dei cespugli: bacche, rape, cavoli, fave.
+
+  | Ricetta | Ingredienti | Dà | Secondi (liv. 5) | Scorta all'inizio |
+  |---|---|---|---|---|
+  | Pane | 2 farina | 3 pani | 10 | 2 a testa |
+  | Stufato | 2 vegetali dello stesso mucchio + 1 carne o pesce (anche affumicati) | 2 stufati | 12 | 0 |
+  | Conserve | 2 vegetali dello stesso mucchio | 2 conserve | 10 | 0 |
+
+  Bruciato e squisito come in cucina (lo stufato squisito vale un pasto squisito).
+- **Cibi nuovi** (durano il doppio in magazzino e il triplo in dispensa, come gli altri):
+
+  | Cibo | Sazia | Dura (fuori) | Intossica | Note |
+  |---|---|---|---|---|
+  | Pane | 60 | 8 giorni | no | |
+  | Stufato | 100 | 3 giorni | no | *ben nutrito* e *rifocillato*: per mezza giornata freddo e pioggia tolgono metà comfort |
+  | Conserve | 35 | 120 giorni | 1% → 10% | si mangiano e si cucinano come il crudo |
+  | Uova | 25 | 10 giorni | 5% → 30% | crudo |
+  | Latte | 20 | 1 giorno | 5% → 40% | crudo; al fuoco da campo 3 latte → 1 formaggio (10 s, scorta 0) |
+  | Formaggio | 50 | 60 giorni | no | |
+  | Miele | 20 | mai | no | |
+
+  Chi ha fame prende in quest'ordine: pasto squisito, stufato, pasto, pane, formaggio, miele, poi il crudo (prima quello
+  che dura meno).
+- **Animali da allevare**: ognuno ha la sua **sazietà** (0–100). Pascolando o alla mangiatoia sale; senza cibo cala di
+  50 al giorno. Sotto 30 non dà niente e non fa piccoli; a 0 deperisce, e dopo 3 giorni muore (lo dice la cronaca).
+  Con un maschio e una femmina sazi e posto nel pascolo fanno i piccoli, che diventano adulti in 30 giorni (il vitello
+  in 60) e fino ad allora non danno niente. Si disegnano più piccoli.
+
+  | Animale | Ricerca | Coppia dal mercante | Pascolo a capo | Inverno, al giorno | Dà | Piccoli | Macellato |
+  |---|---|---|---|---|---|---|---|
+  | Gallina | Allevamento | 12 | 1 casella | ¼ di fieno | 1 uovo al giorno, nel pollaio (non d'inverno) | 3 pulcini ogni 30 giorni | 2 carne |
+  | Maiale | Allevamento | 30 | 2 caselle | 1 fieno o 1 marcio | — | 4 porcellini ogni 60 giorni | 15 carne, 1 pelle |
+  | Pecora | Stalla | 30 | 2 caselle | 1 fieno | latte (1 ogni 2 giorni), lana (3 alla tosatura, d'estate) | 1 agnello all'anno, in primavera | 6 carne, 2 pelli |
+  | Mucca | Stalla | 60 | 4 caselle | 3 fieno | latte (2 al giorno); gira la macina | 1 vitello all'anno | 20 carne, 4 pelli |
+
+- **Pascolo** (tasto "Pasture", dopo "Garden"; con l'Allevamento): si trascina sul prato libero fuori dalle stanze,
+  come l'orto; Distruggi lo toglie. Ci si disegna da sé una staccionata lungo il bordo (non costa niente). Gli animali
+  da allevare ci girano dentro e non ne escono, se non per andare nella stalla. Ogni casella ha la sua **erba**
+  (0–100, si vede più o meno brucata): ricresce di 20 al giorno quando la terra è tiepida (6 °C di media, come la
+  semina), d'inverno e sotto la neve no. Ogni animale ne bruca ogni giorno 20 per casella a capo: quante caselle a
+  testa servono lo dice la tabella. Il pascolo concima la terra: +5 di fertilità a stagione alle sue caselle (un campo
+  messo a pascolo si riposa).
+- **Lupi nel pascolo**: i lupi vanno anche contro gli animali da allevare, che non scappano dal recinto. Un pascolo
+  chiuso dalla palizzata (col cancello) è al sicuro.
+- **Pollaio** (mobile 2x1, 8 legna, nel pascolo): ci dormono fino a 8 galline e ci fanno le uova; senza pollaio niente
+  uova. Le uova le raccoglie chi alleva.
+- **Il mercante di bestiame** (evento del narratore, 4.6): se c'è un pascolo, ogni 15 giorni circa (±3), dal Disgelo
+  alla fine dell'autunno, passa per un giorno, dal mattino. Vende 2–3 coppie (maschio e femmina) delle specie che si
+  possono allevare, ai prezzi della tabella; compra animali a metà prezzo, lana (4 monete) e formaggio (6). Si tratta
+  dal cartello del pascolo; quello che compra entra nel pascolo. Paga e si paga in monete. L'arrivo lo dice la cronaca.
+- **Stalla** (tipo di stanza nuovo, servizio: almeno una mangiatoia, mobile 2x1, 6 legna): d'inverno, e quando nevica,
+  gli animali vanno nella stalla (le galline nel pollaio) e mangiano il fieno dalle mangiatoie, ognuna ne tiene 20; i
+  trasportatori le riempiono. Posto: mucca 4 caselle, pecora e maiale 2. Chi non ha posto resta fuori al freddo: la
+  sazietà gli cala il doppio. I maiali mangiano anche il marcio, che i trasportatori portano alla mangiatoia.
+- **Fieno** (tasto "Hay", con la Stalla): si segnano caselle di prato fuori dal pascolo. Dalla semina alla fine
+  dell'estate il contadino (lavoro Coltivare) falcia quelle con l'erba alta: 4 fieno, 3 s a livello 5 (col falcetto
+  −25%); l'erba ricresce in 20 giorni, finché il segno resta. Il fieno non marcisce.
+- **Letame**: nella stalla ogni animale lascia letame (mucca 1 al giorno, pecora e maiale 1 ogni 2, galline nel pollaio
+  1 ogni 4 giorni); i trasportatori lo portano in magazzino e il contadino lo sparge prima della semina come il compost
+  (4.4.1): +20 di fertilità, il primo dei concimi (poi compost, poi cenere).
+- **Allevare** (lavoro nuovo, colonna dopo Coltivare; abilità nuova, si impara facendolo): mungere (mucche e pecore, 5
+  s), raccogliere le uova (al pollaio, 2 s), tosare (pecore, una volta a inizio estate, 10 s), macellare (8 s: carne e
+  pelli cadono lì). Dal cartello del pascolo, per specie, **quanti tenerne** (all'inizio 6): oltre, chi alleva macella
+  prima i maschi in più, poi i più vecchi, mai i piccoli.
+- **Lana**: la compra il mercante; poi il mantello imbottito al telaio (4.4.2).
+- **Apicoltura** (Terra III): l'**arnia** (1x1, 6 legna, all'aperto). In primavera e in estate fa 1 miele ogni 2 giorni
+  se entro 5 caselle ci sono almeno 4 fiori (aiuole, fioriere, lino e erbe in fiore), 1 ogni 4 con meno, niente senza;
+  ne tiene al più 4. Il raccoglitore (lavoro Raccogliere, segno Harvest sull'arnia) prende 4 miele e 1 cera. Al banco
+  da lavoro 1 cera → 4 **candele** (abilità cucire, 6 s, scorta 4). Di notte uno scrittoio con una candela (se ne
+  brucia una a notte) non ha bisogno dell'abat-jour, e con l'abat-jour si studia il 10% più svelti.
+- **Banchetto reale** (Terra IV): dal menu del forno, "Banchetto reale…", se c'è una sala del trono coi tavoli e
+  dall'ultimo è passata una stagione. Chiede, a testa (i coloni in colonia), 1 stufato, 1 pane e 1 miele; d'estate,
+  col ghiaccio in ghiacciaia, il sorbetto (1 ghiaccio e 1 miele ogni 4 coloni) vale +5 in più. I cuochi lo preparano
+  e lo portano nella sala del trono; alle 18 del giorno dopo chi è in colonia lascia quello che fa e siede ai tavoli
+  (chi non trova posto sta in piedi) per due ore: *banchetto reale*, +15 felicità per 3 giorni; il sovrano +20
+  autorità. Lo dice la cronaca.
+- **Ordine di lavoro**: (1) il torrente nelle mappe nuove; la ricerca Mulino: il grano nei campi, il mulino ad acqua, la
+  farina, la ruota ferma col gelo; (2) il Forno di pietra: il forno, pane, stufato col rifocillato, conserve, l'ordine
+  dei cibi; (3) l'Allevamento: il pascolo con l'erba e la staccionata, galline e maiali, il pollaio e le uova, la
+  sazietà e i piccoli, il lavoro e l'abilità Allevare, macellare e quanti tenerne, il mercante di bestiame, i lupi nel
+  pascolo; (4) la Stalla: stalla e mangiatoie, il fieno, l'inverno nella stalla, pecore e mucche, latte e formaggio,
+  tosatura e lana, il letame; (5) la macina a trazione; (6) l'Apicoltura: arnia, miele, cera, candele; (7) il Banchetto
+  reale.
+
 ### 4.5 Mondo e tempo
-- Mappa a tile, singolo livello, ~100×100.
+- Mappa a tile, singolo livello, ~100×100, con laghi e, nelle mappe nuove, un torrente (4.4.7).
 - Ciclo giorno/notte, quattro stagioni; inverno = freddo e niente raccolti.
 - Calendario: 365 giorni. Capodanno (Crown Day), poi quattro stagioni di 3 mesi da 30 giorni, ognuna chiusa da un giorno
   di festa fuori dai mesi (91 giorni a stagione). Primavera: Thaw, Sowing, Blossom, Flower Feast; estate: Highsun, Haying,
@@ -1154,7 +1267,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | III | 450–500 | tomo rosso | 14–16 giorni |
   | IV | 1000–1200 | codice di porpora | 31–38 giorni |
 
-  L'albero intero (51 ricerche) vuole circa 16.000 punti: con tre studiosi bravi 100 giorni. Si sceglie, non si finisce.
+  L'albero intero (54 ricerche) vuole circa 16.500 punti: con tre studiosi bravi 100 giorni. Si sceglie, non si finisce.
 - **Dall'inizio**, senza ricerca: muro e pavimento di legno, porta, sentiero, letto, tavolo, sedia, fuoco da campo,
   stendardo, scrittoio, trono; il pasto; tagliare, scavare, estirpare, raccogliere, pescare, costruire, distruggere, e
   cacciare con un arco; stanze magazzino, camera, dormitorio, cucina, studio, sala del trono. Tutto il resto, anche
@@ -1165,15 +1278,18 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | Ramo | Ricerca | Liv. | Studio | Richiede | Sblocca |
   |---|---|---|---|---|---|
   | Terra | Orto ✓ | I | 80 | — | zona orto e lavoro Coltivare: rape in 60 giorni e cavoli in 90, niente d'inverno |
-  | | Forno di pietra | II | 300 | Orto | forno 2x1: pane (2 vegetali → 3, sazia 60, dura 8 giorni), stufato |
+  | | Mulino | I | 100 | Orto | il grano nei campi; il mulino ad acqua sul torrente: la farina (vedi 4.4.7) |
+  | | Forno di pietra | II | 300 | Orto | forno 2x1 in cucina: pane (2 farina → 3, sazia 60, dura 8 giorni), stufato, conserve (vedi 4.4.7) |
   | | Saggio del terreno ✓ | I | 60 | Orto | la lente della terra (O) in tre fasce; la fascia sul cartello del campo |
   | | Almanacco agrario ✓ | II | 250 | Saggio del terreno | cinque fasce; se un campo sale o scende rispetto a un anno prima |
   | | Catasto ✓ | III | 450 | Almanacco agrario | i numeri della terra e il prossimo raccolto di ogni campo |
   | | Concimazione ✓ | I | 80 | Orto | cumulo del compost, marcio e cenere, lavoro Concimare, il sovescio |
-  | | Apicoltura | III | 450 | Forno di pietra | arnia accanto alle aiuole: miele (non marcisce), cera (candele: si studia di notte) |
-  | | Banchetto reale | IV | 1000 | Apicoltura | il banchetto al forno: +15 felicità per 3 giorni, +20 autorità |
+  | | Apicoltura | III | 450 | Forno di pietra | arnia vicino ai fiori: miele (non marcisce), cera (candele: si studia di notte) (vedi 4.4.7) |
+  | | Banchetto reale | IV | 1000 | Apicoltura | il banchetto dal forno, nella sala del trono: +15 felicità per 3 giorni, +20 autorità (vedi 4.4.7) |
   | | Caccia ✓ | I | 50 | — | *filatoio, corda d'arco, banco del falegname, falegnameria, arco, pelli alle pareti, portiera* (vedi 4.4.5) |
   | | Affumicatoio ✓ | II | 200 | Caccia | al fuoco: carne e pesce affumicati durano quattro volte tanto (scorta 0 dal menu); si mangiano e si cucinano come il crudo |
+  | | Allevamento | I | 100 | Caccia | il pascolo, il pollaio, il mercante di bestiame: galline e maiali; il lavoro Allevare (vedi 4.4.7) |
+  | | Stalla | II | 250 | Allevamento | stalla e mangiatoia, il fieno, il letame; pecore e mucche: latte, formaggio, lana; la macina a trazione, col Mulino (vedi 4.4.7) |
   | | Dispensa fredda ✓ | I | 100 | — | stanza dispensa, solo per il cibo, che ci va per primo: dura il triplo che fuori (in magazzino il doppio) |
   | | Ghiacciaia ✓ | II | 250 | Dispensa fredda | *ghiacciaia* (muri di pietra o roccia), *fossa del ghiaccio*; Tagliare il ghiaccio d'inverno: col ghiaccio la stanza va verso 0 °C (vedi 4.4.5) |
   | Fuoco | Forgia ✓ | I | 60 | — | *fornace, incudine, forgia, lingotto, piccone, ascia, falcetto* |

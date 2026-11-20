@@ -1,6 +1,6 @@
 # King — Cose da fare
 
-> Aggiornato al 2026-11-19. Raccoglie quello che manca di tutti i sistemi: le fasi degli "Ordine di lavoro" non
+> Aggiornato al 2026-11-20. Raccoglie quello che manca di tutti i sistemi: le fasi degli "Ordine di lavoro" non
 > ancora fatte, i "Poi" del [GDD](GDD.md), le ricerche e le leggi senza ✓, il dopo-MVP e le domande aperte.
 > Il GDD resta il riferimento per il *come*; qui c'è solo il *cosa manca*. Quando una cosa è fatta: si segna nel GDD
 > (✓ o "Stato") e si toglie da qui.
@@ -16,7 +16,8 @@
 | Sovrano e dinastia | 4.3 | dinastia fatta (4.3.3); del sovrano fasi 1, 2, 6 e mezza 5 | sovrano sereno/cupo, stile di regno, sguardo, epiteti |
 | Stemma | 4.3.2 | base | linee, pellicce, ornamenti, motto, blasonatura |
 | Risorse ed edifici | 4.4 | fatto | vene d'oro, commercio |
-| Cibo e orto | 4.4.1 | fatto, coi concimi | forno e pane, stufato e conserve, letame (serve la stalla) |
+| Cibo e orto | 4.4.1 | fatto, coi concimi | — (il resto è in 4.4.7) |
+| Grano, forno e animali | 4.4.7 | design fatto | tutte le 7 fasi: mulino, forno, allevamento, stalla, macina, api, banchetto |
 | Forgia e sartoria | 4.4.2 | fatto | ordini "fanne N", qualità degli oggetti |
 | Combattimento | 4.4.3 | fatto | predoni, medico e cure |
 | Avventurieri e rovine | 4.4.4 | fasi 1–3, chi resta, coloni in spedizione | vene d'oro, commercio, una rovina sulla mappa |
@@ -25,7 +26,7 @@
 | Salvataggio | 4.5.1 | locale fatto | il cloud |
 | Eventi casuali | 4.6 | fatto: il narratore e 11 eventi | tarare i numeri; eventi nuovi coi sistemi nuovi |
 | Caserma e classi | 4.4.6 | fasi 1–2 (le abilità salgono di livello; caserma, classi, corredo) | l'esercitazione, in battaglia, in spedizione |
-| Ricerca | 4.7.3 | 41 ricerche su 51 | 10 ricerche, il livello IV |
+| Ricerca | 4.7.3 | 41 ricerche su 54 | 13 ricerche, il livello IV |
 | Leggi | 4.7.7 | 23 leggi su 38 | 15 leggi: quelle della dinastia si possono fare ora |
 | Interfaccia | [TECH](TECH.md) | testo a 22, elenco degli abitanti, bacheca con la squadra | provarla in inglese e ad altre risoluzioni |
 
@@ -37,8 +38,8 @@ sfortune, la tregua). Ora si possono fare anche le leggi della dinastia (vedi Le
 
 Medicina e morte è fatta (4.2.2: erbe e unguento, infermeria e medico, tombe, Funerali e memoriale).
 
-1. **Cucina e animali** — Forno di pietra, stufato, conserve; poi Apicoltura e Banchetto reale; animali da allevare e
-   la stalla, col letame.
+1. **Cucina e animali** (in corso, 4.4.7) — torrente, grano e mulino; Forno di pietra (pane, stufato, conserve);
+   allevamento e stalla, col letame; macina a trazione; Apicoltura; Banchetto reale.
 2. **Le leggi della dinastia** — Primogenitura (manca solo nella finestra), Successione elettiva, Matrimoni misti,
    Scuola: i loro sistemi ci sono già (vedi Leggi).
 
@@ -119,11 +120,24 @@ Dinastia (4.3.3, fatta): quello che resta.
 
 ## Cibo, orto e concimi (4.4.1)
 
-- [ ] Forno di pietra (ricerca, Terra II): forno 2x1, pane, stufato.
-- [ ] Stufato (vegetali e carne o pesce), conserve per l'inverno.
 - [ ] Animali selvatici che si difendono.
-- [ ] Letame: serve prima un sistema di **allevamento** (animali domestici, stalla), che nel GDD non c'è ancora.
 - [ ] Tarare i numeri: rese, fertilità, stanchezza della terra, concimi, sovescio.
+
+## Grano, forno e animali da allevare (4.4.7)
+
+Deciso il 2026-11-20. Fasi dell'ordine di lavoro ancora da fare:
+
+- [ ] (1) Il torrente nelle mappe nuove; la ricerca Mulino: il grano nei campi, il mulino ad acqua, la farina, la ruota
+  ferma col gelo.
+- [ ] (2) Il Forno di pietra: il forno, pane, stufato col rifocillato, conserve, l'ordine dei cibi.
+- [ ] (3) L'Allevamento: il pascolo con l'erba e la staccionata, galline e maiali, il pollaio e le uova, la sazietà e i
+  piccoli, il lavoro e l'abilità Allevare, macellare e quanti tenerne, il mercante di bestiame, i lupi nel pascolo.
+- [ ] (4) La Stalla: stalla e mangiatoie, il fieno, l'inverno nella stalla, pecore e mucche, latte e formaggio, tosatura e
+  lana, il letame.
+- [ ] (5) La macina a trazione.
+- [ ] (6) L'Apicoltura: arnia, miele, cera, candele.
+- [ ] (7) Il Banchetto reale.
+- [ ] Poi: il mantello imbottito di lana al telaio (vedi Forgia).
 
 ## Forgia, sartoria ed equipaggiamento (4.4.2)
 
@@ -197,7 +211,10 @@ Cittadella.
 
 | Ramo | Ricerca | Liv. | Richiede | Cosa sblocca |
 |---|---|---|---|---|
-| Terra | Forno di pietra | II | Orto | forno 2x1: pane, stufato |
+| Terra | Mulino | I | Orto | grano, mulino ad acqua, farina |
+| | Forno di pietra | II | Orto | forno 2x1: pane, stufato, conserve |
+| | Allevamento | I | Caccia | pascolo, pollaio, mercante di bestiame: galline e maiali |
+| | Stalla | II | Allevamento | stalla, fieno, letame; pecore e mucche; macina a trazione |
 | | Apicoltura | III | Forno di pietra | arnia: miele, cera (candele) |
 | | Banchetto reale | IV | Apicoltura | +15 felicità per 3 giorni, +20 autorità |
 | Fuoco | Vetreria | III | Acciaio | finestre, occhiali |
