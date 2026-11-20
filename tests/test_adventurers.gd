@@ -316,11 +316,11 @@ func _initialize() -> void:
 		e.party.append(h)
 		main.fight_monsters(e, main.MONSTER_POWER * 4)
 	check(mad.hp < calm.hp, "il berserker sanguina di più")
-	# nella scheda le icone dei talenti, col nome nel suggerimento
+	# nella scheda le icone dei talenti, col loro suggerimento (doni prima)
 	main.guests.append(sneaky)
 	main.open_sheet(sneaky)
 	var icons: Array = main.get_node("HUD/ColonistSheet/Box/Traits/Icons").get_children()
-	check(icons.size() == 2 and icons[0].tooltip_text.begins_with("Stealthy\n"), "talenti nella scheda")
+	check(icons.size() == 2 and icons[0].get_meta("tip") == "gift:STEALTHY", "talenti nella scheda")
 	main.guests.erase(sneaky)
 	main.sheet_panel.hide()
 

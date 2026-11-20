@@ -48,6 +48,8 @@ Col mouse sopra una figurina vedi la scheda; cliccando un nome la apri. Clicca d
 • In costruzione il clic destro (senza trascinare) toglie un pezzo dal progetto, Maiusc + trascinamento un'area.
 • Il riquadro in basso a destra, sopra la velocità, dice cosa c'è sotto il mouse: i tronchi rimasti in un albero, quanto è fresco un mucchio di cibo e così via.
 • Le finestre si possono trascinare; la X le chiude.
+• I suggerimenti coi nomi d'oro (Conoscenza, Leggi, i mobili da costruire, le postazioni, la scheda del colono, Risorse, Lavori): tieni fermo il mouse e il suggerimento si blocca quando la sua barretta d'oro è piena; poi ci puoi entrare, e un nome d'oro (una ricerca, una legge, un mobile, l'autorità...) apre il suo suggerimento accanto, e così via. Lasciandoli si chiudono.
+• Anche in questa wiki i nomi delle cose sono d'oro: col mouse sopra il loro suggerimento, col clic la pagina che ne parla (lo stesso un clic su un nome d'oro in un suggerimento).
 
 [color=#e8c34a]La barra in basso[/color]
 Seleziona (Q), Costruisci (B), Ordini, Distruggi (X) | Viste. Ordini e Viste (un triangolino d'oro) aprono una barra loro: gli ordini sopra, le viste accanto. Un tasto fa come un clic sul suo pulsante (premilo di nuovo per chiudere), e il tasto di un ordine apre anche la sua barra.

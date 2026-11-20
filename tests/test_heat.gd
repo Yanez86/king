@@ -430,10 +430,8 @@ func _initialize() -> void:
 	check(main.chronicle.size() > notes_before, "tutto nella cronaca")
 
 	# il suggerimento del pulsante dice quanto scalda
-	var tip: Control = main.build_tip(B.HEARTH)
-	var texts: Array = tip.get_children().filter(func(n): return n is Label).map(func(l): return l.text)
-	check(texts.has("+12 °C in the room, +6 °C behind a wooden wall"), "il pulsante del focolare dice quanto scalda")
-	tip.free()
+	check(main.kind_buttons[B.HEARTH].get_meta("tip") == "build:HEARTH"
+		and main.glossary.content("build:HEARTH")[1].contains("+12 °C in the room, +6 °C behind a wooden wall"), "il pulsante del focolare dice quanto scalda")
 	check(main.unlocked("builds", B.HEARTH) and main.tech_for("builds", B.HEARTH) == main.Tech.MASONRY, "il focolare viene con la Muratura")
 	sky.climate = false
 	print("OK: focolare, calore nei muri, isolamento, lente, tetti, usura, ghiacciaia, incendio")

@@ -923,7 +923,6 @@ const HEAT_SCALE := [Color("e8442a"), Color("e8c34a"), Color("8ad0e8"), Color("4
 const FROST_COLOR := Color("eef8ff")  # sotto lo zero: il cibo non marcisce
 const BLOCKED_COLOR := Color("d84a3a")  # la ✕ sul muro di pietra che il calore non passa
 const ROOM_SPACE := 6        # caselle a testa: chi ne ha meno (stanza piena di gente) ha il comfort in proporzione
-# suggerimento dei pulsanti di costruzione (vedi build_tip): sotto nome e costo il comfort, poi la descrizione colorata
 # menù delle opzioni (Esc o ingranaggio), tab Keybindings: tasti di partenza dei comandi della barra in basso, per
 # nome del pulsante (vedi TOOL_BARS; quelli che non ci sono partono senza). Cambiati, si salvano: vedi bind_key
 const DEFAULT_KEYS := {"Select": KEY_Q, "Build": KEY_B, "Destroy": KEY_X, "Mine": KEY_M, "Chop": KEY_C, "Uproot": KEY_U,
@@ -971,6 +970,8 @@ const DOT_BEAT := 1.2       # secondi: il battito dei pallini d'oro del menu
 const AUTOSAVE_HOUR := 6    # all'alba, quando i coloni si alzano: il salvataggio di ogni giorno
 const MODIFIER_KEYS := [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]  # da soli non sono un tasto
 const TIP := preload("res://tip_button.gd")  # suggerimento fatto di Control: pulsanti di costruzione, figurine
+const NESTED_TIPS := preload("res://nested_tips.gd")  # i suggerimenti annidati, coi collegamenti (docs/TECH.md)
+const GLOSSARY := preload("res://glossary.gd")  # il loro contenuto, dalle tabelle
 const BUILD_INFO_COLOR := Color("d9c48a")
 const BUILD_INFO := {
 	Build.WALL: "Blocks the way. Walls with a door around an area make a room.",
@@ -2058,6 +2059,8 @@ var chain_bands := []       # Rect2: le fasce, per il velo alternato
 var chain_widths := []      # px: la larghezza di ogni colonna delle Catene
 var chain_cols := []        # px: dove comincia ogni colonna
 var pasture_popup: Control       # la finestra del pascolo: il branco e il mercante (vedi open_pasture)
+var tips = NESTED_TIPS.new()     # i suggerimenti annidati (vedi tip): figlio di main, sopra a tutto
+var glossary = GLOSSARY.new(self)
 var shown: Colonist         # il colono nella scheda: le barre dei bisogni lo seguono
 var gear_menu := PopupMenu.new()  # clic su uno slot della scheda: Auto, Empty o un pezzo (vedi open_gear_menu)
 var marriage_menu := PopupMenu.new()  # "Arrange a marriage…": chi il sovrano può sposare (vedi open_marriage_menu)
@@ -2117,6 +2120,7 @@ var lights := CanvasLayer.new()
 var lights_canvas := Node2D.new()
 
 @onready var camera: Camera2D = $Camera2D
+@onready var wiki_text: RichTextLabel = $HUD/WikiPanel/Box/Body/Text  # la pagina della wiki, coi collegamenti
 @onready var stored_label: Label = $HUD/TopBar/Row/Stored  # risorse in tutti i magazzini, sommate: il dettaglio è in Resources
 @onready var colonists_label: Button = $HUD/TopBar/Row/Colonists  # cliccato: l'elenco degli abitanti (vedi fill_census)
 @onready var beds_label: Label = $HUD/TopBar/Row/Beds
@@ -2338,9 +2342,7 @@ func _ready() -> void:
 		var bar := furniture_bar if FURNITURE.has(kind) else build_bar
 		var button: Button = bar.find_child(Build.keys()[kind].capitalize(), true, false)
 		kind_buttons[kind] = button
-		button.set_script(TIP)
-		button.set("make_tip", build_tip.bind(kind))
-		button.tooltip_text = Build.keys()[kind].capitalize()  # Godot lo mostra da sé col mouse sopra, via build_tip
+		tip(button, "build", Build, kind)  # costo, comfort, calore, splendore, cosa ci si fa (glossary.gd)
 		button.pressed.connect(choose_kind.bind(kind))
 	$HUD/FurnitureBar/Row/Turn/Left.pressed.connect(turn.bind(-1))
 	$HUD/FurnitureBar/Row/Turn/Right.pressed.connect(turn.bind(1))
@@ -2371,7 +2373,9 @@ func _ready() -> void:
 	jobs_panel.hidden.connect(tool("Jobs").set_pressed_no_signal.bind(false))  # chiusa con la X: tasto su
 	resources_panel.hidden.connect(tool("Resources").set_pressed_no_signal.bind(false))
 	var topics: ItemList = $HUD/WikiPanel/Box/Body/Topics
-	topics.item_selected.connect(func(i): $HUD/WikiPanel/Box/Body/Text.text = WIKI.pages()[i][1])
+	topics.item_selected.connect(func(i): wiki_text.text = glossary.wikify(WIKI.pages()[i][1]))  # coi collegamenti
+	tips.attach_text(wiki_text)  # col mouse sopra il loro suggerimento, col clic la loro pagina (vedi open_wiki_at)
+	tips.clicked.connect(open_wiki_at)  # anche dai suggerimenti
 	fill_wiki()
 	$HUD/TopBar/Row/Wiki.toggled.connect($HUD/WikiPanel.set_visible)
 	$HUD/WikiPanel.hidden.connect($HUD/TopBar/Row/Wiki.set_pressed_no_signal.bind(false))
@@ -2391,7 +2395,9 @@ func _ready() -> void:
 	for res in Res.values():
 		var row := HBoxContainer.new()
 		row.visible = false  # solo le risorse che ci sono, vedi update_resources
-		row.add_child(ui_icon(ICONS[res], Rect2(), Vector2(32, 32)))
+		var big := ui_icon(ICONS[res], Rect2(), Vector2(32, 32))
+		tip(big, "item", Res, res)
+		row.add_child(big)
 		var kind := ui_icon(KIND_ICONS[ITEM_KIND[res]], Rect2(), Vector2(16, 16))  # il tipo, prima del nome
 		kind.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		kind.tooltip_text = KIND_NAMES[ITEM_KIND[res]]
@@ -2402,6 +2408,8 @@ func _ready() -> void:
 			label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 			label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT if text == "" else HORIZONTAL_ALIGNMENT_LEFT
+			if text != "":
+				tip(label, "item", Res, res)
 			row.add_child(label)
 		resources_list.add_child(row)
 	if state.is_empty():
@@ -2431,6 +2439,8 @@ func _ready() -> void:
 	$HUD/BoardPanel/Box/Foot/ChronicleButton.pressed.connect(open_chronicle)
 	build_field_popup()
 	build_plan_panel()
+	tips.content = glossary.content
+	add_child(tips)
 	build_production_panel()
 	pasture_popup = craft_popup.duplicate()  # come il menu delle postazioni: titolo, una riga rossa, l'elenco
 	pasture_popup.name = "PasturePopup"
@@ -2869,6 +2879,23 @@ func set_language(code: String) -> void:
 
 
 # finestra Wiki: gli argomenti nella lingua del gioco, aperta sulla pagina che si stava leggendo (all'inizio la prima)
+# la wiki aperta alla pagina che parla di `key` (vedi glossary.wiki_home), alla sua sezione: un clic su un collegamento
+func open_wiki_at(key: String) -> void:
+	var home: Array = glossary.wiki_home(key)
+	if home[0] < 0:
+		return
+	var topics: ItemList = $HUD/WikiPanel/Box/Body/Topics
+	$HUD/TopBar/Row/Wiki.button_pressed = true
+	$HUD/WikiPanel.move_to_front()  # sopra le altre finestre
+	topics.select(home[0])
+	topics.item_selected.emit(home[0])
+	topics.ensure_current_is_visible()
+	var heading := "%s\n" % home[1]
+	var at := wiki_text.get_parsed_text().find(heading) if home[1] != "" else -1
+	if at >= 0:
+		wiki_text.scroll_to_paragraph.call_deferred(wiki_text.get_character_paragraph(at))
+
+
 func fill_wiki() -> void:
 	var topics: ItemList = $HUD/WikiPanel/Box/Body/Topics
 	var page := maxi(0, topics.get_selected_items()[0] if topics.is_anything_selected() else 0)
@@ -3125,66 +3152,6 @@ func choose_kind(kind: Build) -> void:
 
 # nome in alto a sinistra, a destra i materiali in colonna (muri e pavimenti: legno o pietra, per casella; il resto
 # i suoi materiali, per pezzo); sotto il comfort che dà, una riga e la descrizione colorata
-func build_tip(kind: Build) -> Control:
-	var box := VBoxContainer.new()
-	var head := HBoxContainer.new()
-	head.add_theme_constant_override("separation", 24)
-	var title := Label.new()
-	title.text = named(Build, kind)
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	var costs := VBoxContainer.new()
-	var cost := cost_of([kind, BUILD_RES.get(kind, Res.WOOD)])
-	if kind in ANY_MATERIAL:
-		cost[Res.STONE] = cost[Res.WOOD]
-	for res in cost:
-		var row := HBoxContainer.new()
-		row.alignment = BoxContainer.ALIGNMENT_END
-		var amount := Label.new()
-		amount.text = "%s%d%s" % [tr("or ") if res == Res.STONE and kind in ANY_MATERIAL else "", cost[res], "" if FURNITURE.has(kind) else tr("/tile")]
-		row.add_child(amount)
-		row.add_child(ui_icon(ICONS[res], Rect2(), Vector2(16, 16)))
-		costs.add_child(row)
-	head.add_child(title)
-	head.add_child(costs)
-	box.add_child(head)
-	if COMFORT.has(kind):  # chi non dà comfort salta la sezione
-		var bonus := Label.new()
-		bonus.text = tr("+%s room comfort") % str(COMFORT[kind]).trim_suffix(".0")
-		if kind == Build.FLOOR:
-			bonus.text += tr(" paving it all, x%s in stone") % COMFORT_MATERIAL[Res.STONE]
-		bonus.add_theme_color_override("font_color", TREND_UP)
-		box.add_child(bonus)
-	if HEAT.has(kind):
-		var heat := Label.new()
-		heat.text = tr("+%d °C in the room") % HEAT[kind]
-		if kind in THROUGH_STONE:
-			heat.text += tr(", +%s °C behind a wall, even of stone") % str(HEAT[kind] * THROUGH[kind]).trim_suffix(".0")
-		elif THROUGH.has(kind):
-			heat.text += tr(", +%s °C behind a wooden wall") % str(HEAT[kind] * THROUGH[kind]).trim_suffix(".0")
-		heat.add_theme_color_override("font_color", HEAT_COLOR)
-		box.add_child(heat)
-	if INSULATES.has(kind):
-		var keeps := Label.new()
-		keeps.text = tr("+%d%% room insulation") % roundi(INSULATES[kind][0] * 100)
-		keeps.add_theme_color_override("font_color", HEAT_COLOR)
-		box.add_child(keeps)
-	if SPLENDOR.has(kind):
-		var splendor := Label.new()
-		var text := tr("+%d colony splendor, only the first one") if kind in SPLENDOR_ONCE else tr("+%d colony splendor")
-		splendor.text = text % SPLENDOR[kind]
-		splendor.add_theme_color_override("font_color", SPLENDOR_COLOR)
-		box.add_child(splendor)
-	box.add_child(HSeparator.new())
-	var info := Label.new()
-	info.text = BUILD_INFO[kind]
-	info.add_theme_color_override("font_color", BUILD_INFO_COLOR)
-	info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART  # le frasi lunghe vanno a capo invece di allargare il riquadro
-	info.custom_minimum_size.x = 240
-	box.add_child(info)
-	return box
-
-
 # E / R e le frecce nella barra: gira il prossimo mobile di un quarto, in senso antiorario o orario
 func turn(by: int) -> void:
 	build_turn = posmod(build_turn + by, 4)
@@ -3690,6 +3657,7 @@ func open_craft(origin: Vector2i) -> void:
 	var box: Control = craft_popup.get_node("Box")
 	box.get_node("Head/Lines/Title").text = named(Build, furniture[origin][0])
 	box.get_node("Head/Tile").get_child(0).texture = kind_buttons[furniture[origin][0]].icon
+	tip(box.get_node("Head/Tile"), "build", Build, furniture[origin][0])  # cos'è e cosa ci si fa (glossary.gd)
 	var list := box.get_node("List")
 	for child in list.get_children():
 		child.free()
@@ -3831,8 +3799,8 @@ func recipe_of(res: Res) -> Array:
 	return []
 
 
-# La riga di `res` nel menu della postazione: il riquadro con l'icona; il tipo e il nome (col mouse sopra l'effetto del
-# pezzo); gli ingredienti con le icone grandi (quelli a scelta col mouse sopra dicono quali; il pasto "2 crudi uguali");
+# La riga di `res` nel menu della postazione: il riquadro con l'icona; il tipo e il nome (col mouse sopra il loro
+# suggerimento); gli ingredienti con le icone grandi (quelli a scelta col mouse sopra dicono quali; il pasto "2 crudi uguali");
 # le tacche e quanti ce ne sono; quanti coloni lo prenderebbero; la scorta con − e + (con Maiusc cinque alla volta).
 # Sotto, nascoste finché non servono, la riga di chi lo fa o del perché è fermo e, per il pasto, i crudi che ci sono.
 # Le celle hanno il nome della loro colonna (CRAFT_COLUMNS): open_craft le allarga uguali, refresh_craft_row le riempie
@@ -3855,6 +3823,7 @@ func craft_row(res: Res) -> PanelContainer:
 	lines.add_child(main)
 	var tile := icon_tile(ICONS[res])
 	tile.name = "Tile"
+	tip(tile, "item", Res, res)  # cos'è, da cosa si fa, a cosa serve (glossary.gd)
 	main.add_child(tile)
 	var item := HBoxContainer.new()
 	item.name = "Item"
@@ -3864,8 +3833,7 @@ func craft_row(res: Res) -> PanelContainer:
 	item.add_child(kind)
 	var label := Label.new()
 	label.text = named(Res, res, "item")
-	label.tooltip_text = GEAR[res]["info"] if GEAR.has(res) else ""
-	label.mouse_filter = Control.MOUSE_FILTER_PASS
+	tip(label, "item", Res, res)
 	item.add_child(label)
 	main.add_child(item)
 	var takes := HBoxContainer.new()
@@ -3884,9 +3852,11 @@ func craft_row(res: Res) -> PanelContainer:
 			amount.set_meta("need", [key, needs[key]])  # in rosso quando non basta, vedi refresh_craft_row
 			takes.add_child(amount)
 			var icon := ui_icon(ICONS[GROUPS[key][0] if GROUPS.has(key) else key], Rect2(), Vector2(32, 32))
-			icon.tooltip_text = tr("Any of: %s") % ", ".join(GROUPS[key].map(func(g): return named(Res, g, "item").to_lower())) \
-				if GROUPS.has(key) else named(Res, key, "item")
-			icon.mouse_filter = Control.MOUSE_FILTER_PASS
+			if GROUPS.has(key):  # a scelta: col mouse sopra, quali
+				icon.tooltip_text = tr("Any of: %s") % ", ".join(GROUPS[key].map(func(g): return named(Res, g, "item").to_lower()))
+				icon.mouse_filter = Control.MOUSE_FILTER_PASS
+			else:
+				tip(icon, "item", Res, key)
 			takes.add_child(icon)
 	main.add_child(takes)
 	var there := HBoxContainer.new()
@@ -4112,7 +4082,7 @@ func refresh_craft_row(res: Res, row: Control, station: String) -> void:
 			raw.add_child(head)
 			for r in piles:
 				var icon := ui_icon(ICONS[r], Rect2(), Vector2(32, 32))
-				icon.tooltip_text = named(Res, r, "item")
+				tip(icon, "item", Res, r)
 				raw.add_child(icon)
 				var amount := Label.new()
 				amount.text = str(piles[r])
@@ -4445,7 +4415,7 @@ func fill_shops() -> void:
 
 # Il riquadro di un tipo di postazione tra le Officine: il suo disegno, il nome e a destra la stanza; sotto chi ci
 # lavora (figurina, nome, l'oggetto, la barra e i secondi; al più due), o in rosso perché è ferma, o che è libera;
-# poi "Then", gli oggetti che mancano con quanti (in rosso quelli fermi: col mouse sopra il perché). Il bordo è arancio
+# poi "Then", gli oggetti che mancano con quanti (in rosso quelli fermi: in fondo al loro suggerimento il perché). Il bordo è arancio
 # se ci si lavora, rosso se è ferma. Cliccato apre il menu della postazione (lo scrittoio: la Conoscenza)
 func shop_card(kind: Build, s: Dictionary) -> PanelContainer:
 	var workers: Array = s["workers"]
@@ -4462,7 +4432,6 @@ func shop_card(kind: Build, s: Dictionary) -> PanelContainer:
 	style.set_border_width_all(2)
 	style.set_content_margin_all(8)
 	card.add_theme_stylebox_override("panel", style)
-	card.tooltip_text = tr("Click: what to make")
 	card.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	card.gui_input.connect(func(event):
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
@@ -4477,6 +4446,7 @@ func shop_card(kind: Build, s: Dictionary) -> PanelContainer:
 	var tile := icon_tile(kind_buttons[furniture[piece][0]].icon, Rect2(), 48, edge if edge != CENSUS_BORDER else TILE_EDGE)
 	tile.name = "Tile"
 	tile.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	tip(tile, "build", Build, furniture[piece][0])
 	row.add_child(tile)
 	var lines := VBoxContainer.new()
 	lines.name = "Lines"
@@ -4507,7 +4477,7 @@ func shop_card(kind: Build, s: Dictionary) -> PanelContainer:
 		now.add_child(who)
 		var made := making(c)
 		var what := ui_icon(ICONS[made], Rect2(), Vector2(32, 32))
-		what.tooltip_text = named(Res, made, "item")
+		tip(what, "item", Res, made)
 		now.add_child(what)
 		var bar := work_bar()
 		bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -4545,7 +4515,7 @@ func shop_card(kind: Build, s: Dictionary) -> PanelContainer:
 		for item in queue.slice(0, SHOP_QUEUE):
 			var chip := icon_tile(ICONS[item[0]], Rect2(), 32, MAKE_STUCK if item[2] != "" else TILE_EDGE)
 			chip.name = Res.keys()[item[0]].capitalize()
-			chip.tooltip_text = named(Res, item[0], "item") + ("\n" + item[2] if item[2] != "" else "")
+			tips.attach(chip, glossary.key_of("item", Res, item[0]), item[2])  # il suo suggerimento, e in fondo perché è fermo
 			next.add_child(chip)
 			var count := Label.new()
 			count.text = str(item[1])
@@ -4827,7 +4797,7 @@ func draw_chains(tree: Control) -> void:
 
 
 # Il riquadro di un bene nelle Catene: l'icona, il nome e quanti ce ne sono (con la scorta, "6 / 10", se ne ha una o ne
-# mancano). Il bordo ha il colore del suo stato (vedi chain_mood). Col mouse sopra cosa ci vuole e perché è fermo;
+# mancano). Il bordo ha il colore del suo stato (vedi chain_mood). Col mouse sopra il suo suggerimento, con in fondo perché è fermo;
 # cliccato, se lo si sa fare, apre il menu della sua postazione
 func chain_box(res: Res, rect: Rect2) -> PanelContainer:
 	var mood := chain_mood(res)
@@ -4857,15 +4827,13 @@ func chain_box(res: Res, rect: Rect2) -> PanelContainer:
 	count.name = "Count"
 	count.text = chain_count(res)
 	var have: int = make_state(res)["have"] if craftable(res) else total(res)
+	tips.attach(box, glossary.key_of("item", Res, res), make_state(res)["block"] if craftable(res) else "")
 	if craftable(res):
-		box.tooltip_text = chain_tip(res, make_state(res)["block"])
 		box.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		box.gui_input.connect(func(event):
 			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 				box.accept_event()
 				open_shop(station_of(res)))
-	else:
-		box.tooltip_text = named(Res, res, "item")
 	ink(count, TREND_DOWN if mood == "stuck" else (TREND_UP if mood == "done" else (CENSUS_DIM if have == 0 else null)))
 	row.add_child(count)
 	for node in row.find_children("*", "Control", true, false) + [row]:
@@ -4880,7 +4848,7 @@ func chain_tile(res: Res) -> PanelContainer:
 	var s := make_state(res)
 	var tile := icon_tile(ICONS[res], Rect2(), 32, CHAIN_COLORS[mood] if mood != "idle" else TILE_EDGE)
 	tile.name = Res.keys()[res].capitalize()
-	tile.tooltip_text = chain_tip(res, s["block"])
+	tips.attach(tile, glossary.key_of("item", Res, res), s["block"])
 	tile.get_child(0).modulate.a = 0.4 if mood == "idle" and s["have"] == 0 else 1.0
 	tile.get_child(0).mouse_filter = Control.MOUSE_FILTER_IGNORE
 	tile.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
@@ -4913,7 +4881,7 @@ func chain_station(kind: Build, made: Array, rect: Rect2) -> PanelContainer:
 	tile.get_child(0).mouse_filter = Control.MOUSE_FILTER_IGNORE
 	tile.modulate.a = 0.45 if pieces.is_empty() else 1.0
 	var block := "" if not stations(kind).is_empty() else (station_block(pieces[0]) if not pieces.is_empty() else tr("Not built yet"))
-	tile.tooltip_text = named(Build, kind) + ("\n" + block if block != "" else "")
+	tips.attach(tile, glossary.key_of("build", Build, kind), block)
 	if not pieces.is_empty():
 		tile.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		tile.gui_input.connect(func(event):
@@ -4921,16 +4889,6 @@ func chain_station(kind: Build, made: Array, rect: Rect2) -> PanelContainer:
 				tile.accept_event()
 				open_shop(kind))
 	return tile
-
-
-# il suggerimento di un bene che si fa, nelle Catene: il nome, dove, cosa ci vuole e, se è fermo, perché (`block`)
-func chain_tip(res: Res, block: String) -> String:
-	var takes: String = tr("%d raw, one kind") % COOK_RAW
-	if res != Res.MEAL:
-		var needs := needs_of(recipe_of(res))
-		takes = ", ".join(needs.keys().map(func(key): return "%d %s" % [needs[key], tr(GROUP_NAMES[key]) if GROUPS.has(key) else res_name(key)]))
-	return "%s (%s)\n%s%s" % [named(Res, res, "item"), named(Build, station_of(res)).to_lower(), tr("Takes: %s") % takes,
-		"\n" + block if block != "" else ""]
 
 
 # Finestra del pascolo (clic su una sua casella): l'erba, poi per specie quanti ce ne sono e quanti adulti tenerne
@@ -5101,15 +5059,18 @@ func fill_sheet(box: Control, c: Colonist) -> void:
 			else tr("%d of %d XP to level %d") % [floori(c.xp[s]), XP_STEP * (c.skills[s] + 1), c.skills[s] + 1]
 		level.mouse_filter = Control.MOUSE_FILTER_PASS  # se no il suggerimento non compare
 		var star := ui_icon(STAR if c.skills[s] == SKILL_MAX else null, Rect2(), Vector2(18, 18))  # vuota, tiene la colonna
-		for node in [ui_icon(SKILLS_SHEET, Rect2(s * 8, 0, 8, 8), Vector2(16, 16)), skill, level, star]:
+		var skill_icon := ui_icon(SKILLS_SHEET, Rect2(s * 8, 0, 8, 8), Vector2(16, 16))
+		tip(skill_icon, "skill", Skill, s)
+		tip(skill, "skill", Skill, s)
+		for node in [skill_icon, skill, level, star]:
 			skills_grid.add_child(node)
 	for t in c.traits:
 		var icon := ui_icon(TRAITS_SHEET, Rect2(tile_rect(t, 0)), Vector2(32, 32))
-		icon.tooltip_text = "%s\n%s" % [named(Trait, t), tr(TRAIT_INFO[t])]
+		tip(icon, "trait", Trait, t)
 		traits_box.add_child(icon)
 	for g in c.gifts:  # degli avventurieri
 		var icon := ui_icon(HERO_TRAITS_SHEET, Rect2(tile_rect(g, 0)), Vector2(32, 32))
-		icon.tooltip_text = "%s\n%s" % [named(Gift, g), tr(GIFT_INFO[g])]
+		tip(icon, "gift", Gift, g)
 		traits_box.add_child(icon)
 	traits_box.get_parent().visible = not (c.traits.is_empty() and c.gifts.is_empty())  # col titolo "Traits"
 	var hours: Control = box.get_node("Routine/Hours")  # una casella per ora, colorata secondo la routine
@@ -5227,12 +5188,11 @@ func update_conds(box: Control, c: Colonist) -> void:
 		for icon in icons.get_children():
 			icon.mouse_filter = Control.MOUSE_FILTER_PASS
 	for i in now.size():
-		icons.get_child(i).tooltip_text = tr("%s\n%s\n%d h left") % [named(Cond, now[i]), tr(COND_INFO[now[i]][4]),
-			ceili((c.conds[now[i]] - clock) * 24)]
+		tips.attach(icons.get_child(i), glossary.key_of("cond", Cond, now[i]), tr("%d h left") % ceili((c.conds[now[i]] - clock) * 24))
 	for i in laws.size():
 		var mood := law_mood_of(c, laws[i])
-		icons.get_child(now.size() + i).tooltip_text = tr("%s: %s\n%s happiness while it is in force") % [
-			tr("Approves") if mood > 0 else tr("Disapproves"), law_name(laws[i]), signed(mood)]
+		tips.attach(icons.get_child(now.size() + i), glossary.key_of("law", Law, laws[i]),
+			tr("%s: %s happiness while it is in force") % [tr("Approves") if mood > 0 else tr("Disapproves"), signed(mood)])
 	icons.get_parent().visible = not (now.is_empty() and laws.is_empty())  # col titolo "Conditions"
 
 
@@ -5554,8 +5514,7 @@ func refresh_priorities() -> void:
 		priority_grid.add_child(Control.new())  # sopra i nomi
 		for w in WORK_ORDER:
 			var icon := ui_icon(WORK_ICONS[w], Rect2(), Vector2(16, 16))
-			icon.tooltip_text = "%s\n%s" % [named(Work, w, "work"), tr(WORK_INFO[w])]
-			icon.mouse_filter = Control.MOUSE_FILTER_STOP  # il suggerimento
+			tip(icon, "work", Work, w)
 			priority_grid.add_child(icon)
 		for c in colonists:
 			var label := Label.new()
@@ -10825,13 +10784,11 @@ func board_card(g: Colonist) -> PanelContainer:
 	if hero:
 		for gift_kind in g.gifts:
 			var icon := ui_icon(HERO_TRAITS_SHEET, Rect2(tile_rect(gift_kind, 0)), Vector2(32, 32))
-			icon.tooltip_text = "%s\n%s" % [named(Gift, gift_kind), tr(GIFT_INFO[gift_kind])]
-			icon.mouse_filter = Control.MOUSE_FILTER_PASS
+			tip(icon, "gift", Gift, gift_kind)
 			bottom.add_child(icon)
 		for t in g.traits:
 			var icon := ui_icon(TRAITS_SHEET, Rect2(tile_rect(t, 0)), Vector2(32, 32))
-			icon.tooltip_text = "%s\n%s" % [named(Trait, t), tr(TRAIT_INFO[t])]
-			icon.mouse_filter = Control.MOUSE_FILTER_PASS
+			tip(icon, "trait", Trait, t)
 			bottom.add_child(icon)
 		var gap := Control.new()
 		gap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -10846,8 +10803,7 @@ func board_card(g: Colonist) -> PanelContainer:
 		for s in [Skill.MELEE, Skill.RANGED]:
 			var icon := ui_icon(SKILLS_SHEET, Rect2(s * 8, 0, 8, 8), Vector2(16, 16))
 			icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-			icon.tooltip_text = named(Skill, s, "skill")
-			icon.mouse_filter = Control.MOUSE_FILTER_PASS
+			tip(icon, "skill", Skill, s)
 			bottom.add_child(icon)
 			var level := Label.new()
 			level.text = str(g.skills[s])
@@ -11757,6 +11713,11 @@ func revoke(law: Law) -> void:
 		laws_key = ""
 
 
+# il suggerimento annidato della cosa `value` (dell'enum `names`, del tipo `kind` del glossario) su `control`
+func tip(control: Control, kind: String, names: Dictionary, value: int) -> void:
+	tips.attach(control, glossary.key_of(kind, names, value))
+
+
 # suggerimento di una legge: cosa fa, a chi piace e a chi no, cosa serve
 func law_tip(law: Law) -> String:
 	var mood: Dictionary = LAWS[law].get("mood", {})
@@ -11914,8 +11875,7 @@ func tech_card(t: Tech) -> Button:
 		row.modulate = Color(1, 1, 1, 0.45)
 	for node in row.find_children("*", "Control", true, false) + [row]:
 		node.mouse_filter = Control.MOUSE_FILTER_IGNORE  # i clic e il mouse sopra al riquadro
-	card.tooltip_text = "%s\n%s%s%s" % [tr(data["info"]), unlocks_text(t), tr("\nTier %s") % ["I", "II", "III", "IV"][data["tier"] - 1],
-		"" if block in ["", tr("Studied")] else "\n" + block]
+	tip(card, "tech", Tech, t)
 	card.pressed.connect(research.bind(t))
 	card.mouse_entered.connect(func():
 		tech_hover = t
@@ -12054,14 +12014,14 @@ func fill_laws() -> void:
 				continue
 			var row := HBoxContainer.new()
 			var icon := ui_icon(LAWS_SHEET, Rect2(tile_rect(law, 0)), Vector2(32, 32))
-			icon.tooltip_text = law_tip(law)
+			tip(icon, "law", Law, law)
 			row.add_child(icon)
 			var name := Label.new()
 			name.text = law_name(law)
 			name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			name.custom_minimum_size.x = 200
 			name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-			name.tooltip_text = law_tip(law)
+			tip(name, "law", Law, law)
 			name.mouse_filter = Control.MOUSE_FILTER_PASS
 			if enacted.has(law):
 				name.add_theme_color_override("font_color", SPLENDOR_COLOR)

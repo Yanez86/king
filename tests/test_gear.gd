@@ -182,7 +182,7 @@ func _initialize() -> void:
 		"all'incudine mancano un piccone, un'ascia, tre elmi e tre corpetti, tutti fermi senza lingotti")
 	var card: Control = shops.get_node("Anvil")
 	check(card.get_theme_stylebox("panel").border_color == main.MAKE_STUCK and card.get_node("Row/Lines/Idle").text == "Short of ingot: takes 2, 0 free"
-		and card.get_node("Row/Lines/Next").get_child_count() == 1 + 2 * 4 and card.get_node("Row/Lines/Next/Chainmail").tooltip_text.contains("Short of ingot")
+		and card.get_node("Row/Lines/Next").get_child_count() == 1 + 2 * 4 and card.get_node("Row/Lines/Next/Chainmail").get_meta("tip") == "item:CHAINMAIL" and card.get_node("Row/Lines/Next/Chainmail").get_meta("tip_note").contains("Short of ingot")
 		and card.get_node("Row/Lines/Head/Name").text == "Anvil" and card.get_node("Row/Lines/Head/Where").text == "Forge",
 		"il riquadro dell'incudine: rosso, col perché e gli oggetti che mancano")
 	card = shops.get_node("Furnace")
@@ -218,8 +218,9 @@ func _initialize() -> void:
 		and tree.get_node("Coal").get_theme_stylebox("panel").border_color == main.CHAIN_COLORS["done"],
 		"i riquadri: il lingotto d'oro, 0 su 10; il ferro che c'è; il carbone verde")
 	check(tree.has_node("Station Ingot") and tree.get_node("Pickaxe").get_theme_stylebox("panel").border_color == main.CHAIN_COLORS["stuck"]
-		and tree.get_node("Pickaxe").tooltip_text.contains("Short of ingot") and tree.get_node("Ingot").tooltip_text.contains("Takes: 1 iron, 1 coal"),
-		"davanti al lingotto la sua fornace; il piccone tra gli oggetti dell'incudine, rosso, col perché")
+		and tree.get_node("Pickaxe").get_meta("tip") == "item:PICKAXE" and tree.get_node("Pickaxe").get_meta("tip_note").contains("Short of ingot")
+		and tree.get_node("Ingot").get_meta("tip") == "item:INGOT" and tree.get_node("Station Ingot").get_meta("tip") == "build:FURNACE",
+		"davanti al lingotto la sua fornace; il piccone tra gli oggetti dell'incudine, rosso, col perché; ognuno col suo suggerimento")
 	var wanted: Array = main.chain_links.filter(func(l): return l[2] == "want")
 	check(wanted.size() == 3 and wanted.any(func(l): return l[1] == Vector2(ingot_box.position.x, ingot_box.position.y + ingot_box.size.y / 2)),
 		"i collegamenti d'oro: dal ferro e dal carbone alla fornace, e da lì al lingotto")

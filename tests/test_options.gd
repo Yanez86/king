@@ -230,10 +230,10 @@ func _initialize() -> void:
 	press(main, KEY_F1)
 	check(wiki.visible and main.get_node("HUD/TopBar/Row/Wiki").button_pressed, "F1 apre la Wiki")
 	check(topics.item_count == main.WIKI.PAGES.size() and topics.item_count > 5 and topics.is_selected(0), "argomenti, il primo scelto")
-	check(wiki.get_node("Box/Body/Text").text == main.WIKI.PAGES[0][1], "la sua pagina")
+	check(wiki.get_node("Box/Body/Text").text == main.glossary.wikify(main.WIKI.PAGES[0][1]), "la sua pagina, coi collegamenti")
 	topics.select(2)
 	topics.item_selected.emit(2)
-	check(wiki.get_node("Box/Body/Text").text == main.WIKI.PAGES[2][1], "un'altra voce, un'altra pagina")
+	check(wiki.get_node("Box/Body/Text").text == main.glossary.wikify(main.WIKI.PAGES[2][1]), "un'altra voce, un'altra pagina")
 	wiki.get_node("Box/Head/Close").pressed.emit()
 	check(not wiki.visible and not main.get_node("HUD/TopBar/Row/Wiki").button_pressed, "la X la chiude, tasto su")
 

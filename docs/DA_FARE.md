@@ -256,6 +256,13 @@ italiano: scheda del colono a due colonne, data e meteo di nuovo nella barra in 
   giocando col mouse vero (i clic sui riquadri, il trascinamento delle finestre), in inglese e con colonie grandi; il
   fumetto col punto esclamativo che resta finché manca un ingrediente (l'unguento d'inverno) è da tarare.
 - [ ] Le animazioni dell'interfaccia (fatte il 2026-11-20, vedi [TECH](TECH.md)): una voce nelle opzioni per spegnerle.
+- [x] Suggerimenti annidati come in Crusader Kings, fase 1: Conoscenza e Leggi (vedi [TECH](TECH.md)).
+- [x] Suggerimenti annidati, fase 2: mobili da costruire, menu delle postazioni, scheda del colono, risorse, colonne
+  dei lavori, bacheca.
+- [x] Suggerimenti annidati, fase 3: la wiki in gioco, i nomi delle cose come collegamenti (un clic apre la pagina).
+- [ ] Rileggere in gioco i collegamenti della wiki nelle due lingue: i nomi che sono anche parole comuni (vedi
+  [TECH](TECH.md), «La wiki coi collegamenti») e le pagine dove un clic porta.
+- [ ] Provare col mouse vero i suggerimenti annidati (provati chiamando update con tempo e mouse finti).
 
 ## Distribuzione
 

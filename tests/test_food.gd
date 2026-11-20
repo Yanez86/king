@@ -234,7 +234,7 @@ func _initialize() -> void:
 	main.open_sheet(hungry)
 	main._process(0.0)
 	var icons: Array = main.get_node("HUD/ColonistSheet/Box/Conditions/Icons").get_children()
-	check(icons.size() == hungry.conds.size() and icons.any(func(i): return i.tooltip_text.begins_with("At Table\n")), "condizioni nella scheda")
+	check(icons.size() == hungry.conds.size() and icons.any(func(i): return i.get_meta("tip") == "cond:AT_TABLE"), "condizioni nella scheda")
 	main.open_sheet(glutton)
 	glutton.conds.clear()
 	main._process(0.0)
@@ -242,7 +242,7 @@ func _initialize() -> void:
 	main.add_cond(glutton, main.Cond.POISONED)
 	main._process(0.0)
 	icons = main.get_node("HUD/ColonistSheet/Box/Conditions/Icons").get_children()
-	check(icons.size() == 1 and icons[0].tooltip_text.ends_with("24 h left"), "appena intossicato: un giorno")
+	check(icons.size() == 1 and icons[0].get_meta("tip") == "cond:POISONED" and icons[0].get_meta("tip_note") == "24 h left", "appena intossicato: un giorno")
 	check(main.Res.values().all(func(r): return main.ICONS.has(r) and main.STACK_MAX.has(r) and main.items.has(r)), "ogni risorsa ha icona e mucchio")
 
 	# Harvest: i cespugli segnati si raccolgono ogni volta che maturano, e le bacche vanno in magazzino

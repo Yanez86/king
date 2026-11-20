@@ -244,6 +244,53 @@ dal primo istante, e finita l'animazione tutto è com'era. Vanno col tempo vero,
 - Un'animazione nuova sostituisce quella che il controllo stava facendo (`hud_tween`, che la tiene nel suo `meta`). Le
   prove non aspettano il tempo, che lì non scorre come nel gioco: le fanno avanzare con `custom_step`.
 - Poi: una voce nelle opzioni per spegnerle.
+## Suggerimenti annidati (come Crusader Kings)
+Deciso il 2026-11-20. Un suggerimento può nominare altre cose del gioco (una ricerca, una legge, un mobile, un oggetto,
+una stanza, una condizione, un talento, un dono degli avventurieri, un'abilità, un lavoro, un concetto come
+l'autorità): quei nomi sono
+collegamenti, e col mouse sopra aprono il loro suggerimento, che può nominarne altre, e così via.
+- **Comparire e bloccarsi**: col mouse fermo su una cosa il suggerimento compare dopo 0,4 s, vicino al mouse. Dopo altri
+  0,8 s si **blocca**: una barretta in cima si riempie mentre aspetta, d'oro piena quando è bloccato. Bloccato non
+  scompare più finché il mouse sta sulla cosa o sul suggerimento, e ci si può entrare col mouse. Non bloccato, uscendo
+  dalla cosa scompare (come i suggerimenti di prima). Il tempo è quello vero: va anche col gioco in pausa. Il primo
+  sta sotto il mouse, o sopra se sotto non ci sta (la barra in basso), senza coprire la cosa. La cornice è quella delle
+  finestre ma piena (quella delle finestre lascia intravedere sotto: sopra una finestra non si leggerebbe).
+- **I collegamenti**: nel testo i nomi delle cose sono in oro, sottolineati, con l'icona davanti quando c'è. Col mouse
+  fermo su un collegamento per 0,3 s si apre il suo suggerimento accanto (a destra di quello di prima, a sinistra se
+  non ci sta), all'altezza del mouse; anche lui si blocca dopo 0,8 s. Non c'è un limite di livelli.
+- **Chiudersi**: un suggerimento resta aperto finché il mouse è su di lui, su uno dopo di lui o su quello che l'ha
+  aperto (la cosa, o il suo collegamento nel suggerimento prima). Fuori da tutto questo per 0,25 s si chiude, e con lui
+  quelli dopo; tornando su un suggerimento di prima si chiudono quelli dopo.
+- **Il contenuto** lo fa un glossario (`glossary.gd`) dalle tabelle del gioco, così resta sempre vero: per una ricerca
+  cosa fa, livello e costo, cosa serve prima, cosa sblocca (mobili, oggetti, stanze, leggi) e quali vengono dopo; per
+  una legge cosa fa, costo in autorità, cosa serve (titolo, legge, ricerca, mobile) e chi è contento; per un mobile
+  cosa fa, costo, la ricerca, le stanze che lo vogliono, cosa ci si fa; per un oggetto il tipo, quanto sazia e dura,
+  dove si fa e con cosa, a cosa serve; per una stanza i mobili che vuole; per condizioni, talenti, abilità e lavori il
+  loro testo; più alcuni concetti (autorità, studio, sigilli, titoli, splendore, comfort, felicità) con un testo loro.
+  La chiave di un collegamento è `tipo:NOME` (per esempio `tech:STONE_OVEN`, `build:OVEN`, `concept:authority`).
+  Quello che cambia sta in una **nota** in fondo, data da chi attacca il suggerimento: alle condizioni nella scheda le
+  ore che mancano, alle leggi nella scheda se al colono piacciono e quanto.
+- **Un clic** su un collegamento (in un suggerimento o nella wiki) apre la wiki alla pagina che ne parla, alla sua
+  sezione: quella che ha il nome nel titolo di una sezione, se no la pagina che lo nomina più volte (a pari, la prima),
+  alla sezione della prima volta.
+- **La wiki coi collegamenti**: i testi della wiki restano scritti a mano (`wiki.gd`, `locale/wiki_<lingua>.gd`); i
+  collegamenti li mette il gioco mostrando la pagina, cercando i nomi delle cose nella lingua attuale (i più lunghi
+  prima: «forno di pietra» prima di «forno»), maiuscole o minuscole, a parola intera, solo la prima volta per paragrafo,
+  mai nei titoli, nelle intestazioni colorate delle tabelle e nelle immagini. Se due cose hanno lo stesso nome vince
+  nell'ordine concetto, mobile, stanza, oggetto, legge, ricerca (lo Studio è i punti, la Locanda la stanza). Condizioni,
+  talenti, doni e abilità solo scritti come nel gioco, con la maiuscola (se no sono parole: «medico», «tiro»); i lavori
+  no (sono anche i comandi della barra in basso). Alcuni nomi minuscoli sono un'altra parola e vanno solo con la
+  maiuscola: in inglese gold, hide, table, target, court; in italiano oro («d'oro»), porta (il verbo), guida, caccia,
+  corte, cucina, taglia.
+- **Dove**: (fase 1) la finestra Conoscenza e quella delle Leggi; (fase 2) i mobili da costruire, i menu delle
+  postazioni, la scheda del colono (condizioni, talenti, abilità), le risorse, le colonne dei lavori; (fase 3) la wiki in
+  gioco: i nomi delle cose diventano collegamenti, e un clic su un collegamento apre la sua pagina.
+- **Ordine di lavoro**: (1) il meccanismo (comparire, bloccarsi, collegamenti, livelli, chiusura) e il glossario, con
+  Conoscenza e Leggi; (2) gli altri posti; (3) la wiki.
+- **Stato**: fatte tutte e tre le fasi (`nested_tips.gd`, `glossary.gd`, prove in `tests/test_tips.gd`). I pulsanti
+  di costruzione hanno il suggerimento annidato al posto di quello fatto a mano (stesso contenuto, più ricerca, stanze
+  e cosa ci si fa). Restano col suggerimento semplice le cose che non sono del glossario: equipaggiamento, figurine,
+  ingredienti a scelta («uno qualsiasi di»), comandi, contatori.
 
 ## Versionamento
 - Git + GitHub (`Yanez86/king`).
