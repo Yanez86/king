@@ -145,6 +145,41 @@ le finestre in un menu che scompare, in basso a destra il tempo, in alto le info
   mobile, poi la struttura (`erase_piece`); la gomma e Maiusc usano `erase_area`. Il clic sulla mappa prende il punto
   dall'evento (`map_point`), non dal mouse: le prove possono così cliccare e trascinare sulla mappa (`map_click`).
 
+## Interfaccia: la produzione
+Deciso il 2026-11-20 (bozzetti provati sulle schermate). L'idea: della produzione si deve vedere, senza andarlo a
+cercare, quanto c'è, quanto se ne vuole, chi lo sta facendo e perché una cosa non si fa. Quattro pezzi con gli stessi
+segni: il riquadro dell'icona, le tacche (una per pezzo: piena quello che c'è, a metà quello in lavorazione, vuota
+quello che manca) e quattro colori (oro si vuole, arancio si sta facendo, rosso è fermo, verde è a posto).
+- **Il menu della postazione** (clic su una postazione, come ora). In testa il suo disegno, il nome, la stanza col
+  comfort e chi ci lavora adesso; la riga rossa di quando non lavora (fuori dalla sua stanza, la ruota ferma) resta.
+  Poi una riga per oggetto, con le colonne allineate: il riquadro con l'icona, il tipo e il nome (col mouse sopra
+  l'effetto del pezzo); **Ci vuole**, gli ingredienti con le icone grandi, in rosso quello che nei mucchi liberi non
+  basta; **Ce ne sono**, le tacche e «2 / 4», quanti ce ne sono su quanti se ne vogliono (verde se è a posto, «non si
+  fa» se non se ne vogliono); **Coloni**, quanti lo prenderebbero (solo l'equipaggiamento: oggi si sommano a «Keep»
+  senza farsi vedere, e non si capisce perché si fa un elmo con la scorta a 0); **Scorta**, quanti tenerne, con − e +
+  al posto di «Keep N». Sotto la riga, solo quando c'è qualcosa da dire: chi lo sta facendo, con la barra e i secondi
+  che mancano, o in rosso perché è fermo («servono 6 lingotti, liberi ce ne sono 3»). Il pasto dice «2 crudi uguali»
+  e sotto i crudi che ci sono. Si aggiorna mentre è aperto.
+- **La finestra Produzione**, nel menu a sinistra dopo le Risorse (tasto R), con due schede.
+  - **Officine**: un riquadro per tipo di postazione costruita, col suo disegno, il nome e la stanza: chi ci lavora e
+    a che punto è (figurina, oggetto, barra), «Poi» gli oggetti che mancano (icona e quanti; in rosso quelli fermi,
+    col perché), oppure «Libera» o «Niente da fare». Il bordo: arancio se ci si lavora, rosso se è ferma. In alto il
+    conto: al lavoro, in coda, ferme. Clic sul riquadro: il menu della postazione.
+  - **Catene**: dalle materie prime agli oggetti, a fasce (cucina, grano, metallo, filo e legno, cuoio e carte) come i
+    rami della Conoscenza. Un riquadro per bene (icona, nome, quanti ce ne sono, con la scorta se ne ha una) e, davanti
+    a ogni bene che si fa, il riquadro della postazione che lo fa; gli oggetti finiti di una stessa postazione stanno
+    insieme, solo icone. I collegamenti hanno il colore dello stato: oro si vuole e si può, arancio si sta facendo,
+    rosso è fermo, grigio non è chiesto. Si vedono solo le ricette sbloccate.
+- **Sulla mappa**: sopra la postazione dove si lavora un fumetto con l'oggetto e la barra (al posto della barretta
+  gialla sulla testa di chi lavora); sopra quella che ha qualcosa da fare e non può, un fumetto rosso con quello che
+  manca e il punto esclamativo. Le postazioni libere niente. Col mouse sopra, il riquadro in basso a destra dice chi
+  lavora e a cosa, e cosa viene dopo.
+- **Il perché** (`make_block`): la postazione non lavora; il quaderno senza abbastanza studio; un ingrediente che nei
+  mucchi liberi non basta (il primo che manca, con quanto ce n'è). Se non manca niente e nessuno lo fa, è in coda: lo
+  farà il primo che ha tempo.
+- **Ordine di lavoro**: (1) il menu della postazione; (2) la finestra Produzione con le Officine; (3) le Catene; (4) i
+  fumetti sulla mappa e il riquadro col mouse sopra.
+
 ## Versionamento
 - Git + GitHub (`Yanez86/king`).
 - Git LFS se gli asset binari crescono molto (non necessario ora).
