@@ -186,8 +186,32 @@ msgstr "Ruota a sinistra (E)"
 msgid "Rotate right (R)"
 msgstr "Ruota a destra (R)"
 
-msgid "Erase blueprint"
-msgstr "Cancella progetto"
+msgid "Eraser: drag to remove from the plan, even if confirmed"
+msgstr "Gomma: trascina per togliere dal progetto, anche confermato"
+
+msgid "The plan becomes work for the colonists"
+msgstr "Il progetto diventa lavoro per i coloni"
+
+msgid "Edit"
+msgstr "Modifica"
+
+msgid "Back to building, to change the plan"
+msgstr "Torna alla costruzione, per cambiare il progetto"
+
+msgid "Discard"
+msgstr "Scarta"
+
+msgid "Throw away the whole plan not yet confirmed"
+msgstr "Butta via tutto il progetto non ancora confermato"
+
+msgid "Right click: remove a piece\nShift + drag: remove an area"
+msgstr "Clic destro: togli un pezzo\nMaiusc + trascina: togli un'area"
+
+msgid "Cost:"
+msgstr "Costo:"
+
+msgid "%s: %d needed, %d in store"
+msgstr "%s: ne servono %d, in magazzino %d"
 
 msgid "Select"
 msgstr "Seleziona"

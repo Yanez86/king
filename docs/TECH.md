@@ -138,6 +138,12 @@ le finestre in un menu che scompare, in basso a destra il tempo, in alto le info
   largo un pixel in più per lato (se no il contorno di uno sprite che tocca il bordo, come la quercia, resta tagliato),
   e `draw_outline` li disegna un pixel più grandi, tinti col colore dell'ordine, subito dopo lo sprite. La caccia è
   passata a un rosso aranciato (`ff6a40`): il marrone di prima sul coniglio non si vedeva.
+  Fatta la fase 3 lo stesso giorno (prove in `tests/test_jobs.gd`, il salvataggio in `tests/test_saves.gd`): chiudere la
+  costruzione non scarta più `draft` e `furniture_draft` (che si salvavano già). La targa è `$HUD/Actions`, rifatta da
+  `update_plate` solo quando cambia quello che dice; in costruzione senza progetto dice come si toglie. Il clic
+  destro conta se lo si lascia entro 4 pixel da dove lo si è premuto (se no era la telecamera) e toglie prima il
+  mobile, poi la struttura (`erase_piece`); la gomma e Maiusc usano `erase_area`. Il clic sulla mappa prende il punto
+  dall'evento (`map_point`), non dal mouse: le prove possono così cliccare e trascinare sulla mappa (`map_click`).
 
 ## Versionamento
 - Git + GitHub (`Yanez86/king`).

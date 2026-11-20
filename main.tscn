@@ -1,4 +1,4 @@
-[gd_scene load_steps=109 format=3]
+[gd_scene load_steps=110 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Script" path="res://columns.gd" id="columns"]
@@ -46,6 +46,7 @@
 
 [ext_resource type="Texture2D" path="res://art/icon_orders.png" id="orders_icon"]
 [ext_resource type="Texture2D" path="res://art/icon_views.png" id="views_icon"]
+[ext_resource type="Texture2D" path="res://art/icon_eraser.png" id="eraser_icon"]
 [ext_resource type="Texture2D" path="res://art/icon_parchment.png" id="chronicle_icon"]
 
 [sub_resource type="AtlasTexture" id="HandsSlot"]
@@ -1030,29 +1031,57 @@ icon = ExtResource("10")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Actions" type="HBoxContainer" parent="HUD"]
+[node name="Actions" type="PanelContainer" parent="HUD"]
 visible = false
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_top = 64.0
-offset_bottom = 104.0
+offset_bottom = 64.0
 grow_horizontal = 2
+theme_type_variation = &"Bar"
+
+[node name="Box" type="VBoxContainer" parent="HUD/Actions"]
+theme_override_constants/separation = 4
+
+[node name="Summary" type="RichTextLabel" parent="HUD/Actions/Box"]
+mouse_filter = 1
+bbcode_enabled = true
+fit_content = true
+autowrap_mode = 0
+horizontal_alignment = 1
+scroll_active = false
+
+[node name="Row" type="HBoxContainer" parent="HUD/Actions/Box"]
+alignment = 1
 theme_override_constants/separation = 6
 
-[node name="Confirm" type="Button" parent="HUD/Actions"]
+[node name="Confirm" type="Button" parent="HUD/Actions/Box/Row"]
 custom_minimum_size = Vector2(120, 40)
 focus_mode = 0
+tooltip_text = "The plan becomes work for the colonists"
 text = "Build"
 icon = ExtResource("4")
 expand_icon = true
 
-[node name="Erase" type="Button" parent="HUD/Actions"]
+[node name="Edit" type="Button" parent="HUD/Actions/Box/Row"]
+custom_minimum_size = Vector2(100, 40)
+focus_mode = 0
+tooltip_text = "Back to building, to change the plan"
+text = "Edit"
+
+[node name="Discard" type="Button" parent="HUD/Actions/Box/Row"]
+custom_minimum_size = Vector2(100, 40)
+focus_mode = 0
+tooltip_text = "Throw away the whole plan not yet confirmed"
+text = "Discard"
+
+[node name="Erase" type="Button" parent="HUD/Actions/Box/Row"]
 custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
-tooltip_text = "Erase blueprint"
+tooltip_text = "Eraser: drag to remove from the plan, even if confirmed"
 toggle_mode = true
-icon = ExtResource("6")
+icon = ExtResource("eraser_icon")
 icon_alignment = 1
 expand_icon = true
 

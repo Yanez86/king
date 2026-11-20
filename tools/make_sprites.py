@@ -1466,6 +1466,27 @@ def orders_icon():
     return ["".join(r) for r in g]
 
 
+def eraser_icon():
+    """Icona 16x16 della gomma, che toglie pezzi dal progetto: un blocchetto di traverso, rosso con la fascia bianca in
+    basso a sinistra, l'ombra sul lato in basso; sotto, la riga cancellata; il contorno scuro attorno"""
+    g = [["."] * 16 for _ in range(16)]
+    for y in range(16):
+        for x in range(16):
+            px, py = x + 0.5 - 8.5, y + 0.5 - 7.0
+            u, v = (px - py) / 2 ** 0.5, (px + py) / 2 ** 0.5  # lungo la gomma (in su a destra) e di traverso
+            if abs(u) <= 6.0 and abs(v) <= 2.6:
+                shade = v > 1.0
+                g[y][x] = ("H" if shade else "h") if u < -1.6 else ("J" if shade else "j")
+    for x in range(1, 7):  # la riga cancellata, sotto la punta
+        g[14][x] = "R"
+    for y in range(16):  # il contorno
+        for x in range(16):
+            if g[y][x] == "." and any(0 <= y + dy < 16 and 0 <= x + dx < 16 and g[y + dy][x + dx] not in ".oR"
+                                     for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                g[y][x] = "o"
+    return ["".join(r) for r in g]
+
+
 def views_icon():
     """Icona 16x16 del tasto Viste: un occhio, il bianco, l'iride azzurra con la pupilla e il riflesso"""
     rows = []
@@ -4519,6 +4540,7 @@ def main():
     images["icon_mine"] = pixels(art(MINE_ICON, 16, 16))
     images["icon_orders"] = pixels(orders_icon())
     images["icon_views"] = pixels(views_icon())
+    images["icon_eraser"] = pixels(eraser_icon())
     images["icon_chop"] = pixels(art(CHOP_ICON, 16, 16))
     images["icon_uproot"] = pixels(art(UPROOT_ICON, 16, 16))
     images["icon_harvest"] = pixels(art(HARVEST_ICON, 16, 16))

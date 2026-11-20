@@ -1815,6 +1815,10 @@ var build_res := Res.WOOD
 var build_turn := 0         # quarti di giro in senso orario del prossimo mobile (E / R)
 var drag_start = null       # cella d'inizio della selezione, o null
 var drag_end := Vector2i.ZERO
+var drag_erase := false       # la selezione è della gomma (Maiusc in costruzione): toglie dal progetto
+var right_from := Vector2.INF  # dove si è premuto il destro: lasciato lì, senza trascinare, toglie un pezzo
+var discard_until := 0         # fino a quando (ms) Scarta aspetta il secondo clic, quello che scarta davvero
+var plate_key := ""            # quello che dice la targa del progetto: si rifà quando cambia
 var clock := 8.0 / 24       # giorni passati: la parte intera conta i giorni, quella decimale è l'ora
 var sky := CanvasModulate.new()   # tinge il mondo secondo SKY
 var sky_colors := Gradient.new()
@@ -1843,9 +1847,12 @@ var lights_canvas := Node2D.new()
 @onready var build_bar: Control = $HUD/BuildBar  # sopra le categorie: quella scelta
 @onready var furniture_bar: Control = $HUD/FurnitureBar
 @onready var materials: Control = $HUD/BuildBar/Row/Materials
-@onready var actions: Control = $HUD/Actions  # in alto al centro, sotto la barra: "Build" e la X rossa
-@onready var confirm: Button = $HUD/Actions/Confirm
-@onready var erase: Button = $HUD/Actions/Erase
+@onready var actions: Control = $HUD/Actions  # in alto al centro, sotto la barra: la targa del progetto, vedi update_plate
+@onready var plan_summary: RichTextLabel = $HUD/Actions/Box/Summary
+@onready var confirm: Button = $HUD/Actions/Box/Row/Confirm
+@onready var edit_button: Button = $HUD/Actions/Box/Row/Edit
+@onready var discard_button: Button = $HUD/Actions/Box/Row/Discard
+@onready var erase: Button = $HUD/Actions/Box/Row/Erase  # la gomma
 @onready var material_group: ButtonGroup = $HUD/BuildBar/Row/Materials/Wood.button_group
 @onready var kind_group: ButtonGroup = $HUD/BuildBar/Row/Wall.button_group  # anche dei mobili
 @onready var select_button: Button = tool("Select")  # la freccia, prima a sinistra: vedi select_tool
@@ -2059,6 +2066,8 @@ func _ready() -> void:
 	$HUD/BuildBar/Row/Materials/Wood.pressed.connect(choose_res.bind(Res.WOOD))
 	$HUD/BuildBar/Row/Materials/Stone.pressed.connect(choose_res.bind(Res.STONE))
 	confirm.pressed.connect(confirm_build)
+	edit_button.pressed.connect(func(): build_button.button_pressed = true)
+	discard_button.pressed.connect(discard_plan)
 	erase.toggled.connect(toggle_erase)
 	tool("Jobs").toggled.connect(jobs_panel.set_visible)
 	var jobs_box: Control = jobs_panel.get_node("Box")
@@ -2699,7 +2708,7 @@ func sync_select() -> void:
 
 
 # tasto "Build" (sega e martello) in basso a sinistra: sopra compaiono le categorie di costruzione, ancora nessuna
-# scelta. Chiuderlo chiude anche la categoria aperta e scarta il progetto non confermato
+# scelta. Chiuderlo chiude anche la categoria aperta; il progetto non confermato resta (vedi update_plate)
 func toggle_build(on: bool) -> void:
 	categories.visible = on
 	orders_button.disabled = on  # in costruzione non si danno ordini (Distruggi sì: la chiude)
@@ -2712,20 +2721,17 @@ func toggle_build(on: bool) -> void:
 		return
 	var open := category_group.get_pressed_button()
 	if open:
-		open.button_pressed = false  # nasconde la sua barra e "Build" al centro
-	draft.clear()  # chiudere senza confermare scarta il progetto
-	furniture_draft.clear()
+		open.button_pressed = false  # nasconde la sua barra
 	reset_choice()
 
 
 # categorie "Structures" (muro) e quelle dei mobili (FURNITURE_GROUPS), una alla volta: sopra compare la sua barra
-# (strutture e materiale, o il gruppo di mobili e le frecce per girarli), al centro "Build" e la X per cancellare.
-# Passando dall'una all'altra il progetto resta (es. un letto sul pavimento appena disegnato)
+# (strutture e materiale, o il gruppo di mobili e le frecce per girarli). Passando dall'una all'altra il progetto
+# resta (es. un letto sul pavimento appena disegnato)
 func toggle_category(on: bool, bar: Control) -> void:
 	bar.visible = on
 	if on:
 		reset_choice()  # il tipo scelto nell'altra barra qui non c'è
-	actions.visible = category_group.get_pressed_button() != null
 
 
 # una categoria dei mobili: la barra dei mobili col solo gruppo `group`
@@ -2831,7 +2837,7 @@ func choose_res(res: Res) -> void:
 	order = Order.BUILD  # da qui il trascinamento disegna il progetto
 
 
-# X rossa: finché è premuta il trascinamento cancella caselle del progetto
+# la gomma nella targa: finché è premuta il trascinamento cancella caselle del progetto
 func toggle_erase(on: bool) -> void:
 	if on:
 		order = Order.ERASE
@@ -3796,6 +3802,77 @@ func confirm_build() -> void:
 			furniture_plans[origin] = pieces[origin]
 
 
+# Scarta nella targa: il primo clic chiede conferma (il tasto dice "Sure?" per 3 s), il secondo butta via tutto il
+# progetto non ancora confermato; quello già diventato lavoro resta (si toglie con la gomma)
+func discard_plan() -> void:
+	if Time.get_ticks_msec() > discard_until:
+		discard_until = Time.get_ticks_msec() + 3000
+		discard_button.text = "Sure?"
+		return
+	discard_until = 0
+	discard_button.text = "Discard"
+	draft.clear()
+	furniture_draft.clear()
+
+
+# La targa del progetto, in alto al centro: c'è finché c'è un progetto da confermare, anche fuori dalla costruzione, e
+# mentre si costruisce. Sopra cosa c'è (l'icona del tipo e quanti) e quanto costa, in rosso quello che in magazzino non
+# basta; sotto Costruisci, Modifica (solo da fuori: riapre la costruzione), Scarta e la gomma (solo dentro)
+func update_plate() -> void:
+	var building := build_button.button_pressed
+	var empty := draft.is_empty() and furniture_draft.is_empty()
+	actions.visible = building or not empty
+	if not actions.visible:
+		return
+	confirm.disabled = empty
+	discard_button.disabled = empty
+	edit_button.visible = not building
+	erase.visible = building
+	if discard_until and Time.get_ticks_msec() > discard_until:
+		discard_until = 0
+		discard_button.text = "Discard"
+	var count := {}  # Build -> quanti pezzi (caselle per le strutture)
+	var cost := {}   # Res -> quanto
+	for layer in [draft, furniture_draft]:
+		for at in layer:
+			count[layer[at][0]] = count.get(layer[at][0], 0) + 1
+			var need := cost_of(layer[at])
+			for res in need:
+				cost[res] = cost.get(res, 0) + need[res]
+	var short := cost.keys().filter(func(res): return stored(res) < cost[res])
+	var key := str(count) + str(cost) + str(short) + TranslationServer.get_locale()
+	if key == plate_key:
+		return
+	plate_key = key
+	plan_summary.clear()
+	if empty:  # in costruzione, niente ancora: come si toglie
+		plan_summary.push_color(BUILD_INFO_COLOR)
+		plan_summary.add_text(tr("Right click: remove a piece\nShift + drag: remove an area"))
+		plan_summary.pop()
+		plan_summary.tooltip_text = ""
+		return
+	var kinds := count.keys()
+	kinds.sort()
+	var lines := []
+	for kind in kinds:
+		var button: Button = kind_buttons.get(kind)
+		if button and button.icon:
+			plan_summary.add_image(button.icon, 20, 20)
+		plan_summary.add_text(" %d   " % count[kind])
+		lines.append("%s: %d" % [named(Build, kind), count[kind]])
+	plan_summary.add_text("  " + tr("Cost:"))
+	lines.append("")
+	for res in cost:
+		if res in short:
+			plan_summary.push_color(BLOCKED_COLOR)
+		plan_summary.add_text(" %d " % cost[res])
+		plan_summary.add_image(ICONS[res], 20, 20)
+		if res in short:
+			plan_summary.pop()
+		lines.append(tr("%s: %d needed, %d in store") % [named(Res, res, "item"), cost[res], stored(res)])
+	plan_summary.tooltip_text = "\n".join(lines)
+
+
 # Tabella delle priorità in cima alla finestra Jobs: in testa le icone dei lavori (Work), poi una riga per colono col
 # nome e un tasto per lavoro, 1-4 o – per mai: clic per farlo dopo (1, 2, 3, 4, mai, di nuovo 1), clic destro per
 # farlo prima. Governare solo il sovrano. Si rifà quando cambiano i coloni, il sovrano o la lingua
@@ -4100,7 +4177,7 @@ func _process(delta: float) -> void:
 	if Engine.get_process_frames() % 30 == 0:  # il conto della manutenzione, ogni tanto: basta per il suggerimento
 		splendor_label.tooltip_text = splendor_tip()
 		update_dots()
-	confirm.disabled = draft.is_empty() and furniture_draft.is_empty()
+	update_plate()
 	if jobs_panel.visible:
 		refresh_priorities()
 		jobs_list.text = job_list()
@@ -10516,9 +10593,7 @@ func mark(rect: Rect2i) -> void:
 					if can_build(Vector2i(x, y), build_kind) and (edge or build_kind not in BARRIERS):
 						draft[Vector2i(x, y)] = [build_kind, build_res]  # sovrascrive: ripassando si cambia idea
 		Order.ERASE:
-			for x in range(rect.position.x, rect.end.x):
-				for y in range(rect.position.y, rect.end.y):
-					erase_plan(Vector2i(x, y))
+			erase_area(rect)
 		Order.DEMOLISH:  # subito, senza recuperare il materiale; anche l'orto, con quello che ci cresce
 			for cell in garden.keys().filter(func(k): return rect.has_point(k)):
 				garden.erase(cell)
@@ -10540,18 +10615,45 @@ func mark(rect: Rect2i) -> void:
 			update_rooms()
 
 
+# la gomma (o Maiusc + trascinamento in costruzione): toglie dal progetto tutto quello che c'è nel rettangolo
+func erase_area(rect: Rect2i) -> void:
+	for cell in cells_in(rect):
+		erase_plan(cell)
+
+
 # toglie la casella dal progetto, anche già confermato, coi mobili che la coprono
 func erase_plan(cell: Vector2i) -> void:
+	erase_structure_plan(cell)
+	erase_furniture_plan(cell)
+
+
+# il clic destro in costruzione: toglie dal progetto il pezzo sotto il mouse, il mobile se c'è (sta sopra il
+# pavimento), se no la struttura della casella
+func erase_piece(cell: Vector2i) -> void:
+	if not erase_furniture_plan(cell):
+		erase_structure_plan(cell)
+
+
+# la struttura in progetto in `cell`, anche confermata: il materiale già portato torna in magazzino
+func erase_structure_plan(cell: Vector2i) -> void:
 	draft.erase(cell)
 	if blueprints.erase(cell):
 		drop_job(cell, Job.BUILD)
 		give_back_delivered(Job.BUILD, cell)
+
+
+# i mobili in progetto che coprono `cell`, anche confermati; vero se ce n'era almeno uno
+func erase_furniture_plan(cell: Vector2i) -> bool:
+	var found := false
 	for origin in pieces_at(furniture_draft, cell):
 		furniture_draft.erase(origin)
+		found = true
 	for origin in pieces_at(furniture_plans, cell):
 		furniture_plans.erase(origin)
 		drop_job(origin, Job.FURNISH)
 		give_back_delivered(Job.FURNISH, origin)
+		found = true
+	return found
 
 
 # progetto tolto: il materiale già portato al cantiere torna a terra, i trasportatori lo riportano in magazzino
@@ -11009,10 +11111,14 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		match event.button_index:
 			MOUSE_BUTTON_LEFT:
-				var cell := cell_of(get_global_mouse_position())
+				var cell := cell_of(map_point(event))
 				var signed := rooms.filter(func(r): return r.sign == cell)
-				if event.pressed and order == Order.NONE:  # senza un'azione scelta il clic non segna niente: apre le schede
-					var picked := colonist_at(get_global_mouse_position())
+				if event.pressed and build_button.button_pressed and event.shift_pressed:  # in costruzione: gomma
+					drag_start = cell
+					drag_end = cell
+					drag_erase = true
+				elif event.pressed and order == Order.NONE:  # senza un'azione scelta il clic non segna niente: apre le schede
+					var picked := colonist_at(map_point(event))
 					var boards := pieces_at(furniture, cell).filter(func(o): return furniture[o][0] == Build.NOTICE_BOARD)
 					var seats := pieces_at(furniture, cell).filter(func(o): return SEAT_ROOM.has(furniture[o][0]))
 					if picked:
@@ -11032,16 +11138,26 @@ func _unhandled_input(event: InputEvent) -> void:
 				elif event.pressed:
 					drag_start = cell
 					drag_end = cell
+					drag_erase = false
 				elif drag_start != null:
-					mark(selection_rect())
+					if drag_erase:
+						erase_area(selection_rect())
+					else:
+						mark(selection_rect())
 					drag_start = null
+					drag_erase = false
+			MOUSE_BUTTON_RIGHT:  # in costruzione il destro lasciato dov'era (trascinato sposta la telecamera) toglie un pezzo
+				if event.pressed:
+					right_from = event.position
+				elif build_button.button_pressed and event.position.distance_to(right_from) < 4:
+					erase_piece(cell_of(map_point(event)))
 			MOUSE_BUTTON_WHEEL_UP:
 				if event.pressed: zoom_by(1.1)
 			MOUSE_BUTTON_WHEEL_DOWN:
 				if event.pressed: zoom_by(1 / 1.1)
 	elif event is InputEventMouseMotion:
 		if drag_start != null:
-			drag_end = cell_of(get_global_mouse_position())
+			drag_end = cell_of(map_point(event))
 	elif event is InputEventPanGesture:      # trackpad: due dita
 		camera.position += event.delta * 10 / camera.zoom
 	elif event is InputEventMagnifyGesture:  # trackpad: pizzico
@@ -11064,12 +11180,17 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_R: turn(1)
 
 
+# il punto della mappa sotto il mouse dell'evento: come get_global_mouse_position, ma le prove possono dare l'evento
+func map_point(event: InputEventMouse) -> Vector2:
+	return get_canvas_transform().affine_inverse() * event.position
+
+
 func zoom_by(factor: float) -> void:
 	camera.zoom = (camera.zoom * factor).clamp(Vector2.ONE * 0.5, Vector2.ONE * 8)
 
 
 func selection_rect() -> Rect2i:
-	if order == Order.BUILD and FURNITURE.has(build_kind):  # un mobile: dove si lascia il tasto, grande quanto lui
+	if order == Order.BUILD and FURNITURE.has(build_kind) and not drag_erase:  # un mobile: dove si lascia il tasto, grande quanto lui
 		return piece_rect(drag_end, [build_kind, build_res, build_turn])
 	var r := Rect2i(drag_start, Vector2i.ZERO).expand(drag_end)
 	r.size += Vector2i.ONE  # include entrambe le celle agli estremi
@@ -11296,7 +11417,7 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 		draw_pieces(self, FURNITURE_SHEET, {at: plan}, Color(1, 1, 1, 0.6) if fits else Color(1, 0.3, 0.3, 0.6))
 	if drag_start != null:
 		var r := selection_rect()
-		draw_rect(Rect2(Vector2(r.position) * TILE, Vector2(r.size) * TILE), ORDER_COLORS[order], false, 1.0)
+		draw_rect(Rect2(Vector2(r.position) * TILE, Vector2(r.size) * TILE), ORDER_COLORS[Order.ERASE if drag_erase else order], false, 1.0)
 
 
 # colonna di PLANTS del cespuglio (o del lino, delle erbe) in `cell` senza bacche (fiori); quella dopo è con

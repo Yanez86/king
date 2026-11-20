@@ -87,6 +87,12 @@ func _initialize() -> void:
 	wolf.leave_at = main.clock + 1.0
 	main.tick(0.05)
 
+	# il progetto in blu non confermato resta nel salvataggio
+	var blue: Array = main.cells_in(Rect2i(mid - Vector2i(8, 8), Vector2i(16, 16))).filter(func(k): return main.can_build(k, main.Build.BED) \
+		and main.can_build(k + Vector2i.RIGHT, main.Build.BED))
+	main.draft[blue[0]] = [main.Build.WALL, main.Res.STONE]
+	main.furniture_draft[blue[1]] = [main.Build.LAMP, main.Res.WOOD, 0]
+
 	# salvato nella cartella della colonia e riletto
 	main.game_id = COLONY
 	var state: Dictionary = main.game_state()
@@ -118,6 +124,7 @@ func _initialize() -> void:
 	check(SAVES.pending.is_empty(), "lo stato l'ha preso _ready")
 	check(copy.game_id == COLONY, "la stessa colonia: si salva nella sua cartella")
 	check(copy.game_state() == state, "la partita ricaricata è la stessa")
+	check(copy.draft.get(blue[0]) == [main.Build.WALL, main.Res.STONE] and copy.furniture_draft.has(blue[1]), "col progetto in blu")
 	check(Engine.time_scale == 0.0, "e riparte in pausa")
 	Engine.time_scale = 1.0
 	check(copy.ruler == copy.colonists[0] and copy.ruler != main.ruler, "il sovrano: un oggetto nuovo, lo stesso dei coloni")

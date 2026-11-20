@@ -243,11 +243,9 @@ italiano: scheda del colono a due colonne, data e meteo di nuovo nella barra in 
 - [ ] Rivedere a 22 le schermate in inglese, le altre risoluzioni (1920×1080, 1366×768, finestre non 16:9) e i
   suggerimenti col mouse sopra (finora: scheda del colono e mobili).
 - [ ] Provare col mouse vero il trascinamento nella squadra della bacheca (provato solo chiamando le funzioni).
+- [ ] Provare col mouse vero il clic destro in costruzione: lasciato fermo toglie un pezzo dal progetto, trascinato
+  sposta la visuale (provato con eventi finti, la soglia è 4 pixel).
 - [ ] I contatori di studio e autorità nella barra in alto: vedi Ricerca.
-
-Barre, menu, segni e progetto (deciso il 2026-11-20, vedi [TECH](TECH.md)). Fase ancora da fare:
-
-- [ ] (3) Il progetto in blu che resta: la targa (Costruisci, Modifica, Scarta), il clic destro e la gomma.
 
 ## Distribuzione
 

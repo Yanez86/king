@@ -44,6 +44,7 @@ Col mouse sopra una figurina vedi la scheda; cliccando un nome la apri. Clicca d
 [color=#e8c34a]Mouse[/color]
 • Con Seleziona (la freccia), il clic sinistro apre le cose: la scheda di un colono, il cartello di una stanza, il menu di una postazione, la bacheca, uno scrittoio (Conoscenza) o un trono (Leggi). Un clic altrove chiude la scheda.
 • Con un ordine scelto (Costruisci, Distruggi, Scava...), trascina un rettangolo col tasto sinistro per segnare l'area.
+• In costruzione il clic destro (senza trascinare) toglie un pezzo dal progetto, Maiusc + trascinamento un'area.
 • Il riquadro in basso a destra, sopra la velocità, dice cosa c'è sotto il mouse: i tronchi rimasti in un albero, quanto è fresco un mucchio di cibo e così via.
 • Le finestre si possono trascinare; la X le chiude.
 
@@ -270,7 +271,9 @@ Lo annunciano una finestra e la cronaca; cambiano il nome del reame, il titolo d
 • Muri e pavimenti si fanno con legna o pietra (la pietra dopo la ricerca Muratura). Porte, mobili e decorazioni hanno il loro materiale.
 • Trascina sulla mappa: il progetto si vede in blu. I muri vanno solo lungo il bordo del rettangolo, così con un solo trascinamento tracci il contorno di una stanza; pavimenti, sentieri e porte lo riempiono. Disegnare sopra il tuo progetto non ancora confermato lo sostituisce: è così che metti una porta in un muro che stai progettando.
 • I mobili si mettono un pezzo alla volta, dove rilasci il tasto. E e R (o le frecce nella barra) girano il pezzo; l'anteprima è rossa dove non ci sta.
-• Premi Costruisci in basso al centro per confermare: solo allora i coloni cominciano. La X rossa cancella caselle dal progetto, anche quelle confermate. Se chiudi Costruisci senza confermare, il progetto si butta via.
+• La targa del progetto, in alto al centro, dice cosa c'è (l'icona di ogni pezzo e quanti) e quanto costa, in rosso quello che in magazzino manca. Premi Costruisci sulla targa per confermare: solo allora i coloni cominciano.
+• Il progetto in blu resta quando chiudi Costruisci, e nei salvataggi: resta anche la targa, con Modifica (torna a costruire) e Scarta (tutto il progetto non confermato; chiede un secondo clic per sicurezza).
+• In costruzione il clic destro su un pezzo lo toglie dal progetto, anche confermato (prima il mobile, poi il pavimento sotto); Maiusc + trascinamento, o la gomma sulla targa, toglie un'area intera. Il materiale già portato torna in magazzino. Trascinare col destro sposta sempre la visuale.
 • Il costruttore va a prendere il materiale da un mucchio (a terra o in un magazzino) e ci mette 2 s a casella o a pezzo. Un pezzo di due materiali (abat-jour, lampione) vuole un viaggio per ciascuno: quello già portato aspetta al cantiere, e torna a terra se annulli il progetto.
 • Distruggi (X): trascina sopra strutture e mobili per buttarli giù subito. Il materiale si perde.
 • I pezzi che non hai ancora ricercato non hanno un pulsante.

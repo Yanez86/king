@@ -45,6 +45,7 @@ Hover a figure for the sheet; click a name to open it. Click the number again to
 [color=#e8c34a]Mouse[/color]
 • With Select (the arrow), a left click opens things: a colonist's sheet, a room's sign, a workstation's menu, the notice board, a desk (Knowledge) or a throne (Laws). A click elsewhere closes the sheet.
 • With an order chosen (Build, Destroy, Mine...), drag a rectangle with the left button to mark the area.
+• While building, a right click (without dragging) takes a piece out of the plan, Shift + drag an area.
 • The box at the bottom right, above the speed, tells what is under the mouse: logs left in a tree, how fresh a pile of food is, and so on.
 • Windows can be dragged around; the X closes them.
 
@@ -271,7 +272,9 @@ A window and the chronicle announce it; the realm's name, the ruler's title and 
 • Walls and floors are made of wood or stone (stone after the Masonry research). Doors, furniture and decorations have their own material.
 • Drag on the map: the plan shows in blue. Walls go only along the border of the rectangle, so one drag outlines a room; floors, paths and doors fill it. Drawing over your unconfirmed plan replaces it: that is how to put a door into a wall you are planning.
 • Furniture goes one piece at a time, where you let go of the button. E and R (or the arrows in the bar) turn it; the preview is red where it doesn't fit.
-• Press Build in the middle of the bottom to confirm: only then do colonists start. The red X erases cells from the plan, even confirmed ones. Closing Build without confirming throws the plan away.
+• The plan's plate, at the top in the middle, says what is in it (each piece's icon and how many) and what it costs, in red what the stores lack. Press Build on it to confirm: only then do colonists start.
+• The blue plan stays when you close Build, and in the saves: the plate stays too, with Edit (back to building) and Discard (all the unconfirmed plan; it asks to click again to be sure).
+• While building, a right click on a piece takes it out of the plan, even if confirmed (the furniture first, then the floor under it); Shift + drag, or the eraser on the plate, takes out a whole area. The material already carried goes back to the stores. Dragging with the right button still moves the view.
 • The builder fetches the material from a pile (on the ground or in a warehouse) and needs 2 s a tile or a piece. A piece made of two materials (lamp, lantern) takes a trip for each: what is already there waits at the site, and goes back on the ground if you cancel the plan.
 • Destroy (X): drag over structures and furniture to pull them down at once. The material is lost.
 • Pieces you haven't researched yet have no button.
