@@ -4438,3 +4438,49 @@ msgstr "Un bugno di paglia su un sostegno, all'aperto. In primavera e d'estate l
 
 msgid "Beehives near the flowers: honey, which never spoils, and wax. At the workbench, candles: at night a desk with a candle needs no lamp, and with a lamp study is 10% faster."
 msgstr "Arnie vicino ai fiori: il miele, che non marcisce, e la cera. Al banco da lavoro, le candele: di notte uno scrittoio con la candela non vuole l'abat-jour, e con l'abat-jour si studia il 10% più svelti."
+
+msgid "Banquet"
+msgstr "Banchetto reale"
+
+msgid "Sorbet"
+msgstr "Sorbetto"
+
+msgid "Royal banquet: %d stew, %d bread, %d honey"
+msgstr "Banchetto reale: %d stufati, %d pani, %d miele"
+
+msgid "Royal banquet: tomorrow at %d:00"
+msgstr "Banchetto reale: domani alle %d:00"
+
+msgid "Needs the Royal banquet research."
+msgstr "Serve la ricerca Banchetto reale."
+
+msgid "Already ordered: tomorrow at %d:00."
+msgstr "Già ordinato: domani alle %d:00."
+
+msgid "Needs a throne room with a table."
+msgstr "Serve una sala del trono con un tavolo."
+
+msgid "Once a season: again in %d days."
+msgstr "Una volta a stagione: di nuovo fra %d giorni."
+
+msgid "Missing in the warehouses: %s."
+msgstr "Manca nei magazzini: %s."
+
+msgid "%s: the cooks prepare a royal banquet, tomorrow at %d:00 in the throne room."
+msgstr "%s: i cuochi preparano un banchetto reale, domani alle %d:00 nella sala del trono."
+
+msgid "%s: the royal banquet in %s."
+msgstr "%s: il banchetto reale in %s."
+
+msgctxt "doing"
+msgid "At the royal banquet"
+msgstr "Al banchetto reale"
+
+msgid "Feasted at the royal banquet."
+msgstr "Ha banchettato alla tavola del sovrano."
+
+msgid "Had a sorbet of ice and honey at the royal banquet."
+msgstr "Ha mangiato il sorbetto di ghiaccio e miele al banchetto reale."
+
+msgid "From the oven's menu, once a season: a stew, a bread and a honey a head, and the colony feasts in the throne room. +15 happiness for 3 days (+5 with a summer sorbet), +20 authority."
+msgstr "Dal menu del forno, una volta a stagione: uno stufato, un pane e un miele a testa, e la colonia banchetta nella sala del trono. +15 felicità per 3 giorni (+5 col sorbetto d'estate), +20 autorità."

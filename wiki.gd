@@ -205,6 +205,8 @@ Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleep
 [cell]Treated[/cell][cell]1 day[/cell][cell]–[/cell][cell]–[/cell]
 [cell]Farewell[/cell][cell]as the mourning[/cell][cell]–[/cell][cell]+5[/cell]
 [cell]Warmed[/cell][cell]half a day[/cell][cell]–[/cell][cell]–[/cell]
+[cell]Banquet[/cell][cell]3 days[/cell][cell]–[/cell][cell]+15[/cell]
+[cell]Sorbet[/cell][cell]3 days[/cell][cell]–[/cell][cell]+5[/cell]
 [/table]
 • Poisoned: from raw food, more likely the closer it is to rotting.
 • Well fed: after a meal; stress from work -25%. Feasted: after a fine meal; stress from work -50%. A new meal replaces the condition of the last one.
@@ -220,6 +222,7 @@ Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleep
 • Fever: now and then a colonist falls ill (see Basics, Events) and tires twice as fast. It doesn't spread; a doctor cures it within half a day.
 • Treated: a doctor took care of them; health comes back twice as fast (see Medicine & Death).
 • Warmed: had a hot stew; cold and rain take away half as much comfort.
+• Banquet, Sorbet: they were at the royal banquet (see Food & Cooking).
 • Farewell: they went to the funeral, with the Funerals law: as long as that mourning lasts, it weighs 5 less (see Medicine & Death).
 The laws in force that a colonist likes or dislikes show here too, with their icon."""],
 
@@ -431,7 +434,10 @@ The Heat lens (N) tints rooms by temperature: red warm, yellow cool without a ma
 • The time also depends on the kitchen's comfort and the cook's conditions.
 
 [color=#e8c34a]The stone oven[/color] [img=center]res://art/icon_bread.png[/img]
-After the Stone oven research (Land II): 2x1, 20 stone, in a kitchen; it warms the room like a campfire. Click it for its menu: bread from 2 flour (3 loaves, 10 s; Keep 8 at the start), stew from 2 vegetables of one kind (berries, turnips, cabbages or beans) and 1 meat or fish, smoked too (2 stews, 12 s), preserves from 2 vegetables of one kind (2 jars, 10 s). It takes first what rots first. Burnt and fine as at the fire: a fine stew comes out as fine meals."""],
+After the Stone oven research (Land II): 2x1, 20 stone, in a kitchen; it warms the room like a campfire. Click it for its menu: bread from 2 flour (3 loaves, 10 s; Keep 8 at the start), stew from 2 vegetables of one kind (berries, turnips, cabbages or beans) and 1 meat or fish, smoked too (2 stews, 12 s), preserves from 2 vegetables of one kind (2 jars, 10 s). It takes first what rots first. Burnt and fine as at the fire: a fine stew comes out as fine meals.
+
+[color=#e8c34a]The royal banquet[/color]
+After the Royal banquet research (Land IV, 1000 and a codex, after Apiary), at the bottom of the oven's menu. Once a season, with a throne room that has a table, and in the warehouses a stew, a bread and a honey for every colonist: they are taken at once (in summer, with ice in the warehouses, also a sorbet: an ice and a honey every 4 colonists). The next day at 18:00 whoever is in the colony, awake and standing, drops what they do and goes to the throne room, to the chairs at the tables first, for two hours; the ruler gains 20 authority. Afterwards everyone who was there has Banquet, +15 happiness for 3 days, and with the sorbet Sorbet, +5 more. The button says why when it can't be ordered."""],
 
 	["Gathering", """Mark what to take with the orders of the bottom bar, dragging a rectangle; marked things carry a faint icon. What is gathered falls at the worker's feet, and when the job is done they carry it to a warehouse.
 
@@ -765,6 +771,7 @@ What you haven't researched has no build button, and its recipes don't show at t
 • [color=#d9c48a]Land register[/color] (Land III, 450 and a tome, after Almanac): the soil's numbers and the next harvest.
 • [color=#d9c48a]Husbandry[/color] (Land I, 100, after Hunting): the pasture, the coop, the livestock dealer; hens and pigs; the Husbandry column.
 • [color=#d9c48a]Apiary[/color] (Land III, 450 and a tome, after Stone oven): beehives, honey, wax; candles at the workbench.
+• [color=#d9c48a]Royal banquet[/color] (Land IV, 1000 and a codex, after Apiary): the banquet, from the oven's menu.
 • [color=#d9c48a]Stable[/color] (Land II, 250 and a notebook, after Husbandry): the stable and its mangers, hay, manure; sheep and cows, milk, cheese, wool; with the Mill, the animal mill.
 • [color=#d9c48a]Hunting[/color] (Land I, 50): spinning wheel and carpenter bench; bowstrings and bows; hides on the walls and door curtains.
 • [color=#d9c48a]Icehouse[/color] (Land II, 250 and a notebook, after Cold store): the icehouse, the ice pit, cutting ice.

@@ -204,6 +204,8 @@ Goloso e Di poco appetito, Pigro e Stacanovista, Mattiniero e Nottambulo, Dormig
 [cell]Medicato[/cell][cell]1 giorno[/cell][cell]–[/cell][cell]–[/cell]
 [cell]Ultimo saluto[/cell][cell]quanto il lutto[/cell][cell]–[/cell][cell]+5[/cell]
 [cell]Rifocillato[/cell][cell]mezza giornata[/cell][cell]–[/cell][cell]–[/cell]
+[cell]Banchetto reale[/cell][cell]3 giorni[/cell][cell]–[/cell][cell]+15[/cell]
+[cell]Sorbetto[/cell][cell]3 giorni[/cell][cell]–[/cell][cell]+5[/cell]
 [/table]
 • Intossicato: dal cibo crudo, tanto più probabile quanto più è vicino a marcire.
 • Ben nutrito: dopo un pasto; stress dal lavoro -25%. Lauto pasto: dopo un pasto squisito; stress dal lavoro -50%. Un pasto nuovo sostituisce la condizione di quello prima.
@@ -219,6 +221,7 @@ Goloso e Di poco appetito, Pigro e Stacanovista, Mattiniero e Nottambulo, Dormig
 • Febbre: ogni tanto un colono si ammala (vedi Le basi, Gli eventi) e si stanca il doppio. Non si attacca; un medico la fa passare entro mezza giornata.
 • Medicato: un medico l'ha curato; i punti ferita tornano il doppio più in fretta (vedi Medicina e morte).
 • Rifocillato: ha mangiato uno stufato caldo; freddo e pioggia tolgono metà comfort.
+• Banchetto reale, Sorbetto: è stato al banchetto reale (vedi Cibo e cucina).
 • Ultimo saluto: è andato al funerale, con la legge Funerali: finché dura quel lutto, pesa 5 in meno (vedi Medicina e morte).
 Qui compaiono anche le leggi in vigore che a un colono piacciono o non piacciono, con la loro icona."""],
 
@@ -430,7 +433,10 @@ La vista calore (N) colora le stanze secondo la temperatura: rosso il caldo, gia
 • Il tempo dipende anche dal comfort della cucina e dalle condizioni del cuoco.
 
 [color=#e8c34a]Il forno di pietra[/color] [img=center]res://art/icon_bread.png[/img]
-Dopo la ricerca Forno di pietra (Terra II): 2x1, 20 pietra, in una cucina; scalda la stanza come un fuoco da campo. Cliccalo per il suo menu: pane da 2 farina (3 pani, 10 s; Tieni 8 all'inizio), stufato da 2 vegetali dello stesso tipo (bacche, rape, cavoli o fave) e 1 carne o pesce, anche affumicati (2 stufati, 12 s), conserve da 2 vegetali dello stesso tipo (2 vasi, 10 s). Prende prima quello che marcisce prima. Bruciato e squisito come al fuoco: uno stufato squisito esce come pasti squisiti."""],
+Dopo la ricerca Forno di pietra (Terra II): 2x1, 20 pietra, in una cucina; scalda la stanza come un fuoco da campo. Cliccalo per il suo menu: pane da 2 farina (3 pani, 10 s; Tieni 8 all'inizio), stufato da 2 vegetali dello stesso tipo (bacche, rape, cavoli o fave) e 1 carne o pesce, anche affumicati (2 stufati, 12 s), conserve da 2 vegetali dello stesso tipo (2 vasi, 10 s). Prende prima quello che marcisce prima. Bruciato e squisito come al fuoco: uno stufato squisito esce come pasti squisiti.
+
+[color=#e8c34a]Il banchetto reale[/color]
+Dopo la ricerca Banchetto reale (Terra IV, 1000 e un codice, dopo l'Apicoltura), in fondo al menu del forno. Una volta a stagione, con una sala del trono che ha un tavolo, e nei magazzini uno stufato, un pane e un miele per ogni colono: si prendono subito (d'estate, col ghiaccio nei magazzini, anche il sorbetto: un ghiaccio e un miele ogni 4 coloni). Il giorno dopo alle 18 chi è in colonia, sveglio e in piedi, lascia quello che fa e va nella sala del trono, prima alle sedie dei tavoli, per due ore; il sovrano guadagna 20 autorità. Dopo, chi c'era ha Banchetto reale, +15 felicità per 3 giorni, e col sorbetto Sorbetto, +5 in più. Il pulsante dice perché, quando non si può ordinare."""],
 
 	["Raccolta", """Segna cosa prendere con gli ordini della barra in basso, trascinando un rettangolo; le cose segnate portano un'icona tenue. Quello che si raccoglie cade ai piedi del lavoratore, che a lavoro finito lo porta in un magazzino.
 
@@ -764,6 +770,7 @@ Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette 
 • [color=#d9c48a]Catasto[/color] (Terra III, 450 e un tomo, dopo l'Almanacco): i numeri della terra e il prossimo raccolto.
 • [color=#d9c48a]Allevamento[/color] (Terra I, 100, dopo la Caccia): il pascolo, il pollaio, il mercante di bestiame; galline e maiali; la colonna Allevare.
 • [color=#d9c48a]Apicoltura[/color] (Terra III, 450 e un tomo, dopo il Forno di pietra): le arnie, il miele, la cera; le candele al banco da lavoro.
+• [color=#d9c48a]Banchetto reale[/color] (Terra IV, 1000 e un codice, dopo l'Apicoltura): il banchetto, dal menu del forno.
 • [color=#d9c48a]Stalla[/color] (Terra II, 250 e un quaderno, dopo l'Allevamento): la stalla e le mangiatoie, il fieno, il letame; pecore e mucche, latte, formaggio, lana; col Mulino, la macina a trazione.
 • [color=#d9c48a]Caccia[/color] (Terra I, 50): filatoio e banco del falegname; corde d'arco e archi; pelli alle pareti e portiere.
 • [color=#d9c48a]Ghiacciaia[/color] (Terra II, 250 e un quaderno, dopo Dispensa fredda): la ghiacciaia, la fossa del ghiaccio, il taglio del ghiaccio.

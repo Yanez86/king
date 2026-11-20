@@ -96,9 +96,9 @@ const TREE_SIDES := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  # da sopra l
 
 enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE,
 	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE, DOUSE, FARM, FERTILIZE, OATH, SALVE, RESCUE, TREAT, BURY,
-	FUNERAL, TEND, BUTCHER, MILK, SHEAR, MOW, HONEY }  # TEND: le uova al pollaio; BUTCHER, MILK, SHEAR: macellare, mungere e
+	FUNERAL, TEND, BUTCHER, MILK, SHEAR, MOW, HONEY, FEAST }  # TEND: le uova al pollaio; BUTCHER, MILK, SHEAR: macellare, mungere e
 	# tosare un animale da allevare (vedi Work.HUSBANDRY); MOW: falciare il fieno (vedi Order.HAY); HONEY: smielare
-	# un'arnia piena (vedi Work.GATHER)
+	# un'arnia piena (vedi Work.GATHER); FEAST: al banchetto reale (vedi hold_banquet)
 const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FURNISH, Job.HARVEST, Job.COOK, Job.FISH,
 	Job.HUNT, Job.CRAFT, Job.STUDY, Job.GOVERN, Job.REPAIR, Job.CUT_ICE, Job.FARM, Job.FERTILIZE, Job.RESCUE,
 	Job.TREAT, Job.BURY, Job.TEND, Job.BUTCHER, Job.MILK, Job.SHEAR, Job.MOW, Job.HONEY]  # contano come ore di lavoro
@@ -301,6 +301,16 @@ const HIVE_WAX := 1
 const HONEY_TIME := 4.0     # secondi per smielare, a livello 5
 const CANDLE_STUDY := 0.9
 const FLOWERS := [Build.FLOWER_BED, Build.PLANTER]  # i fiori dei mobili
+# Il banchetto reale (Tech.BANQUET): dal menu del forno, una volta a stagione (BANQUET_EVERY), se c'è una sala del
+# trono con un tavolo e i magazzini hanno BANQUET_FARE a testa; d'estate, col ghiaccio, anche il sorbetto (un ghiaccio
+# e un miele ogni SORBET_HEADS). Il giorno dopo alle BANQUET_HOUR chi è in colonia va nella sala del trono per
+# BANQUET_HOURS ore (vedi hold_banquet): Cond.BANQUET, e il sorbetto Cond.SORBET; il sovrano BANQUET_AUTHORITY
+const BANQUET_FARE := {Res.STEW: 1, Res.BREAD: 1, Res.HONEY: 1}
+const BANQUET_EVERY := 91.0
+const BANQUET_HOUR := 18
+const BANQUET_HOURS := 2.0
+const BANQUET_AUTHORITY := 20.0
+const SORBET_HEADS := 4
 const GRASS_MAX := 100.0    # l'erba di una casella di pascolo
 const GRASS_REGROW := 20.0  # al giorno, quando la terra è tiepida (SOW_TEMP); d'inverno no
 const FED_DROP := 50.0      # sazietà che un animale da allevare perde al giorno; l'erba di "graze" caselle gliela ridà
@@ -371,7 +381,8 @@ const DOING := {Job.CHOP: "Chopping a tree", Job.MINE: "Mining", Job.UPROOT: "Up
 	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne", Job.SALVE: "Tending a wound",
 	Job.RESCUE: "Rescuing the wounded", Job.TREAT: "Treating a patient", Job.BURY: "Burying the dead",
 	Job.FUNERAL: "At a funeral", Job.TEND: "Collecting eggs", Job.BUTCHER: "Slaughtering",
-	Job.MILK: "Milking", Job.SHEAR: "Shearing", Job.MOW: "Mowing hay", Job.HONEY: "Taking honey"}
+	Job.MILK: "Milking", Job.SHEAR: "Shearing", Job.MOW: "Mowing hay", Job.HONEY: "Taking honey",
+	Job.FEAST: "At the royal banquet"}
 const BOARD_LIST := 400.0  # pixel: la lista di chi può partire sulla bacheca, al più; poi scorre
 const BOARD_PLACES := 230.0  # pixel: le rovine e le spedizioni, sotto la squadra, al più; poi scorrono
 const BOARD_SLOT := 122    # pixel: un posto della squadra (MAX_PARTY in fila)
@@ -868,7 +879,7 @@ const SAVES := preload("res://saves.gd")
 const SAVE_LIST := preload("res://save_list.gd")
 # le variabili della partita che si salvano, così come sono (gli oggetti dentro li impacchetta SAVES.Packer); il resto
 # si rifà da queste (vedi restore) o è interfaccia. Una variabile nuova dello stato del gioco va aggiunta qui
-const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today", "hour", "rocks", "boulders", "ores", "water", "stream", "pasture", "hives", "candles", "hay_marks", "coop_eggs", "herd_keep", "drover_until", "drover_stock",
+const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today", "hour", "rocks", "boulders", "ores", "water", "stream", "pasture", "hives", "candles", "banquet_at", "last_banquet", "banquet_sorbet", "hay_marks", "coop_eggs", "herd_keep", "drover_until", "drover_stock",
 	"trees", "stock", "bushes", "flax", "herbs", "graves", "funerals", "weeds", "chop_marks", "mine_marks", "uproot_marks", "harvest_marks", "fish_marks",
 	"fish_spots", "items", "fresh", "draft", "blueprints", "built", "furniture_draft", "furniture_plans", "furniture",
 	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
@@ -1234,7 +1245,7 @@ const TRAIT_INFO := {  # suggerimento col mouse sopra il talento: com'è, poi co
 # condizioni: effetti a tempo, con un'icona 16x16 nella scheda (colonne di CONDITIONS_SHEET nell'ordine di Cond).
 # Dati: [giorni, tempo di lavoro x, stress da lavoro x, felicità +, descrizione]. Vedi add_cond, work_factor, update_needs
 enum Cond { POISONED, WELL_FED, FEASTED, AT_TABLE, ATE_RAW, MOURNING, FESTIVE, PILLORIED, HEARD, WEDDING, PREGNANT,
-	ROYAL_MOURNING, CORONATION, FOREIGNER, INSPIRED, FEVER, TREATED, FAREWELL, WARMED }
+	ROYAL_MOURNING, CORONATION, FOREIGNER, INSPIRED, FEVER, TREATED, FAREWELL, WARMED, BANQUET, SORBET }
 const CONDITIONS_SHEET := preload("res://art/conditions.png")
 const COND_INFO := {
 	Cond.POISONED: [1.0, 1.5, 1.0, -20.0, "Ate raw food that was going bad. Works slowly."],
@@ -1256,6 +1267,8 @@ const COND_INFO := {
 	Cond.TREATED: [1.0, 1.0, 1.0, 0.0, "Treated by a doctor: heals twice as fast."],
 	Cond.FAREWELL: [2.0, 1.0, 1.0, 5.0, "Said farewell at the funeral: the mourning weighs less."],  # quanto il lutto (vedi farewell)
 	Cond.WARMED: [0.5, 1.0, 1.0, 0.0, "Had a hot stew: cold and rain take away half as much comfort."],
+	Cond.BANQUET: [3.0, 1.0, 1.0, 15.0, "Feasted at the royal banquet."],
+	Cond.SORBET: [3.0, 1.0, 1.0, 5.0, "Had a sorbet of ice and honey at the royal banquet."],
 }
 const WARMED_COLD := 0.5    # rifocillato: il comfort che freddo e pioggia tolgono, x
 const GLUTTON_MOOD := 2.0  # il goloso: tanta felicità in più (o in meno) da quello che mangia
@@ -1418,7 +1431,7 @@ const BRANCHES_SHEET := preload("res://art/branches.png")
 enum Tech { FORGE, TAILORING, HUNTING, INN, MASONRY, DECOR, LANTERNS, IRON_ARMS, BOOKSHELF, CHAINMAIL, FOUNTAIN, STATUARY,
 	ASTRONOMY, CHARCOAL, COLD_STORE, PAVED_ROAD, DRY_RATIONS, CARTOGRAPHY, PALISADE, TRAINING_DUMMY, SMOKEHOUSE, RENOWNED_INN,
 	WATCHTOWER, SHIELD, LENDING_ARMORY, STEEL, SCRIPTORIUM, FINE_FURNITURE, PALACE, LOOM, TILED_STOVE, ICEHOUSE, GARDEN,
-	SOIL_SURVEY, ALMANAC, LAND_REGISTER, MANURING, CROWN_COMPANY, BARRACKS, HERBALISM, MEDICINE, MILL, STONE_OVEN, HUSBANDRY, STABLE, APIARY }
+	SOIL_SURVEY, ALMANAC, LAND_REGISTER, MANURING, CROWN_COMPANY, BARRACKS, HERBALISM, MEDICINE, MILL, STONE_OVEN, HUSBANDRY, STABLE, APIARY, BANQUET }
 const TECHS_SHEET := preload("res://art/techs.png")
 const TECHS := {
 	Tech.FORGE: {"branch": Branch.FIRE, "tier": 1, "cost": 60, "builds": [Build.FURNACE, Build.ANVIL],
@@ -1521,6 +1534,8 @@ const TECHS := {
 	Tech.APIARY: {"branch": Branch.LAND, "tier": 3, "cost": 450, "needs": [Tech.STONE_OVEN], "builds": [Build.HIVE],
 		"makes": [Res.CANDLE],
 		"info": "Beehives near the flowers: honey, which never spoils, and wax. At the workbench, candles: at night a desk with a candle needs no lamp, and with a lamp study is 10% faster."},
+	Tech.BANQUET: {"branch": Branch.LAND, "tier": 4, "cost": 1000, "needs": [Tech.APIARY],
+		"info": "From the oven's menu, once a season: a stew, a bread and a honey a head, and the colony feasts in the throne room. +15 happiness for 3 days (+5 with a summer sorbet), +20 authority."},
 }
 const ROAD_SPEED := 1.25    # sulla strada lastricata si va più svelti
 const MAPPED_TRAVEL := 0.75 # con la cartografia, giorni di viaggio x
@@ -1811,6 +1826,9 @@ var bushes := {}            # cella -> `clock` da cui ha le bacche (attraversabi
 var flax := {}              # cella -> true: i cespugli che sono lino; in fiore (le "bacche") danno il lino
 var herbs := {}             # cella -> true: i cespugli che sono erbe medicinali; in fiore danno le erbe (vedi scatter_herbs)
 var pasture := {}           # casella del pascolo -> erba, 0-GRASS_MAX (vedi Order.PASTURE, update_livestock)
+var banquet_at := -1.0      # `clock` del banchetto reale ordinato; -1: nessuno (vedi order_banquet)
+var last_banquet := -1000.0 # `clock` in cui si è ordinato l'ultimo
+var banquet_sorbet := false # col sorbetto
 var hives := {}             # arnia (origine) -> miele fatto, 0-HIVE_FULL (vedi make_honey)
 var candles := {}           # scrittoio (origine) -> la notte (il giorno in cui è cominciata) della candela accesa
 var hay_marks := {}         # casella di prato -> `clock` dell'ultima falciatura (vedi Order.HAY, mow_ready)
@@ -3395,6 +3413,17 @@ func open_craft(origin: Vector2i) -> void:
 		count.value_changed.connect(func(v): keep[r[0]] = int(v))
 		row.add_child(count)
 		list.add_child(row)
+	if kind == Build.OVEN and researched.has(Tech.BANQUET):  # in fondo, il banchetto reale
+		var feast := Button.new()
+		var heads := colonists.size()
+		feast.text = tr("Royal banquet: %d stew, %d bread, %d honey") % [heads, heads, heads] if banquet_at < 0 \
+			else tr("Royal banquet: tomorrow at %d:00") % BANQUET_HOUR
+		feast.disabled = banquet_block() != ""
+		feast.tooltip_text = banquet_block() if feast.disabled else tr(TECHS[Tech.BANQUET]["info"])
+		feast.pressed.connect(func():
+			order_banquet()
+			open_craft.call_deferred(origin))  # dopo: il pulsante che chiama non si libera mentre chiama
+		list.add_child(feast)
 	craft_popup.show()
 	craft_popup.reset_size()
 
@@ -3449,7 +3478,7 @@ func open_pasture() -> void:
 			buy.disabled = stored(Res.GOLD) < LIVESTOCK[pair]["price"]
 			buy.pressed.connect(func():
 				buy_pair(i)
-				open_pasture())
+				open_pasture.call_deferred())
 			list.add_child(buy)
 		for res in DROVER_BUYS:  # tutta quella che c'è in magazzino
 			if stored(res) > 0:
@@ -3459,7 +3488,7 @@ func open_pasture() -> void:
 				goods.icon_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 				goods.pressed.connect(func():
 					sell_goods(res)
-					open_pasture())
+					open_pasture.call_deferred())
 				list.add_child(goods)
 		for kind in LIVESTOCK:
 			if herd.any(func(o): return o.kind == kind and grown(o)):
@@ -3469,7 +3498,7 @@ func open_pasture() -> void:
 				sell.icon_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 				sell.pressed.connect(func():
 					sell_head(kind)
-					open_pasture())
+					open_pasture.call_deferred())
 				list.add_child(sell)
 	pasture_popup.show()
 	pasture_popup.reset_size()
@@ -4356,6 +4385,8 @@ func tick(delta: float) -> void:
 		autosave_due = autosave_due or hour % 24 == AUTOSAVE_HOUR
 	while not funerals.is_empty() and clock >= funerals[0][1]:
 		hold_funeral(funerals.pop_front())
+	if banquet_at >= 0 and clock >= banquet_at:
+		hold_banquet()
 	for c in people():
 		if c.died == 0.0:  # morto durante il giro
 			update_colonist(c, delta)
@@ -4733,6 +4764,14 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			c.patient = null
 			end_job(c)
 			c.path = path_to_nearest(c, stands_of(d))  # si fa da parte: la tomba è chiusa
+		Job.FEAST:  # nella sala del trono, fino alla fine del banchetto; poi la sua gioia
+			c.work_left -= delta
+			if c.work_left > 0:
+				return
+			add_cond(c, Cond.BANQUET)
+			if banquet_sorbet:
+				add_cond(c, Cond.SORBET)
+			end_job(c)
 		Job.FUNERAL:  # attorno alla tomba, rivolto verso di lei, fino alla fine; poi l'ultimo saluto
 			face(c, center(c.dest) - c.pos)
 			c.work_left -= delta
@@ -7423,6 +7462,78 @@ func hold_funeral(f: Array) -> void:
 		o.work_left = FUNERAL_HOURS * DAY_LENGTH / 24
 		o.patient = f[2]
 		o.dest = grave
+
+
+# la sala del trono col tavolo del banchetto, o null
+func banquet_hall() -> Room:
+	for room in rooms:
+		if room.kind == RoomKind.THRONE_ROOM and furniture.keys().any(func(o): return furniture[o][0] == Build.TABLE and room.cells.has(o)):
+			return room
+	return null
+
+
+# perché adesso non si può ordinare il banchetto reale, "" se si può
+func banquet_block() -> String:
+	if not researched.has(Tech.BANQUET):
+		return tr("Needs the Royal banquet research.")
+	if banquet_at >= 0:
+		return tr("Already ordered: tomorrow at %d:00.") % BANQUET_HOUR
+	if banquet_hall() == null:
+		return tr("Needs a throne room with a table.")
+	if clock - last_banquet < BANQUET_EVERY:
+		return tr("Once a season: again in %d days.") % ceili(last_banquet + BANQUET_EVERY - clock)
+	var heads := colonists.size()
+	var missing := PackedStringArray()
+	for res in BANQUET_FARE:
+		if stored(res) < BANQUET_FARE[res] * heads:
+			missing.append("%d %s" % [BANQUET_FARE[res] * heads - stored(res), res_name(res)])
+	return tr("Missing in the warehouses: %s.") % ", ".join(missing) if not missing.is_empty() else ""
+
+
+# Ordina il banchetto reale: quello che serve si prende subito dai magazzini (d'estate, se c'è, anche il sorbetto); si
+# fa domani alle BANQUET_HOUR. false se non si può (vedi banquet_block)
+func order_banquet() -> bool:
+	if banquet_block() != "":
+		return false
+	var heads := colonists.size()
+	for res in BANQUET_FARE:
+		take_stored(res, BANQUET_FARE[res] * heads)
+	var sorbets := ceili(heads / float(SORBET_HEADS))
+	banquet_sorbet = season(today) == SUMMER and stored(Res.ICE) >= sorbets and stored(Res.HONEY) >= sorbets
+	if banquet_sorbet:
+		take_stored(Res.ICE, sorbets)
+		take_stored(Res.HONEY, sorbets)
+	banquet_at = floorf(clock) + 1.0 + BANQUET_HOUR / 24.0
+	last_banquet = clock
+	note(tr("%s: the cooks prepare a royal banquet, tomorrow at %d:00 in the throne room.") % [date(today), BANQUET_HOUR])
+	return true
+
+
+# Il banchetto: chi è in colonia, sveglio, in piedi e non combatte lascia quello che fa e va nella sala del trono,
+# prima alle sedie dei tavoli, poi dove c'è posto (Job.FEAST), BANQUET_HOURS ore; il sovrano +BANQUET_AUTHORITY. Nella
+# cronaca. Senza la sala, niente (e niente di quello che si è preso torna)
+func hold_banquet() -> void:
+	banquet_at = -1.0
+	var hall := banquet_hall()
+	if hall == null:
+		return
+	gain(BANQUET_AUTHORITY)
+	note(tr("%s: the royal banquet in %s.") % [date(today), hall.name])
+	var chairs: Array = seats().filter(func(k): return hall.cells.has(k))
+	var floor_cells: Array = hall.cells.keys().filter(func(k): return not astar.is_point_solid(k) and k not in chairs)
+	for o in colonists:
+		if o.downed or o.carried_by != null or o.job in [Job.SLEEP, Job.FIGHT, Job.FLEE, Job.RESCUE, Job.TREAT, Job.BURY]:
+			continue
+		quit_job(o)
+		var path := path_to_nearest(o, chairs)
+		if path.is_empty():
+			path = path_to_nearest(o, floor_cells)
+		if path.is_empty():
+			continue
+		chairs.erase(path.back())
+		floor_cells.erase(path.back())
+		start_job(o, Job.FEAST, path, path.back(), 0.0)  # come lo svago: niente barra
+		o.work_left = BANQUET_HOURS * DAY_LENGTH / 24
 
 
 # chi è stato al funerale di `dead`: finché dura il lutto che ha lasciato, l'ultimo saluto (Cond.FAREWELL) lo alleggerisce

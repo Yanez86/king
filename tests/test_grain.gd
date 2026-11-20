@@ -226,7 +226,7 @@ func _initialize() -> void:
 		"2 vegetali, 2 conserve: prima quelli che marciscono prima")
 	main.open_craft(oven)
 	var rows: Array = main.get_node("HUD/CraftPopup/Box/List").get_children()
-	check(rows.size() == 3, "nel menu del forno pane, stufato e conserve")
+	check(rows.size() == 4 and rows[3] is Button, "nel menu del forno pane, stufato e conserve; in fondo il banchetto")
 	var any: Array = rows[1].get_children().filter(func(n): return n is TextureRect and n.tooltip_text.begins_with("Any of: "))
 	check(any.size() == 2, "lo stufato: i vegetali e la carne o il pesce, a scelta")
 	main.craft_popup.hide()
@@ -337,7 +337,54 @@ func _initialize() -> void:
 	main.page_time(scholar, study, desk)
 	check(main.stored(main.Res.CANDLE) == 0, "la notte dopo, un'altra candela")
 
-	print("OK: torrente di %d caselle, mulino in %s; il forno; le api" % [stream.size(), mill])
+	# il banchetto reale (Terra IV, dopo l'Apicoltura): dal menu del forno, una volta a stagione; una sala del trono col
+	# tavolo, a testa uno stufato, un pane e un miele; il giorno dopo alle 18 tutti nella sala: +15 per 3 giorni, +20
+	check(main.TECHS[main.Tech.BANQUET]["tier"] == 4 and main.TECHS[main.Tech.BANQUET]["needs"] == [main.Tech.APIARY], "Banchetto reale: Terra IV, dopo l'Apicoltura")
+	main.clock = 4 * main.YEAR_DAYS + 120.4  # d'estate, di giorno
+	main.tick(0.0)
+	check(main.banquet_block() == "Needs a throne room with a table.", "senza la sala del trono no")
+	var hall = main.Room.new()
+	var hall_at := spot + Vector2i(0, 14)
+	for k in main.cells_in(Rect2i(hall_at, Vector2i(5, 4))):
+		hall.cells[k] = true
+	hall.kind = main.RoomKind.THRONE_ROOM
+	hall.name = "Hall"
+	main.rooms.append(hall)
+	main.furniture[hall_at + Vector2i(1, 1)] = [main.Build.TABLE, main.Res.WOOD, 0]
+	main.furniture[hall_at + Vector2i(0, 1)] = [main.Build.CHAIR, main.Res.WOOD, 1]
+	var heads: int = main.colonists.size()
+	check(main.banquet_block().begins_with("Missing in the warehouses: "), "senza da mangiare no")
+	var pantry2 := spot + Vector2i(6, 14)
+	main.stockpile = {}
+	var shelves := [main.Res.STEW, main.Res.BREAD, main.Res.HONEY, main.Res.ICE]
+	for i in shelves.size():
+		main.stockpile[pantry2 + Vector2i(0, i)] = true
+		main.add_item(shelves[i], pantry2 + Vector2i(0, i), heads + 2)
+	check(main.banquet_block() == "", "con tutto si può")
+	main.open_craft(oven)
+	var feast_button: Button = main.get_node("HUD/CraftPopup/Box/List").get_children()[-1]
+	check(feast_button.text.begins_with("Royal banquet: %d stew" % heads) and not feast_button.disabled, "nel menu del forno")
+	feast_button.pressed.emit()
+	main.craft_popup.hide()
+	check(main.banquet_at > main.clock and main.stored(main.Res.STEW) == 2 and main.stored(main.Res.BREAD) == 2, "ordinato: preso dai magazzini")
+	check(main.banquet_sorbet and main.stored(main.Res.ICE) == heads + 2 - ceili(heads / 4.0), "d'estate, col ghiaccio, il sorbetto")
+	check(main.banquet_block().begins_with("Already ordered"), "uno alla volta")
+	var authority: float = main.authority
+	for c in main.colonists:
+		main.end_job(c)
+	main.clock = main.banquet_at - 0.0002
+	main.tick(0.0)
+	main.tick(0.1)
+	check(main.colonists.all(func(c): return c.job == main.Job.FEAST) and absf(main.authority - authority - 20.0) < 0.01, "alle 18 tutti al banchetto; +20 autorità")
+	for i in 3000:
+		main.tick(0.1)
+		if main.colonists.all(func(c): return c.job != main.Job.FEAST):
+			break
+	check(main.colonists.all(func(c): return c.conds.has(main.Cond.BANQUET) and c.conds.has(main.Cond.SORBET)), "finito: il banchetto e il sorbetto")
+	check(main.colonists.all(func(c): return hall.cells.has(main.cell_of(c.pos))), "nella sala del trono")
+	check(main.banquet_block().begins_with("Once a season"), "poi una stagione di attesa")
+
+	print("OK: torrente di %d caselle, mulino in %s; il forno; le api; il banchetto" % [stream.size(), mill])
 	quit()
 
 
