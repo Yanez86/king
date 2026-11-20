@@ -115,7 +115,7 @@ const WORK_ICONS := [preload("res://art/icon_meal.png"), preload("res://art/icon
 	preload("res://art/icon_fishing.png"), preload("res://art/icon_hunting.png"), preload("res://art/icon_build.png"),
 	preload("res://art/icon_resources.png"), preload("res://art/icon_authority.png"), preload("res://art/icon_study.png"),
 	preload("res://art/icon_doctor.png")]
-const WORK_INFO := ["Cooking meals at the campfire or the hearth.", "Forge, workbench, spinning wheel, carpenter's bench, furnace, mill.",
+const WORK_INFO := ["Cooking meals at the campfire or the hearth.", "Forge, workbench, spinning wheel, carpenter's bench, furnace, mill, oven.",
 	"Felling the marked trees.", "Mining the marked boulders, cutting ice.", "Picking bushes, flax and herbs, uprooting.",
 	"Sowing, harvesting and fertilizing the garden.", "Fishing at the marked water.", "Hunting the marked animals.",
 	"Building, furnishing, repairing roofs.", "Carrying things into the warehouses, and the dead to their graves.",
@@ -136,18 +136,25 @@ enum Res { WOOD, STONE, VEG, IRON, COAL, MEAL, FINE_MEAL, MEAT, FISH, HIDE, INGO
 	PICKAXE, AXE, SICKLE, BOW, LEATHER_ARMOR, LEATHER_HOOD, HELMET, CHAINMAIL, SWORD, GOLD, DAGGER,
 	CHALICE, OLD_BANNER, BUST, CROWN, NOTEBOOK, TOME, CODEX, HARDTACK, SMOKED_MEAT, SMOKED_FISH, SHIELD,
 	STEEL, PARCHMENT, INK, ICE, TURNIP, CABBAGE, BEANS, ROT, COMPOST, ASH, HERBS, OINTMENT,
-	GRAIN, FLOUR }  # ICE: blocchi tagliati
+	GRAIN, FLOUR, BREAD, STEW, PRESERVES }  # ICE: blocchi tagliati
 	# dall'acqua gelata, per la ghiacciaia (vedi Order.ICE); TURNIP, CABBAGE, BEANS: dall'orto (vedi garden), si conservano
 	# a lungo, le fave secche più di tutto; ROT, COMPOST, ASH: i concimi (vedi Tech.MANURING); HERBS: erbe medicinali, dai
 	# prati (vedi herbs); OINTMENT: l'unguento, dalle erbe al fuoco (vedi Tech.HERBALISM, try_salve); GRAIN: il grano
-	# dell'orto, che non si mangia e non marcisce; FLOUR: la farina, dal grano al mulino (vedi Tech.MILL)
+	# dell'orto, che non si mangia e non marcisce; FLOUR: la farina, dal grano al mulino (vedi Tech.MILL); BREAD, STEW,
+	# PRESERVES: pane, stufato e conserve, dal forno (vedi Tech.STONE_OVEN)
 const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.TURNIP: 50, Res.CABBAGE: 50, Res.BEANS: 50, Res.ROT: 40, Res.COMPOST: 30, Res.ASH: 30, Res.IRON: 50, Res.COAL: 50, Res.MEAL: 20, Res.FINE_MEAL: 20,
 	Res.MEAT: 50, Res.FISH: 50, Res.HIDE: 50, Res.INGOT: 50, Res.FLAX: 50, Res.BOWSTRING: 50, Res.PICKAXE: 10, Res.AXE: 10, Res.SICKLE: 10, Res.BOW: 10,
 	Res.LEATHER_ARMOR: 10, Res.LEATHER_HOOD: 10, Res.HELMET: 10, Res.CHAINMAIL: 10, Res.SWORD: 10, Res.GOLD: 100, Res.DAGGER: 10,
 	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5, Res.NOTEBOOK: 10, Res.TOME: 10, Res.CODEX: 10, Res.HARDTACK: 50, Res.SMOKED_MEAT: 50, Res.SMOKED_FISH: 50, Res.SHIELD: 10, Res.STEEL: 50, Res.PARCHMENT: 50, Res.INK: 20, Res.ICE: 50,
-	Res.HERBS: 50, Res.OINTMENT: 20, Res.GRAIN: 50, Res.FLOUR: 50}  # quantità massima per mucchio (casella)
-const MEALS := [Res.FINE_MEAL, Res.MEAL]  # cotti: chi ha fame li prende in quest'ordine, poi il crudo
-const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT, Res.SMOKED_FISH, Res.SMOKED_MEAT, Res.TURNIP, Res.CABBAGE, Res.BEANS]  # crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti (prima quello che dura meno)
+	Res.HERBS: 50, Res.OINTMENT: 20, Res.GRAIN: 50, Res.FLOUR: 50,
+	Res.BREAD: 30, Res.STEW: 20, Res.PRESERVES: 30}  # quantità massima per mucchio (casella)
+const MEALS := [Res.FINE_MEAL, Res.MEAL]  # i pasti del fuoco: quanti ne vuole il menu (vedi meals_wanted)
+const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT, Res.SMOKED_FISH, Res.SMOKED_MEAT, Res.TURNIP, Res.CABBAGE, Res.BEANS,
+	Res.PRESERVES]  # crudo: si cucina, o si mangia in quest'ordine se non c'è di meglio (prima quello che dura meno)
+const COOKED := [Res.FINE_MEAL, Res.STEW, Res.MEAL, Res.BREAD]  # chi ha fame li prende in quest'ordine, poi il crudo
+const EATEN := COOKED + RAW_FOOD  # tutto quello che si mangia, nell'ordine in cui lo si prende
+# il bonus di quello che si mangia (vedi eat), che prende il posto di quello del pasto prima; lo stufato in più rifocilla
+const FOOD_BONUS := {Res.FINE_MEAL: Cond.FEASTED, Res.MEAL: Cond.WELL_FED, Res.STEW: Cond.WELL_FED}
 const START_GOLD := 60      # monete all'inizio, a terra nella radura: le si spende quando sono in un magazzino
 const COIN := "[img=center]res://art/icon_coin.png[/img]"  # una moneta 16x16 nei testi ricchi (vedi coins)
 # Tipo di ogni oggetto: la sua icona 16x16 (art/kind_*.png, per le monete la moneta) sta davanti al nome, ovunque
@@ -175,20 +182,22 @@ const ITEM_KIND := {
 	Res.STEEL: ItemKind.MATERIAL, Res.PARCHMENT: ItemKind.MATERIAL, Res.INK: ItemKind.MATERIAL, Res.ICE: ItemKind.MATERIAL,
 	Res.ROT: ItemKind.MATERIAL, Res.COMPOST: ItemKind.MATERIAL, Res.ASH: ItemKind.MATERIAL,
 	Res.HERBS: ItemKind.MATERIAL, Res.OINTMENT: ItemKind.MATERIAL, Res.GRAIN: ItemKind.FOOD, Res.FLOUR: ItemKind.FOOD,
+	Res.BREAD: ItemKind.FOOD, Res.STEW: ItemKind.FOOD, Res.PRESERVES: ItemKind.FOOD,
 }
 # cibo: quanto sazia (vedi eat) e in quanti giorni marcisce a terra fuori (vedi spoil); in magazzino ci mette il doppio.
 # Il crudo sazia meno e può intossicare (vedi poison_chance), i pasti no e danno un bonus (vedi Cond)
 const FOOD := {Res.VEG: 35.0, Res.TURNIP: 35.0, Res.CABBAGE: 35.0, Res.BEANS: 40.0, Res.FISH: 30.0, Res.MEAT: 40.0, Res.MEAL: 100.0, Res.FINE_MEAL: 100.0,
-	Res.SMOKED_FISH: 30.0, Res.SMOKED_MEAT: 40.0}
+	Res.SMOKED_FISH: 30.0, Res.SMOKED_MEAT: 40.0, Res.BREAD: 60.0, Res.STEW: 100.0, Res.PRESERVES: 35.0}
 const SHELF_LIFE := {Res.VEG: 3.0, Res.FISH: 1.5, Res.MEAT: 2.0, Res.MEAL: 3.0, Res.FINE_MEAL: 3.0,
 	Res.SMOKED_FISH: 6.0, Res.SMOKED_MEAT: 8.0, Res.TURNIP: 10.0, Res.CABBAGE: 14.0, Res.BEANS: 60.0,
-	Res.ROT: 5.0}  # il marcio, fuori dal cumulo del compost, sparisce nella terra  # affumicati: quattro volte il fresco
+	Res.ROT: 5.0,  # il marcio, fuori dal cumulo del compost, sparisce nella terra  # affumicati: quattro volte il fresco
+	Res.BREAD: 8.0, Res.STEW: 3.0, Res.PRESERVES: 120.0}
 const SPOIL_STORED := 0.5   # in magazzino il cibo marcisce a metà velocità
 const SPOIL_PANTRY := 1.0 / 3  # in dispensa a un terzo: dura il triplo che fuori
 # probabilità di intossicarsi mangiando crudo: [appena preso, quasi marcio], in mezzo in proporzione
 const POISON := {Res.VEG: [0.05, 0.4], Res.FISH: [0.1, 0.5], Res.MEAT: [0.15, 0.6], Res.SMOKED_FISH: [0.05, 0.5],
 	Res.SMOKED_MEAT: [0.05, 0.6], Res.TURNIP: [0.02, 0.3], Res.CABBAGE: [0.02, 0.3],
-	Res.BEANS: [0.01, 0.15]}
+	Res.BEANS: [0.01, 0.15], Res.PRESERVES: [0.01, 0.1]}
 const FRESH_WORDS := [[0.5, "Fresh"], [0.2, "Stale"], [0.0, "Almost rotten"]]  # sopra quale parte della durata, nel suggerimento
 # cucinare (vedi try_cook): 2 crudi dello stesso mucchio (vegetali, pesce o carne) -> 1 pasto al fuoco da campo di una
 # cucina, finché in giro ci sono meno pasti di quanti chiede il menu del fuoco (all'inizio MEALS_PER_COLONIST a testa)
@@ -531,13 +540,22 @@ const RECIPES := [
 	[Res.SMOKED_FISH, Build.CAMPFIRE, Skill.COOKING, {Res.FISH: 1}, 8.0],
 	[Res.OINTMENT, Build.CAMPFIRE, Skill.MEDICINE, {Res.HERBS: 2}, 10.0],  # le erbe pestate e cotte nel grasso
 	[Res.FLOUR, Build.WATER_MILL, Skill.COOKING, {Res.GRAIN: 2}, 4.0, 2],  # il mugnaio
+	[Res.BREAD, Build.OVEN, Skill.COOKING, {Res.FLOUR: 2}, 10.0, 3],
+	[Res.STEW, Build.OVEN, Skill.COOKING, {ANY_VEG: 2, ANY_FLESH: 1}, 12.0, 2],  # squisito: pasti squisiti (vedi craft)
+	[Res.PRESERVES, Build.OVEN, Skill.COOKING, {ANY_VEG: 2}, 10.0, 2],  # cotte e chiuse nei vasi
 ]
+# Ingredienti a scelta delle ricette (chiavi negative): uno qualsiasi dei tipi del gruppo, tutto dello stesso tipo. Si
+# prende il primo di cui ce n'è abbastanza, nell'ordine: prima quello che marcisce prima (vedi resolve)
+const ANY_VEG := -1
+const ANY_FLESH := -2
+const GROUPS := {ANY_VEG: [Res.VEG, Res.TURNIP, Res.CABBAGE, Res.BEANS], ANY_FLESH: [Res.FISH, Res.MEAT, Res.SMOKED_FISH, Res.SMOKED_MEAT]}
 const SURE := [Res.FLOUR]  # ricette che non si rovinano: macinare non brucia niente (vedi craft)
 const SMOKED := [Res.SMOKED_MEAT, Res.SMOKED_FISH]
 const SMOKE_TIME := 0.75     # affumicare al fuoco da campo, dove il fumo resta: tempo x (al focolare va su per la canna)
 const STATION_ROOM := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.HEARTH: RoomKind.KITCHEN, Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP,
-	Build.SPINNING_WHEEL: RoomKind.WORKSHOP, Build.CARPENTER_BENCH: RoomKind.CARPENTRY, Build.DESK: RoomKind.STUDY}
-const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.COAL: 5, Res.OINTMENT: 3, Res.FLOUR: 10}  # scorte di partenza, vedi keep; i pasti
+	Build.SPINNING_WHEEL: RoomKind.WORKSHOP, Build.CARPENTER_BENCH: RoomKind.CARPENTRY, Build.DESK: RoomKind.STUDY,
+	Build.OVEN: RoomKind.KITCHEN}
+const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.COAL: 5, Res.OINTMENT: 3, Res.FLOUR: 10, Res.BREAD: 8}  # scorte di partenza, vedi keep; i pasti
 	# MEALS_PER_COLONIST a testa
 enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT, ICE, GARDEN }  # cosa segna il trascinamento del mouse
 const ORDER_COLORS := [Color.TRANSPARENT, Color.ORANGE, Color("8fd3ff"), Color("9be36a"), Color("e6e2d0"),
@@ -595,7 +613,8 @@ enum Build { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE
 	MEDICINE_CHEST,  # l'armadio dei rimedi: con un letto, la stanza è un'infermeria (vedi Tech.MEDICINE)
 	GRAVE,  # la tomba, all'aperto: ci si seppellisce un morto (vedi graves, Job.BURY)
 	MEMORIAL,  # il memoriale dei caduti (Statuaria): il lutto un giorno in meno (vedi mourning_days)
-	WATER_MILL }  # il mulino ad acqua, sulla riva del torrente: la farina (vedi Tech.MILL, banked)
+	WATER_MILL,  # il mulino ad acqua, sulla riva del torrente: la farina (vedi Tech.MILL, banked)
+	OVEN }  # il forno di pietra, in cucina: pane, stufato, conserve (vedi Tech.STONE_OVEN)
 # materiale per casella; per i mobili, per pezzo. Un numero: del materiale del progetto; se no risorsa -> quantità, e
 # ogni viaggio porta tutta una risorsa (vedi cost_of, delivered)
 const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3,
@@ -606,7 +625,7 @@ const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1
 	Build.CANOPY_BED: 20, Build.RUG: 4, Build.WARDROBE: 12, Build.HEARTH: 15,
 	Build.WALL_HIDES: 2, Build.DOOR_CURTAIN: 2, Build.TAPESTRY: 4, Build.TILED_STOVE: 20, Build.ICE_PIT: 20, Build.COMPOST_HEAP: 6, Build.CRADLE: 4,
 	Build.WEAPON_RACK: {Res.WOOD: 6, Res.INGOT: 1}, Build.TARGET: {Res.WOOD: 4, Res.FLAX: 2}, Build.LOCK_BENCH: {Res.WOOD: 4, Res.INGOT: 2},
-	Build.MEDICINE_CHEST: 8, Build.GRAVE: 4, Build.MEMORIAL: 10, Build.WATER_MILL: {Res.WOOD: 20, Res.STONE: 10},
+	Build.MEDICINE_CHEST: 8, Build.GRAVE: 4, Build.MEMORIAL: 10, Build.WATER_MILL: {Res.WOOD: 20, Res.STONE: 10}, Build.OVEN: 20,
 	Build.PALISADE: 4, Build.GATE: 6, Build.PLASTER: 1}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
 const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
@@ -620,7 +639,7 @@ const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Buil
 	Build.HEARTH: Vector2i.ONE, Build.WALL_HIDES: Vector2i.ONE, Build.DOOR_CURTAIN: Vector2i.ONE, Build.TAPESTRY: Vector2i.ONE,
 	Build.TILED_STOVE: Vector2i.ONE, Build.ICE_PIT: Vector2i(2, 2), Build.COMPOST_HEAP: Vector2i.ONE,
 	Build.CRADLE: Vector2i.ONE, Build.WEAPON_RACK: Vector2i.ONE, Build.TARGET: Vector2i.ONE, Build.LOCK_BENCH: Vector2i.ONE,
-	Build.MEDICINE_CHEST: Vector2i.ONE, Build.GRAVE: Vector2i(1, 2), Build.MEMORIAL: Vector2i.ONE, Build.WATER_MILL: Vector2i(2, 2)}
+	Build.MEDICINE_CHEST: Vector2i.ONE, Build.GRAVE: Vector2i(1, 2), Build.MEMORIAL: Vector2i.ONE, Build.WATER_MILL: Vector2i(2, 2), Build.OVEN: Vector2i(2, 1)}
 # mobili animati: secondi per fotogramma; i fotogrammi stanno nelle colonne dei quarti di giro (sono simmetrici)
 const ANIMATED := {Build.CAMPFIRE: 0.15, Build.BANNER: 0.3, Build.FOUNTAIN: 0.2}
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
@@ -630,7 +649,7 @@ const OUTDOOR := [Build.GRAVE, Build.WATER_MILL]  # solo sul prato, fuori dalle 
 # materiale fisso; il resto solo di legno
 # i cimeli: la decorazione si fa con l'oggetto trovato nelle rovine, uno a pezzo
 const RELICS := {Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}
-const BUILD_RES := {Build.PATH: Res.STONE, Build.ROAD: Res.STONE, Build.RUG: Res.HIDE, Build.FURNACE: Res.STONE, Build.HEARTH: Res.STONE,
+const BUILD_RES := {Build.PATH: Res.STONE, Build.ROAD: Res.STONE, Build.OVEN: Res.STONE, Build.RUG: Res.HIDE, Build.FURNACE: Res.STONE, Build.HEARTH: Res.STONE,
 	Build.WALL_HIDES: Res.HIDE, Build.DOOR_CURTAIN: Res.HIDE, Build.TAPESTRY: Res.FLAX, Build.TILED_STOVE: Res.STONE, Build.PLASTER: Res.STONE,
 	Build.ICE_PIT: Res.STONE, Build.ANVIL: Res.IRON, Build.PLANTER: Res.STONE, Build.FOUNTAIN: Res.STONE,
 	Build.STATUE: Res.STONE, Build.MEMORIAL: Res.STONE, Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}
@@ -682,7 +701,7 @@ const ROCK_INSULATION := 0.85  # la roccia della mappa che chiude una stanza: la
 const INSULATION_MAX := 0.9
 const FIRE_HEAT := 8.0       # il fuoco da campo
 # gradi in più nella stanza del fuoco; ponytail: uguale in ogni stanza, secondo le caselle se le stanze si fanno grandi
-const HEAT := {Build.CAMPFIRE: FIRE_HEAT, Build.HEARTH: 12.0, Build.FURNACE: 15.0, Build.TILED_STOVE: 10.0}
+const HEAT := {Build.CAMPFIRE: FIRE_HEAT, Build.HEARTH: 12.0, Build.FURNACE: 15.0, Build.TILED_STOVE: 10.0, Build.OVEN: FIRE_HEAT}
 const THROUGH_WALL := 0.5    # parte del calore di focolare e fornace che passa il muro di legno alle loro spalle
 # fuochi che passano il muro alle spalle -> parte del calore; la stufa a olle tutto, anche attraverso la pietra
 const THROUGH := {Build.HEARTH: THROUGH_WALL, Build.FURNACE: THROUGH_WALL, Build.TILED_STOVE: 1.0}
@@ -800,6 +819,7 @@ const BUILD_INFO := {
 	Build.MEDICINE_CHEST: "Herbs, ointments and bandages. With a bed, the room can be an infirmary, where the sick heal faster.",
 	Build.GRAVE: "A grave with a wooden cross, on open ground. The haulers bury the dead here: their mourning is a day shorter.",
 	Build.MEMORIAL: "A stone stele for the fallen. With a memorial, every mourning is a day shorter.",
+	Build.OVEN: "A dome of stone over a slow fire, in a kitchen. Bread from flour, stew, and preserves that keep for a third of a year. It warms the room like a campfire.",
 	Build.WATER_MILL: "On the bank of the stream, its wheel in the water: turn it so the wheel side lies along the stream. The miller grinds grain into flour. When the stream freezes the wheel stands still.",
 	Build.HEARTH: "A stone fireplace with a chimney, set against a wall. Cooks and warms like a campfire, more. Half its heat goes through a wooden wall at its back, none through stone.",
 	Build.ANVIL: "An iron anvil on a stump. A forge needs one, and a furnace. Tools and metal armor are made here.",
@@ -993,6 +1013,9 @@ const ICONS := {
 	Res.BEANS: preload("res://art/icon_beans.png"),
 	Res.GRAIN: preload("res://art/icon_grain.png"),
 	Res.FLOUR: preload("res://art/icon_flour.png"),
+	Res.BREAD: preload("res://art/icon_bread.png"),
+	Res.STEW: preload("res://art/icon_stew.png"),
+	Res.PRESERVES: preload("res://art/icon_preserves.png"),
 	Res.ROT: preload("res://art/icon_rot.png"),
 	Res.COMPOST: preload("res://art/icon_compost.png"),
 	Res.ASH: preload("res://art/icon_ash.png"),
@@ -1104,7 +1127,7 @@ const TRAIT_INFO := {  # suggerimento col mouse sopra il talento: com'è, poi co
 # condizioni: effetti a tempo, con un'icona 16x16 nella scheda (colonne di CONDITIONS_SHEET nell'ordine di Cond).
 # Dati: [giorni, tempo di lavoro x, stress da lavoro x, felicità +, descrizione]. Vedi add_cond, work_factor, update_needs
 enum Cond { POISONED, WELL_FED, FEASTED, AT_TABLE, ATE_RAW, MOURNING, FESTIVE, PILLORIED, HEARD, WEDDING, PREGNANT,
-	ROYAL_MOURNING, CORONATION, FOREIGNER, INSPIRED, FEVER, TREATED, FAREWELL }
+	ROYAL_MOURNING, CORONATION, FOREIGNER, INSPIRED, FEVER, TREATED, FAREWELL, WARMED }
 const CONDITIONS_SHEET := preload("res://art/conditions.png")
 const COND_INFO := {
 	Cond.POISONED: [1.0, 1.5, 1.0, -20.0, "Ate raw food that was going bad. Works slowly."],
@@ -1125,7 +1148,9 @@ const COND_INFO := {
 	Cond.FEVER: [3.0, 1.5, 1.0, -10.0, "Has a fever. Works slowly and tires twice as fast."],
 	Cond.TREATED: [1.0, 1.0, 1.0, 0.0, "Treated by a doctor: heals twice as fast."],
 	Cond.FAREWELL: [2.0, 1.0, 1.0, 5.0, "Said farewell at the funeral: the mourning weighs less."],  # quanto il lutto (vedi farewell)
+	Cond.WARMED: [0.5, 1.0, 1.0, 0.0, "Had a hot stew: cold and rain take away half as much comfort."],
 }
+const WARMED_COLD := 0.5    # rifocillato: il comfort che freddo e pioggia tolgono, x
 const GLUTTON_MOOD := 2.0  # il goloso: tanta felicità in più (o in meno) da quello che mangia
 const FOOD_CONDS := [Cond.WELL_FED, Cond.FEASTED, Cond.AT_TABLE, Cond.ATE_RAW]
 # Effetti dei talenti, vedi fx. "hours": ore della routine base cambiate (prima di spostarla); "shift": ore di cui si
@@ -1286,7 +1311,7 @@ const BRANCHES_SHEET := preload("res://art/branches.png")
 enum Tech { FORGE, TAILORING, HUNTING, INN, MASONRY, DECOR, LANTERNS, IRON_ARMS, BOOKSHELF, CHAINMAIL, FOUNTAIN, STATUARY,
 	ASTRONOMY, CHARCOAL, COLD_STORE, PAVED_ROAD, DRY_RATIONS, CARTOGRAPHY, PALISADE, TRAINING_DUMMY, SMOKEHOUSE, RENOWNED_INN,
 	WATCHTOWER, SHIELD, LENDING_ARMORY, STEEL, SCRIPTORIUM, FINE_FURNITURE, PALACE, LOOM, TILED_STOVE, ICEHOUSE, GARDEN,
-	SOIL_SURVEY, ALMANAC, LAND_REGISTER, MANURING, CROWN_COMPANY, BARRACKS, HERBALISM, MEDICINE, MILL }
+	SOIL_SURVEY, ALMANAC, LAND_REGISTER, MANURING, CROWN_COMPANY, BARRACKS, HERBALISM, MEDICINE, MILL, STONE_OVEN }
 const TECHS_SHEET := preload("res://art/techs.png")
 const TECHS := {
 	Tech.FORGE: {"branch": Branch.FIRE, "tier": 1, "cost": 60, "builds": [Build.FURNACE, Build.ANVIL],
@@ -1377,6 +1402,9 @@ const TECHS := {
 		"info": "The medicine chest and the infirmary, and the Doctor column: doctors carry the downed to an infirmary bed and treat them, the wounded and the fevered."},
 	Tech.MILL: {"branch": Branch.LAND, "tier": 1, "cost": 100, "needs": [Tech.GARDEN], "builds": [Build.WATER_MILL],
 		"makes": [Res.FLOUR], "info": "Grain in the field planning (100 days), and the water mill on the bank of the stream: grain becomes flour."},
+	Tech.STONE_OVEN: {"branch": Branch.LAND, "tier": 2, "cost": 300, "needs": [Tech.GARDEN], "builds": [Build.OVEN],
+		"makes": [Res.BREAD, Res.STEW, Res.PRESERVES],
+		"info": "The stone oven, in a kitchen: bread from flour (it keeps 8 days), stew from vegetables and meat or fish (warms you up), preserves that keep for 120 days."},
 }
 const ROAD_SPEED := 1.25    # sulla strada lastricata si va più svelti
 const MAPPED_TRAVEL := 0.75 # con la cartografia, giorni di viaggio x
@@ -1530,6 +1558,7 @@ class Colonist:
 	var gear := {}                # Slot -> Res: quello che indossa o ha in mano (vedi GEAR)
 	var loadout := {}             # Slot -> Res scelto nella scheda, null: niente; slot che manca: automatico (vedi fits)
 	var recipe := 0               # CRAFT: indice in RECIPES
+	var recipe_needs := {}        # CRAFT: gli ingredienti scelti (Res -> quantità; vedi resolve)
 	var fetched := {}             # CRAFT: Res -> quantità già portata alla postazione
 	var bucket := false           # DOUSE: ha il secchio pieno
 	var work_left := 0.0          # secondi: del colpo, della costruzione o, a svago e in sfuriata, del tempo che resta
@@ -3213,7 +3242,11 @@ func open_craft(origin: Vector2i) -> void:
 			var amount := Label.new()
 			amount.text = str(r[1][res])
 			row.add_child(amount)
-			row.add_child(ui_icon(ICONS[res], Rect2(), Vector2(16, 16)))
+			var icon := ui_icon(ICONS[GROUPS[res][0] if GROUPS.has(res) else res], Rect2(), Vector2(16, 16))
+			if GROUPS.has(res):  # a scelta: col mouse sopra, quali
+				icon.tooltip_text = tr("Any of: %s") % ", ".join(GROUPS[res].map(func(g): return named(Res, g, "item").to_lower()))
+				icon.mouse_filter = Control.MOUSE_FILTER_PASS
+			row.add_child(icon)
 		var count := SpinBox.new()
 		count.prefix = tr("Keep")  # il prefisso non si traduce da sé
 		count.custom_minimum_size.x = 100  # se no taglia la scritta
@@ -4612,7 +4645,7 @@ func work_hours(c: Colonist) -> float:
 # Bisogno urgente da soddisfare anche nelle ore di lavoro: fame se c'è da mangiare, sonno se c'è un letto libero, noia.
 # Solo controlli veloci, niente percorsi: se poi non ci arriva, find_job gli ridà un lavoro e riprova all'ora dopo
 func urgent(c: Colonist) -> bool:
-	return (c.needs[Need.FOOD] < NEED_LOW and (MEALS + RAW_FOOD).any(func(r): return not items[r].is_empty())) \
+	return (c.needs[Need.FOOD] < NEED_LOW and EATEN.any(func(r): return not items[r].is_empty())) \
 		or (c.needs[Need.REST] < NEED_LOW and not free_beds(c).is_empty()) or c.needs[Need.FUN] < NEED_LOW
 
 
@@ -4710,7 +4743,8 @@ func update_needs(c: Colonist, delta: float) -> void:
 		c.needs[Need.COMFORT] = move_toward(c.needs[Need.COMFORT], NEED_MAX * comfort / COMFORT_MAX, gain)
 	else:
 		c.needs[Need.REST] -= REST_DROP * fx(c, "rest", 1.0) * (FEVER_REST if c.conds.has(Cond.FEVER) else 1.0) * day
-		c.needs[Need.COMFORT] += DISCOMFORT_DROP * weather_comfort(cell_of(c.pos), gear_sum(c, "armor")) * day
+		c.needs[Need.COMFORT] += DISCOMFORT_DROP * weather_comfort(cell_of(c.pos), gear_sum(c, "armor")) * day \
+			* (WARMED_COLD if c.conds.has(Cond.WARMED) else 1.0)
 	if c.job == Job.RELAX:
 		c.needs[Need.FUN] += FUN_GAIN * day
 	elif not asleep:
@@ -5536,7 +5570,7 @@ func find_job(c: Colonist) -> void:
 		return
 	var peckish: bool = act == Act.FREE and c.needs[Need.FOOD] < fx(c, "snack", SNACK)
 	if c.needs[Need.FOOD] < (GLUTTON_HUNGER if Trait.GLUTTON in c.traits else NEED_LOW) or peckish:
-		for res in MEALS + RAW_FOOD:  # prima i pasti, il crudo solo se non ce ne sono
+		for res in EATEN:  # prima i pasti, il crudo solo se non ce ne sono
 			var to_food := path_to_nearest(c, items[res].keys().filter(func(cell): return is_free(cell)))
 			if not to_food.is_empty():
 				start_job(c, Job.EAT, to_food, to_food.back(), 0.0)
@@ -6011,7 +6045,8 @@ func add_cond(c: Colonist, k: Cond, days := -1.0) -> void:  # `days`: se no quel
 
 
 # `c` mangia quello che ha in mano (carry_res): sazia secondo FOOD. Il crudo può intossicare (e il goloso lo mangia
-# malvolentieri); un pasto dà il suo bonus, che prende il posto di quello del pasto prima. Seduto al tavolo, un bonus in più
+# malvolentieri); un pasto (FOOD_BONUS) dà il suo bonus, che prende il posto di quello del pasto prima; lo stufato
+# rifocilla. Seduto al tavolo, un bonus in più
 func eat(c: Colonist) -> void:
 	var res := c.carry_res
 	c.needs[Need.FOOD] = minf(c.needs[Need.FOOD] + FOOD[res], NEED_MAX)
@@ -6021,10 +6056,12 @@ func eat(c: Colonist) -> void:
 			add_cond(c, Cond.POISONED)
 		if Trait.GLUTTON in c.traits:
 			add_cond(c, Cond.ATE_RAW)
-	else:
+	elif FOOD_BONUS.has(res):  # il pane sazia e basta
 		c.conds.erase(Cond.WELL_FED)
 		c.conds.erase(Cond.FEASTED)
-		add_cond(c, Cond.FEASTED if res == Res.FINE_MEAL else Cond.WELL_FED)
+		add_cond(c, FOOD_BONUS[res])
+	if res == Res.STEW:
+		add_cond(c, Cond.WARMED)
 	if seats().has(cell_of(c.pos)):
 		add_cond(c, Cond.AT_TABLE)
 
@@ -6280,8 +6317,10 @@ func try_craft(c: Colonist) -> bool:
 		var r: Array = RECIPES[i]
 		var free_stations := stations(r[1]).filter(func(st): return is_free(st))  # prima il controllo che costa meno
 		if free_stations.is_empty() or not unlocked("makes", r[0]) or gear_wanted(r[0]) <= 0 \
-				or not needs_of(r).keys().all(func(res): return available(res) >= needs_of(r)[res]) \
 				or (r[0] == Res.NOTEBOOK and study < COPY_STUDY):
+			continue
+		var needs := resolve(needs_of(r))
+		if needs.is_empty():
 			continue
 		var stands := {}  # casella accanto a una postazione libera, nella sua stanza -> postazione
 		for station in free_stations:
@@ -6297,12 +6336,25 @@ func try_craft(c: Colonist) -> bool:
 		start_job(c, Job.CRAFT, [], station, r[4] * skill_time(c.skills[r[2]]) * comfort_time(station_comfort(station))
 			* work_factor(c, Job.CRAFT) * (SMOKE_TIME if r[0] in SMOKED and furniture[station][0] == Build.CAMPFIRE else 1.0))
 		c.recipe = i
+		c.recipe_needs = needs
 		if r[0] == Res.NOTEBOOK:  # la copia: lo studio si spende subito (ponytail: perso se la si molla a metà)
 			study -= COPY_STUDY
 		c.dest = path.back()
 		c.path = path  # prima alla postazione, poi da lì a prendere gli ingredienti (vedi craft)
 		return true
 	return false
+
+
+# Gli ingredienti `needs` con quelli a scelta (GROUPS) presi da un tipo di cui ce n'è abbastanza nei mucchi liberi,
+# il primo del gruppo (marcisce prima). {} se ne manca qualcuno
+func resolve(needs: Dictionary) -> Dictionary:
+	var out := {}
+	for key in needs:
+		var pick: Array = GROUPS.get(key, [key]).filter(func(res): return available(res) >= needs[key] and not out.has(res))
+		if pick.is_empty():
+			return {}
+		out[pick[0]] = needs[key]
+	return out
 
 
 # Ingredienti della ricetta `r`: con l'acciaio attrezzi e spade vogliono acciaio al posto dei lingotti
@@ -6329,13 +6381,16 @@ func available(res: Res) -> int:
 # l'oggetto cade ai suoi piedi (o è rovinato: ingredienti persi), +1 punto esperienza
 func craft(c: Colonist, delta: float) -> void:
 	var r: Array = RECIPES[c.recipe]
+	if c.recipe_needs.is_empty():  # un lavoro di un salvataggio di prima: gli ingredienti della ricetta
+		c.recipe_needs = needs_of(r)
+	var needs: Dictionary = c.recipe_needs
 	if not stations(r[1]).has(c.target):
 		quit_job(c)  # postazione abbattuta, o la stanza ha cambiato tipo: lascia giù quello che aveva
 		return
 	var here := cell_of(c.pos)
 	if here != c.dest:  # a un mucchio
 		reserved.erase(here)
-		var take := mini(mini(items[c.carry_res].get(here, 0), needs_of(r)[c.carry_res] - c.fetched.get(c.carry_res, 0)), CARRY_MAX)
+		var take := mini(mini(items[c.carry_res].get(here, 0), needs.get(c.carry_res, 0) - c.fetched.get(c.carry_res, 0)), CARRY_MAX)
 		if take <= 0:
 			quit_job(c)
 			return
@@ -6347,8 +6402,8 @@ func craft(c: Colonist, delta: float) -> void:
 	if c.carrying > 0:
 		c.fetched[c.carry_res] = c.fetched.get(c.carry_res, 0) + c.carrying
 		c.carrying = 0
-	for res in needs_of(r):
-		if c.fetched.get(res, 0) < needs_of(r)[res]:
+	for res in needs:
+		if c.fetched.get(res, 0) < needs[res]:
 			var to := path_to_nearest(c, items[res].keys().filter(func(cell): return cell != c.dest and is_free(cell)))
 			if to.is_empty():
 				quit_job(c)
@@ -6364,11 +6419,15 @@ func craft(c: Colonist, delta: float) -> void:
 	c.fetched.clear()
 	learn(c, r[2], r[4])
 	end_job(c)
-	if r[0] in SURE or randf() >= burn_chance(c.skills[r[2]], station_comfort(c.target)):
-		produce(r[0], here, r[5] if r.size() > 5 else 1)
+	var comfort := station_comfort(c.target)
+	if r[0] in SURE or randf() >= burn_chance(c.skills[r[2]], comfort):
+		var made: Res = r[0]
+		if made == Res.STEW and randf() < fine_chance(c.skills[r[2]], comfort):  # lo stufato squisito: pasti squisiti
+			made = Res.FINE_MEAL
+		produce(made, here, r[5] if r.size() > 5 else 1)
 		if r[0] == Res.COAL and r[3].has(Res.WOOD) and researched.has(Tech.MANURING):  # la carbonaia lascia la cenere
 			drop(Res.ASH, here, 1)
-		try_haul(c, r[0], [here])
+		try_haul(c, made, [here])
 
 
 # --- Combattimento ---
@@ -7743,7 +7802,7 @@ func provisions(party: Array, ruin: Ruin) -> int:
 
 
 func food_stored() -> int:
-	return (MEALS + RAW_FOOD).reduce(func(n, r): return n + stored(r) + granary.get(r, 0), 0) + stored(Res.HARDTACK) * HARDTACK_FOOD
+	return EATEN.reduce(func(n, r): return n + stored(r) + granary.get(r, 0), 0) + stored(Res.HARDTACK) * HARDTACK_FOOD
 
 
 # Manda il gruppo `party` (dalla locanda, al più MAX_PARTY) alla rovina `ruin`: paga dal magazzino la somma delle
@@ -7764,7 +7823,7 @@ func send(party: Array, ruin: Ruin) -> bool:
 	var biscuits := mini(stored(Res.HARDTACK), ceili((want - exp.food) / HARDTACK_FOOD))
 	take_stored(Res.HARDTACK, biscuits)
 	exp.food += biscuits * HARDTACK_FOOD
-	for res in MEALS + RAW_FOOD:
+	for res in EATEN:
 		var n := mini(stored(res), want - int(exp.food))
 		take_stored(res, n)
 		exp.food += n
@@ -9299,10 +9358,10 @@ func new_hour() -> void:
 				and c.job not in [Job.SLEEP, Job.FIGHT, Job.FLEE, Job.TANTRUM, Job.PROTEST, Job.OATH] \
 				and enacted.filter(func(law): return law_mood_of(c, law) < 0).size() >= PROTEST_LAWS:
 			protest(c)
-	if not enacted.has(Law.OPEN_GRANARY) or (MEALS + RAW_FOOD).any(func(r): return stored(r) > 0):
+	if not enacted.has(Law.OPEN_GRANARY) or EATEN.any(func(r): return stored(r) > 0):
 		return
 	var left := colonists.size()
-	for res in MEALS + RAW_FOOD:
+	for res in EATEN:
 		var dests := dest_cells(res)
 		var n := mini(granary.get(res, 0), left)
 		if n > 0 and not dests.is_empty():
@@ -9373,7 +9432,7 @@ func give_back(g: Colonist) -> void:
 # toglie dal granaio fino a `n` pezzi di cibo, prima i pasti; quanti ne ha tolti
 func from_granary(n: int) -> int:
 	var taken := 0
-	for res in MEALS + RAW_FOOD:
+	for res in EATEN:
 		var k := mini(granary.get(res, 0), n - taken)
 		granary[res] = granary.get(res, 0) - k
 		taken += k

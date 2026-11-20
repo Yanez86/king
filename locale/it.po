@@ -3153,8 +3153,8 @@ msgstr "Curare"
 msgid "Cooking meals at the campfire or the hearth."
 msgstr "Cucinare i pasti al fuoco da campo o al focolare."
 
-msgid "Forge, workbench, spinning wheel, carpenter's bench, furnace, mill."
-msgstr "Forgia, banco da lavoro, filatoio, banco del falegname, fornace, mulino."
+msgid "Forge, workbench, spinning wheel, carpenter's bench, furnace, mill, oven."
+msgstr "Forgia, banco da lavoro, filatoio, banco del falegname, fornace, mulino, forno."
 
 msgid "Felling the marked trees."
 msgstr "Abbattere gli alberi segnati."
@@ -4169,3 +4169,36 @@ msgstr "Sulla riva del torrente, con la ruota nell'acqua: giralo perché il lato
 
 msgid "Grain in the field planning (100 days), and the water mill on the bank of the stream: grain becomes flour."
 msgstr "Il grano nella pianificazione dei campi (100 giorni), e il mulino ad acqua sulla riva del torrente: il grano diventa farina."
+
+msgctxt "item"
+msgid "Bread"
+msgstr "Pane"
+
+msgctxt "item"
+msgid "Stew"
+msgstr "Stufato"
+
+msgctxt "item"
+msgid "Preserves"
+msgstr "Conserve"
+
+msgid "Oven"
+msgstr "Forno"
+
+msgid "Stone Oven"
+msgstr "Forno di pietra"
+
+msgid "Any of: %s"
+msgstr "A scelta: %s"
+
+msgid "Warmed"
+msgstr "Rifocillato"
+
+msgid "Had a hot stew: cold and rain take away half as much comfort."
+msgstr "Ha mangiato uno stufato caldo: freddo e pioggia tolgono metà comfort."
+
+msgid "A dome of stone over a slow fire, in a kitchen. Bread from flour, stew, and preserves that keep for a third of a year. It warms the room like a campfire."
+msgstr "Una cupola di pietra su un fuoco lento, in una cucina. Pane dalla farina, stufato, e conserve che durano un terzo d'anno. Scalda la stanza come un fuoco da campo."
+
+msgid "The stone oven, in a kitchen: bread from flour (it keeps 8 days), stew from vegetables and meat or fish (warms you up), preserves that keep for 120 days."
+msgstr "Il forno di pietra, in una cucina: pane dalla farina (dura 8 giorni), stufato da vegetali e carne o pesce (rifocilla), conserve che durano 120 giorni."

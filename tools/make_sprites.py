@@ -4187,6 +4187,133 @@ def tech_mill():
     return outlined(px, 12, 12)
 
 
+# --- Il forno di pietra (GDD 4.4.7): pane, stufato, conserve ---
+
+BREAD_ICON = """
+................
+................
+................
+.....oooooo.....
+...oocccccCoo...
+..occ_cc_cccCo..
+.occc_cc_ccCCCo.
+.occcc_cc_cCCCo.
+.oCcccccccCCCCo.
+.oCCcccccCCCCCo.
+..oCCCCCCCCCCo..
+...oooooooooo...
+..zzzzzzzzzzzz..
+................
+................
+................
+"""
+
+STEW_ICON = """
+.....x....x.....
+......x....x....
+.....x....x.....
+......x....x....
+................
+................
+..oooooooooooo..
+.oC=CcLC=CcCLCo.
+.ocC=CcC=LCc=co.
+..owwwwwwwwwwo..
+..owcwwwwwwwWo..
+...owwwwwwwWo...
+....oWWWWWWo....
+.....oooooo.....
+................
+................
+"""
+
+PRESERVES_ICON = """
+................
+....oooooooo....
+...o++++++++o...
+...oX+++++XXo...
+....oCCCCCCo....
+....oFFFFFfo....
+...oFFFFFFffo...
+..oFFwFFFFFffo..
+..oFwFFFFFFffo..
+..oFwFFFFFffDo..
+..oFFFFFFFffDo..
+...offfffffDo...
+....oooooooo....
+...zzzzzzzzzz...
+................
+................
+"""
+
+TECH_OVEN = """
+............
+....oooo....
+..oouuuroo..
+.ourrrrrRRo.
+.orrooooRRo.
+orro8998oRio
+orRo9889oRio
+oRRo=99=oiio
+oiiiiiiiiiio
+oooooooooooo
+............
+............
+"""
+
+
+def oven():
+    """Forno di pietra 2x1 nei quattro quarti di giro, come il focolare: davanti (la bocca col fuoco in basso), di
+    lato (la bocca a sinistra), dietro (senza bocca), l'altro lato (lo specchio). Una cupola di pietra su uno zoccolo."""
+    def dome(w, h, mouth):
+        px = {}
+        cx, cy = w / 2, h - 4  # il centro della cupola, sopra lo zoccolo
+        rx, ry = w / 2 - 2.5, h - 6.5
+        for y in range(h):
+            for x in range(w):
+                dx, dy = (x + 0.5 - cx) / rx, (y + 0.5 - cy) / ry
+                if y < cy and dx * dx + dy * dy <= 1:  # la cupola
+                    joint = (x + (y // 3) * 2) % 5 == 0 and y % 3 == 0
+                    px[(x, y)] = "u" if dx < -0.35 and dy < -0.25 else ("R" if dx > 0.45 or joint else "r")
+                elif cy <= y < h - 2 and 2 <= x < w - 2:  # lo zoccolo
+                    px[(x, y)] = "i" if y == h - 3 else ("R" if x > w - 6 else "r")
+        if mouth == "front":
+            mx = w // 2
+            for y in range(h - 9, h - 3):
+                for x in range(mx - 4, mx + 4):
+                    edge = x in (mx - 4, mx + 3) or y == h - 9
+                    px[(x, y)] = "o" if edge else "=89"[(x + y) % 3] if y >= h - 6 else "6"
+        return px
+
+    def long_dome():
+        """di lato: la cupola lunga vista dall'alto, la bocca col fuoco sul fianco sinistro"""
+        px = {}
+        cx, cy, rx, ry = 8, 14.5, 6.6, 12.5
+        for y in range(32):
+            for x in range(16):
+                dx, dy = (x + 0.5 - cx) / rx, (y + 0.5 - cy) / ry
+                if dx * dx + dy * dy <= 1:
+                    joint = (y + (x // 3) * 2) % 5 == 0 and x % 3 == 0
+                    px[(x, y)] = "u" if dx < -0.3 and dy < 0.3 else ("R" if dx > 0.45 or dy > 0.75 or joint else "r")
+                elif 26 <= y < 30 and 3 <= x < 13:  # lo zoccolo davanti
+                    px[(x, y)] = "i" if y == 29 else ("R" if x > 10 else "r")
+        for y in range(11, 18):
+            for x in range(1, 5):
+                px[(x, y)] = "o" if x == 4 or y in (11, 17) else "=89"[(x + y) % 3]
+        return px
+    from_px = lambda px, w, h: outlined_wh(px, w, h)
+    front = from_px(dome(32, 16, "front"), 32, 16)
+    side = from_px(long_dome(), 16, 32)
+    back = from_px(dome(32, 16, None), 32, 16)
+    return [front, side, back, ["".join(reversed(r)) for r in side]]
+
+
+def outlined_wh(px, w, h):
+    """col contorno, e l'ombra a terra nell'ultima riga"""
+    out = outlined(px, w, h)
+    return out[:-1] + ["".join("z" if 1 <= x < w - 1 and ch == "." else ch for x, ch in enumerate(out[-1]))]
+
+
 def frames(block, height=16, count=3, width=16):
     """Blocco di testo -> lista di fotogrammi, ognuno `height` righe da `width` caratteri."""
     rows = [line.split() for line in block.strip().splitlines()]
@@ -4508,7 +4635,7 @@ def furniture_sheet():
     filatoio, banco del falegname, poi le decorazioni: aiuola, fioriera, panca, stendardo, lampione, fontana, statua;
     la bacheca; i cimeli: calice, stendardo antico, busto, corona; scrittoio, libreria, trono, fantoccio, torre di guardia, baldacchino, tappeto, armadio, focolare, pelli alle pareti, portiera, arazzo, stufa a olle, fossa del ghiaccio, quattro righe vuote (le strutture che vengono dopo
     in Build), il cumulo del compost, la culla; la rastrelliera, il bersaglio e il banco degli scassi; l'armadio dei rimedi,
-    la tomba, il memoriale, il mulino ad acqua (come Build in main.gd);
+    la tomba, il memoriale, il mulino ad acqua, il forno (come Build in main.gd);
     colonne: quarti di giro in senso orario (per fuoco, stendardo e fontana, fotogrammi), ognuno in alto a sinistra nel suo riquadro 32x32."""
     bed, chair, chair_left = art(BED, 32, 16), art(CHAIR, 16, 16), art(CHAIR_LEFT, 16, 16)
     table, lamp, anvil = art(TABLE, 32, 32), art(LAMP, 16, 16), art(ANVIL, 16, 16)
@@ -4551,7 +4678,7 @@ def furniture_sheet():
     rows += [[art(MEDICINE_CHEST, 16, 16)] * 4]
     rows += [[grave(False, True), grave(False, False), grave(True, True), grave(True, False)]]
     rows += [[art(MEMORIAL, 16, 16)] * 4]
-    rows += [water_mill()]
+    rows += [water_mill(), oven()]
     slot = lambda g: [line.ljust(32, ".") for line in g] + ["." * 32] * (32 - len(g))
     return [line for row in rows for line in side_by_side([slot(g) for g in (row or [[]] * 4)])]
 
@@ -4619,6 +4746,9 @@ def main():
     images["icon_beans"] = pixels(["." * 16] + crops[9][:15])
     images["icon_grain"] = pixels(["." * 16] * 2 + crops[12][:14])
     images["icon_flour"] = pixels(art(FLOUR_ICON, 16, 16))
+    images["icon_bread"] = pixels(art(BREAD_ICON, 16, 16))
+    images["icon_stew"] = pixels(art(STEW_ICON, 16, 16))
+    images["icon_preserves"] = pixels(art(PRESERVES_ICON, 16, 16))
     images["field_sign"] = pixels(art(FIELD_SIGN, 16, 16))
     images["icon_soil"] = pixels(art(SOIL_ICON, 16, 16))
     images["icon_rot"], images["icon_compost"], images["icon_ash"] = (pixels(f) for f in frames(MANURE_ICONS))
@@ -4670,7 +4800,7 @@ def main():
                                                                               mourning_crown, art(CROWN, 16, 16),
                                                                               art(FOREIGNER, 16, 16), art(INSPIRED, 16, 16),
                                                                               art(FEVER, 16, 16), art(TREATED, 16, 16),
-                                                                              art(FAREWELL, 16, 16)]))
+                                                                              art(FAREWELL, 16, 16), art(STEW_ICON, 16, 16)]))
     images["baby"] = pixels(art(BABY, 16, 16))
     images["ground"] = pixels(ground_sheet())
     images["warehouse_day"] = pixels(art(WAREHOUSE, 64, 32))
@@ -4722,7 +4852,8 @@ def main():
         + frames(TECH_SYMBOLS_7, 12, 2, 12) + frames(TECH_SYMBOLS_8, 12, 3, 12) + frames(TECH_SYMBOLS_9, 12, 1, 12) \
         + frames(TECH_SYMBOLS_10, 12, 3, 12) + [art(TECH_GARDEN, 12, 12)] + frames(TECH_SOIL, 12, 3, 12) \
         + [art(TECH_MANURE, 12, 12), art(TECH_COMPANY, 12, 12), art(TECH_BARRACKS, 12, 12),
-           art(TECH_HERBALISM, 12, 12), art(TECH_MEDICINE, 12, 12), tech_mill()]
+           art(TECH_HERBALISM, 12, 12), art(TECH_MEDICINE, 12, 12), tech_mill(),
+           art(TECH_OVEN, 12, 12)]
     images["techs"] = pixels(side_by_side([badge(f) for f in techs]))
     laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 3, 12) + frames(LAW_SYMBOLS_5, 12, 3, 12) + frames(LAW_SYMBOLS_6, 12, 4, 12) \
         + frames(LAW_SYMBOLS_7, 12, 3, 12) + [art(LAW_FUNERALS, 12, 12)]

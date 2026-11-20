@@ -473,7 +473,8 @@ Decisa il 2026-11-19. Numeri da tarare.
   | Cavoli (orto) | 35 | 14 / 28 giorni | 2% → 30% |
 
 - **Pasti**: 2 crudi dello stesso mucchio (vegetali, pesce o carne) → 1 pasto, che sazia 100 e dà *ben nutrito*. Non intossica.
-  Chi ha fame prende prima un pasto squisito, poi un pasto, il crudo solo se non ce ne sono (vegetali, pesce, carne).
+  Chi ha fame prende prima un pasto squisito, poi un pasto, il crudo solo se non ce ne sono (vegetali, pesce, carne);
+  col forno anche stufato e pane (vedi l'ordine in 4.4.7).
   Se entro 20 caselle c'è una sedia libera accanto a un tavolo, lo porta lì e lo mangia seduto (*mangiato al tavolo*).
 - **Cucinare** (abilità cucinare): in una stanza di tipo cucina, accanto al fuoco da campo. Il cuoco prende 2 crudi dal
   mucchio più vicino, cucina, il pasto cade ai suoi piedi e lo porta in magazzino. Si cucina finché in giro
@@ -1028,10 +1029,11 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
   | Ricetta | Ingredienti | Dà | Secondi (liv. 5) | Scorta all'inizio |
   |---|---|---|---|---|
   | Pane | 2 farina | 3 pani | 10 | 2 a testa |
-  | Stufato | 2 vegetali dello stesso mucchio + 1 carne o pesce (anche affumicati) | 2 stufati | 12 | 0 |
-  | Conserve | 2 vegetali dello stesso mucchio | 2 conserve | 10 | 0 |
+  | Stufato | 2 vegetali dello stesso tipo + 1 carne o pesce (anche affumicati) | 2 stufati | 12 | 0 |
+  | Conserve | 2 vegetali dello stesso tipo | 2 conserve | 10 | 0 |
 
-  Bruciato e squisito come in cucina (lo stufato squisito vale un pasto squisito).
+  Bruciato e squisito come in cucina (lo stufato squisito esce come pasti squisiti). Il fornaio prende prima i
+  vegetali e la carne che marciscono prima.
 - **Cibi nuovi** (durano il doppio in magazzino e il triplo in dispensa, come gli altri):
 
   | Cibo | Sazia | Dura (fuori) | Intossica | Note |
@@ -1106,10 +1108,15 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
   pascolo; (4) la Stalla: stalla e mangiatoie, il fieno, l'inverno nella stalla, pecore e mucche, latte e formaggio,
   tosatura e lana, il letame; (5) la macina a trazione; (6) l'Apicoltura: arnia, miele, cera, candele; (7) il Banchetto
   reale.
-- **Stato**: fatta la fase 1 il 2026-11-20 (test in `tests/test_grain.gd`): il torrente (`stream`, salvato: le partite
+- **Stato**: fatte le fasi 1–2 il 2026-11-20 (test in `tests/test_grain.gd`): il torrente (`stream`, salvato: le partite
   di prima non ce l'hanno, e lì il mulino non si fa), il grano nella pianificazione col Mulino, il mulino ad acqua e la
   farina. Il mulino è la prima postazione all'aperto: senza stanza, chi ci lavora sta fuori (`station_stand`), col
   comfort a metà (`station_comfort`); la ruota è il lato destro del disegno, girato in senso orario (`wheel_cells`).
+  Il forno: gli ingredienti a scelta delle ricette sono gruppi (`GROUPS`: chiavi negative in `RECIPES`), che il
+  fornaio sceglie quando comincia (`resolve`) e si tiene finché non ha finito (`recipe_needs`); nel menu, l'icona del
+  primo del gruppo e col mouse sopra gli altri. L'ordine dei cibi è `EATEN` (`COOKED`, poi il crudo); il pane non dà
+  bonus, lo stufato *ben nutrito* e *rifocillato* (`WARMED_COLD`). Come ricerca si chiama Forno di pietra (Stone oven),
+  come mobile Forno.
 
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100, con laghi e, nelle mappe nuove, un torrente (4.4.7).
@@ -1286,7 +1293,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   |---|---|---|---|---|---|
   | Terra | Orto ✓ | I | 80 | — | zona orto e lavoro Coltivare: rape in 60 giorni e cavoli in 90, niente d'inverno |
   | | Mulino ✓ | I | 100 | Orto | il grano nei campi; il mulino ad acqua sul torrente: la farina (vedi 4.4.7) |
-  | | Forno di pietra | II | 300 | Orto | forno 2x1 in cucina: pane (2 farina → 3, sazia 60, dura 8 giorni), stufato, conserve (vedi 4.4.7) |
+  | | Forno di pietra ✓ | II | 300 | Orto | forno 2x1 in cucina: pane (2 farina → 3, sazia 60, dura 8 giorni), stufato, conserve (vedi 4.4.7) |
   | | Saggio del terreno ✓ | I | 60 | Orto | la lente della terra (O) in tre fasce; la fascia sul cartello del campo |
   | | Almanacco agrario ✓ | II | 250 | Saggio del terreno | cinque fasce; se un campo sale o scende rispetto a un anno prima |
   | | Catasto ✓ | III | 450 | Almanacco agrario | i numeri della terra e il prossimo raccolto di ogni campo |

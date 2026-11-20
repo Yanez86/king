@@ -202,6 +202,7 @@ Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleep
 [cell]Fever[/cell][cell]3 days[/cell][cell]50% slower[/cell][cell]-10[/cell]
 [cell]Treated[/cell][cell]1 day[/cell][cell]–[/cell][cell]–[/cell]
 [cell]Farewell[/cell][cell]as the mourning[/cell][cell]–[/cell][cell]+5[/cell]
+[cell]Warmed[/cell][cell]half a day[/cell][cell]–[/cell][cell]–[/cell]
 [/table]
 • Poisoned: from raw food, more likely the closer it is to rotting.
 • Well fed: after a meal; stress from work -25%. Feasted: after a fine meal; stress from work -50%. A new meal replaces the condition of the last one.
@@ -216,6 +217,7 @@ Glutton and Small appetite, Lazy and Workaholic, Early bird and Night owl, Sleep
 • Inspired: now and then a grown-up colonist with at least 60 happiness has a bright idea (see Basics, Events).
 • Fever: now and then a colonist falls ill (see Basics, Events) and tires twice as fast. It doesn't spread; a doctor cures it within half a day.
 • Treated: a doctor took care of them; health comes back twice as fast (see Medicine & Death).
+• Warmed: had a hot stew; cold and rain take away half as much comfort.
 • Farewell: they went to the funeral, with the Funerals law: as long as that mourning lasts, it weighs 5 less (see Medicine & Death).
 The laws in force that a colonist likes or dislikes show here too, with their icon."""],
 
@@ -392,7 +394,7 @@ The Heat lens (N) tints rooms by temperature: red warm, yellow cool without a ma
 • Everyone fights a fire first: they fetch a bucket at the water and throw it, 2 hours off the fire each."""],
 
 	["Food & Cooking", """[color=#e8c34a]Eating[/color]
-• Hungry colonists (under 30 food; the glutton at 50) take the nearest food: fine meals first, then meals, raw food only when there are none (vegetables, fish, meat, smoked, then turnips, cabbages and beans, which keep longer). In free time they also snack under 60.
+• Hungry colonists (under 30 food; the glutton at 50) take the nearest food: fine meals first, then stew, meals, bread, raw food only when there is none of those (vegetables, fish, meat, smoked, then turnips, cabbages, beans and preserves, which keep longer). In free time they also snack under 60.
 • If a chair beside a table is free within 20 tiles, they carry the food there and eat sitting: +5 happiness (At table).
 
 [color=#e8c34a]Food[/color]
@@ -406,17 +408,23 @@ The Heat lens (N) tints rooms by temperature: red warm, yellow cool without a ma
 [cell][img=center]res://art/icon_beans.png[/img] Beans[/cell][cell]40[/cell][cell]60 days[/cell][cell]1–15%[/cell]
 [cell][img=center]res://art/icon_meal.png[/img] Meal[/cell][cell]100[/cell][cell]3 days[/cell][cell]–[/cell]
 [cell][img=center]res://art/icon_fine_meal.png[/img] Fine meal[/cell][cell]100[/cell][cell]3 days[/cell][cell]–[/cell]
+[cell][img=center]res://art/icon_stew.png[/img] Stew[/cell][cell]100[/cell][cell]3 days[/cell][cell]–[/cell]
+[cell][img=center]res://art/icon_bread.png[/img] Bread[/cell][cell]60[/cell][cell]8 days[/cell][cell]–[/cell]
+[cell][img=center]res://art/icon_preserves.png[/img] Preserves[/cell][cell]35[/cell][cell]120 days[/cell][cell]1–10%[/cell]
 [/table]
 • Lasts: on the ground outdoors at 15 °C; in a warehouse twice as long. Warmer it rots faster, colder slower, below zero not at all (see Roofs & Heat). Then the pile rots away. Piles that mix take the average freshness. Hover a pile: Fresh, Stale or Almost rotten, and the days left.
 • Raw food may leave you Poisoned: the lower chance when it's fresh, the higher when it's almost rotten.
-• A meal makes you Well fed, a fine meal Feasted (see Conditions).
+• A meal makes you Well fed, a fine meal Feasted (see Conditions). Stew makes you Well fed and Warmed: for half a day cold and rain take away half as much comfort. Bread only fills you up. Preserves are eaten and cooked like raw food.
 
 [color=#e8c34a]Cooking[/color]
 • At a campfire or a hearth inside a kitchen. The cook takes 2 raw foods from one pile (vegetables, fish or meat), cooks for 8 s and carries the meal to a warehouse.
 • Click the campfire: Keep N meals (8 at the start, 2 a head). Cooks cook while there are fewer meals than that, counting those on the ground, in warehouses and in hand.
 • Burnt, and the food is lost: 6% for every Cooking level below 6, plus 3% for every point of kitchen comfort below 5 (minus above). At level 0 in a kitchen of comfort 5: 36%.
 • Fine meal: 5% for every level above 5, plus 2% for every point of comfort above 5 (minus below): 25% at level 10.
-• The time also depends on the kitchen's comfort and the cook's conditions."""],
+• The time also depends on the kitchen's comfort and the cook's conditions.
+
+[color=#e8c34a]The stone oven[/color] [img=center]res://art/icon_bread.png[/img]
+After the Stone oven research (Land II): 2x1, 20 stone, in a kitchen; it warms the room like a campfire. Click it for its menu: bread from 2 flour (3 loaves, 10 s; Keep 8 at the start), stew from 2 vegetables of one kind (berries, turnips, cabbages or beans) and 1 meat or fish, smoked too (2 stews, 12 s), preserves from 2 vegetables of one kind (2 jars, 10 s). It takes first what rots first. Burnt and fine as at the fire: a fine stew comes out as fine meals."""],
 
 	["Gathering", """Mark what to take with the orders of the bottom bar, dragging a rectangle; marked things carry a faint icon. What is gathered falls at the worker's feet, and when the job is done they carry it to a warehouse.
 
@@ -475,7 +483,7 @@ Mark water tiles. The fisher stands beside them (in shallow water too) and casts
 Animals roam outside rooms and water, born more than 15 tiles from the clearing: 6 rabbits and 3 deer at first, then a new one every half day while there are fewer than 12. A marked wolf, shot at, attacks the hunter."""],
 
 	["Crafting & Equipment", """[color=#e8c34a]Workstations[/color]
-Click a station for its menu: one row for every recipe you know, with its ingredients and Keep N. Things get made while there are fewer than N around (on the ground, in warehouses, in hand, being made); Keep counts for every station of the kind. Equipment is also made for the colonists with an empty slot, and a bow when animals are marked and nobody has one. At the start: Keep 10 ingots, 2 bowstrings, 3 ointments, 10 flour, 8 meals, 0 of the rest.
+Click a station for its menu: one row for every recipe you know, with its ingredients and Keep N. Things get made while there are fewer than N around (on the ground, in warehouses, in hand, being made); Keep counts for every station of the kind. Equipment is also made for the colonists with an empty slot, and a bow when animals are marked and nobody has one. At the start: Keep 10 ingots, 2 bowstrings, 3 ointments, 10 flour, 8 bread, 8 meals, 0 of the rest.
 The crafter brings the ingredients one by one, then works. The time depends on skill, room comfort and conditions; an item may be ruined, losing the ingredients, as often as a meal burns.
 [table=4]
 [cell][color=#d9c48a]Item[/color][/cell][cell][color=#d9c48a]Station[/color][/cell][cell][color=#d9c48a]Needs[/color][/cell][cell][color=#d9c48a]Time[/color][/cell]
@@ -493,8 +501,11 @@ The crafter brings the ingredients one by one, then works. The time depends on s
 [cell]Dagger[/cell][cell]anvil[/cell][cell]1 ingot, 1 wood[/cell][cell]12 s[/cell]
 [cell]Ointment[/cell][cell]campfire[/cell][cell]2 herbs[/cell][cell]10 s[/cell]
 [cell]Flour (2)[/cell][cell]water mill[/cell][cell]2 grain[/cell][cell]4 s[/cell]
+[cell]Bread (3)[/cell][cell]oven[/cell][cell]2 flour[/cell][cell]10 s[/cell]
+[cell]Stew (2)[/cell][cell]oven[/cell][cell]2 vegetables, 1 meat or fish[/cell][cell]12 s[/cell]
+[cell]Preserves (2)[/cell][cell]oven[/cell][cell]2 vegetables[/cell][cell]10 s[/cell]
 [/table]
-Skill: Smithing at furnace and anvil, Tailoring at spinning wheel and workbench, Ranged at the carpenter bench, Medicine for the ointment, Cooking at the mill.
+Skill: Smithing at furnace and anvil, Tailoring at spinning wheel and workbench, Ranged at the carpenter bench, Medicine for the ointment, Cooking at the mill and the oven.
 
 [color=#e8c34a]The water mill[/color] [img=center]res://art/icon_flour.png[/img]
 After the Mill research: 2x2, 20 wood and 10 stone, in the open, on the bank of the stream (lakes don't flow): turn it until the whole side of its wheel lies along the stream. The miller grinds grain into flour there; nothing is ever ruined, and comfort doesn't count. When the stream freezes the wheel stands still, and its menu says so.
@@ -696,6 +707,7 @@ What you haven't researched has no build button, and its recipes don't show at t
 [color=#e8c34a]The tree[/color]
 • [color=#d9c48a]Garden[/color] (Land I, 80): garden plots and fields with their rotation; turnips in 60 days, cabbages in 90, broad beans in 100.
 • [color=#d9c48a]Mill[/color] (Land I, 100, after Garden): grain in the fields, the water mill on the bank of the stream, flour.
+• [color=#d9c48a]Stone oven[/color] (Land II, 300 and a notebook, after Garden): the oven in the kitchen; bread, stew, preserves.
 • [color=#d9c48a]Manuring[/color] (Land I, 80, after Garden): the compost heap, rot and ash, fertilizing, green manure.
 • [color=#d9c48a]Soil survey[/color] (Land I, 60, after Garden): the soil lens, in three bands.
 • [color=#d9c48a]Almanac[/color] (Land II, 250 and a notebook, after Soil survey): five bands, and the trend of every field.

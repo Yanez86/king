@@ -201,6 +201,7 @@ Goloso e Di poco appetito, Pigro e Stacanovista, Mattiniero e Nottambulo, Dormig
 [cell]Febbre[/cell][cell]3 giorni[/cell][cell]50% più lento[/cell][cell]-10[/cell]
 [cell]Medicato[/cell][cell]1 giorno[/cell][cell]–[/cell][cell]–[/cell]
 [cell]Ultimo saluto[/cell][cell]quanto il lutto[/cell][cell]–[/cell][cell]+5[/cell]
+[cell]Rifocillato[/cell][cell]mezza giornata[/cell][cell]–[/cell][cell]–[/cell]
 [/table]
 • Intossicato: dal cibo crudo, tanto più probabile quanto più è vicino a marcire.
 • Ben nutrito: dopo un pasto; stress dal lavoro -25%. Lauto pasto: dopo un pasto squisito; stress dal lavoro -50%. Un pasto nuovo sostituisce la condizione di quello prima.
@@ -215,6 +216,7 @@ Goloso e Di poco appetito, Pigro e Stacanovista, Mattiniero e Nottambulo, Dormig
 • Ispirato: ogni tanto un colono adulto con almeno 60 di felicità ha un'idea brillante (vedi Le basi, Gli eventi).
 • Febbre: ogni tanto un colono si ammala (vedi Le basi, Gli eventi) e si stanca il doppio. Non si attacca; un medico la fa passare entro mezza giornata.
 • Medicato: un medico l'ha curato; i punti ferita tornano il doppio più in fretta (vedi Medicina e morte).
+• Rifocillato: ha mangiato uno stufato caldo; freddo e pioggia tolgono metà comfort.
 • Ultimo saluto: è andato al funerale, con la legge Funerali: finché dura quel lutto, pesa 5 in meno (vedi Medicina e morte).
 Qui compaiono anche le leggi in vigore che a un colono piacciono o non piacciono, con la loro icona."""],
 
@@ -391,7 +393,7 @@ La vista calore (N) colora le stanze secondo la temperatura: rosso il caldo, gia
 • Al fuoco tutti lasciano il resto: prendono un secchio all'acqua e lo gettano, 2 ore di fuoco in meno ciascuno."""],
 
 	["Cibo e cucina", """[color=#e8c34a]Mangiare[/color]
-• I coloni affamati (sotto 30 di cibo; il goloso a 50) prendono il cibo più vicino: prima i pasti squisiti, poi i pasti, il crudo solo quando non ce ne sono (vegetali, pesce, carne, affumicati, poi rape, cavoli e fave, che durano di più). Nel tempo libero fanno anche uno spuntino sotto 60.
+• I coloni affamati (sotto 30 di cibo; il goloso a 50) prendono il cibo più vicino: prima i pasti squisiti, poi lo stufato, i pasti, il pane, il crudo solo quando non c'è niente di questo (vegetali, pesce, carne, affumicati, poi rape, cavoli, fave e conserve, che durano di più). Nel tempo libero fanno anche uno spuntino sotto 60.
 • Se entro 20 caselle c'è una sedia libera accanto a un tavolo, portano lì il cibo e mangiano seduti: +5 felicità (Mangiato al tavolo).
 
 [color=#e8c34a]Cibo[/color]
@@ -405,17 +407,23 @@ La vista calore (N) colora le stanze secondo la temperatura: rosso il caldo, gia
 [cell][img=center]res://art/icon_beans.png[/img] Fave[/cell][cell]40[/cell][cell]60 giorni[/cell][cell]1–15%[/cell]
 [cell][img=center]res://art/icon_meal.png[/img] Pasto[/cell][cell]100[/cell][cell]3 giorni[/cell][cell]–[/cell]
 [cell][img=center]res://art/icon_fine_meal.png[/img] Pasto squisito[/cell][cell]100[/cell][cell]3 giorni[/cell][cell]–[/cell]
+[cell][img=center]res://art/icon_stew.png[/img] Stufato[/cell][cell]100[/cell][cell]3 giorni[/cell][cell]–[/cell]
+[cell][img=center]res://art/icon_bread.png[/img] Pane[/cell][cell]60[/cell][cell]8 giorni[/cell][cell]–[/cell]
+[cell][img=center]res://art/icon_preserves.png[/img] Conserve[/cell][cell]35[/cell][cell]120 giorni[/cell][cell]1–10%[/cell]
 [/table]
 • Dura: a terra all'aperto a 15 °C; in un magazzino il doppio. Col caldo marcisce prima, col freddo dopo, sotto lo zero per niente (vedi Tetti e calore). Poi il mucchio marcisce e sparisce. I mucchi che si mescolano prendono la freschezza media. Col mouse sopra un mucchio: Fresco, Non più fresco o Quasi marcio, e i giorni che restano.
 • Chi mangia crudo può restare Intossicato: la probabilità è minima quando il cibo è fresco, massima quando è quasi marcio.
-• Un pasto dà Ben nutrito, un pasto squisito Lauto pasto (vedi Condizioni).
+• Un pasto dà Ben nutrito, un pasto squisito Lauto pasto (vedi Condizioni). Lo stufato dà Ben nutrito e Rifocillato: per mezza giornata freddo e pioggia tolgono metà comfort. Il pane sazia e basta. Le conserve si mangiano e si cucinano come il crudo.
 
 [color=#e8c34a]Cucinare[/color]
 • A un fuoco da campo o a un focolare dentro una cucina. Il cuoco prende 2 crudi da un mucchio (vegetali, pesce o carne), cucina per 8 s e porta il pasto in un magazzino.
 • Clicca il fuoco da campo: Tieni N pasti (8 all'inizio, 2 a testa). I cuochi cucinano finché ci sono meno pasti di così, contando quelli a terra, nei magazzini e in mano.
 • Bruciato, e il cibo è perso: 6% per ogni livello di Cucinare sotto il 6, più 3% per ogni punto di comfort della cucina sotto 5 (meno, sopra). A livello 0 in una cucina con comfort 5: 36%.
 • Pasto squisito: 5% per ogni livello sopra il 5, più 2% per ogni punto di comfort sopra 5 (meno, sotto): 25% a livello 10.
-• Il tempo dipende anche dal comfort della cucina e dalle condizioni del cuoco."""],
+• Il tempo dipende anche dal comfort della cucina e dalle condizioni del cuoco.
+
+[color=#e8c34a]Il forno di pietra[/color] [img=center]res://art/icon_bread.png[/img]
+Dopo la ricerca Forno di pietra (Terra II): 2x1, 20 pietra, in una cucina; scalda la stanza come un fuoco da campo. Cliccalo per il suo menu: pane da 2 farina (3 pani, 10 s; Tieni 8 all'inizio), stufato da 2 vegetali dello stesso tipo (bacche, rape, cavoli o fave) e 1 carne o pesce, anche affumicati (2 stufati, 12 s), conserve da 2 vegetali dello stesso tipo (2 vasi, 10 s). Prende prima quello che marcisce prima. Bruciato e squisito come al fuoco: uno stufato squisito esce come pasti squisiti."""],
 
 	["Raccolta", """Segna cosa prendere con gli ordini della barra in basso, trascinando un rettangolo; le cose segnate portano un'icona tenue. Quello che si raccoglie cade ai piedi del lavoratore, che a lavoro finito lo porta in un magazzino.
 
@@ -474,7 +482,7 @@ Segna caselle d'acqua. Il pescatore si mette accanto (anche nell'acqua bassa) e 
 Gli animali girano fuori dalle stanze e dall'acqua e nascono a più di 15 caselle dalla radura: all'inizio 6 conigli e 3 cervi, poi uno nuovo ogni mezza giornata finché sono meno di 12. Un lupo segnato, se gli si tira, attacca il cacciatore."""],
 
 	["Lavorazioni ed equipaggiamento", """[color=#e8c34a]Postazioni[/color]
-Clicca una postazione per il suo menu: una riga per ogni ricetta che conosci, coi suoi ingredienti e Tieni N. Si fa finché in giro ce ne sono meno di N (a terra, nei magazzini, in mano, in lavorazione); la Scorta vale per tutte le postazioni dello stesso tipo. L'equipaggiamento si fa anche per i coloni con uno slot vuoto, e un arco quando ci sono animali segnati e nessuno ne ha uno. All'inizio: Scorta 10 lingotti, 2 corde d'arco, 3 unguenti, 10 farina, 8 pasti, 0 per il resto.
+Clicca una postazione per il suo menu: una riga per ogni ricetta che conosci, coi suoi ingredienti e Tieni N. Si fa finché in giro ce ne sono meno di N (a terra, nei magazzini, in mano, in lavorazione); la Scorta vale per tutte le postazioni dello stesso tipo. L'equipaggiamento si fa anche per i coloni con uno slot vuoto, e un arco quando ci sono animali segnati e nessuno ne ha uno. All'inizio: Scorta 10 lingotti, 2 corde d'arco, 3 unguenti, 10 farina, 8 pani, 8 pasti, 0 per il resto.
 L'artigiano porta gli ingredienti uno alla volta, poi lavora. Il tempo dipende da abilità, comfort della stanza e condizioni; un oggetto può rovinarsi, e gli ingredienti vanno persi, tanto spesso quanto brucia un pasto.
 [table=4]
 [cell][color=#d9c48a]Oggetto[/color][/cell][cell][color=#d9c48a]Postazione[/color][/cell][cell][color=#d9c48a]Ingredienti[/color][/cell][cell][color=#d9c48a]Tempo[/color][/cell]
@@ -492,8 +500,11 @@ L'artigiano porta gli ingredienti uno alla volta, poi lavora. Il tempo dipende d
 [cell]Pugnale[/cell][cell]incudine[/cell][cell]1 lingotto, 1 legna[/cell][cell]12 s[/cell]
 [cell]Unguento[/cell][cell]fuoco da campo[/cell][cell]2 erbe[/cell][cell]10 s[/cell]
 [cell]Farina (2)[/cell][cell]mulino ad acqua[/cell][cell]2 grano[/cell][cell]4 s[/cell]
+[cell]Pane (3)[/cell][cell]forno[/cell][cell]2 farina[/cell][cell]10 s[/cell]
+[cell]Stufato (2)[/cell][cell]forno[/cell][cell]2 vegetali, 1 carne o pesce[/cell][cell]12 s[/cell]
+[cell]Conserve (2)[/cell][cell]forno[/cell][cell]2 vegetali[/cell][cell]10 s[/cell]
 [/table]
-Abilità: Forgiare a fornace e incudine, Cucire a filatoio e banco da lavoro, Tiro al banco del falegname, Medicina per l'unguento, Cucinare al mulino.
+Abilità: Forgiare a fornace e incudine, Cucire a filatoio e banco da lavoro, Tiro al banco del falegname, Medicina per l'unguento, Cucinare al mulino e al forno.
 
 [color=#e8c34a]Il mulino ad acqua[/color] [img=center]res://art/icon_flour.png[/img]
 Dopo la ricerca Mulino: 2x2, 20 legna e 10 pietra, all'aperto, sulla riva del torrente (i laghi non scorrono): giralo finché tutto il lato della ruota sta lungo il torrente. Lì il mugnaio macina il grano in farina; non si rovina mai niente, e il comfort non conta. Quando il torrente gela la ruota si ferma, e il suo menu lo dice.
@@ -695,6 +706,7 @@ Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette 
 [color=#e8c34a]L'albero[/color]
 • [color=#d9c48a]Orto[/color] (Terra I, 80): le caselle dell'orto e i campi con la loro rotazione; rape in 60 giorni, cavoli in 90, fave in 100.
 • [color=#d9c48a]Mulino[/color] (Terra I, 100, dopo l'Orto): il grano nei campi, il mulino ad acqua sulla riva del torrente, la farina.
+• [color=#d9c48a]Forno di pietra[/color] (Terra II, 300 e un quaderno, dopo l'Orto): il forno in cucina; pane, stufato, conserve.
 • [color=#d9c48a]Concimazione[/color] (Terra I, 80, dopo l'Orto): il cumulo del compost, il marcio e la cenere, concimare, il sovescio.
 • [color=#d9c48a]Saggio del terreno[/color] (Terra I, 60, dopo l'Orto): la lente della terra, in tre fasce.
 • [color=#d9c48a]Almanacco agrario[/color] (Terra II, 250 e un quaderno, dopo il Saggio): cinque fasce, e la tendenza di ogni campo.

@@ -1,6 +1,6 @@
 # Esegui: godot --headless --path . -s tests/test_grain.gd
 # Grano, forno e mulino (GDD 4.4.7): il torrente delle mappe nuove, il grano nei campi, il mulino ad acqua sulla riva,
-# la farina, la ruota ferma col gelo
+# la farina, la ruota ferma col gelo; il forno: pane, stufato, conserve, e l'ordine dei cibi
 extends SceneTree
 
 
@@ -131,7 +131,104 @@ func _initialize() -> void:
 	main.craft_popup.hide()
 	check(main.describe(mill)[1] == "Click: what to make", "col mouse sopra: cosa fare")
 
-	print("OK: torrente di %d caselle, mulino in %s" % [stream.size(), mill])
+	# il forno di pietra (Terra II, dopo l'Orto): 2x1, in una cucina, scalda come il fuoco; pane, stufato, conserve
+	check(main.TECHS[main.Tech.STONE_OVEN]["tier"] == 2 and main.TECHS[main.Tech.STONE_OVEN]["needs"] == [main.Tech.GARDEN], "il Forno di pietra: Terra II, dopo l'Orto")
+	check(main.FURNITURE[main.Build.OVEN] == Vector2i(2, 1) and main.HEAT[main.Build.OVEN] == main.FIRE_HEAT
+		and main.STATION_ROOM[main.Build.OVEN] == main.RoomKind.KITCHEN, "2x1, in cucina, scalda come il fuoco da campo")
+	main.furniture.erase(mill)
+	for res in [main.Res.GRAIN, main.Res.FLOUR]:
+		main.items[res].clear()
+	var spot := Vector2i(-1, -1)
+	for k in main.cells_in(area):
+		if main.cells_in(Rect2i(k, Vector2i(5, 4))).all(func(h): return main.can_build(h)):
+			spot = k
+			break
+	check(spot.x >= 0, "c'è posto per la cucina")
+	var kitchen = main.Room.new()  # stanza di prova fatta di dati, senza fuoco: nessuno cucina pasti
+	for k in main.cells_in(Rect2i(spot, Vector2i(5, 4))):
+		kitchen.cells[k] = true
+	kitchen.kind = main.RoomKind.KITCHEN
+	main.rooms.append(kitchen)
+	var oven := spot + Vector2i(1, 1)
+	main.furniture[oven] = [main.Build.OVEN, main.Res.STONE, 0]
+	check(main.stations(main.Build.OVEN) == [oven], "il forno lavora in cucina")
+	var pantry := spot + Vector2i(2, 5)  # gli ingredienti, fuori dalla cucina
+	for c in main.colonists:
+		c.pos = main.center(pantry)
+		c.skills[main.Skill.COOKING] = main.SKILL_MAX  # niente bruciato
+		main.end_job(c)
+	var total := func(res) -> int:
+		return main.items[res].values().reduce(func(a, b): return a + b, 0) \
+			+ main.colonists.filter(func(c): return c.carry_res == res).map(func(c): return c.carrying).reduce(func(a, b): return a + b, 0)
+	var bake := func(keep: Dictionary, done: Callable) -> void:  # finché `done`, o per un bel po'
+		for res in [main.Res.BREAD, main.Res.STEW, main.Res.PRESERVES]:
+			main.keep[res] = keep.get(res, 0)
+		for i in 4000:
+			main.tick(0.05)
+			if done.call():
+				break
+	main.drop(main.Res.FLOUR, pantry, 4)
+	main.researched.erase(main.Tech.STONE_OVEN)
+	bake.call({main.Res.BREAD: 8}, func(): return false)
+	check(total.call(main.Res.BREAD) == 0, "senza la ricerca niente pane")
+	main.researched[main.Tech.STONE_OVEN] = true
+	bake.call({main.Res.BREAD: 8}, func(): return total.call(main.Res.BREAD) >= 6)
+	check(total.call(main.Res.BREAD) == 6 and total.call(main.Res.FLOUR) == 0, "2 farina, 3 pani: 4 farina, 6 pani (%d)" % total.call(main.Res.BREAD))
+	main.drop(main.Res.TURNIP, pantry + Vector2i(1, 0), 4)
+	main.drop(main.Res.SMOKED_MEAT, pantry + Vector2i(2, 0), 2)
+	bake.call({main.Res.STEW: 4}, func(): return total.call(main.Res.STEW) + total.call(main.Res.FINE_MEAL) >= 4)
+	var stew: int = total.call(main.Res.STEW) + total.call(main.Res.FINE_MEAL)
+	check(stew == 4 and total.call(main.Res.TURNIP) == 0 and total.call(main.Res.SMOKED_MEAT) == 0,
+		"2 vegetali e 1 carne, anche affumicata: 2 stufati (o pasti squisiti): %d" % stew)
+	main.drop(main.Res.CABBAGE, pantry + Vector2i(1, 0), 2)
+	main.drop(main.Res.VEG, pantry + Vector2i(2, 0), 2)
+	bake.call({main.Res.PRESERVES: 2}, func(): return total.call(main.Res.PRESERVES) >= 2)
+	check(total.call(main.Res.PRESERVES) == 2 and total.call(main.Res.VEG) == 0 and total.call(main.Res.CABBAGE) == 2,
+		"2 vegetali, 2 conserve: prima quelli che marciscono prima")
+	main.open_craft(oven)
+	var rows: Array = main.get_node("HUD/CraftPopup/Box/List").get_children()
+	check(rows.size() == 3, "nel menu del forno pane, stufato e conserve")
+	var any: Array = rows[1].get_children().filter(func(n): return n is TextureRect and n.tooltip_text.begins_with("Any of: "))
+	check(any.size() == 2, "lo stufato: i vegetali e la carne o il pesce, a scelta")
+	main.craft_popup.hide()
+
+	# mangiare: prima il pasto squisito, lo stufato, il pasto, il pane, poi il crudo; lo stufato rifocilla, il pane sazia
+	check(main.EATEN.slice(0, 4) == [main.Res.FINE_MEAL, main.Res.STEW, main.Res.MEAL, main.Res.BREAD]
+		and main.EATEN.slice(4) == main.RAW_FOOD and main.Res.PRESERVES in main.RAW_FOOD, "l'ordine dei cibi")
+	check(main.FOOD[main.Res.BREAD] == 60.0 and main.SHELF_LIFE[main.Res.BREAD] == 8.0 and main.FOOD[main.Res.STEW] == 100.0
+		and main.SHELF_LIFE[main.Res.STEW] == 3.0 and main.SHELF_LIFE[main.Res.PRESERVES] == 120.0, "quanto saziano, quanto durano")
+	var eater = main.colonists[0]
+	eater.conds.clear()
+	eater.needs[main.Need.FOOD] = 0.0
+	eater.carry_res = main.Res.STEW
+	eater.carrying = 1
+	main.eat(eater)
+	check(eater.needs[main.Need.FOOD] == 100.0 and eater.conds.has(main.Cond.WELL_FED) and eater.conds.has(main.Cond.WARMED),
+		"lo stufato: ben nutrito e rifocillato")
+	eater.conds.clear()
+	eater.needs[main.Need.FOOD] = 0.0
+	eater.carry_res = main.Res.BREAD
+	eater.carrying = 1
+	main.eat(eater)
+	check(eater.needs[main.Need.FOOD] == 60.0 and eater.conds.is_empty(), "il pane sazia e basta")
+	main.atmosphere.climate = true  # a metà inverno, fuori: il freddo toglie comfort
+	main.clock = 2 * main.YEAR_DAYS + 3 * main.SEASON_DAYS + 45.5
+	main.tick(0.0)
+	eater.pos = main.center(pantry)
+	eater.job = main.Job.HAUL
+	check(main.weather_comfort(pantry) < 0, "fa freddo")
+	main.needs_rate = 1.0
+	eater.needs[main.Need.COMFORT] = 50.0
+	main.update_needs(eater, 10.0)
+	var cold: float = 50.0 - eater.needs[main.Need.COMFORT]
+	eater.needs[main.Need.COMFORT] = 50.0
+	main.add_cond(eater, main.Cond.WARMED)
+	main.update_needs(eater, 10.0)
+	check(cold > 0 and is_equal_approx(50.0 - eater.needs[main.Need.COMFORT], cold * main.WARMED_COLD), "rifocillato: il freddo toglie metà")
+	main.needs_rate = 0.0
+	main.atmosphere.climate = false
+
+	print("OK: torrente di %d caselle, mulino in %s; il forno" % [stream.size(), mill])
 	quit()
 
 
