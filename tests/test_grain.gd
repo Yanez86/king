@@ -116,8 +116,8 @@ func _initialize() -> void:
 	main.furniture[gear] = [main.Build.MILL_GEAR, main.Res.WOOD, main.BACKS.find(-inward)]
 	main.furniture[mill] = [main.Build.MILLSTONE, main.Res.STONE, 0]
 	check(main.piece_fits(wall[1] + inward, [main.Build.MILL_GEAR, main.Res.WOOD, main.BACKS.find(-inward)]), "il pignone contro il muro, dentro")
-	check(main.stations(main.Build.MILLSTONE).is_empty() and main.station_block(mill).begins_with("No water wheel"), "senza la ruota la macina sta ferma")
-	check(main.describe(gear)[1] == "No water wheel behind this wall.", "col mouse sopra il pignone: niente ruota")
+	check(main.stations(main.Build.MILLSTONE).is_empty() and main.station_block(mill).begins_with("Nothing turns the gear"), "senza la ruota la macina sta ferma")
+	check(main.describe(gear)[1] == "No water wheel or capstan behind this wall.", "col mouse sopra il pignone: niente ruota")
 	main.furniture[wheel] = wheel_plan
 	check(main.geared(gear) and main.mill_turns(mill_room) and main.stations(main.Build.MILLSTONE) == [mill], "con la ruota il mulino gira")
 	check(main.describe(gear)[1] == "Turned by the water wheel.", "col mouse sopra il pignone: la ruota lo gira")
@@ -157,44 +157,79 @@ func _initialize() -> void:
 	check(main.describe(mill)[1] == "Click: what to make", "col mouse sopra: cosa fare")
 	main.furniture.erase(wheel)
 
-	# la macina a trazione (con la Stalla e il Mulino): 2x2 all'aperto, la gira una mucca adulta e sazia; il doppio del
-	# tempo, ma anche col gelo
-	main.atmosphere.frozen = true
-	check(main.TECHS[main.Tech.STABLE]["builds"].has(main.Build.ANIMAL_MILL) and main.Build.ANIMAL_MILL in main.OUTDOOR
-		and main.FURNITURE[main.Build.ANIMAL_MILL] == Vector2i(2, 2), "la macina: con la Stalla, all'aperto, 2x2")
-	var quern := by + Vector2i(3, 0)
-	for k in main.cells_in(Rect2i(Vector2i.ZERO, main.MAP_SIZE)):
-		if main.piece_fits(k, [main.Build.ANIMAL_MILL, main.Res.STONE, 0]) and (k - main.MAP_SIZE / 2).length() < 10:
-			quern = k
+	# il maneggio (col Mulino): fuori, 2x2 contro il muro esterno come la ruota, l'albero al pignone; lo gira una mucca
+	# adulta e sazia, se no lo spinge il mugnaio a mano (più piano, e stanca); col gelo lavora lo stesso
+	check(main.TECHS[main.Tech.MILL]["builds"].has(main.Build.CAPSTAN) and main.Build.CAPSTAN in main.OUTDOOR
+		and main.FURNITURE[main.Build.CAPSTAN] == Vector2i(2, 2) and main.AGAINST[main.Build.CAPSTAN] == [main.Build.WALL],
+		"il maneggio: col Mulino, all'aperto, 2x2, contro un muro")
+	var site := Vector2i(-1, -1)
+	for k in main.cells_in(area):
+		if main.cells_in(Rect2i(k, Vector2i(2, 6))).all(func(h): return main.can_build(h, main.Build.WALL)):
+			site = k
 			break
-	main.furniture[quern] = [main.Build.ANIMAL_MILL, main.Res.STONE, 0]
-	check(main.stations(main.Build.ANIMAL_MILL).is_empty(), "senza una mucca la macina sta ferma")
-	main.open_craft(quern)
-	check(note.visible and note.text == "No grown-up, fed cow to turn it.", "il menu lo dice")
-	main.craft_popup.hide()
-	var cow = main.add_livestock(main.Beast.COW, quern + Vector2i(4, 4), true, false)
-	var calf = main.add_livestock(main.Beast.COW, quern + Vector2i(5, 4), false, true)
-	check(main.stations(main.Build.ANIMAL_MILL) == [quern] and main.draft_cows(quern) == [cow], "una mucca adulta: si macina (il vitello no)")
-	main.drop(main.Res.GRAIN, quern + Vector2i(-2, 0), 2)
+	check(site.x >= 0, "c'è posto per il mulino col maneggio")
+	var capstan_plan: Array = [main.Build.CAPSTAN, main.Res.WOOD, 2]  # le spalle in basso, al muro
+	check(not main.piece_fits(site, capstan_plan), "senza il muro alle spalle no")
+	for k in [site + Vector2i(0, 2), site + Vector2i(1, 2)]:
+		main.built[k] = [main.Build.WALL, main.Res.WOOD]
+		main.astar.set_point_solid(k)
+	check(main.piece_fits(site, capstan_plan), "contro il muro sì")
+	var mill2 = main.Room.new()
+	for k in main.cells_in(Rect2i(site + Vector2i(0, 3), Vector2i(2, 3))):
+		mill2.cells[k] = true
+	mill2.kind = main.RoomKind.MILL
+	main.rooms.append(mill2)
+	var gear2 := site + Vector2i(0, 3)
+	var stone2 := site + Vector2i(1, 5)
+	main.furniture[gear2] = [main.Build.MILL_GEAR, main.Res.WOOD, 0]  # le spalle in alto, al muro
+	main.furniture[stone2] = [main.Build.MILLSTONE, main.Res.STONE, 0]
+	check(main.station_block(stone2).begins_with("Nothing turns the gear"), "senza niente dietro il muro la macina sta ferma")
+	main.furniture[site] = capstan_plan
+	check(main.mill_drive(mill2) == site and main.stations(main.Build.MILLSTONE).has(stone2), "col maneggio dietro il muro la macina lavora")
+	check(main.describe(gear2)[1] == "Turned by the capstan.", "col mouse sopra il pignone: il maneggio")
+	main.animals.clear()
+	main.items[main.Res.FLOUR].clear()
+	main.drop(main.Res.GRAIN, stone2 + Vector2i(2, 0), 2)
 	for c in main.colonists:
-		c.pos = main.center(quern + Vector2i(-1, 1))
+		c.pos = main.center(stone2 + Vector2i(-1, 0))
+		c.needs[main.Need.REST] = 80.0
 		main.end_job(c)
-	var circled := false
-	for i in 4000:
+	var pusher = null
+	for i in 6000:
 		main.tick(0.05)
-		var miller: Array = main.colonists.filter(func(c): return c.job == main.Job.CRAFT and c.prey == cow)
-		if not miller.is_empty() and miller[0].work_left < miller[0].work_total:
-			circled = circled or is_equal_approx(cow.pos.distance_to(main.mill_hub(quern)), main.TILE)
+		for c in main.colonists:
+			if c.job == main.Job.CRAFT and c.pushing and is_equal_approx(c.pos.distance_to(main.mill_hub(site)), main.TILE):
+				pusher = c
 		if main.available(main.Res.GRAIN) == 0 and main.colonists.all(func(c): return c.job != main.Job.CRAFT):
 			break
 	flour = main.items[main.Res.FLOUR].values().reduce(func(a, b): return a + b, 0) \
 		+ main.colonists.filter(func(c): return c.carry_res == main.Res.FLOUR).map(func(c): return c.carrying).reduce(func(a, b): return a + b, 0)
-	check(flour == 8 and circled, "col gelo, la mucca gira attorno alla macina: 2 farina in più (%d)" % flour)
+	check(pusher != null and flour == 2, "senza mucca la spinge il mugnaio, girando attorno al palo: 2 farina (%d)" % flour)
+	check(pusher != null and pusher.needs[main.Need.REST] == 80.0 - main.PUSH_TIRE, "e si stanca")
+	main.atmosphere.frozen = true
+	var cow = main.add_livestock(main.Beast.COW, site + Vector2i(4, 0), true, false)
+	var calf = main.add_livestock(main.Beast.COW, site + Vector2i(4, 1), false, true)
+	check(main.draft_cows(site) == [cow], "una mucca adulta e sazia: la attacca (il vitello no)")
+	main.drop(main.Res.GRAIN, stone2 + Vector2i(2, 0), 2)
+	var circled := false
+	for i in 6000:
+		main.tick(0.05)
+		var miller: Array = main.colonists.filter(func(c): return c.job == main.Job.CRAFT and c.prey == cow)
+		if not miller.is_empty():
+			check(not miller[0].pushing, "con la mucca non spinge lui")
+			circled = circled or is_equal_approx(cow.pos.distance_to(main.mill_hub(site)), main.TILE)
+		if main.available(main.Res.GRAIN) == 0 and main.colonists.all(func(c): return c.job != main.Job.CRAFT):
+			break
+	flour = main.items[main.Res.FLOUR].values().reduce(func(a, b): return a + b, 0) \
+		+ main.colonists.filter(func(c): return c.carry_res == main.Res.FLOUR).map(func(c): return c.carrying).reduce(func(a, b): return a + b, 0)
+	check(flour == 4 and circled, "col gelo, la mucca gira attorno al palo: 2 farina in più (%d)" % flour)
 	check(cow.handler == null, "finito, la mucca torna libera")
 	main.atmosphere.frozen = false
-	main.furniture.erase(quern)
-	main.animals.erase(cow)
-	main.animals.erase(calf)
+	for o in [site, gear2, stone2]:
+		main.furniture.erase(o)
+	main.rooms.erase(mill2)
+	main.animals.clear()
+	main.items[main.Res.FLOUR].clear()
 
 	# il forno di pietra (Terra II, dopo l'Orto): 2x1, in una cucina, scalda come il fuoco; pane, stufato, conserve
 	check(main.TECHS[main.Tech.STONE_OVEN]["tier"] == 2 and main.TECHS[main.Tech.STONE_OVEN]["needs"] == [main.Tech.GARDEN], "il Forno di pietra: Terra II, dopo l'Orto")

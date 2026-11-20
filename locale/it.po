@@ -4182,14 +4182,20 @@ msgstr "Due mole e una tramoggia. Col pignone su un muro, la stanza può essere 
 msgid "Turned by the water wheel."
 msgstr "Lo gira la ruota del mulino."
 
-msgid "No water wheel behind this wall."
-msgstr "Dietro questo muro non c'è la ruota."
+msgid "No water wheel or capstan behind this wall."
+msgstr "Dietro questo muro non c'è né la ruota né il maneggio."
 
-msgid "No water wheel turns the gear: put the wheel in the stream, against the wall behind the gear."
-msgstr "Nessuna ruota gira il pignone: metti la ruota nel torrente, contro il muro dietro il pignone."
+msgid "Turned by the capstan."
+msgstr "Lo gira il maneggio."
 
-msgid "Grain in the field planning (100 days), and the water mill: a room on the bank of the stream, the wheel in the water against its wall, the gear inside on that wall, the millstone. Grain becomes flour."
-msgstr "Il grano nella pianificazione dei campi (100 giorni), e il mulino ad acqua: una stanza sulla riva del torrente, la ruota nell'acqua contro il suo muro, il pignone dentro su quel muro, la macina. Il grano diventa farina."
+msgid "A cow walks it round when the miller grinds; without one, the miller pushes it."
+msgstr "Quando il mugnaio macina lo gira una mucca; senza, lo spinge lui."
+
+msgid "Nothing turns the gear: put a water wheel in the stream, or a capstan, against the wall behind the gear."
+msgstr "Niente gira il pignone: metti la ruota nel torrente, o un maneggio, contro il muro dietro il pignone."
+
+msgid "Grain in the field planning (100 days), and the mill: a room with the millstone and a gear on a wall; behind that wall the water wheel in the stream, or a capstan turned by a cow or by hand. Grain becomes flour."
+msgstr "Il grano nella pianificazione dei campi (100 giorni), e il mulino: una stanza con la macina e un pignone su un muro; dietro quel muro la ruota nel torrente, o un maneggio girato da una mucca o a mano. Il grano diventa farina."
 
 msgctxt "item"
 msgid "Bread"
@@ -4417,17 +4423,14 @@ msgstr "Falcia il fieno"
 msgid "A trough of planks for hay. With one, a room can be a stable, where the animals spend the winter."
 msgstr "Una cassa di assi per il fieno. Con una, la stanza può essere una stalla, dove gli animali passano l'inverno."
 
-msgid "The stable and its mangers: in winter the animals eat the hay mown in summer, and leave manure for the garden. The dealer sells sheep (milk, wool) and cows (milk); cheese at the campfire. With the Mill, the animal mill, turned by a cow."
-msgstr "La stalla e le mangiatoie: d'inverno gli animali mangiano il fieno falciato d'estate, e lasciano il letame per l'orto. Il mercante vende pecore (latte, lana) e mucche (latte); il formaggio al fuoco da campo. Col Mulino, la macina a trazione, girata da una mucca."
+msgid "The stable and its mangers: in winter the animals eat the hay mown in summer, and leave manure for the garden. The dealer sells sheep (milk, wool) and cows (milk); cheese at the campfire."
+msgstr "La stalla e le mangiatoie: d'inverno gli animali mangiano il fieno falciato d'estate, e lasciano il letame per l'orto. Il mercante vende pecore (latte, lana) e mucche (latte); il formaggio al fuoco da campo."
 
-msgid "Animal Mill"
-msgstr "Macina a trazione"
+msgid "Capstan"
+msgstr "Maneggio"
 
-msgid "No grown-up, fed cow to turn it."
-msgstr "Nessuna mucca adulta e sazia per girarla."
-
-msgid "A millstone with a beam, in the open. A grown-up, fed cow turns it while the miller pours: slower than the water mill, but it works in winter too."
-msgstr "Una mola con la stanga, all'aperto. La gira una mucca adulta e sazia mentre il mugnaio versa il grano: più lenta del mulino ad acqua, ma lavora anche d'inverno."
+msgid "A post with a beam on a beaten track, against the outer wall of the mill: its shaft goes through the wall to the gear. A grown-up, fed cow walks it round; without one, the miller pushes it by hand. Slower than the water wheel, but it works in winter too."
+msgstr "Un palo con la stanga su una pista di terra battuta, contro il muro esterno del mulino: l'albero passa dal muro al pignone. Lo gira una mucca adulta e sazia; senza, il mugnaio lo spinge a mano. Più lento della ruota, ma lavora anche d'inverno."
 
 msgctxt "item"
 msgid "Honey"

@@ -127,7 +127,7 @@ Dinastia (4.3.3, fatta): quello che resta.
 
 Deciso il 2026-11-20; fatte le fasi 1 (torrente, grano, mulino ad acqua), 2 (forno: pane, stufato, conserve) e 3
 (allevamento: pascolo, galline e maiali, pollaio, macello, mercante di bestiame), 4 (stalla: fieno, mangiatoie, pecore e
-mucche, latte, formaggio, lana, letame), 5 (la macina a trazione), 6 (le api: arnia, miele, cera, candele) e 7 (il banchetto reale). Resta:
+mucche, latte, formaggio, lana, letame), 5 (la macina a trazione, poi rifatta come maneggio del mulino), 6 (le api: arnia, miele, cera, candele) e 7 (il banchetto reale). Resta:
 
 - [ ] Il mantello imbottito di lana al telaio (vedi Forgia).
 - [ ] I maiali che mangiano anche il marcio, alla mangiatoia.

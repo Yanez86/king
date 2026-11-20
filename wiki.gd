@@ -346,7 +346,7 @@ The list shows only the types whose furniture is inside. Take that furniture awa
 [cell]Archery range[/cell][cell]2 targets; at least 8 tiles long[/cell][cell]work[/cell]
 [cell]Infirmary[/cell][cell]bed, medicine chest[/cell][cell]service[/cell]
 [cell]Stable[/cell][cell]manger[/cell][cell]service[/cell]
-[cell]Mill[/cell][cell]millstone, gear on a wall (the wheel outside)[/cell][cell]work[/cell]
+[cell]Mill[/cell][cell]millstone, gear on a wall (the wheel or the capstan outside)[/cell][cell]work[/cell]
 [/table]
 • Residence: it can have owners. One with owners is closed to everyone else, even just to walk through.
 • Work: it can have workers. For now they matter in a study (they study before any other job) and in a throne room (only the ruler).
@@ -555,7 +555,7 @@ The crafter brings the ingredients one by one, then works. The time depends on s
 [cell]Dagger[/cell][cell]anvil[/cell][cell]1 ingot, 1 wood[/cell][cell]12 s[/cell]
 [cell]Ointment[/cell][cell]campfire[/cell][cell]2 herbs[/cell][cell]10 s[/cell]
 [cell]Flour (2)[/cell][cell]millstone (mill)[/cell][cell]2 grain[/cell][cell]4 s[/cell]
-[cell]Flour (2)[/cell][cell]animal mill[/cell][cell]2 grain[/cell][cell]8 s[/cell]
+[cell]Flour (2)[/cell][cell]millstone, with a capstan[/cell][cell]2 grain[/cell][cell]8 s (cow), 12 s (by hand)[/cell]
 [cell]Bread (3)[/cell][cell]oven[/cell][cell]2 flour[/cell][cell]10 s[/cell]
 [cell]Stew (2)[/cell][cell]oven[/cell][cell]2 vegetables, 1 meat or fish[/cell][cell]12 s[/cell]
 [cell]Preserves (2)[/cell][cell]oven[/cell][cell]2 vegetables[/cell][cell]10 s[/cell]
@@ -564,13 +564,13 @@ The crafter brings the ingredients one by one, then works. The time depends on s
 [/table]
 Skill: Smithing at furnace and anvil, Tailoring at spinning wheel and workbench, Ranged at the carpenter bench, Medicine for the ointment, Cooking at the mill and the oven.
 
-[color=#e8c34a]The water mill[/color] [img=center]res://art/icon_flour.png[/img]
+[color=#e8c34a]The mill[/color] [img=center]res://art/icon_flour.png[/img]
 After the Mill research the mill is a building of three pieces, on the bank of the stream (lakes don't flow):
 • the water wheel (2x2, 16 wood), in the stream, its back against the outer wall of the mill along its whole width;
 • the gear (1x1, 6 wood and an ingot), inside, hung on that same wall, right where the axle comes through: the wheel must be just behind the wall;
 • the millstone (1x1, 15 stone and 4 wood), anywhere in the room. With the millstone and the gear the room can be a Mill (work).
 The miller grinds grain into flour at the millstone; nothing is ever ruined. When the stream freezes the wheel stands still. The millstone's menu says what is missing; hover the gear to see if the wheel turns it. On the north side the roof hides the wheel.
-The animal mill (with the Stable and the Mill): 2x2, 15 stone and 5 wood, in the open. The miller hitches the nearest grown-up, fed cow to the beam; she walks over and turns the millstone while he pours: 8 s for 2 flour, in winter too. Without such a cow the mill stands still, and its menu says so.
+Away from the stream, the same mill works with a capstan instead of the wheel (2x2, 10 wood): on dry land, its back against the outer wall behind the gear, its shaft going through the wall. The miller hitches the nearest grown-up, fed cow to the beam: she walks over and circles the post while he pours, 8 s for 2 flour. Without such a cow he pours the grain into the hopper, goes out and pushes the beam himself: 12 s, and it tires him (−5 rest); the flour falls by the millstone. A capstan works in winter too; with both, the wheel goes first while the stream flows.
 
 [color=#e8c34a]Equipment[/color]
 Three slots: hands, body, head. A colonist with an empty slot fetches a piece by themselves, before any other job. In their hands they want the tool of their best skill among Mining, Woodcutting, Gathering, Hunting and Melee. Nobody trades a piece for a better one; only a hunter swaps for a bow.
@@ -768,7 +768,7 @@ What you haven't researched has no build button, and its recipes don't show at t
 
 [color=#e8c34a]The tree[/color]
 • [color=#d9c48a]Garden[/color] (Land I, 80): garden plots and fields with their rotation; turnips in 60 days, cabbages in 90, broad beans in 100.
-• [color=#d9c48a]Mill[/color] (Land I, 100, after Garden): grain in the fields; the water mill (the wheel in the stream, the gear and the millstone inside), flour.
+• [color=#d9c48a]Mill[/color] (Land I, 100, after Garden): grain in the fields; the mill (the wheel in the stream or a capstan outside, the gear and the millstone inside), flour.
 • [color=#d9c48a]Stone oven[/color] (Land II, 300 and a notebook, after Garden): the oven in the kitchen; bread, stew, preserves.
 • [color=#d9c48a]Manuring[/color] (Land I, 80, after Garden): the compost heap, rot and ash, fertilizing, green manure.
 • [color=#d9c48a]Soil survey[/color] (Land I, 60, after Garden): the soil lens, in three bands.
@@ -777,7 +777,7 @@ What you haven't researched has no build button, and its recipes don't show at t
 • [color=#d9c48a]Husbandry[/color] (Land I, 100, after Hunting): the pasture, the coop, the livestock dealer; hens and pigs; the Husbandry column.
 • [color=#d9c48a]Apiary[/color] (Land III, 450 and a tome, after Stone oven): beehives, honey, wax; candles at the workbench.
 • [color=#d9c48a]Royal banquet[/color] (Land IV, 1000 and a codex, after Apiary): the banquet, from the oven's menu.
-• [color=#d9c48a]Stable[/color] (Land II, 250 and a notebook, after Husbandry): the stable and its mangers, hay, manure; sheep and cows, milk, cheese, wool; with the Mill, the animal mill.
+• [color=#d9c48a]Stable[/color] (Land II, 250 and a notebook, after Husbandry): the stable and its mangers, hay, manure; sheep and cows, milk, cheese, wool.
 • [color=#d9c48a]Hunting[/color] (Land I, 50): spinning wheel and carpenter bench; bowstrings and bows; hides on the walls and door curtains.
 • [color=#d9c48a]Icehouse[/color] (Land II, 250 and a notebook, after Cold store): the icehouse, the ice pit, cutting ice.
 • [color=#d9c48a]Forge[/color] (Fire I, 60): furnace and anvil; ingots, pickaxe, axe, sickle.

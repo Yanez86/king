@@ -345,7 +345,7 @@ L'elenco mostra solo i tipi i cui mobili sono dentro. Se togli quei mobili la st
 [cell]Tiro a segno[/cell][cell]2 bersagli; lunga almeno 8 caselle[/cell][cell]lavoro[/cell]
 [cell]Infermeria[/cell][cell]letto, armadio dei rimedi[/cell][cell]servizio[/cell]
 [cell]Stalla[/cell][cell]mangiatoia[/cell][cell]servizio[/cell]
-[cell]Mulino[/cell][cell]macina, pignone su un muro (la ruota fuori)[/cell][cell]lavoro[/cell]
+[cell]Mulino[/cell][cell]macina, pignone su un muro (la ruota o il maneggio fuori)[/cell][cell]lavoro[/cell]
 [/table]
 • Residenza: può avere dei proprietari. Se ne ha, è chiusa a tutti gli altri, anche solo per passarci.
 • Lavoro: può avere dei lavoratori. Per ora contano in uno studio (studiano prima di qualunque altro lavoro) e in una sala del trono (solo il sovrano).
@@ -554,7 +554,7 @@ L'artigiano porta gli ingredienti uno alla volta, poi lavora. Il tempo dipende d
 [cell]Pugnale[/cell][cell]incudine[/cell][cell]1 lingotto, 1 legna[/cell][cell]12 s[/cell]
 [cell]Unguento[/cell][cell]fuoco da campo[/cell][cell]2 erbe[/cell][cell]10 s[/cell]
 [cell]Farina (2)[/cell][cell]macina (mulino)[/cell][cell]2 grano[/cell][cell]4 s[/cell]
-[cell]Farina (2)[/cell][cell]macina a trazione[/cell][cell]2 grano[/cell][cell]8 s[/cell]
+[cell]Farina (2)[/cell][cell]macina, col maneggio[/cell][cell]2 grano[/cell][cell]8 s (mucca), 12 s (a mano)[/cell]
 [cell]Pane (3)[/cell][cell]forno[/cell][cell]2 farina[/cell][cell]10 s[/cell]
 [cell]Stufato (2)[/cell][cell]forno[/cell][cell]2 vegetali, 1 carne o pesce[/cell][cell]12 s[/cell]
 [cell]Conserve (2)[/cell][cell]forno[/cell][cell]2 vegetali[/cell][cell]10 s[/cell]
@@ -563,13 +563,13 @@ L'artigiano porta gli ingredienti uno alla volta, poi lavora. Il tempo dipende d
 [/table]
 Abilità: Forgiare a fornace e incudine, Cucire a filatoio e banco da lavoro, Tiro al banco del falegname, Medicina per l'unguento, Cucinare al mulino e al forno.
 
-[color=#e8c34a]Il mulino ad acqua[/color] [img=center]res://art/icon_flour.png[/img]
+[color=#e8c34a]Il mulino[/color] [img=center]res://art/icon_flour.png[/img]
 Dopo la ricerca Mulino il mulino è un edificio in tre pezzi, sulla riva del torrente (i laghi non scorrono):
 • la ruota (2x2, 16 legna), nel torrente, con le spalle al muro esterno del mulino per tutta la sua larghezza;
 • il pignone (1x1, 6 legna e un lingotto), dentro, appeso a quello stesso muro, proprio dove passa l'asse: la ruota dev'essere subito dietro il muro;
 • la macina (1x1, 15 pietra e 4 legna), dove vuoi nella stanza. Con la macina e il pignone la stanza può essere un Mulino (lavoro).
 Il mugnaio macina il grano in farina alla macina; non si rovina mai niente. Quando il torrente gela la ruota si ferma. Il menu della macina dice cosa manca; col mouse sopra il pignone si vede se la ruota lo gira. Sul lato nord il tetto nasconde la ruota.
-La macina a trazione (con la Stalla e il Mulino): 2x2, 15 pietra e 5 legna, all'aperto. Il mugnaio attacca alla stanga la mucca adulta e sazia più vicina; lei arriva e gira la mola mentre lui versa il grano: 8 s per 2 farina, anche d'inverno. Senza una mucca così la macina sta ferma, e il suo menu lo dice.
+Lontano dal torrente, lo stesso mulino va col maneggio al posto della ruota (2x2, 10 legna): all'asciutto, con le spalle al muro esterno dietro il pignone, l'albero che passa dal muro. Il mugnaio attacca alla stanga la mucca adulta e sazia più vicina: lei arriva e gira attorno al palo mentre lui versa il grano, 8 s per 2 farina. Senza una mucca così versa il grano nella tramoggia, esce e spinge lui la stanga: 12 s, e si stanca (−5 di riposo); la farina cade accanto alla macina. Il maneggio lavora anche d'inverno; con tutti e due, finché il torrente scorre va la ruota.
 
 [color=#e8c34a]Equipaggiamento[/color]
 Tre slot: mani, corpo, testa. Un colono con uno slot vuoto va da sé a prendere un pezzo, prima di ogni altro lavoro. In mano vuole l'attrezzo della sua abilità migliore tra Estrarre, Tagliare legna, Raccogliere, Cacciare e Mischia. Nessuno cambia un pezzo con uno migliore; solo chi caccia lo cambia con un arco.
@@ -767,7 +767,7 @@ Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette 
 
 [color=#e8c34a]L'albero[/color]
 • [color=#d9c48a]Orto[/color] (Terra I, 80): le caselle dell'orto e i campi con la loro rotazione; rape in 60 giorni, cavoli in 90, fave in 100.
-• [color=#d9c48a]Mulino[/color] (Terra I, 100, dopo l'Orto): il grano nei campi; il mulino ad acqua (la ruota nel torrente, dentro il pignone e la macina), la farina.
+• [color=#d9c48a]Mulino[/color] (Terra I, 100, dopo l'Orto): il grano nei campi; il mulino (fuori la ruota nel torrente o il maneggio, dentro il pignone e la macina), la farina.
 • [color=#d9c48a]Forno di pietra[/color] (Terra II, 300 e un quaderno, dopo l'Orto): il forno in cucina; pane, stufato, conserve.
 • [color=#d9c48a]Concimazione[/color] (Terra I, 80, dopo l'Orto): il cumulo del compost, il marcio e la cenere, concimare, il sovescio.
 • [color=#d9c48a]Saggio del terreno[/color] (Terra I, 60, dopo l'Orto): la lente della terra, in tre fasce.
@@ -776,7 +776,7 @@ Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette 
 • [color=#d9c48a]Allevamento[/color] (Terra I, 100, dopo la Caccia): il pascolo, il pollaio, il mercante di bestiame; galline e maiali; la colonna Allevare.
 • [color=#d9c48a]Apicoltura[/color] (Terra III, 450 e un tomo, dopo il Forno di pietra): le arnie, il miele, la cera; le candele al banco da lavoro.
 • [color=#d9c48a]Banchetto reale[/color] (Terra IV, 1000 e un codice, dopo l'Apicoltura): il banchetto, dal menu del forno.
-• [color=#d9c48a]Stalla[/color] (Terra II, 250 e un quaderno, dopo l'Allevamento): la stalla e le mangiatoie, il fieno, il letame; pecore e mucche, latte, formaggio, lana; col Mulino, la macina a trazione.
+• [color=#d9c48a]Stalla[/color] (Terra II, 250 e un quaderno, dopo l'Allevamento): la stalla e le mangiatoie, il fieno, il letame; pecore e mucche, latte, formaggio, lana.
 • [color=#d9c48a]Caccia[/color] (Terra I, 50): filatoio e banco del falegname; corde d'arco e archi; pelli alle pareti e portiere.
 • [color=#d9c48a]Ghiacciaia[/color] (Terra II, 250 e un quaderno, dopo Dispensa fredda): la ghiacciaia, la fossa del ghiaccio, il taglio del ghiaccio.
 • [color=#d9c48a]Forgia[/color] (Fuoco I, 60): fornace e incudine; lingotti, piccone, ascia, falcetto.

@@ -1002,17 +1002,17 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
 
   | Ricerca | Liv. | Studio | Richiede | Sblocca |
   |---|---|---|---|---|
-  | Mulino | I | 100 | Orto | il grano nei campi, il mulino ad acqua, la farina |
+  | Mulino | I | 100 | Orto | il grano nei campi, il mulino (ruota o maneggio, pignone, macina), la farina |
   | Forno di pietra | II | 300 | Orto | il forno: pane (con la farina), stufato, conserve |
   | Allevamento | I | 100 | Caccia | il pascolo, il pollaio, il mercante di bestiame; galline e maiali; il lavoro Allevare |
-  | Stalla | II | 250 | Allevamento | stalla e mangiatoia, il fieno, il letame; pecore e mucche, latte, formaggio, lana; la macina a trazione (col Mulino) |
+  | Stalla | II | 250 | Allevamento | stalla e mangiatoia, il fieno, il letame; pecore e mucche, latte, formaggio, lana |
   | Apicoltura | III | 450 | Forno di pietra | l'arnia: miele, cera, candele |
   | Banchetto reale | IV | 1000 | Apicoltura | il banchetto nella sala del trono |
 
 - **Il torrente**: nelle mappe nuove, oltre ai laghi, un torrente attraversa la mappa da un bordo a quello di fronte,
   serpeggiando, a 22–30 caselle dal centro (lontano dalla radura): 2–3 caselle d'acqua bassa (si guada, piano come
   quella dei laghi), qua e là una pozza di 5 caselle, alta in mezzo. Si pesca e gela come i laghi. Le partite cominciate prima non ce l'hanno: lì niente
-  mulino ad acqua, resta la macina a trazione.
+  mulino ad acqua: il mulino va col maneggio.
 - **Grano**: una coltura nuova della pianificazione (4.4.1), color oro: matura in 100 giorni, 25 a casella, −12 di
   fertilità a raccolto. Non si mangia e non marcisce: si macina.
 - **Mulino ad acqua** (rifatto il 2026-11-20: un edificio, non un mobile): una stanza sulla riva del torrente, tipo
@@ -1027,9 +1027,13 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
   mai. Si macina finché in giro c'è meno farina di quanta ne chiede il menu della macina (all'inizio 10). Senza la ruota
   dietro il pignone, o col torrente gelato, la macina sta ferma (lo dice il menu; col mouse sopra il pignone, se la ruota
   lo gira). La farina non marcisce.
-- **Macina a trazione** (mobile 2x2, 15 pietra e 5 legna, all'aperto, con la Stalla e il Mulino): una mola di pietra
-  con la stanga. Per macinare il mugnaio attacca alla stanga la mucca adulta e sazia più vicina: lei ci va e gira, lui
-  versa il grano. 2 grano → 2 farina in 8 s, anche d'inverno. Senza una mucca così sta ferma (lo dice il menu).
+- **Maneggio** (rifatto il 2026-11-20 come il mulino ad acqua; prima era una macina a trazione all'aperto): lo stesso
+  mulino (macina e pignone dentro), ma dietro il muro del pignone, all'asciutto, al posto della ruota il **maneggio**
+  (mobile 2x2, 10 legna, col Mulino): un palo con la stanga su una pista di terra battuta, con le spalle al muro e
+  l'albero che passa dal muro. Il mugnaio attacca alla stanga la mucca adulta e sazia più vicina: lei ci va e gira
+  attorno al palo, lui versa il grano: 2 grano → 2 farina in 8 s. Senza una mucca così versa il grano nella tramoggia,
+  esce e spinge lui la stanga: 12 s, e perde 5 di riposo; la farina cade accanto alla macina. Lavora anche d'inverno;
+  con ruota e maneggio insieme, finché il torrente scorre gira la ruota.
 - **Forno di pietra** (mobile 2x1, 20 pietra, in una cucina; scalda la stanza come il fuoco da campo): ha il suo menu,
   come le altre postazioni (4.4.2). "Vegetali" sono tutti i crudi dell'orto e dei cespugli: bacche, rape, cavoli, fave.
 
@@ -1113,15 +1117,18 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
   dei cibi; (3) l'Allevamento: il pascolo con l'erba e la staccionata, galline e maiali, il pollaio e le uova, la
   sazietà e i piccoli, il lavoro e l'abilità Allevare, macellare e quanti tenerne, il mercante di bestiame, i lupi nel
   pascolo; (4) la Stalla: stalla e mangiatoie, il fieno, l'inverno nella stalla, pecore e mucche, latte e formaggio,
-  tosatura e lana, il letame; (5) la macina a trazione; (6) l'Apicoltura: arnia, miele, cera, candele; (7) il Banchetto
+  tosatura e lana, il letame; (5) la macina a trazione (poi il maneggio); (6) l'Apicoltura: arnia, miele, cera, candele; (7) il Banchetto
   reale.
 - **Stato**: fatte le fasi 1–7 il 2026-11-20 (test in `tests/test_grain.gd` e `tests/test_livestock.gd`): il torrente (`stream`, salvato: le partite
   di prima non ce l'hanno, e lì il mulino non si fa), il grano nella pianificazione col Mulino, il mulino ad acqua e la
   farina. La ruota (che ha preso il posto del mulino di prima in `Build`) si posa solo sul torrente (`can_build`) e,
   come i mobili addossati, con tutta la fila alle spalle di muro (`backed`); il pignone gira se due caselle dietro, oltre
   il muro, c'è la ruota girata verso quel muro (`geared`, `mill_turns`). Perché una postazione non lavora lo dice
-  `station_block`, nel menu. La macina a trazione è la prima postazione all'aperto: chi ci lavora sta fuori
-  (`station_stand`), col comfort a metà (`station_comfort`).
+  `station_block`, nel menu. Il maneggio ha preso il posto della macina a trazione in `Build`; il pignone lo trova come
+  la ruota (`gear_drive`, `DRIVES`), e quale dei due gira la macina lo dice `mill_drive`. Il mugnaio decide all'inizio
+  (`try_craft`): la mucca (in `prey`, che gira attorno a `mill_hub`) o a mano (`pushing`: portato il grano, va alla
+  stanga e ci gira attorno; la farina in `dest`, accanto alla macina, vedi `finish_craft`). Le postazioni all'aperto
+  (`station_stand`, `station_comfort`) restano per quelle che verranno.
   Il forno: gli ingredienti a scelta delle ricette sono gruppi (`GROUPS`: chiavi negative in `RECIPES`), che il
   fornaio sceglie quando comincia (`resolve`) e si tiene finché non ha finito (`recipe_needs`); nel menu, l'icona del
   primo del gruppo e col mouse sopra gli altri. L'ordine dei cibi è `EATEN` (`COOKED`, poi il crudo); il pane non dà
@@ -1139,8 +1146,8 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
   lo portano per primo (`dest_cells`), anche dai magazzini se una mangiatoia ne vuole; chi mangia ne toglie uno ogni
   fieno intero (`eat_hay`). Le galline mangiano da una mangiatoia qualsiasi e lasciano il letame nel pascolo. Mungere,
   tosare e macellare tengono fermo l'animale (`handler`, `try_handle`). Il fieno si falcia nella colonna Coltivare (tasto
-  Z). La macina tiene la mucca come chi munge (`handler`); il mugnaio aspetta che arrivi, e mentre macina lei gira
-  attorno al centro della macina (`mill_hub`). Le arnie fanno il miele all'alba (`make_honey`); la candela si accende
+  Z). Il maneggio tiene la mucca come chi munge (`handler`); il mugnaio aspetta che arrivi, e mentre macina lei gira
+  attorno al palo (`mill_hub`). Le arnie fanno il miele all'alba (`make_honey`); la candela si accende
   quando si calcola una pagina di notte allo scrittoio (`light_candle`, una a notte per scrittoio: `candles`). Il
   banchetto è come un funerale (`hold_banquet`, Job.FEAST): le portate non si vedono, si prendono dai magazzini quando
   lo si ordina (`order_banquet`). Poi: i maiali che mangiano anche il marcio; i cuochi che portano le portate in tavola.
@@ -1319,7 +1326,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | Ramo | Ricerca | Liv. | Studio | Richiede | Sblocca |
   |---|---|---|---|---|---|
   | Terra | Orto ✓ | I | 80 | — | zona orto e lavoro Coltivare: rape in 60 giorni e cavoli in 90, niente d'inverno |
-  | | Mulino ✓ | I | 100 | Orto | il grano nei campi; il mulino ad acqua sul torrente: la farina (vedi 4.4.7) |
+  | | Mulino ✓ | I | 100 | Orto | il grano nei campi; il mulino (la ruota nel torrente o il maneggio, il pignone, la macina): la farina (vedi 4.4.7) |
   | | Forno di pietra ✓ | II | 300 | Orto | forno 2x1 in cucina: pane (2 farina → 3, sazia 60, dura 8 giorni), stufato, conserve (vedi 4.4.7) |
   | | Saggio del terreno ✓ | I | 60 | Orto | la lente della terra (O) in tre fasce; la fascia sul cartello del campo |
   | | Almanacco agrario ✓ | II | 250 | Saggio del terreno | cinque fasce; se un campo sale o scende rispetto a un anno prima |
@@ -1330,7 +1337,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Caccia ✓ | I | 50 | — | *filatoio, corda d'arco, banco del falegname, falegnameria, arco, pelli alle pareti, portiera* (vedi 4.4.5) |
   | | Affumicatoio ✓ | II | 200 | Caccia | al fuoco: carne e pesce affumicati durano quattro volte tanto (scorta 0 dal menu); si mangiano e si cucinano come il crudo |
   | | Allevamento ✓ | I | 100 | Caccia | il pascolo, il pollaio, il mercante di bestiame: galline e maiali; il lavoro Allevare (vedi 4.4.7) |
-  | | Stalla ✓ | II | 250 | Allevamento | stalla e mangiatoia, il fieno, il letame; pecore e mucche: latte, formaggio, lana; la macina a trazione, col Mulino (vedi 4.4.7) |
+  | | Stalla ✓ | II | 250 | Allevamento | stalla e mangiatoia, il fieno, il letame; pecore e mucche: latte, formaggio, lana (vedi 4.4.7) |
   | | Dispensa fredda ✓ | I | 100 | — | stanza dispensa, solo per il cibo, che ci va per primo: dura il triplo che fuori (in magazzino il doppio) |
   | | Ghiacciaia ✓ | II | 250 | Dispensa fredda | *ghiacciaia* (muri di pietra o roccia), *fossa del ghiaccio*; Tagliare il ghiaccio d'inverno: col ghiaccio la stanza va verso 0 °C (vedi 4.4.5) |
   | Fuoco | Forgia ✓ | I | 60 | — | *fornace, incudine, forgia, lingotto, piccone, ascia, falcetto* |

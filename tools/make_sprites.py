@@ -4630,25 +4630,26 @@ def manger():
     return [front, side, front, side]
 
 
-# --- La macina a trazione (GDD 4.4.7) ---
+# --- Il maneggio del mulino (GDD 4.4.7) ---
 
-def animal_mill():
-    """Macina a trazione 32x32 (2x2), uguale girata: la mola di pietra sulla base, la stanga di legno che esce verso
-    destra (dove la mucca la tira girando)"""
+def capstan():
+    """Il maneggio 32x32 (2x2), contro il muro esterno del mulino: la pista di terra battuta dove gira chi tira, il palo
+    in mezzo, la stanga verso il basso a sinistra e l'albero che va al muro (in alto); nei quarti di giro, girato come
+    i mobili addossati (vedi BACKS in main.gd)"""
     px = {}
-    for (x, y) in disc(16, 17, 11.5, 9.5):  # la base, una pista di terra battuta
-        px[(x, y)] = "(" if (x + y) % 5 else ")"
-    for (x, y) in disc(16, 15, 6.5, 5.5):  # la mola
-        dx = x + 0.5 - 16
-        px[(x, y)] = "u" if dx < -2 else ("R" if dx > 3 else "r")
-    for (x, y) in disc(16, 15, 1.5, 1.5):  # il perno
-        px[(x, y)] = "W"
-    for x in range(17, 30):  # la stanga
-        px[(x, 14)] = "c"
-        px[(x, 15)] = "C"
-    for y in range(13, 18):  # il giogo in fondo
-        px[(29, y)] = "w"
-    return outlined_wh(px, 32, 32)
+    for (x, y) in disc(16, 16, 15, 15) - disc(16, 16, 9, 9):  # la pista
+        px[(x, y)] = "(" if (x * 3 + y) % 5 else ")"
+    for (x, y) in disc(16, 16, 9, 9):  # l'erba in mezzo, calpestata
+        px[(x, y)] = "," if (x + y) % 4 else ";"
+    for y in range(0, 15):  # l'albero, fino al muro
+        px[(15, y)] = "w"
+        px[(16, y)] = "W"
+    for i in range(1, 12):  # la stanga
+        px[(15 - i, 17 + i // 2)] = "c"
+        px[(16 - i, 17 + i // 2)] = "C"
+    for (x, y) in disc(16, 16, 2.5, 2.5):  # il palo
+        px[(x, y)] = "W" if x > 16 else "w"
+    return turns(outlined(px, 32, 32))
 
 
 # --- L'apicoltura (GDD 4.4.7): l'arnia di paglia, miele, cera, candele ---
@@ -5103,7 +5104,7 @@ def furniture_sheet():
     filatoio, banco del falegname, poi le decorazioni: aiuola, fioriera, panca, stendardo, lampione, fontana, statua;
     la bacheca; i cimeli: calice, stendardo antico, busto, corona; scrittoio, libreria, trono, fantoccio, torre di guardia, baldacchino, tappeto, armadio, focolare, pelli alle pareti, portiera, arazzo, stufa a olle, fossa del ghiaccio, quattro righe vuote (le strutture che vengono dopo
     in Build), il cumulo del compost, la culla; la rastrelliera, il bersaglio e il banco degli scassi; l'armadio dei rimedi,
-    la tomba, il memoriale, la ruota del mulino, il forno, il pollaio, la mangiatoia, la macina a trazione, l'arnia, il pignone e la
+    la tomba, il memoriale, la ruota del mulino, il forno, il pollaio, la mangiatoia, il maneggio, l'arnia, il pignone e la
     macina del mulino (come Build in main.gd);
     colonne: quarti di giro in senso orario (per fuoco, stendardo e fontana, fotogrammi), ognuno in alto a sinistra nel suo riquadro 32x32."""
     bed, chair, chair_left = art(BED, 32, 16), art(CHAIR, 16, 16), art(CHAIR_LEFT, 16, 16)
@@ -5147,7 +5148,7 @@ def furniture_sheet():
     rows += [[art(MEDICINE_CHEST, 16, 16)] * 4]
     rows += [[grave(False, True), grave(False, False), grave(True, True), grave(True, False)]]
     rows += [[art(MEMORIAL, 16, 16)] * 4]
-    rows += [water_wheel(), oven(), coop(), manger(), [animal_mill()] * 4, [art(HIVE, 16, 16)] * 4]
+    rows += [water_wheel(), oven(), coop(), manger(), capstan(), [art(HIVE, 16, 16)] * 4]
     rows += [(lambda g: [g[0], g[1], g[2], mirror(g[1])])(frames(MILL_GEAR)), [art(MILLSTONE, 16, 16)] * 4]
     slot = lambda g: [line.ljust(32, ".") for line in g] + ["." * 32] * (32 - len(g))
     return [line for row in rows for line in side_by_side([slot(g) for g in (row or [[]] * 4)])]

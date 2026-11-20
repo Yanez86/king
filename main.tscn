@@ -254,7 +254,7 @@ region = Rect2(0, 1600, 32, 16)
 atlas = ExtResource("8")
 region = Rect2(0, 1632, 32, 16)
 
-[sub_resource type="AtlasTexture" id="AnimalMillIcon"]
+[sub_resource type="AtlasTexture" id="CapstanIcon"]
 atlas = ExtResource("8")
 region = Rect2(0, 1664, 32, 32)
 
@@ -939,12 +939,12 @@ icon = SubResource("MangerIcon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Animal Mill" type="Button" parent="HUD/FurnitureBar/Row/Crafts"]
+[node name="Capstan" type="Button" parent="HUD/FurnitureBar/Row/Crafts"]
 custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
 toggle_mode = true
 button_group = SubResource("Kinds")
-icon = SubResource("AnimalMillIcon")
+icon = SubResource("CapstanIcon")
 icon_alignment = 1
 expand_icon = true
 
