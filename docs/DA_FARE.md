@@ -252,8 +252,9 @@ italiano: scheda del colono a due colonne, data e meteo di nuovo nella barra in 
 - [ ] Provare col mouse vero il clic destro in costruzione: lasciato fermo toglie un pezzo dal progetto, trascinato
   sposta la visuale (provato con eventi finti, la soglia è 4 pixel).
 - [ ] I contatori di studio e autorità nella barra in alto: vedi Ricerca.
-- [ ] La produzione che si vede (decisa il 2026-11-20, vedi [TECH](TECH.md), "Interfaccia: la produzione"; il menu
-  della postazione, le Officine e le Catene sono fatti): (4) i fumetti sulla mappa e il riquadro col mouse sopra.
+- [ ] La produzione che si vede (fatta il 2026-11-20, vedi [TECH](TECH.md), "Interfaccia: la produzione"): provarla
+  giocando col mouse vero (i clic sui riquadri, il trascinamento delle finestre), in inglese e con colonie grandi; il
+  fumetto rosso che resta finché manca un ingrediente (l'unguento d'inverno) è da tarare.
 
 ## Distribuzione
 

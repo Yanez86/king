@@ -206,6 +206,14 @@ quello che manca) e quattro colori (oro si vuole, arancio si sta facendo, rosso 
   stato di un bene è `chain_mood` (busy, stuck, want, done, idle), che è anche il colore del bordo e dei collegamenti
   (quelli dei beni a posto restano grigi); un gruppo prende lo stato più vivo dei suoi oggetti. Si vedono solo i beni che
   si sanno fare e quelli che servono a farli; una postazione non costruita è smorzata. Si rifà solo se cambia qualcosa.
+  Fatta la fase 4 lo stesso giorno (prove in `tests/test_gear.gd`). I fumetti li disegna `_draw` per ultimi, nei pixel
+  del mondo come la barretta gialla (`map_bubbles`, `draw_bubble`): 12 pixel di lato, l'icona a metà grandezza (a 2× è
+  quella da 16 dei testi), la barra sotto; restano sopra i tetti, così si vede cosa si fa dentro. Chi lavora a una
+  postazione non ha più la barretta sulla testa. Le postazioni ferme si ricalcolano ogni 30 fotogrammi (`update_stuck`):
+  ferma è quella a cui manca qualcosa, dove nessuno lavora e niente si può cominciare; il fumetto mostra l'ingrediente
+  che manca (`short_of`, che usa anche `make_block`) o, se è la postazione a non lavorare, l'oggetto. Il riquadro col
+  mouse sopra è `station_about`. Da vedere giocando: il fumetto rosso resta finché manca l'ingrediente (l'unguento
+  tutto l'inverno, senza erbe); si toglie mettendo la scorta a 0.
 
 ## Versionamento
 - Git + GitHub (`Yanez86/king`).

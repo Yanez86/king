@@ -2031,6 +2031,7 @@ var craft_key := ""         # quello che il menu mostra: se cambia, lo si rifà 
 var production_panel := PanelContainer.new()  # la finestra Produzione, dal menu a sinistra (vedi fill_production)
 var production_key := ""    # quello che mostrano le Officine: se cambia, le si rifà
 var production_bars := []   # [barra, i secondi, chi lavora]: aggiornate a ogni fotogramma
+var stuck_marks := {}       # postazione ferma -> il bene che manca: il fumetto rosso (vedi update_stuck)
 var production_tabs := ButtonGroup.new()  # le due schede della finestra: Workshops e Chains
 var chains_key := ""        # quello che mostrano le Catene: se cambia, le si rifà (vedi fill_chains)
 var chain_links := []       # [punti, punta della freccia, stato]: i collegamenti, li disegna draw_chains
@@ -3896,11 +3897,11 @@ func draw_pips(pips: Control) -> void:
 			pips.draw_rect(box.grow(-1), edge, false, 2)
 
 
-# Quello che il menu della postazione mostra e che, cambiato, lo fa rifare da capo: gli oggetti (una ricerca nuova) e
-# il banchetto (ordinato, o che ora si può)
+# Quello che il menu della postazione mostra e che, cambiato, lo fa rifare da capo: gli oggetti (una ricerca nuova),
+# la lingua e il banchetto (ordinato, o che ora si può)
 func craft_signature() -> String:
 	var kind: Build = role(furniture[crafting][0])
-	return str([crafting, station_makes(kind), needs_key(kind),
+	return str([crafting, station_makes(kind), needs_key(kind), TranslationServer.get_locale(),
 		[banquet_at, banquet_block()] if kind == Build.OVEN and researched.has(Tech.BANQUET) else []])
 
 
@@ -4067,12 +4068,100 @@ func make_block(res: Res) -> String:
 			else tr("Needs %d raw food of one kind in a pile") % COOK_RAW
 	if res == Res.NOTEBOOK and study < COPY_STUDY:
 		return tr("Needs %d study: there is %d") % [int(COPY_STUDY), floori(study)]
+	var short := short_of(res)
+	if not short.is_empty():
+		return tr("Short of %s: takes %d, %d free") % [tr(GROUP_NAMES[short[0]]) if GROUPS.has(short[0]) else res_name(short[0]), short[1], short[2]]
+	return ""
+
+
+# L'ingrediente di `res` che nei mucchi liberi non basta, il primo: [bene (o gruppo a scelta, vedi GROUPS), quanti ne
+# servono, quanti ce ne sono]; [] se bastano tutti, e per i pasti
+func short_of(res: Res) -> Array:
+	if res == Res.MEAL:
+		return []
 	var needs := needs_of(recipe_of(res))
 	for key in needs:
 		var most: int = GROUPS.get(key, [key]).map(available).max()
 		if most < needs[key]:
-			return tr("Short of %s: takes %d, %d free") % [tr(GROUP_NAMES[key]) if GROUPS.has(key) else res_name(key), needs[key], most]
-	return ""
+			return [key, needs[key], most]
+	return []
+
+
+# --- La produzione sulla mappa: i fumetti sulle postazioni e il riquadro col mouse sopra ---
+
+# Le postazioni ferme, per il fumetto rosso: postazione -> il bene che manca (o l'oggetto che non si può fare). Ferma
+# vuol dire che al suo tipo manca qualcosa da fare, nessuno ci lavora e niente di quello che manca si può cominciare
+# (vedi shop_state). Rifatte ogni tanto da _process: costano, e cambiano di rado
+func update_stuck() -> void:
+	stuck_marks.clear()
+	for kind in STATION_ORDER:
+		var s := shop_state(kind)
+		var queue: Array = s["queue"]
+		if s["pieces"].is_empty() or not s["workers"].is_empty() or queue.is_empty() or not queue.all(func(item): return item[2] != ""):
+			continue
+		var short := short_of(queue[0][0])
+		var lacks: Res = queue[0][0] if short.is_empty() or s["block"] != "" else (GROUPS[short[0]][0] if GROUPS.has(short[0]) else short[0])
+		for origin in s["pieces"]:
+			stuck_marks[origin] = lacks
+
+
+# I fumetti da disegnare sulle postazioni, [postazione, bene, parte fatta, ferma]: dove qualcuno lavora (anche mentre
+# va a prendere gli ingredienti) l'oggetto che fa, con la sua barra; dove è tutto fermo quello che manca (vedi
+# update_stuck). Le postazioni libere niente
+func map_bubbles() -> Array:
+	var out := []
+	var busy := {}
+	for c in colonists:
+		if c.job in [Job.CRAFT, Job.COOK] and furniture.has(c.target) and not busy.has(c.target):
+			busy[c.target] = true
+			out.append([c.target, making(c), work_part(c), false])
+	for origin in stuck_marks:
+		if furniture.has(origin) and not busy.has(origin):
+			out.append([origin, stuck_marks[origin], 0.0, true])
+	return out
+
+
+# Un fumetto sopra la postazione (vedi map_bubbles), in pixel del mondo: un riquadro scuro col bordo arancio, dentro
+# l'icona dell'oggetto a metà grandezza e sotto la barra del lavoro; rosso e senza barra, con l'icona smorzata e il punto
+# esclamativo, se è ferma. La punta in basso indica la postazione
+func draw_bubble(bubble: Array) -> void:
+	var piece := Rect2(piece_rect(bubble[0], furniture[bubble[0]]))
+	var stuck: bool = bubble[3]
+	var color: Color = MAKE_STUCK if stuck else MAKE_BUSY
+	var size := Vector2(12, 12 if stuck else 13)
+	var box := Rect2(Vector2((piece.get_center().x) * TILE - size.x / 2, piece.position.y * TILE - size.y - 3), size)
+	draw_rect(box, OUTLINE)
+	draw_rect(box.grow(-0.5), color, false, 1.0)
+	draw_texture_rect(ICONS[bubble[1]], Rect2(box.position + Vector2(2, 2), Vector2(8, 8)), false, Color(1, 1, 1, 0.6 if stuck else 1.0))
+	var tip := Vector2(box.get_center().x, box.end.y)
+	draw_colored_polygon(PackedVector2Array([tip + Vector2(-2, 0), tip + Vector2(2, 0), tip + Vector2(0, 2)]), color)
+	if stuck:
+		var badge := Rect2(box.end.x - 2, box.position.y - 2, 4, 7)
+		draw_rect(badge, MAKE_STUCK)
+		draw_rect(badge.grow(-0.5), OUTLINE, false, 1.0)
+		draw_rect(Rect2(badge.position + Vector2(1.5, 1.5), Vector2(1, 2.5)), Color.WHITE)
+		draw_rect(Rect2(badge.position + Vector2(1.5, 4.5), Vector2(1, 1)), Color.WHITE)
+	else:
+		draw_rect(Rect2(box.position + Vector2(2, 10.5), Vector2(8, 1)), Color(color, 0.3))
+		draw_rect(Rect2(box.position + Vector2(2, 10.5), Vector2(8 * bubble[2], 1)), color)
+
+
+# Quello che il riquadro col mouse sopra dice della postazione `origin`: chi ci lavora e a cosa, con la percentuale;
+# perché non lavora, se non lavora; "Then" i primi oggetti che mancano al suo tipo di postazione, con quanti (quelli
+# fermi lo dicono); e che cliccandola si apre il menu
+func station_about(origin: Vector2i) -> String:
+	var kind: Build = role(furniture[origin][0])
+	var lines := PackedStringArray()
+	for c in station_workers(kind).filter(func(w): return w.target == origin):
+		lines.append(tr("%s: %s, %d%%") % [c.first_name, res_name(making(c)), roundi(work_part(c) * 100)])
+	if station_block(origin) != "":
+		lines.append(station_block(origin))
+	var queue: Array = shop_state(kind)["queue"]
+	if not queue.is_empty():
+		lines.append(tr("Then: %s") % ", ".join(queue.slice(0, 3).map(func(item): return "%d %s%s" % [item[1], res_name(item[0]),
+			tr(" (stopped)") if item[2] != "" else ""])) + ("…" if queue.size() > 3 else ""))
+	lines.append(tr("Click: what to make"))
+	return "\n".join(lines)
 
 
 # --- La finestra Produzione (vedi TECH "Interfaccia: la produzione") ---
@@ -5216,7 +5305,7 @@ func describe(cell: Vector2i) -> Array:
 	for origin in pieces_at(furniture, cell):
 		var kind: Build = furniture[origin][0]
 		var about: String = {Build.DESK: tr("Click: knowledge"), Build.THRONE: tr("Click: laws")}.get(kind,
-			tr("Click: what to make") if is_station(kind) else "")
+			station_about(origin) if is_station(kind) else "")
 		if kind == Build.GRAVE:
 			about = grave_text(origin)
 		elif kind == Build.COOP:
@@ -5687,6 +5776,7 @@ func _process(delta: float) -> void:
 	if Engine.get_process_frames() % 30 == 0:  # il conto della manutenzione, ogni tanto: basta per il suggerimento
 		splendor_label.tooltip_text = splendor_tip()
 		update_dots()
+		update_stuck()
 	update_plate()
 	if jobs_panel.visible:
 		refresh_priorities()
@@ -13682,8 +13772,10 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 	for cell in ice_marks:
 		draw_rect(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE).grow(-1.5), ORDER_COLORS[Order.ICE], false, 1.0)
 	for c in people():
-		if is_working(c):  # barra di avanzamento del lavoro
+		if is_working(c) and c.job not in [Job.CRAFT, Job.COOK]:  # barra di avanzamento del lavoro; alle postazioni il fumetto
 			draw_rect(Rect2(c.pos + Vector2(-6, -11), Vector2(12 * (1 - c.work_left / c.work_total), 2)), Color.YELLOW)
+	for bubble in map_bubbles():
+		draw_bubble(bubble)
 	if order == Order.BUILD and FURNITURE.has(build_kind):  # il prossimo mobile sotto il mouse, rosso se non ci sta
 		var at := cell_of(get_global_mouse_position())
 		var plan := [build_kind, build_res, build_turn]

@@ -607,7 +607,9 @@ Decisa il 2026-11-19. Numeri da tarare.
   prenderebbero (solo l'equipaggiamento); **Scorta**, quanti tenerne, con − e +. Si fa finché in giro (a terra, in
   magazzino, in mano, in lavorazione) ce ne sono meno; vale per tutte le postazioni dello stesso tipo. Sotto la riga,
   quando serve: chi lo sta facendo con la barra, o in rosso perché è fermo. Al fuoco da campo i pasti, da 2 crudi
-  uguali qualsiasi, coi crudi che ci sono. Il suggerimento sul mobile dice "Click: what to make". All'inizio: pasti 8
+  uguali qualsiasi, coi crudi che ci sono. Il suggerimento sul mobile dice chi ci lavora e a cosa, cosa manca e "Click: what
+  to make"; sopra la postazione un fumetto con l'oggetto che si fa, rosso se è ferma. La finestra Produzione (S) le
+  mostra tutte insieme, Officine e Catene. All'inizio: pasti 8
   (2 a testa), lingotti 10, corde d'arco 2, equipaggiamento 0. Come si vede: [TECH](TECH.md), "Interfaccia: la
   produzione".
 - Equipaggiamento: oltre ai "Keep", quanto manca perché ogni colono abbia pieni i suoi slot; per corpo e testa il primo

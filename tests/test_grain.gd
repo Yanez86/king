@@ -154,7 +154,7 @@ func _initialize() -> void:
 	main.open_craft(mill)
 	check(not note.visible, "sgelato, il mulino lavora")
 	main.craft_popup.hide()
-	check(main.describe(mill)[1] == "Click: what to make", "col mouse sopra: cosa fare")
+	check(main.describe(mill)[1].ends_with("Click: what to make"), "col mouse sopra: cosa fare")
 	main.furniture.erase(wheel)
 
 	# il maneggio (col Mulino): fuori, 2x2 contro il muro esterno come la ruota, l'albero al pignone; lo gira una mucca

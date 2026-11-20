@@ -233,6 +233,13 @@ func _initialize() -> void:
 		"la legna va solo alla carbonaia: per arrivare all'incudine attraverserebbe il carbone")
 	main.production_panel.get_node("Box/Top/Workshops").button_pressed = true
 	check(shops.visible and not main.production_panel.get_node("Box/Chains").visible, "di nuovo le Officine")
+	# sulla mappa: il fumetto rosso sull'incudine ferma, con quello che manca; la fornace, libera, niente
+	main.update_stuck()
+	check(main.stuck_marks == {anvil: I} and main.map_bubbles() == [[anvil, I, 0.0, true]], "il fumetto rosso sull'incudine: mancano i lingotti")
+	check(main.short_of(main.Res.PICKAXE) == [I, 2, 0] and main.short_of(I).is_empty() and main.short_of(main.Res.MEAL).is_empty(),
+		"l'ingrediente che manca, quanti ne servono e quanti ce ne sono")
+	check(main.describe(anvil) == ["Anvil", "Then: 1 pickaxe (stopped), 1 axe (stopped), 3 helmet (stopped)…\nClick: what to make"]
+		and main.describe(furnace)[1] == "Then: 10 ingot\nClick: what to make", "col mouse sopra: cosa manca, e cosa è fermo")
 	main.craft_popup.hide()
 	var iron0: int = main.total(main.Res.IRON)
 	var seen_busy := false  # il menu della fornace mentre qualcuno fonde: chi, la barra, la tacca a metà
@@ -265,6 +272,11 @@ func _initialize() -> void:
 				and main.production_bars[0][2] == state["makers"][0] and main.production_bars[0][0].get_meta("part") > 0.0,
 				"l'officina dove si lavora: chi, e la barra che avanza")
 			check(main.chain_mood(I) == "busy", "e nelle Catene il lingotto è in arancio")
+			var bubbles: Array = main.map_bubbles().filter(func(b): return b[0] == furnace)
+			check(bubbles.size() == 1 and bubbles[0][1] == I and bubbles[0][2] > 0.0 and not bubbles[0][3],
+				"il fumetto sulla fornace: il lingotto, con la sua barra")
+			check(main.describe(furnace)[1].begins_with("%s: ingot, " % state["makers"][0].first_name) and main.describe(furnace)[1].ends_with("Click: what to make"),
+				"col mouse sopra: chi lavora e a cosa")
 		if main.colonists.all(func(c): return c.gear.size() == (2 if c == hunter else 3)):  # l'arco qui non si fa
 			break
 	check(seen_busy, "qualcuno ha fuso i lingotti")

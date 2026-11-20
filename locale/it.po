@@ -4666,3 +4666,13 @@ msgstr "Non ancora costruita"
 
 msgid "Takes: %s"
 msgstr "Ci vuole: %s"
+
+# La produzione sulla mappa (vedi station_about)
+msgid "%s: %s, %d%%"
+msgstr "%s: %s, %d%%"
+
+msgid "Then: %s"
+msgstr "Poi: %s"
+
+msgid " (stopped)"
+msgstr " (fermo)"
