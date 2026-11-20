@@ -1431,6 +1431,9 @@ msgstr "Scavare la roccia: %d"
 msgid "Uproot plants: %d"
 msgstr "Estirpare piante: %d"
 
+msgid "Demolish: %d"
+msgstr "Demolire: %d"
+
 msgid "Harvest bushes: %d"
 msgstr "Raccogliere dai cespugli: %d"
 
@@ -3197,8 +3200,8 @@ msgstr "Pescare nell'acqua segnata."
 msgid "Hunting the marked animals."
 msgstr "Cacciare gli animali segnati."
 
-msgid "Building, furnishing, repairing roofs."
-msgstr "Costruire, arredare, riparare i tetti."
+msgid "Building, furnishing, demolishing, repairing roofs."
+msgstr "Costruire, arredare, demolire, riparare i tetti."
 
 msgid "Carrying things into the warehouses, and the dead to their graves."
 msgstr "Portare le cose nei magazzini, e i morti alle tombe."
@@ -3832,6 +3835,10 @@ msgstr "Scava"
 msgctxt "doing"
 msgid "Uprooting"
 msgstr "Estirpa"
+
+msgctxt "doing"
+msgid "Demolishing"
+msgstr "Demolisce"
 
 msgctxt "doing"
 msgid "Harvesting"

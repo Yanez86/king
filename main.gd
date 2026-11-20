@@ -107,12 +107,13 @@ const TREE_SIDES := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  # da sopra l
 
 enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE,
 	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE, DOUSE, FARM, FERTILIZE, OATH, SALVE, RESCUE, TREAT, BURY,
-	FUNERAL, TEND, BUTCHER, MILK, SHEAR, MOW, HONEY, FEAST }  # TEND: le uova al pollaio; BUTCHER, MILK, SHEAR: macellare, mungere e
+	FUNERAL, TEND, BUTCHER, MILK, SHEAR, MOW, HONEY, FEAST, DEMOLISH }  # TEND: le uova al pollaio; BUTCHER, MILK, SHEAR: macellare, mungere e
 	# tosare un animale da allevare (vedi Work.HUSBANDRY); MOW: falciare il fieno (vedi Order.HAY); HONEY: smielare
-	# un'arnia piena (vedi Work.GATHER); FEAST: al banchetto reale (vedi hold_banquet)
+	# un'arnia piena (vedi Work.GATHER); FEAST: al banchetto reale (vedi hold_banquet); DEMOLISH: abbattere una
+	# struttura o un mobile segnati con "Destroy" (vedi try_demolish)
 const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FURNISH, Job.HARVEST, Job.COOK, Job.FISH,
 	Job.HUNT, Job.CRAFT, Job.STUDY, Job.GOVERN, Job.REPAIR, Job.CUT_ICE, Job.FARM, Job.FERTILIZE, Job.RESCUE,
-	Job.TREAT, Job.BURY, Job.TEND, Job.BUTCHER, Job.MILK, Job.SHEAR, Job.MOW, Job.HONEY]  # contano come ore di lavoro
+	Job.TREAT, Job.BURY, Job.TEND, Job.BUTCHER, Job.MILK, Job.SHEAR, Job.MOW, Job.HONEY, Job.DEMOLISH]  # contano come ore di lavoro
 # Tabella delle priorità (in cima alla finestra Jobs): per colono e per lavoro da 1 (prima) a PRIORITY_LEVELS (dopo),
 # 0 mai. Si prende il lavoro disponibile con la priorità più alta; a pari priorità nell'ordine di Work, e di un lavoro
 # il più vicino (vedi find_work). All'inizio tutto PRIORITY_DEFAULT: l'ordine di WORK_ORDER
@@ -131,7 +132,7 @@ const WORK_ICONS := [preload("res://art/icon_meal.png"), preload("res://art/icon
 const WORK_INFO := ["Cooking meals at the campfire or the hearth.", "Forge, workbench, spinning wheel, carpenter's bench, furnace, mill, oven.",
 	"Felling the marked trees.", "Mining the marked rock, cutting ice.", "Picking bushes, flax and herbs, uprooting, taking honey.",
 	"Sowing, harvesting and fertilizing the garden, mowing hay.", "Fishing at the marked water.", "Hunting the marked animals.",
-	"Building, furnishing, repairing roofs.", "Carrying things into the warehouses, and the dead to their graves.",
+	"Building, furnishing, demolishing, repairing roofs.", "Carrying things into the warehouses, and the dead to their graves.",
 	"Governing from the throne: only the ruler.", "Studying at a desk.",
 	"Rescuing and treating the downed, the wounded and the sick: only after Medicine.",
 	"Collecting eggs, milking, shearing, slaughtering the animals beyond those you keep: after Husbandry."]
@@ -391,7 +392,7 @@ enum Hero { NONE, WARRIOR, ARCHER, BURGLAR }  # classe; NONE: un colono
 # dove va un avventuriero col Job.TRAVEL: alla locanda, via per sempre, al bordo per partire, alla locanda di ritorno
 enum Errand { NONE, ARRIVE, LEAVE, DEPART, RETURN, VISIT }  # VISIT: il viandante, al trono (vedi visit_cells)
 # cosa sta facendo chi ha questo lavoro, nell'elenco degli abitanti (vedi doing; tradotti col contesto "doing")
-const DOING := {Job.CHOP: "Chopping a tree", Job.MINE: "Mining", Job.UPROOT: "Uprooting", Job.HARVEST: "Harvesting",
+const DOING := {Job.CHOP: "Chopping a tree", Job.MINE: "Mining", Job.DEMOLISH: "Demolishing", Job.UPROOT: "Uprooting", Job.HARVEST: "Harvesting",
 	Job.EAT: "Eating", Job.COOK: "Cooking", Job.FISH: "Fishing", Job.HUNT: "Hunting", Job.EQUIP: "Fetching gear",
 	Job.FIGHT: "Fighting", Job.FLEE: "Fleeing", Job.TANTRUM: "Storming off in a rage", Job.STUDY: "Studying",
 	Job.GOVERN: "Holding audience", Job.PROTEST: "Protesting in the throne room", Job.REPAIR: "Repairing a roof",
@@ -962,7 +963,7 @@ const SAVE_LIST := preload("res://save_list.gd")
 # le variabili della partita che si salvano, così come sono (gli oggetti dentro li impacchetta SAVES.Packer); il resto
 # si rifà da queste (vedi restore) o è interfaccia. Una variabile nuova dello stato del gioco va aggiunta qui
 const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today", "hour", "rocks", "boulders", "massif", "rubble", "ores", "water", "stream", "pasture", "hives", "candles", "banquet_at", "last_banquet", "banquet_sorbet", "hay_marks", "coop_eggs", "herd_keep", "drover_until", "drover_stock",
-	"trees", "stock", "bushes", "flax", "herbs", "graves", "funerals", "weeds", "chop_marks", "mine_marks", "uproot_marks", "harvest_marks", "fish_marks",
+	"trees", "stock", "bushes", "flax", "herbs", "graves", "funerals", "weeds", "chop_marks", "mine_marks", "demolish_marks", "unfurnish_marks", "uproot_marks", "harvest_marks", "fish_marks",
 	"fish_spots", "items", "fresh", "draft", "blueprints", "built", "furniture_draft", "furniture_plans", "furniture",
 	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
 	"fallen", "animals", "arrows", "next_animal", "guests", "next_guest", "ruins", "expeditions",
@@ -1084,6 +1085,13 @@ const ORE_ROCKS := {Res.IRON: preload("res://art/rock_iron.png"), Res.COAL: prel
 # solo in diagonale (colonne di EDGE_CORNERS), le vene allo scoperto (ferro, carbone, e una seconda variante)
 const MASSIF := preload("res://art/massif.png")
 const MASSIF_SIDES := [2, 0, 1, 3]  # i lati aperti, nell'ordine in cui si disegnano: prima la parete, sopra i contorni
+# Gli angoli arrotondati: dove due lati vicini sono aperti, i pixel da togliere nell'angolo (colonne di EDGE_CORNERS;
+# sotto meno, c'è la parete); sopra ci va l'arco del contorno, la riga 5 del foglio
+const MASSIF_ROUND := [
+	[Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0), Vector2i(0, 1), Vector2i(1, 1), Vector2i(0, 2), Vector2i(0, 3)],
+	[Vector2i(15, 0), Vector2i(14, 0), Vector2i(13, 0), Vector2i(12, 0), Vector2i(15, 1), Vector2i(14, 1), Vector2i(15, 2), Vector2i(15, 3)],
+	[Vector2i(15, 15), Vector2i(14, 15), Vector2i(13, 15), Vector2i(15, 14), Vector2i(14, 14), Vector2i(15, 13)],
+	[Vector2i(0, 15), Vector2i(1, 15), Vector2i(2, 15), Vector2i(0, 14), Vector2i(1, 14), Vector2i(0, 13)]]
 const CAVE_SHADE := Color(0.84, 0.84, 0.9)  # la cima del massiccio sopra una galleria: un'ombra, si intuisce cosa c'è sotto
 # 128x544, righe: mobili nell'ordine di Build; colonne: quarti di giro in senso orario, ognuno in un riquadro 32x32
 const FURNITURE_SHEET := preload("res://art/furniture.png")
@@ -1959,6 +1967,9 @@ var stream := {}            # cella d'acqua -> true: il torrente, nelle mappe nu
 var weeds := {}             # cella -> true: erbacce (attraversabili)
 var chop_marks := {}        # cella -> true: alberi da tagliare
 var mine_marks := {}        # cella -> true: da scavare; l'origine di un masso, o una casella di massiccio
+# Da abbattere, segnati con "Destroy": è un lavoro di chi costruisce (vedi try_demolish), coi tempi del costruire
+var demolish_marks := {}    # cella -> true: la struttura in `built`
+var unfurnish_marks := {}   # origine -> true: il mobile in `furniture`
 var uproot_marks := {}      # cella -> true: erbacce e cespugli da estirpare
 var harvest_marks := {}     # cella -> true: cespugli da cui raccogliere le bacche, ogni volta che maturano
 var fish_marks := {}        # cella d'acqua -> true: punti di pesca
@@ -5610,6 +5621,8 @@ func job_list() -> String:
 		lines.append(tr("Chop trees: %d") % chop_marks.size())
 	if not mine_marks.is_empty():
 		lines.append(tr("Mine rock: %d") % mine_marks.size())
+	if not demolish_marks.is_empty() or not unfurnish_marks.is_empty():
+		lines.append(tr("Demolish: %d") % (demolish_marks.size() + unfurnish_marks.size()))
 	if not uproot_marks.is_empty():
 		lines.append(tr("Uproot plants: %d") % uproot_marks.size())
 	if not harvest_ready().is_empty():
@@ -5998,6 +6011,10 @@ func draw_rock(cell: Vector2i, sheet: Image, closed: int) -> void:
 		var d: Vector2i = EDGE_CORNERS[i]
 		if open.call(d) and not open.call(Vector2i(d.x, 0)) and not open.call(Vector2i(0, d.y)):
 			img.blend_rect(sheet, tile_rect(i, 2), at)
+		elif open.call(Vector2i(d.x, 0)) and open.call(Vector2i(0, d.y)):  # due lati aperti: l'angolo si arrotonda
+			for px in MASSIF_ROUND[i]:
+				img.set_pixelv(at + px, Color.TRANSPARENT)
+			img.blend_rect(sheet, tile_rect(i, 5), at)
 
 
 # dopo uno scavo: ridisegna il massiccio in `cell` e attorno (i vicini cambiano bordo, le vene si scoprono)
@@ -6405,6 +6422,23 @@ func update_colonist(c: Colonist, delta: float) -> void:
 				manured[c.target] = true
 				c.carrying = 0
 				learn(c, Skill.GATHERING, FARM_TIME)
+				end_job(c)
+		Job.DEMOLISH:  # prima il mobile, poi la struttura sotto: un colpo di BUILD_TIME, come a costruirli
+			var piece: bool = unfurnish_marks.has(c.target) and furniture.has(c.target)
+			if not piece and not (demolish_marks.has(c.target) and built.has(c.target)):  # non c'è più, o il segno è stato tolto
+				end_job(c)
+				return
+			var cells := cells_in(piece_rect(c.target, furniture[c.target]) if piece else Rect2i(c.target, Vector2i.ONE))
+			sort_by_distance(cells, c.pos)
+			face(c, center(cells[0]) - c.pos)
+			c.work_left = maxf(c.work_left - delta, 0.0)
+			if c.work_left == 0:
+				if piece:
+					raze_piece(c.target)
+				else:
+					raze(c.target)
+				update_rooms()
+				learn(c, Skill.CONSTRUCTION, BUILD_TIME)
 				end_job(c)
 		Job.UPROOT:
 			face(c, center(c.target) - c.pos)
@@ -8121,7 +8155,7 @@ func try_work_kind(c: Colonist, w: Work) -> bool:
 		Work.HUNT:
 			return try_hunt(c)
 		Work.BUILD:
-			return try_build(c) or try_repair(c)
+			return try_demolish(c) or try_build(c) or try_repair(c)
 		Work.HAUL:  # prima i morti alle tombe; il marcio anche dai magazzini, al cumulo del compost
 			if try_bury(c):
 				return true
@@ -8142,6 +8176,46 @@ func try_work_kind(c: Colonist, w: Work) -> bool:
 		Work.HUSBANDRY:
 			return try_husbandry(c)
 	return false
+
+
+# Abbattere quello che è segnato con "Destroy": prima i mobili, poi le strutture, il più vicino, stando accanto. Coi
+# tempi del costruire: BUILD_TIME a pezzo o a casella, secondo l'abilità nel costruire. Il materiale si perde
+func try_demolish(c: Colonist) -> bool:
+	for origin in unfurnish_marks.keys().filter(func(o): return not furniture.has(o)):  # sparito da sé (un crollo)
+		unfurnish_marks.erase(origin)
+	for cell in demolish_marks.keys().filter(func(k): return not built.has(k)):
+		demolish_marks.erase(cell)
+	var time: float = BUILD_TIME * skill_time(c.skills[Skill.CONSTRUCTION]) * work_factor(c, Job.DEMOLISH)
+	for pieces in [true, false]:
+		var stands := {}
+		for target in (unfurnish_marks if pieces else demolish_marks):
+			if is_free(target) and not (not pieces and unfurnish_marks.has(target)):  # sotto un mobile da abbattere: dopo
+				add_stands(stands, cells_in(piece_rect(target, furniture[target])) if pieces else [target], target, SIDES)
+		var path := path_to_nearest(c, stands.keys())
+		if not path.is_empty():
+			start_job(c, Job.DEMOLISH, path, stands[path.back()], time)
+			return true
+	return false
+
+
+# Butta giù la struttura in `cell`: non resta niente, il materiale si perde. Le stanze le rifà chi chiama (update_rooms)
+func raze(cell: Vector2i) -> void:
+	demolish_marks.erase(cell)
+	if not built.has(cell):
+		return
+	if built[cell][0] in BARRIERS:
+		astar.set_point_solid(cell, false)
+	if built[cell][0] == Build.ROAD:
+		astar.set_point_weight_scale(cell, 1.0)
+	built.erase(cell)
+	plastered.erase(cell)
+
+
+# butta giù il mobile in `origin`
+func raze_piece(origin: Vector2i) -> void:
+	unfurnish_marks.erase(origin)
+	furniture.erase(origin)
+	coop_eggs.erase(origin)
 
 
 # Costruire: prima le strutture, poi i mobili; al mucchio a prendere il materiale, poi al cantiere più vicino
@@ -13321,7 +13395,7 @@ func mark(rect: Rect2i) -> void:
 						draft[Vector2i(x, y)] = [build_kind, build_res]  # sovrascrive: ripassando si cambia idea
 		Order.ERASE:
 			erase_area(rect)
-		Order.DEMOLISH:  # subito, senza recuperare il materiale; anche l'orto, con quello che ci cresce, e il pascolo
+		Order.DEMOLISH:  # orto (con quello che ci cresce) e pascolo subito; strutture e mobili li abbatte chi costruisce
 			for cell in pasture.keys().filter(func(k): return rect.has_point(k)):
 				pasture.erase(cell)
 			for cell in hay_marks.keys().filter(func(k): return rect.has_point(k)):
@@ -13335,16 +13409,9 @@ func mark(rect: Rect2i) -> void:
 				drop_job(cell, Job.FARM)
 			update_fields()
 			for cell in built.keys().filter(func(k): return rect.has_point(k)):
-				if built[cell][0] in BARRIERS:
-					astar.set_point_solid(cell, false)
-				if built[cell][0] == Build.ROAD:
-					astar.set_point_weight_scale(cell, 1.0)
-				built.erase(cell)
-				plastered.erase(cell)
+				demolish_marks[cell] = true
 			for origin in furniture.keys().filter(func(o): return rect.intersects(piece_rect(o, furniture[o]))):
-				furniture.erase(origin)
-				coop_eggs.erase(origin)
-			update_rooms()
+				unfurnish_marks[origin] = true
 
 
 # la gomma (o Maiusc + trascinamento in costruzione): toglie dal progetto tutto quello che c'è nel rettangolo
@@ -13368,6 +13435,8 @@ func erase_piece(cell: Vector2i) -> void:
 
 # la struttura in progetto in `cell`, anche confermata: il materiale già portato torna in magazzino
 func erase_structure_plan(cell: Vector2i) -> void:
+	if demolish_marks.erase(cell):  # anche il segno di abbattere: si cambia idea
+		drop_job(cell, Job.DEMOLISH)
 	draft.erase(cell)
 	if blueprints.erase(cell):
 		drop_job(cell, Job.BUILD)
@@ -13377,6 +13446,10 @@ func erase_structure_plan(cell: Vector2i) -> void:
 # i mobili in progetto che coprono `cell`, anche confermati; vero se ce n'era almeno uno
 func erase_furniture_plan(cell: Vector2i) -> bool:
 	var found := false
+	for origin in pieces_at(furniture, cell):  # anche il segno di abbattere
+		if unfurnish_marks.erase(origin):
+			drop_job(origin, Job.DEMOLISH)
+			found = true
 	for origin in pieces_at(furniture_draft, cell):
 		furniture_draft.erase(origin)
 		found = true
@@ -14204,6 +14277,11 @@ func _draw() -> void:  # terreno, pavimenti, mucchi e ombre stanno sotto: vedi b
 			draw_texture(SIGN, Vector2(room.sign) * TILE)
 	draw_fire()
 
+	for cell in demolish_marks:  # da abbattere: la cornice rossa attorno alla casella o al mobile, sopra i tetti
+		draw_rect(Rect2(tile_rect(cell.x, cell.y)).grow(-1.5), ORDER_COLORS[Order.DEMOLISH], false, 1.0)
+	for origin in unfurnish_marks:
+		if furniture.has(origin):
+			draw_rect(Rect2(piece_rect(origin, furniture[origin]).position * TILE, piece_rect(origin, furniture[origin]).size * TILE).grow(-0.5), ORDER_COLORS[Order.DEMOLISH], false, 1.0)
 	for cell in fish_marks:  # caselle d'acqua, senza un oggetto: la cornice del colore dell'ordine
 		draw_rect(Rect2(Vector2(cell) * TILE, Vector2.ONE * TILE).grow(-1.5), ORDER_COLORS[Order.FISH], false, 1.0)
 	for cell in ice_marks:

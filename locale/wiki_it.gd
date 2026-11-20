@@ -285,7 +285,7 @@ Lo annunciano una finestra e la cronaca; cambiano il nome del reame, il titolo d
 • Il progetto in blu resta quando chiudi Costruisci, e nei salvataggi: resta anche la targa, con Modifica (torna a costruire) e Scarta (tutto il progetto non confermato; chiede un secondo clic per sicurezza).
 • In costruzione il clic destro su un pezzo lo toglie dal progetto, anche confermato (prima il mobile, poi il pavimento sotto); Maiusc + trascinamento, o la gomma sulla targa, toglie un'area intera. Il materiale già portato torna in magazzino. Trascinare col destro sposta sempre la visuale.
 • Il costruttore va a prendere il materiale da un mucchio (a terra o in un magazzino) e ci mette 2 s a casella o a pezzo. Un pezzo di due materiali (abat-jour, lampione) vuole un viaggio per ciascuno: quello già portato aspetta al cantiere, e torna a terra se annulli il progetto.
-• Distruggi (X): trascina sopra strutture e mobili per buttarli giù subito. Il materiale si perde.
+• Distruggi (X): trascina sopra strutture e mobili per segnarli (una cornice rossa). Buttarli giù è un lavoro di chi costruisce: prima il mobile, poi la struttura sotto, 2 s a casella o a pezzo come a costruirli, più svelti con l'abilità Costruire, che così si allena. Il materiale si perde. Per cambiare idea, la gomma o Maiusc + trascinamento in costruzione tolgono il segno. Orto e pascolo spariscono subito.
 • I pezzi che non hai ancora ricercato non hanno un pulsante.
 
 [color=#e8c34a]Dove[/color]

@@ -410,6 +410,12 @@ Decisa il 2026-11-19. Numeri da tarare.
 - **Oro**: monete, in magazzino (mucchi da 100). All'inizio 60, a terra nella radura (si spendono quando sono in un magazzino); poi si trovano nelle rovine (vedi 4.4.4). Servono a pagare
   gli avventurieri. Nei testi (bacheca, scheda, diari, cronaca, finestra Jobs) al posto della parola c'è una monetina
   16×16 dopo il numero. Poi: vene d'oro nella roccia, commercio.
+- **Abbattere** (deciso il 2026-11-20): Distruggi non butta giù subito, segna (cornice rossa) e ci va chi costruisce
+  (`Job.DEMOLISH`, nella colonna Costruire prima dei cantieri): prima i mobili, poi le strutture, coi tempi del
+  costruire (`BUILD_TIME` a casella o a pezzo, per l'abilità Costruire, che ne prende la stessa esperienza). Il
+  materiale si perde; la gomma toglie il segno; orto e pascolo spariscono subito come prima. Segni in
+  `demolish_marks` (strutture) e `unfurnish_marks` (mobili), salvati; prove in `tests/test_jobs.gd`. Poi: recuperare
+  parte del materiale.
 - Catene MVP:
   - Legname → assi (banco del falegname)
   - Lino → corda d'arco (filatoio) → arco, con la legna (banco del falegname)
@@ -1164,7 +1170,8 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
 Deciso il 2026-11-20. La roccia vicina si unisce in un blocco solo e ci si scava dentro: gallerie e stanze sotto la
 montagna, sullo stesso piano della mappa (un piano sotto, con le scale, è un'altra cosa: forse poi).
 - **Massiccio e massi**: la roccia unita da un lato in gruppi di almeno 6 caselle (`MASSIF_MIN`) è **massiccio**: si
-  disegna come un blocco solo, la cima piatta e la parete in vista dove la casella sotto è aperta. Quella sparsa resta
+  disegna come un blocco solo, la cima piatta e la parete in vista dove la casella sotto è aperta, gli angoli
+  arrotondati dove due lati vicini sono aperti (`MASSIF_ROUND`). Quella sparsa resta
   di **massi** (1x1, 2x1, 2x2), che si scavano interi come prima. Le **montagne** sono i massicci grandi: il 7% della
   mappa (`MOUNTAIN_SHARE`), fuori dalla radura e dall'acqua, in due o tre blocchi da qualche centinaio di caselle; il
   torrente ci passa in mezzo.

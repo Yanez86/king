@@ -5305,11 +5305,13 @@ def trees_sheet():
 
 def massif_sheet():
     """Il massiccio di roccia, foglio 64x64 (vedi MASSIF in main.gd): le caselle di roccia vicine si disegnano come un
-    blocco solo, ognuna con la cima piatta e sopra i bordi dei lati aperti. Foglio 64x80. Righe: la cima (4 varianti, a caso come il
+    blocco solo, ognuna con la cima piatta e sopra i bordi dei lati aperti. Foglio 64x96. Righe: la cima (4 varianti, a caso come il
     terreno); i lati aperti (su, destra, giù, sinistra: il contorno, e in basso la parete in vista); gli angoli dove la
     roccia c'è sui due lati ma non in diagonale (in alto a sx, alto a dx, basso a dx, basso a sx: sotto, il fianco
     della parete del vicino); le vene allo scoperto (ferro, carbone, due varianti); le macerie di un crollo (due
-    varianti) e le crepe di una galleria che non regge (due varianti, bianche: in gioco si tingono di rosso)."""
+    varianti) e le crepe di una galleria che non regge (due varianti, bianche: in gioco si tingono di rosso); gli archi
+    del contorno degli angoli arrotondati, dove due lati vicini sono aperti (in alto a sx, alto a dx, basso a dx, basso
+    a sx: i pixel fuori dall'arco li toglie main.gd, vedi MASSIF_ROUND)."""
     def top(seed):
         rnd = random.Random(seed)
         g = [["r"] * 16 for _ in range(16)]
@@ -5342,7 +5344,8 @@ def massif_sheet():
             down[y][x] = "R"
     down[15] = ["o"] * 16
     corners = [blank() for _ in range(4)]
-    corners[0][0][0] = corners[1][0][15] = "o"
+    corners[0][0][0] = corners[1][0][15] = "o"  # e un pixel per lato: l'angolo rientrante viene tondo
+    corners[0][0][1] = corners[0][1][0] = corners[1][0][14] = corners[1][1][15] = "o"
     for y in range(9, 16):
         corners[2][y][15] = corners[3][y][0] = "o"
 
@@ -5380,9 +5383,17 @@ def massif_sheet():
                 x = max(1, min(14, x + rnd.choice((-1, 0, 0, 1))))
         return g
 
+    arcs = [blank() for _ in range(4)]
+    for (x, y), ch in {(4, 0): "o", (2, 1): "o", (3, 1): "o", (1, 2): "o", (1, 3): "o", (0, 4): "o",
+                       (4, 1): "u", (2, 2): "u", (3, 2): "u", (2, 3): "u", (1, 4): "u"}.items():
+        arcs[0][y][x] = ch  # in alto a sinistra: in luce
+        arcs[1][y][15 - x] = "R" if ch == "u" else ch  # in alto a destra: in ombra
+    for (x, y) in ((3, 15), (2, 14), (1, 13), (0, 12)):  # in basso la parete: solo il contorno, meno tondo
+        arcs[3][y][x] = "o"
+        arcs[2][y][15 - x] = "o"
     rows = [[top(s) for s in (1, 2, 3, 4)], [up, right, down, left], corners,
             [veins(1, "4", "5", False), veins(2, "7", "6", True), veins(3, "4", "5", False), veins(4, "7", "6", True)],
-            [rubble(1), rubble(2), cracks(1), cracks(2)]]
+            [rubble(1), rubble(2), cracks(1), cracks(2)], arcs]
     return [line for fs in rows for line in side_by_side([["".join(r) for r in f] for f in fs])]
 
 

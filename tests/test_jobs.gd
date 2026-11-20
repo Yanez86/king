@@ -51,7 +51,7 @@ func _initialize() -> void:
 		"le vene chiuse nel massiccio non si vedono")
 	check(main.describe(hidden[0]) == ["Rock", "Stone left: 5 / 5"], "una vena nascosta si legge come roccia")
 	var sheet: Image = main.MASSIF.get_image()
-	check(sheet.get_size() == Vector2i(4, 5) * main.TILE, "il foglio del massiccio: cima, lati, angoli, vene, macerie e crepe")
+	check(sheet.get_size() == Vector2i(4, 6) * main.TILE, "il foglio del massiccio: cima, lati, angoli, vene, macerie e crepe, angoli tondi")
 	var inside: Array = main.massif.keys().filter(func(k): return (main.EDGE_SIDES + main.EDGE_CORNERS).all(func(d): return main.massif.has(k + d)) and not main.ores.has(k))
 	var face: Array = main.massif.keys().filter(func(k): return not main.rocks.has(k + Vector2i.DOWN) and main.astar.is_in_boundsv(k + Vector2i.DOWN))
 	check(main.rock_images[0].get_pixelv(inside[0] * main.TILE + Vector2i(8, 15)) != main.rock_images[0].get_pixelv(face[0] * main.TILE + Vector2i(8, 15)),
@@ -352,10 +352,41 @@ func _initialize() -> void:
 	# fase 8: "Destroy" abbatte un muro del magazzino: niente più stanza, niente più magazzino
 	main.order = main.Order.DEMOLISH
 	main.mark(Rect2i(room.position, Vector2i.ONE))  # l'angolo tocca l'interno solo in diagonale: resta chiusa
-	check(not main.built.has(room.position) and main.rooms.size() == 1, "abbattuto l'angolo, la stanza resta")
+	# abbattere è un lavoro di chi costruisce: il muro resta segnato finché qualcuno non ci va, e ci mette quanto a farlo
+	check(main.demolish_marks.keys() == [room.position] and main.built.has(room.position), "Destroy segna: il muro è ancora lì")
+	check(main.job_list().contains("Demolish: 1"), "nella finestra Jobs")
+	var wrecker = main.colonists[0]
+	for col in main.colonists:
+		main.quit_job(col)
+	check(main.try_work_kind(wrecker, main.Work.BUILD) and wrecker.job == main.Job.DEMOLISH and wrecker.target == room.position, "lo prende chi costruisce")
+	check(is_equal_approx(wrecker.work_total, main.BUILD_TIME * main.skill_time(wrecker.skills[main.Skill.CONSTRUCTION]) * main.work_factor(wrecker, main.Job.DEMOLISH)),
+		"coi tempi del costruire, secondo l'abilità")
+	var slow: float = wrecker.work_total
+	main.quit_job(wrecker)
+	var level: int = wrecker.skills[main.Skill.CONSTRUCTION]
+	wrecker.skills[main.Skill.CONSTRUCTION] = 5
+	var build_xp: float = main.xp_total(wrecker, main.Skill.CONSTRUCTION)
+	check(main.try_work_kind(wrecker, main.Work.BUILD) and wrecker.work_total < slow, "più bravo, più svelto")
+	check(main.doing(wrecker) == "Demolishing", "si legge cosa fa")
+	for i in 2000:
+		main.tick(0.05)
+		check_work(main)
+		if not main.built.has(room.position):
+			break
+	check(not main.built.has(room.position) and main.demolish_marks.is_empty() and main.rooms.size() == 1, "abbattuto l'angolo, la stanza resta")
+	check(is_equal_approx(main.xp_total(wrecker, main.Skill.CONSTRUCTION), build_xp + main.BUILD_TIME * main.XP_PER_SECOND),
+		"e si impara a costruire, come a farlo: %.2f" % (main.xp_total(wrecker, main.Skill.CONSTRUCTION) - build_xp))
+	wrecker.skills[main.Skill.CONSTRUCTION] = level
+	wrecker.xp[main.Skill.CONSTRUCTION] = 0
+	# il segno si toglie con la gomma
+	main.mark(Rect2i(entrance, Vector2i.ONE))
+	check(main.demolish_marks.has(entrance), "segnata la porta")
+	main.erase_area(Rect2i(entrance, Vector2i.ONE))
+	check(main.demolish_marks.is_empty() and main.built.has(entrance), "la gomma toglie il segno")
 	# un muro a metà lato che dà fuori su una casella libera: abbattuto, apre la stanza
 	var gap: Vector2i = sides.filter(func(s): return s[0] != entrance and not main.astar.is_point_solid(s[0] + s[1]))[0][0]
 	main.mark(Rect2i(gap, Vector2i.ONE))
+	pull_down(main)
 	check(not main.built.has(gap) and not main.astar.is_point_solid(gap), "muro abbattuto, ci si passa")
 	check(main.rooms.is_empty() and main.stockpile.is_empty() and main.roofed.is_empty(),
 		"stanza aperta: niente cartello, magazzino né tetto")
@@ -425,6 +456,8 @@ func _initialize() -> void:
 	check(not main.astar.is_point_solid(at), "sul letto si passa")
 	main.order = main.Order.DEMOLISH
 	main.mark(Rect2i(at + Vector2i.DOWN, Vector2i.ONE))
+	check(main.unfurnish_marks.has(at) and main.demolish_marks.has(at + Vector2i.DOWN), "Destroy segna il mobile e il pavimento sotto")
+	pull_down(main)
 	check(main.furniture.is_empty(), "Destroy toglie anche i mobili")
 	# abat-jour: 2 legna e 1 carbone, un viaggio per materiale; quello già portato aspetta al cantiere
 	check(tip_text(main, "FurnitureBar/Row/Home/Lamp").contains("Cost: 2 Wood, 1 Coal"), "abat-jour: legna e carbone")
@@ -1163,6 +1196,7 @@ func _initialize() -> void:
 	check(hall.kind == game.RoomKind.BEDROOM, "col letto diventa una camera")
 	game.order = game.Order.DEMOLISH
 	game.mark(Rect2i(bed_spot, Vector2i.ONE))
+	pull_down(game)
 	check(hall in game.rooms and hall.kind == game.RoomKind.NONE, "abbattuto il letto, la camera torna senza tipo")
 	game.furniture[bed_spot] = [game.Build.BED, W, 0]  # di nuovo camera: solo le residenze hanno i proprietari
 	game.open_room(hall)
@@ -1189,6 +1223,7 @@ func _initialize() -> void:
 	banned.button_pressed = false
 	game.order = game.Order.DEMOLISH
 	game.mark(Rect2i(bed_spot, Vector2i.ONE))
+	pull_down(game)
 	check(hall.kind == game.RoomKind.NONE and hall.owners.is_empty(), "senza letto non è più una residenza: niente proprietari")
 	game.queue_free()
 
@@ -1325,3 +1360,12 @@ func rock_groups(main) -> Array:
 			i += 1
 		groups.append(group)
 	return groups
+
+
+# quello che è segnato con Destroy, abbattuto subito (il lavoro dei coloni è provato alla fase 8)
+func pull_down(game) -> void:
+	for origin in game.unfurnish_marks.keys():
+		game.raze_piece(origin)
+	for cell in game.demolish_marks.keys():
+		game.raze(cell)
+	game.update_rooms()

@@ -286,7 +286,7 @@ A window and the chronicle announce it; the realm's name, the ruler's title and 
 • The blue plan stays when you close Build, and in the saves: the plate stays too, with Edit (back to building) and Discard (all the unconfirmed plan; it asks to click again to be sure).
 • While building, a right click on a piece takes it out of the plan, even if confirmed (the furniture first, then the floor under it); Shift + drag, or the eraser on the plate, takes out a whole area. The material already carried goes back to the stores. Dragging with the right button still moves the view.
 • The builder fetches the material from a pile (on the ground or in a warehouse) and needs 2 s a tile or a piece. A piece made of two materials (lamp, lantern) takes a trip for each: what is already there waits at the site, and goes back on the ground if you cancel the plan.
-• Destroy (X): drag over structures and furniture to pull them down at once. The material is lost.
+• Destroy (X): drag over structures and furniture to mark them (a red frame). Pulling them down is a builder's job: the furniture first, then the structure under it, 2 s a tile or a piece like building them, faster with the Construction skill, which it trains. The material is lost. To change your mind, the eraser or Shift + drag while building takes the mark off. Garden plots and pasture go at once.
 • Pieces you haven't researched yet have no button.
 
 [color=#e8c34a]Where[/color]
