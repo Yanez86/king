@@ -4544,3 +4544,138 @@ msgstr "Ha mangiato il sorbetto di ghiaccio e miele al banchetto reale."
 
 msgid "From the oven's menu, once a season: a stew, a bread and a honey a head, and the colony feasts in the throne room. +15 happiness for 3 days (+5 with a summer sorbet), +20 authority."
 msgstr "Dal menu del forno, una volta a stagione: uno stufato, un pane e un miele a testa, e la colonia banchetta nella sala del trono. +15 felicità per 3 giorni (+5 col sorbetto d'estate), +20 autorità."
+
+msgid "Authority"
+msgstr "Autorità"
+
+msgid "Seals"
+msgstr "Sigilli"
+
+msgid "Titles"
+msgstr "Titoli"
+
+msgid "Splendor"
+msgstr "Splendore"
+
+msgid "The ruler gathers it governing from the {build:THRONE} in a {room:THRONE_ROOM}, one an hour (more when happy, less when gloomy); every day also one for each step of the {concept:titles} and one every 20 {concept:splendor}. Laws are paid in authority: once to codify them, then to enact them on a {concept:seals}."
+msgstr "La raccoglie il sovrano governando dal {build:THRONE} in una {room:THRONE_ROOM}, una all'ora (di più quando è sereno, di meno quando è cupo); ogni giorno anche una per ogni gradino dei {concept:titles} e una ogni 20 di {concept:splendor}. Le leggi si pagano in autorità: una volta per codificarle, poi per promulgarle su un {concept:seals}."
+
+msgid "Colonists write it at a {build:DESK} in a {room:STUDY} (the Study column): one point a page. Study goes into one common pool and is spent on research; from tier II a research also takes a book ({item:NOTEBOOK}, {item:TOME}, {item:CODEX})."
+msgstr "I coloni lo scrivono a uno {build:DESK} in uno {room:STUDY} (la colonna Studiare): un punto a pagina. Lo studio va in un mucchio comune e si spende nelle ricerche; dal livello II una ricerca vuole anche un libro ({item:NOTEBOOK}, {item:TOME}, {item:CODEX})."
+
+msgid "Laws in force sit on seals: as many laws at once as the seals of your title ({concept:titles}). Enacting a law takes a free seal and 10 {concept:authority}."
+msgstr "Le leggi in vigore stanno sui sigilli: tante leggi insieme quanti i sigilli del tuo titolo ({concept:titles}). Promulgare una legge prende un sigillo libero e 10 di {concept:authority}."
+
+msgid "Lordship (2 seals), Barony (3), County (4), Kingdom (5). A realm rises with {concept:splendor} and colonists: barony 15 and 6, county 35 and 10, kingdom 60 and 15. Some laws need a higher title."
+msgstr "Signoria (2 sigilli), Baronia (3), Contea (4), Regno (5). Un reame sale con lo {concept:splendor} e i coloni: baronia 15 e 6, contea 35 e 10, regno 60 e 15. Alcune leggi vogliono un titolo più alto."
+
+msgid "The sum of the decorations in the colony that count, each worth some splendor (a {build:FLOWER_BED} 1, a {build:FOUNTAIN} 6, a {build:STATUE} 8). It raises the realm's {concept:titles}, gives one {concept:authority} a day every 20, and brings wanderers sooner; it costs upkeep at the feasts."
+msgstr "La somma delle decorazioni della colonia che contano, ognuna con un po' di splendore (un'{build:FLOWER_BED} 1, una {build:FOUNTAIN} 6, una {build:STATUE} 8). Fa salire i {concept:titles} del reame, dà una di {concept:authority} al giorno ogni 20, e porta prima i viandanti; costa la manutenzione alle feste."
+
+msgid "From 0 to 10, given by the furniture and the floor of a room (stone counts half again). At 5 nothing changes; lower, sleep, cooking and crafting take longer and food burns more often; higher, faster. Cold and rain take it away; a hot {item:STEW} halves that."
+msgstr "Da 0 a 10, lo danno i mobili e il pavimento di una stanza (la pietra conta la metà in più). A 5 non cambia niente; sotto, sonno, cucina e lavorazioni vanno più piano e il cibo brucia più spesso; sopra, più svelti. Freddo e pioggia lo tolgono; uno {item:STEW} caldo lo dimezza."
+
+msgid "Colonists are happier with good food ({item:MEAL}, {item:FINE_MEAL}, {item:STEW}), a table, comfort, feasts and some laws; mourning, raw food and hard laws make them sadder. Unhappy colonists may storm off or protest."
+msgstr "I coloni sono più felici col buon cibo ({item:MEAL}, {item:FINE_MEAL}, {item:STEW}), un tavolo, il comfort, le feste e certe leggi; il lutto, il crudo e le leggi dure li rendono più tristi. I coloni infelici possono andarsene arrabbiati o protestare."
+
+msgid "Tier %s: %d {concept:study}"
+msgstr "Livello %s: %d di {concept:study}"
+
+msgid " and a %s"
+msgstr " e un %s"
+
+msgid "Needs:"
+msgstr "Serve:"
+
+msgid "Unlocks:"
+msgstr "Sblocca:"
+
+msgid "Leads to:"
+msgstr "Porta a:"
+
+msgid "Can be studied now"
+msgstr "Si può studiare adesso"
+
+msgid "Codify: %d {concept:authority}, once. Enact: %d {concept:authority} and a free {concept:seals}."
+msgstr "Codificare: %d di {concept:authority}, una volta. Promulgare: %d di {concept:authority} e un {concept:seals} libero."
+
+msgid "Can be codified now"
+msgstr "Si può codificare adesso"
+
+msgid " a tile"
+msgstr " a casella"
+
+msgid "Research:"
+msgstr "Ricerca:"
+
+msgid "Needed by:"
+msgstr "Serve a:"
+
+msgid "Makes:"
+msgstr "Ci si fa:"
+
+msgid "Works in:"
+msgstr "Lavora in:"
+
+msgid "{concept:comfort} %s"
+msgstr "{concept:comfort} %s"
+
+msgid "{concept:splendor} %d"
+msgstr "{concept:splendor} %d"
+
+msgid "Fills %d"
+msgstr "Sazia %d"
+
+msgid ", keeps %s days outdoors"
+msgstr ", dura %s giorni all'aperto"
+
+msgid ", never spoils"
+msgstr ", non marcisce"
+
+msgid ", may poison (%d–%d%%)"
+msgstr ", può intossicare (%d–%d%%)"
+
+msgid "vegetables"
+msgstr "vegetali"
+
+msgid "meat or fish"
+msgstr "carne o pesce"
+
+msgid "at the %s from %s"
+msgstr "a: %s, da %s"
+
+msgid "at the %s from 2 raw foods"
+msgstr "a: %s, da 2 crudi"
+
+msgid "Made:"
+msgstr "Si fa:"
+
+msgid "Used for:"
+msgstr "Serve per:"
+
+msgid "A work room: you can tick its workers."
+msgstr "Una stanza di lavoro: le si spuntano i lavoratori."
+
+msgid "A residence: you can tick its owners."
+msgstr "Una residenza: le si spuntano i proprietari."
+
+msgid "A room for everyone, with its own purpose."
+msgstr "Una stanza di tutti, con uno scopo suo."
+
+msgid "A room."
+msgstr "Una stanza."
+
+msgid "%s days"
+msgstr "%s giorni"
+
+msgid "work %s"
+msgstr "lavoro %s"
+
+msgid "stress %s"
+msgstr "stress %s"
+
+msgid "Levels 0 to 10: at 0 a job takes half as long again, at 10 half the time. It rises by working."
+msgstr "Livelli da 0 a 10: a 0 un lavoro dura la metà in più, a 10 la metà. Sale lavorando."
+
+msgid "A column of the Jobs window: who does it first."
+msgstr "Una colonna della finestra Lavori: chi lo fa per primo."

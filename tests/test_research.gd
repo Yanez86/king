@@ -73,7 +73,8 @@ func _initialize() -> void:
 		and boxes[T.MANURING].position.y > boxes[T.GARDEN].position.y, "le catene dritte, il secondo figlio sotto")
 	var inn_button: Button = buttons.filter(func(b): return b.get_meta("tech") == T.INN)[0]
 	var cost: RichTextLabel = inn_button.find_children("*", "RichTextLabel", true, false)[0]
-	check(not inn_button.disabled and cost.text.begins_with("40 ") and inn_button.tooltip_text.ends_with("Tier I"),
+	check(not inn_button.disabled and cost.text.begins_with("40 ") and inn_button.get_meta("tip") == "tech:INN"
+		and main.glossary.content("tech:INN")[1].contains("Tier I: 40 "),
 		"la locanda si può studiare: il costo e il livello (%s)" % cost.text)
 	var later: Array = buttons.filter(func(b): return not main.researched.has(b.get_meta("tech")) \
 		and main.TECHS[b.get_meta("tech")]["tier"] > 1)

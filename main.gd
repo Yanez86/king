@@ -914,6 +914,8 @@ const TOAST_TIME := 2000    # millisecondi: "Saved" in alto, poi sparisce (vedi 
 const AUTOSAVE_HOUR := 6    # all'alba, quando i coloni si alzano: il salvataggio di ogni giorno
 const MODIFIER_KEYS := [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META, KEY_CAPSLOCK]  # da soli non sono un tasto
 const TIP := preload("res://tip_button.gd")  # suggerimento fatto di Control: pulsanti di costruzione, figurine
+const NESTED_TIPS := preload("res://nested_tips.gd")  # i suggerimenti annidati, coi collegamenti (docs/TECH.md)
+const GLOSSARY := preload("res://glossary.gd")  # il loro contenuto, dalle tabelle
 const BUILD_INFO_COLOR := Color("d9c48a")
 const BUILD_INFO := {
 	Build.WALL: "Blocks the way. Walls with a door around an area make a room.",
@@ -1985,6 +1987,8 @@ var editing: Room           # la stanza aperta nel popup del cartello
 var keep := STOCK.duplicate()  # prodotto -> quanti tenerne (a terra, in magazzino, in mano): si cambia nel menu della postazione
 var crafting := Vector2i(-1, -1)  # la postazione aperta nel menu, vedi open_craft
 var pasture_popup: Control       # la finestra del pascolo: il branco e il mercante (vedi open_pasture)
+var tips = NESTED_TIPS.new()     # i suggerimenti annidati (vedi tip): figlio di main, sopra a tutto
+var glossary = GLOSSARY.new(self)
 var shown: Colonist         # il colono nella scheda: le barre dei bisogni lo seguono
 var gear_menu := PopupMenu.new()  # clic su uno slot della scheda: Auto, Empty o un pezzo (vedi open_gear_menu)
 var marriage_menu := PopupMenu.new()  # "Arrange a marriage…": chi il sovrano può sposare (vedi open_marriage_menu)
@@ -2358,6 +2362,8 @@ func _ready() -> void:
 	$HUD/BoardPanel/Box/Foot/ChronicleButton.pressed.connect(open_chronicle)
 	build_field_popup()
 	build_plan_panel()
+	tips.content = glossary.content
+	add_child(tips)
 	pasture_popup = craft_popup.duplicate()  # come il menu delle postazioni: titolo, una riga rossa, l'elenco
 	pasture_popup.name = "PasturePopup"
 	$HUD.add_child(pasture_popup)
@@ -10412,6 +10418,11 @@ func revoke(law: Law) -> void:
 		laws_key = ""
 
 
+# il suggerimento annidato della cosa `value` (dell'enum `names`, del tipo `kind` del glossario) su `control`
+func tip(control: Control, kind: String, names: Dictionary, value: int) -> void:
+	tips.attach(control, glossary.key_of(kind, names, value))
+
+
 # suggerimento di una legge: cosa fa, a chi piace e a chi no, cosa serve
 func law_tip(law: Law) -> String:
 	var mood: Dictionary = LAWS[law].get("mood", {})
@@ -10569,8 +10580,7 @@ func tech_card(t: Tech) -> Button:
 		row.modulate = Color(1, 1, 1, 0.45)
 	for node in row.find_children("*", "Control", true, false) + [row]:
 		node.mouse_filter = Control.MOUSE_FILTER_IGNORE  # i clic e il mouse sopra al riquadro
-	card.tooltip_text = "%s\n%s%s%s" % [tr(data["info"]), unlocks_text(t), tr("\nTier %s") % ["I", "II", "III", "IV"][data["tier"] - 1],
-		"" if block in ["", tr("Studied")] else "\n" + block]
+	tip(card, "tech", Tech, t)
 	card.pressed.connect(research.bind(t))
 	card.mouse_entered.connect(func():
 		tech_hover = t
@@ -10709,14 +10719,14 @@ func fill_laws() -> void:
 				continue
 			var row := HBoxContainer.new()
 			var icon := ui_icon(LAWS_SHEET, Rect2(tile_rect(law, 0)), Vector2(32, 32))
-			icon.tooltip_text = law_tip(law)
+			tip(icon, "law", Law, law)
 			row.add_child(icon)
 			var name := Label.new()
 			name.text = law_name(law)
 			name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			name.custom_minimum_size.x = 200
 			name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-			name.tooltip_text = law_tip(law)
+			tip(name, "law", Law, law)
 			name.mouse_filter = Control.MOUSE_FILTER_PASS
 			if enacted.has(law):
 				name.add_theme_color_override("font_color", SPLENDOR_COLOR)

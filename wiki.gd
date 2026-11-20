@@ -49,6 +49,7 @@ Hover a figure for the sheet; click a name to open it. Click the number again to
 • While building, a right click (without dragging) takes a piece out of the plan, Shift + drag an area.
 • The box at the bottom right, above the speed, tells what is under the mouse: logs left in a tree, how fresh a pile of food is, and so on.
 • Windows can be dragged around; the X closes them.
+• Tooltips with gold names (in Knowledge and Laws): keep the mouse still and the tooltip locks when its gold bar fills; then you can move into it, and a gold name (a research, a law, a piece of furniture, authority...) opens its own tooltip beside it, and so on. Leave them and they close.
 
 [color=#e8c34a]Bottom bar[/color]
 Select (Q), Build (B), Orders, Destroy (X) | Views. Orders and Views (a small gold triangle) open a bar of their own: the orders above, the views beside. A key works like a click on its button (press it again to close), and an order's key opens its bar too.
