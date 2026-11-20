@@ -1444,6 +1444,49 @@ BOWSTRING_ICON = """
 """
 
 # Icone 16x16 delle azioni accanto a "distruggi" -> scava (piccone), taglia (ascia), estirpa (pianta con le radici).
+def orders_icon():
+    """Icona 16x16 del tasto Ordini: un piccone e un'ascia incrociati, i manici di legno, i ferri in alto; il contorno
+    scuro attorno a tutto"""
+    g = [["."] * 16 for _ in range(16)]
+    for t in range(10):  # i manici: il piccone da in basso a destra in su a sinistra, l'ascia al contrario
+        g[13 - t][12 - t], g[13 - t][13 - t] = "w", "W"
+        g[13 - t][2 + t], g[13 - t][3 + t] = "w", "W"
+    for k in range(6):  # il ferro del piccone, di traverso sulla cima del suo manico
+        g[6 - k][k] = "u"
+        if k < 5:
+            g[6 - k][k + 1] = "r"
+    for y, xs in ((1, range(10, 13)), (2, range(9, 14)), (3, range(9, 14)), (4, range(10, 13))):  # la lama dell'ascia
+        for x in xs:
+            g[y][x] = "u" if x < 12 else "R"
+    for y in range(16):  # il contorno
+        for x in range(16):
+            if g[y][x] == "." and any(0 <= y + dy < 16 and 0 <= x + dx < 16 and g[y + dy][x + dx] not in ".o"
+                                     for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                g[y][x] = "o"
+    return ["".join(r) for r in g]
+
+
+def views_icon():
+    """Icona 16x16 del tasto Viste: un occhio, il bianco, l'iride azzurra con la pupilla e il riflesso"""
+    rows = []
+    for y in range(16):
+        line = ""
+        for x in range(16):
+            ex, ey = (x - 7.5) / 7.5, (y - 7.5) / 4.6  # la mandorla dell'occhio
+            r = ((x - 7.5) ** 2 + (y - 7.5) ** 2) ** 0.5
+            if ex * ex + ey * ey > 1.0:
+                inside_ring = ((x - 7.5) / 8.5) ** 2 + ((y - 7.5) / 5.6) ** 2 <= 1.0
+                line += "o" if inside_ring else "."
+            elif r < 1.2:
+                line += "o"  # la pupilla
+            elif r < 3.2:
+                line += "u" if (x, y) == (6, 6) else "à"  # l'iride, col riflesso
+            else:
+                line += "+" if y < 8 else "x"
+        rows.append(line)
+    return rows
+
+
 MINE_ICON = """
 ................
 ...ooooooo......
@@ -4455,6 +4498,8 @@ def main():
     images["icon_cancel"] = pixels(art(CANCEL_ICON, 16, 16))
     images["icon_destroy"] = pixels(art(DESTROY_ICON, 15, 15))
     images["icon_mine"] = pixels(art(MINE_ICON, 16, 16))
+    images["icon_orders"] = pixels(orders_icon())
+    images["icon_views"] = pixels(views_icon())
     images["icon_chop"] = pixels(art(CHOP_ICON, 16, 16))
     images["icon_uproot"] = pixels(art(UPROOT_ICON, 16, 16))
     images["icon_harvest"] = pixels(art(HARVEST_ICON, 16, 16))

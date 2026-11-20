@@ -44,30 +44,35 @@ Col mouse sopra una figurina vedi la scheda; cliccando un nome la apri. Clicca d
 [color=#e8c34a]Mouse[/color]
 • Con Seleziona (la freccia), il clic sinistro apre le cose: la scheda di un colono, il cartello di una stanza, il menu di una postazione, la bacheca, uno scrittoio (Conoscenza) o un trono (Leggi). Un clic altrove chiude la scheda.
 • Con un ordine scelto (Costruisci, Distruggi, Scava...), trascina un rettangolo col tasto sinistro per segnare l'area.
-• Il riquadro in basso a destra dice cosa c'è sotto il mouse: i tronchi rimasti in un albero, quanto è fresco un mucchio di cibo e così via.
+• Il riquadro in basso a destra, sopra la velocità, dice cosa c'è sotto il mouse: i tronchi rimasti in un albero, quanto è fresco un mucchio di cibo e così via.
 • Le finestre si possono trascinare; la X le chiude.
 
 [color=#e8c34a]La barra in basso[/color]
-Un tasto fa come un clic sul suo pulsante (premilo di nuovo per chiudere).
+Seleziona (Q), Costruisci (B), Ordini, Distruggi (X) | Viste. Ordini e Viste (un triangolino d'oro) aprono una barra loro: gli ordini sopra, le viste accanto. Un tasto fa come un clic sul suo pulsante (premilo di nuovo per chiudere), e il tasto di un ordine apre anche la sua barra.
 [table=4]
-[cell]Seleziona[/cell][cell]Q[/cell][cell]Costruisci[/cell][cell]B[/cell]
-[cell]Distruggi[/cell][cell]X[/cell][cell]Scava[/cell][cell]M[/cell]
-[cell]Taglia[/cell][cell]C[/cell][cell]Estirpa[/cell][cell]U[/cell]
-[cell]Raccogli[/cell][cell]H[/cell][cell]Orto[/cell][cell]P[/cell]
-[cell]Pesca[/cell][cell]F[/cell][cell]Caccia[/cell][cell]T[/cell]
-[cell]Lavori[/cell][cell]J[/cell][cell]Risorse[/cell][cell]I[/cell]
-[cell]Conoscenza[/cell][cell]K[/cell][cell]Leggi[/cell][cell]G[/cell]
+[cell]Scava[/cell][cell]M[/cell][cell]Taglia[/cell][cell]C[/cell]
+[cell]Estirpa[/cell][cell]U[/cell][cell]Raccogli[/cell][cell]H[/cell]
+[cell]Orto[/cell][cell]P[/cell][cell]Pesca[/cell][cell]F[/cell]
+[cell]Caccia[/cell][cell]T[/cell][cell]Tagliare il ghiaccio[/cell][cell]Y[/cell]
 [cell]Vista stanze[/cell][cell]L[/cell][cell]Vista calore[/cell][cell]N[/cell]
-[cell]Lente della terra[/cell][cell]O[/cell][cell]Tagliare il ghiaccio[/cell][cell]Y[/cell]
-[cell]Tetti[/cell][cell]V[/cell][cell]Wiki[/cell][cell]F1[/cell]
+[cell]Lente della terra[/cell][cell]O[/cell][cell]Tetti[/cell][cell]V[/cell]
+[/table]
+• In costruzione non si danno ordini: il tasto Ordini è spento e i suoi tasti non fanno niente. Distruggi funziona, e chiude la costruzione come Seleziona.
+
+[color=#e8c34a]Il menu a sinistra[/color]
+Una linguetta sul bordo sinistro, sotto la barra in alto: cliccala o premi Tab e il menu scivola fuori con le finestre; scegline una e si richiude. Un pallino d'oro dove c'è qualcosa da fare (una ricerca da studiare subito, una legge da codificare o promulgare, qualcuno che chiede di restare, voci nuove nella cronaca), e sulla linguetta a menu chiuso.
+[table=4]
+[cell]Lavori[/cell][cell]J[/cell][cell]Risorse[/cell][cell]I[/cell]
+[cell]Abitanti[/cell][cell]A[/cell][cell]Conoscenza[/cell][cell]K[/cell]
+[cell]Leggi[/cell][cell]G[/cell][cell]Cronaca[/cell][cell]D[/cell]
 [/table]
 • Lavori: chi fa cosa per primo (vedi Coloni), e il lavoro in attesa. Risorse: cosa c'è nei magazzini.
-• Conoscenza compare col primo studio, Leggi con la sala del trono. Il pulsante della Wiki è nella barra in alto.
+• Conoscenza compare col primo studio, Leggi con la sala del trono. Il numero dei coloni nella barra in alto apre anche gli abitanti, la data il calendario. Wiki (F1), schermo intero e opzioni restano in alto a destra.
 
 [color=#e8c34a]Tasti fissi[/color]
-• Spazio: pausa; 1, 2, 3: velocità.
+• Spazio: pausa; 1, 2, 3: velocità (i pulsanti in basso a destra).
 • E e R: girano a sinistra o a destra il prossimo mobile.
-• Esc: le opzioni (anche l'ingranaggio in alto a destra).
+• Esc: chiude prima quello che è aperto (il menu, la costruzione, l'ordine scelto, le viste); se non c'è niente, le opzioni (anche l'ingranaggio in alto a destra).
 
 [color=#e8c34a]Opzioni[/color]
 • Sistema: la lingua, carica un'altra colonia, torna al menu principale, esci dal gioco. Video: misura della finestra e schermo intero (anche il pulsante dello schermo in alto a destra).

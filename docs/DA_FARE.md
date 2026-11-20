@@ -247,8 +247,6 @@ italiano: scheda del colono a due colonne, data e meteo di nuovo nella barra in 
 
 Barre, menu, segni e progetto (deciso il 2026-11-20, vedi [TECH](TECH.md)). Fasi ancora da fare:
 
-- [ ] (1) Barre e menu: la velocità in basso a destra, la barra in basso con Ordini e Viste, gli ordini spenti in
-  costruzione, il menu a scomparsa a sinistra (Tab), Esc che chiude prima quello che è aperto.
 - [ ] (2) I segni di raccolta a contorno, del colore dell'ordine.
 - [ ] (3) Il progetto in blu che resta: la targa (Costruisci, Modifica, Scarta), il clic destro e la gomma.
 

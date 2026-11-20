@@ -240,6 +240,18 @@ msgstr "Vista stanze"
 msgid "Hide roofs"
 msgstr "Nascondi tetti"
 
+msgid "Orders"
+msgstr "Ordini"
+
+msgid "Views"
+msgstr "Viste"
+
+msgid "Menu"
+msgstr "Menu"
+
+msgid "While building, no orders: close it first (Esc)"
+msgstr "In costruzione niente ordini: prima chiudila (Esc)"
+
 msgid "Nothing stored"
 msgstr "Niente in magazzino"
 

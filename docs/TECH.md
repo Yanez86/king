@@ -130,6 +130,10 @@ le finestre in un menu che scompare, in basso a destra il tempo, in alto le info
   telecamera.
 - **Ordine di lavoro**: (1) barre e menu (velocità, Ordini e Viste, gli ordini spenti in costruzione, il menu a
   sinistra, Esc); (2) i segni a contorno; (3) il progetto in blu che resta, la targa, il clic destro e la gomma.
+- **Stato**: fatta la fase 1 il 2026-11-20 (prove in `tests/test_options.gd`). I tasti dei comandi stanno in barre
+  diverse (`TOOL_BARS`): il codice e le prove li trovano per nome con `tool()`, non per percorso. La barra delle Viste
+  si apre accanto a quella in basso, alla sua altezza (sopra c'è il posto di Ordini e delle categorie di
+  Costruisci). Ordini e Viste non hanno un tasto rapido loro (lo hanno i loro comandi), ma si può dare nelle opzioni.
 
 ## Versionamento
 - Git + GitHub (`Yanez86/king`).

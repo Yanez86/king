@@ -535,7 +535,7 @@ const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.COAL: 5, Res.OINTMENT: 3}  
 enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT, ICE, GARDEN }  # cosa segna il trascinamento del mouse
 const ORDER_COLORS := [Color.TRANSPARENT, Color.ORANGE, Color("8fd3ff"), Color("9be36a"), Color("e6e2d0"),
 	Color("ff5a5a"), Color("c83030"), Color("d84a6a"), Color("6ab0e0"), Color("c87a3a"), Color("bfe6f2"), Color("c8a46a")]  # selezione e segni, per Order
-# tasti in HUD/Tools/Row dopo Build, uno alla volta (ButtonGroup "Orders"): vedi toggle_order
+# Distruggi, e i tasti della barra degli Ordini (HUD/OrdersBar), uno alla volta (ButtonGroup "Orders"): vedi toggle_order
 const ORDER_TOOLS := {Order.DEMOLISH: "Destroy", Order.MINE: "Mine", Order.CHOP: "Chop", Order.UPROOT: "Uproot",
 	Order.HARVEST: "Harvest", Order.GARDEN: "Garden", Order.FISH: "Fish", Order.HUNT: "Hunt", Order.ICE: "Ice"}
 const ORDER_ICONS := {Order.CHOP: preload("res://art/icon_chop.png"), Order.MINE: preload("res://art/icon_mine.png"),
@@ -731,11 +731,18 @@ const BLOCKED_COLOR := Color("d84a3a")  # la ✕ sul muro di pietra che il calor
 const ROOM_SPACE := 6        # caselle a testa: chi ne ha meno (stanza piena di gente) ha il comfort in proporzione
 # suggerimento dei pulsanti di costruzione (vedi build_tip): sotto nome e costo il comfort, poi la descrizione colorata
 # menù delle opzioni (Esc o ingranaggio), tab Keybindings: tasti di partenza dei comandi della barra in basso, per
-# nome del pulsante in HUD/Tools/Row (quelli che non ci sono partono senza). Cambiati, si salvano: vedi bind_key
+# nome del pulsante (vedi TOOL_BARS; quelli che non ci sono partono senza). Cambiati, si salvano: vedi bind_key
 const DEFAULT_KEYS := {"Select": KEY_Q, "Build": KEY_B, "Destroy": KEY_X, "Mine": KEY_M, "Chop": KEY_C, "Uproot": KEY_U,
 	"Harvest": KEY_H, "Garden": KEY_P, "Fish": KEY_F, "Hunt": KEY_T, "Ice": KEY_Y, "Jobs": KEY_J, "Resources": KEY_I, "Knowledge": KEY_K, "Laws": KEY_G,
-	"RoomsLens": KEY_L, "HeatLens": KEY_N, "SoilLens": KEY_O, "Roofs": KEY_V, "Wiki": KEY_F1}
-const SPEEDS := {"Pause": 0.0, "Play": 1.0, "Fast": 2.0, "Fastest": 3.0}  # pulsanti in alto a destra, come Space e 1-3
+	"RoomsLens": KEY_L, "HeatLens": KEY_N, "SoilLens": KEY_O, "Roofs": KEY_V, "Wiki": KEY_F1, "Census": KEY_A,
+	"Chronicle": KEY_D, "Menu": KEY_TAB}
+# dove stanno i tasti dei comandi (vedi tool): la barra in basso, le barre di Ordini e Viste, il menu a sinistra; poi
+# la linguetta del menu e la Wiki, in alto
+const TOOL_BARS := ["HUD/Tools/Row", "HUD/OrdersBar/Row", "HUD/ViewsBar/Row", "HUD/Drawer/Box", "HUD", "HUD/TopBar/Row"]
+const TOOL_EXTRAS := ["Menu", "Wiki"]  # di HUD e della barra in alto, solo questi sono comandi
+const DRAWER_TIME := 0.12   # secondi: il menu a sinistra che scivola fuori o rientra
+const MARK_GOLD := Color("e8c34a")  # il triangolino dei tasti che aprono una barra, il pallino del menu
+const SPEEDS := {"Pause": 0.0, "Play": 1.0, "Fast": 2.0, "Fastest": 3.0}  # pulsanti in basso a destra, come Space e 1-3
 # tab Video delle opzioni: misure della finestra, solo quelle che stanno nello schermo (la prima sempre)
 const RESOLUTIONS := [Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440)]
 # tab System delle opzioni: lingue, col nome nella loro lingua; i testi tradotti sono in locale/<lingua>.po (vedi named)
@@ -1698,6 +1705,7 @@ var next_guest := GUEST_EVERY      # `clock` del prossimo arrivo alla locanda
 var ruins: Array[Ruin] = []
 var expeditions: Array[Expedition] = []
 var chronicle: PackedStringArray = []  # diari delle spedizioni e morti, dal più vecchio (vedi note)
+var chronicle_seen := 0       # le voci della cronaca già viste: le altre, nuove, mettono il pallino al menu (vedi update_dots)
 var chronicle_days: PackedInt32Array = []  # il giorno di ogni voce di chronicle: il calendario la segna lì
 var board_key := ""         # quello che mostra la bacheca: se cambia, la si rifà (vedi fill_board)
 var board_pick: Array[Colonist] = []  # spuntati alla bacheca per la prossima spedizione
@@ -1771,8 +1779,8 @@ var needs_rate := 1.0       # 0 nei test: i bisogni restano fermi e non cambiano
 var routines := true        # false nei test: niente orari né ore massime, chi è libero prende il primo lavoro
 var game_start := true      # false nei test: TEST_PEOPLE coloni, niente monete né arma a terra, tutto studiato (prima di _ready)
 var settings_file := "user://settings.cfg"  # "" nei test: tasti di partenza, niente da leggere né da salvare
-var hotkeys := {}           # nome del pulsante in HUD/Tools/Row -> Key, KEY_NONE se non ne ha: vedi bind_key
-var tool_names := {}        # nome del pulsante in HUD/Tools/Row -> suggerimento senza il tasto
+var hotkeys := {}           # nome del pulsante (vedi tool) -> Key, KEY_NONE se non ne ha: vedi bind_key
+var tool_names := {}        # nome del pulsante -> suggerimento senza il tasto
 var tool_buttons := {}      # nome -> pulsante: quelli della barra in basso e la Wiki, in alto (vedi setup_options)
 var rebinding := ""         # comando che aspetta il suo nuovo tasto, vedi capture_key
 var resume_speed := 1.0     # velocità a cui riprende il gioco chiudendo il menù delle opzioni
@@ -1832,15 +1840,15 @@ var lights_canvas := Node2D.new()
 @onready var erase: Button = $HUD/Actions/Erase
 @onready var material_group: ButtonGroup = $HUD/BuildBar/Row/Materials/Wood.button_group
 @onready var kind_group: ButtonGroup = $HUD/BuildBar/Row/Wall.button_group  # anche dei mobili
-@onready var select_button: Button = $HUD/Tools/Row/Select  # la freccia, prima a sinistra: vedi select_tool
-@onready var build_button: Button = $HUD/Tools/Row/Build  # sega e martello: apre le categorie, vedi toggle_build
+@onready var select_button: Button = tool("Select")  # la freccia, prima a sinistra: vedi select_tool
+@onready var build_button: Button = tool("Build")  # sega e martello: apre le categorie, vedi toggle_build
 @onready var structures_button: Button = $HUD/Categories/Row/Structures
 # categorie dei mobili, accanto a Structures: ognuna mostra il suo gruppo della barra dei mobili (stesso nome, in
 # main.tscn), così la barra non esce dallo schermo: casa, fuoco e calore, mestieri e provviste, corte e difesa, decorazioni
 const FURNITURE_GROUPS := ["Home", "Fire", "Crafts", "Court", "Decor"]
 var kind_buttons := {}  # Build -> il suo pulsante, nella barra delle strutture o in un gruppo di quella dei mobili
 @onready var category_group: ButtonGroup = structures_button.button_group
-@onready var order_group: ButtonGroup = $HUD/Tools/Row/Destroy.button_group  # Destroy, Mine, Chop, Uproot
+@onready var order_group: ButtonGroup = tool("Destroy").button_group  # Destroy, Mine, Chop, Uproot
 @onready var room_popup: Control = $HUD/RoomPopup  # pannello al centro
 @onready var room_name: LineEdit = $HUD/RoomPopup/Box/Name
 @onready var room_kind: OptionButton = $HUD/RoomPopup/Box/Kind  # solo i tipi possibili, vedi refresh_room
@@ -1856,6 +1864,10 @@ var priorities_key := ""    # coloni, sovrano e lingua con cui è fatta la tabel
 @onready var object_sheet: Control = $HUD/ObjectSheet  # in basso a destra: la casella sotto il mouse, vedi show_tip
 @onready var sheet_needs: GridContainer = $HUD/ColonistSheet/Box/Needs  # 4 colonne: nome, freccia giù, barra, freccia su
 @onready var hotbar: Control = $HUD/Tools/Row
+@onready var orders_button: Button = $HUD/Tools/Row/Orders  # apre la barra degli Ordini (vedi toggle_orders_bar)
+@onready var views_button: Button = $HUD/Tools/Row/Views    # apre la barra delle Viste
+@onready var drawer: Control = $HUD/Drawer        # il menu a sinistra, con le finestre (vedi toggle_drawer)
+@onready var menu_tab: Button = $HUD/Menu          # la sua linguetta, sul bordo sinistro o accanto al menu aperto
 @onready var options: Control = $HUD/Options  # velo su tutto lo schermo con la finestra al centro: vedi toggle_options
 @onready var key_list: GridContainer = $HUD/Options/Window/Box/Body/Pages/Keybindings/List  # icona, nome, tasto
 
@@ -1925,7 +1937,7 @@ func _ready() -> void:
 			toggle_census())
 	camera.position = center(MAP_SIZE / 2)
 	for name in SPEEDS:
-		get_node("HUD/TopBar/Row/" + name).pressed.connect(func(): Engine.time_scale = SPEEDS[name])
+		get_node("HUD/Speed/Row/" + name).pressed.connect(func(): Engine.time_scale = SPEEDS[name])
 	$HUD/TopBar/Row/Screen.pressed.connect(func():
 		set_fullscreen(DisplayServer.window_get_mode() != DisplayServer.WINDOW_MODE_FULLSCREEN))
 	$HUD/TopBar/Row/Options.pressed.connect(toggle_options)
@@ -1935,7 +1947,36 @@ func _ready() -> void:
 	for group in FURNITURE_GROUPS:
 		get_node("HUD/Categories/Row/" + group).toggled.connect(toggle_furniture.bind(furniture_bar.get_node("Row/" + group)))
 	for o in ORDER_TOOLS:
-		get_node("HUD/Tools/Row/" + ORDER_TOOLS[o]).toggled.connect(toggle_order.bind(o))
+		tool(ORDER_TOOLS[o]).toggled.connect(toggle_order.bind(o))
+	orders_button.toggled.connect(toggle_orders_bar)
+	views_button.toggled.connect(toggle_views_bar)
+	for button in [orders_button, views_button]:  # il triangolino d'oro: apre una barra
+		button.draw.connect(func():
+			var w: float = button.size.x
+			button.draw_colored_polygon(PackedVector2Array([Vector2(w - 11, 4), Vector2(w - 4, 4), Vector2(w - 4, 11)]), MARK_GOLD))
+	menu_tab.toggle_mode = true
+	menu_tab.toggled.connect(toggle_drawer)
+	add_dot(menu_tab, Vector2(14, 2))
+	for row in drawer.get_node("Box").get_children():  # il tasto rapido a destra, il pallino sull'icona; scelta, si chiude
+		var shortcut := Label.new()
+		shortcut.name = "Key"
+		shortcut.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		shortcut.add_theme_color_override("font_color", CENSUS_DIM)
+		shortcut.set_anchors_and_offsets_preset(Control.PRESET_CENTER_RIGHT, Control.PRESET_MODE_MINSIZE, 10)
+		shortcut.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+		row.add_child(shortcut)
+		add_dot(row, Vector2(30, 2))
+		row.pressed.connect(func(): menu_tab.button_pressed = false)
+	show_keys()  # i tasti rapidi accanto ai nomi
+	tool("Census").toggled.connect(show_census)
+	$HUD/CensusPanel.visibility_changed.connect(func(): tool("Census").set_pressed_no_signal($HUD/CensusPanel.visible))
+	tool("Chronicle").toggled.connect(func(on):
+		if on:
+			open_chronicle()
+		else:
+			$HUD/ChroniclePanel.hide())
+	$HUD/ChroniclePanel.visibility_changed.connect(func():
+		tool("Chronicle").set_pressed_no_signal($HUD/ChroniclePanel.visible))
 	select_button.toggled.connect(select_tool.unbind(1))
 	for button in [build_button] + order_group.get_buttons():
 		button.toggled.connect(sync_select.unbind(1))
@@ -1988,14 +2029,14 @@ func _ready() -> void:
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			calendar.visible = not calendar.visible)
 	for name in ["RoomsLens", "HeatLens", "SoilLens"]:  # una lente alla volta
-		get_node("HUD/Tools/Row/" + name).toggled.connect(func(on):
+		tool(name).toggled.connect(func(on):
 			if on:
 				for other in ["RoomsLens", "HeatLens", "SoilLens"]:
 					if other != name:
-						get_node("HUD/Tools/Row/" + other).button_pressed = false)
-	$HUD/Tools/Row/RoomsLens.toggled.connect(func(on): lens.visible = on)
-	$HUD/Tools/Row/SoilLens.toggled.connect(func(on): soil_lens.visible = on)
-	$HUD/Tools/Row/Roofs.toggled.connect(func(on): roofs_shown = not on)
+						tool(other).button_pressed = false)
+	tool("RoomsLens").toggled.connect(func(on): lens.visible = on)
+	tool("SoilLens").toggled.connect(func(on): soil_lens.visible = on)
+	tool("Roofs").toggled.connect(func(on): roofs_shown = not on)
 	$HUD/RoomPopup/Box/Ok.pressed.connect(room_popup.hide)
 	for kind in Build.values():  # un pulsante per tipo, con lo stesso nome: Wall, Floor, ... Lamp
 		var bar := furniture_bar if FURNITURE.has(kind) else build_bar
@@ -2011,7 +2052,7 @@ func _ready() -> void:
 	$HUD/BuildBar/Row/Materials/Stone.pressed.connect(choose_res.bind(Res.STONE))
 	confirm.pressed.connect(confirm_build)
 	erase.toggled.connect(toggle_erase)
-	$HUD/Tools/Row/Jobs.toggled.connect(jobs_panel.set_visible)
+	tool("Jobs").toggled.connect(jobs_panel.set_visible)
 	var jobs_box: Control = jobs_panel.get_node("Box")
 	priority_grid.columns = Work.size() + 1
 	priority_grid.add_theme_constant_override("h_separation", 2)
@@ -2028,9 +2069,9 @@ func _ready() -> void:
 	var line := HSeparator.new()
 	jobs_box.add_child(line)
 	jobs_box.move_child(line, jobs_list.get_index())
-	$HUD/Tools/Row/Resources.toggled.connect(resources_panel.set_visible)
-	jobs_panel.hidden.connect($HUD/Tools/Row/Jobs.set_pressed_no_signal.bind(false))  # chiusa con la X: tasto su
-	resources_panel.hidden.connect($HUD/Tools/Row/Resources.set_pressed_no_signal.bind(false))
+	tool("Resources").toggled.connect(resources_panel.set_visible)
+	jobs_panel.hidden.connect(tool("Jobs").set_pressed_no_signal.bind(false))  # chiusa con la X: tasto su
+	resources_panel.hidden.connect(tool("Resources").set_pressed_no_signal.bind(false))
 	var topics: ItemList = $HUD/WikiPanel/Box/Body/Topics
 	topics.item_selected.connect(func(i): $HUD/WikiPanel/Box/Body/Text.text = WIKI.pages()[i][1])
 	fill_wiki()
@@ -2038,7 +2079,7 @@ func _ready() -> void:
 	$HUD/WikiPanel.hidden.connect($HUD/TopBar/Row/Wiki.set_pressed_no_signal.bind(false))
 	for name in ["Knowledge", "Laws"]:  # le finestre della ricerca, al centro: si rifanno aprendole (vedi fill_knowledge)
 		var panel: Control = get_node("HUD/%sPanel" % name)
-		get_node("HUD/Tools/Row/" + name).toggled.connect(func(on):
+		tool(name).toggled.connect(func(on):
 			knowledge_key = ""
 			laws_key = ""
 			panel.visible = on
@@ -2048,7 +2089,7 @@ func _ready() -> void:
 				else:
 					fill_laws()
 				panel.position = ((get_viewport_rect().size - panel.size) / 2).floor())
-		panel.hidden.connect(get_node("HUD/Tools/Row/" + name).set_pressed_no_signal.bind(false))
+		panel.hidden.connect(tool(name).set_pressed_no_signal.bind(false))
 	for res in Res.values():
 		var row := HBoxContainer.new()
 		row.visible = false  # solo le risorse che ci sono, vedi update_resources
@@ -2182,9 +2223,7 @@ func setup_options() -> void:
 	# all'inizio quella del sistema (o salvata, vedi title.gd); se non c'è, l'inglese
 	languages.select(maxi(0, LANGUAGES.keys().find(TranslationServer.get_locale().get_slice("_", 0))))
 	languages.item_selected.connect(func(i): set_language(LANGUAGES.keys()[i]))
-	for button in hotbar.get_children() + [$HUD/TopBar/Row/Wiki]:
-		if not button is Button:
-			continue
+	for button in tool_list():
 		tool_buttons[String(button.name)] = button
 		tool_names[String(button.name)] = button.tooltip_text
 		key_list.add_child(ui_icon(button.icon, Rect2(), Vector2(32, 32)))
@@ -2437,10 +2476,15 @@ func save_keys() -> void:
 func show_keys() -> void:
 	for name in hotkeys:
 		var key: Key = hotkeys[name]
+		var shortcut: Label = tool_buttons[name].get_node_or_null("Key")  # nel menu a sinistra
+		if shortcut:
+			shortcut.text = "" if key == KEY_NONE else OS.get_keycode_string(key)
 		tool_buttons[name].tooltip_text = tr(tool_names[name]) + ("" if key == KEY_NONE else " (%s)" % OS.get_keycode_string(key))
 		var button: Button = key_list.get_node(NodePath(name))
 		button.text = "Press a key" if name == rebinding else "-" if key == KEY_NONE else OS.get_keycode_string(key)
 		button.set_pressed_no_signal(name == rebinding)
+	if orders_button.disabled:
+		orders_button.tooltip_text += "\n" + tr("While building, no orders: close it first (Esc)")
 
 
 # clic sul tasto di un comando nel menù: aspetta il nuovo, vedi capture_key
@@ -2470,6 +2514,8 @@ func press_hotkey(key: Key) -> bool:
 	if key == KEY_NONE or name == null or not tool_buttons[name].visible:
 		return false
 	var button: Button = tool_buttons[name]
+	if button.disabled or (build_button.button_pressed and button.get_parent() == $HUD/OrdersBar/Row):
+		return true  # in costruzione gli ordini non si danno: il tasto non fa niente
 	button.button_pressed = not button.button_pressed
 	return true
 
@@ -2536,10 +2582,105 @@ func set_resolution(size: Vector2i) -> void:
 	DisplayServer.window_set_position(screen.position + (screen.size - size) / 2)
 
 
+# il tasto del comando `name`, dovunque stia (vedi TOOL_BARS); null se non c'è
+func tool(name: String) -> Button:
+	for bar in TOOL_BARS:
+		var button := get_node_or_null(NodePath(bar + "/" + name))
+		if button is Button and (bar not in ["HUD", "HUD/TopBar/Row"] or name in TOOL_EXTRAS):
+			return button
+	return null
+
+
+# tutti i tasti dei comandi, nell'ordine del menù dei tasti: la barra in basso, Ordini, Viste, il menu, la linguetta, la Wiki
+func tool_list() -> Array:
+	var list := []
+	for bar in TOOL_BARS.slice(0, 4):
+		list.append_array(get_node(bar).get_children().filter(func(b): return b is Button))
+	return list + TOOL_EXTRAS.map(tool)
+
+
+# tasto Ordini: sopra la barra in basso la sua barra (taglia, scava, estirpa...). Chiudendola si lascia l'ordine scelto
+# lì (Distruggi no: sta nella barra in basso)
+func toggle_orders_bar(on: bool) -> void:
+	$HUD/OrdersBar.visible = on
+	if not on:
+		var chosen := order_group.get_pressed_button()
+		if chosen and chosen.get_parent() == $HUD/OrdersBar/Row:
+			chosen.button_pressed = false
+
+
+# tasto Viste: accanto alla barra in basso la sua (stanze, calore, terra, tetti); le viste accese restano accese
+func toggle_views_bar(on: bool) -> void:
+	var bar: Control = $HUD/ViewsBar
+	bar.visible = on
+	bar.offset_left = $HUD/Tools.get_rect().end.x + 6
+	bar.offset_right = bar.offset_left
+
+
+# Il menu a sinistra (la linguetta, o Tab): scivola fuori dal bordo, con le finestre; la linguetta lo segue. Si
+# richiude con la linguetta, con Tab o scegliendo una finestra (vedi _ready)
+func toggle_drawer(on: bool) -> void:
+	var w: float = drawer.get_combined_minimum_size().x
+	drawer.visible = true
+	menu_tab.text = "<" if on else ">"
+	var slide := create_tween().set_ignore_time_scale(true).set_parallel(true)  # anche in pausa
+	slide.tween_property(drawer, "position:x", 0.0 if on else -w, DRAWER_TIME).from(-w if on else 0.0)
+	slide.tween_property(menu_tab, "position:x", w - 2.0 if on else 0.0, DRAWER_TIME)
+	if not on:
+		slide.chain().tween_callback(drawer.hide)
+
+
+# il pallino d'oro sulle finestre del menu dove c'è qualcosa da fare, e sulla linguetta: una ricerca da studiare subito,
+# una legge da codificare o promulgare, qualcuno che chiede di restare, voci nuove nella cronaca
+func update_dots() -> void:
+	var waiting := {
+		"Knowledge": TECHS.keys().any(func(t): return research_block(t) == ""),
+		"Laws": LAWS.keys().any(func(l): return codify_block(l) == "" or (codified.has(l) and enact_block(l) == "")),
+		"Census": not requests.is_empty(),
+		"Chronicle": chronicle.size() > chronicle_seen,
+	}
+	var any := false
+	for row in drawer.get_node("Box").get_children():
+		var on: bool = waiting.get(String(row.name), false) and row.visible
+		row.get_node("Dot").visible = on
+		any = any or on
+	menu_tab.get_node("Dot").visible = any and not menu_tab.button_pressed
+
+
+# un pallino d'oro in alto a sinistra, sopra `parent` (nascosto: vedi update_dots)
+func add_dot(parent: Control, at: Vector2) -> void:
+	var dot := Control.new()
+	dot.name = "Dot"
+	dot.visible = false
+	dot.position = at
+	dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	dot.draw.connect(func():
+		dot.draw_circle(Vector2(4, 4), 4.5, OUTLINE)
+		dot.draw_circle(Vector2(4, 4), 3.0, MARK_GOLD))
+	parent.add_child(dot)
+
+
+# Esc: chiude prima quello che è aperto (le opzioni, il menu, la costruzione, l'ordine scelto e la sua barra, le
+# Viste); se non c'è niente, apre le opzioni
+func escape() -> void:
+	if options.visible:
+		toggle_options()
+	elif menu_tab.button_pressed:
+		menu_tab.button_pressed = false
+	elif build_button.button_pressed:
+		build_button.button_pressed = false
+	elif order_group.get_pressed_button() or orders_button.button_pressed:
+		select_tool()
+	elif views_button.button_pressed:
+		views_button.button_pressed = false
+	else:
+		toggle_options()
+
+
 # tasto "Select" (freccia): nessuno strumento, il clic sulla mappa apre le schede. Premuto chiude quello aperto;
 # resta premuto finché non se ne sceglie un altro e torna su da solo quando si chiude l'ultimo (vedi sync_select)
 func select_tool() -> void:
-	for button in [build_button, order_group.get_pressed_button()]:
+	for button in [build_button, order_group.get_pressed_button(), orders_button]:
 		if button:
 			button.button_pressed = false
 	sync_select()  # cliccato già premuto si spegnerebbe: lo riaccende
@@ -2553,10 +2694,13 @@ func sync_select() -> void:
 # scelta. Chiuderlo chiude anche la categoria aperta e scarta il progetto non confermato
 func toggle_build(on: bool) -> void:
 	categories.visible = on
+	orders_button.disabled = on  # in costruzione non si danno ordini (Distruggi sì: la chiude)
+	show_keys()
 	if on:
-		var tool := order_group.get_pressed_button()
-		if tool:
-			tool.button_pressed = false
+		var chosen := order_group.get_pressed_button()
+		if chosen:
+			chosen.button_pressed = false
+		orders_button.button_pressed = false
 		return
 	var open := category_group.get_pressed_button()
 	if open:
@@ -2694,6 +2838,7 @@ func toggle_order(on: bool, which: Order) -> void:
 	if on:
 		build_button.button_pressed = false
 		order = which
+		orders_button.button_pressed = which != Order.DEMOLISH  # la sua barra, aperta (anche scelto col tasto rapido)
 	elif order == which:
 		order = Order.NONE
 
@@ -3542,6 +3687,7 @@ func show_tip(cell: Vector2i) -> void:
 		$HUD/ObjectSheet/Box/Info.text = about[1]
 		$HUD/ObjectSheet/Box/Info.visible = about[1] != ""
 		object_sheet.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_MINSIZE, 8)  # si stringe nell'angolo
+		object_sheet.position.y -= $HUD/Speed.size.y + 8  # sopra la velocità
 
 
 # [titolo, testo] del suggerimento per l'oggetto in `cell`, [] se non c'è niente. Gli alberi valgono anche sulla
@@ -3942,9 +4088,10 @@ func _process(delta: float) -> void:
 	beds_label.text = str(furniture.values().filter(func(plan): return plan[0] in BEDS).size())  # solo quelli finiti
 	splendor_label.text = str(colony_splendor())
 	for name in ROOM_TOOLS:
-		hotbar.get_node(name).visible = rooms.any(func(r): return r.kind == ROOM_TOOLS[name])
+		tool(name).visible = rooms.any(func(r): return r.kind == ROOM_TOOLS[name])
 	if Engine.get_process_frames() % 30 == 0:  # il conto della manutenzione, ogni tanto: basta per il suggerimento
 		splendor_label.tooltip_text = splendor_tip()
+		update_dots()
 	confirm.disabled = draft.is_empty() and furniture_draft.is_empty()
 	if jobs_panel.visible:
 		refresh_priorities()
@@ -3979,7 +4126,7 @@ func _process(delta: float) -> void:
 		$HUD/ColonistSheet/Box/Health.text = health_text(shown)
 		update_routine_row($HUD/ColonistSheet/Box/Routine, shown)
 	for name in SPEEDS:  # premuto quello della velocità attuale, anche cambiata coi tasti
-		get_node("HUD/TopBar/Row/" + name).set_pressed_no_signal(Engine.time_scale == SPEEDS[name])
+		get_node("HUD/Speed/Row/" + name).set_pressed_no_signal(Engine.time_scale == SPEEDS[name])
 	var t := fmod(clock, 1.0)
 	var wolves := animals.filter(hostile).size()
 	# nella barra in alto gli allarmi, il giorno e l'ora; la stagione, l'anno e l'ordine nel suggerimento
@@ -3996,7 +4143,7 @@ func _process(delta: float) -> void:
 	if lens.visible:
 		lens_canvas.queue_redraw()
 		place_owners()
-	heat_lens.visible = $HUD/Tools/Row/HeatLens.button_pressed or previewing_heat()
+	heat_lens.visible = tool("HeatLens").button_pressed or previewing_heat()
 	if heat_lens.visible:
 		heat_canvas.queue_redraw()
 	if soil_lens.visible:
@@ -8673,8 +8820,12 @@ func figure_icon(c: Colonist, scale := 2) -> Control:
 # --- Abitanti: chi c'è, chi arriva, chi è fuori ---
 
 func toggle_census() -> void:
-	$HUD/CensusPanel.visible = not $HUD/CensusPanel.visible
-	if $HUD/CensusPanel.visible:
+	tool("Census").button_pressed = not tool("Census").button_pressed
+
+
+func show_census(on: bool) -> void:
+	$HUD/CensusPanel.visible = on
+	if on:
 		census_key = ""
 		fill_census()
 
@@ -8883,6 +9034,7 @@ func doing(c: Colonist) -> String:
 # Cronaca: tutto quello che è successo (ingaggi, diari delle spedizioni, morti), dal più recente
 func open_chronicle() -> void:
 	fill_chronicle()
+	chronicle_seen = chronicle.size()
 	$HUD/ChroniclePanel.show()
 
 
@@ -8919,11 +9071,11 @@ func refresh_unlocks() -> void:
 	for kind in Build.values():
 		kind_buttons[kind].visible = unlocked("builds", kind)
 	$HUD/BuildBar/Row/Materials/Stone.visible = unlocked("materials", Res.STONE)
-	$HUD/Tools/Row/Ice.visible = unlocked("rooms", RoomKind.ICEHOUSE)  # col tasto del ghiaccio, la ghiacciaia
-	$HUD/Tools/Row/Garden.visible = unlocked("orders", Order.GARDEN)
-	$HUD/Tools/Row/SoilLens.visible = researched.has(Tech.SOIL_SURVEY)
+	tool("Ice").visible = unlocked("rooms", RoomKind.ICEHOUSE)  # col tasto del ghiaccio, la ghiacciaia
+	tool("Garden").visible = unlocked("orders", Order.GARDEN)
+	tool("SoilLens").visible = researched.has(Tech.SOIL_SURVEY)
 	if not researched.has(Tech.SOIL_SURVEY):
-		$HUD/Tools/Row/SoilLens.button_pressed = false
+		tool("SoilLens").button_pressed = false
 
 
 # la ricerca che sblocca `value` nella lista `key` di TECHS ("builds", "makes", "materials"); -1 se c'è dall'inizio
@@ -10860,8 +11012,7 @@ func _unhandled_input(event: InputEvent) -> void:
 					elif not boards.is_empty():
 						open_board()
 					elif not seats.is_empty():  # scrittoio: il sapere; trono: le leggi
-						var tool: Button = get_node("HUD/Tools/Row/" + ("Knowledge" if furniture[seats[0]][0] == Build.DESK else "Laws"))
-						tool.button_pressed = true
+						tool("Knowledge" if furniture[seats[0]][0] == Build.DESK else "Laws").button_pressed = true
 					elif not signed.is_empty():
 						open_room(signed[0])
 					elif garden.has(cell):
@@ -10892,7 +11043,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			capture_key(event.keycode)
 	elif event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
 		if not event.echo:
-			toggle_options()
+			escape()
 	elif event is InputEventKey and event.pressed and not options.visible:  # col menù aperto il gioco è fermo
 		if not event.echo and not (event.ctrl_pressed or event.alt_pressed or event.meta_pressed) and press_hotkey(event.keycode):
 			return

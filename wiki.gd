@@ -45,30 +45,35 @@ Hover a figure for the sheet; click a name to open it. Click the number again to
 [color=#e8c34a]Mouse[/color]
 • With Select (the arrow), a left click opens things: a colonist's sheet, a room's sign, a workstation's menu, the notice board, a desk (Knowledge) or a throne (Laws). A click elsewhere closes the sheet.
 • With an order chosen (Build, Destroy, Mine...), drag a rectangle with the left button to mark the area.
-• The box at the bottom right tells what is under the mouse: logs left in a tree, how fresh a pile of food is, and so on.
+• The box at the bottom right, above the speed, tells what is under the mouse: logs left in a tree, how fresh a pile of food is, and so on.
 • Windows can be dragged around; the X closes them.
 
 [color=#e8c34a]Bottom bar[/color]
-A key works like a click on its button (press it again to close).
+Select (Q), Build (B), Orders, Destroy (X) | Views. Orders and Views (a small gold triangle) open a bar of their own: the orders above, the views beside. A key works like a click on its button (press it again to close), and an order's key opens its bar too.
 [table=4]
-[cell]Select[/cell][cell]Q[/cell][cell]Build[/cell][cell]B[/cell]
-[cell]Destroy[/cell][cell]X[/cell][cell]Mine[/cell][cell]M[/cell]
-[cell]Chop[/cell][cell]C[/cell][cell]Uproot[/cell][cell]U[/cell]
-[cell]Harvest[/cell][cell]H[/cell][cell]Garden[/cell][cell]P[/cell]
-[cell]Fish[/cell][cell]F[/cell][cell]Hunt[/cell][cell]T[/cell]
-[cell]Jobs[/cell][cell]J[/cell][cell]Resources[/cell][cell]I[/cell]
-[cell]Knowledge[/cell][cell]K[/cell][cell]Laws[/cell][cell]G[/cell]
+[cell]Mine[/cell][cell]M[/cell][cell]Chop[/cell][cell]C[/cell]
+[cell]Uproot[/cell][cell]U[/cell][cell]Harvest[/cell][cell]H[/cell]
+[cell]Garden[/cell][cell]P[/cell][cell]Fish[/cell][cell]F[/cell]
+[cell]Hunt[/cell][cell]T[/cell][cell]Cut ice[/cell][cell]Y[/cell]
 [cell]Rooms lens[/cell][cell]L[/cell][cell]Heat lens[/cell][cell]N[/cell]
-[cell]Soil lens[/cell][cell]O[/cell][cell]Cut ice[/cell][cell]Y[/cell]
-[cell]Roofs[/cell][cell]V[/cell][cell]Wiki[/cell][cell]F1[/cell]
+[cell]Soil lens[/cell][cell]O[/cell][cell]Roofs[/cell][cell]V[/cell]
+[/table]
+• While building no orders can be given: the Orders button is off and its keys do nothing. Destroy works, and closes building like Select.
+
+[color=#e8c34a]The menu on the left[/color]
+A tab on the left edge, below the top bar: click it or press Tab and the menu slides out with the windows; choose one and it closes. A gold dot where something waits (a research you can study now, a law you can codify or enact, someone asking to stay, new lines in the chronicle), and on the tab while the menu is closed.
+[table=4]
+[cell]Jobs[/cell][cell]J[/cell][cell]Resources[/cell][cell]I[/cell]
+[cell]Inhabitants[/cell][cell]A[/cell][cell]Knowledge[/cell][cell]K[/cell]
+[cell]Laws[/cell][cell]G[/cell][cell]Chronicle[/cell][cell]D[/cell]
 [/table]
 • Jobs: who does what first (see Colonists), and the work waiting. Resources: what is in your warehouses.
-• Knowledge shows up with your first study, Laws with the throne room. The Wiki button is in the top bar.
+• Knowledge shows up with your first study, Laws with the throne room. The colonists' number in the top bar opens the inhabitants too, the date the calendar. Wiki (F1), fullscreen and options stay at the top right.
 
 [color=#e8c34a]Fixed keys[/color]
-• Space: pause; 1, 2, 3: speed.
+• Space: pause; 1, 2, 3: speed (the buttons at the bottom right).
 • E and R: turn the next piece of furniture left or right.
-• Esc: the options (also the gear at the top right).
+• Esc: first closes what is open (the menu, building, the chosen order, the views); with nothing open, the options (also the gear at the top right).
 
 [color=#e8c34a]Options[/color]
 • System: language, load another colony, back to the main menu, quit the game. Video: window size and fullscreen (also the screen button at the top right).

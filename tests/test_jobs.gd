@@ -500,9 +500,9 @@ func _initialize() -> void:
 	check(main.colonists.all(func(c): return c.job == main.Job.NONE), "chi non ha niente da fare resta fermo")
 
 	# tasti dopo Destroy: uno alla volta; Uproot segna erbacce e cespugli, anche a clic su una casella
-	main.get_node("HUD/Tools/Row/Chop").button_pressed = true
+	main.tool("Chop").button_pressed = true
 	check(main.order == main.Order.CHOP, "tasto Chop: si tagliano alberi")
-	var uproot: Button = main.get_node("HUD/Tools/Row/Uproot")
+	var uproot: Button = main.tool("Uproot")
 	uproot.button_pressed = true
 	check(main.order == main.Order.UPROOT and main.order_group.get_pressed_button() == uproot, "un'azione alla volta")
 	main.mark(Rect2i(bush, Vector2i.ONE))
@@ -523,9 +523,9 @@ func _initialize() -> void:
 	check(main.select_button.button_pressed, "chiuso l'ultimo strumento torna Select")
 	main.build_button.button_pressed = true
 	main.structures_button.button_pressed = true
-	main.get_node("HUD/Tools/Row/Mine").button_pressed = true
+	main.tool("Mine").button_pressed = true
 	check(not main.build_button.button_pressed and not main.categories.visible and not main.build_bar.visible, "un'azione chiude Build")
-	main.get_node("HUD/Tools/Row/Mine").button_pressed = true
+	main.tool("Mine").button_pressed = true
 	main.select_button.button_pressed = true
 	check(main.order == main.Order.NONE and main.order_group.get_pressed_button() == null, "Select chiude le azioni")
 	main.select_button.button_pressed = false
@@ -589,9 +589,9 @@ func _initialize() -> void:
 	check(jobs.contains("Chop trees: 1") and jobs.contains("Build wall (%s): 2" % main.item_name(W)), "la finestra Jobs conta i lavori per tipo")
 
 	# finestre: si aprono insieme, la X chiude (e il tasto torna su), si trascinano restando nello schermo
-	var jobs_button: Button = main.get_node("HUD/Tools/Row/Jobs")
+	var jobs_button: Button = main.tool("Jobs")
 	jobs_button.button_pressed = true
-	main.get_node("HUD/Tools/Row/Resources").button_pressed = true
+	main.tool("Resources").button_pressed = true
 	check(main.resources_panel.visible and main.jobs_panel.visible, "Resources e Jobs aperte insieme")
 	main.get_node("HUD/JobsPanel/Box/Head/Close").pressed.emit()
 	check(not main.jobs_panel.visible and not jobs_button.button_pressed, "la X chiude Jobs e alza il tasto")

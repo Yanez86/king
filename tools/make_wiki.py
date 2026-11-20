@@ -106,13 +106,14 @@ def catalog(lang, sprites):
     files = {i: path for path, i in re.findall(r'\[ext_resource type="Texture2D" path="res://(.+?)" id="(\w+)"\]', scene)}
     atlas = {i: (files[a], *(int(float(v)) for v in r.split(","))) for i, a, r in re.findall(
         r'\[sub_resource type="AtlasTexture" id="(\w+)"\]\natlas = ExtResource\("(\w+)"\)\nregion = Rect2\(([^)]*)\)', scene)}
-    for name, parent, body in re.findall(r'\[node name="([^"]+)" type="Button" parent="HUD/(\w+)/Row(?:/(?!Turn")\w+)?"\]\n(.*?)(?=\n\[)', scene, re.S):
+    commands = ("Tools", "OrdersBar", "ViewsBar", "Drawer")  # i comandi: col nome del loro suggerimento
+    for name, parent, body in re.findall(r'\[node name="([^"]+)" type="Button" parent="HUD/(\w+)/(?:Row|Box)(?:/(?!Turn")\w+)?"\]\n(.*?)(?=\n\[)', scene, re.S):
         icon = re.search(r'icon = (Sub|Ext)Resource\("(\w+)"\)', body)
         tip = re.search(r'tooltip_text = "(.+?)"', body)
-        if not icon or parent not in ("BuildBar", "FurnitureBar", "Tools"):
+        if not icon or parent not in ("BuildBar", "FurnitureBar") + commands:
             continue
         spec = atlas[icon.group(2)] if icon.group(1) == "Sub" else (files[icon.group(2)],)
-        add(tip.group(1) if parent == "Tools" and tip else name, spec)
+        add(tip.group(1) if parent in commands and tip else name, spec)
         buttons[name] = spec
     for room, spec in ROOM_ICONS.items():  # le stanze: il mobile che le fa (il magazzino: le risorse, la dispensa: il cibo)
         add(room, buttons.get(spec, (spec,)))
