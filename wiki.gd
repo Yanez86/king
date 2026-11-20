@@ -62,7 +62,7 @@ A key works like a click on its button (press it again to close).
 [cell]Rooms lens[/cell][cell]L[/cell][cell]Heat lens[/cell][cell]N[/cell]
 [cell]Soil lens[/cell][cell]O[/cell][cell]Cut ice[/cell][cell]Y[/cell]
 [cell]Roofs[/cell][cell]V[/cell][cell]Wiki[/cell][cell]F1[/cell]
-[cell]Pasture[/cell][cell]A[/cell][cell][/cell][cell][/cell]
+[cell]Pasture[/cell][cell]A[/cell][cell]Hay[/cell][cell]Z[/cell]
 [/table]
 • Jobs: who does what first (see Colonists), and the work waiting. Resources: what is in your warehouses.
 • Knowledge shows up with your first study, Laws with the throne room. The Wiki button is in the top bar.
@@ -145,7 +145,7 @@ A job takes 1.5 times as long at level 0, the normal time at level 5 and half at
 [cell]Research[/cell][cell]writing pages of study[/cell]
 [cell]Lockpicking[/cell][cell]adventurers only: traps, locks[/cell]
 [cell]Medicine[/cell][cell]making ointment, treating the sick[/cell]
-[cell]Husbandry[/cell][cell]collecting eggs, slaughtering[/cell]
+[cell]Husbandry[/cell][cell]eggs, milking, shearing, slaughtering[/cell]
 [/table]
 With a bow a hunter aims with the better of Hunting and Ranged. At a workstation a low level ruins more items, at the campfire it burns more meals.
 
@@ -342,6 +342,7 @@ The list shows only the types whose furniture is inside. Take that furniture awa
 [cell]Armory[/cell][cell]2 training dummies, weapon rack[/cell][cell]work[/cell]
 [cell]Archery range[/cell][cell]2 targets; at least 8 tiles long[/cell][cell]work[/cell]
 [cell]Infirmary[/cell][cell]bed, medicine chest[/cell][cell]service[/cell]
+[cell]Stable[/cell][cell]manger[/cell][cell]service[/cell]
 [/table]
 • Residence: it can have owners. One with owners is closed to everyone else, even just to walk through.
 • Work: it can have workers. For now they matter in a study (they study before any other job) and in a throne room (only the ruler).
@@ -396,7 +397,7 @@ The Heat lens (N) tints rooms by temperature: red warm, yellow cool without a ma
 • Everyone fights a fire first: they fetch a bucket at the water and throw it, 2 hours off the fire each."""],
 
 	["Food & Cooking", """[color=#e8c34a]Eating[/color]
-• Hungry colonists (under 30 food; the glutton at 50) take the nearest food: fine meals first, then stew, meals, bread, raw food only when there is none of those (vegetables, fish, meat, smoked, then turnips, cabbages, beans and preserves, which keep longer). In free time they also snack under 60.
+• Hungry colonists (under 30 food; the glutton at 50) take the nearest food: fine meals first, then stew, meals, bread, cheese, raw food only when there is none of those (vegetables, fish, meat, smoked, then turnips, cabbages, beans and preserves, which keep longer). In free time they also snack under 60.
 • If a chair beside a table is free within 20 tiles, they carry the food there and eat sitting: +5 happiness (At table).
 
 [color=#e8c34a]Food[/color]
@@ -414,6 +415,8 @@ The Heat lens (N) tints rooms by temperature: red warm, yellow cool without a ma
 [cell][img=center]res://art/icon_bread.png[/img] Bread[/cell][cell]60[/cell][cell]8 days[/cell][cell]–[/cell]
 [cell][img=center]res://art/icon_preserves.png[/img] Preserves[/cell][cell]35[/cell][cell]120 days[/cell][cell]1–10%[/cell]
 [cell][img=center]res://art/icon_egg.png[/img] Eggs[/cell][cell]25[/cell][cell]10 days[/cell][cell]5–30%[/cell]
+[cell][img=center]res://art/icon_milk.png[/img] Milk[/cell][cell]20[/cell][cell]1 day[/cell][cell]5–40%[/cell]
+[cell][img=center]res://art/icon_cheese.png[/img] Cheese[/cell][cell]50[/cell][cell]60 days[/cell][cell]–[/cell]
 [/table]
 • Lasts: on the ground outdoors at 15 °C; in a warehouse twice as long. Warmer it rots faster, colder slower, below zero not at all (see Roofs & Heat). Then the pile rots away. Piles that mix take the average freshness. Hover a pile: Fresh, Stale or Almost rotten, and the days left.
 • Raw food may leave you Poisoned: the lower chance when it's fresh, the higher when it's almost rotten.
@@ -494,7 +497,10 @@ Animals roam outside rooms and water, born more than 15 tiles from the clearing:
 [cell][color=#d9c48a]Animal[/color][/cell][cell][color=#d9c48a]A pair[/color][/cell][cell][color=#d9c48a]Pasture[/color][/cell][cell][color=#d9c48a]Young[/color][/cell][cell][color=#d9c48a]Gives[/color][/cell][cell][color=#d9c48a]Slaughtered[/color][/cell]
 [cell]Hen[/cell][cell]12 [img=center]res://art/icon_coin.png[/img][/cell][cell]1 tile[/cell][cell]3 chicks every 30 days[/cell][cell]an egg a day[/cell][cell]2 meat[/cell]
 [cell]Pig[/cell][cell]30 [img=center]res://art/icon_coin.png[/img][/cell][cell]2 tiles[/cell][cell]4 piglets every 60 days[/cell][cell]–[/cell][cell]15 meat, 1 hide[/cell]
+[cell]Sheep[/cell][cell]30 [img=center]res://art/icon_coin.png[/img][/cell][cell]2 tiles[/cell][cell]a lamb a year, in spring[/cell][cell]milk every 2 days, 3 wool a year[/cell][cell]6 meat, 2 hides[/cell]
+[cell]Cow[/cell][cell]60 [img=center]res://art/icon_coin.png[/img][/cell][cell]4 tiles[/cell][cell]a calf a year, in spring[/cell][cell]2 milk a day[/cell][cell]20 meat, 4 hides[/cell]
 [/table]
+Sheep and cows only after the Stable research; calves grow up in 60 days.
 • They stay in the pasture, walking toward the grass. Every animal loses 50 fed a day and gets it back grazing: it needs the grass of its pasture tiles (20 each a day). Hover an animal: sex, age, how fed it is.
 • Young: a fed grown-up female (30 or more), a fed grown-up male of her kind, and room in the pasture (young count too). They grow up in 30 days and are drawn smaller.
 • At 0 fed for 3 days an animal starves to death; the chronicle tells of it. In winter the grass doesn't grow back.
@@ -509,8 +515,17 @@ With a pasture, from Thaw to the end of autumn, every 15 days or so he stops for
 [color=#e8c34a]Husbandry (the column)[/color]
 Whoever has the Husbandry column, in this order:
 • collects the eggs at the coop (2 s) and carries them to a warehouse;
+• milks grown-up ewes and cows (5 s), milk and all;
+• in summer shears the grown-up sheep, once a year (10 s): 3 wool each;
 • slaughters the animals beyond those you keep (8 s): click the pasture, Keep N grown-ups for each kind (6 at the start). Spare males go first (one is kept), then the oldest; never the young. Meat and hide fall on the spot.
-Both teach the Husbandry skill."""],
+All of it teaches the Husbandry skill. Milk is raw food (20, keeps a day); at the campfire 3 milk make a cheese (10 s): 50, it keeps 60 days. The livestock dealer buys wool (4 [img=center]res://art/icon_coin.png[/img] each) and cheese (6), all you have in the warehouses.
+
+[color=#e8c34a]Hay (Z)[/color] [img=center]res://art/icon_hay.png[/img]
+After the Stable research (Land II, 250 and a notebook, after Husbandry). Mark open meadow outside the pasture: from sowing time to the end of summer the farmers (the Farm column) mow the tiles where the grass is tall, 3 s a tile (a sickle is 25% faster): 4 hay each. The grass grows back in 20 days; the mark stays. Hay never rots.
+
+[color=#e8c34a]The stable[/color]
+A room with at least one manger (2x1, 6 wood). Haulers carry hay to the mangers, 20 a tile, even from the warehouses. In winter, and while it snows, the animals go into the stable: a cow takes 4 tiles, a sheep or a pig 2; the bigger ones first. There they eat hay: a cow 3 a day, a sheep or a pig 1; hens stay by the coop and eat ¼ from any manger. Whoever has no place stays out in the cold and gets hungry twice as fast. Hover an animal for its winter stall.
+In the stable the animals leave manure (a cow 1 a day, a sheep or a pig 1 every 2 days, hens 1 every 4): haulers carry it to a warehouse, and farmers spread it before sowing, before compost and ash: +20 fertility."""],
 
 	["Crafting & Equipment", """[color=#e8c34a]Workstations[/color]
 Click a station for its menu: one row for every recipe you know, with its ingredients and Keep N. Things get made while there are fewer than N around (on the ground, in warehouses, in hand, being made); Keep counts for every station of the kind. Equipment is also made for the colonists with an empty slot, and a bow when animals are marked and nobody has one. At the start: Keep 10 ingots, 2 bowstrings, 3 ointments, 10 flour, 8 bread, 8 meals, 0 of the rest.
@@ -534,6 +549,7 @@ The crafter brings the ingredients one by one, then works. The time depends on s
 [cell]Bread (3)[/cell][cell]oven[/cell][cell]2 flour[/cell][cell]10 s[/cell]
 [cell]Stew (2)[/cell][cell]oven[/cell][cell]2 vegetables, 1 meat or fish[/cell][cell]12 s[/cell]
 [cell]Preserves (2)[/cell][cell]oven[/cell][cell]2 vegetables[/cell][cell]10 s[/cell]
+[cell]Cheese[/cell][cell]campfire[/cell][cell]3 milk[/cell][cell]10 s[/cell]
 [/table]
 Skill: Smithing at furnace and anvil, Tailoring at spinning wheel and workbench, Ranged at the carpenter bench, Medicine for the ointment, Cooking at the mill and the oven.
 
@@ -743,6 +759,7 @@ What you haven't researched has no build button, and its recipes don't show at t
 • [color=#d9c48a]Almanac[/color] (Land II, 250 and a notebook, after Soil survey): five bands, and the trend of every field.
 • [color=#d9c48a]Land register[/color] (Land III, 450 and a tome, after Almanac): the soil's numbers and the next harvest.
 • [color=#d9c48a]Husbandry[/color] (Land I, 100, after Hunting): the pasture, the coop, the livestock dealer; hens and pigs; the Husbandry column.
+• [color=#d9c48a]Stable[/color] (Land II, 250 and a notebook, after Husbandry): the stable and its mangers, hay, manure; sheep and cows, milk, cheese, wool.
 • [color=#d9c48a]Hunting[/color] (Land I, 50): spinning wheel and carpenter bench; bowstrings and bows; hides on the walls and door curtains.
 • [color=#d9c48a]Icehouse[/color] (Land II, 250 and a notebook, after Cold store): the icehouse, the ice pit, cutting ice.
 • [color=#d9c48a]Forge[/color] (Fire I, 60): furnace and anvil; ingots, pickaxe, axe, sickle.

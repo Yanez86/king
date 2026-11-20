@@ -1108,7 +1108,7 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
   pascolo; (4) la Stalla: stalla e mangiatoie, il fieno, l'inverno nella stalla, pecore e mucche, latte e formaggio,
   tosatura e lana, il letame; (5) la macina a trazione; (6) l'Apicoltura: arnia, miele, cera, candele; (7) il Banchetto
   reale.
-- **Stato**: fatte le fasi 1–3 il 2026-11-20 (test in `tests/test_grain.gd` e `tests/test_livestock.gd`): il torrente (`stream`, salvato: le partite
+- **Stato**: fatte le fasi 1–4 il 2026-11-20 (test in `tests/test_grain.gd` e `tests/test_livestock.gd`): il torrente (`stream`, salvato: le partite
   di prima non ce l'hanno, e lì il mulino non si fa), il grano nella pianificazione col Mulino, il mulino ad acqua e la
   farina. Il mulino è la prima postazione all'aperto: senza stanza, chi ci lavora sta fuori (`station_stand`), col
   comfort a metà (`station_comfort`); la ruota è il lato destro del disegno, girato in senso orario (`wheel_cells`).
@@ -1123,8 +1123,13 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
   ricresce ogni ora (`grow_grass`). La finestra del pascolo è una copia del menu delle postazioni (`open_pasture`): il
   branco, quanti tenerne (`herd_keep`), e col mercante le coppie da comprare e i capi da vendere. I lupi scelgono il più
   vicino tra coloni e animali del pascolo; se il percorso non c'è (la palizzata) lasciano stare l'animale per un po'
-  (`blocked`) e sbranandolo ne lasciano metà della carne. Pecore e mucche sono già nel foglio degli animali, per la fase
-  4. Il tasto del pascolo è A.
+  (`blocked`) e sbranandolo ne lasciano metà della carne. Il tasto del pascolo è A.
+  La stalla: i posti si danno ogni ora (`assign_stalls`), prima a chi ce l'aveva e ai più grandi; dentro gli animali
+  girano nella stalla (`stall_path`). Il fieno sta nelle mangiatoie come mucchio sulle loro caselle: i trasportatori ce
+  lo portano per primo (`dest_cells`), anche dai magazzini se una mangiatoia ne vuole; chi mangia ne toglie uno ogni
+  fieno intero (`eat_hay`). Le galline mangiano da una mangiatoia qualsiasi e lasciano il letame nel pascolo. Mungere,
+  tosare e macellare tengono fermo l'animale (`handler`, `try_handle`). Il fieno si falcia nella colonna Coltivare (tasto
+  Z). Poi: i maiali che mangiano anche il marcio.
 
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100, con laghi e, nelle mappe nuove, un torrente (4.4.7).
@@ -1311,7 +1316,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | | Caccia ✓ | I | 50 | — | *filatoio, corda d'arco, banco del falegname, falegnameria, arco, pelli alle pareti, portiera* (vedi 4.4.5) |
   | | Affumicatoio ✓ | II | 200 | Caccia | al fuoco: carne e pesce affumicati durano quattro volte tanto (scorta 0 dal menu); si mangiano e si cucinano come il crudo |
   | | Allevamento ✓ | I | 100 | Caccia | il pascolo, il pollaio, il mercante di bestiame: galline e maiali; il lavoro Allevare (vedi 4.4.7) |
-  | | Stalla | II | 250 | Allevamento | stalla e mangiatoia, il fieno, il letame; pecore e mucche: latte, formaggio, lana; la macina a trazione, col Mulino (vedi 4.4.7) |
+  | | Stalla ✓ | II | 250 | Allevamento | stalla e mangiatoia, il fieno, il letame; pecore e mucche: latte, formaggio, lana; la macina a trazione, col Mulino (vedi 4.4.7) |
   | | Dispensa fredda ✓ | I | 100 | — | stanza dispensa, solo per il cibo, che ci va per primo: dura il triplo che fuori (in magazzino il doppio) |
   | | Ghiacciaia ✓ | II | 250 | Dispensa fredda | *ghiacciaia* (muri di pietra o roccia), *fossa del ghiaccio*; Tagliare il ghiaccio d'inverno: col ghiaccio la stanza va verso 0 °C (vedi 4.4.5) |
   | Fuoco | Forgia ✓ | I | 60 | — | *fornace, incudine, forgia, lingotto, piccone, ascia, falcetto* |

@@ -193,8 +193,8 @@ func _initialize() -> void:
 	main.craft_popup.hide()
 
 	# mangiare: prima il pasto squisito, lo stufato, il pasto, il pane, poi il crudo; lo stufato rifocilla, il pane sazia
-	check(main.EATEN.slice(0, 4) == [main.Res.FINE_MEAL, main.Res.STEW, main.Res.MEAL, main.Res.BREAD]
-		and main.EATEN.slice(4) == main.RAW_FOOD and main.Res.PRESERVES in main.RAW_FOOD, "l'ordine dei cibi")
+	check(main.EATEN.slice(0, 5) == [main.Res.FINE_MEAL, main.Res.STEW, main.Res.MEAL, main.Res.BREAD, main.Res.CHEESE]
+		and main.EATEN.slice(5) == main.RAW_FOOD and main.Res.PRESERVES in main.RAW_FOOD, "l'ordine dei cibi (il formaggio: la stalla)")
 	check(main.FOOD[main.Res.BREAD] == 60.0 and main.SHELF_LIFE[main.Res.BREAD] == 8.0 and main.FOOD[main.Res.STEW] == 100.0
 		and main.SHELF_LIFE[main.Res.STEW] == 3.0 and main.SHELF_LIFE[main.Res.PRESERVES] == 120.0, "quanto saziano, quanto durano")
 	var eater = main.colonists[0]

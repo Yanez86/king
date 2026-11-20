@@ -1,4 +1,4 @@
-[gd_scene load_steps=103 format=3]
+[gd_scene load_steps=105 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Script" path="res://columns.gd" id="columns"]
@@ -18,6 +18,7 @@
 [ext_resource type="Texture2D" path="res://art/icon_harvest.png" id="harvest_icon"]
 [ext_resource type="Texture2D" path="res://art/icon_garden.png" id="garden_icon"]
 [ext_resource type="Texture2D" path="res://art/icon_pasture.png" id="pasture_icon"]
+[ext_resource type="Texture2D" path="res://art/icon_hay.png" id="hay_icon"]
 [ext_resource type="Texture2D" path="res://art/icon_fishing.png" id="fishing_icon"]
 [ext_resource type="Texture2D" path="res://art/icon_hunting.png" id="hunting_icon"]
 [ext_resource type="Texture2D" path="res://art/icon_ice.png" id="ice_icon"]
@@ -248,6 +249,10 @@ region = Rect2(0, 1568, 32, 16)
 [sub_resource type="AtlasTexture" id="CoopIcon"]
 atlas = ExtResource("8")
 region = Rect2(0, 1600, 32, 16)
+
+[sub_resource type="AtlasTexture" id="MangerIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 1632, 32, 16)
 
 [sub_resource type="AtlasTexture" id="PlasterIcon"]
 atlas = ExtResource("5")
@@ -891,6 +896,15 @@ icon = SubResource("CoopIcon")
 icon_alignment = 1
 expand_icon = true
 
+[node name="Manger" type="Button" parent="HUD/FurnitureBar/Row/Crafts"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("MangerIcon")
+icon_alignment = 1
+expand_icon = true
+
 [node name="Court" type="HBoxContainer" parent="HUD/FurnitureBar/Row"]
 visible = false
 theme_override_constants/separation = 6
@@ -1228,6 +1242,16 @@ tooltip_text = "Pasture"
 toggle_mode = true
 button_group = SubResource("Orders")
 icon = ExtResource("pasture_icon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Hay" type="Button" parent="HUD/Tools/Row"]
+custom_minimum_size = Vector2(38, 38)
+focus_mode = 0
+tooltip_text = "Hay"
+toggle_mode = true
+button_group = SubResource("Orders")
+icon = ExtResource("hay_icon")
 icon_alignment = 1
 expand_icon = true
 

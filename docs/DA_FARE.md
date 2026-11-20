@@ -17,7 +17,7 @@
 | Stemma | 4.3.2 | base | linee, pellicce, ornamenti, motto, blasonatura |
 | Risorse ed edifici | 4.4 | fatto | vene d'oro, commercio |
 | Cibo e orto | 4.4.1 | fatto, coi concimi | — (il resto è in 4.4.7) |
-| Grano, forno e animali | 4.4.7 | fasi 1–3: torrente, grano, mulino ad acqua, forno, allevamento | stalla, macina, api, banchetto |
+| Grano, forno e animali | 4.4.7 | fasi 1–4: torrente, grano, mulino ad acqua, forno, allevamento, stalla | macina, api, banchetto |
 | Forgia e sartoria | 4.4.2 | fatto | ordini "fanne N", qualità degli oggetti |
 | Combattimento | 4.4.3 | fatto | predoni, medico e cure |
 | Avventurieri e rovine | 4.4.4 | fasi 1–3, chi resta, coloni in spedizione | vene d'oro, commercio, una rovina sulla mappa |
@@ -26,7 +26,7 @@
 | Salvataggio | 4.5.1 | locale fatto | il cloud |
 | Eventi casuali | 4.6 | fatto: il narratore e 11 eventi | tarare i numeri; eventi nuovi coi sistemi nuovi |
 | Caserma e classi | 4.4.6 | fasi 1–2 (le abilità salgono di livello; caserma, classi, corredo) | l'esercitazione, in battaglia, in spedizione |
-| Ricerca | 4.7.3 | 44 ricerche su 54 | 10 ricerche, il livello IV |
+| Ricerca | 4.7.3 | 45 ricerche su 54 | 9 ricerche, il livello IV |
 | Leggi | 4.7.7 | 23 leggi su 38 | 15 leggi: quelle della dinastia si possono fare ora |
 | Interfaccia | [TECH](TECH.md) | testo a 22, elenco degli abitanti, bacheca con la squadra | provarla in inglese e ad altre risoluzioni |
 
@@ -38,8 +38,8 @@ sfortune, la tregua). Ora si possono fare anche le leggi della dinastia (vedi Le
 
 Medicina e morte è fatta (4.2.2: erbe e unguento, infermeria e medico, tombe, Funerali e memoriale).
 
-1. **Cucina e animali** (in corso, 4.4.7) — fatti torrente, grano, mulino, forno e allevamento; poi la stalla, col
-   letame; macina a trazione; Apicoltura; Banchetto reale.
+1. **Cucina e animali** (in corso, 4.4.7) — fatti torrente, grano, mulino, forno, allevamento e stalla; poi la macina
+   a trazione, l'Apicoltura, il Banchetto reale.
 2. **Le leggi della dinastia** — Primogenitura (manca solo nella finestra), Successione elettiva, Matrimoni misti,
    Scuola: i loro sistemi ci sono già (vedi Leggi).
 
@@ -126,14 +126,13 @@ Dinastia (4.3.3, fatta): quello che resta.
 ## Grano, forno e animali da allevare (4.4.7)
 
 Deciso il 2026-11-20; fatte le fasi 1 (torrente, grano, mulino ad acqua), 2 (forno: pane, stufato, conserve) e 3
-(allevamento: pascolo, galline e maiali, pollaio, macello, mercante di bestiame). Fasi ancora da fare:
+(allevamento: pascolo, galline e maiali, pollaio, macello, mercante di bestiame), 4 (stalla: fieno, mangiatoie, pecore e
+mucche, latte, formaggio, lana, letame). Fasi ancora da fare:
 
-- [ ] (4) La Stalla: stalla e mangiatoie, il fieno, l'inverno nella stalla, pecore e mucche, latte e formaggio, tosatura e
-  lana, il letame.
 - [ ] (5) La macina a trazione.
 - [ ] (6) L'Apicoltura: arnia, miele, cera, candele.
 - [ ] (7) Il Banchetto reale.
-- [ ] Poi: il mantello imbottito di lana al telaio (vedi Forgia).
+- [ ] Poi: il mantello imbottito di lana al telaio (vedi Forgia); i maiali che mangiano anche il marcio.
 
 ## Forgia, sartoria ed equipaggiamento (4.4.2)
 
@@ -207,8 +206,7 @@ Cittadella.
 
 | Ramo | Ricerca | Liv. | Richiede | Cosa sblocca |
 |---|---|---|---|---|
-| Terra | Stalla | II | Allevamento | stalla, fieno, letame; pecore e mucche; macina a trazione |
-| | Apicoltura | III | Forno di pietra | arnia: miele, cera (candele) |
+| Terra | Apicoltura | III | Forno di pietra | arnia: miele, cera (candele) |
 | | Banchetto reale | IV | Apicoltura | +15 felicità per 3 giorni, +20 autorità |
 | Fuoco | Vetreria | III | Acciaio | finestre, occhiali |
 | | Altoforno | IV | Vetreria | lingotti e acciaio tre alla volta |

@@ -642,8 +642,8 @@ msgstr "Estrazione più rapida del 25%. Danno in mischia 10."
 msgid "Woodcutting 25% faster. Melee damage 12."
 msgstr "Taglio della legna più rapido del 25%. Danno in mischia 12."
 
-msgid "Harvesting and uprooting 25% faster. Melee damage 8."
-msgstr "Raccolta ed estirpazione più rapide del 25%. Danno in mischia 8."
+msgid "Harvesting, uprooting and mowing 25% faster. Melee damage 8."
+msgstr "Raccolta, estirpazione e falciatura più rapide del 25%. Danno in mischia 8."
 
 msgid "Needed to hunt. Aims with the better of Hunting and Ranged, +10% to hit, 2 more tiles of range. Shoots in a fight (damage 14)."
 msgstr "Serve per cacciare. Mira con la migliore tra Cacciare e Tiro, +10% a segno, 2 caselle di gittata in più. In combattimento tira (danno 14)."
@@ -3165,8 +3165,8 @@ msgstr "Scavare i massi segnati, tagliare il ghiaccio."
 msgid "Picking bushes, flax and herbs, uprooting."
 msgstr "Raccogliere da cespugli, lino ed erbe, estirpare."
 
-msgid "Sowing, harvesting and fertilizing the garden."
-msgstr "Seminare, raccogliere e concimare l'orto."
+msgid "Sowing, harvesting and fertilizing the garden, mowing hay."
+msgstr "Seminare, raccogliere e concimare l'orto, falciare il fieno."
 
 msgid "Fishing at the marked water."
 msgstr "Pescare nell'acqua segnata."
@@ -4313,11 +4313,88 @@ msgctxt "doing"
 msgid "Slaughtering"
 msgstr "Macella"
 
-msgid "Collecting eggs at the coop, slaughtering the animals beyond those you keep: after Husbandry."
-msgstr "Raccogliere le uova al pollaio, macellare gli animali oltre quelli da tenere: dopo l'Allevamento."
+msgid "Collecting eggs, milking, shearing, slaughtering the animals beyond those you keep: after Husbandry."
+msgstr "Raccogliere le uova, mungere, tosare, macellare gli animali oltre quelli da tenere: dopo l'Allevamento."
 
 msgid "A wooden hut with a straw roof, in the pasture: up to 8 hens lay their eggs here, one a day each (not in winter)."
 msgstr "Una casetta di assi col tetto di paglia, nel pascolo: fino a 8 galline ci fanno le uova, una al giorno ciascuna (non d'inverno)."
 
 msgid "The pasture and the coop, and the Husbandry column: a livestock dealer comes by selling hens and pigs. They graze, breed, lay eggs; what is too many gets slaughtered."
 msgstr "Il pascolo e il pollaio, e la colonna Allevare: passa un mercante di bestiame che vende galline e maiali. Brucano, fanno i piccoli, le uova; quelli di troppo si macellano."
+
+msgctxt "item"
+msgid "Hay"
+msgstr "Fieno"
+
+msgctxt "item"
+msgid "Milk"
+msgstr "Latte"
+
+msgctxt "item"
+msgid "Cheese"
+msgstr "Formaggio"
+
+msgctxt "item"
+msgid "Wool"
+msgstr "Lana"
+
+msgctxt "item"
+msgid "Manure"
+msgstr "Letame"
+
+msgid "Manger"
+msgstr "Mangiatoia"
+
+msgid "Stable"
+msgstr "Stalla"
+
+msgid "Hay"
+msgstr "Fieno"
+
+msgid "Sell all the %s (%d): %d"
+msgstr "Vendi tutto: %s (%d), %d"
+
+msgid "Milk: %d"
+msgstr "Latte: %d"
+
+msgid "Wool: to shear"
+msgstr "Lana: da tosare"
+
+msgid "Winter stall: %s"
+msgstr "Posto per l'inverno: %s"
+
+msgid "Hay meadow"
+msgstr "Prato da fieno"
+
+msgid "Ready to mow"
+msgstr "Da falciare"
+
+msgid "Grows back in %d days"
+msgstr "Ricresce in %d giorni"
+
+msgid "Milk: %d animals"
+msgstr "Mungere: %d animali"
+
+msgid "Shear: %d sheep"
+msgstr "Tosare: %d pecore"
+
+msgid "Mow hay: %d tiles"
+msgstr "Falciare il fieno: %d caselle"
+
+msgctxt "doing"
+msgid "Milking"
+msgstr "Munge"
+
+msgctxt "doing"
+msgid "Shearing"
+msgstr "Tosa"
+
+msgctxt "doing"
+msgid "Mowing hay"
+msgstr "Falcia il fieno"
+
+msgid "A trough of planks for hay. With one, a room can be a stable, where the animals spend the winter."
+msgstr "Una cassa di assi per il fieno. Con una, la stanza può essere una stalla, dove gli animali passano l'inverno."
+
+msgid "The stable and its mangers: in winter the animals eat the hay mown in summer, and leave manure for the garden. The dealer sells sheep (milk, wool) and cows (milk); cheese at the campfire."
+msgstr "La stalla e le mangiatoie: d'inverno gli animali mangiano il fieno falciato d'estate, e lasciano il letame per l'orto. Il mercante vende pecore (latte, lana) e mucche (latte); il formaggio al fuoco da campo."

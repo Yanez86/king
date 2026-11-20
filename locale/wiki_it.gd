@@ -61,7 +61,7 @@ Un tasto fa come un clic sul suo pulsante (premilo di nuovo per chiudere).
 [cell]Vista stanze[/cell][cell]L[/cell][cell]Vista calore[/cell][cell]N[/cell]
 [cell]Lente della terra[/cell][cell]O[/cell][cell]Tagliare il ghiaccio[/cell][cell]Y[/cell]
 [cell]Tetti[/cell][cell]V[/cell][cell]Wiki[/cell][cell]F1[/cell]
-[cell]Pascolo[/cell][cell]A[/cell][cell][/cell][cell][/cell]
+[cell]Pascolo[/cell][cell]A[/cell][cell]Fieno[/cell][cell]Z[/cell]
 [/table]
 • Lavori: chi fa cosa per primo (vedi Coloni), e il lavoro in attesa. Risorse: cosa c'è nei magazzini.
 • Conoscenza compare col primo studio, Leggi con la sala del trono. Il pulsante della Wiki è nella barra in alto.
@@ -144,7 +144,7 @@ Un lavoro dura 1,5 volte tanto a livello 0, il tempo normale a livello 5 e la me
 [cell]Ricerca[/cell][cell]scrivere pagine di studio[/cell]
 [cell]Scassinare[/cell][cell]solo avventurieri: trappole, serrature[/cell]
 [cell]Medicina[/cell][cell]fare l'unguento, curare i malati[/cell]
-[cell]Allevare[/cell][cell]raccogliere le uova, macellare[/cell]
+[cell]Allevare[/cell][cell]uova, mungere, tosare, macellare[/cell]
 [/table]
 Con l'arco un cacciatore mira col migliore tra Cacciare e Tiro. A una postazione un livello basso rovina più oggetti, al fuoco da campo brucia più pasti.
 
@@ -341,6 +341,7 @@ L'elenco mostra solo i tipi i cui mobili sono dentro. Se togli quei mobili la st
 [cell]Sala d'armi[/cell][cell]2 fantocci, rastrelliera[/cell][cell]lavoro[/cell]
 [cell]Tiro a segno[/cell][cell]2 bersagli; lunga almeno 8 caselle[/cell][cell]lavoro[/cell]
 [cell]Infermeria[/cell][cell]letto, armadio dei rimedi[/cell][cell]servizio[/cell]
+[cell]Stalla[/cell][cell]mangiatoia[/cell][cell]servizio[/cell]
 [/table]
 • Residenza: può avere dei proprietari. Se ne ha, è chiusa a tutti gli altri, anche solo per passarci.
 • Lavoro: può avere dei lavoratori. Per ora contano in uno studio (studiano prima di qualunque altro lavoro) e in una sala del trono (solo il sovrano).
@@ -395,7 +396,7 @@ La vista calore (N) colora le stanze secondo la temperatura: rosso il caldo, gia
 • Al fuoco tutti lasciano il resto: prendono un secchio all'acqua e lo gettano, 2 ore di fuoco in meno ciascuno."""],
 
 	["Cibo e cucina", """[color=#e8c34a]Mangiare[/color]
-• I coloni affamati (sotto 30 di cibo; il goloso a 50) prendono il cibo più vicino: prima i pasti squisiti, poi lo stufato, i pasti, il pane, il crudo solo quando non c'è niente di questo (vegetali, pesce, carne, affumicati, poi rape, cavoli, fave e conserve, che durano di più). Nel tempo libero fanno anche uno spuntino sotto 60.
+• I coloni affamati (sotto 30 di cibo; il goloso a 50) prendono il cibo più vicino: prima i pasti squisiti, poi lo stufato, i pasti, il pane, il formaggio, il crudo solo quando non c'è niente di questo (vegetali, pesce, carne, affumicati, poi rape, cavoli, fave e conserve, che durano di più). Nel tempo libero fanno anche uno spuntino sotto 60.
 • Se entro 20 caselle c'è una sedia libera accanto a un tavolo, portano lì il cibo e mangiano seduti: +5 felicità (Mangiato al tavolo).
 
 [color=#e8c34a]Cibo[/color]
@@ -413,6 +414,8 @@ La vista calore (N) colora le stanze secondo la temperatura: rosso il caldo, gia
 [cell][img=center]res://art/icon_bread.png[/img] Pane[/cell][cell]60[/cell][cell]8 giorni[/cell][cell]–[/cell]
 [cell][img=center]res://art/icon_preserves.png[/img] Conserve[/cell][cell]35[/cell][cell]120 giorni[/cell][cell]1–10%[/cell]
 [cell][img=center]res://art/icon_egg.png[/img] Uova[/cell][cell]25[/cell][cell]10 giorni[/cell][cell]5–30%[/cell]
+[cell][img=center]res://art/icon_milk.png[/img] Latte[/cell][cell]20[/cell][cell]1 giorno[/cell][cell]5–40%[/cell]
+[cell][img=center]res://art/icon_cheese.png[/img] Formaggio[/cell][cell]50[/cell][cell]60 giorni[/cell][cell]–[/cell]
 [/table]
 • Dura: a terra all'aperto a 15 °C; in un magazzino il doppio. Col caldo marcisce prima, col freddo dopo, sotto lo zero per niente (vedi Tetti e calore). Poi il mucchio marcisce e sparisce. I mucchi che si mescolano prendono la freschezza media. Col mouse sopra un mucchio: Fresco, Non più fresco o Quasi marcio, e i giorni che restano.
 • Chi mangia crudo può restare Intossicato: la probabilità è minima quando il cibo è fresco, massima quando è quasi marcio.
@@ -493,7 +496,10 @@ Gli animali girano fuori dalle stanze e dall'acqua e nascono a più di 15 casell
 [cell][color=#d9c48a]Animale[/color][/cell][cell][color=#d9c48a]Una coppia[/color][/cell][cell][color=#d9c48a]Pascolo[/color][/cell][cell][color=#d9c48a]Piccoli[/color][/cell][cell][color=#d9c48a]Dà[/color][/cell][cell][color=#d9c48a]Macellato[/color][/cell]
 [cell]Gallina[/cell][cell]12 [img=center]res://art/icon_coin.png[/img][/cell][cell]1 casella[/cell][cell]3 pulcini ogni 30 giorni[/cell][cell]un uovo al giorno[/cell][cell]2 carne[/cell]
 [cell]Maiale[/cell][cell]30 [img=center]res://art/icon_coin.png[/img][/cell][cell]2 caselle[/cell][cell]4 porcellini ogni 60 giorni[/cell][cell]–[/cell][cell]15 carne, 1 pelle[/cell]
+[cell]Pecora[/cell][cell]30 [img=center]res://art/icon_coin.png[/img][/cell][cell]2 caselle[/cell][cell]un agnello all'anno, in primavera[/cell][cell]latte ogni 2 giorni, 3 lana all'anno[/cell][cell]6 carne, 2 pelli[/cell]
+[cell]Mucca[/cell][cell]60 [img=center]res://art/icon_coin.png[/img][/cell][cell]4 caselle[/cell][cell]un vitello all'anno, in primavera[/cell][cell]2 latte al giorno[/cell][cell]20 carne, 4 pelli[/cell]
 [/table]
+Pecore e mucche solo dopo la ricerca Stalla; i vitelli diventano adulti in 60 giorni.
 • Stanno nel pascolo, andando verso l'erba. Ogni animale perde 50 di sazietà al giorno e la riprende brucando: gli serve l'erba delle sue caselle di pascolo (20 ciascuna al giorno). Col mouse sopra un animale: sesso, età, quanto è sazio.
 • I piccoli: una femmina adulta e sazia (almeno 30), un maschio adulto e sazio della sua specie, e posto nel pascolo (contano anche i piccoli). Diventano adulti in 30 giorni e si disegnano più piccoli.
 • A sazietà 0 per 3 giorni un animale muore di fame; la cronaca lo dice. D'inverno l'erba non ricresce.
@@ -508,8 +514,17 @@ Con un pascolo, dal Disgelo alla fine dell'autunno, ogni 15 giorni circa si ferm
 [color=#e8c34a]Allevare (la colonna)[/color]
 Chi ha la colonna Allevare, in quest'ordine:
 • raccoglie le uova al pollaio (2 s) e le porta in un magazzino;
+• munge le pecore e le mucche adulte (5 s), tutto il latte;
+• d'estate tosa le pecore adulte, una volta all'anno (10 s): 3 lana ciascuna;
 • macella gli animali oltre quelli da tenere (8 s): clicca il pascolo, Tieni N adulti per specie (6 all'inizio). Prima i maschi in più (uno si tiene), poi i più vecchi; mai i piccoli. Carne e pelle cadono lì.
-Tutte e due insegnano l'abilità Allevare."""],
+Tutto questo insegna l'abilità Allevare. Il latte è cibo crudo (20, dura un giorno); al fuoco da campo 3 latte fanno un formaggio (10 s): 50, dura 60 giorni. Il mercante di bestiame compra la lana (4 [img=center]res://art/icon_coin.png[/img] l'una) e il formaggio (6), tutto quello che c'è nei magazzini.
+
+[color=#e8c34a]Il fieno (Z)[/color] [img=center]res://art/icon_hay.png[/img]
+Dopo la ricerca Stalla (Terra II, 250 e un quaderno, dopo l'Allevamento). Segna del prato libero fuori dal pascolo: dalla semina alla fine dell'estate i contadini (la colonna Coltivare) falciano le caselle con l'erba alta, 3 s a casella (col falcetto il 25% più svelti): 4 fieno ciascuna. L'erba ricresce in 20 giorni; il segno resta. Il fieno non marcisce.
+
+[color=#e8c34a]La stalla[/color]
+Una stanza con almeno una mangiatoia (2x1, 6 legna). I trasportatori portano il fieno alle mangiatoie, 20 a casella, anche dai magazzini. D'inverno, e quando nevica, gli animali vanno nella stalla: una mucca prende 4 caselle, una pecora o un maiale 2; prima i più grandi. Lì mangiano il fieno: una mucca 3 al giorno, una pecora o un maiale 1; le galline stanno al pollaio e ne mangiano ¼ da una mangiatoia qualsiasi. Chi non ha posto resta fuori al freddo e ha fame il doppio. Col mouse sopra un animale, il suo posto per l'inverno.
+Nella stalla gli animali lasciano il letame (una mucca 1 al giorno, una pecora o un maiale 1 ogni 2, le galline 1 ogni 4): i trasportatori lo portano in un magazzino e i contadini lo spargono prima della semina, prima del compost e della cenere: +20 di fertilità."""],
 
 	["Lavorazioni ed equipaggiamento", """[color=#e8c34a]Postazioni[/color]
 Clicca una postazione per il suo menu: una riga per ogni ricetta che conosci, coi suoi ingredienti e Tieni N. Si fa finché in giro ce ne sono meno di N (a terra, nei magazzini, in mano, in lavorazione); la Scorta vale per tutte le postazioni dello stesso tipo. L'equipaggiamento si fa anche per i coloni con uno slot vuoto, e un arco quando ci sono animali segnati e nessuno ne ha uno. All'inizio: Scorta 10 lingotti, 2 corde d'arco, 3 unguenti, 10 farina, 8 pani, 8 pasti, 0 per il resto.
@@ -533,6 +548,7 @@ L'artigiano porta gli ingredienti uno alla volta, poi lavora. Il tempo dipende d
 [cell]Pane (3)[/cell][cell]forno[/cell][cell]2 farina[/cell][cell]10 s[/cell]
 [cell]Stufato (2)[/cell][cell]forno[/cell][cell]2 vegetali, 1 carne o pesce[/cell][cell]12 s[/cell]
 [cell]Conserve (2)[/cell][cell]forno[/cell][cell]2 vegetali[/cell][cell]10 s[/cell]
+[cell]Formaggio[/cell][cell]fuoco da campo[/cell][cell]3 latte[/cell][cell]10 s[/cell]
 [/table]
 Abilità: Forgiare a fornace e incudine, Cucire a filatoio e banco da lavoro, Tiro al banco del falegname, Medicina per l'unguento, Cucinare al mulino e al forno.
 
@@ -742,6 +758,7 @@ Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette 
 • [color=#d9c48a]Almanacco agrario[/color] (Terra II, 250 e un quaderno, dopo il Saggio): cinque fasce, e la tendenza di ogni campo.
 • [color=#d9c48a]Catasto[/color] (Terra III, 450 e un tomo, dopo l'Almanacco): i numeri della terra e il prossimo raccolto.
 • [color=#d9c48a]Allevamento[/color] (Terra I, 100, dopo la Caccia): il pascolo, il pollaio, il mercante di bestiame; galline e maiali; la colonna Allevare.
+• [color=#d9c48a]Stalla[/color] (Terra II, 250 e un quaderno, dopo l'Allevamento): la stalla e le mangiatoie, il fieno, il letame; pecore e mucche, latte, formaggio, lana.
 • [color=#d9c48a]Caccia[/color] (Terra I, 50): filatoio e banco del falegname; corde d'arco e archi; pelli alle pareti e portiere.
 • [color=#d9c48a]Ghiacciaia[/color] (Terra II, 250 e un quaderno, dopo Dispensa fredda): la ghiacciaia, la fossa del ghiaccio, il taglio del ghiaccio.
 • [color=#d9c48a]Forgia[/color] (Fuoco I, 60): fornace e incudine; lingotti, piccone, ascia, falcetto.

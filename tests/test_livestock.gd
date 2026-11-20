@@ -59,8 +59,12 @@ func _initialize() -> void:
 	main.stockpile = {store: true}
 	main.add_item(main.Res.GOLD, store, 100)
 	main.drover_arrives()
-	check(main.drover_stock.size() >= 2 and main.drover_stock.size() <= 3 and main.drover_stock.all(func(k): return k in [HEN, PIG]),
-		"vende 2-3 coppie di galline o maiali")
+	check(main.drover_stock.size() >= 2 and main.drover_stock.size() <= 3 and main.drover_stock.all(func(k): return k in main.LIVESTOCK),
+		"vende 2-3 coppie delle specie che si sanno allevare")
+	main.researched.erase(main.Tech.STABLE)
+	main.drover_arrives()
+	check(main.drover_stock.all(func(k): return k in [HEN, PIG]), "senza la Stalla solo galline e maiali")
+	main.researched[main.Tech.STABLE] = true
 	check(main.chronicle[-1].contains("livestock dealer"), "lo dice la cronaca")
 	main.drover_stock = [HEN, PIG]
 	check(main.buy_pair(0) and main.buy_pair(0), "si comprano le coppie")
@@ -200,7 +204,135 @@ func _initialize() -> void:
 		main.tick(0.05)
 	check(safe in main.animals and safe.blocked > main.clock, "dietro la palizzata la gallina è al sicuro")
 
-	print("OK: pascolo, mercante, brucare, piccoli, macello, uova, lupi")
+	# --- la Stalla (Terra II, dopo l'Allevamento): fieno, mangiatoie, l'inverno dentro, latte, lana, letame ---
+	for k in ring:
+		main.built.erase(k)
+		main.astar.set_point_solid(k, false)
+	main.animals.clear()
+	var SHEEP: int = main.Beast.SHEEP
+	var COW: int = main.Beast.COW
+	tech = main.TECHS[main.Tech.STABLE]
+	check(tech["tier"] == 2 and tech["needs"] == [main.Tech.HUSBANDRY] and main.RoomKind.STABLE in tech["rooms"]
+		and main.Order.HAY in tech["orders"] and main.Res.CHEESE in tech["makes"], "Stalla: Terra II, dopo l'Allevamento")
+	check(main.MANURE_SOIL.keys()[0] == main.Res.MANURE and main.MANURE_SOIL[main.Res.MANURE] == 20, "il letame, il primo dei concimi: +20")
+
+	# il fieno: si segna il prato; dalla semina alla fine dell'estate il contadino falcia quello con l'erba alta
+	var meadow := Rect2i(field.position + Vector2i(0, 7), Vector2i(3, 1))
+	check(main.cells_in(meadow).all(func(h): return main.can_plant(h)), "c'è prato per il fieno")
+	main.order = main.Order.HAY
+	main.mark(meadow)
+	main.order = main.Order.NONE
+	check(main.hay_marks.size() == 3 and main.mow_ready().size() == 3, "tre caselle da falciare")
+	check(main.describe(meadow.position)[1] == "Ready to mow", "col mouse sopra: da falciare")
+	for c in main.colonists:
+		c.pos = main.center(meadow.position + Vector2i(0, 1))
+	for i in 3000:
+		main.tick(0.05)
+		if main.mow_ready().is_empty() and main.colonists.all(func(c): return c.job != main.Job.MOW):
+			break
+	var hay: int = main.total(main.Res.HAY) + main.colonists.filter(func(c): return c.carry_res == main.Res.HAY).map(func(c): return c.carrying).reduce(func(a, b): return a + b, 0)
+	check(hay == 3 * main.HAY_CUT, "falciate: %d fieno" % hay)
+	check(main.mow_ready().is_empty() and main.describe(meadow.position)[1].begins_with("Grows back"), "poi l'erba ricresce")
+
+	# la stalla: una stanza con la mangiatoia; i trasportatori ci portano il fieno, anche dal magazzino
+	var barn = main.Room.new()
+	var barn_at := field.position + Vector2i(10, 0)
+	for k in main.cells_in(Rect2i(barn_at, Vector2i(5, 2))):
+		barn.cells[k] = true
+	barn.kind = main.RoomKind.STABLE
+	barn.name = "Barn"
+	main.rooms.append(barn)
+	main.furniture[barn_at] = [main.Build.MANGER, main.Res.WOOD, 0]
+	check(main.manger_cells().size() == 2, "la mangiatoia, 2x1")
+	for c in main.colonists:  # via dai mucchi: chi ci sta sopra fermo li tiene per sé
+		c.pos = main.center(barn_at + Vector2i(2, 1))
+		main.end_job(c)
+	for i in 3000:
+		main.tick(0.05)
+		if main.manger_cells().keys().reduce(func(n, k): return n + main.items[main.Res.HAY].get(k, 0), 0) == 12:
+			break
+	var in_crib: int = main.manger_cells().keys().reduce(func(n, k): return n + main.items[main.Res.HAY].get(k, 0), 0)
+	check(in_crib == 12, "il fieno nella mangiatoia (%d)" % in_crib)
+
+	# d'inverno nella stalla: posto per caselle a capo; mangiano il fieno; chi non ha posto patisce il freddo
+	main.clock = main.YEAR_DAYS * 2 - 30.5  # d'inverno
+	main.tick(0.0)
+	check(main.indoors(), "d'inverno si sta dentro")
+	var cow = main.add_livestock(COW, field.position + Vector2i(2, 2), true, false)
+	var ewe = main.add_livestock(SHEEP, field.position + Vector2i(3, 2), true, false)
+	var ram = main.add_livestock(SHEEP, field.position + Vector2i(4, 2), false, false)
+	var bull = main.add_livestock(COW, field.position + Vector2i(5, 2), false, false)
+	main.assign_stalls()
+	check(cow.stall == barn and bull.stall == barn and ewe.stall == barn and ram.stall == null, "10 caselle: le mucche (4) e una pecora (2)")
+	for i in 600:
+		main.tick(0.05)
+		if [cow, bull, ewe].all(func(a): return barn.cells.has(main.cell_of(a.pos))):
+			break
+	check([cow, bull, ewe].all(func(a): return barn.cells.has(main.cell_of(a.pos))), "vanno nella stalla")
+	main.needs_rate = 1.0
+	cow.fed = 50.0
+	ram.fed = 50.0
+	ram.pos = main.center(field.position - Vector2i(3, 3))  # fuori dal pascolo, dove non c'è erba
+	main.update_livestock(cow, main.DAY_LENGTH * 0.05)
+	main.update_livestock(ram, main.DAY_LENGTH * 0.05)
+	check(cow.fed > 50.0, "nella stalla mangia il fieno")
+	check(is_equal_approx(ram.fed, 50.0 - main.FED_DROP * 0.05 * main.COLD_HUNGER), "fuori al freddo: la fame doppia")
+	var before: int = main.manger_cells().keys().reduce(func(n, k): return n + main.items[main.Res.HAY].get(k, 0), 0)
+	cow.fed = 0.0
+	main.update_livestock(cow, main.DAY_LENGTH * 0.5)
+	var after: int = main.manger_cells().keys().reduce(func(n, k): return n + main.items[main.Res.HAY].get(k, 0), 0)
+	check(after < before and cow.dung > 0, "il fieno cala, e viene il letame")
+	cow.dung = 0.99
+	main.update_livestock(cow, main.DAY_LENGTH * 0.02)
+	check(main.total(main.Res.MANURE) == 1, "un letame nella stalla")
+	var hen2 = main.add_livestock(HEN, field.position + Vector2i(1, 1), true, false)
+	hen2.fed = 50.0
+	main.update_livestock(hen2, main.DAY_LENGTH * 0.05)
+	check(hen2.fed > 50.0 and hen2.stall == null, "le galline mangiano il fieno di tutte le mangiatoie, dal pollaio")
+
+	# il latte: le femmine adulte di mucca e pecora; chi alleva munge; d'estate tosa le pecore
+	cow.milk = 0.0
+	cow.fed = 80.0
+	main.update_livestock(cow, main.DAY_LENGTH * 0.5)
+	check(is_equal_approx(cow.milk, 1.0) and bull.milk == 0.0, "mezza giornata: un latte; il maschio no")
+	main.needs_rate = 0.0
+	cow.milk = 2.0
+	for c in main.colonists:
+		c.pos = main.center(barn_at + Vector2i(1, 1))
+	for i in 3000:
+		main.tick(0.05)
+		if cow.milk < 1.0 and main.colonists.all(func(c): return c.job != main.Job.MILK):
+			break
+	var milk: int = main.total(main.Res.MILK) + main.colonists.filter(func(c): return c.carry_res == main.Res.MILK).map(func(c): return c.carrying).reduce(func(a, b): return a + b, 0)
+	check(milk == 2 and main.Res.MILK in main.RAW_FOOD and main.SHELF_LIFE[main.Res.MILK] == 1.0, "munto: 2 latte, crudo, dura un giorno")
+	check(main.RECIPES.any(func(r): return r[0] == main.Res.CHEESE and r[1] == main.Build.CAMPFIRE and r[3] == {main.Res.MILK: 3})
+		and main.FOOD[main.Res.CHEESE] == 50.0 and main.SHELF_LIFE[main.Res.CHEESE] == 60.0 and main.Res.CHEESE in main.COOKED,
+		"il formaggio: 3 latte al fuoco, sazia 50, dura 60 giorni")
+	check(not main.shearable(ewe), "d'inverno non si tosa")
+	main.clock = main.YEAR_DAYS * 3 + 100.5  # l'estate dopo
+	main.tick(0.0)
+	check(not main.indoors() and main.shearable(ewe) and main.shearable(ram), "d'estate si tosano le pecore adulte")
+	for i in 4000:
+		main.tick(0.05)
+		if not main.shearable(ewe) and not main.shearable(ram) and main.colonists.all(func(c): return c.job != main.Job.SHEAR):
+			break
+	var wool: int = main.total(main.Res.WOOL) + main.colonists.filter(func(c): return c.carry_res == main.Res.WOOL).map(func(c): return c.carrying).reduce(func(a, b): return a + b, 0)
+	check(wool == 6 and ewe.shorn == main.year_of(main.today), "tosate: 6 lana, una volta all'anno")
+
+	# agnelli e vitelli: uno all'anno, in primavera
+	var spring: float = main.next_spring(main.clock)
+	var day_of_year: int = posmod(int(spring), main.YEAR_DAYS)
+	check(spring > main.clock and day_of_year >= main.BIRTH_SPRING[0] and day_of_year <= main.BIRTH_SPRING[1], "il prossimo parto in primavera")
+
+	# il mercante compra lana e formaggio, tutta quella del magazzino
+	main.items[main.Res.WOOL].clear()
+	main.add_item(main.Res.WOOL, store + Vector2i(0, 1), 6)
+	main.stockpile[store + Vector2i(0, 1)] = true
+	var gold: int = main.stored(main.Res.GOLD)
+	main.drover_arrives()
+	check(main.sell_goods(main.Res.WOOL) and main.stored(main.Res.GOLD) == gold + 6 * 4 and main.stored(main.Res.WOOL) == 0, "6 lana, 24 monete")
+
+	print("OK: pascolo, mercante, brucare, piccoli, macello, uova, lupi; la stalla")
 	quit()
 
 

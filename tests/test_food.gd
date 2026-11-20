@@ -182,8 +182,8 @@ func _initialize() -> void:
 	# clic sul fuoco: il menu coi pasti; quanti tenerne si cambia da lì
 	var menu: Control = main.get_node("HUD/CraftPopup/Box")
 	main.open_craft(fire)
-	check(main.craft_popup.visible and menu.get_node("List").get_child_count() == 5 and not menu.get_node("Room").visible,
-		"menu del fuoco: i pasti, le gallette, gli affumicati e l'unguento, nella cucina")
+	check(main.craft_popup.visible and menu.get_node("List").get_child_count() == 6 and not menu.get_node("Room").visible,
+		"menu del fuoco: i pasti, le gallette, gli affumicati, l'unguento e il formaggio, nella cucina")
 	menu.get_node("List").get_child(0).get_child(-1).value = 8
 	check(main.keep[MEAL] == 8 and main.meals_wanted() == 2, "dal menu se ne chiedono 2 in più")
 	main.keep[MEAL] = 6
@@ -703,7 +703,8 @@ func _initialize() -> void:
 	check(main.manured.size() == 2 and main.field_of(plot).all(func(k): return main.soil_at(k) == 50 + main.MANURE_SOIL[R.COMPOST]),
 		"il contadino sparge il compost: +%d" % main.MANURE_SOIL[R.COMPOST])
 	check(main.total(R.COMPOST) == 0 and main.manure_ready().is_empty(), "una volta per semina")
-	check(main.MANURE_SOIL.keys() == [R.COMPOST, R.ASH] and main.MANURE_SOIL[R.ASH] < main.MANURE_SOIL[R.COMPOST], "poi la cenere, che rende meno")
+	check(main.MANURE_SOIL.keys() == [R.MANURE, R.COMPOST, R.ASH] and main.MANURE_SOIL[R.ASH] < main.MANURE_SOIL[R.COMPOST],
+		"prima il letame della stalla (test_livestock), poi il compost, poi la cenere, che rende meno")
 	main.clock = year_start + main.YEAR_DAYS + sow_day + 0.5
 	main.tick(0.0)
 	for i in 2000:
