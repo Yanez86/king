@@ -2,6 +2,7 @@
 """Sprite disegnati come griglie di caratteri -> PNG in art/.
 Esegui dalla cartella del progetto: python3 tools/make_sprites.py
 """
+import math
 import struct
 import zlib
 from pathlib import Path
@@ -4035,6 +4036,157 @@ o8gg<oo8gg<o
 """
 
 
+# --- Grano, farina e mulino ad acqua (GDD 4.4.7): disegnati col codice, a pixel pieni col loro contorno ---
+
+def outlined(fill, w=16, h=16):
+    """Pixel pieni (x, y) -> carattere, col contorno "o" attorno (ai quattro lati) dove è vuoto."""
+    g = [["."] * w for _ in range(h)]
+    for (x, y) in fill:
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < w and 0 <= ny < h and (nx, ny) not in fill:
+                g[ny][nx] = "o"
+    for (x, y), ch in fill.items():
+        if 0 <= x < w and 0 <= y < h:
+            g[y][x] = ch
+    return ["".join(r) for r in g]
+
+
+def grain_frames():
+    """Grano 16x16, come le altre colture di CROPS: germoglio, steli verdi con la spiga, spighe mature color oro.
+    La matura è anche l'icona del grano (icon_grain)."""
+    out = []
+    for stage in range(3):
+        fill = {}
+        for i, x in enumerate((2, 5, 8, 11, 14)):
+            base = 12 + (i % 2)  # le file un po' sfalsate
+            tall = (2, 7, 9)[stage] + (0, -1, 1, 0, -1)[i] * (stage > 0)
+            stalk = "L" if stage < 2 else "<"
+            for y in range(base - tall + 1, base + 1):
+                fill[(x, y)] = stalk
+            top = base - tall + 1
+            if stage == 0:
+                fill[(x, top)] = "y"
+            else:
+                ear, light = ("y", "L") if stage == 1 else ("g", "*")
+                for y in range(top, top + 3):
+                    fill[(x, y)] = ear
+                fill[(x, top)] = light
+                if stage == 2:
+                    fill[(x, top - 1)] = "_"  # le reste
+                if i % 2 == 0 and stage > 0:  # una foglia
+                    fill[(x - 1, base - 2)] = "L" if stage == 1 else "<"
+        out.append(outlined(fill))
+    return out
+
+
+FLOUR_ICON = """
+................
+................
+......oooo......
+.....occcCo.....
+......o++o......
+.....o+++Xo.....
+....o++++XXo....
+...o+++++XXXo...
+...o+++++XXXo...
+..o++++++XXXXo..
+..o+++++XXXXXo..
+..o+++++XXXXXo..
+...o+++XXXXXo...
+....oooooooo....
+...zzzzzzzzzz...
+................
+"""
+
+
+def disc(cx, cy, rx, ry):
+    """caselle dentro l'ellisse di centro (cx, cy) e raggi rx, ry"""
+    return {(x, y) for y in range(32) for x in range(32) if ((x + 0.5 - cx) / rx) ** 2 + ((y + 0.5 - cy) / ry) ** 2 <= 1}
+
+
+def wheel(cx, cy, rx, ry, spokes=8):
+    """La ruota del mulino: cerchione di legno con le pale, i raggi, il mozzo; i pixel -> carattere"""
+    px = {}
+    outer, inner = disc(cx, cy, rx, ry), disc(cx, cy, rx - 1.6, ry - 1.6)
+    for p in outer - inner:
+        px[p] = "w"
+    for k in range(spokes):
+        a = 2 * math.pi * k / spokes
+        for t in range(1, 40):
+            r = t / 40
+            p = (int(cx + math.cos(a) * rx * r), int(cy + math.sin(a) * ry * r))
+            if p in inner:
+                px[p] = "c"
+        tip = (int(cx + math.cos(a) * (rx + 0.6)), int(cy + math.sin(a) * (ry + 0.6)))  # le pale fuori dal cerchione
+        px[tip] = "C"
+    for p in disc(cx, cy, 1.3, 1.3):
+        px[p] = "W"
+    return px
+
+
+def mill_house(x0, x1, y_ridge=6, y_eave=16, y_base=29):
+    """La casa del mulino in 3/4 come gli altri mobili: tetto di tegole, parete di assi con la porta, zoccolo di
+    pietra. Dalla colonna x0 alla x1 compresa; i pixel -> carattere"""
+    px = {}
+    w = x1 - x0 + 1
+    for y in range(y_ridge, y_eave + 1):  # il tetto: si allarga verso la gronda
+        inset = max(0, (y_eave - y) // 2 - 1)
+        for x in range(x0 + inset, x1 - inset + 1):
+            px[(x, y)] = "F" if (y - y_ridge) % 3 == 0 else ("f" if (x + y) % 4 else "D")
+    for x in range(x0, x1 + 1):
+        px[(x, y_eave + 1)] = "D"  # la gronda in ombra
+    for y in range(y_eave + 2, y_base - 3):  # la parete di assi
+        for x in range(x0 + 1, x1):
+            px[(x, y)] = "B" if (x - x0) % 4 else "w"
+    door = x0 + w // 2 - 2
+    for y in range(y_base - 9, y_base - 3):
+        for x in range(door, door + 4):
+            px[(x, y)] = "3" if x in (door, door + 3) or y == y_base - 9 else "W"
+    window = x0 + 3
+    for y in range(y_eave + 3, y_eave + 6):
+        for x in range(window, window + 3):
+            px[(x, y)] = "E"
+    for y in range(y_base - 3, y_base + 1):  # lo zoccolo di pietra
+        for x in range(x0 + 1, x1):
+            px[(x, y)] = "urRi"[(x + 2 * y) % 4] if y < y_base else "i"
+    return px
+
+
+def water_mill():
+    """Mulino ad acqua 32x32 (2x2) nei quattro quarti di giro, come i mobili: la ruota a destra (il torrente a est),
+    davanti (a sud), a sinistra, dietro (a nord). La ruota di lato si vede di taglio, davanti tonda."""
+    variants = []
+    shadow = lambda px, a, b: px.update({(x, 31): "z" for x in range(a, b) if (x, 31) not in px})
+    # a est: la casa a sinistra, la ruota di taglio sulla destra, che pesca fuori dal mobile
+    px = mill_house(1, 24)
+    px.update({p: ch for p, ch in wheel(28.5, 22, 3.5, 9).items()})
+    shadow(px, 2, 31)
+    variants.append(px)
+    # a sud: la casa più alta, la ruota tonda davanti in basso
+    px = mill_house(3, 28, y_ridge=1, y_eave=11, y_base=24)
+    px.update(wheel(16, 26, 6.5, 5.5))
+    shadow(px, 4, 28)
+    variants.append(px)
+    # a ovest: lo specchio di est
+    variants.append({(31 - x, y): ch for (x, y), ch in variants[0].items()})
+    # a nord: la ruota dietro, se ne vede la metà di sopra oltre il tetto
+    px = {p: ch for p, ch in wheel(16, 7, 6.5, 5.5).items() if p[1] < 7}
+    px.update(mill_house(3, 28, y_ridge=5, y_eave=15, y_base=29))
+    shadow(px, 4, 28)
+    variants.append(px)
+    return [outlined(v, 32, 32) for v in variants]
+
+
+def tech_mill():
+    """Icona 12x12 della ricerca Mulino: la ruota ad acqua"""
+    px = {}
+    for (x, y), ch in wheel(16, 16, 5.2, 5.2, spokes=6).items():
+        px[(x - 10, y - 10)] = ch
+    px = {p: ch for p, ch in px.items() if 0 <= p[0] < 12 and 0 <= p[1] < 12}
+    return outlined(px, 12, 12)
+
+
 def frames(block, height=16, count=3, width=16):
     """Blocco di testo -> lista di fotogrammi, ognuno `height` righe da `width` caratteri."""
     rows = [line.split() for line in block.strip().splitlines()]
@@ -4355,7 +4507,8 @@ def furniture_sheet():
     """Mobili, foglio 128x1152. Righe: letto, tavolo, sedia, abat-jour, fuoco da campo, fornace, incudine, banco da lavoro,
     filatoio, banco del falegname, poi le decorazioni: aiuola, fioriera, panca, stendardo, lampione, fontana, statua;
     la bacheca; i cimeli: calice, stendardo antico, busto, corona; scrittoio, libreria, trono, fantoccio, torre di guardia, baldacchino, tappeto, armadio, focolare, pelli alle pareti, portiera, arazzo, stufa a olle, fossa del ghiaccio, quattro righe vuote (le strutture che vengono dopo
-    in Build), il cumulo del compost, la culla; la rastrelliera, il bersaglio e il banco degli scassi (come Build in main.gd);
+    in Build), il cumulo del compost, la culla; la rastrelliera, il bersaglio e il banco degli scassi; l'armadio dei rimedi,
+    la tomba, il memoriale, il mulino ad acqua (come Build in main.gd);
     colonne: quarti di giro in senso orario (per fuoco, stendardo e fontana, fotogrammi), ognuno in alto a sinistra nel suo riquadro 32x32."""
     bed, chair, chair_left = art(BED, 32, 16), art(CHAIR, 16, 16), art(CHAIR_LEFT, 16, 16)
     table, lamp, anvil = art(TABLE, 32, 32), art(LAMP, 16, 16), art(ANVIL, 16, 16)
@@ -4398,6 +4551,7 @@ def furniture_sheet():
     rows += [[art(MEDICINE_CHEST, 16, 16)] * 4]
     rows += [[grave(False, True), grave(False, False), grave(True, True), grave(True, False)]]
     rows += [[art(MEMORIAL, 16, 16)] * 4]
+    rows += [water_mill()]
     slot = lambda g: [line.ljust(32, ".") for line in g] + ["." * 32] * (32 - len(g))
     return [line for row in rows for line in side_by_side([slot(g) for g in (row or [[]] * 4)])]
 
@@ -4458,11 +4612,13 @@ def main():
     images["icon_chop"] = pixels(art(CHOP_ICON, 16, 16))
     images["icon_uproot"] = pixels(art(UPROOT_ICON, 16, 16))
     images["icon_harvest"] = pixels(art(HARVEST_ICON, 16, 16))
-    crops = frames(CROPS, count=7) + frames(BEANS, count=3)
+    crops = frames(CROPS, count=7) + frames(BEANS, count=3) + grain_frames()
     images["crops"] = pixels(side_by_side(crops))
     images["icon_turnip"] = pixels(["." * 16] + crops[3][:15])  # le piante mature, un po' più giù: rapa e cavolo raccolti
     images["icon_cabbage"] = pixels(["." * 16] * 2 + crops[6][:14])
     images["icon_beans"] = pixels(["." * 16] + crops[9][:15])
+    images["icon_grain"] = pixels(["." * 16] * 2 + crops[12][:14])
+    images["icon_flour"] = pixels(art(FLOUR_ICON, 16, 16))
     images["field_sign"] = pixels(art(FIELD_SIGN, 16, 16))
     images["icon_soil"] = pixels(art(SOIL_ICON, 16, 16))
     images["icon_rot"], images["icon_compost"], images["icon_ash"] = (pixels(f) for f in frames(MANURE_ICONS))
@@ -4566,7 +4722,7 @@ def main():
         + frames(TECH_SYMBOLS_7, 12, 2, 12) + frames(TECH_SYMBOLS_8, 12, 3, 12) + frames(TECH_SYMBOLS_9, 12, 1, 12) \
         + frames(TECH_SYMBOLS_10, 12, 3, 12) + [art(TECH_GARDEN, 12, 12)] + frames(TECH_SOIL, 12, 3, 12) \
         + [art(TECH_MANURE, 12, 12), art(TECH_COMPANY, 12, 12), art(TECH_BARRACKS, 12, 12),
-           art(TECH_HERBALISM, 12, 12), art(TECH_MEDICINE, 12, 12)]
+           art(TECH_HERBALISM, 12, 12), art(TECH_MEDICINE, 12, 12), tech_mill()]
     images["techs"] = pixels(side_by_side([badge(f) for f in techs]))
     laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 3, 12) + frames(LAW_SYMBOLS_5, 12, 3, 12) + frames(LAW_SYMBOLS_6, 12, 4, 12) \
         + frames(LAW_SYMBOLS_7, 12, 3, 12) + [art(LAW_FUNERALS, 12, 12)]

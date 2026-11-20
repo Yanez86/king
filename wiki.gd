@@ -9,6 +9,7 @@ King is a medieval colony sim. You are the ruler of a small lordship, but you ne
 • Your ruler, made on the new-game page, and three colonists stand in a clearing. Nothing is built yet: no rooms, no warehouse.
 • Next to them, 60 [img=center]res://art/icon_coin.png[/img] lie on the grass: build a warehouse and haulers carry them in (you can only spend what is in a warehouse).
 • An abandoned weapon (a sword, an axe or a bow) lies in the grass 15–25 tiles from the clearing.
+• Besides the lakes, a stream crosses the map from edge to edge, 22–30 tiles from the clearing: shallow water you can wade (here and there a deep pool), with fish. The water mill stands on its bank (see Crafting & Equipment). Colonies founded before it have no stream.
 • From day 10 wolves may come, rarely (see Combat & Wolves).
 • If every colonist dies, the colony has fallen.
 
@@ -435,6 +436,7 @@ Bushes, flax and medicinal herbs. A ripe bush has 5 berries (vegetables), flower
 • After the Garden research. Drag over open grass, outside rooms, to make garden plots: weeds and bushes have to go first, and nothing can be built on a plot. Turnips and cabbages grow in alternate rows.
 • A colonist sows a plot in 4 s (Gathering, like every job time). Turnips ripen in 60 days, cabbages in 90, broad beans in 100; then the plot is sown again. On average soil a plot gives 30 turnips, 45 cabbages or 20 beans.
 • Turnips and cabbages keep far longer than berries, dried beans longest of all: the winter food (see Food).
+• With the Mill research, grain too [img=center]res://art/icon_grain.png[/img]: 100 days, 25 a plot, and it tires the soil (−12). Grain is not eaten and never rots: the miller grinds it into flour.
 
 [color=#e8c34a]Fields and rotation[/color]
 • Garden plots that touch make a field, with a sign on its top left plot. Click the field: its name, its timeline for this year, what it grows next year, the last harvest; "Plan the fields…" opens the planning.
@@ -473,7 +475,7 @@ Mark water tiles. The fisher stands beside them (in shallow water too) and casts
 Animals roam outside rooms and water, born more than 15 tiles from the clearing: 6 rabbits and 3 deer at first, then a new one every half day while there are fewer than 12. A marked wolf, shot at, attacks the hunter."""],
 
 	["Crafting & Equipment", """[color=#e8c34a]Workstations[/color]
-Click a station for its menu: one row for every recipe you know, with its ingredients and Keep N. Things get made while there are fewer than N around (on the ground, in warehouses, in hand, being made); Keep counts for every station of the kind. Equipment is also made for the colonists with an empty slot, and a bow when animals are marked and nobody has one. At the start: Keep 10 ingots, 2 bowstrings, 3 ointments, 8 meals, 0 of the rest.
+Click a station for its menu: one row for every recipe you know, with its ingredients and Keep N. Things get made while there are fewer than N around (on the ground, in warehouses, in hand, being made); Keep counts for every station of the kind. Equipment is also made for the colonists with an empty slot, and a bow when animals are marked and nobody has one. At the start: Keep 10 ingots, 2 bowstrings, 3 ointments, 10 flour, 8 meals, 0 of the rest.
 The crafter brings the ingredients one by one, then works. The time depends on skill, room comfort and conditions; an item may be ruined, losing the ingredients, as often as a meal burns.
 [table=4]
 [cell][color=#d9c48a]Item[/color][/cell][cell][color=#d9c48a]Station[/color][/cell][cell][color=#d9c48a]Needs[/color][/cell][cell][color=#d9c48a]Time[/color][/cell]
@@ -490,8 +492,12 @@ The crafter brings the ingredients one by one, then works. The time depends on s
 [cell]Sword[/cell][cell]anvil[/cell][cell]3 ingots, 1 wood[/cell][cell]20 s[/cell]
 [cell]Dagger[/cell][cell]anvil[/cell][cell]1 ingot, 1 wood[/cell][cell]12 s[/cell]
 [cell]Ointment[/cell][cell]campfire[/cell][cell]2 herbs[/cell][cell]10 s[/cell]
+[cell]Flour (2)[/cell][cell]water mill[/cell][cell]2 grain[/cell][cell]4 s[/cell]
 [/table]
-Skill: Smithing at furnace and anvil, Tailoring at spinning wheel and workbench, Ranged at the carpenter bench, Medicine for the ointment.
+Skill: Smithing at furnace and anvil, Tailoring at spinning wheel and workbench, Ranged at the carpenter bench, Medicine for the ointment, Cooking at the mill.
+
+[color=#e8c34a]The water mill[/color] [img=center]res://art/icon_flour.png[/img]
+After the Mill research: 2x2, 20 wood and 10 stone, in the open, on the bank of the stream (lakes don't flow): turn it until the whole side of its wheel lies along the stream. The miller grinds grain into flour there; nothing is ever ruined, and comfort doesn't count. When the stream freezes the wheel stands still, and its menu says so.
 
 [color=#e8c34a]Equipment[/color]
 Three slots: hands, body, head. A colonist with an empty slot fetches a piece by themselves, before any other job. In their hands they want the tool of their best skill among Mining, Woodcutting, Gathering, Hunting and Melee. Nobody trades a piece for a better one; only a hunter swaps for a bow.
@@ -689,6 +695,7 @@ What you haven't researched has no build button, and its recipes don't show at t
 
 [color=#e8c34a]The tree[/color]
 • [color=#d9c48a]Garden[/color] (Land I, 80): garden plots and fields with their rotation; turnips in 60 days, cabbages in 90, broad beans in 100.
+• [color=#d9c48a]Mill[/color] (Land I, 100, after Garden): grain in the fields, the water mill on the bank of the stream, flour.
 • [color=#d9c48a]Manuring[/color] (Land I, 80, after Garden): the compost heap, rot and ash, fertilizing, green manure.
 • [color=#d9c48a]Soil survey[/color] (Land I, 60, after Garden): the soil lens, in three bands.
 • [color=#d9c48a]Almanac[/color] (Land II, 250 and a notebook, after Soil survey): five bands, and the trend of every field.

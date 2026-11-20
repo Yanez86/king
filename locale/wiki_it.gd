@@ -8,6 +8,7 @@ King è un gestionale di colonia medievale. Sei il sovrano di una piccola signor
 • Il tuo sovrano, creato nella pagina della nuova partita, e tre coloni stanno in una radura. Non c'è ancora niente di costruito: né stanze né magazzino.
 • Accanto a loro, 60 [img=center]res://art/icon_coin.png[/img] sono a terra nell'erba: costruisci un magazzino e i trasportatori ce le portano (si spende solo quello che è in magazzino).
 • Un'arma abbandonata (una spada, un'ascia o un arco) giace nell'erba a 15–25 caselle dalla radura.
+• Oltre ai laghi, un torrente attraversa la mappa da un bordo all'altro, a 22–30 caselle dalla radura: acqua bassa che si guada (qua e là una pozza profonda), coi pesci. Sulla sua riva sta il mulino ad acqua (vedi Lavorazioni ed equipaggiamento). Le colonie fondate prima non ce l'hanno.
 • Dal giorno 10 possono arrivare i lupi, di rado (vedi Combattimento e lupi).
 • Se muoiono tutti i coloni, la colonia è caduta.
 
@@ -434,6 +435,7 @@ Cespugli, lino ed erbe medicinali. Un cespuglio maturo ha 5 bacche (vegetali), i
 • Dopo la ricerca Orto. Trascina sul prato libero, fuori dalle stanze, per fare le caselle dell'orto: prima vanno tolte erbacce e cespugli, e sull'orto non si costruisce. Rape e cavoli crescono a file alterne.
 • Un colono semina una casella in 4 s (Raccogliere, come ogni tempo di lavoro). Le rape maturano in 60 giorni, i cavoli in 90, le fave in 100; poi la casella si risemina. Su terra media una casella dà 30 rape, 45 cavoli o 20 fave.
 • Rape e cavoli si conservano molto più delle bacche, le fave secche più di tutto: il cibo dell'inverno (vedi Cibo).
+• Con la ricerca Mulino anche il grano [img=center]res://art/icon_grain.png[/img]: 100 giorni, 25 a casella, e stanca la terra (−12). Il grano non si mangia e non marcisce: il mugnaio lo macina in farina.
 
 [color=#e8c34a]Campi e rotazione[/color]
 • Le caselle d'orto che si toccano fanno un campo, col cartello sulla casella in alto a sinistra. Clicca il campo: il suo nome, la sua timeline di quest'anno, cosa cresce l'anno prossimo, l'ultimo raccolto; "Pianifica i campi…" apre la pianificazione.
@@ -472,7 +474,7 @@ Segna caselle d'acqua. Il pescatore si mette accanto (anche nell'acqua bassa) e 
 Gli animali girano fuori dalle stanze e dall'acqua e nascono a più di 15 caselle dalla radura: all'inizio 6 conigli e 3 cervi, poi uno nuovo ogni mezza giornata finché sono meno di 12. Un lupo segnato, se gli si tira, attacca il cacciatore."""],
 
 	["Lavorazioni ed equipaggiamento", """[color=#e8c34a]Postazioni[/color]
-Clicca una postazione per il suo menu: una riga per ogni ricetta che conosci, coi suoi ingredienti e Tieni N. Si fa finché in giro ce ne sono meno di N (a terra, nei magazzini, in mano, in lavorazione); la Scorta vale per tutte le postazioni dello stesso tipo. L'equipaggiamento si fa anche per i coloni con uno slot vuoto, e un arco quando ci sono animali segnati e nessuno ne ha uno. All'inizio: Scorta 10 lingotti, 2 corde d'arco, 3 unguenti, 8 pasti, 0 per il resto.
+Clicca una postazione per il suo menu: una riga per ogni ricetta che conosci, coi suoi ingredienti e Tieni N. Si fa finché in giro ce ne sono meno di N (a terra, nei magazzini, in mano, in lavorazione); la Scorta vale per tutte le postazioni dello stesso tipo. L'equipaggiamento si fa anche per i coloni con uno slot vuoto, e un arco quando ci sono animali segnati e nessuno ne ha uno. All'inizio: Scorta 10 lingotti, 2 corde d'arco, 3 unguenti, 10 farina, 8 pasti, 0 per il resto.
 L'artigiano porta gli ingredienti uno alla volta, poi lavora. Il tempo dipende da abilità, comfort della stanza e condizioni; un oggetto può rovinarsi, e gli ingredienti vanno persi, tanto spesso quanto brucia un pasto.
 [table=4]
 [cell][color=#d9c48a]Oggetto[/color][/cell][cell][color=#d9c48a]Postazione[/color][/cell][cell][color=#d9c48a]Ingredienti[/color][/cell][cell][color=#d9c48a]Tempo[/color][/cell]
@@ -489,8 +491,12 @@ L'artigiano porta gli ingredienti uno alla volta, poi lavora. Il tempo dipende d
 [cell]Spada[/cell][cell]incudine[/cell][cell]3 lingotti, 1 legna[/cell][cell]20 s[/cell]
 [cell]Pugnale[/cell][cell]incudine[/cell][cell]1 lingotto, 1 legna[/cell][cell]12 s[/cell]
 [cell]Unguento[/cell][cell]fuoco da campo[/cell][cell]2 erbe[/cell][cell]10 s[/cell]
+[cell]Farina (2)[/cell][cell]mulino ad acqua[/cell][cell]2 grano[/cell][cell]4 s[/cell]
 [/table]
-Abilità: Forgiare a fornace e incudine, Cucire a filatoio e banco da lavoro, Tiro al banco del falegname, Medicina per l'unguento.
+Abilità: Forgiare a fornace e incudine, Cucire a filatoio e banco da lavoro, Tiro al banco del falegname, Medicina per l'unguento, Cucinare al mulino.
+
+[color=#e8c34a]Il mulino ad acqua[/color] [img=center]res://art/icon_flour.png[/img]
+Dopo la ricerca Mulino: 2x2, 20 legna e 10 pietra, all'aperto, sulla riva del torrente (i laghi non scorrono): giralo finché tutto il lato della ruota sta lungo il torrente. Lì il mugnaio macina il grano in farina; non si rovina mai niente, e il comfort non conta. Quando il torrente gela la ruota si ferma, e il suo menu lo dice.
 
 [color=#e8c34a]Equipaggiamento[/color]
 Tre slot: mani, corpo, testa. Un colono con uno slot vuoto va da sé a prendere un pezzo, prima di ogni altro lavoro. In mano vuole l'attrezzo della sua abilità migliore tra Estrarre, Tagliare legna, Raccogliere, Cacciare e Mischia. Nessuno cambia un pezzo con uno migliore; solo chi caccia lo cambia con un arco.
@@ -688,6 +694,7 @@ Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette 
 
 [color=#e8c34a]L'albero[/color]
 • [color=#d9c48a]Orto[/color] (Terra I, 80): le caselle dell'orto e i campi con la loro rotazione; rape in 60 giorni, cavoli in 90, fave in 100.
+• [color=#d9c48a]Mulino[/color] (Terra I, 100, dopo l'Orto): il grano nei campi, il mulino ad acqua sulla riva del torrente, la farina.
 • [color=#d9c48a]Concimazione[/color] (Terra I, 80, dopo l'Orto): il cumulo del compost, il marcio e la cenere, concimare, il sovescio.
 • [color=#d9c48a]Saggio del terreno[/color] (Terra I, 60, dopo l'Orto): la lente della terra, in tre fasce.
 • [color=#d9c48a]Almanacco agrario[/color] (Terra II, 250 e un quaderno, dopo il Saggio): cinque fasce, e la tendenza di ogni campo.

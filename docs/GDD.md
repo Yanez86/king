@@ -535,6 +535,7 @@ Decisa il 2026-11-19. Numeri da tarare.
     | Fave (secche) | 100 giorni | 20 | +10 | 60 giorni: il cibo dell'inverno; saziano 40 |
     | Maggese | — | — | +25 l'anno dopo | — |
     | Sovescio (fave interrate) | 60 giorni | — | +20 | — |
+    | Grano (col Mulino, 4.4.7) | 100 giorni | 25 | −12 | non marcisce: non si mangia, si macina |
 
   - **Campi**: le caselle d'orto che si toccano fanno un campo ("Campo 1", 2… dall'alto in basso), col suo cartello
     (un paletto nella casella più in alto a sinistra). Cliccandolo: il nome, le caselle, la sua timeline di quest'anno,
@@ -595,6 +596,7 @@ Decisa il 2026-11-19. Numeri da tarare.
   | Falcetto | incudine | forgiare | 1 lingotto + 1 legna | 10 |
   | Elmo | incudine | forgiare | 3 lingotti | 20 |
   | Cotta di maglia | incudine | forgiare | 6 lingotti | 30 |
+  | Farina (2) | mulino ad acqua (all'aperto) | cucinare | 2 grano | 4 |
 
 - **Menu della postazione**: clic su fuoco da campo, fornace, incudine, banco da lavoro, filatoio o banco del falegname
   (senza strumenti scelti) apre il suo menu: una riga per ricetta con icona, nome (col mouse sopra l'effetto del pezzo),
@@ -1007,15 +1009,16 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
   | Banchetto reale | IV | 1000 | Apicoltura | il banchetto nella sala del trono |
 
 - **Il torrente**: nelle mappe nuove, oltre ai laghi, un torrente attraversa la mappa da un bordo a quello di fronte,
-  serpeggiando, a più di 16 caselle dalla radura: 2–3 caselle d'acqua bassa (si guada, piano come quella dei laghi),
-  qua e là una pozza d'acqua alta. Si pesca e gela come i laghi. Le partite cominciate prima non ce l'hanno: lì niente
+  serpeggiando, a 22–30 caselle dal centro (lontano dalla radura): 2–3 caselle d'acqua bassa (si guada, piano come
+  quella dei laghi), qua e là una pozza di 5 caselle, alta in mezzo. Si pesca e gela come i laghi. Le partite cominciate prima non ce l'hanno: lì niente
   mulino ad acqua, resta la macina a trazione.
 - **Grano**: una coltura nuova della pianificazione (4.4.1), color oro: matura in 100 giorni, 25 a casella, −12 di
   fertilità a raccolto. Non si mangia e non marcisce: si macina.
 - **Mulino ad acqua** (mobile 2x2, 20 legna e 10 pietra, all'aperto): sulla riva del torrente, con la ruota nell'acqua
-  (un suo lato tocca almeno 2 caselle del torrente). Il mugnaio (lavoro Cucinare, abilità cucinare) ci porta il grano:
-  2 grano → 2 farina, 4 s a livello 5. Si macina finché in giro c'è meno farina di quanta ne chiede il menu del mulino
-  (all'inizio 10). Col torrente gelato la ruota si ferma. La farina non marcisce.
+  (tutto il lato della ruota, 2 caselle, sta lungo il torrente; il mobile si gira per metterla dalla parte giusta). Il
+  mugnaio (lavoro Produrre, abilità cucinare) ci porta il grano: 2 grano → 2 farina, 4 s a livello 5; non si rovina
+  mai, e all'aperto il comfort non conta. Si macina finché in giro c'è meno farina di quanta ne chiede il menu del
+  mulino (all'inizio 10). Col torrente gelato la ruota si ferma (lo dice il menu). La farina non marcisce.
 - **Macina a trazione** (mobile 3x3, 15 pietra e 5 legna, all'aperto, con la Stalla e il Mulino): una mola di pietra
   con la stanga, accanto a un pascolo o dentro. Per macinare il mugnaio va a prendere una mucca adulta e sazia del
   pascolo e la attacca alla stanga: lei gira, lui versa il grano. 2 grano → 2 farina in 8 s, anche d'inverno.
@@ -1103,6 +1106,10 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
   pascolo; (4) la Stalla: stalla e mangiatoie, il fieno, l'inverno nella stalla, pecore e mucche, latte e formaggio,
   tosatura e lana, il letame; (5) la macina a trazione; (6) l'Apicoltura: arnia, miele, cera, candele; (7) il Banchetto
   reale.
+- **Stato**: fatta la fase 1 il 2026-11-20 (test in `tests/test_grain.gd`): il torrente (`stream`, salvato: le partite
+  di prima non ce l'hanno, e lì il mulino non si fa), il grano nella pianificazione col Mulino, il mulino ad acqua e la
+  farina. Il mulino è la prima postazione all'aperto: senza stanza, chi ci lavora sta fuori (`station_stand`), col
+  comfort a metà (`station_comfort`); la ruota è il lato destro del disegno, girato in senso orario (`wheel_cells`).
 
 ### 4.5 Mondo e tempo
 - Mappa a tile, singolo livello, ~100×100, con laghi e, nelle mappe nuove, un torrente (4.4.7).
@@ -1278,7 +1285,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
   | Ramo | Ricerca | Liv. | Studio | Richiede | Sblocca |
   |---|---|---|---|---|---|
   | Terra | Orto ✓ | I | 80 | — | zona orto e lavoro Coltivare: rape in 60 giorni e cavoli in 90, niente d'inverno |
-  | | Mulino | I | 100 | Orto | il grano nei campi; il mulino ad acqua sul torrente: la farina (vedi 4.4.7) |
+  | | Mulino ✓ | I | 100 | Orto | il grano nei campi; il mulino ad acqua sul torrente: la farina (vedi 4.4.7) |
   | | Forno di pietra | II | 300 | Orto | forno 2x1 in cucina: pane (2 farina → 3, sazia 60, dura 8 giorni), stufato, conserve (vedi 4.4.7) |
   | | Saggio del terreno ✓ | I | 60 | Orto | la lente della terra (O) in tre fasce; la fascia sul cartello del campo |
   | | Almanacco agrario ✓ | II | 250 | Saggio del terreno | cinque fasce; se un campo sale o scende rispetto a un anno prima |

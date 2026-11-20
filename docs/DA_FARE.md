@@ -17,7 +17,7 @@
 | Stemma | 4.3.2 | base | linee, pellicce, ornamenti, motto, blasonatura |
 | Risorse ed edifici | 4.4 | fatto | vene d'oro, commercio |
 | Cibo e orto | 4.4.1 | fatto, coi concimi | — (il resto è in 4.4.7) |
-| Grano, forno e animali | 4.4.7 | design fatto | tutte le 7 fasi: mulino, forno, allevamento, stalla, macina, api, banchetto |
+| Grano, forno e animali | 4.4.7 | fase 1: torrente, grano, mulino ad acqua | forno, allevamento, stalla, macina, api, banchetto |
 | Forgia e sartoria | 4.4.2 | fatto | ordini "fanne N", qualità degli oggetti |
 | Combattimento | 4.4.3 | fatto | predoni, medico e cure |
 | Avventurieri e rovine | 4.4.4 | fasi 1–3, chi resta, coloni in spedizione | vene d'oro, commercio, una rovina sulla mappa |
@@ -26,7 +26,7 @@
 | Salvataggio | 4.5.1 | locale fatto | il cloud |
 | Eventi casuali | 4.6 | fatto: il narratore e 11 eventi | tarare i numeri; eventi nuovi coi sistemi nuovi |
 | Caserma e classi | 4.4.6 | fasi 1–2 (le abilità salgono di livello; caserma, classi, corredo) | l'esercitazione, in battaglia, in spedizione |
-| Ricerca | 4.7.3 | 41 ricerche su 54 | 13 ricerche, il livello IV |
+| Ricerca | 4.7.3 | 42 ricerche su 54 | 12 ricerche, il livello IV |
 | Leggi | 4.7.7 | 23 leggi su 38 | 15 leggi: quelle della dinastia si possono fare ora |
 | Interfaccia | [TECH](TECH.md) | testo a 22, elenco degli abitanti, bacheca con la squadra | provarla in inglese e ad altre risoluzioni |
 
@@ -38,7 +38,7 @@ sfortune, la tregua). Ora si possono fare anche le leggi della dinastia (vedi Le
 
 Medicina e morte è fatta (4.2.2: erbe e unguento, infermeria e medico, tombe, Funerali e memoriale).
 
-1. **Cucina e animali** (in corso, 4.4.7) — torrente, grano e mulino; Forno di pietra (pane, stufato, conserve);
+1. **Cucina e animali** (in corso, 4.4.7) — fatti torrente, grano e mulino; poi Forno di pietra (pane, stufato, conserve);
    allevamento e stalla, col letame; macina a trazione; Apicoltura; Banchetto reale.
 2. **Le leggi della dinastia** — Primogenitura (manca solo nella finestra), Successione elettiva, Matrimoni misti,
    Scuola: i loro sistemi ci sono già (vedi Leggi).
@@ -125,10 +125,8 @@ Dinastia (4.3.3, fatta): quello che resta.
 
 ## Grano, forno e animali da allevare (4.4.7)
 
-Deciso il 2026-11-20. Fasi dell'ordine di lavoro ancora da fare:
+Deciso il 2026-11-20; fatta la fase 1 (torrente, grano, mulino ad acqua). Fasi ancora da fare:
 
-- [ ] (1) Il torrente nelle mappe nuove; la ricerca Mulino: il grano nei campi, il mulino ad acqua, la farina, la ruota
-  ferma col gelo.
 - [ ] (2) Il Forno di pietra: il forno, pane, stufato col rifocillato, conserve, l'ordine dei cibi.
 - [ ] (3) L'Allevamento: il pascolo con l'erba e la staccionata, galline e maiali, il pollaio e le uova, la sazietà e i
   piccoli, il lavoro e l'abilità Allevare, macellare e quanti tenerne, il mercante di bestiame, i lupi nel pascolo.
@@ -211,8 +209,7 @@ Cittadella.
 
 | Ramo | Ricerca | Liv. | Richiede | Cosa sblocca |
 |---|---|---|---|---|
-| Terra | Mulino | I | Orto | grano, mulino ad acqua, farina |
-| | Forno di pietra | II | Orto | forno 2x1: pane, stufato, conserve |
+| Terra | Forno di pietra | II | Orto | forno 2x1: pane, stufato, conserve |
 | | Allevamento | I | Caccia | pascolo, pollaio, mercante di bestiame: galline e maiali |
 | | Stalla | II | Allevamento | stalla, fieno, letame; pecore e mucche; macina a trazione |
 | | Apicoltura | III | Forno di pietra | arnia: miele, cera (candele) |

@@ -3153,8 +3153,8 @@ msgstr "Curare"
 msgid "Cooking meals at the campfire or the hearth."
 msgstr "Cucinare i pasti al fuoco da campo o al focolare."
 
-msgid "Forge, workbench, spinning wheel, carpenter's bench, furnace."
-msgstr "Forgia, banco da lavoro, filatoio, banco del falegname, fornace."
+msgid "Forge, workbench, spinning wheel, carpenter's bench, furnace, mill."
+msgstr "Forgia, banco da lavoro, filatoio, banco del falegname, fornace, mulino."
 
 msgid "Felling the marked trees."
 msgstr "Abbattere gli alberi segnati."
@@ -4143,3 +4143,29 @@ msgstr "Un banco pieno di serrature: nella sala d'armi, gli scassinatori si eser
 
 msgid "The barracks: the armory and the archery range. Colonists can take the class of an adventurer from their sheet. The dagger at the anvil."
 msgstr "La caserma: la sala d'armi e il tiro a segno. I coloni possono prendere la classe di un avventuriero dalla loro scheda. Il pugnale all'incudine."
+
+msgctxt "item"
+msgid "Grain"
+msgstr "Grano"
+
+msgctxt "item"
+msgid "Flour"
+msgstr "Farina"
+
+msgid "Grain"
+msgstr "Grano"
+
+msgid "Water Mill"
+msgstr "Mulino ad acqua"
+
+msgid "Mill"
+msgstr "Mulino"
+
+msgid "The stream is frozen: the wheel stands still."
+msgstr "Il torrente è gelato: la ruota è ferma."
+
+msgid "On the bank of the stream, its wheel in the water: turn it so the wheel side lies along the stream. The miller grinds grain into flour. When the stream freezes the wheel stands still."
+msgstr "Sulla riva del torrente, con la ruota nell'acqua: giralo perché il lato della ruota stia lungo il torrente. Il mugnaio ci macina il grano in farina. Quando il torrente gela la ruota si ferma."
+
+msgid "Grain in the field planning (100 days), and the water mill on the bank of the stream: grain becomes flour."
+msgstr "Il grano nella pianificazione dei campi (100 giorni), e il mulino ad acqua sulla riva del torrente: il grano diventa farina."

@@ -2,6 +2,8 @@ extends Node2D
 
 const MAP_SIZE := Vector2i(100, 100)
 const CLEARING := [8.0, 14.0]  # radura di partenza: entro [0] caselle dal centro solo prato, a [1] la mappa è piena
+const STREAM_REACH := [22, 30]  # caselle dal centro della mappa al corso del torrente, da-a (vedi carve_stream)
+const STREAM_BEND := 5.0     # caselle: quanto serpeggia il torrente, al più, da una parte e dall'altra
 const TILE := 16            # pixel per tile
 const SPEED := 4.0          # tile al secondo
 const STONE_PER_CELL := 5   # pietra (o ferro, carbone) in un masso, per casella (un 2x2 ne ha 20): vedi full_stock
@@ -25,11 +27,12 @@ const FEVER_TREATED := 0.5  # giorni: la febbre medicata passa entro tanto
 # fertilità (vedi soil, crop_yield): a 60, mezzo crudo a casella al giorno. Si semina quando la terra è tiepida
 # (SOW_TEMP, la media del giorno) e solo se il raccolto matura prima dell'inverno; il primo giorno d'inverno il gelo si
 # prende quello che è rimasto nei campi
-const CROP_DAYS := [60.0, 90.0, 100.0, 60.0]  # per Crop: giorni dalla semina al raccolto
-const CROP_YIELD := [30, 45, 20, 0]     # per Crop: quanti a casella, a fertilità 60; il sovescio niente: si interra
-const CROP_RES := [Res.TURNIP, Res.CABBAGE, Res.BEANS, -1]
-const CROP_ICON := [Res.TURNIP, Res.CABBAGE, Res.BEANS, Res.BEANS]  # nella pianificazione
-const CROP_SOIL := [-8, -15, 10, 20]    # per Crop: fertilità a raccolto (le fave, legumi, la restituiscono; interrate di più)
+const CROP_DAYS := [60.0, 90.0, 100.0, 60.0, 100.0]  # per Crop: giorni dalla semina al raccolto
+const CROP_YIELD := [30, 45, 20, 0, 25]  # per Crop: quanti a casella, a fertilità 60; il sovescio niente: si interra
+const CROP_RES := [Res.TURNIP, Res.CABBAGE, Res.BEANS, -1, Res.GRAIN]
+const CROP_ICON := [Res.TURNIP, Res.CABBAGE, Res.BEANS, Res.BEANS, Res.GRAIN]  # nella pianificazione
+const CROP_FRAMES := [0, 1, 2, 2, 3]  # per Crop: i tre fotogrammi in CROPS (il sovescio sono fave), vedi draw_garden
+const CROP_SOIL := [-8, -15, 10, 20, -12]  # per Crop: fertilità a raccolto (le fave, legumi, la restituiscono; interrate di più)
 const SOW_TEMP := 6.0       # gradi, la media del giorno: dal tardo Disgelo (vedi atmosphere.mean_temperature)
 # Fertilità per casella, 0-100, nascosta (vedi soil): dalla mappa tra SOIL_RANGE, più ricca vicino all'acqua, più povera
 # accanto alla roccia; un albero abbattuto lascia l'humus. La resa va per 0,4 + fertilità/100. A Capodanno ogni casella
@@ -47,8 +50,8 @@ const SOIL_PALE := Color(0.85, 0.8, 0.45)  # le piante su terra povera: smorte, 
 # colture una dopo l'altra, ognuna dal suo giorno dell'anno (da SOW_FROM, quando di solito la terra è tiepida), tutte
 # finite prima dell'inverno. Un anno senza colture è a maggese. Senza piano, DEFAULT_PLAN
 const SOW_FROM := 22
-const CROP_NAMES := ["Turnips", "Cabbages", "Beans", "Green manure"]
-const CROP_COLORS := [Color("8e5aa8"), Color("6f9e3c"), Color("8a6a44"), Color("4f8f78")]
+const CROP_NAMES := ["Turnips", "Cabbages", "Beans", "Green manure", "Grain"]
+const CROP_COLORS := [Color("8e5aa8"), Color("6f9e3c"), Color("8a6a44"), Color("4f8f78"), Color("c9a23b")]
 # Concimazione (Tech.MANURING): se c'è un cumulo del compost, il cibo che marcisce e le erbacce estirpate diventano
 # marcio (Res.ROT), che fuori dal cumulo sparisce nella terra in pochi giorni (SHELF_LIFE); al cumulo, in COMPOST_DAYS giorni ogni
 # ROT_PER_COMPOST diventano un compost. La carbonaia lascia la cenere. Il contadino (lavoro Concimare, colonna Coltivare)
@@ -112,7 +115,7 @@ const WORK_ICONS := [preload("res://art/icon_meal.png"), preload("res://art/icon
 	preload("res://art/icon_fishing.png"), preload("res://art/icon_hunting.png"), preload("res://art/icon_build.png"),
 	preload("res://art/icon_resources.png"), preload("res://art/icon_authority.png"), preload("res://art/icon_study.png"),
 	preload("res://art/icon_doctor.png")]
-const WORK_INFO := ["Cooking meals at the campfire or the hearth.", "Forge, workbench, spinning wheel, carpenter's bench, furnace.",
+const WORK_INFO := ["Cooking meals at the campfire or the hearth.", "Forge, workbench, spinning wheel, carpenter's bench, furnace, mill.",
 	"Felling the marked trees.", "Mining the marked boulders, cutting ice.", "Picking bushes, flax and herbs, uprooting.",
 	"Sowing, harvesting and fertilizing the garden.", "Fishing at the marked water.", "Hunting the marked animals.",
 	"Building, furnishing, repairing roofs.", "Carrying things into the warehouses, and the dead to their graves.",
@@ -132,15 +135,17 @@ const PRIORITY_COLORS := [Color("c86450"), Color("e8c34a"), Color("e6e2d0"), Col
 enum Res { WOOD, STONE, VEG, IRON, COAL, MEAL, FINE_MEAL, MEAT, FISH, HIDE, INGOT, FLAX, BOWSTRING,
 	PICKAXE, AXE, SICKLE, BOW, LEATHER_ARMOR, LEATHER_HOOD, HELMET, CHAINMAIL, SWORD, GOLD, DAGGER,
 	CHALICE, OLD_BANNER, BUST, CROWN, NOTEBOOK, TOME, CODEX, HARDTACK, SMOKED_MEAT, SMOKED_FISH, SHIELD,
-	STEEL, PARCHMENT, INK, ICE, TURNIP, CABBAGE, BEANS, ROT, COMPOST, ASH, HERBS, OINTMENT }  # ICE: blocchi tagliati
+	STEEL, PARCHMENT, INK, ICE, TURNIP, CABBAGE, BEANS, ROT, COMPOST, ASH, HERBS, OINTMENT,
+	GRAIN, FLOUR }  # ICE: blocchi tagliati
 	# dall'acqua gelata, per la ghiacciaia (vedi Order.ICE); TURNIP, CABBAGE, BEANS: dall'orto (vedi garden), si conservano
 	# a lungo, le fave secche più di tutto; ROT, COMPOST, ASH: i concimi (vedi Tech.MANURING); HERBS: erbe medicinali, dai
-	# prati (vedi herbs); OINTMENT: l'unguento, dalle erbe al fuoco (vedi Tech.HERBALISM, try_salve)
+	# prati (vedi herbs); OINTMENT: l'unguento, dalle erbe al fuoco (vedi Tech.HERBALISM, try_salve); GRAIN: il grano
+	# dell'orto, che non si mangia e non marcisce; FLOUR: la farina, dal grano al mulino (vedi Tech.MILL)
 const STACK_MAX := {Res.WOOD: 100, Res.STONE: 50, Res.VEG: 50, Res.TURNIP: 50, Res.CABBAGE: 50, Res.BEANS: 50, Res.ROT: 40, Res.COMPOST: 30, Res.ASH: 30, Res.IRON: 50, Res.COAL: 50, Res.MEAL: 20, Res.FINE_MEAL: 20,
 	Res.MEAT: 50, Res.FISH: 50, Res.HIDE: 50, Res.INGOT: 50, Res.FLAX: 50, Res.BOWSTRING: 50, Res.PICKAXE: 10, Res.AXE: 10, Res.SICKLE: 10, Res.BOW: 10,
 	Res.LEATHER_ARMOR: 10, Res.LEATHER_HOOD: 10, Res.HELMET: 10, Res.CHAINMAIL: 10, Res.SWORD: 10, Res.GOLD: 100, Res.DAGGER: 10,
 	Res.CHALICE: 5, Res.OLD_BANNER: 5, Res.BUST: 5, Res.CROWN: 5, Res.NOTEBOOK: 10, Res.TOME: 10, Res.CODEX: 10, Res.HARDTACK: 50, Res.SMOKED_MEAT: 50, Res.SMOKED_FISH: 50, Res.SHIELD: 10, Res.STEEL: 50, Res.PARCHMENT: 50, Res.INK: 20, Res.ICE: 50,
-	Res.HERBS: 50, Res.OINTMENT: 20}  # quantità massima per mucchio (casella)
+	Res.HERBS: 50, Res.OINTMENT: 20, Res.GRAIN: 50, Res.FLOUR: 50}  # quantità massima per mucchio (casella)
 const MEALS := [Res.FINE_MEAL, Res.MEAL]  # cotti: chi ha fame li prende in quest'ordine, poi il crudo
 const RAW_FOOD := [Res.VEG, Res.FISH, Res.MEAT, Res.SMOKED_FISH, Res.SMOKED_MEAT, Res.TURNIP, Res.CABBAGE, Res.BEANS]  # crudo: si cucina, o si mangia in quest'ordine se non ci sono pasti (prima quello che dura meno)
 const START_GOLD := 60      # monete all'inizio, a terra nella radura: le si spende quando sono in un magazzino
@@ -169,7 +174,7 @@ const ITEM_KIND := {
 	Res.SMOKED_MEAT: ItemKind.FOOD, Res.SMOKED_FISH: ItemKind.FOOD, Res.SHIELD: ItemKind.ARMOR,
 	Res.STEEL: ItemKind.MATERIAL, Res.PARCHMENT: ItemKind.MATERIAL, Res.INK: ItemKind.MATERIAL, Res.ICE: ItemKind.MATERIAL,
 	Res.ROT: ItemKind.MATERIAL, Res.COMPOST: ItemKind.MATERIAL, Res.ASH: ItemKind.MATERIAL,
-	Res.HERBS: ItemKind.MATERIAL, Res.OINTMENT: ItemKind.MATERIAL,
+	Res.HERBS: ItemKind.MATERIAL, Res.OINTMENT: ItemKind.MATERIAL, Res.GRAIN: ItemKind.FOOD, Res.FLOUR: ItemKind.FOOD,
 }
 # cibo: quanto sazia (vedi eat) e in quanti giorni marcisce a terra fuori (vedi spoil); in magazzino ci mette il doppio.
 # Il crudo sazia meno e può intossicare (vedi poison_chance), i pasti no e danno un bonus (vedi Cond)
@@ -525,12 +530,14 @@ const RECIPES := [
 	[Res.SMOKED_MEAT, Build.CAMPFIRE, Skill.COOKING, {Res.MEAT: 1}, 8.0],  # affumicati
 	[Res.SMOKED_FISH, Build.CAMPFIRE, Skill.COOKING, {Res.FISH: 1}, 8.0],
 	[Res.OINTMENT, Build.CAMPFIRE, Skill.MEDICINE, {Res.HERBS: 2}, 10.0],  # le erbe pestate e cotte nel grasso
+	[Res.FLOUR, Build.WATER_MILL, Skill.COOKING, {Res.GRAIN: 2}, 4.0, 2],  # il mugnaio
 ]
+const SURE := [Res.FLOUR]  # ricette che non si rovinano: macinare non brucia niente (vedi craft)
 const SMOKED := [Res.SMOKED_MEAT, Res.SMOKED_FISH]
 const SMOKE_TIME := 0.75     # affumicare al fuoco da campo, dove il fumo resta: tempo x (al focolare va su per la canna)
 const STATION_ROOM := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.HEARTH: RoomKind.KITCHEN, Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP,
 	Build.SPINNING_WHEEL: RoomKind.WORKSHOP, Build.CARPENTER_BENCH: RoomKind.CARPENTRY, Build.DESK: RoomKind.STUDY}
-const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.COAL: 5, Res.OINTMENT: 3}  # scorte di partenza, vedi keep; i pasti
+const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.COAL: 5, Res.OINTMENT: 3, Res.FLOUR: 10}  # scorte di partenza, vedi keep; i pasti
 	# MEALS_PER_COLONIST a testa
 enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT, ICE, GARDEN }  # cosa segna il trascinamento del mouse
 const ORDER_COLORS := [Color.TRANSPARENT, Color.ORANGE, Color("8fd3ff"), Color("9be36a"), Color("e6e2d0"),
@@ -587,7 +594,8 @@ enum Build { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE
 	WEAPON_RACK, TARGET, LOCK_BENCH,  # la caserma (Tech.BARRACKS): rastrelliera, bersaglio, banco degli scassi
 	MEDICINE_CHEST,  # l'armadio dei rimedi: con un letto, la stanza è un'infermeria (vedi Tech.MEDICINE)
 	GRAVE,  # la tomba, all'aperto: ci si seppellisce un morto (vedi graves, Job.BURY)
-	MEMORIAL }  # il memoriale dei caduti (Statuaria): il lutto un giorno in meno (vedi mourning_days)
+	MEMORIAL,  # il memoriale dei caduti (Statuaria): il lutto un giorno in meno (vedi mourning_days)
+	WATER_MILL }  # il mulino ad acqua, sulla riva del torrente: la farina (vedi Tech.MILL, banked)
 # materiale per casella; per i mobili, per pezzo. Un numero: del materiale del progetto; se no risorsa -> quantità, e
 # ogni viaggio porta tutta una risorsa (vedi cost_of, delivered)
 const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3,
@@ -598,7 +606,7 @@ const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1
 	Build.CANOPY_BED: 20, Build.RUG: 4, Build.WARDROBE: 12, Build.HEARTH: 15,
 	Build.WALL_HIDES: 2, Build.DOOR_CURTAIN: 2, Build.TAPESTRY: 4, Build.TILED_STOVE: 20, Build.ICE_PIT: 20, Build.COMPOST_HEAP: 6, Build.CRADLE: 4,
 	Build.WEAPON_RACK: {Res.WOOD: 6, Res.INGOT: 1}, Build.TARGET: {Res.WOOD: 4, Res.FLAX: 2}, Build.LOCK_BENCH: {Res.WOOD: 4, Res.INGOT: 2},
-	Build.MEDICINE_CHEST: 8, Build.GRAVE: 4, Build.MEMORIAL: 10,
+	Build.MEDICINE_CHEST: 8, Build.GRAVE: 4, Build.MEMORIAL: 10, Build.WATER_MILL: {Res.WOOD: 20, Res.STONE: 10},
 	Build.PALISADE: 4, Build.GATE: 6, Build.PLASTER: 1}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
 const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
@@ -612,13 +620,13 @@ const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Buil
 	Build.HEARTH: Vector2i.ONE, Build.WALL_HIDES: Vector2i.ONE, Build.DOOR_CURTAIN: Vector2i.ONE, Build.TAPESTRY: Vector2i.ONE,
 	Build.TILED_STOVE: Vector2i.ONE, Build.ICE_PIT: Vector2i(2, 2), Build.COMPOST_HEAP: Vector2i.ONE,
 	Build.CRADLE: Vector2i.ONE, Build.WEAPON_RACK: Vector2i.ONE, Build.TARGET: Vector2i.ONE, Build.LOCK_BENCH: Vector2i.ONE,
-	Build.MEDICINE_CHEST: Vector2i.ONE, Build.GRAVE: Vector2i(1, 2), Build.MEMORIAL: Vector2i.ONE}
+	Build.MEDICINE_CHEST: Vector2i.ONE, Build.GRAVE: Vector2i(1, 2), Build.MEMORIAL: Vector2i.ONE, Build.WATER_MILL: Vector2i(2, 2)}
 # mobili animati: secondi per fotogramma; i fotogrammi stanno nelle colonne dei quarti di giro (sono simmetrici)
 const ANIMATED := {Build.CAMPFIRE: 0.15, Build.BANNER: 0.3, Build.FOUNTAIN: 0.2}
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
 const BARRIERS := [Build.WALL, Build.PALISADE]  # solidi: si fanno solo lungo il bordo del riquadro, chiudono la strada
 const PAVING := [Build.FLOOR, Build.PATH, Build.ROAD]  # a terra: si calpestano, ci stanno sopra i mobili, l'erba ci sborda sopra
-const OUTDOOR := [Build.GRAVE]  # solo sul prato, fuori dalle stanze (vedi piece_fits)
+const OUTDOOR := [Build.GRAVE, Build.WATER_MILL]  # solo sul prato, fuori dalle stanze (vedi piece_fits)
 # materiale fisso; il resto solo di legno
 # i cimeli: la decorazione si fa con l'oggetto trovato nelle rovine, uno a pezzo
 const RELICS := {Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}
@@ -749,7 +757,7 @@ const SAVES := preload("res://saves.gd")
 const SAVE_LIST := preload("res://save_list.gd")
 # le variabili della partita che si salvano, così come sono (gli oggetti dentro li impacchetta SAVES.Packer); il resto
 # si rifà da queste (vedi restore) o è interfaccia. Una variabile nuova dello stato del gioco va aggiunta qui
-const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today", "hour", "rocks", "boulders", "ores", "water",
+const SAVED := ["game_id", "map_seed", "ground_cols", "gravel", "clock", "today", "hour", "rocks", "boulders", "ores", "water", "stream",
 	"trees", "stock", "bushes", "flax", "herbs", "graves", "funerals", "weeds", "chop_marks", "mine_marks", "uproot_marks", "harvest_marks", "fish_marks",
 	"fish_spots", "items", "fresh", "draft", "blueprints", "built", "furniture_draft", "furniture_plans", "furniture",
 	"rooms", "rooms_made", "keep", "reserved", "unreachable", "colonists", "ruler", "realm", "arms", "rank", "corpses",
@@ -792,6 +800,7 @@ const BUILD_INFO := {
 	Build.MEDICINE_CHEST: "Herbs, ointments and bandages. With a bed, the room can be an infirmary, where the sick heal faster.",
 	Build.GRAVE: "A grave with a wooden cross, on open ground. The haulers bury the dead here: their mourning is a day shorter.",
 	Build.MEMORIAL: "A stone stele for the fallen. With a memorial, every mourning is a day shorter.",
+	Build.WATER_MILL: "On the bank of the stream, its wheel in the water: turn it so the wheel side lies along the stream. The miller grinds grain into flour. When the stream freezes the wheel stands still.",
 	Build.HEARTH: "A stone fireplace with a chimney, set against a wall. Cooks and warms like a campfire, more. Half its heat goes through a wooden wall at its back, none through stone.",
 	Build.ANVIL: "An iron anvil on a stump. A forge needs one, and a furnace. Tools and metal armor are made here.",
 	Build.WORKBENCH: "A sturdy bench. A workshop needs one. Leather armor is made here.",
@@ -843,7 +852,7 @@ const TREES := preload("res://art/trees.png")  # 16x32 ciascuno: la chioma sale 
 const PLANTS := preload("res://art/plants.png")  # 16x16: erbaccia, cespuglio, cespuglio con le bacche, lino, lino in fiore
 const CROPS := preload("res://art/crops.png")  # 16x16: terra lavorata, poi per Crop germoglio, pianta, matura (vedi draw_garden)
 const FIELD_SIGN := preload("res://art/field_sign.png")  # il paletto col cartello di un campo (vedi field_signs)
-enum Crop { TURNIP, CABBAGE, BEANS, GREEN }
+enum Crop { TURNIP, CABBAGE, BEANS, GREEN, GRAIN }  # GRAIN: col Mulino (vedi Tech.MILL)
 const BOULDERS := {  # massi: dimensione in caselle -> sprite, dal più grande (ordine usato in generate_map)
 	Vector2i(2, 2): preload("res://art/rock_2x2.png"),
 	Vector2i(2, 1): preload("res://art/rock_2x1.png"),
@@ -982,6 +991,8 @@ const ICONS := {
 	Res.TURNIP: preload("res://art/icon_turnip.png"),
 	Res.CABBAGE: preload("res://art/icon_cabbage.png"),
 	Res.BEANS: preload("res://art/icon_beans.png"),
+	Res.GRAIN: preload("res://art/icon_grain.png"),
+	Res.FLOUR: preload("res://art/icon_flour.png"),
 	Res.ROT: preload("res://art/icon_rot.png"),
 	Res.COMPOST: preload("res://art/icon_compost.png"),
 	Res.ASH: preload("res://art/icon_ash.png"),
@@ -1275,7 +1286,7 @@ const BRANCHES_SHEET := preload("res://art/branches.png")
 enum Tech { FORGE, TAILORING, HUNTING, INN, MASONRY, DECOR, LANTERNS, IRON_ARMS, BOOKSHELF, CHAINMAIL, FOUNTAIN, STATUARY,
 	ASTRONOMY, CHARCOAL, COLD_STORE, PAVED_ROAD, DRY_RATIONS, CARTOGRAPHY, PALISADE, TRAINING_DUMMY, SMOKEHOUSE, RENOWNED_INN,
 	WATCHTOWER, SHIELD, LENDING_ARMORY, STEEL, SCRIPTORIUM, FINE_FURNITURE, PALACE, LOOM, TILED_STOVE, ICEHOUSE, GARDEN,
-	SOIL_SURVEY, ALMANAC, LAND_REGISTER, MANURING, CROWN_COMPANY, BARRACKS, HERBALISM, MEDICINE }
+	SOIL_SURVEY, ALMANAC, LAND_REGISTER, MANURING, CROWN_COMPANY, BARRACKS, HERBALISM, MEDICINE, MILL }
 const TECHS_SHEET := preload("res://art/techs.png")
 const TECHS := {
 	Tech.FORGE: {"branch": Branch.FIRE, "tier": 1, "cost": 60, "builds": [Build.FURNACE, Build.ANVIL],
@@ -1364,6 +1375,8 @@ const TECHS := {
 	Tech.MEDICINE: {"branch": Branch.LORE, "tier": 2, "cost": 300, "needs": [Tech.HERBALISM], "builds": [Build.MEDICINE_CHEST],
 		"rooms": [RoomKind.INFIRMARY],
 		"info": "The medicine chest and the infirmary, and the Doctor column: doctors carry the downed to an infirmary bed and treat them, the wounded and the fevered."},
+	Tech.MILL: {"branch": Branch.LAND, "tier": 1, "cost": 100, "needs": [Tech.GARDEN], "builds": [Build.WATER_MILL],
+		"makes": [Res.FLOUR], "info": "Grain in the field planning (100 days), and the water mill on the bank of the stream: grain becomes flour."},
 }
 const ROAD_SPEED := 1.25    # sulla strada lastricata si va più svelti
 const MAPPED_TRAVEL := 0.75 # con la cartografia, giorni di viaggio x
@@ -1641,6 +1654,7 @@ var stock := {}             # albero, masso (cella d'origine) o cespuglio -> qua
 var bushes := {}            # cella -> `clock` da cui ha le bacche (attraversabile): raccolte, il cespuglio resta
 var flax := {}              # cella -> true: i cespugli che sono lino; in fiore (le "bacche") danno il lino
 var herbs := {}             # cella -> true: i cespugli che sono erbe medicinali; in fiore danno le erbe (vedi scatter_herbs)
+var stream := {}            # cella d'acqua -> true: il torrente, nelle mappe nuove (vedi carve_stream); il mulino sta sulla riva
 var weeds := {}             # cella -> true: erbacce (attraversabili)
 var chop_marks := {}        # cella -> true: alberi da tagliare
 var mine_marks := {}        # cella d'origine -> true: massi da scavare
@@ -3043,7 +3057,7 @@ func plan_input(event: InputEvent) -> void:
 			room[0] = slots[at][1]
 		plan_click[3] = room[0]
 		for crop in Crop.values():
-			if crop == Crop.GREEN and not researched.has(Tech.MANURING):
+			if (crop == Crop.GREEN and not researched.has(Tech.MANURING)) or (crop == Crop.GRAIN and not researched.has(Tech.MILL)):
 				continue
 			var end: int = room[0] + int(CROP_DAYS[crop])
 			var text := "%s: %s" % [tr(CROP_NAMES[crop]), tr("%d days: %s – %s") % [CROP_DAYS[crop], day_name(room[0]), day_name(end)]]
@@ -3169,7 +3183,8 @@ func open_craft(origin: Vector2i) -> void:
 	var kind: Build = role(furniture[origin][0])  # il focolare fa le ricette del fuoco da campo
 	var box: Control = $HUD/CraftPopup/Box
 	box.get_node("Head/Title").text = named(Build, furniture[origin][0])
-	box.get_node("Room").text = tr("Works only in a %s") % named(RoomKind, STATION_ROOM[kind]).to_lower()
+	box.get_node("Room").text = tr("Works only in a %s") % named(RoomKind, STATION_ROOM[kind]).to_lower() \
+		if STATION_ROOM.has(kind) else tr("The stream is frozen: the wheel stands still.")
 	box.get_node("Room").visible = not stations(kind).has(origin)
 	var list := box.get_node("List")
 	for child in list.get_children():
@@ -3607,7 +3622,7 @@ func describe(cell: Vector2i) -> Array:
 	for origin in pieces_at(furniture, cell):
 		var kind: Build = furniture[origin][0]
 		var about: String = {Build.DESK: tr("Click: knowledge"), Build.THRONE: tr("Click: laws")}.get(kind,
-			tr("Click: what to make") if STATION_ROOM.has(kind) else "")
+			tr("Click: what to make") if is_station(kind) else "")
 		if kind == Build.GRAVE:
 			about = grave_text(origin)
 		elif SPLENDOR.has(kind):
@@ -3787,6 +3802,7 @@ func generate_map() -> void:
 			elif randf() < 0.015 * open:  # erbacce sparse nei prati
 				weeds[cell] = true
 
+	carve_stream()
 	for cell in water:  # l'acqua alta non tocca mai la riva, neanche in diagonale: in mezzo c'è sempre quella bassa
 		if water[cell] == Ground.DEEP and not (EDGE_SIDES + EDGE_CORNERS).all(func(d): return water.has(cell + d)):
 			water[cell] = Ground.SHALLOW
@@ -3837,6 +3853,37 @@ func generate_map() -> void:
 	make_soil()
 	gravel = rocks.duplicate()
 	bake_ground(noise)
+
+
+# Il torrente (GDD 4.4.7): da un bordo della mappa a quello di fronte, serpeggiando a STREAM_REACH caselle dal centro
+# (lontano dalla radura); 2-3 caselle d'acqua bassa, qua e là una pozza di 5, alta in mezzo (quella che non tocca la
+# riva: vedi generate_map). Col caso suo, dal seme della mappa: il resto della mappa non cambia. Prende il posto di
+# quello che c'era (alberi, roccia, cespugli). Il mulino ad acqua sta sulla sua riva (vedi banked)
+func carve_stream() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = map_seed + 5
+	var bend := FastNoiseLite.new()
+	bend.seed = map_seed + 6
+	bend.frequency = 0.04
+	var across := rng.randi() % 2 == 0  # da sinistra a destra, se no dall'alto in basso
+	var course := (1 if rng.randi() % 2 == 0 else -1) * rng.randi_range(STREAM_REACH[0], STREAM_REACH[1])
+	var mid := MAP_SIZE / 2
+	for t in (MAP_SIZE.x if across else MAP_SIZE.y):
+		var wide := 5 if bend.get_noise_1d(t * 2.0 + 1000.0) > 0.45 else (3 if bend.get_noise_1d(t + 500.0) > 0.0 else 2)
+		var at := course + roundi(bend.get_noise_1d(t) * STREAM_BEND / 0.6)  # il rumore sta quasi tutto in ±0,6
+		for w in wide:
+			var d := at + w - wide / 2
+			var cell := Vector2i(t, mid.y + d) if across else Vector2i(mid.x + d, t)
+			if not Rect2i(Vector2i.ZERO, MAP_SIZE).has_point(cell):
+				continue
+			water[cell] = Ground.DEEP if wide == 5 and w == 2 else water.get(cell, Ground.SHALLOW)
+			stream[cell] = true
+			trees.erase(cell)
+			bushes.erase(cell)
+			flax.erase(cell)
+			weeds.erase(cell)
+			if rocks.erase(cell):
+				astar.set_point_solid(cell, false)
 
 
 # Le erbe medicinali (vedi herbs): piantine fiorite sparse nei prati, una ogni HERB_SHARE caselle di prato libero fuori
@@ -5372,10 +5419,29 @@ func backed(origin: Vector2i, plan: Array) -> bool:
 	return [built, blueprints, draft].any(func(l): return l.get(behind, [-1])[0] in AGAINST[plan[0]])
 
 
-# il mobile `plan` sta in `origin`: caselle libere (can_build) e, se va addossato, quello che vuole alle spalle
+# il mobile `plan` sta in `origin`: caselle libere (can_build) e, se va addossato, quello che vuole alle spalle; il
+# mulino ad acqua sulla riva del torrente
 func piece_fits(origin: Vector2i, plan: Array) -> bool:
 	return cells_in(piece_rect(origin, plan)).all(func(k): return can_build(k, plan[0]) \
-		and (plan[0] not in OUTDOOR or (room_at(k) == null and not built.has(k)))) and backed(origin, plan)
+		and (plan[0] not in OUTDOOR or (room_at(k) == null and not built.has(k)))) and backed(origin, plan) \
+		and banked(origin, plan)
+
+
+# il mulino ad acqua ha la ruota nel torrente: tutte le caselle lungo il lato della ruota sono del torrente
+func banked(origin: Vector2i, plan: Array) -> bool:
+	return plan[0] != Build.WATER_MILL or wheel_cells(origin, plan).all(func(k): return stream.has(k))
+
+
+# Le caselle fuori dal mobile lungo il lato della ruota del mulino: a destra, girato di un quarto (in senso orario)
+# sotto, poi a sinistra, poi sopra (come le colonne di FURNITURE_SHEET)
+func wheel_cells(origin: Vector2i, plan: Array) -> Array:
+	var r := piece_rect(origin, plan)
+	var turn: int = plan[2] % 4 if plan.size() > 2 else 0
+	var along: int = r.size.y if turn % 2 == 0 else r.size.x
+	var first: Vector2i = [Vector2i(r.end.x, r.position.y), Vector2i(r.position.x, r.end.y),
+		Vector2i(r.position.x - 1, r.position.y), Vector2i(r.position.x, r.position.y - 1)][turn]
+	var step := Vector2i.DOWN if turn % 2 == 0 else Vector2i.RIGHT
+	return range(along).map(func(i): return first + step * i)
 
 
 # Il conto dei gradi della stanza, una riga per voce: fuori, i muri, i fuochi (quelli di un'altra stanza col suo nome),
@@ -6177,10 +6243,34 @@ func class_pressed(id: int) -> void:
 
 
 # mobili `kind` (fornace, incudine, banco; per il fuoco da campo anche il focolare, vedi ROLE) dentro una stanza del
-# tipo giusto (STATION_ROOM)
+# tipo giusto (STATION_ROOM). Quelli all'aperto (il mulino ad acqua) senza stanza, finché lavorano (vedi station_works)
 func stations(kind: Build) -> Array:
+	if not STATION_ROOM.has(kind):
+		return furniture.keys().filter(func(o): return furniture[o][0] == kind and station_works(o))
 	return furniture.keys().filter(func(o): return role(furniture[o][0]) == kind \
 		and room_at(o) != null and room_at(o).kind == STATION_ROOM[kind])
+
+
+# una postazione all'aperto lavora: il mulino ad acqua finché il torrente non gela
+func station_works(origin: Vector2i) -> bool:
+	return not (furniture[origin][0] == Build.WATER_MILL and atmosphere.frozen)
+
+
+# ci si fa qualcosa: ha un menu (open_craft), dentro la sua stanza o all'aperto
+func is_station(kind: Build) -> bool:
+	return STATION_ROOM.has(kind) or RECIPES.any(func(r): return r[1] == kind)
+
+
+# chi lavora alla postazione `station` può stare in `cell`: nella sua stanza, o fuori se è all'aperto
+func station_stand(station: Vector2i, cell: Vector2i) -> bool:
+	var room := room_at(station)
+	return room.cells.has(cell) if room != null else room_at(cell) == null
+
+
+# il comfort con cui si lavora alla postazione: quello della sua stanza; all'aperto, a metà (né bonus né malus)
+func station_comfort(station: Vector2i) -> int:
+	var room := room_at(station)
+	return room_comfort(room) if room != null else COMFORT_MAX / 2
 
 
 # Produzione: la prima ricetta che serve (vedi gear_wanted), con la postazione libera e tutti gli ingredienti nei mucchi
@@ -6198,13 +6288,13 @@ func try_craft(c: Colonist) -> bool:
 			var around := {}
 			add_stands(around, [station], station, SIDES)
 			for s in around:
-				if room_at(station).cells.has(s):
+				if station_stand(station, s):
 					stands[s] = station
 		var path := path_to_nearest(c, stands.keys())
 		if path.is_empty():
 			continue
 		var station: Vector2i = stands[path.back()]
-		start_job(c, Job.CRAFT, [], station, r[4] * skill_time(c.skills[r[2]]) * comfort_time(room_comfort(room_at(station)))
+		start_job(c, Job.CRAFT, [], station, r[4] * skill_time(c.skills[r[2]]) * comfort_time(station_comfort(station))
 			* work_factor(c, Job.CRAFT) * (SMOKE_TIME if r[0] in SMOKED and furniture[station][0] == Build.CAMPFIRE else 1.0))
 		c.recipe = i
 		if r[0] == Res.NOTEBOOK:  # la copia: lo studio si spende subito (ponytail: perso se la si molla a metà)
@@ -6274,7 +6364,7 @@ func craft(c: Colonist, delta: float) -> void:
 	c.fetched.clear()
 	learn(c, r[2], r[4])
 	end_job(c)
-	if randf() >= burn_chance(c.skills[r[2]], room_comfort(room_at(c.target))):
+	if r[0] in SURE or randf() >= burn_chance(c.skills[r[2]], station_comfort(c.target)):
 		produce(r[0], here, r[5] if r.size() > 5 else 1)
 		if r[0] == Res.COAL and r[3].has(Res.WOOD) and researched.has(Tech.MANURING):  # la carbonaia lascia la cenere
 			drop(Res.ASH, here, 1)
@@ -10866,7 +10956,7 @@ func _unhandled_input(event: InputEvent) -> void:
 						open_room(signed[0])
 					elif garden.has(cell):
 						open_field(cell)
-					elif pieces_at(furniture, cell).any(func(o): return STATION_ROOM.has(furniture[o][0])):
+					elif pieces_at(furniture, cell).any(func(o): return is_station(furniture[o][0])):
 						open_craft(pieces_at(furniture, cell)[0])
 					else:
 						sheet_panel.hide()  # clic altrove: la scheda si chiude
@@ -10981,7 +11071,7 @@ func draw_garden() -> void:
 			var stage := 2 if grown >= 1.0 else (1 if grown >= 1.0 / 3.0 else 0)
 			var poor := clampf((50.0 - soil_at(cell)) / 50.0, 0.0, 1.0)  # su terra povera, smorte
 			var crop := crop_of(cell)  # il sovescio: fave, che si interrano in fiore
-			var frame := 1 + mini(crop, Crop.BEANS) * 3 + (mini(stage, 1) if crop == Crop.GREEN else stage)
+			var frame: int = 1 + CROP_FRAMES[crop] * 3 + (mini(stage, 1) if crop == Crop.GREEN else stage)
 			flat.draw_texture_rect_region(CROPS, r, tile_rect(frame, 0), Color.WHITE.lerp(SOIL_PALE, poor))
 
 
