@@ -1,4 +1,4 @@
-[gd_scene load_steps=107 format=3]
+[gd_scene load_steps=109 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Script" path="res://columns.gd" id="columns"]
@@ -238,7 +238,7 @@ region = Rect2(64, 1472, 16, 32)
 atlas = ExtResource("8")
 region = Rect2(0, 1504, 16, 16)
 
-[sub_resource type="AtlasTexture" id="WaterMillIcon"]
+[sub_resource type="AtlasTexture" id="WaterWheelIcon"]
 atlas = ExtResource("8")
 region = Rect2(0, 1536, 32, 32)
 
@@ -261,6 +261,14 @@ region = Rect2(0, 1664, 32, 32)
 [sub_resource type="AtlasTexture" id="HiveIcon"]
 atlas = ExtResource("8")
 region = Rect2(0, 1696, 16, 16)
+
+[sub_resource type="AtlasTexture" id="MillGearIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 1728, 16, 16)
+
+[sub_resource type="AtlasTexture" id="MillstoneIcon"]
+atlas = ExtResource("8")
+region = Rect2(0, 1760, 16, 16)
 
 [sub_resource type="AtlasTexture" id="PlasterIcon"]
 atlas = ExtResource("5")
@@ -877,12 +885,30 @@ icon = SubResource("CompostHeapIcon")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Water Mill" type="Button" parent="HUD/FurnitureBar/Row/Crafts"]
+[node name="Water Wheel" type="Button" parent="HUD/FurnitureBar/Row/Crafts"]
 custom_minimum_size = Vector2(40, 40)
 focus_mode = 0
 toggle_mode = true
 button_group = SubResource("Kinds")
-icon = SubResource("WaterMillIcon")
+icon = SubResource("WaterWheelIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Mill Gear" type="Button" parent="HUD/FurnitureBar/Row/Crafts"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("MillGearIcon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Millstone" type="Button" parent="HUD/FurnitureBar/Row/Crafts"]
+custom_minimum_size = Vector2(40, 40)
+focus_mode = 0
+toggle_mode = true
+button_group = SubResource("Kinds")
+icon = SubResource("MillstoneIcon")
 icon_alignment = 1
 expand_icon = true
 

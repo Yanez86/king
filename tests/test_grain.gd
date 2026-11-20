@@ -71,38 +71,63 @@ func _initialize() -> void:
 		main.end_job(c)
 		c.carrying = 0
 
-	# il mulino ad acqua: 2x2, sulla riva, con tutto il lato della ruota nel torrente; girato, la ruota cambia lato
-	var mill := Vector2i(-1, -1)
+	# il mulino ad acqua: una stanza sulla riva (tipo Mulino) con la macina e il pignone sul muro; dall'altra parte del
+	# muro, nel torrente, la ruota (2x2) con le spalle al muro
+	check(main.Build.WATER_WHEEL in main.OUTDOOR and main.FURNITURE[main.Build.WATER_WHEEL] == Vector2i(2, 2)
+		and main.ROOM_NEEDS[main.RoomKind.MILL] == {main.Build.MILLSTONE: 1, main.Build.MILL_GEAR: 1}
+		and main.STATION_ROOM[main.Build.MILLSTONE] == main.RoomKind.MILL, "la ruota fuori, 2x2; la macina e il pignone nel mulino")
+	var wheel := Vector2i(-1, -1)
 	var turn := -1
+	var wall: Array = []
+	var inward := Vector2i.ZERO
 	for k in main.cells_in(Rect2i(Vector2i.ZERO, main.MAP_SIZE)):
 		for t in 4:
-			if main.piece_fits(k, [main.Build.WATER_MILL, main.Res.WOOD, t]):
-				mill = k
+			var plan: Array = [main.Build.WATER_WHEEL, main.Res.WOOD, t]
+			var rect: Rect2i = main.piece_rect(k, plan)
+			if not main.cells_in(rect).all(func(h): return stream.has(h)):
+				continue
+			var back: Vector2i = main.BACKS[t]
+			var behind: Array = main.cells_in(rect).map(func(h): return h + back).filter(func(h): return not rect.has_point(h))
+			if behind.all(func(h): return [1, 2, 3, 4].all(func(i): return main.can_build(h + back * (i - 1), main.Build.WALL))):
+				wheel = k
 				turn = t
+				wall = behind
+				inward = back
 				break
-		if mill.x >= 0:
+		if wheel.x >= 0:
 			break
-	check(mill.x >= 0, "c'è un posto per il mulino sulla riva del torrente")
-	check(main.wheel_cells(mill, [main.Build.WATER_MILL, main.Res.WOOD, turn]).all(func(k): return stream.has(k)),
-		"la ruota pesca nel torrente")
-	check(not main.piece_fits(mill, [main.Build.WATER_MILL, main.Res.WOOD, (turn + 2) % 4]), "con la ruota dall'altra parte no")
+	check(wheel.x >= 0, "c'è un posto per il mulino sulla riva del torrente")
+	var wheel_plan: Array = [main.Build.WATER_WHEEL, main.Res.WOOD, turn]
+	check(not main.piece_fits(wheel, wheel_plan), "la ruota senza il muro alle spalle no")
+	for k in wall:
+		main.built[k] = [main.Build.WALL, main.Res.WOOD]
+		main.astar.set_point_solid(k)
+	check(main.piece_fits(wheel, wheel_plan), "nel torrente, con le spalle al muro: sì")
 	var lake: Array = main.water.keys().filter(func(k): return not stream.has(k))
-	var on_lake := 0
-	for k in main.cells_in(Rect2i(Vector2i.ZERO, main.MAP_SIZE)):
-		var plan: Array = [main.Build.WATER_MILL, main.Res.WOOD, 0]
-		if main.piece_fits(k, plan) and main.wheel_cells(k, plan).any(func(w): return w in lake):
-			on_lake += 1
-	check(on_lake == 0, "non sulla riva di un lago: serve l'acqua che scorre")
-	check(main.Build.WATER_MILL in main.OUTDOOR and main.FURNITURE[main.Build.WATER_MILL] == Vector2i(2, 2), "all'aperto, 2x2")
+	check(lake.is_empty() or not main.can_build(lake[0], main.Build.WATER_WHEEL), "non in un lago: serve l'acqua che scorre")
+	var mill_room = main.Room.new()  # stanza di prova fatta di dati, dietro il muro
+	for k in wall:
+		for i in [1, 2, 3]:
+			mill_room.cells[k + inward * i] = true
+	mill_room.kind = main.RoomKind.MILL
+	main.rooms.append(mill_room)
+	var gear: Vector2i = wall[0] + inward
+	var mill: Vector2i = wall[1] + inward * 3  # la macina
+	main.furniture[gear] = [main.Build.MILL_GEAR, main.Res.WOOD, main.BACKS.find(-inward)]
+	main.furniture[mill] = [main.Build.MILLSTONE, main.Res.STONE, 0]
+	check(main.piece_fits(wall[1] + inward, [main.Build.MILL_GEAR, main.Res.WOOD, main.BACKS.find(-inward)]), "il pignone contro il muro, dentro")
+	check(main.stations(main.Build.MILLSTONE).is_empty() and main.station_block(mill).begins_with("No water wheel"), "senza la ruota la macina sta ferma")
+	check(main.describe(gear)[1] == "No water wheel behind this wall.", "col mouse sopra il pignone: niente ruota")
+	main.furniture[wheel] = wheel_plan
+	check(main.geared(gear) and main.mill_turns(mill_room) and main.stations(main.Build.MILLSTONE) == [mill], "con la ruota il mulino gira")
+	check(main.describe(gear)[1] == "Turned by the water wheel.", "col mouse sopra il pignone: la ruota lo gira")
 
-	# macinare: il mugnaio (Produrre, abilità cucinare) porta 2 grano al mulino: 2 farina, che non si rovina mai
-	main.furniture[mill] = [main.Build.WATER_MILL, main.Res.WOOD, turn]
-	check(main.is_station(main.Build.WATER_MILL) and main.stations(main.Build.WATER_MILL) == [mill], "il mulino è una postazione")
-	var by: Vector2i = main.cells_in(Rect2i(mill - Vector2i(3, 3), Vector2i(8, 8))).filter(func(k): return main.can_build(k))[0]
+	# macinare: il mugnaio (Produrre, abilità cucinare) porta 2 grano alla macina: 2 farina, che non si rovina mai
+	var by: Vector2i = main.cells_in(Rect2i(mill + inward * 2 - Vector2i(3, 3), Vector2i(8, 8))).filter(func(k): return main.can_build(k) and not mill_room.cells.has(k))[0]
 	main.drop(main.Res.GRAIN, by, 6)
 	main.researched.erase(main.Tech.MILL)
 	for c in main.colonists:
-		c.pos = main.center(by)
+		c.pos = main.center(mill + inward)  # nel mulino: chi sta fermo sopra un mucchio lo tiene per sé
 		c.skills[main.Skill.COOKING] = 0  # a livello 0 il cibo brucia una volta su tre: la farina no
 		main.end_job(c)
 	for i in 200:
@@ -119,9 +144,9 @@ func _initialize() -> void:
 	check(flour == 6, "6 grano, 6 farina (%d)" % flour)
 	check(main.colonists.any(func(c): return c.xp[main.Skill.COOKING] > 0), "il mugnaio impara a cucinare")
 
-	# col gelo la ruota si ferma: il mulino non è più una postazione, il suo menu lo dice
+	# col gelo la ruota si ferma: la macina non lavora, il suo menu lo dice
 	main.atmosphere.frozen = true
-	check(main.stations(main.Build.WATER_MILL).is_empty(), "torrente gelato: non si macina")
+	check(main.stations(main.Build.MILLSTONE).is_empty(), "torrente gelato: non si macina")
 	main.open_craft(mill)
 	var note: Label = main.get_node("HUD/CraftPopup/Box/Room")
 	check(note.visible and note.text == "The stream is frozen: the wheel stands still.", "il menu dice della ruota ferma")
@@ -130,6 +155,7 @@ func _initialize() -> void:
 	check(not note.visible, "sgelato, il mulino lavora")
 	main.craft_popup.hide()
 	check(main.describe(mill)[1] == "Click: what to make", "col mouse sopra: cosa fare")
+	main.furniture.erase(wheel)
 
 	# la macina a trazione (con la Stalla e il Mulino): 2x2 all'aperto, la gira una mucca adulta e sazia; il doppio del
 	# tempo, ma anche col gelo

@@ -4037,7 +4037,7 @@ o8gg<oo8gg<o
 """
 
 
-# --- Grano, farina e mulino ad acqua (GDD 4.4.7): disegnati col codice, a pixel pieni col loro contorno ---
+# --- Grano, farina e la ruota del mulino (GDD 4.4.7): disegnati col codice, a pixel pieni col loro contorno ---
 
 def outlined(fill, w=16, h=16):
     """Pixel pieni (x, y) -> carattere, col contorno "o" attorno (ai quattro lati) dove è vuoto."""
@@ -4126,57 +4126,68 @@ def wheel(cx, cy, rx, ry, spokes=8):
     return px
 
 
-def mill_house(x0, x1, y_ridge=6, y_eave=16, y_base=29):
-    """La casa del mulino in 3/4 come gli altri mobili: tetto di tegole, parete di assi con la porta, zoccolo di
-    pietra. Dalla colonna x0 alla x1 compresa; i pixel -> carattere"""
-    px = {}
-    w = x1 - x0 + 1
-    for y in range(y_ridge, y_eave + 1):  # il tetto: si allarga verso la gronda
-        inset = max(0, (y_eave - y) // 2 - 1)
-        for x in range(x0 + inset, x1 - inset + 1):
-            px[(x, y)] = "F" if (y - y_ridge) % 3 == 0 else ("f" if (x + y) % 4 else "D")
-    for x in range(x0, x1 + 1):
-        px[(x, y_eave + 1)] = "D"  # la gronda in ombra
-    for y in range(y_eave + 2, y_base - 3):  # la parete di assi
-        for x in range(x0 + 1, x1):
-            px[(x, y)] = "B" if (x - x0) % 4 else "w"
-    door = x0 + w // 2 - 2
-    for y in range(y_base - 9, y_base - 3):
-        for x in range(door, door + 4):
-            px[(x, y)] = "3" if x in (door, door + 3) or y == y_base - 9 else "W"
-    window = x0 + 3
-    for y in range(y_eave + 3, y_eave + 6):
-        for x in range(window, window + 3):
-            px[(x, y)] = "E"
-    for y in range(y_base - 3, y_base + 1):  # lo zoccolo di pietra
-        for x in range(x0 + 1, x1):
-            px[(x, y)] = "urRi"[(x + 2 * y) % 4] if y < y_base else "i"
-    return px
+def water_wheel():
+    """La ruota del mulino 32x32 (2x2), nel torrente, contro il muro esterno, nei quarti di giro come i mobili addossati
+    (vedi BACKS in main.gd): di fronte e da dietro tonda, coi raggi e le pale; di lato di taglio, con l'asse che va al
+    muro (a destra; l'altro lato lo specchio). In fondo gli schizzi dell'acqua"""
+    front = dict(wheel(16, 15.5, 14.5, 14.5, spokes=12))
+    for x in range(4, 29):  # gli schizzi
+        if x % 3 == 0:
+            front[(x, 31)] = "0"
+    side = {}
+    for y in range(1, 31):  # la ruota di taglio: il cerchione e le pale
+        for x in range(13, 18):
+            side[(x, y)] = "w" if x in (13, 17) else ("c" if y % 4 else "C")
+        if y % 4 == 2:
+            for x in (11, 12, 18, 19):
+                side[(x, y)] = "C"
+    for y in range(14, 18):  # l'asse, verso il muro a destra
+        for x in range(18, 32):
+            side[(x, y)] = "W" if y in (14, 17) else "w"
+    for y in (6, 14, 22, 30):
+        side[(15, y)] = "0"
+    f = outlined(front, 32, 32)
+    sd = outlined(side, 32, 32)
+    return [f, sd, f, mirror(sd)]
 
 
-def water_mill():
-    """Mulino ad acqua 32x32 (2x2) nei quattro quarti di giro, come i mobili: la ruota a destra (il torrente a est),
-    davanti (a sud), a sinistra, dietro (a nord). La ruota di lato si vede di taglio, davanti tonda."""
-    variants = []
-    shadow = lambda px, a, b: px.update({(x, 31): "z" for x in range(a, b) if (x, 31) not in px})
-    # a est: la casa a sinistra, la ruota di taglio sulla destra, che pesca fuori dal mobile
-    px = mill_house(1, 24)
-    px.update({p: ch for p, ch in wheel(28.5, 22, 3.5, 9).items()})
-    shadow(px, 2, 31)
-    variants.append(px)
-    # a sud: la casa più alta, la ruota tonda davanti in basso
-    px = mill_house(3, 28, y_ridge=1, y_eave=11, y_base=24)
-    px.update(wheel(16, 26, 6.5, 5.5))
-    shadow(px, 4, 28)
-    variants.append(px)
-    # a ovest: lo specchio di est
-    variants.append({(31 - x, y): ch for (x, y), ch in variants[0].items()})
-    # a nord: la ruota dietro, se ne vede la metà di sopra oltre il tetto
-    px = {p: ch for p, ch in wheel(16, 7, 6.5, 5.5).items() if p[1] < 7}
-    px.update(mill_house(3, 28, y_ridge=5, y_eave=15, y_base=29))
-    shadow(px, 4, 28)
-    variants.append(px)
-    return [outlined(v, 32, 32) for v in variants]
+MILL_GEAR = """
+....o.o.o.o..... ................ ................
+...owowowowo.... ...........ooo.. ................
+..oWcccccccWo... ..........owWo.. ................
+.owcCWWWWWCcwo.. ..........owco.. ................
+..ocWwwwwwWco... ..........oWco.. ................
+.owcWwoooWcwo... ..........owco.. ................
+..ocWwo6owWco... ..........oWco.. ................
+.owcWwoooWcwo... ..........owco.. ................
+..ocWwwwwwWco... ..........oWco.. ................
+.owcCWWWWWCcwo.. ..........owco.. ................
+..oWcccccccWo... ..........owWo.. ................
+...owowowowo.... ...........ooo.. ...o.o.o.o.o....
+....o.o.o.o..... ................ ..owowowowowo...
+................ ................ .oWcccccccccWo..
+................ ................ .oWWWWWWWWWWWo..
+................ ................ ..ooooooooooo...
+"""
+
+MILLSTONE = """
+................
+....oooooooo....
+...owccccccwo...
+...oWcccccCWo...
+....oWccccWo....
+.....oWccWo.....
+...oooowooooo...
+..ouuuurrrrRRo..
+.ouuurrrrrrRRio.
+.oururro6orRRio.
+.ouurrrrrrrRRio.
+..oRRRRRRRRRio..
+..owwwwwwwwwWo..
+..oWwWwWwWwWWo..
+..oooooooooooo..
+.zzzzzzzzzzzzzz.
+"""
 
 
 def tech_mill():
@@ -5092,7 +5103,8 @@ def furniture_sheet():
     filatoio, banco del falegname, poi le decorazioni: aiuola, fioriera, panca, stendardo, lampione, fontana, statua;
     la bacheca; i cimeli: calice, stendardo antico, busto, corona; scrittoio, libreria, trono, fantoccio, torre di guardia, baldacchino, tappeto, armadio, focolare, pelli alle pareti, portiera, arazzo, stufa a olle, fossa del ghiaccio, quattro righe vuote (le strutture che vengono dopo
     in Build), il cumulo del compost, la culla; la rastrelliera, il bersaglio e il banco degli scassi; l'armadio dei rimedi,
-    la tomba, il memoriale, il mulino ad acqua, il forno, il pollaio, la mangiatoia, la macina a trazione, l'arnia (come Build in main.gd);
+    la tomba, il memoriale, la ruota del mulino, il forno, il pollaio, la mangiatoia, la macina a trazione, l'arnia, il pignone e la
+    macina del mulino (come Build in main.gd);
     colonne: quarti di giro in senso orario (per fuoco, stendardo e fontana, fotogrammi), ognuno in alto a sinistra nel suo riquadro 32x32."""
     bed, chair, chair_left = art(BED, 32, 16), art(CHAIR, 16, 16), art(CHAIR_LEFT, 16, 16)
     table, lamp, anvil = art(TABLE, 32, 32), art(LAMP, 16, 16), art(ANVIL, 16, 16)
@@ -5135,7 +5147,8 @@ def furniture_sheet():
     rows += [[art(MEDICINE_CHEST, 16, 16)] * 4]
     rows += [[grave(False, True), grave(False, False), grave(True, True), grave(True, False)]]
     rows += [[art(MEMORIAL, 16, 16)] * 4]
-    rows += [water_mill(), oven(), coop(), manger(), [animal_mill()] * 4, [art(HIVE, 16, 16)] * 4]
+    rows += [water_wheel(), oven(), coop(), manger(), [animal_mill()] * 4, [art(HIVE, 16, 16)] * 4]
+    rows += [(lambda g: [g[0], g[1], g[2], mirror(g[1])])(frames(MILL_GEAR)), [art(MILLSTONE, 16, 16)] * 4]
     slot = lambda g: [line.ljust(32, ".") for line in g] + ["." * 32] * (32 - len(g))
     return [line for row in rows for line in side_by_side([slot(g) for g in (row or [[]] * 4)])]
 

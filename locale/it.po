@@ -4155,8 +4155,14 @@ msgstr "Farina"
 msgid "Grain"
 msgstr "Grano"
 
-msgid "Water Mill"
-msgstr "Mulino ad acqua"
+msgid "Water Wheel"
+msgstr "Ruota del mulino"
+
+msgid "Mill Gear"
+msgstr "Pignone"
+
+msgid "Millstone"
+msgstr "Macina"
 
 msgid "Mill"
 msgstr "Mulino"
@@ -4164,11 +4170,26 @@ msgstr "Mulino"
 msgid "The stream is frozen: the wheel stands still."
 msgstr "Il torrente è gelato: la ruota è ferma."
 
-msgid "On the bank of the stream, its wheel in the water: turn it so the wheel side lies along the stream. The miller grinds grain into flour. When the stream freezes the wheel stands still."
-msgstr "Sulla riva del torrente, con la ruota nell'acqua: giralo perché il lato della ruota stia lungo il torrente. Il mugnaio ci macina il grano in farina. Quando il torrente gela la ruota si ferma."
+msgid "A paddle wheel in the stream, against the outer wall of the mill. Its axle goes through the wall to the gear inside. When the stream freezes it stands still."
+msgstr "Una ruota a pale nel torrente, contro il muro esterno del mulino. L'asse passa dal muro al pignone, dentro. Quando il torrente gela si ferma."
 
-msgid "Grain in the field planning (100 days), and the water mill on the bank of the stream: grain becomes flour."
-msgstr "Il grano nella pianificazione dei campi (100 giorni), e il mulino ad acqua sulla riva del torrente: il grano diventa farina."
+msgid "The pinion on the inside of the mill's wall, where the axle of the water wheel comes through: it turns the millstone."
+msgstr "Il pignone sul lato interno del muro del mulino, dove passa l'asse della ruota: fa girare la macina."
+
+msgid "Two stones and a hopper. With the gear on a wall, the room can be a mill: the miller grinds grain into flour, as long as the wheel turns."
+msgstr "Due mole e una tramoggia. Col pignone su un muro, la stanza può essere un mulino: il mugnaio macina il grano in farina, finché la ruota gira."
+
+msgid "Turned by the water wheel."
+msgstr "Lo gira la ruota del mulino."
+
+msgid "No water wheel behind this wall."
+msgstr "Dietro questo muro non c'è la ruota."
+
+msgid "No water wheel turns the gear: put the wheel in the stream, against the wall behind the gear."
+msgstr "Nessuna ruota gira il pignone: metti la ruota nel torrente, contro il muro dietro il pignone."
+
+msgid "Grain in the field planning (100 days), and the water mill: a room on the bank of the stream, the wheel in the water against its wall, the gear inside on that wall, the millstone. Grain becomes flour."
+msgstr "Il grano nella pianificazione dei campi (100 giorni), e il mulino ad acqua: una stanza sulla riva del torrente, la ruota nell'acqua contro il suo muro, il pignone dentro su quel muro, la macina. Il grano diventa farina."
 
 msgctxt "item"
 msgid "Bread"

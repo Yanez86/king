@@ -630,7 +630,7 @@ const RECIPES := [
 	[Res.SMOKED_MEAT, Build.CAMPFIRE, Skill.COOKING, {Res.MEAT: 1}, 8.0],  # affumicati
 	[Res.SMOKED_FISH, Build.CAMPFIRE, Skill.COOKING, {Res.FISH: 1}, 8.0],
 	[Res.OINTMENT, Build.CAMPFIRE, Skill.MEDICINE, {Res.HERBS: 2}, 10.0],  # le erbe pestate e cotte nel grasso
-	[Res.FLOUR, Build.WATER_MILL, Skill.COOKING, {Res.GRAIN: 2}, 4.0, 2],  # il mugnaio
+	[Res.FLOUR, Build.MILLSTONE, Skill.COOKING, {Res.GRAIN: 2}, 4.0, 2],  # il mugnaio, nel mulino (vedi mill_turns)
 	[Res.FLOUR, Build.ANIMAL_MILL, Skill.COOKING, {Res.GRAIN: 2}, 8.0, 2],  # con la mucca alla stanga (vedi draft_cows)
 	[Res.BREAD, Build.OVEN, Skill.COOKING, {Res.FLOUR: 2}, 10.0, 3],
 	[Res.STEW, Build.OVEN, Skill.COOKING, {ANY_VEG: 2, ANY_FLESH: 1}, 12.0, 2],  # squisito: pasti squisiti (vedi craft)
@@ -648,7 +648,7 @@ const SMOKED := [Res.SMOKED_MEAT, Res.SMOKED_FISH]
 const SMOKE_TIME := 0.75     # affumicare al fuoco da campo, dove il fumo resta: tempo x (al focolare va su per la canna)
 const STATION_ROOM := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.HEARTH: RoomKind.KITCHEN, Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP,
 	Build.SPINNING_WHEEL: RoomKind.WORKSHOP, Build.CARPENTER_BENCH: RoomKind.CARPENTRY, Build.DESK: RoomKind.STUDY,
-	Build.OVEN: RoomKind.KITCHEN}
+	Build.OVEN: RoomKind.KITCHEN, Build.MILLSTONE: RoomKind.MILL}
 const STOCK := {Res.INGOT: 10, Res.BOWSTRING: 2, Res.COAL: 5, Res.OINTMENT: 3, Res.FLOUR: 10, Res.BREAD: 8, Res.CANDLE: 4}  # scorte di partenza, vedi keep; i pasti
 	# MEALS_PER_COLONIST a testa
 enum Order { NONE, CHOP, MINE, UPROOT, BUILD, ERASE, DEMOLISH, HARVEST, FISH, HUNT, ICE, GARDEN, PASTURE, HAY }  # cosa segna il trascinamento del mouse
@@ -666,7 +666,8 @@ const ORDER_ICONS := {Order.CHOP: preload("res://art/icon_chop.png"), Order.MINE
 enum RoomKind { NONE, WAREHOUSE, BEDROOM, DORMITORY, KITCHEN, FORGE, WORKSHOP, CARPENTRY, INN, STUDY, THRONE_ROOM, PANTRY, ICEHOUSE,
 	ARMORY, ARCHERY_RANGE,  # la caserma (vedi CLASS_ROOM)
 	INFIRMARY,
-	STABLE }  # tipo di stanza, scelto dal cartello
+	STABLE,
+	MILL }  # tipo di stanza, scelto dal cartello
 # categoria del tipo: lavoro (niente proprietari, gli si assegnano dei lavoratori), residenza (può avere dei proprietari),
 # servizio (comune a tutti, con uno scopo preciso: magazzino, locanda). Senza tipo: nessuna, né proprietari né lavoratori
 enum RoomClass { NONE, WORK, RESIDENCE, SERVICE }
@@ -687,6 +688,7 @@ const ROOM_CLASS := {
 	RoomKind.ARCHERY_RANGE: RoomClass.WORK,  # il tiro a segno: ci si allenano gli arcieri
 	RoomKind.INFIRMARY: RoomClass.SERVICE,  # i suoi letti solo per chi sta male (vedi free_beds, sick)
 	RoomKind.STABLE: RoomClass.SERVICE,  # d'inverno ci stanno gli animali da allevare (vedi assign_stalls)
+	RoomKind.MILL: RoomClass.WORK,  # la macina, girata dalla ruota del torrente (vedi mill_turns)
 }
 # titolo della lista di coloni da spuntare nel popup del cartello, per RoomClass (le altre non ce l'hanno)
 const ROOM_PEOPLE := {RoomClass.WORK: "Workers", RoomClass.RESIDENCE: "Owners"}
@@ -711,12 +713,13 @@ enum Build { WALL, FLOOR, DOOR, PATH, BED, TABLE, CHAIR, LAMP, CAMPFIRE, FURNACE
 	MEDICINE_CHEST,  # l'armadio dei rimedi: con un letto, la stanza è un'infermeria (vedi Tech.MEDICINE)
 	GRAVE,  # la tomba, all'aperto: ci si seppellisce un morto (vedi graves, Job.BURY)
 	MEMORIAL,  # il memoriale dei caduti (Statuaria): il lutto un giorno in meno (vedi mourning_days)
-	WATER_MILL,  # il mulino ad acqua, sulla riva del torrente: la farina (vedi Tech.MILL, banked)
+	WATER_WHEEL,  # la ruota del mulino, nel torrente contro il muro esterno (vedi Tech.MILL, mill_turns)
 	OVEN,  # il forno di pietra, in cucina: pane, stufato, conserve (vedi Tech.STONE_OVEN)
 	COOP,  # il pollaio, nel pascolo: le galline ci fanno le uova (vedi lay_eggs)
 	MANGER,  # la mangiatoia: con una, la stanza è una stalla; ci si porta il fieno (vedi Tech.STABLE, manger_cells)
 	ANIMAL_MILL,  # la macina a trazione: la gira una mucca, anche d'inverno (vedi draft_cows)
-	HIVE }  # l'arnia: miele e cera, coi fiori vicini (vedi make_honey)
+	HIVE,  # l'arnia: miele e cera, coi fiori vicini (vedi make_honey)
+	MILL_GEAR, MILLSTONE }  # il pignone sul muro del mulino, dove passa l'asse della ruota; la macina, dentro
 # materiale per casella; per i mobili, per pezzo. Un numero: del materiale del progetto; se no risorsa -> quantità, e
 # ogni viaggio porta tutta una risorsa (vedi cost_of, delivered)
 const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1, Build.BED: 10, Build.TABLE: 10, Build.CHAIR: 3,
@@ -727,7 +730,7 @@ const BUILD_COST := {Build.WALL: 5, Build.FLOOR: 2, Build.DOOR: 5, Build.PATH: 1
 	Build.CANOPY_BED: 20, Build.RUG: 4, Build.WARDROBE: 12, Build.HEARTH: 15,
 	Build.WALL_HIDES: 2, Build.DOOR_CURTAIN: 2, Build.TAPESTRY: 4, Build.TILED_STOVE: 20, Build.ICE_PIT: 20, Build.COMPOST_HEAP: 6, Build.CRADLE: 4,
 	Build.WEAPON_RACK: {Res.WOOD: 6, Res.INGOT: 1}, Build.TARGET: {Res.WOOD: 4, Res.FLAX: 2}, Build.LOCK_BENCH: {Res.WOOD: 4, Res.INGOT: 2},
-	Build.MEDICINE_CHEST: 8, Build.GRAVE: 4, Build.MEMORIAL: 10, Build.WATER_MILL: {Res.WOOD: 20, Res.STONE: 10}, Build.OVEN: 20, Build.COOP: 8, Build.MANGER: 6, Build.ANIMAL_MILL: {Res.STONE: 15, Res.WOOD: 5}, Build.HIVE: 6,
+	Build.MEDICINE_CHEST: 8, Build.GRAVE: 4, Build.MEMORIAL: 10, Build.WATER_WHEEL: 16, Build.OVEN: 20, Build.COOP: 8, Build.MANGER: 6, Build.ANIMAL_MILL: {Res.STONE: 15, Res.WOOD: 5}, Build.HIVE: 6, Build.MILL_GEAR: {Res.WOOD: 6, Res.INGOT: 1}, Build.MILLSTONE: {Res.STONE: 15, Res.WOOD: 4},
 	Build.PALISADE: 4, Build.GATE: 6, Build.PLASTER: 1}
 # caselle occupate dai mobili come sono disegnati; girati di un quarto si scambiano larghezza e altezza (vedi piece_rect)
 const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Build.CHAIR: Vector2i.ONE, Build.LAMP: Vector2i.ONE,
@@ -741,13 +744,13 @@ const FURNITURE := {Build.BED: Vector2i(2, 1), Build.TABLE: Vector2i(2, 2), Buil
 	Build.HEARTH: Vector2i.ONE, Build.WALL_HIDES: Vector2i.ONE, Build.DOOR_CURTAIN: Vector2i.ONE, Build.TAPESTRY: Vector2i.ONE,
 	Build.TILED_STOVE: Vector2i.ONE, Build.ICE_PIT: Vector2i(2, 2), Build.COMPOST_HEAP: Vector2i.ONE,
 	Build.CRADLE: Vector2i.ONE, Build.WEAPON_RACK: Vector2i.ONE, Build.TARGET: Vector2i.ONE, Build.LOCK_BENCH: Vector2i.ONE,
-	Build.MEDICINE_CHEST: Vector2i.ONE, Build.GRAVE: Vector2i(1, 2), Build.MEMORIAL: Vector2i.ONE, Build.WATER_MILL: Vector2i(2, 2), Build.OVEN: Vector2i(2, 1), Build.COOP: Vector2i(2, 1), Build.MANGER: Vector2i(2, 1), Build.ANIMAL_MILL: Vector2i(2, 2), Build.HIVE: Vector2i.ONE}
+	Build.MEDICINE_CHEST: Vector2i.ONE, Build.GRAVE: Vector2i(1, 2), Build.MEMORIAL: Vector2i.ONE, Build.WATER_WHEEL: Vector2i(2, 2), Build.OVEN: Vector2i(2, 1), Build.COOP: Vector2i(2, 1), Build.MANGER: Vector2i(2, 1), Build.ANIMAL_MILL: Vector2i(2, 2), Build.HIVE: Vector2i.ONE, Build.MILL_GEAR: Vector2i.ONE, Build.MILLSTONE: Vector2i.ONE}
 # mobili animati: secondi per fotogramma; i fotogrammi stanno nelle colonne dei quarti di giro (sono simmetrici)
 const ANIMATED := {Build.CAMPFIRE: 0.15, Build.BANNER: 0.3, Build.FOUNTAIN: 0.2}
 const ANY_MATERIAL := [Build.WALL, Build.FLOOR]  # di legno o di pietra
 const BARRIERS := [Build.WALL, Build.PALISADE]  # solidi: si fanno solo lungo il bordo del riquadro, chiudono la strada
 const PAVING := [Build.FLOOR, Build.PATH, Build.ROAD]  # a terra: si calpestano, ci stanno sopra i mobili, l'erba ci sborda sopra
-const OUTDOOR := [Build.GRAVE, Build.WATER_MILL, Build.ANIMAL_MILL, Build.HIVE]  # solo sul prato, fuori dalle stanze (vedi piece_fits)
+const OUTDOOR := [Build.GRAVE, Build.WATER_WHEEL, Build.ANIMAL_MILL, Build.HIVE]  # solo sul prato, fuori dalle stanze (vedi piece_fits)
 # materiale fisso; il resto solo di legno
 # i cimeli: la decorazione si fa con l'oggetto trovato nelle rovine, uno a pezzo
 const RELICS := {Build.CHALICE: Res.CHALICE, Build.OLD_BANNER: Res.OLD_BANNER, Build.BUST: Res.BUST, Build.CROWN: Res.CROWN}
@@ -772,11 +775,12 @@ const ROOM_NEEDS := {
 	RoomKind.ARCHERY_RANGE: {Build.TARGET: 2},  # e lunga almeno RANGE_LENGTH caselle (vedi room_meets)
 	RoomKind.INFIRMARY: {Build.BED: 1, Build.MEDICINE_CHEST: 1},
 	RoomKind.STABLE: {Build.MANGER: 1},
+	RoomKind.MILL: {Build.MILLSTONE: 1, Build.MILL_GEAR: 1},  # la ruota fuori serve perché giri (vedi mill_turns)
 }
 # lente delle stanze (tasto col cartello in basso): le stanze finite velate col colore del loro tipo, per RoomKind
 const ROOM_COLORS := [Color("e6e2d0"), Color("c9a23b"), Color("3b8fd3"), Color("8a5ad3"), Color("e0703a"), Color("d33b3b"),
 	Color("3bb08a"), Color("9be36a"), Color("d38a3b"), Color("6a9ae0"), Color("c48ad8"), Color("8fd8e8"), Color("dff2fa"),
-	Color("a8a49a"), Color("6f8a4a"), Color("e86a6a"), Color("b08a4a")]
+	Color("a8a49a"), Color("6f8a4a"), Color("e86a6a"), Color("b08a4a"), Color("d8c08a")]
 # comfort di una stanza, 0-COMFORT_MAX: lo danno i mobili (per pezzo) e il pavimento (tutto se copre la stanza intera),
 # per il materiale. A metà né bonus né malus; fuori dalle stanze è 0. Vedi room_comfort e comfort_of
 const COMFORT_MAX := 10
@@ -811,7 +815,8 @@ const THROUGH := {Build.HEARTH: THROUGH_WALL, Build.FURNACE: THROUGH_WALL, Build
 const THROUGH_STONE := [Build.TILED_STOVE]
 const BACKS := [Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]  # le spalle di un mobile, per quarto di giro
 const AGAINST := {Build.HEARTH: [Build.WALL], Build.WALL_HIDES: [Build.WALL], Build.TAPESTRY: [Build.WALL],
-	Build.TILED_STOVE: [Build.WALL], Build.DOOR_CURTAIN: [Build.DOOR]}  # mobili da addossare: quello che vogliono alle spalle (vedi backed)
+	Build.TILED_STOVE: [Build.WALL], Build.DOOR_CURTAIN: [Build.DOOR], Build.WATER_WHEEL: [Build.WALL],
+	Build.MILL_GEAR: [Build.WALL]}  # mobili da addossare: quello che vogliono alle spalle (vedi backed)
 # pezzi che isolano la stanza dove stanno: [quanto in più, al massimo quanti ne contano]; l'intonaco porta i muri di
 # legno a PLASTER_INSULATION; le tende del baldacchino scaldano chi ci dorme (BED_WARMTH gradi)
 const INSULATES := {Build.WALL_HIDES: [0.05, 3], Build.DOOR_CURTAIN: [0.1, 1], Build.TAPESTRY: [0.05, 3]}
@@ -927,7 +932,9 @@ const BUILD_INFO := {
 	Build.MANGER: "A trough of planks for hay. With one, a room can be a stable, where the animals spend the winter.",
 	Build.COOP: "A wooden hut with a straw roof, in the pasture: up to 8 hens lay their eggs here, one a day each (not in winter).",
 	Build.OVEN: "A dome of stone over a slow fire, in a kitchen. Bread from flour, stew, and preserves that keep for a third of a year. It warms the room like a campfire.",
-	Build.WATER_MILL: "On the bank of the stream, its wheel in the water: turn it so the wheel side lies along the stream. The miller grinds grain into flour. When the stream freezes the wheel stands still.",
+	Build.WATER_WHEEL: "A paddle wheel in the stream, against the outer wall of the mill. Its axle goes through the wall to the gear inside. When the stream freezes it stands still.",
+	Build.MILL_GEAR: "The pinion on the inside of the mill's wall, where the axle of the water wheel comes through: it turns the millstone.",
+	Build.MILLSTONE: "Two stones and a hopper. With the gear on a wall, the room can be a mill: the miller grinds grain into flour, as long as the wheel turns.",
 	Build.HEARTH: "A stone fireplace with a chimney, set against a wall. Cooks and warms like a campfire, more. Half its heat goes through a wooden wall at its back, none through stone.",
 	Build.ANVIL: "An iron anvil on a stump. A forge needs one, and a furnace. Tools and metal armor are made here.",
 	Build.WORKBENCH: "A sturdy bench. A workshop needs one. Leather armor is made here.",
@@ -1520,8 +1527,9 @@ const TECHS := {
 	Tech.MEDICINE: {"branch": Branch.LORE, "tier": 2, "cost": 300, "needs": [Tech.HERBALISM], "builds": [Build.MEDICINE_CHEST],
 		"rooms": [RoomKind.INFIRMARY],
 		"info": "The medicine chest and the infirmary, and the Doctor column: doctors carry the downed to an infirmary bed and treat them, the wounded and the fevered."},
-	Tech.MILL: {"branch": Branch.LAND, "tier": 1, "cost": 100, "needs": [Tech.GARDEN], "builds": [Build.WATER_MILL],
-		"makes": [Res.FLOUR], "info": "Grain in the field planning (100 days), and the water mill on the bank of the stream: grain becomes flour."},
+	Tech.MILL: {"branch": Branch.LAND, "tier": 1, "cost": 100, "needs": [Tech.GARDEN],
+		"builds": [Build.WATER_WHEEL, Build.MILL_GEAR, Build.MILLSTONE], "rooms": [RoomKind.MILL], "makes": [Res.FLOUR],
+		"info": "Grain in the field planning (100 days), and the water mill: a room on the bank of the stream, the wheel in the water against its wall, the gear inside on that wall, the millstone. Grain becomes flour."},
 	Tech.STONE_OVEN: {"branch": Branch.LAND, "tier": 2, "cost": 300, "needs": [Tech.GARDEN], "builds": [Build.OVEN],
 		"makes": [Res.BREAD, Res.STEW, Res.PRESERVES],
 		"info": "The stone oven, in a kitchen: bread from flour (it keeps 8 days), stew from vegetables and meat or fish (warms you up), preserves that keep for 120 days."},
@@ -3369,10 +3377,8 @@ func open_craft(origin: Vector2i) -> void:
 	var kind: Build = role(furniture[origin][0])  # il focolare fa le ricette del fuoco da campo
 	var box: Control = $HUD/CraftPopup/Box
 	box.get_node("Head/Title").text = named(Build, furniture[origin][0])
-	box.get_node("Room").text = tr("Works only in a %s") % named(RoomKind, STATION_ROOM[kind]).to_lower() \
-		if STATION_ROOM.has(kind) else (tr("No grown-up, fed cow to turn it.") if kind == Build.ANIMAL_MILL
-		else tr("The stream is frozen: the wheel stands still."))
-	box.get_node("Room").visible = not stations(kind).has(origin)
+	box.get_node("Room").text = station_block(origin)
+	box.get_node("Room").visible = station_block(origin) != ""
 	var list := box.get_node("List")
 	for child in list.get_children():
 		child.free()
@@ -3918,6 +3924,9 @@ func describe(cell: Vector2i) -> Array:
 			about = grave_text(origin)
 		elif kind == Build.COOP:
 			about = tr("Eggs: %d") % coop_eggs.get(origin, 0)
+		elif kind == Build.MILL_GEAR:
+			about = (tr("Turned by the water wheel.") if not atmosphere.frozen else tr("The stream is frozen: the wheel stands still.")) \
+				if geared(origin) else tr("No water wheel behind this wall.")
 		elif kind == Build.HIVE:
 			about = tr("Honey: %d / %d. Flowers nearby: %d") % [floori(hives.get(origin, 0.0)), HIVE_FULL, flowers_near(origin)]
 		elif SPLENDOR.has(kind):
@@ -4171,7 +4180,7 @@ func generate_map() -> void:
 # Il torrente (GDD 4.4.7): da un bordo della mappa a quello di fronte, serpeggiando a STREAM_REACH caselle dal centro
 # (lontano dalla radura); 2-3 caselle d'acqua bassa, qua e là una pozza di 5, alta in mezzo (quella che non tocca la
 # riva: vedi generate_map). Col caso suo, dal seme della mappa: il resto della mappa non cambia. Prende il posto di
-# quello che c'era (alberi, roccia, cespugli). Il mulino ad acqua sta sulla sua riva (vedi banked)
+# quello che c'era (alberi, roccia, cespugli). La ruota del mulino ci sta dentro (vedi can_build, mill_turns)
 func carve_stream() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = map_seed + 5
@@ -5809,37 +5818,36 @@ func back_of(plan: Array) -> Vector2i:
 	return BACKS[plan[2] if plan.size() > 2 else 0]
 
 
-# il mobile `plan` in `origin` ha alle spalle quello che vuole (AGAINST), costruito o in progetto? Gli altri sempre
+# il mobile `plan` in `origin` ha alle spalle quello che vuole (AGAINST), costruito o in progetto, per tutta la sua
+# larghezza (la ruota del mulino è 2x2)? Gli altri sempre
 func backed(origin: Vector2i, plan: Array) -> bool:
 	if not AGAINST.has(plan[0]):
 		return true
-	var behind: Vector2i = origin + back_of(plan)
-	return [built, blueprints, draft].any(func(l): return l.get(behind, [-1])[0] in AGAINST[plan[0]])
+	var rect := piece_rect(origin, plan)
+	var behind := cells_in(rect).map(func(k): return k + back_of(plan)).filter(func(k): return not rect.has_point(k))
+	return behind.all(func(k): return [built, blueprints, draft].any(func(l): return l.get(k, [-1])[0] in AGAINST[plan[0]]))
 
 
-# il mobile `plan` sta in `origin`: caselle libere (can_build) e, se va addossato, quello che vuole alle spalle; il
-# mulino ad acqua sulla riva del torrente
+# il mobile `plan` sta in `origin`: caselle libere (can_build) e, se va addossato, quello che vuole alle spalle (la
+# ruota del mulino: nel torrente, contro un muro)
 func piece_fits(origin: Vector2i, plan: Array) -> bool:
 	return cells_in(piece_rect(origin, plan)).all(func(k): return can_build(k, plan[0]) \
-		and (plan[0] not in OUTDOOR or (room_at(k) == null and not built.has(k)))) and backed(origin, plan) \
-		and banked(origin, plan)
+		and (plan[0] not in OUTDOOR or (room_at(k) == null and not built.has(k)))) and backed(origin, plan)
 
 
-# il mulino ad acqua ha la ruota nel torrente: tutte le caselle lungo il lato della ruota sono del torrente
-func banked(origin: Vector2i, plan: Array) -> bool:
-	return plan[0] != Build.WATER_MILL or wheel_cells(origin, plan).all(func(k): return stream.has(k))
+# Il mulino gira: la stanza `room` ha un pignone (MILL_GEAR) sul muro, e dall'altra parte di quel muro, nel torrente,
+# una ruota (WATER_WHEEL) con le spalle a quel muro; e il torrente non è gelato
+func mill_turns(room: Room) -> bool:
+	return not atmosphere.frozen and furniture.keys().any(func(o): return furniture[o][0] == Build.MILL_GEAR \
+		and room.cells.has(o) and geared(o))
 
 
-# Le caselle fuori dal mobile lungo il lato della ruota del mulino: a destra, girato di un quarto (in senso orario)
-# sotto, poi a sinistra, poi sopra (come le colonne di FURNITURE_SHEET)
-func wheel_cells(origin: Vector2i, plan: Array) -> Array:
-	var r := piece_rect(origin, plan)
-	var turn: int = plan[2] % 4 if plan.size() > 2 else 0
-	var along: int = r.size.y if turn % 2 == 0 else r.size.x
-	var first: Vector2i = [Vector2i(r.end.x, r.position.y), Vector2i(r.position.x, r.end.y),
-		Vector2i(r.position.x - 1, r.position.y), Vector2i(r.position.x, r.position.y - 1)][turn]
-	var step := Vector2i.DOWN if turn % 2 == 0 else Vector2i.RIGHT
-	return range(along).map(func(i): return first + step * i)
+# il pignone in `gear` ha dietro il muro la ruota: l'asse passa dal muro (alle spalle del pignone) alla casella dopo,
+# che è della ruota, girata con le spalle a quel muro
+func geared(gear: Vector2i) -> bool:
+	var back := back_of(furniture[gear])
+	return pieces_at(furniture, gear + back * 2).any(func(w): return furniture[w][0] == Build.WATER_WHEEL \
+		and back_of(furniture[w]) == -back and built.get(gear + back, [-1])[0] == Build.WALL)
 
 
 # Il conto dei gradi della stanza, una riga per voce: fuori, i muri, i fuochi (quelli di un'altra stanza col suo nome),
@@ -6652,22 +6660,32 @@ func class_pressed(id: int) -> void:
 
 
 # mobili `kind` (fornace, incudine, banco; per il fuoco da campo anche il focolare, vedi ROLE) dentro una stanza del
-# tipo giusto (STATION_ROOM). Quelli all'aperto (il mulino ad acqua) senza stanza, finché lavorano (vedi station_works)
+# tipo giusto (STATION_ROOM). Quelli all'aperto (la macina a trazione) senza stanza. Tutti finché lavorano (vedi
+# station_block)
 func stations(kind: Build) -> Array:
 	if not STATION_ROOM.has(kind):
-		return furniture.keys().filter(func(o): return furniture[o][0] == kind and station_works(o))
+		return furniture.keys().filter(func(o): return furniture[o][0] == kind and station_block(o) == "")
 	return furniture.keys().filter(func(o): return role(furniture[o][0]) == kind \
-		and room_at(o) != null and room_at(o).kind == STATION_ROOM[kind])
+		and room_at(o) != null and room_at(o).kind == STATION_ROOM[kind] and station_block(o) == "")
 
 
-# una postazione all'aperto lavora: il mulino ad acqua finché il torrente non gela, la macina con una mucca da attaccare
-func station_works(origin: Vector2i) -> bool:
-	match furniture[origin][0]:
-		Build.WATER_MILL:
-			return not atmosphere.frozen
+# perché la postazione `origin` non lavora, "" se lavora: fuori dalla sua stanza; la macina del mulino senza la ruota
+# che gira; la macina a trazione senza una mucca da attaccare
+func station_block(origin: Vector2i) -> String:
+	var kind: Build = role(furniture[origin][0])
+	var room := room_at(origin)
+	if STATION_ROOM.has(kind) and (room == null or room.kind != STATION_ROOM[kind]):
+		return tr("Works only in a %s") % named(RoomKind, STATION_ROOM[kind]).to_lower()
+	match kind:
+		Build.MILLSTONE:
+			if not furniture.keys().any(func(o): return furniture[o][0] == Build.MILL_GEAR and room.cells.has(o) and geared(o)):
+				return tr("No water wheel turns the gear: put the wheel in the stream, against the wall behind the gear.")
+			if atmosphere.frozen:
+				return tr("The stream is frozen: the wheel stands still.")
 		Build.ANIMAL_MILL:
-			return not draft_cows(origin).is_empty()
-	return true
+			if draft_cows(origin).is_empty():
+				return tr("No grown-up, fed cow to turn it.")
+	return ""
 
 
 # il centro della macina in `origin` (2x2), attorno a cui gira la mucca
@@ -11463,6 +11481,8 @@ func quit_job(c: Colonist) -> void:
 # niente acqua, alberi, erbacce e cespugli (si estirpano), roccia, edifici o roba a terra; i mobili vanno anche
 # sopra i pavimenti (pure in progetto), ma non sopra un altro mobile, e i muri e le porte non vanno sopra i mobili
 func can_build(cell: Vector2i, kind := Build.FLOOR) -> bool:
+	if kind == Build.WATER_WHEEL:  # nel torrente, dove non c'è già un mobile
+		return stream.has(cell) and [furniture, furniture_plans, furniture_draft].all(func(l): return pieces_at(l, cell).is_empty())
 	if kind == Build.PLASTER:  # sopra un muro di legno già fatto, non ancora intonacato
 		return built.get(cell, [-1, -1]) == [Build.WALL, Res.WOOD] and not plastered.has(cell) and not blueprints.has(cell)
 	if not (astar.is_in_boundsv(cell) and not astar.is_point_solid(cell) and not water.has(cell) and not trees.has(cell) \

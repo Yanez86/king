@@ -9,7 +9,7 @@ King is a medieval colony sim. You are the ruler of a small lordship, but you ne
 • Your ruler, made on the new-game page, and three colonists stand in a clearing. Nothing is built yet: no rooms, no warehouse.
 • Next to them, 60 [img=center]res://art/icon_coin.png[/img] lie on the grass: build a warehouse and haulers carry them in (you can only spend what is in a warehouse).
 • An abandoned weapon (a sword, an axe or a bow) lies in the grass 15–25 tiles from the clearing.
-• Besides the lakes, a stream crosses the map from edge to edge, 22–30 tiles from the clearing: shallow water you can wade (here and there a deep pool), with fish. The water mill stands on its bank (see Crafting & Equipment). Colonies founded before it have no stream.
+• Besides the lakes, a stream crosses the map from edge to edge, 22–30 tiles from the clearing: shallow water you can wade (here and there a deep pool), with fish. The water mill stands on its bank, its wheel in the water (see Crafting & Equipment). Colonies founded before it have no stream.
 • From day 10 wolves may come, rarely (see Combat & Wolves).
 • If every colonist dies, the colony has fallen.
 
@@ -346,6 +346,7 @@ The list shows only the types whose furniture is inside. Take that furniture awa
 [cell]Archery range[/cell][cell]2 targets; at least 8 tiles long[/cell][cell]work[/cell]
 [cell]Infirmary[/cell][cell]bed, medicine chest[/cell][cell]service[/cell]
 [cell]Stable[/cell][cell]manger[/cell][cell]service[/cell]
+[cell]Mill[/cell][cell]millstone, gear on a wall (the wheel outside)[/cell][cell]work[/cell]
 [/table]
 • Residence: it can have owners. One with owners is closed to everyone else, even just to walk through.
 • Work: it can have workers. For now they matter in a study (they study before any other job) and in a throne room (only the ruler).
@@ -553,7 +554,7 @@ The crafter brings the ingredients one by one, then works. The time depends on s
 [cell]Sword[/cell][cell]anvil[/cell][cell]3 ingots, 1 wood[/cell][cell]20 s[/cell]
 [cell]Dagger[/cell][cell]anvil[/cell][cell]1 ingot, 1 wood[/cell][cell]12 s[/cell]
 [cell]Ointment[/cell][cell]campfire[/cell][cell]2 herbs[/cell][cell]10 s[/cell]
-[cell]Flour (2)[/cell][cell]water mill[/cell][cell]2 grain[/cell][cell]4 s[/cell]
+[cell]Flour (2)[/cell][cell]millstone (mill)[/cell][cell]2 grain[/cell][cell]4 s[/cell]
 [cell]Flour (2)[/cell][cell]animal mill[/cell][cell]2 grain[/cell][cell]8 s[/cell]
 [cell]Bread (3)[/cell][cell]oven[/cell][cell]2 flour[/cell][cell]10 s[/cell]
 [cell]Stew (2)[/cell][cell]oven[/cell][cell]2 vegetables, 1 meat or fish[/cell][cell]12 s[/cell]
@@ -564,7 +565,11 @@ The crafter brings the ingredients one by one, then works. The time depends on s
 Skill: Smithing at furnace and anvil, Tailoring at spinning wheel and workbench, Ranged at the carpenter bench, Medicine for the ointment, Cooking at the mill and the oven.
 
 [color=#e8c34a]The water mill[/color] [img=center]res://art/icon_flour.png[/img]
-After the Mill research: 2x2, 20 wood and 10 stone, in the open, on the bank of the stream (lakes don't flow): turn it until the whole side of its wheel lies along the stream. The miller grinds grain into flour there; nothing is ever ruined, and comfort doesn't count. When the stream freezes the wheel stands still, and its menu says so.
+After the Mill research the mill is a building of three pieces, on the bank of the stream (lakes don't flow):
+• the water wheel (2x2, 16 wood), in the stream, its back against the outer wall of the mill along its whole width;
+• the gear (1x1, 6 wood and an ingot), inside, hung on that same wall, right where the axle comes through: the wheel must be just behind the wall;
+• the millstone (1x1, 15 stone and 4 wood), anywhere in the room. With the millstone and the gear the room can be a Mill (work).
+The miller grinds grain into flour at the millstone; nothing is ever ruined. When the stream freezes the wheel stands still. The millstone's menu says what is missing; hover the gear to see if the wheel turns it. On the north side the roof hides the wheel.
 The animal mill (with the Stable and the Mill): 2x2, 15 stone and 5 wood, in the open. The miller hitches the nearest grown-up, fed cow to the beam; she walks over and turns the millstone while he pours: 8 s for 2 flour, in winter too. Without such a cow the mill stands still, and its menu says so.
 
 [color=#e8c34a]Equipment[/color]
@@ -763,7 +768,7 @@ What you haven't researched has no build button, and its recipes don't show at t
 
 [color=#e8c34a]The tree[/color]
 • [color=#d9c48a]Garden[/color] (Land I, 80): garden plots and fields with their rotation; turnips in 60 days, cabbages in 90, broad beans in 100.
-• [color=#d9c48a]Mill[/color] (Land I, 100, after Garden): grain in the fields, the water mill on the bank of the stream, flour.
+• [color=#d9c48a]Mill[/color] (Land I, 100, after Garden): grain in the fields; the water mill (the wheel in the stream, the gear and the millstone inside), flour.
 • [color=#d9c48a]Stone oven[/color] (Land II, 300 and a notebook, after Garden): the oven in the kitchen; bread, stew, preserves.
 • [color=#d9c48a]Manuring[/color] (Land I, 80, after Garden): the compost heap, rot and ash, fertilizing, green manure.
 • [color=#d9c48a]Soil survey[/color] (Land I, 60, after Garden): the soil lens, in three bands.

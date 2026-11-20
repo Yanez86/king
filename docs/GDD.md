@@ -1015,11 +1015,18 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
   mulino ad acqua, resta la macina a trazione.
 - **Grano**: una coltura nuova della pianificazione (4.4.1), color oro: matura in 100 giorni, 25 a casella, −12 di
   fertilità a raccolto. Non si mangia e non marcisce: si macina.
-- **Mulino ad acqua** (mobile 2x2, 20 legna e 10 pietra, all'aperto): sulla riva del torrente, con la ruota nell'acqua
-  (tutto il lato della ruota, 2 caselle, sta lungo il torrente; il mobile si gira per metterla dalla parte giusta). Il
-  mugnaio (lavoro Produrre, abilità cucinare) ci porta il grano: 2 grano → 2 farina, 4 s a livello 5; non si rovina
-  mai, e all'aperto il comfort non conta. Si macina finché in giro c'è meno farina di quanta ne chiede il menu del
-  mulino (all'inizio 10). Col torrente gelato la ruota si ferma (lo dice il menu). La farina non marcisce.
+- **Mulino ad acqua** (rifatto il 2026-11-20: un edificio, non un mobile): una stanza sulla riva del torrente, tipo
+  nuovo **Mulino** (lavoro), in tre pezzi:
+  - la **ruota** (mobile 2x2, 16 legna), fuori: nel torrente, con le spalle al muro esterno della stanza per tutta la
+    sua larghezza (si posa come il focolare, addossata, ma nell'acqua del torrente e non nei laghi);
+  - il **pignone** (1x1, 6 legna e un lingotto), dentro: appeso allo stesso muro, dove passa l'asse; la ruota dev'essere
+    subito dietro quel muro;
+  - la **macina** (1x1, 15 pietra e 4 legna), dentro, dove si vuole: è la postazione. Con macina e pignone la stanza
+    può essere un Mulino.
+  Il mugnaio (lavoro Produrre, abilità cucinare) ci porta il grano: 2 grano → 2 farina, 4 s a livello 5; non si rovina
+  mai. Si macina finché in giro c'è meno farina di quanta ne chiede il menu della macina (all'inizio 10). Senza la ruota
+  dietro il pignone, o col torrente gelato, la macina sta ferma (lo dice il menu; col mouse sopra il pignone, se la ruota
+  lo gira). La farina non marcisce.
 - **Macina a trazione** (mobile 2x2, 15 pietra e 5 legna, all'aperto, con la Stalla e il Mulino): una mola di pietra
   con la stanga. Per macinare il mugnaio attacca alla stanga la mucca adulta e sazia più vicina: lei ci va e gira, lui
   versa il grano. 2 grano → 2 farina in 8 s, anche d'inverno. Senza una mucca così sta ferma (lo dice il menu).
@@ -1110,8 +1117,11 @@ d'estate pascolano, d'inverno stanno nella stalla col fieno tagliato d'estate, e
   reale.
 - **Stato**: fatte le fasi 1–7 il 2026-11-20 (test in `tests/test_grain.gd` e `tests/test_livestock.gd`): il torrente (`stream`, salvato: le partite
   di prima non ce l'hanno, e lì il mulino non si fa), il grano nella pianificazione col Mulino, il mulino ad acqua e la
-  farina. Il mulino è la prima postazione all'aperto: senza stanza, chi ci lavora sta fuori (`station_stand`), col
-  comfort a metà (`station_comfort`); la ruota è il lato destro del disegno, girato in senso orario (`wheel_cells`).
+  farina. La ruota (che ha preso il posto del mulino di prima in `Build`) si posa solo sul torrente (`can_build`) e,
+  come i mobili addossati, con tutta la fila alle spalle di muro (`backed`); il pignone gira se due caselle dietro, oltre
+  il muro, c'è la ruota girata verso quel muro (`geared`, `mill_turns`). Perché una postazione non lavora lo dice
+  `station_block`, nel menu. La macina a trazione è la prima postazione all'aperto: chi ci lavora sta fuori
+  (`station_stand`), col comfort a metà (`station_comfort`).
   Il forno: gli ingredienti a scelta delle ricette sono gruppi (`GROUPS`: chiavi negative in `RECIPES`), che il
   fornaio sceglie quando comincia (`resolve`) e si tiene finché non ha finito (`recipe_needs`); nel menu, l'icona del
   primo del gruppo e col mouse sopra gli altri. L'ordine dei cibi è `EATEN` (`COOKED`, poi il crudo); il pane non dà
