@@ -155,7 +155,7 @@ pre i { color: #8fb87a; }
 <body>
 <nav>
 <h1>King</h1>
-<small>Mechanics · commit d203651 · 2026-11-21 · <a class="lang" href="index.html">Italiano</a></small>
+<small>Mechanics · commit 25735f5 · 2026-11-21 · <a class="lang" href="index.html">Italiano</a></small>
 <h2>Wiki</h2>
 <a href="#basics"><i class="sp s106" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Basics</a><a href="#controls"><i class="sp s107" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Controls</a><a href="#colonists"><i class="sp s94" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Colonists</a><a href="#skills"><i class="sp s103" style="width:16px;height:16px;background-position:-144px 0px;background-size:240px 16px"></i> Skills</a><a href="#traits"><i class="sp s97" style="width:16px;height:16px;background-position:0px 0px;background-size:240px 16px"></i> Traits</a><a href="#conditions"><i class="sp s98" style="width:16px;height:16px;background-position:-16px 0px;background-size:336px 16px"></i> Conditions</a><a href="#the-ruler-house"><i class="sp s49" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> The Ruler &amp; House</a><a href="#building"><i class="sp s78" style="width:15px;height:15px;background-position:0px 0px;background-size:15px 15px"></i> Building</a><a href="#rooms"><i class="sp s87" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Rooms</a><a href="#roofs-heat"><i class="sp s88" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Roofs &amp; Heat</a><a href="#food-cooking"><i class="sp s25" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Food &amp; Cooking</a><a href="#gathering"><i class="sp s83" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Gathering</a><a href="#livestock"><i class="sp s30" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Livestock</a><a href="#crafting-equipment"><i class="sp s105" style="width:16px;height:16px;background-position:0px -32px;background-size:32px 112px"></i> Crafting &amp; Equipment</a><a href="#combat-wolves"><i class="sp s33" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Combat &amp; Wolves</a><a href="#medicine-death"><i class="sp s76" style="width:16px;height:16px;background-position:0px -416px;background-size:128px 1824px"></i> Medicine &amp; Death</a><a href="#splendor"><i class="sp s45" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Splendor</a><a href="#adventurers"><i class="sp s46" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Adventurers</a><a href="#ruins-expeditions"><i class="sp s95" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Ruins &amp; Expeditions</a><a href="#knowledge"><i class="sp s96" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Knowledge</a><a href="#laws"> Laws</a><h2>Development</h2><a href="#todo"><i class="sp s58" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Still to develop</a><h2>Numbers</h2><a href="#main-gd">main.gd</a><a href="#atmosphere-gd">atmosphere.gd</a><a href="#narrator-gd">narrator.gd</a>
 </nav>
@@ -613,6 +613,13 @@ pre i { color: #8fb87a; }
 <li>The level is half the skill of the class (Melee, Ranged, Lockpicking), from 1 to 5. The sheet and the census say "Archer of the colony, level 2". Taking the class off or changing it is free: the skill stays.</li>
 <li>The gear of the class, fetched by themselves, even in place of a tool: the warrior a sword, then a shield, chainmail (or leather armor) and a helmet; the archer a bow, leather armor and hood; the burglar a dagger, leather armor and hood. Equipment that is missing gets made at the stations.</li>
 <li>Quiver, mask and sack are the kit of the class: you see them, nobody makes them. The hood takes the color of the class: green the archer, dark the burglar.</li>
+<li>Drill: every day the first hour of work (the red square in the routine on the sheet) is spent in the room of the class: the warrior at a dummy of the armory, the burglar at the lock bench, the archer in line with a target of the archery range, 5 tiles away or more (put the targets at one end). A blow, a shot or a lock every 2.5 seconds: one and a half times the experience of the dummy outside. Without a free place, no drill that day; none in the last months of a pregnancy.</li>
+<li>The Drill column in the Jobs table, only for those with a class: they drill when their turn comes, an hour at a time. The workers of an armory or an archery range (from the room's sign) drill the whole shift and do no other work.</li>
+<li>With the Militia law, those with a class do their hour in the barracks, and it counts as the drill of the day.</li>
+<li>In battle the warrior goes for wolves 16 tiles away (not 12) and flees only under 20 health (not 40); a wolf biting someone within 2 tiles of a standing warrior turns on the warrior instead; +10% to hit in melee.</li>
+<li>The archer, bow in hand, hits 10% more often and shoots a tile farther. With wolves in sight they climb the nearest free watchtower within 15 tiles and stay until the danger is gone; on the ground, when a wolf comes within 3 tiles they fall back and shoot again.</li>
+<li>The burglar is quick: wolves' bites land 15% less often; they flee under 30 health.</li>
+<li>On an expedition (see Adventurers, the Crown's company) a colonist with a class counts as that class, with no fee and no share; the notice board shows the class.</li>
 </ul></section><section id="medicine-death"><h2><i class="sp s76" style="width:32px;height:32px;background-position:0px -832px;background-size:256px 3648px"></i> Medicine &amp; Death</h2><h3>Medicinal herbs <i class="sp s32" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i></h3>
 <p>Small plants with white flowers scattered in the meadows (hover: Medicinal herbs), about one every 150 tiles of grass. Mark them with Harvest (H): 5 herbs a plant, picked like berries; they flower again in 2 days, never in winter. Herbs don't spoil.</p>
 <h3>Ointment <i class="sp s33" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i></h3>
@@ -709,9 +716,9 @@ pre i { color: #8fb87a; }
 <h3>The crown's company </h3>
 <p>With the Crown company research (Road III, 500 and a tome, after Renowned inn) your colonists go too.</p>
 <ul>
-<li>On the notice board, under those waiting at the inn, the colonists who can go: adults, not the ruler, nobody downed or pregnant. Pick them like the adventurers; at least one adventurer must go.</li>
+<li>On the notice board, under those waiting at the inn, the colonists who can go: adults, not the ruler, nobody downed or pregnant. Pick them like the adventurers; at least one adventurer, or a colonist with a class (see The barracks and classes), must go: a party of colonists alone can leave if one of them has a class.</li>
 <li>They ask no fee and keep no share of the coins. Away they don't work, but they still count for the title.</li>
-<li>In the ruin a former adventurer fights like their old class; the others with the better of Melee and Ranged, taking an average share of the wounds. +1 experience in their weapon for every fight.</li>
+<li>In the ruin a colonist with a class counts as that class (the warrior takes more of the wounds, the archer shoots first and the party is hurt less, the burglar's sack carries more loot); a former adventurer fights like their old class; the others with the better of Melee and Ranged, taking an average share of the wounds. +1 experience in their weapon for every fight.</li>
 <li>Back home they walk to the inn with the others, then go back to work. A colonist who dies in a ruin is mourned when the news comes (with the party, or when it is given up for lost): Mourning and -5 authority.</li>
 </ul>
 <h3>Ruins </h3>
@@ -947,18 +954,18 @@ const <b id="c-SIDES">SIDES</b> := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, V
 const <b id="c-TREE_SIDES">TREE_SIDES</b> := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  <i># da sopra la chioma coprirebbe chi taglia</i></pre>
 <pre>enum <b id="c-Job">Job</b> { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE,
 	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE, DOUSE, FARM, FERTILIZE, OATH, SALVE, RESCUE, TREAT, BURY,
-	FUNERAL, TEND, BUTCHER, MILK, SHEAR, MOW, HONEY, FEAST, DEMOLISH, SCHOOL }  <i># TEND: le uova al pollaio; BUTCHER, MILK, SHEAR: macellare, mungere e</i>
+	FUNERAL, TEND, BUTCHER, MILK, SHEAR, MOW, HONEY, FEAST, DEMOLISH, SCHOOL, DRILL }  <i># TEND: le uova al pollaio; BUTCHER, MILK, SHEAR: macellare, mungere e</i>
 const <b id="c-WORK_JOBS">WORK_JOBS</b> := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FURNISH, Job.HARVEST, Job.COOK, Job.FISH,
 	Job.HUNT, Job.CRAFT, Job.STUDY, Job.GOVERN, Job.REPAIR, Job.CUT_ICE, Job.FARM, Job.FERTILIZE, Job.RESCUE,
 	Job.TREAT, Job.BURY, Job.TEND, Job.BUTCHER, Job.MILK, Job.SHEAR, Job.MOW, Job.HONEY, Job.DEMOLISH]  <i># contano come ore di lavoro</i></pre>
 <pre><i># Tabella delle priorità (in cima alla finestra Jobs): per colono e per lavoro da 1 (prima) a PRIORITY_LEVELS (dopo),</i>
 <i># 0 mai. Si prende il lavoro disponibile con la priorità più alta; a pari priorità nell'ordine di Work, e di un lavoro</i>
 <i># il più vicino (vedi find_work). All'inizio tutto PRIORITY_DEFAULT: l'ordine di WORK_ORDER</i>
-enum <b id="c-Work">Work</b> { COOK, CRAFT, CHOP, MINE, GATHER, FARM, FISH, HUNT, BUILD, HAUL, GOVERN, STUDY, DOCTOR, HUSBANDRY }</pre>
+enum <b id="c-Work">Work</b> { COOK, CRAFT, CHOP, MINE, GATHER, FARM, FISH, HUNT, BUILD, HAUL, GOVERN, STUDY, DOCTOR, HUSBANDRY, DRILL }</pre>
 <pre><i># le colonne nella tabella, da sinistra, e l'ordine a pari priorità: il medico prima di tutti (i valori di Work restano</i>
 <i># quelli, perché le priorità salvate sono per valore)</i>
 const <b id="c-WORK_ORDER">WORK_ORDER</b> := [Work.DOCTOR, Work.COOK, Work.CRAFT, Work.CHOP, Work.MINE, Work.GATHER, Work.FARM, Work.HUSBANDRY,
-	Work.FISH, Work.HUNT, Work.BUILD, Work.HAUL, Work.GOVERN, Work.STUDY]
+	Work.FISH, Work.HUNT, Work.BUILD, Work.HAUL, Work.GOVERN, Work.STUDY, Work.DRILL]
 const <b id="c-PRIORITY_DEFAULT">PRIORITY_DEFAULT</b> := 3
 const <b id="c-PRIORITY_LEVELS">PRIORITY_LEVELS</b> := 4
 const <b id="c-WORK_INFO">WORK_INFO</b> := ["Cooking meals at the campfire or the hearth.", "Forge, workbench, spinning wheel, carpenter's bench, furnace, mill, oven.",
@@ -967,7 +974,8 @@ const <b id="c-WORK_INFO">WORK_INFO</b> := ["Cooking meals at the campfire or th
 	"Building, furnishing, demolishing, repairing roofs.", "Carrying things into the warehouses, and the dead to their graves.",
 	"Governing from the throne: only the ruler.", "Studying at a desk.",
 	"Rescuing and treating the downed, the wounded and the sick: only after Medicine.",
-	"Collecting eggs, milking, shearing, slaughtering the animals beyond those you keep: after Husbandry."]</pre>
+	"Collecting eggs, milking, shearing, slaughtering the animals beyond those you keep: after Husbandry.",
+	"Drilling in the room of their class when there is nothing else to do: only those with a class."]</pre>
 <pre><i># VEG: vegetali, dalle bacche dei cespugli; IRON, COAL: dai massi con le vene; MEAL, FINE_MEAL: pasti, dalla cucina;</i>
 <i># MEAT, HIDE: carne e pelle, dagli animali cacciati; FISH: pesce, dai punti di pesca; INGOT: lingotti, dalla fornace;</i>
 <i># FLAX: lino, dai fiori (vedi flax); BOWSTRING: corda d'arco, dal filatoio;</i>
@@ -1210,7 +1218,7 @@ const <b id="c-DOING">DOING</b> := {Job.CHOP: "Chopping a tree", Job.MINE: "Mini
 	Job.FIGHT: "Fighting", Job.FLEE: "Fleeing", Job.TANTRUM: "Storming off in a rage", Job.STUDY: "Studying",
 	Job.GOVERN: "Holding audience", Job.PROTEST: "Protesting in the throne room", Job.REPAIR: "Repairing a roof",
 	Job.CUT_ICE: "Cutting ice", Job.DOUSE: "Putting out a fire", Job.FARM: "Tending the garden",
-	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne", Job.SCHOOL: "At school", Job.SALVE: "Tending a wound",
+	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne", Job.SCHOOL: "At school", Job.DRILL: "Drilling", Job.SALVE: "Tending a wound",
 	Job.RESCUE: "Rescuing the wounded", Job.TREAT: "Treating a patient", Job.BURY: "Burying the dead",
 	Job.FUNERAL: "At a funeral", Job.TEND: "Collecting eggs", Job.BUTCHER: "Slaughtering",
 	Job.MILK: "Milking", Job.SHEAR: "Shearing", Job.MOW: "Mowing hay", Job.HONEY: "Taking honey",
@@ -1417,7 +1425,22 @@ const <b id="c-KIT_ARMOR">KIT_ARMOR</b> := {Look.SHIELD: 3}  <i># protezione del
 <i># (il primo che c'è); il corredo che si vede (faretra, maschera e sacca) e il cappuccio vengono da HEROES</i>
 const <b id="c-CLASS_ROOM">CLASS_ROOM</b> := {Hero.WARRIOR: RoomKind.ARMORY, Hero.ARCHER: RoomKind.ARCHERY_RANGE, Hero.BURGLAR: RoomKind.ARMORY}
 const <b id="c-CLASS_NEEDS">CLASS_NEEDS</b> := {Hero.WARRIOR: [Skill.MELEE, 3], Hero.ARCHER: [Skill.RANGED, 3], Hero.BURGLAR: [Skill.MELEE, 2]}
-const <b id="c-CLASS_SKILL">CLASS_SKILL</b> := {Hero.WARRIOR: Skill.MELEE, Hero.ARCHER: Skill.RANGED, Hero.BURGLAR: Skill.LOCKPICKING}
+const <b id="c-CLASS_SKILL">CLASS_SKILL</b> := {Hero.WARRIOR: Skill.MELEE, Hero.ARCHER: Skill.RANGED, Hero.BURGLAR: Skill.LOCKPICKING}</pre>
+<pre><i># L'esercitazione (vedi try_drill): la prima ora di lavoro del giorno, nella stanza della classe, a DRILL_AT: un colpo, un</i>
+<i># tiro o una serratura ogni TRAIN_HIT, con DRILL_XP volte l'esperienza del fantoccio di fuori; l'arciere tira da almeno</i>
+<i># DRILL_SHOT caselle</i>
+<i># In battaglia secondo la classe (GDD 4.4.6, fase 4). Il guerriero: va contro i lupi da "alert" caselle (non ALERT),</i>
+<i># scappa sotto "flee" punti ferita, il lupo che morde qualcuno entro "cover" caselle da lui passa a lui, "hit" in più a</i>
+<i># segno in mischia. L'arciere: se il lupo è entro "keep" caselle arretra e tira di nuovo, sale sulla torre di guardia</i>
+<i># libera più vicina entro "tower" caselle, "hit" e "range" in più con l'arco. Lo scassinatore: i morsi vanno a segno</i>
+<i># "dodge" in meno, scappa sotto "flee"</i>
+const <b id="c-WARRIOR">WARRIOR</b> := {"alert": 16, "flee": 20.0, "cover": 2.0, "hit": 0.1}
+const <b id="c-ARCHER">ARCHER</b> := {"keep": 3.0, "tower": 15, "hit": 0.1, "range": 1.0}
+const <b id="c-BURGLAR">BURGLAR</b> := {"dodge": 0.15, "flee": 30.0}
+const <b id="c-DRILL_AT">DRILL_AT</b> := {Hero.WARRIOR: Build.DUMMY, Hero.ARCHER: Build.TARGET, Hero.BURGLAR: Build.LOCK_BENCH}
+const <b id="c-DRILL_HOURS">DRILL_HOURS</b> := 1.0
+const <b id="c-DRILL_XP">DRILL_XP</b> := 1.5
+const <b id="c-DRILL_SHOT">DRILL_SHOT</b> := 5
 const <b id="c-CLASS_GEAR">CLASS_GEAR</b> := {
 	Hero.WARRIOR: {Slot.HANDS: [Res.SWORD], Slot.BODY: [Res.CHAINMAIL, Res.LEATHER_ARMOR], Slot.HEAD: [Res.HELMET],
 		Slot.SHIELD: [Res.SHIELD]},

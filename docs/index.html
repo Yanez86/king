@@ -155,7 +155,7 @@ pre i { color: #8fb87a; }
 <body>
 <nav>
 <h1>King</h1>
-<small>Meccaniche · commit d203651 · 2026-11-21 · <a class="lang" href="en.html">English</a></small>
+<small>Meccaniche · commit 25735f5 · 2026-11-21 · <a class="lang" href="en.html">English</a></small>
 <h2>Wiki</h2>
 <a href="#le-basi"><i class="sp s106" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Le basi</a><a href="#comandi"><i class="sp s107" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Comandi</a><a href="#coloni"><i class="sp s94" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Coloni</a><a href="#abilità"><i class="sp s103" style="width:16px;height:16px;background-position:-144px 0px;background-size:240px 16px"></i> Abilità</a><a href="#talenti"><i class="sp s97" style="width:16px;height:16px;background-position:0px 0px;background-size:240px 16px"></i> Talenti</a><a href="#condizioni"><i class="sp s98" style="width:16px;height:16px;background-position:-16px 0px;background-size:336px 16px"></i> Condizioni</a><a href="#il-sovrano-e-la-casata"><i class="sp s49" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Il sovrano e la casata</a><a href="#costruire"><i class="sp s78" style="width:15px;height:15px;background-position:0px 0px;background-size:15px 15px"></i> Costruire</a><a href="#stanze"><i class="sp s87" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Stanze</a><a href="#tetti-e-calore"><i class="sp s88" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Tetti e calore</a><a href="#cibo-e-cucina"><i class="sp s25" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Cibo e cucina</a><a href="#raccolta"><i class="sp s83" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Raccolta</a><a href="#allevamento"><i class="sp s30" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Allevamento</a><a href="#lavorazioni-ed-equipaggiamento"><i class="sp s105" style="width:16px;height:16px;background-position:0px -32px;background-size:32px 112px"></i> Lavorazioni ed equipaggiamento</a><a href="#combattimento-e-lupi"><i class="sp s33" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Combattimento e lupi</a><a href="#medicina-e-morte"><i class="sp s76" style="width:16px;height:16px;background-position:0px -416px;background-size:128px 1824px"></i> Medicina e morte</a><a href="#splendore"><i class="sp s45" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Splendore</a><a href="#avventurieri"><i class="sp s46" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Avventurieri</a><a href="#rovine-e-spedizioni"><i class="sp s95" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Rovine e spedizioni</a><a href="#conoscenza"><i class="sp s96" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Conoscenza</a><a href="#leggi"> Leggi</a><h2>Sviluppo</h2><a href="#todo"><i class="sp s58" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Da sviluppare</a><h2>Numeri</h2><a href="#main-gd">main.gd</a><a href="#atmosphere-gd">atmosphere.gd</a><a href="#narrator-gd">narrator.gd</a>
 </nav>
@@ -613,6 +613,13 @@ pre i { color: #8fb87a; }
 <li>Il livello è metà dell'abilità della classe (Mischia, Distanza, Scassinare), da 1 a 5. La scheda e l'elenco degli abitanti dicono "Arciere della colonia, livello 2". Toglierla o cambiarla è gratis: l'abilità resta.</li>
 <li>Il corredo della classe, che va a prendere da sé, anche al posto di un attrezzo: il guerriero spada, poi scudo, cotta di maglia (o armatura di cuoio) ed elmo; l'arciere arco, armatura e cappuccio di cuoio; lo scassinatore pugnale, armatura e cappuccio di cuoio. Quello che manca si fa alle postazioni.</li>
 <li>Faretra, maschera e sacca sono il corredo della classe: si vedono, non le fa nessuno. Il cappuccio prende il colore della classe: verde l'arciere, scuro lo scassinatore.</li>
+<li>Esercitazione: ogni giorno la prima ora di lavoro (la casella rossa nella routine della scheda) si passa nella stanza della classe: il guerriero a un fantoccio della sala d'armi, lo scassinatore al banco degli scassi, l'arciere in linea con un bersaglio del tiro a segno, a 5 caselle o più (i bersagli vanno messi in fondo). Un colpo, un tiro o una serratura ogni 2,5 secondi: una volta e mezza l'esperienza del fantoccio di fuori. Senza un posto libero, quel giorno niente; niente negli ultimi mesi di una gravidanza.</li>
+<li>La colonna Esercitarsi nella tabella dei lavori, solo per chi ha una classe: si allena quando tocca a lei nella tabella, un'ora alla volta. I lavoratori di una sala d'armi o di un tiro a segno (dal cartello della stanza) si allenano per tutto il turno e non fanno altri lavori.</li>
+<li>Con la legge Milizia chi ha una classe fa la sua ora in caserma, e vale come esercitazione del giorno.</li>
+<li>In battaglia il guerriero va contro i lupi da 16 caselle (non 12) e scappa solo sotto 20 punti ferita (non 40); un lupo che morde qualcuno entro 2 caselle da un guerriero in piedi passa al guerriero; +10% a segno in mischia.</li>
+<li>L'arciere, con l'arco in mano, va a segno il 10% in più e tira una casella più lontano. Coi lupi in vista sale sulla torre di guardia libera più vicina entro 15 caselle e ci resta finché il pericolo non passa; a terra, se un lupo gli arriva entro 3 caselle arretra e tira di nuovo.</li>
+<li>Lo scassinatore è svelto: i morsi dei lupi vanno a segno il 15% in meno; scappa sotto 30 punti ferita.</li>
+<li>In spedizione (vedi Avventurieri, la Compagnia della corona) un colono con una classe conta come la sua classe, senza paga né quota; la bacheca mostra la classe.</li>
 </ul></section><section id="medicina-e-morte"><h2><i class="sp s76" style="width:32px;height:32px;background-position:0px -832px;background-size:256px 3648px"></i> Medicina e morte</h2><h3>Erbe medicinali <i class="sp s32" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i></h3>
 <p>Piantine coi fiori bianchi sparse nei prati (col mouse sopra: Erbe medicinali), circa una ogni 150 caselle di prato. Segnale con Raccogli (H): 5 erbe a pianta, colte come le bacche; rifioriscono in 2 giorni, mai d'inverno. Le erbe non marciscono.</p>
 <h3>Unguento <i class="sp s33" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i></h3>
@@ -709,9 +716,9 @@ pre i { color: #8fb87a; }
 <h3>La compagnia della corona </h3>
 <p>Con la ricerca Compagnia della corona (Strada III, 500 e un tomo, dopo Locanda rinomata) partono anche i tuoi coloni.</p>
 <ul>
-<li>Sulla bacheca, sotto chi aspetta alla locanda, i coloni che possono partire: gli adulti, non il sovrano, nessuno a terra o incinta. Si spuntano come gli avventurieri; deve partire almeno un avventuriero.</li>
+<li>Sulla bacheca, sotto chi aspetta alla locanda, i coloni che possono partire: gli adulti, non il sovrano, nessuno a terra o incinta. Si spuntano come gli avventurieri; deve partire almeno un avventuriero, o un colono con una classe (vedi La caserma e le classi): un gruppo di soli coloni può partire se uno ha una classe.</li>
 <li>Non chiedono paga e non prendono la quota delle monete. Via, non lavorano, ma contano per il titolo.</li>
-<li>Nella rovina chi era avventuriero combatte come la sua classe di un tempo; gli altri con la migliore tra Mischia e Distanza, e prendono una parte media delle ferite. +1 esperienza nell'arma per ogni combattimento.</li>
+<li>Nella rovina un colono con una classe conta come la sua classe (il guerriero prende più colpi, l'arciere tira per primo e il gruppo si fa meno male, la sacca dello scassinatore porta più bottino); chi era avventuriero combatte come la sua classe di un tempo; gli altri con la migliore tra Mischia e Distanza, e prendono una parte media delle ferite. +1 esperienza nell'arma per ogni combattimento.</li>
 <li>Al ritorno vanno alla locanda con gli altri, poi tornano al lavoro. Un colono morto in una rovina si piange quando arriva la notizia (col gruppo, o quando la spedizione si dà per persa): Lutto e -5 autorità.</li>
 </ul>
 <h3>Rovine </h3>
@@ -947,18 +954,18 @@ const <b id="c-SIDES">SIDES</b> := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, V
 const <b id="c-TREE_SIDES">TREE_SIDES</b> := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  <i># da sopra la chioma coprirebbe chi taglia</i></pre>
 <pre>enum <b id="c-Job">Job</b> { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE,
 	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE, DOUSE, FARM, FERTILIZE, OATH, SALVE, RESCUE, TREAT, BURY,
-	FUNERAL, TEND, BUTCHER, MILK, SHEAR, MOW, HONEY, FEAST, DEMOLISH, SCHOOL }  <i># TEND: le uova al pollaio; BUTCHER, MILK, SHEAR: macellare, mungere e</i>
+	FUNERAL, TEND, BUTCHER, MILK, SHEAR, MOW, HONEY, FEAST, DEMOLISH, SCHOOL, DRILL }  <i># TEND: le uova al pollaio; BUTCHER, MILK, SHEAR: macellare, mungere e</i>
 const <b id="c-WORK_JOBS">WORK_JOBS</b> := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FURNISH, Job.HARVEST, Job.COOK, Job.FISH,
 	Job.HUNT, Job.CRAFT, Job.STUDY, Job.GOVERN, Job.REPAIR, Job.CUT_ICE, Job.FARM, Job.FERTILIZE, Job.RESCUE,
 	Job.TREAT, Job.BURY, Job.TEND, Job.BUTCHER, Job.MILK, Job.SHEAR, Job.MOW, Job.HONEY, Job.DEMOLISH]  <i># contano come ore di lavoro</i></pre>
 <pre><i># Tabella delle priorità (in cima alla finestra Jobs): per colono e per lavoro da 1 (prima) a PRIORITY_LEVELS (dopo),</i>
 <i># 0 mai. Si prende il lavoro disponibile con la priorità più alta; a pari priorità nell'ordine di Work, e di un lavoro</i>
 <i># il più vicino (vedi find_work). All'inizio tutto PRIORITY_DEFAULT: l'ordine di WORK_ORDER</i>
-enum <b id="c-Work">Work</b> { COOK, CRAFT, CHOP, MINE, GATHER, FARM, FISH, HUNT, BUILD, HAUL, GOVERN, STUDY, DOCTOR, HUSBANDRY }</pre>
+enum <b id="c-Work">Work</b> { COOK, CRAFT, CHOP, MINE, GATHER, FARM, FISH, HUNT, BUILD, HAUL, GOVERN, STUDY, DOCTOR, HUSBANDRY, DRILL }</pre>
 <pre><i># le colonne nella tabella, da sinistra, e l'ordine a pari priorità: il medico prima di tutti (i valori di Work restano</i>
 <i># quelli, perché le priorità salvate sono per valore)</i>
 const <b id="c-WORK_ORDER">WORK_ORDER</b> := [Work.DOCTOR, Work.COOK, Work.CRAFT, Work.CHOP, Work.MINE, Work.GATHER, Work.FARM, Work.HUSBANDRY,
-	Work.FISH, Work.HUNT, Work.BUILD, Work.HAUL, Work.GOVERN, Work.STUDY]
+	Work.FISH, Work.HUNT, Work.BUILD, Work.HAUL, Work.GOVERN, Work.STUDY, Work.DRILL]
 const <b id="c-PRIORITY_DEFAULT">PRIORITY_DEFAULT</b> := 3
 const <b id="c-PRIORITY_LEVELS">PRIORITY_LEVELS</b> := 4
 const <b id="c-WORK_INFO">WORK_INFO</b> := ["Cooking meals at the campfire or the hearth.", "Forge, workbench, spinning wheel, carpenter's bench, furnace, mill, oven.",
@@ -967,7 +974,8 @@ const <b id="c-WORK_INFO">WORK_INFO</b> := ["Cooking meals at the campfire or th
 	"Building, furnishing, demolishing, repairing roofs.", "Carrying things into the warehouses, and the dead to their graves.",
 	"Governing from the throne: only the ruler.", "Studying at a desk.",
 	"Rescuing and treating the downed, the wounded and the sick: only after Medicine.",
-	"Collecting eggs, milking, shearing, slaughtering the animals beyond those you keep: after Husbandry."]</pre>
+	"Collecting eggs, milking, shearing, slaughtering the animals beyond those you keep: after Husbandry.",
+	"Drilling in the room of their class when there is nothing else to do: only those with a class."]</pre>
 <pre><i># VEG: vegetali, dalle bacche dei cespugli; IRON, COAL: dai massi con le vene; MEAL, FINE_MEAL: pasti, dalla cucina;</i>
 <i># MEAT, HIDE: carne e pelle, dagli animali cacciati; FISH: pesce, dai punti di pesca; INGOT: lingotti, dalla fornace;</i>
 <i># FLAX: lino, dai fiori (vedi flax); BOWSTRING: corda d'arco, dal filatoio;</i>
@@ -1210,7 +1218,7 @@ const <b id="c-DOING">DOING</b> := {Job.CHOP: "Chopping a tree", Job.MINE: "Mini
 	Job.FIGHT: "Fighting", Job.FLEE: "Fleeing", Job.TANTRUM: "Storming off in a rage", Job.STUDY: "Studying",
 	Job.GOVERN: "Holding audience", Job.PROTEST: "Protesting in the throne room", Job.REPAIR: "Repairing a roof",
 	Job.CUT_ICE: "Cutting ice", Job.DOUSE: "Putting out a fire", Job.FARM: "Tending the garden",
-	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne", Job.SCHOOL: "At school", Job.SALVE: "Tending a wound",
+	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne", Job.SCHOOL: "At school", Job.DRILL: "Drilling", Job.SALVE: "Tending a wound",
 	Job.RESCUE: "Rescuing the wounded", Job.TREAT: "Treating a patient", Job.BURY: "Burying the dead",
 	Job.FUNERAL: "At a funeral", Job.TEND: "Collecting eggs", Job.BUTCHER: "Slaughtering",
 	Job.MILK: "Milking", Job.SHEAR: "Shearing", Job.MOW: "Mowing hay", Job.HONEY: "Taking honey",
@@ -1417,7 +1425,22 @@ const <b id="c-KIT_ARMOR">KIT_ARMOR</b> := {Look.SHIELD: 3}  <i># protezione del
 <i># (il primo che c'è); il corredo che si vede (faretra, maschera e sacca) e il cappuccio vengono da HEROES</i>
 const <b id="c-CLASS_ROOM">CLASS_ROOM</b> := {Hero.WARRIOR: RoomKind.ARMORY, Hero.ARCHER: RoomKind.ARCHERY_RANGE, Hero.BURGLAR: RoomKind.ARMORY}
 const <b id="c-CLASS_NEEDS">CLASS_NEEDS</b> := {Hero.WARRIOR: [Skill.MELEE, 3], Hero.ARCHER: [Skill.RANGED, 3], Hero.BURGLAR: [Skill.MELEE, 2]}
-const <b id="c-CLASS_SKILL">CLASS_SKILL</b> := {Hero.WARRIOR: Skill.MELEE, Hero.ARCHER: Skill.RANGED, Hero.BURGLAR: Skill.LOCKPICKING}
+const <b id="c-CLASS_SKILL">CLASS_SKILL</b> := {Hero.WARRIOR: Skill.MELEE, Hero.ARCHER: Skill.RANGED, Hero.BURGLAR: Skill.LOCKPICKING}</pre>
+<pre><i># L'esercitazione (vedi try_drill): la prima ora di lavoro del giorno, nella stanza della classe, a DRILL_AT: un colpo, un</i>
+<i># tiro o una serratura ogni TRAIN_HIT, con DRILL_XP volte l'esperienza del fantoccio di fuori; l'arciere tira da almeno</i>
+<i># DRILL_SHOT caselle</i>
+<i># In battaglia secondo la classe (GDD 4.4.6, fase 4). Il guerriero: va contro i lupi da "alert" caselle (non ALERT),</i>
+<i># scappa sotto "flee" punti ferita, il lupo che morde qualcuno entro "cover" caselle da lui passa a lui, "hit" in più a</i>
+<i># segno in mischia. L'arciere: se il lupo è entro "keep" caselle arretra e tira di nuovo, sale sulla torre di guardia</i>
+<i># libera più vicina entro "tower" caselle, "hit" e "range" in più con l'arco. Lo scassinatore: i morsi vanno a segno</i>
+<i># "dodge" in meno, scappa sotto "flee"</i>
+const <b id="c-WARRIOR">WARRIOR</b> := {"alert": 16, "flee": 20.0, "cover": 2.0, "hit": 0.1}
+const <b id="c-ARCHER">ARCHER</b> := {"keep": 3.0, "tower": 15, "hit": 0.1, "range": 1.0}
+const <b id="c-BURGLAR">BURGLAR</b> := {"dodge": 0.15, "flee": 30.0}
+const <b id="c-DRILL_AT">DRILL_AT</b> := {Hero.WARRIOR: Build.DUMMY, Hero.ARCHER: Build.TARGET, Hero.BURGLAR: Build.LOCK_BENCH}
+const <b id="c-DRILL_HOURS">DRILL_HOURS</b> := 1.0
+const <b id="c-DRILL_XP">DRILL_XP</b> := 1.5
+const <b id="c-DRILL_SHOT">DRILL_SHOT</b> := 5
 const <b id="c-CLASS_GEAR">CLASS_GEAR</b> := {
 	Hero.WARRIOR: {Slot.HANDS: [Res.SWORD], Slot.BODY: [Res.CHAINMAIL, Res.LEATHER_ARMOR], Slot.HEAD: [Res.HELMET],
 		Slot.SHIELD: [Res.SHIELD]},
