@@ -123,7 +123,88 @@ func _initialize() -> void:
 	# nel salvataggio
 	check(str(main.game_state()["objects"]).contains("calling"), "la classe si salva")
 
-	print("OK: la caserma (ricerca, sala d'armi e tiro a segno, la classe, il corredo)")
+	# fase 3, l'esercitazione: la prima ora di lavoro del giorno nella stanza della classe; +1,5 esperienza a colpo
+	var J = main.Job
+	var W = main.Work
+	var melee: int = main.Skill.MELEE
+	main.quit_job(ward)
+	main.set_priority(ward, W.DRILL, 0)
+	ward.drilled = -1
+	main.find_job(ward)
+	check(ward.job == J.DRILL and main.furniture[ward.target][0] == B.DUMMY and main.room_at(ward.target) == armory
+		and armory.cells.has(ward.dest) and ward.drilled == main.today and is_equal_approx(ward.work_total, main.DAY_LENGTH / 24.0),
+		"il guerriero: un'ora a un fantoccio della sala d'armi")
+	ward.path.clear()
+	ward.pos = main.center(ward.dest)
+	ward.xp[melee] = 0
+	main.update_colonist(ward, main.TRAIN_HIT + 0.01)
+	check(is_equal_approx(ward.xp[melee], main.TRAIN_HIT * main.DRILL_XP * main.XP_PER_SECOND), "un colpo ogni 2,5 s: una volta e mezza il fantoccio di fuori")
+	main.quit_job(ward)
+	main.find_job(ward)
+	check(ward.job != J.DRILL, "una volta al giorno")
+	main.quit_job(ward)
+	# il lavoro Esercitarsi: chi ha una classe, quando tocca a lui nella tabella; i lavoratori della stanza tutto il turno
+	check(main.can_do(ward, W.DRILL) and not main.can_do(bow, W.DRILL) and main.priority(bow, W.DRILL) == 0, "Esercitarsi: solo chi ha una classe")
+	check(main.WORK_ORDER.back() == W.DRILL and main.WORK_ICONS.size() == W.size() and main.WORK_INFO.size() == W.size(), "l'ultima colonna della tabella")
+	main.set_priority(ward, W.DRILL, 1)
+	check(main.find_work(ward) and ward.job == J.DRILL, "con la priorità 1 si allena prima di tutto")
+	main.quit_job(ward)
+	main.set_priority(ward, W.DRILL, main.PRIORITY_LEVELS)
+	check(not main.try_drill(ward, true), "non è un lavoratore della sala")
+	armory.workers.append(ward)
+	check(main.find_work(ward) and ward.job == J.DRILL, "il lavoratore della sala d'armi si allena e basta")
+	main.quit_job(ward)
+	armory.workers.erase(ward)
+	# arciere: da almeno 5 caselle dal bersaglio, in riga; scassinatore: al banco degli scassi
+	main.set_calling(bow, H.ARCHER)
+	check(not main.try_drill(bow), "coi bersagli a metà stanza non ci sono 5 caselle: niente tiro")
+	var far_x: int = range_room.cells.keys().map(func(k): return k.x).min()
+	for k in range_room.cells.keys():  # i bersagli in fondo
+		if main.furniture.get(k, [-1])[0] == B.TARGET:
+			main.furniture.erase(k)
+		if k.x == far_x:
+			main.furniture[k] = [B.TARGET, R.WOOD, 0]
+	check(main.try_drill(bow) and main.furniture[bow.target][0] == B.TARGET and range_room.cells.has(bow.dest)
+		and (bow.dest.x == bow.target.x or bow.dest.y == bow.target.y)
+		and absi(bow.dest.x - bow.target.x) + absi(bow.dest.y - bow.target.y) >= main.DRILL_SHOT, "l'arciere tira da 5 caselle o più")
+	bow.path.clear()
+	bow.pos = main.center(bow.dest)
+	bow.xp[main.Skill.RANGED] = 0
+	main.update_colonist(bow, main.TRAIN_HIT + 0.01)
+	check(bow.xp[main.Skill.RANGED] > 0, "e impara a tirare")
+	main.quit_job(bow)
+	main.set_calling(bow, H.BURGLAR)
+	check(not main.try_drill(bow), "senza banco degli scassi lo scassinatore non si allena")
+	main.furniture[inside[6]] = [B.LOCK_BENCH, R.WOOD, 0]
+	check(main.try_drill(bow) and bow.target == inside[6], "al banco degli scassi")
+	bow.path.clear()
+	bow.pos = main.center(bow.dest)
+	main.update_colonist(bow, main.TRAIN_HIT + 0.01)
+	check(bow.xp[main.Skill.LOCKPICKING] > 0 or bow.skills[main.Skill.LOCKPICKING] > 0, "e impara a scassinare")
+	main.furniture.erase(inside[6])
+	main.update_colonist(bow, 0.1)
+	check(bow.job != J.DRILL, "abbattuto il banco, smette")
+	main.quit_job(bow)
+	# la milizia: chi ha una classe fa la sua ora in caserma, e vale come esercitazione
+	main.enacted.append(main.Law.MILITIA)
+	ward.drilled = -1
+	main.relax(ward)
+	check(ward.job == J.DRILL and ward.drilled == main.today, "con la milizia l'ora libera in caserma")
+	main.quit_job(ward)
+	main.enacted.clear()
+	# negli ultimi mesi della gravidanza niente; nella routine una casella colorata, la prima di lavoro
+	var hour: int = main.drill_hour(ward)
+	var day: Array = main.routine_of(ward)
+	check(hour >= 0 and day[hour] == main.Act.WORK and day[hour - 1] != main.Act.WORK, "l'ora dell'esercitazione: la prima di lavoro")
+	main.open_sheet(ward)
+	var hours_row: Control = main.get_node("HUD/ColonistSheet/Box/Routine/Hours")
+	check(hours_row.get_child(hour).color == main.DRILL_COLOR and hours_row.get_child(hour).tooltip_text.ends_with("Drill")
+		and hours_row.get_child((hour + 1) % 24).color != main.DRILL_COLOR, "nella scheda, colorata")
+	ward.due = main.clock + 1.0
+	check(not main.drills(ward) and main.drill_hour(ward) == -1 and not main.can_do(ward, W.DRILL), "incinta agli ultimi mesi: niente esercitazione")
+	ward.due = 0.0
+
+	print("OK: la caserma (ricerca, sala d'armi e tiro a segno, la classe, il corredo, l'esercitazione)")
 	quit()
 
 

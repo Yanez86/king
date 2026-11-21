@@ -108,7 +108,7 @@ const TREE_SIDES := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  # da sopra l
 
 enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE,
 	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE, DOUSE, FARM, FERTILIZE, OATH, SALVE, RESCUE, TREAT, BURY,
-	FUNERAL, TEND, BUTCHER, MILK, SHEAR, MOW, HONEY, FEAST, DEMOLISH, SCHOOL }  # TEND: le uova al pollaio; BUTCHER, MILK, SHEAR: macellare, mungere e
+	FUNERAL, TEND, BUTCHER, MILK, SHEAR, MOW, HONEY, FEAST, DEMOLISH, SCHOOL, DRILL }  # TEND: le uova al pollaio; BUTCHER, MILK, SHEAR: macellare, mungere e
 	# tosare un animale da allevare (vedi Work.HUSBANDRY); MOW: falciare il fieno (vedi Order.HAY); HONEY: smielare
 	# un'arnia piena (vedi Work.GATHER); FEAST: al banchetto reale (vedi hold_banquet); DEMOLISH: abbattere una
 	# struttura o un mobile segnati con "Destroy" (vedi try_demolish)
@@ -118,25 +118,27 @@ const WORK_JOBS := [Job.CHOP, Job.MINE, Job.UPROOT, Job.HAUL, Job.BUILD, Job.FUR
 # Tabella delle priorità (in cima alla finestra Jobs): per colono e per lavoro da 1 (prima) a PRIORITY_LEVELS (dopo),
 # 0 mai. Si prende il lavoro disponibile con la priorità più alta; a pari priorità nell'ordine di Work, e di un lavoro
 # il più vicino (vedi find_work). All'inizio tutto PRIORITY_DEFAULT: l'ordine di WORK_ORDER
-enum Work { COOK, CRAFT, CHOP, MINE, GATHER, FARM, FISH, HUNT, BUILD, HAUL, GOVERN, STUDY, DOCTOR, HUSBANDRY }
+enum Work { COOK, CRAFT, CHOP, MINE, GATHER, FARM, FISH, HUNT, BUILD, HAUL, GOVERN, STUDY, DOCTOR, HUSBANDRY, DRILL }
 # le colonne nella tabella, da sinistra, e l'ordine a pari priorità: il medico prima di tutti (i valori di Work restano
 # quelli, perché le priorità salvate sono per valore)
 const WORK_ORDER := [Work.DOCTOR, Work.COOK, Work.CRAFT, Work.CHOP, Work.MINE, Work.GATHER, Work.FARM, Work.HUSBANDRY,
-	Work.FISH, Work.HUNT, Work.BUILD, Work.HAUL, Work.GOVERN, Work.STUDY]
+	Work.FISH, Work.HUNT, Work.BUILD, Work.HAUL, Work.GOVERN, Work.STUDY, Work.DRILL]
 const PRIORITY_DEFAULT := 3
 const PRIORITY_LEVELS := 4
 const WORK_ICONS := [preload("res://art/icon_meal.png"), preload("res://art/icon_ingot.png"), preload("res://art/icon_chop.png"),
 	preload("res://art/icon_mine.png"), preload("res://art/icon_harvest.png"), preload("res://art/icon_garden.png"),
 	preload("res://art/icon_fishing.png"), preload("res://art/icon_hunting.png"), preload("res://art/icon_build.png"),
 	preload("res://art/icon_resources.png"), preload("res://art/icon_authority.png"), preload("res://art/icon_study.png"),
-	preload("res://art/icon_doctor.png"), preload("res://art/icon_husbandry.png")]
+	preload("res://art/icon_doctor.png"), preload("res://art/icon_husbandry.png"),
+	preload("res://art/icon_drill.png")]
 const WORK_INFO := ["Cooking meals at the campfire or the hearth.", "Forge, workbench, spinning wheel, carpenter's bench, furnace, mill, oven.",
 	"Felling the marked trees.", "Mining the marked rock, cutting ice.", "Picking bushes, flax and herbs, uprooting, taking honey.",
 	"Sowing, harvesting and fertilizing the garden, mowing hay.", "Fishing at the marked water.", "Hunting the marked animals.",
 	"Building, furnishing, demolishing, repairing roofs.", "Carrying things into the warehouses, and the dead to their graves.",
 	"Governing from the throne: only the ruler.", "Studying at a desk.",
 	"Rescuing and treating the downed, the wounded and the sick: only after Medicine.",
-	"Collecting eggs, milking, shearing, slaughtering the animals beyond those you keep: after Husbandry."]
+	"Collecting eggs, milking, shearing, slaughtering the animals beyond those you keep: after Husbandry.",
+	"Drilling in the room of their class when there is nothing else to do: only those with a class."]
 const PRIORITY_COLORS := [Color("c86450"), Color("e8c34a"), Color("e6e2d0"), Color("b0aca0"), Color("8a8678")]  # mai, poi 1-4
 # VEG: vegetali, dalle bacche dei cespugli; IRON, COAL: dai massi con le vene; MEAL, FINE_MEAL: pasti, dalla cucina;
 # MEAT, HIDE: carne e pelle, dagli animali cacciati; FISH: pesce, dai punti di pesca; INGOT: lingotti, dalla fornace;
@@ -398,7 +400,7 @@ const DOING := {Job.CHOP: "Chopping a tree", Job.MINE: "Mining", Job.DEMOLISH: "
 	Job.FIGHT: "Fighting", Job.FLEE: "Fleeing", Job.TANTRUM: "Storming off in a rage", Job.STUDY: "Studying",
 	Job.GOVERN: "Holding audience", Job.PROTEST: "Protesting in the throne room", Job.REPAIR: "Repairing a roof",
 	Job.CUT_ICE: "Cutting ice", Job.DOUSE: "Putting out a fire", Job.FARM: "Tending the garden",
-	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne", Job.SCHOOL: "At school", Job.SALVE: "Tending a wound",
+	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne", Job.SCHOOL: "At school", Job.DRILL: "Drilling", Job.SALVE: "Tending a wound",
 	Job.RESCUE: "Rescuing the wounded", Job.TREAT: "Treating a patient", Job.BURY: "Burying the dead",
 	Job.FUNERAL: "At a funeral", Job.TEND: "Collecting eggs", Job.BUTCHER: "Slaughtering",
 	Job.MILK: "Milking", Job.SHEAR: "Shearing", Job.MOW: "Mowing hay", Job.HONEY: "Taking honey",
@@ -614,6 +616,14 @@ const KIT_ARMOR := {Look.SHIELD: 3}  # protezione del corredo degli avventurieri
 const CLASS_ROOM := {Hero.WARRIOR: RoomKind.ARMORY, Hero.ARCHER: RoomKind.ARCHERY_RANGE, Hero.BURGLAR: RoomKind.ARMORY}
 const CLASS_NEEDS := {Hero.WARRIOR: [Skill.MELEE, 3], Hero.ARCHER: [Skill.RANGED, 3], Hero.BURGLAR: [Skill.MELEE, 2]}
 const CLASS_SKILL := {Hero.WARRIOR: Skill.MELEE, Hero.ARCHER: Skill.RANGED, Hero.BURGLAR: Skill.LOCKPICKING}
+# L'esercitazione (vedi try_drill): la prima ora di lavoro del giorno, nella stanza della classe, a DRILL_AT: un colpo, un
+# tiro o una serratura ogni TRAIN_HIT, con DRILL_XP volte l'esperienza del fantoccio di fuori; l'arciere tira da almeno
+# DRILL_SHOT caselle
+const DRILL_AT := {Hero.WARRIOR: Build.DUMMY, Hero.ARCHER: Build.TARGET, Hero.BURGLAR: Build.LOCK_BENCH}
+const DRILL_HOURS := 1.0
+const DRILL_XP := 1.5
+const DRILL_SHOT := 5
+const DRILL_COLOR := Color("c0483a")  # la casella dell'esercitazione nella routine della scheda
 const CLASS_GEAR := {
 	Hero.WARRIOR: {Slot.HANDS: [Res.SWORD], Slot.BODY: [Res.CHAINMAIL, Res.LEATHER_ARMOR], Slot.HEAD: [Res.HELMET],
 		Slot.SHIELD: [Res.SHIELD]},
@@ -5277,11 +5287,12 @@ func update_conds(box: Control, c: Colonist) -> void:
 func update_routine_row(row: Control, c: Colonist) -> void:
 	var day := routine_of(c)
 	var now := hour_now()
+	var drill := drill_hour(c)
 	for h in 24:
 		var cell: ColorRect = row.get_node("Hours").get_child(h)
-		cell.color = ROUTINE_COLORS[day[h]]
+		cell.color = DRILL_COLOR if h == drill else ROUTINE_COLORS[day[h]]
 		cell.modulate.a = 1.0 if h == now else 0.45
-		cell.tooltip_text = "%02d:00  %s" % [h, tr(ROUTINE_NAMES[day[h]])]
+		cell.tooltip_text = "%02d:00  %s" % [h, tr("Drill") if h == drill else tr(ROUTINE_NAMES[day[h]])]
 	row.get_node("Worked").text = tr("Worked today: %.1f / %s h") % [c.worked, str(work_hours(c)).trim_suffix(".0")]
 
 
@@ -5593,7 +5604,8 @@ func update_plate() -> void:
 # nome e un tasto per lavoro, 1-4 o – per mai: clic per farlo dopo (1, 2, 3, 4, mai, di nuovo 1), clic destro per
 # farlo prima. Governare solo il sovrano. Si rifà quando cambiano i coloni, il sovrano o la lingua
 func refresh_priorities() -> void:
-	var key := str(colonists) + str(ruler) + TranslationServer.get_locale() + str(colonists.map(stage_of))  # anche quando un bambino cresce
+	var key := str(colonists) + str(ruler) + TranslationServer.get_locale() + str(colonists.map(stage_of)) \
+		+ str(colonists.map(drills))  # anche quando un bambino cresce, o qualcuno prende una classe
 	if key != priorities_key:
 		priorities_key = key
 		for child in priority_grid.get_children():
@@ -6927,6 +6939,17 @@ func update_colonist(c: Colonist, delta: float) -> void:
 				end_job(c)
 		Job.TRAVEL:  # avventuriero arrivato alla locanda o al bordo della mappa
 			arrive(c)
+		Job.DRILL:  # in caserma (vedi try_drill): un colpo, un tiro o una serratura ogni TRAIN_HIT
+			if c.calling == Hero.NONE or furniture.get(c.target, [-1])[0] != DRILL_AT[c.calling]:
+				end_job(c)  # mobile abbattuto, o la classe non c'è più
+				return
+			face(c, center(c.target) - c.pos)
+			var was := c.work_left
+			c.work_left -= delta
+			if floori((c.work_total - c.work_left) / TRAIN_HIT) > floori((c.work_total - was) / TRAIN_HIT):
+				learn(c, CLASS_SKILL[c.calling], TRAIN_HIT * DRILL_XP)
+			if c.work_left <= 0:
+				end_job(c)
 		Job.SCHOOL:  # allo scrittoio (vedi try_school): finita l'ora, una lezione in più e un po' di esperienza
 			if furniture.get(c.target, [-1])[0] != Build.DESK:
 				end_job(c)  # scrittoio abbattuto
@@ -7979,6 +8002,10 @@ func find_job(c: Colonist) -> void:
 		relax(c)
 		return
 	if may_work(c):
+		if drills(c) and c.drilled != today and not (routines and holiday()):  # l'esercitazione: la prima ora di lavoro del giorno
+			c.drilled = today
+			if try_drill(c):
+				return
 		if find_work(c):
 			return
 		if routines and holiday():  # festa: chi non cucina si svaga
@@ -8142,6 +8169,10 @@ func relax(c: Colonist, hours := RELAX_HOURS) -> void:
 		c.schooled = today
 		if try_school(c):
 			return
+	if enacted.has(Law.MILITIA) and c.drilled != today and drills(c):  # chi ha una classe fa l'ora di milizia in caserma
+		c.drilled = today
+		if try_drill(c):
+			return
 	var spots := {}  # casella dove stare -> fantoccio, o la casella stessa (fuoco da campo)
 	var drill := enacted.has(Law.MILITIA) and c.drilled != today
 	for origin in furniture:
@@ -8171,6 +8202,53 @@ func relax(c: Colonist, hours := RELAX_HOURS) -> void:
 		return
 	start_job(c, Job.RELAX, path, path.back() if not path.is_empty() else cell_of(c.pos), 0.0)
 	c.work_left = hours * DAY_LENGTH / 24
+
+
+# `c` si esercita: ha una classe, e non è negli ultimi mesi della gravidanza
+func drills(c: Colonist) -> bool:
+	return c.calling != Hero.NONE and not (c.due > 0.0 and c.due - clock < pregnancy() / 3.0)
+
+
+# L'esercitazione di `c`, DRILL_HOURS nella stanza della sua classe (CLASS_ROOM): il guerriero accanto a un fantoccio,
+# lo scassinatore al banco degli scassi, l'arciere a DRILL_SHOT caselle o più da un bersaglio, in riga o in colonna.
+# Con `mine` solo dove è lavoratore della stanza (dal cartello). false se non c'è un posto libero
+func try_drill(c: Colonist, mine := false) -> bool:
+	var stands := {}  # casella della stanza dove mettersi -> mobile
+	for o in furniture:
+		var room := room_at(o)
+		if furniture[o][0] != DRILL_AT[c.calling] or not is_free(o) or room == null or room.kind != CLASS_ROOM[c.calling] \
+				or (mine and c not in room.workers):
+			continue
+		if c.calling == Hero.ARCHER:
+			for k in room.cells:
+				var d: Vector2i = k - o
+				if (d.x == 0 or d.y == 0) and absi(d.x + d.y) >= DRILL_SHOT and not astar.is_point_solid(k) and is_free(k) \
+						and not furniture.has(k):
+					stands[k] = o
+		else:
+			var around := {}
+			add_stands(around, [o], o, SIDES)
+			for k in around:
+				if room.cells.has(k) and is_free(k):
+					stands[k] = o
+	var path := path_to_nearest(c, stands.keys())
+	if path.is_empty():
+		return false
+	start_job(c, Job.DRILL, path, stands[path.back()], DRILL_HOURS * DAY_LENGTH / 24)
+	c.dest = path.back()
+	return true
+
+
+# l'ora dell'esercitazione nella routine di `c`: la prima di lavoro dopo la sveglia; -1 se non si esercita
+func drill_hour(c: Colonist) -> int:
+	if not drills(c) or not rooms.any(func(r): return r.kind == CLASS_ROOM[c.calling]):
+		return -1
+	var day := routine_of(c)
+	var wake := wake_hour(day)
+	for i in 24:
+		if day[(wake + i) % 24] == Act.WORK:
+			return (wake + i) % 24
+	return -1
 
 
 # va a scuola (Law.SCHOOL): i figli della colonia fino alla maggiore età e i forestieri
@@ -8229,7 +8307,8 @@ func find_work(c: Colonist) -> bool:
 	if routines and holiday():  # riposo festivo, festa del raccolto: si cucina e basta
 		return try_equip(c) or (priority(c, Work.COOK) > 0 and try_cook(c))
 	if try_equip(c) or (priority(c, Work.GOVERN) > 0 and try_seat(c, Build.THRONE, true)) \
-			or (priority(c, Work.STUDY) > 0 and try_seat(c, Build.DESK, true)):
+			or (priority(c, Work.STUDY) > 0 and try_seat(c, Build.DESK, true)) \
+			or (priority(c, Work.DRILL) > 0 and try_drill(c, true)):
 		return true
 	for level in range(1, PRIORITY_LEVELS + 1):
 		for w in WORK_ORDER:
@@ -8253,6 +8332,8 @@ func stage_of(c: Colonist) -> int:
 
 # `c` ha l'età per il lavoro `w`: i bambini solo CHILD_WORK, i ragazzi tutto tranne YOUTH_BANNED
 func can_do(c: Colonist, w: Work) -> bool:
+	if w == Work.DRILL:
+		return drills(c)
 	var years := age_of(c)
 	return w in CHILD_WORK if years < YOUTH_AGE else (w not in YOUTH_BANNED if years < ADULT else true)
 
@@ -8309,6 +8390,8 @@ func try_work_kind(c: Colonist, w: Work) -> bool:
 			return try_doctor(c)
 		Work.HUSBANDRY:
 			return try_husbandry(c)
+		Work.DRILL:
+			return try_drill(c)
 	return false
 
 

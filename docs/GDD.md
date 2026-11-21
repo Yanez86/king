@@ -1005,7 +1005,12 @@ studio e un quaderno, dopo Fantoccio). Si appoggia alle soglie di livello delle 
 - **Stato**: fatte le fasi 1 e 2 il 2026-11-19: le soglie di livello (vedi 4.2); la ricerca Caserma, sala d'armi e
   tiro a segno coi loro mobili, la classe dalla scheda (col perché, quando non si può), il livello, il corredo e il
   cappuccio, il pugnale all'incudine. Il guerriero prende lo scudo solo con la spada in mano. Sulla bacheca la classe
-  arriva con la fase 5. Il resto è solo design.
+  arriva con la fase 5.
+  Fatta la fase 3 il 2026-11-21 (prove in `tests/test_barracks.gd`): `Job.DRILL` e `try_drill`, la prima ora di lavoro
+  del giorno (non conta tra le ore lavorate; se non c'è un posto libero quel giorno salta), la casella rossa nella
+  routine della scheda (`drill_hour`), la colonna Esercitarsi (`Work.DRILL`, l'ultima, solo per chi ha una classe: un'ora
+  alla volta), i lavoratori della stanza a tempo pieno, la milizia in caserma. L'arciere vuole 5 caselle in riga o in
+  colonna col bersaglio dentro il tiro a segno; le frecce dell'esercitazione non si vedono ancora. Il resto è solo design.
 
 ### 4.4.7 Grano, forno e animali da allevare
 Deciso il 2026-11-20. Numeri da tarare. Il pane viene dal grano dell'orto, macinato al mulino: ad acqua sul torrente,

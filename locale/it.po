@@ -4892,3 +4892,17 @@ msgstr "La successione ha un posto suo: non occupa un sigillo"
 msgctxt "doing"
 msgid "At school"
 msgstr "A scuola"
+
+msgctxt "work"
+msgid "Drill"
+msgstr "Esercitarsi"
+
+msgid "Drill"
+msgstr "Esercitazione"
+
+msgid "Drilling in the room of their class when there is nothing else to do: only those with a class."
+msgstr "Esercitarsi nella stanza della propria classe quando non c'è altro da fare: solo chi ha una classe."
+
+msgctxt "doing"
+msgid "Drilling"
+msgstr "Si esercita"

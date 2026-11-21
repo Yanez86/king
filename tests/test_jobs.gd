@@ -1092,7 +1092,8 @@ func _initialize() -> void:
 	# l'ordine di Work, 0 mai. Nella finestra Jobs un tasto per colono e lavoro: clic dopo, clic destro prima
 	var P = main.Work
 	var prio_worker = main.colonists[1]
-	check(P.values().all(func(w): return main.priority(prio_worker, w) == main.PRIORITY_DEFAULT), "all'inizio tutto 3")
+	check(P.values().all(func(w): return main.priority(prio_worker, w) == (main.PRIORITY_DEFAULT if w != P.DRILL else 0)),
+		"all'inizio tutto 3 (Esercitarsi solo con una classe)")
 	for col in main.colonists:
 		main.quit_job(col)
 		if col != prio_worker:

@@ -543,6 +543,26 @@ MEDICINE_CHEST = """
 """
 
 # Icona 16x16 del lavoro Curare (Work.DOCTOR): la croce rossa, bordata di bianco.
+# Lavoro Esercitarsi (Work.DRILL): il bersaglio di paglia, con la freccia al centro
+DRILL_ICON = """
+................
+.....oooooo.....
+...ooxxxxxxoo...
+..oxxjjjjjjxxo..
+..oxjjxxxxjjxo..
+.oxjjxxjjxxjjxo.
+.oxjxxjooooooooo
+.oxjxxjoccccccgo
+.oxjxxjooooooooo
+.oxjjxxjjxxjjxo.
+..oxjjxxxxjjxo..
+..oxxjjjjjjxxo..
+...ooxxxxxxoo...
+.....oooooo.....
+................
+................
+"""
+
 DOCTOR_ICON = """
 ................
 .....oooooo.....
@@ -5524,6 +5544,7 @@ def main():
         images["icon_" + name] = pixels(art(block, 16, 16))
     images["icon_flax"] = pixels(art(FLAX_ICON, 16, 16))
     images["icon_doctor"] = pixels(art(DOCTOR_ICON, 16, 16))
+    images["icon_drill"] = pixels(art(DRILL_ICON, 16, 16))
     images["icon_herbs"] = pixels(art(HERBS_ICON, 16, 16))
     images["icon_ointment"] = pixels(art(OINTMENT_ICON, 16, 16))
     images["icon_bowstring"] = pixels(art(BOWSTRING_ICON, 16, 16))
