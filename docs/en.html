@@ -155,7 +155,7 @@ pre i { color: #8fb87a; }
 <body>
 <nav>
 <h1>King</h1>
-<small>Mechanics · commit 89594e2 · 2026-11-21 · <a class="lang" href="index.html">Italiano</a></small>
+<small>Mechanics · commit 1ae778e · 2026-11-21 · <a class="lang" href="index.html">Italiano</a></small>
 <h2>Wiki</h2>
 <a href="#basics"><i class="sp s106" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Basics</a><a href="#controls"><i class="sp s107" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Controls</a><a href="#colonists"><i class="sp s94" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Colonists</a><a href="#skills"><i class="sp s103" style="width:16px;height:16px;background-position:-144px 0px;background-size:240px 16px"></i> Skills</a><a href="#traits"><i class="sp s97" style="width:16px;height:16px;background-position:0px 0px;background-size:240px 16px"></i> Traits</a><a href="#conditions"><i class="sp s98" style="width:16px;height:16px;background-position:-16px 0px;background-size:336px 16px"></i> Conditions</a><a href="#the-ruler-house"><i class="sp s49" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> The Ruler &amp; House</a><a href="#building"><i class="sp s78" style="width:15px;height:15px;background-position:0px 0px;background-size:15px 15px"></i> Building</a><a href="#rooms"><i class="sp s87" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Rooms</a><a href="#roofs-heat"><i class="sp s88" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Roofs &amp; Heat</a><a href="#food-cooking"><i class="sp s25" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Food &amp; Cooking</a><a href="#gathering"><i class="sp s83" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Gathering</a><a href="#livestock"><i class="sp s30" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Livestock</a><a href="#crafting-equipment"><i class="sp s105" style="width:16px;height:16px;background-position:0px -32px;background-size:32px 112px"></i> Crafting &amp; Equipment</a><a href="#combat-wolves"><i class="sp s33" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Combat &amp; Wolves</a><a href="#medicine-death"><i class="sp s76" style="width:16px;height:16px;background-position:0px -416px;background-size:128px 1824px"></i> Medicine &amp; Death</a><a href="#splendor"><i class="sp s45" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Splendor</a><a href="#adventurers"><i class="sp s46" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Adventurers</a><a href="#ruins-expeditions"><i class="sp s95" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Ruins &amp; Expeditions</a><a href="#knowledge"><i class="sp s96" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Knowledge</a><a href="#laws"> Laws</a><h2>Development</h2><a href="#todo"><i class="sp s58" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Still to develop</a><h2>Numbers</h2><a href="#main-gd">main.gd</a><a href="#atmosphere-gd">atmosphere.gd</a><a href="#narrator-gd">narrator.gd</a>
 </nav>
@@ -403,7 +403,7 @@ pre i { color: #8fb87a; }
 <li>Work: it can have workers. For now they matter in a study (they study before any other job) and in a throne room (only the ruler).</li>
 <li>Service: shared by all.</li>
 <li>Banned: nobody goes in, not even the owners.</li>
-<li>Workstations work only inside their room: the campfire in a kitchen, furnace and anvil in a forge, workbench and spinning wheel in a workshop, the carpenter bench in a carpentry.</li>
+<li>Workstations work only inside their room (the campfire also in the open, outside every room): the campfire in a kitchen, furnace and anvil in a forge, workbench and spinning wheel in a workshop, the carpenter bench in a carpentry.</li>
 <li>Colonists sleep in any bed but those of an inn, which are for adventurers, and those of an infirmary, which are for the sick.</li>
 </ul>
 <h3>Warehouses </h3>
@@ -465,7 +465,7 @@ pre i { color: #8fb87a; }
 </ul>
 <h3>Cooking </h3>
 <ul>
-<li>At a campfire or a hearth inside a kitchen. The cook takes 2 raw foods from one pile (vegetables, fish or meat), cooks for 8 s and carries the meal to a warehouse.</li>
+<li>At a campfire or a hearth inside a kitchen, or at a campfire in the open: you can cook from the first day, before any room is built (in a kitchen the comfort of the room makes the cook faster and burn less). The cook takes 2 raw foods from one pile (vegetables, fish or meat), cooks for 8 s and carries the meal to a warehouse.</li>
 <li>Click the campfire for its menu: Spare, how many meals to keep (8 at the start, 2 a head). Cooks cook while there are fewer meals than that, counting those on the ground, in warehouses and in hand. Under the meal's row, the raw food there is.</li>
 <li>Burnt, and the food is lost: 6% for every Cooking level below 6, plus 3% for every point of kitchen comfort below 5 (minus above). At level 0 in a kitchen of comfort 5: 36%.</li>
 <li><i class="sp s26" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Fine meal: 5% for every level above 5, plus 2% for every point of comfort above 5 (minus below): 25% at level 10.</li>
@@ -609,11 +609,11 @@ pre i { color: #8fb87a; }
 <h3>The barracks and classes </h3>
 <ul>
 <li>With the Barracks research a colonist can take the class of an adventurer: Class… on their sheet. The classes that can't be given are greyed out, with the reason.</li>
-<li>It takes a grown-up colonist (adventurers already have theirs), the room of the class and enough in its weapon: warrior 3 Melee and an armory; archer 3 Ranged and an archery range; burglar 2 Melee and an armory (Lockpicking is learned only with the class).</li>
+<li>It takes a grown-up colonist (adventurers already have theirs), the room of the class and enough in its weapon: warrior 3 Melee and an armory; archer 3 Ranged and an archery range, or a target in the open near the barracks; burglar 2 Melee and an armory (Lockpicking is learned only with the class).</li>
 <li>The level is half the skill of the class (Melee, Ranged, Lockpicking), from 1 to 5. The sheet and the census say "Archer of the colony, level 2". Taking the class off or changing it is free: the skill stays.</li>
 <li>The gear of the class, fetched by themselves, even in place of a tool: the warrior a sword, then a shield, chainmail (or leather armor) and a helmet; the archer a bow, leather armor and hood; the burglar a dagger, leather armor and hood. Equipment that is missing gets made at the stations.</li>
 <li>Quiver, mask and sack are the kit of the class: you see them, nobody makes them. The hood takes the color of the class: green the archer, dark the burglar.</li>
-<li>Drill: every day the first hour of work (the red square in the routine on the sheet) is spent in the room of the class: the warrior at a dummy of the armory, the burglar at the lock bench, the archer in line with a target of the archery range, with nothing in between. A blow, a shot or a lock every 2.5 seconds: one and a half times the experience of the dummy outside. The archer shoots from 5 tiles or more; if the target stands too close (hover it: it says so) they shoot from the farthest spot there is and learn only as much as at the dummy outside, so put the targets at one end. Without a free place, no drill that day; none in the last months of a pregnancy.</li>
+<li>Drill: every day the first hour of work (the red square in the routine on the sheet) is spent in the room of the class: the warrior at a dummy of the armory, the burglar at the lock bench, the archer in line with a target, 5 to 8 tiles away, with nothing in between. A blow, a shot or a lock every 2.5 seconds: one and a half times the experience of the dummy outside. A target works inside an archery range (put it at one end: the archer needs 5 clear tiles) or in the open, outside every room, within 5 tiles of an armory or an archery range. Hover a target that can't be used and it says why. Without a free place, no drill that day; none in the last months of a pregnancy.</li>
 <li>The Drill column in the Jobs table, only for those with a class: they drill when their turn comes, an hour at a time. The workers of an armory or an archery range (from the room's sign) drill the whole shift and do no other work.</li>
 <li>With the Militia law, those with a class do their hour in the barracks, and it counts as the drill of the day.</li>
 <li>In battle the warrior goes for wolves 16 tiles away (not 12) and flees only under 20 health (not 40); a wolf biting someone within 2 tiles of a standing warrior turns on the warrior instead; +10% to hit in melee.</li>
@@ -1441,6 +1441,8 @@ const <b id="c-DRILL_AT">DRILL_AT</b> := {Hero.WARRIOR: Build.DUMMY, Hero.ARCHER
 const <b id="c-DRILL_HOURS">DRILL_HOURS</b> := 1.0
 const <b id="c-DRILL_XP">DRILL_XP</b> := 1.5
 const <b id="c-DRILL_SHOT">DRILL_SHOT</b> := 5
+const <b id="c-SHOT_MAX">SHOT_MAX</b> := 8         <i># caselle: all'aperto l'arciere tira al più da qui</i>
+const <b id="c-BARRACKS_NEAR">BARRACKS_NEAR</b> := 5    <i># caselle: un bersaglio all'aperto vale se una stanza della caserma è entro qui</i>
 const <b id="c-CLASS_GEAR">CLASS_GEAR</b> := {
 	Hero.WARRIOR: {Slot.HANDS: [Res.SWORD], Slot.BODY: [Res.CHAINMAIL, Res.LEATHER_ARMOR], Slot.HEAD: [Res.HELMET],
 		Slot.SHIELD: [Res.SHIELD]},
@@ -1492,6 +1494,7 @@ const <b id="c-GROUPS">GROUPS</b> := {ANY_VEG: [Res.VEG, Res.TURNIP, Res.CABBAGE
 const <b id="c-SURE">SURE</b> := [Res.FLOUR]  <i># ricette che non si rovinano: macinare non brucia niente (vedi craft)</i>
 const <b id="c-SMOKED">SMOKED</b> := [Res.SMOKED_MEAT, Res.SMOKED_FISH]
 const <b id="c-SMOKE_TIME">SMOKE_TIME</b> := 0.75     <i># affumicare al fuoco da campo, dove il fumo resta: tempo x (al focolare va su per la canna)</i>
+const <b id="c-OPEN_AIR">OPEN_AIR</b> := [Build.CAMPFIRE]  <i># postazioni che lavorano anche all'aperto, fuori da ogni stanza (il focolare no)</i>
 const <b id="c-STATION_ROOM">STATION_ROOM</b> := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.HEARTH: RoomKind.KITCHEN, Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP,
 	Build.SPINNING_WHEEL: RoomKind.WORKSHOP, Build.CARPENTER_BENCH: RoomKind.CARPENTRY, Build.DESK: RoomKind.STUDY,
 	Build.OVEN: RoomKind.KITCHEN, Build.MILLSTONE: RoomKind.MILL}</pre>
@@ -1781,7 +1784,7 @@ const <b id="c-BUILD_INFO">BUILD_INFO</b> := {
 	Build.TABLE: "Where colonists eat and work.",
 	Build.CHAIR: "Put it at a table, turned to face it.",
 	Build.LAMP: "Lights up at night.",
-	Build.CAMPFIRE: "A wood fire inside a ring of stones. Burns day and night and warms the room. A kitchen needs one, or a hearth. Smoking is faster here.",
+	Build.CAMPFIRE: "A wood fire inside a ring of stones. Burns day and night and warms the room. A kitchen needs one, or a hearth; in the open it cooks anywhere. Smoking is faster here.",
 	Build.FURNACE: "A stone furnace. A forge needs one, and an anvil. Smelts iron and coal into ingots. Half its heat goes through a wooden wall at its back.",
 	Build.WALL_HIDES: "Hides nailed to a wall, against the draughts. Hang it against a wall.",
 	Build.DOOR_CURTAIN: "A heavy leather curtain in front of a door, where the cold gets in. Hang it against a door.",
@@ -1792,7 +1795,7 @@ const <b id="c-BUILD_INFO">BUILD_INFO</b> := {
 	Build.COMPOST_HEAP: "Rotten food and uprooted weeds are brought here: in 10 days every 4 become compost, to fertilize the garden.",
 	Build.CRADLE: "A rocking cradle. A baby sleeps here instead of in their parents' arms.",
 	Build.WEAPON_RACK: "Swords and shields on a rack. With two dummies, a room can become an armory.",
-	Build.TARGET: "A straw target on an easel. Two of them make an archery range, in a room at least 8 tiles long. Archers shoot in line with it, best from 5 tiles or more: put it at one end.",
+	Build.TARGET: "A straw target on an easel. Two of them make an archery range, in a room at least 8 tiles long. Outdoors it works too, within 5 tiles of an armory or an archery range. Archers shoot in line with it, from 5 tiles or more.",
 	Build.LOCK_BENCH: "A bench full of locks: in the armory, burglars practice here.",
 	Build.MEDICINE_CHEST: "Herbs, ointments and bandages. With a bed, the room can be an infirmary, where the sick heal faster.",
 	Build.GRAVE: "A grave with a wooden cross, on open ground. The haulers bury the dead here: their mourning is a day shorter.",

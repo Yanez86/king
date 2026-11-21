@@ -155,7 +155,7 @@ pre i { color: #8fb87a; }
 <body>
 <nav>
 <h1>King</h1>
-<small>Meccaniche · commit 89594e2 · 2026-11-21 · <a class="lang" href="en.html">English</a></small>
+<small>Meccaniche · commit 1ae778e · 2026-11-21 · <a class="lang" href="en.html">English</a></small>
 <h2>Wiki</h2>
 <a href="#le-basi"><i class="sp s106" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Le basi</a><a href="#comandi"><i class="sp s107" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Comandi</a><a href="#coloni"><i class="sp s94" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Coloni</a><a href="#abilità"><i class="sp s103" style="width:16px;height:16px;background-position:-144px 0px;background-size:240px 16px"></i> Abilità</a><a href="#talenti"><i class="sp s97" style="width:16px;height:16px;background-position:0px 0px;background-size:240px 16px"></i> Talenti</a><a href="#condizioni"><i class="sp s98" style="width:16px;height:16px;background-position:-16px 0px;background-size:336px 16px"></i> Condizioni</a><a href="#il-sovrano-e-la-casata"><i class="sp s49" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Il sovrano e la casata</a><a href="#costruire"><i class="sp s78" style="width:15px;height:15px;background-position:0px 0px;background-size:15px 15px"></i> Costruire</a><a href="#stanze"><i class="sp s87" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Stanze</a><a href="#tetti-e-calore"><i class="sp s88" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Tetti e calore</a><a href="#cibo-e-cucina"><i class="sp s25" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Cibo e cucina</a><a href="#raccolta"><i class="sp s83" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Raccolta</a><a href="#allevamento"><i class="sp s30" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Allevamento</a><a href="#lavorazioni-ed-equipaggiamento"><i class="sp s105" style="width:16px;height:16px;background-position:0px -32px;background-size:32px 112px"></i> Lavorazioni ed equipaggiamento</a><a href="#combattimento-e-lupi"><i class="sp s33" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Combattimento e lupi</a><a href="#medicina-e-morte"><i class="sp s76" style="width:16px;height:16px;background-position:0px -416px;background-size:128px 1824px"></i> Medicina e morte</a><a href="#splendore"><i class="sp s45" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Splendore</a><a href="#avventurieri"><i class="sp s46" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Avventurieri</a><a href="#rovine-e-spedizioni"><i class="sp s95" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Rovine e spedizioni</a><a href="#conoscenza"><i class="sp s96" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Conoscenza</a><a href="#leggi"> Leggi</a><h2>Sviluppo</h2><a href="#todo"><i class="sp s58" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Da sviluppare</a><h2>Numeri</h2><a href="#main-gd">main.gd</a><a href="#atmosphere-gd">atmosphere.gd</a><a href="#narrator-gd">narrator.gd</a>
 </nav>
@@ -403,7 +403,7 @@ pre i { color: #8fb87a; }
 <li>Lavoro: può avere dei lavoratori. Per ora contano in uno studio (studiano prima di qualunque altro lavoro) e in una sala del trono (solo il sovrano).</li>
 <li>Servizio: in comune per tutti.</li>
 <li>Vietata: non entra nessuno, nemmeno i proprietari.</li>
-<li>Le postazioni funzionano solo nella loro stanza: il fuoco da campo in una cucina, fornace e incudine in una forgia, banco da lavoro e filatoio in un laboratorio, il banco del falegname in una falegnameria.</li>
+<li>Le postazioni funzionano solo nella loro stanza (il fuoco da campo anche all'aperto, fuori da ogni stanza): il fuoco da campo in una cucina, fornace e incudine in una forgia, banco da lavoro e filatoio in un laboratorio, il banco del falegname in una falegnameria.</li>
 <li>I coloni dormono in qualunque letto tranne quelli di una locanda, che sono per gli avventurieri, e quelli di un'infermeria, che sono per chi sta male.</li>
 </ul>
 <h3>Magazzini </h3>
@@ -465,7 +465,7 @@ pre i { color: #8fb87a; }
 </ul>
 <h3>Cucinare </h3>
 <ul>
-<li>A un fuoco da campo o a un focolare dentro una cucina. Il cuoco prende 2 crudi da un mucchio (vegetali, pesce o carne), cucina per 8 s e porta il pasto in un magazzino.</li>
+<li>A un fuoco da campo o a un focolare dentro una cucina, o a un fuoco da campo all'aperto: si cucina dal primo giorno, prima di costruire qualsiasi stanza (in una cucina il comfort della stanza fa cucinare più in fretta e bruciare meno). Il cuoco prende 2 crudi da un mucchio (vegetali, pesce o carne), cucina per 8 s e porta il pasto in un magazzino.</li>
 <li>Clicca il fuoco da campo per il suo menu: la Scorta, quanti pasti tenere (8 all'inizio, 2 a testa). I cuochi cucinano finché ci sono meno pasti di così, contando quelli a terra, nei magazzini e in mano. Sotto la riga del pasto, i crudi che ci sono.</li>
 <li>Bruciato, e il cibo è perso: 6% per ogni livello di Cucinare sotto il 6, più 3% per ogni punto di comfort della cucina sotto 5 (meno, sopra). A livello 0 in una cucina con comfort 5: 36%.</li>
 <li><i class="sp s26" style="width:16px;height:16px;background-position:0px 0px;background-size:16px 16px"></i> Pasto squisito: 5% per ogni livello sopra il 5, più 2% per ogni punto di comfort sopra 5 (meno, sotto): 25% a livello 10.</li>
@@ -609,11 +609,11 @@ pre i { color: #8fb87a; }
 <h3>La caserma e le classi </h3>
 <ul>
 <li>Con la ricerca Caserma un colono può prendere la classe di un avventuriero: Classe… nella sua scheda. Le classi che non si possono dare sono spente, col perché.</li>
-<li>Serve un colono adulto (gli avventurieri hanno già la loro), la stanza della classe e abbastanza nella sua arma: guerriero 3 in Mischia e una sala d'armi; arciere 3 in Distanza e un tiro a segno; scassinatore 2 in Mischia e una sala d'armi (Scassinare lo impara solo con la classe).</li>
+<li>Serve un colono adulto (gli avventurieri hanno già la loro), la stanza della classe e abbastanza nella sua arma: guerriero 3 in Mischia e una sala d'armi; arciere 3 in Distanza e un tiro a segno, o un bersaglio all'aperto vicino alla caserma; scassinatore 2 in Mischia e una sala d'armi (Scassinare lo impara solo con la classe).</li>
 <li>Il livello è metà dell'abilità della classe (Mischia, Distanza, Scassinare), da 1 a 5. La scheda e l'elenco degli abitanti dicono "Arciere della colonia, livello 2". Toglierla o cambiarla è gratis: l'abilità resta.</li>
 <li>Il corredo della classe, che va a prendere da sé, anche al posto di un attrezzo: il guerriero spada, poi scudo, cotta di maglia (o armatura di cuoio) ed elmo; l'arciere arco, armatura e cappuccio di cuoio; lo scassinatore pugnale, armatura e cappuccio di cuoio. Quello che manca si fa alle postazioni.</li>
 <li>Faretra, maschera e sacca sono il corredo della classe: si vedono, non le fa nessuno. Il cappuccio prende il colore della classe: verde l'arciere, scuro lo scassinatore.</li>
-<li>Esercitazione: ogni giorno la prima ora di lavoro (la casella rossa nella routine della scheda) si passa nella stanza della classe: il guerriero a un fantoccio della sala d'armi, lo scassinatore al banco degli scassi, l'arciere in linea con un bersaglio del tiro a segno, senza niente in mezzo. Un colpo, un tiro o una serratura ogni 2,5 secondi: una volta e mezza l'esperienza del fantoccio di fuori. L'arciere tira da 5 caselle o più; se il bersaglio è troppo vicino (col mouse sopra lo dice) tira dal punto più lontano che c'è e impara solo quanto al fantoccio di fuori: i bersagli vanno messi in fondo. Senza un posto libero, quel giorno niente; niente negli ultimi mesi di una gravidanza.</li>
+<li>Esercitazione: ogni giorno la prima ora di lavoro (la casella rossa nella routine della scheda) si passa nella stanza della classe: il guerriero a un fantoccio della sala d'armi, lo scassinatore al banco degli scassi, l'arciere in linea con un bersaglio, da 5 a 8 caselle, senza niente in mezzo. Un colpo, un tiro o una serratura ogni 2,5 secondi: una volta e mezza l'esperienza del fantoccio di fuori. Un bersaglio vale dentro un tiro a segno (mettilo in fondo: all'arciere servono 5 caselle sgombre) o all'aperto, fuori da ogni stanza, entro 5 caselle da una sala d'armi o da un tiro a segno. Un bersaglio che non si può usare, col mouse sopra, dice perché. Senza un posto libero, quel giorno niente; niente negli ultimi mesi di una gravidanza.</li>
 <li>La colonna Esercitarsi nella tabella dei lavori, solo per chi ha una classe: si allena quando tocca a lei nella tabella, un'ora alla volta. I lavoratori di una sala d'armi o di un tiro a segno (dal cartello della stanza) si allenano per tutto il turno e non fanno altri lavori.</li>
 <li>Con la legge Milizia chi ha una classe fa la sua ora in caserma, e vale come esercitazione del giorno.</li>
 <li>In battaglia il guerriero va contro i lupi da 16 caselle (non 12) e scappa solo sotto 20 punti ferita (non 40); un lupo che morde qualcuno entro 2 caselle da un guerriero in piedi passa al guerriero; +10% a segno in mischia.</li>
@@ -1441,6 +1441,8 @@ const <b id="c-DRILL_AT">DRILL_AT</b> := {Hero.WARRIOR: Build.DUMMY, Hero.ARCHER
 const <b id="c-DRILL_HOURS">DRILL_HOURS</b> := 1.0
 const <b id="c-DRILL_XP">DRILL_XP</b> := 1.5
 const <b id="c-DRILL_SHOT">DRILL_SHOT</b> := 5
+const <b id="c-SHOT_MAX">SHOT_MAX</b> := 8         <i># caselle: all'aperto l'arciere tira al più da qui</i>
+const <b id="c-BARRACKS_NEAR">BARRACKS_NEAR</b> := 5    <i># caselle: un bersaglio all'aperto vale se una stanza della caserma è entro qui</i>
 const <b id="c-CLASS_GEAR">CLASS_GEAR</b> := {
 	Hero.WARRIOR: {Slot.HANDS: [Res.SWORD], Slot.BODY: [Res.CHAINMAIL, Res.LEATHER_ARMOR], Slot.HEAD: [Res.HELMET],
 		Slot.SHIELD: [Res.SHIELD]},
@@ -1492,6 +1494,7 @@ const <b id="c-GROUPS">GROUPS</b> := {ANY_VEG: [Res.VEG, Res.TURNIP, Res.CABBAGE
 const <b id="c-SURE">SURE</b> := [Res.FLOUR]  <i># ricette che non si rovinano: macinare non brucia niente (vedi craft)</i>
 const <b id="c-SMOKED">SMOKED</b> := [Res.SMOKED_MEAT, Res.SMOKED_FISH]
 const <b id="c-SMOKE_TIME">SMOKE_TIME</b> := 0.75     <i># affumicare al fuoco da campo, dove il fumo resta: tempo x (al focolare va su per la canna)</i>
+const <b id="c-OPEN_AIR">OPEN_AIR</b> := [Build.CAMPFIRE]  <i># postazioni che lavorano anche all'aperto, fuori da ogni stanza (il focolare no)</i>
 const <b id="c-STATION_ROOM">STATION_ROOM</b> := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.HEARTH: RoomKind.KITCHEN, Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP,
 	Build.SPINNING_WHEEL: RoomKind.WORKSHOP, Build.CARPENTER_BENCH: RoomKind.CARPENTRY, Build.DESK: RoomKind.STUDY,
 	Build.OVEN: RoomKind.KITCHEN, Build.MILLSTONE: RoomKind.MILL}</pre>
@@ -1781,7 +1784,7 @@ const <b id="c-BUILD_INFO">BUILD_INFO</b> := {
 	Build.TABLE: "Where colonists eat and work.",
 	Build.CHAIR: "Put it at a table, turned to face it.",
 	Build.LAMP: "Lights up at night.",
-	Build.CAMPFIRE: "A wood fire inside a ring of stones. Burns day and night and warms the room. A kitchen needs one, or a hearth. Smoking is faster here.",
+	Build.CAMPFIRE: "A wood fire inside a ring of stones. Burns day and night and warms the room. A kitchen needs one, or a hearth; in the open it cooks anywhere. Smoking is faster here.",
 	Build.FURNACE: "A stone furnace. A forge needs one, and an anvil. Smelts iron and coal into ingots. Half its heat goes through a wooden wall at its back.",
 	Build.WALL_HIDES: "Hides nailed to a wall, against the draughts. Hang it against a wall.",
 	Build.DOOR_CURTAIN: "A heavy leather curtain in front of a door, where the cold gets in. Hang it against a door.",
@@ -1792,7 +1795,7 @@ const <b id="c-BUILD_INFO">BUILD_INFO</b> := {
 	Build.COMPOST_HEAP: "Rotten food and uprooted weeds are brought here: in 10 days every 4 become compost, to fertilize the garden.",
 	Build.CRADLE: "A rocking cradle. A baby sleeps here instead of in their parents' arms.",
 	Build.WEAPON_RACK: "Swords and shields on a rack. With two dummies, a room can become an armory.",
-	Build.TARGET: "A straw target on an easel. Two of them make an archery range, in a room at least 8 tiles long. Archers shoot in line with it, best from 5 tiles or more: put it at one end.",
+	Build.TARGET: "A straw target on an easel. Two of them make an archery range, in a room at least 8 tiles long. Outdoors it works too, within 5 tiles of an armory or an archery range. Archers shoot in line with it, from 5 tiles or more.",
 	Build.LOCK_BENCH: "A bench full of locks: in the armory, burglars practice here.",
 	Build.MEDICINE_CHEST: "Herbs, ointments and bandages. With a bed, the room can be an infirmary, where the sick heal faster.",
 	Build.GRAVE: "A grave with a wooden cross, on open ground. The haulers bury the dead here: their mourning is a day shorter.",
