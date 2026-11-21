@@ -10635,7 +10635,7 @@ func send(party: Array, ruin: Ruin) -> bool:
 	var cost: int = party.reduce(func(n, g): return n + fee(g), 0)
 	if party.is_empty() or party.size() > MAX_PARTY or ruin not in ruins or explored(ruin) or stored(Res.GOLD) < cost \
 			or party.any(func(g): return g.hired or (g not in guests and g not in volunteers())) \
-			or not party.any(func(g): return g.hero != Hero.NONE):
+			or not party.any(leads):
 		return false
 	take_stored(Res.GOLD, cost)
 	var exp := Expedition.new()
@@ -10663,7 +10663,8 @@ func send(party: Array, ruin: Ruin) -> bool:
 	expeditions.append(exp)
 	board_pick.clear()
 	note(tr("%s: %s hired for the %s, for %s and %d of %d provisions.") % [date(int(clock)),
-		", ".join(party.map(func(g): return "%s (%s)" % [full_name(g), hero_name(g) if g.hero != Hero.NONE else tr("colonist")])),
+		", ".join(party.map(func(g): return "%s (%s)" % [full_name(g), hero_name(g) if g.hero != Hero.NONE
+			else (calling_title(g) if g.calling != Hero.NONE else tr("colonist"))])),
 		tr(RUINS[ruin.kind]["name"]), coins(cost),
 		exp.food, want] + (tr(" The armory lends: %s.") % ", ".join(loans) if not loans.is_empty() else ""))
 	return true
@@ -11331,8 +11332,8 @@ func fill_board() -> void:
 		slots.add_child(party_slot(board_pick[i] if i < board_pick.size() else null))
 	var cost: int = board_pick.reduce(func(n, g): return n + fee(g), 0)
 	right.get_node("Party/Box/Summary").text = tr("Click or drag here who goes.") if board_pick.is_empty() \
-		else (tr("Fees: %s") % coins(cost) + ("" if board_pick.any(func(g): return g.hero != Hero.NONE)
-			else "    " + tr("At least one adventurer must go")))
+		else (tr("Fees: %s") % coins(cost) + ("" if board_pick.any(leads)
+			else "    " + tr("At least one adventurer or colonist with a class must go")))
 	var zone: Control = right.get_node("Party")
 	var lit := card_style(true)  # la squadra: bordo d'oro tutto attorno
 	lit.border_width_left = 2
@@ -11394,7 +11395,7 @@ func board_drop(at: Vector2, data: Variant, to_party: bool) -> void:
 # Un posto della squadra: chi parte, con la figurina grande e il nome (cliccato o trascinato a sinistra, resta a casa);
 # se è vuoto, un riquadro spento
 func party_slot(g) -> PanelContainer:
-	var slot := make_card(Color(HEROES[g.hero]["tunic"]).lightened(0.35) if g != null and g.hero != Hero.NONE
+	var slot := make_card(Color(HEROES[g.hero if g.hero != Hero.NONE else g.calling]["tunic"]).lightened(0.35) if g != null and leads(g)
 		else (CENSUS_ACCENTS[0] if g != null else CENSUS_BORDER))
 	slot.custom_minimum_size = Vector2(BOARD_SLOT, 100)
 	slot.mouse_filter = Control.MOUSE_FILTER_PASS  # quello che ci cade sopra lo prende la squadra
@@ -11419,7 +11420,8 @@ func party_slot(g) -> PanelContainer:
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	name_label.custom_minimum_size.x = BOARD_SLOT - 24
-	name_label.tooltip_text = "%s\n%s" % [full_name(g), hero_name(g) if g.hero != Hero.NONE else tr("Colonist")]
+	name_label.tooltip_text = "%s\n%s" % [full_name(g), hero_name(g) if g.hero != Hero.NONE
+		else (calling_title(g) if g.calling != Hero.NONE else tr("Colonist"))]
 	name_label.mouse_filter = Control.MOUSE_FILTER_PASS
 	box.add_child(name_label)
 	slot.add_child(box)
@@ -11472,7 +11474,7 @@ func board_note(text: String) -> Label:
 # o trascinato nella squadra, parte (vedi board_click, board_drop)
 func board_card(g: Colonist) -> PanelContainer:
 	var hero := g.hero != Hero.NONE
-	var card := make_card(Color(HEROES[g.hero]["tunic"]).lightened(0.35) if hero else CENSUS_ACCENTS[0])
+	var card := make_card(Color(HEROES[g.hero if hero else g.calling]["tunic"]).lightened(0.35) if leads(g) else CENSUS_ACCENTS[0])
 	card.custom_minimum_size.x = BOARD_CARD
 	card.tooltip_text = "Click or drag into the party"
 	var box := VBoxContainer.new()
@@ -11491,7 +11493,8 @@ func board_card(g: Colonist) -> PanelContainer:
 	who.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	who.mouse_filter = Control.MOUSE_FILTER_PASS
 	for line in ["%s %s" % [g.first_name, g.last_name], hero_name(g) if hero
-			else (tr("Once a %s") % named(Hero, g.former).to_lower() if g.former != Hero.NONE else tr("Colonist"))]:
+			else (calling_title(g) if g.calling != Hero.NONE
+			else (tr("Once a %s") % named(Hero, g.former).to_lower() if g.former != Hero.NONE else tr("Colonist")))]:
 		var label := Label.new()
 		label.text = line
 		label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
@@ -11580,7 +11583,7 @@ func ruin_card(ruin: Ruin) -> PanelContainer:
 	if done:
 		return card
 	var cost: int = board_pick.reduce(func(n, g): return n + fee(g), 0)
-	var anyone := board_pick.any(func(g): return g.hero != Hero.NONE)  # ci vuole almeno un avventuriero
+	var anyone := board_pick.any(leads)  # ci vuole almeno un avventuriero, o un colono con una classe
 	var food := provisions(board_pick, ruin)
 	var days := ceili(trip_days(ruin, board_pick))
 	var foot := HBoxContainer.new()
@@ -11597,7 +11600,7 @@ func ruin_card(ruin: Ruin) -> PanelContainer:
 	send_button.text = "Send"
 	send_button.focus_mode = Control.FOCUS_NONE
 	send_button.disabled = board_pick.is_empty() or stored(Res.GOLD) < cost or not anyone
-	send_button.tooltip_text = "Put who goes in the party" if board_pick.is_empty() else ("At least one adventurer must go" if not anyone
+	send_button.tooltip_text = "Put who goes in the party" if board_pick.is_empty() else ("At least one adventurer or colonist with a class must go" if not anyone
 		else "Not enough gold" if stored(Res.GOLD) < cost
 		else (tr("Only %d of %d provisions: they will go hungry") % [food_stored(), food] if food_stored() < food
 		else tr("%d days there and back") % days))
@@ -12341,11 +12344,18 @@ func volunteers() -> Array:
 		and c.due == 0.0 and not c.hired and c.errand == Errand.NONE and not c.oath)
 
 
+# `g` può guidare una spedizione: un avventuriero, o un colono con una classe (la regola della squadra)
+func leads(g: Colonist) -> bool:
+	return g.hero != Hero.NONE or g.calling != Hero.NONE
+
+
 # nella rovina: l'abilità con cui combatte, quanti colpi prende, e per l'avventuriero il resto della classe (HEROES).
 # Chi era avventuriero combatte come la sua classe di un tempo; gli altri coloni con la migliore tra mischia e distanza
 func role_of(c: Colonist) -> Dictionary:
 	if c.hero != Hero.NONE:
 		return HEROES[c.hero]
+	if c.calling != Hero.NONE:  # la classe della caserma: come un avventuriero della sua classe
+		return HEROES[c.calling]
 	if c.former != Hero.NONE:
 		return {"weapon": HEROES[c.former]["weapon"], "hurt": HEROES[c.former]["hurt"]}
 	return {"weapon": Skill.MELEE if c.skills[Skill.MELEE] >= c.skills[Skill.RANGED] else Skill.RANGED, "hurt": 1.0}

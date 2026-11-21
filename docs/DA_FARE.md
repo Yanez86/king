@@ -26,7 +26,7 @@
 | Mondo e tempo | 4.5 | fatto | — |
 | Salvataggio | 4.5.1 | locale fatto | il cloud |
 | Eventi casuali | 4.6 | fatto: il narratore e 11 eventi | tarare i numeri; eventi nuovi coi sistemi nuovi |
-| Caserma e classi | 4.4.6 | fasi 1–2 (le abilità salgono di livello; caserma, classi, corredo) | l'esercitazione, in battaglia, in spedizione |
+| Caserma e classi | 4.4.6 | fatto: classi, corredo, esercitazione, in battaglia, in spedizione | provarla in gioco, tarare i numeri |
 | Ricerca | 4.7.3 | 47 ricerche su 54 | 7 ricerche, il livello IV |
 | Leggi | 4.7.7 | 27 leggi su 38 | 11 leggi: aspettano i loro sistemi |
 | Interfaccia | [TECH](TECH.md) | testo a 22, elenco degli abitanti, bacheca con la squadra | provarla in inglese e ad altre risoluzioni |
@@ -41,7 +41,11 @@ misti, Scuola).
 Medicina e morte è fatta (4.2.2: erbe e unguento, infermeria e medico, tombe, Funerali e memoriale). Grano, forno e
 animali è fatto (4.4.7: torrente e mulini, forno, pascolo e stalla, api, banchetto reale).
 
-1. **Caserma, fasi 3–5** — l'esercitazione, in battaglia e in spedizione secondo la classe.
+La caserma è fatta (4.4.6, tutte le fasi). Niente di grosso è più a metà: il prossimo passo è da scegliere.
+
+1. **Sovrano, fasi 3, 5 e 8** — sereno e cupo, lo stile di regno, lo sguardo e gli epiteti: chiude il sovrano (4.3).
+2. **Corporazioni** — i lavoratori delle stanze di lavoro che contano davvero (4.1), con la sua legge.
+3. **Predoni** — una minaccia nuova per il narratore, ora che la caserma c'è (4.4.3).
 
 ## Lavori e priorità (4.1)
 
@@ -162,7 +166,6 @@ resterebbero senza sostegno). Resta:
 - [ ] Predoni (umani).
 - [ ] Animali che fuggono o si difendono.
 - [ ] Ordini di combattimento dati dal re (il combattimento tattico resta fuori scope).
-- [ ] L'arciere che sale da sé sulla torre di guardia: lo fa chi ha la classe arciere (4.4.6).
 - [ ] Splendore: strade che collegano le case, alberi piantati, feste; i sentieri tra le case danno splendore.
 - [ ] Splendore: tarare la manutenzione (mezza moneta a punto oltre i primi 15, a ogni festa di stagione), la
   vicinanza (4 caselle) e la colonia (2 caselle); disegnare la patina delle decorazioni trascurate e diroccate (oggi
@@ -170,17 +173,15 @@ resterebbero senza sostegno). Resta:
 
 ## Caserma e classi dei coloni (4.4.6)
 
-Deciso il 2026-11-19: il giocatore dà a un colono la classe di un avventuriero (guerriero, arciere, scassinatore) dalla
-sua scheda, e il colono si allena nelle stanze della caserma (sala d'armi, tiro a segno). Fatte le fasi 1 (le abilità
-salgono di livello) e 2 (la ricerca Caserma, le sue stanze e i mobili, la classe dalla scheda, il corredo, il pugnale).
-Fase ancora da fare:
+Fatte tutte e cinque le fasi (la 3, la 4 e la 5 il 2026-11-21: l'esercitazione, in battaglia e in spedizione secondo la
+classe). Quello che resta:
 
-- [ ] (3) L'esercitazione: un'ora al giorno nella routine, il lavoro Esercitarsi, i lavoratori della stanza a tempo
-  pieno, la milizia in caserma.
-- [ ] (4) In battaglia secondo la classe: il guerriero che copre, l'arciere che tiene la distanza e sale sulla torre, lo
-  scassinatore che schiva.
-- [ ] (5) In spedizione come la sua classe; un gruppo di soli coloni con una classe può partire; la classe sulla
-  bacheca.
+- [ ] Le frecce dell'esercitazione al tiro a segno non si vedono; a un bersaglio messo a metà stanza non si tira (servono
+  5 caselle in linea): dirlo nel suggerimento del bersaglio o sul cartello della stanza.
+- [ ] Provare in gioco, coi lupi veri: l'arciere che arretra, la salita sulla torre, il guerriero che copre.
+- [ ] Tarare i numeri: l'esperienza dell'esercitazione (1,5 a colpo), le soglie del guerriero e dello scassinatore, le 3
+  caselle dell'arciere, le 15 della torre.
+- [ ] La Guardia del corpo (legge) e i predoni, quando ci saranno, secondo la classe.
 
 ## Avventurieri e rovine (4.4.4)
 

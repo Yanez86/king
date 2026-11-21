@@ -319,7 +319,28 @@ func _initialize() -> void:
 	main.furniture.erase(lookout)
 	main.arrows.clear()
 
-	print("OK: la caserma (ricerca, sala d'armi e tiro a segno, la classe, il corredo, l'esercitazione, in battaglia)")
+	# fase 5, in spedizione (Compagnia della corona): conta come la sua classe, e un gruppo di soli coloni con una classe parte
+	main.researched[T.CROWN_COMPANY] = true
+	check(main.role_of(ward) == main.HEROES[H.WARRIOR] and main.role_of(bow) == main.HEROES[H.ARCHER]
+		and main.role_of(bow)["cover"] < 1.0 and not main.role_of(plain).has("cover"), "nella rovina come la sua classe: l'arciere tira per primo")
+	main.set_calling(bow, H.BURGLAR)
+	check(main.role_of(bow)["haul"] > 1.0, "la sacca dello scassinatore")
+	check(main.leads(ward) and main.leads(bow) and not main.leads(plain), "chi ha una classe vale come un avventuriero per la squadra")
+	for o in [ward, bow, plain]:
+		main.quit_job(o)
+		o.gear = {}
+	check(ward in main.volunteers() and plain in main.volunteers(), "possono partire")
+	var card: Control = main.board_card(ward)
+	check(card.find_children("*", "Label", true, false).any(func(l): return l.text == "Warrior of the colony, level 3"), "la classe sulla bacheca")
+	card.free()
+	check(main.fee(ward) == 0, "senza paga")
+	check(not main.send([plain], main.ruins[0]), "un colono senza classe da solo non parte")
+	var coins_before: int = main.stored(R.GOLD)
+	check(main.send([ward, plain], main.ruins[0]) and main.expeditions.size() == 1 and main.expeditions[0].party == [ward, plain]
+		and ward.hired and main.stored(R.GOLD) == coins_before, "un gruppo di soli coloni, con un guerriero: parte, gratis")
+	check(main.chronicle[-1].contains("(Warrior of the colony, level 3)") and main.chronicle[-1].contains("(colonist)"), "nella cronaca, con la classe")
+
+	print("OK: la caserma (ricerca, sala d'armi e tiro a segno, la classe, il corredo, l'esercitazione, in battaglia, in spedizione)")
 	quit()
 
 

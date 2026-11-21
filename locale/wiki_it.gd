@@ -639,7 +639,8 @@ Un colono con una classe prende invece il corredo della sua classe, anche al pos
 • Con la legge Milizia chi ha una classe fa la sua ora in caserma, e vale come esercitazione del giorno.
 • In battaglia il guerriero va contro i lupi da 16 caselle (non 12) e scappa solo sotto 20 punti ferita (non 40); un lupo che morde qualcuno entro 2 caselle da un guerriero in piedi passa al guerriero; +10% a segno in mischia.
 • L'arciere, con l'arco in mano, va a segno il 10% in più e tira una casella più lontano. Coi lupi in vista sale sulla torre di guardia libera più vicina entro 15 caselle e ci resta finché il pericolo non passa; a terra, se un lupo gli arriva entro 3 caselle arretra e tira di nuovo.
-• Lo scassinatore è svelto: i morsi dei lupi vanno a segno il 15% in meno; scappa sotto 30 punti ferita."""],
+• Lo scassinatore è svelto: i morsi dei lupi vanno a segno il 15% in meno; scappa sotto 30 punti ferita.
+• In spedizione (vedi Avventurieri, la Compagnia della corona) un colono con una classe conta come la sua classe, senza paga né quota; la bacheca mostra la classe."""],
 
 	["Medicina e morte", """[color=#e8c34a]Erbe medicinali[/color] [img=center]res://art/icon_herbs.png[/img]
 Piantine coi fiori bianchi sparse nei prati (col mouse sopra: Erbe medicinali), circa una ogni 150 caselle di prato. Segnale con Raccogli (H): 5 erbe a pianta, colte come le bacche; rifioriscono in 2 giorni, mai d'inverno. Le erbe non marciscono.
@@ -759,9 +760,9 @@ Cliccala: le monete e le provviste in magazzino, poi tutto in riquadri. A sinist
 
 [color=#e8c34a]La compagnia della corona[/color]
 Con la ricerca Compagnia della corona (Strada III, 500 e un tomo, dopo Locanda rinomata) partono anche i tuoi coloni.
-• Sulla bacheca, sotto chi aspetta alla locanda, i coloni che possono partire: gli adulti, non il sovrano, nessuno a terra o incinta. Si spuntano come gli avventurieri; deve partire almeno un avventuriero.
+• Sulla bacheca, sotto chi aspetta alla locanda, i coloni che possono partire: gli adulti, non il sovrano, nessuno a terra o incinta. Si spuntano come gli avventurieri; deve partire almeno un avventuriero, o un colono con una classe (vedi La caserma e le classi): un gruppo di soli coloni può partire se uno ha una classe.
 • Non chiedono paga e non prendono la quota delle monete. Via, non lavorano, ma contano per il titolo.
-• Nella rovina chi era avventuriero combatte come la sua classe di un tempo; gli altri con la migliore tra Mischia e Distanza, e prendono una parte media delle ferite. +1 esperienza nell'arma per ogni combattimento.
+• Nella rovina un colono con una classe conta come la sua classe (il guerriero prende più colpi, l'arciere tira per primo e il gruppo si fa meno male, la sacca dello scassinatore porta più bottino); chi era avventuriero combatte come la sua classe di un tempo; gli altri con la migliore tra Mischia e Distanza, e prendono una parte media delle ferite. +1 esperienza nell'arma per ogni combattimento.
 • Al ritorno vanno alla locanda con gli altri, poi tornano al lavoro. Un colono morto in una rovina si piange quando arriva la notizia (col gruppo, o quando la spedizione si dà per persa): Lutto e -5 autorità.
 
 [color=#e8c34a]Rovine[/color]

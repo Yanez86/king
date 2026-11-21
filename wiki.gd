@@ -640,7 +640,8 @@ A colonist with a class takes the gear of their class instead, even in place of 
 • With the Militia law, those with a class do their hour in the barracks, and it counts as the drill of the day.
 • In battle the warrior goes for wolves 16 tiles away (not 12) and flees only under 20 health (not 40); a wolf biting someone within 2 tiles of a standing warrior turns on the warrior instead; +10% to hit in melee.
 • The archer, bow in hand, hits 10% more often and shoots a tile farther. With wolves in sight they climb the nearest free watchtower within 15 tiles and stay until the danger is gone; on the ground, when a wolf comes within 3 tiles they fall back and shoot again.
-• The burglar is quick: wolves' bites land 15% less often; they flee under 30 health."""],
+• The burglar is quick: wolves' bites land 15% less often; they flee under 30 health.
+• On an expedition (see Adventurers, the Crown's company) a colonist with a class counts as that class, with no fee and no share; the notice board shows the class."""],
 
 	["Medicine & Death", """[color=#e8c34a]Medicinal herbs[/color] [img=center]res://art/icon_herbs.png[/img]
 Small plants with white flowers scattered in the meadows (hover: Medicinal herbs), about one every 150 tiles of grass. Mark them with Harvest (H): 5 herbs a plant, picked like berries; they flower again in 2 days, never in winter. Herbs don't spoil.
@@ -760,9 +761,9 @@ Click it: the coins and provisions in store, then everything in boxes. On the le
 
 [color=#e8c34a]The crown's company[/color]
 With the Crown company research (Road III, 500 and a tome, after Renowned inn) your colonists go too.
-• On the notice board, under those waiting at the inn, the colonists who can go: adults, not the ruler, nobody downed or pregnant. Pick them like the adventurers; at least one adventurer must go.
+• On the notice board, under those waiting at the inn, the colonists who can go: adults, not the ruler, nobody downed or pregnant. Pick them like the adventurers; at least one adventurer, or a colonist with a class (see The barracks and classes), must go: a party of colonists alone can leave if one of them has a class.
 • They ask no fee and keep no share of the coins. Away they don't work, but they still count for the title.
-• In the ruin a former adventurer fights like their old class; the others with the better of Melee and Ranged, taking an average share of the wounds. +1 experience in their weapon for every fight.
+• In the ruin a colonist with a class counts as that class (the warrior takes more of the wounds, the archer shoots first and the party is hurt less, the burglar's sack carries more loot); a former adventurer fights like their old class; the others with the better of Melee and Ranged, taking an average share of the wounds. +1 experience in their weapon for every fight.
 • Back home they walk to the inn with the others, then go back to work. A colonist who dies in a ruin is mourned when the news comes (with the party, or when it is given up for lost): Mourning and -5 authority.
 
 [color=#e8c34a]Ruins[/color]

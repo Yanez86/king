@@ -1004,8 +1004,7 @@ studio e un quaderno, dopo Fantoccio). Si appoggia alle soglie di livello delle 
   secondo la classe; (5) in spedizione come la sua classe, e la regola della squadra.
 - **Stato**: fatte le fasi 1 e 2 il 2026-11-19: le soglie di livello (vedi 4.2); la ricerca Caserma, sala d'armi e
   tiro a segno coi loro mobili, la classe dalla scheda (col perché, quando non si può), il livello, il corredo e il
-  cappuccio, il pugnale all'incudine. Il guerriero prende lo scudo solo con la spada in mano. Sulla bacheca la classe
-  arriva con la fase 5.
+  cappuccio, il pugnale all'incudine. Il guerriero prende lo scudo solo con la spada in mano.
   Fatta la fase 3 il 2026-11-21 (prove in `tests/test_barracks.gd`): `Job.DRILL` e `try_drill`, la prima ora di lavoro
   del giorno (non conta tra le ore lavorate; se non c'è un posto libero quel giorno salta), la casella rossa nella
   routine della scheda (`drill_hour`), la colonna Esercitarsi (`Work.DRILL`, l'ultima, solo per chi ha una classe: un'ora
@@ -1014,7 +1013,10 @@ studio e un quaderno, dopo Fantoccio). Si appoggia alle soglie di livello delle 
   Fatta la fase 4 lo stesso giorno (prove in `tests/test_barracks.gd`; i numeri in `WARRIOR`, `ARCHER`, `BURGLAR`): il
   guerriero (16 caselle, 20 punti ferita, copre entro 2 caselle: il morso va a lui, +10%), l'arciere (+10% e +1 casella
   con l'arco, anche a caccia; `man_tower` e `posted`: una torre per arciere; `back_off`: arretra una volta per tiro), lo
-  scassinatore (−15% ai morsi, 30 punti ferita). Con la Milizia vale la soglia più bassa. Il resto è solo design.
+  scassinatore (−15% ai morsi, 30 punti ferita). Con la Milizia vale la soglia più bassa.
+  Fatta la fase 5 lo stesso giorno: `role_of` dà la classe della caserma (colpi, l'arciere che tira per primo, la
+  sacca), `leads` la regola della squadra (un avventuriero o un colono con una classe), la classe sulla bacheca e nella
+  cronaca. Tutte e cinque le fasi sono fatte.
 
 ### 4.4.7 Grano, forno e animali da allevare
 Deciso il 2026-11-20. Numeri da tarare. Il pane viene dal grano dell'orto, macinato al mulino: ad acqua sul torrente,

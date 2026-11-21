@@ -350,7 +350,7 @@ func _initialize() -> void:
 	main.toggle_pick(true, farmer)
 	main.fill_board()
 	var send_button: Button = board.get_node("Columns/Right/Places/List/Ruins").get_child(0).find_child("Send", true, false)
-	check(send_button.disabled and send_button.tooltip_text == "At least one adventurer must go", "un colono da solo non parte")
+	check(send_button.disabled and send_button.tooltip_text == "At least one adventurer or colonist with a class must go", "un colono da solo non parte")
 	check(not main.send([farmer], main.ruins[0]), "un colono da solo non parte")
 	main.get_node("HUD/BoardPanel").hide()
 	var tower = main.ruins[0]

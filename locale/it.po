@@ -3645,8 +3645,8 @@ msgstr "La compagnia della corona: i coloni che possono partire"
 msgid "Nobody can go: adults only, not the ruler, nobody downed or pregnant."
 msgstr "Non può partire nessuno: solo gli adulti, non il sovrano, nessuno a terra o incinta."
 
-msgid "At least one adventurer must go"
-msgstr "Deve partire almeno un avventuriero"
+msgid "At least one adventurer or colonist with a class must go"
+msgstr "Deve partire almeno un avventuriero, o un colono con una classe"
 
 msgid "Melee %d, ranged %d, armor %d"
 msgstr "Mischia %d, distanza %d, protezione %d"
