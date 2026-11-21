@@ -619,6 +619,14 @@ const CLASS_SKILL := {Hero.WARRIOR: Skill.MELEE, Hero.ARCHER: Skill.RANGED, Hero
 # L'esercitazione (vedi try_drill): la prima ora di lavoro del giorno, nella stanza della classe, a DRILL_AT: un colpo, un
 # tiro o una serratura ogni TRAIN_HIT, con DRILL_XP volte l'esperienza del fantoccio di fuori; l'arciere tira da almeno
 # DRILL_SHOT caselle
+# In battaglia secondo la classe (GDD 4.4.6, fase 4). Il guerriero: va contro i lupi da "alert" caselle (non ALERT),
+# scappa sotto "flee" punti ferita, il lupo che morde qualcuno entro "cover" caselle da lui passa a lui, "hit" in più a
+# segno in mischia. L'arciere: se il lupo è entro "keep" caselle arretra e tira di nuovo, sale sulla torre di guardia
+# libera più vicina entro "tower" caselle, "hit" e "range" in più con l'arco. Lo scassinatore: i morsi vanno a segno
+# "dodge" in meno, scappa sotto "flee"
+const WARRIOR := {"alert": 16, "flee": 20.0, "cover": 2.0, "hit": 0.1}
+const ARCHER := {"keep": 3.0, "tower": 15, "hit": 0.1, "range": 1.0}
+const BURGLAR := {"dodge": 0.15, "flee": 30.0}
 const DRILL_AT := {Hero.WARRIOR: Build.DUMMY, Hero.ARCHER: Build.TARGET, Hero.BURGLAR: Build.LOCK_BENCH}
 const DRILL_HOURS := 1.0
 const DRILL_XP := 1.5
@@ -6878,10 +6886,21 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			shoot(c, a, randf() < hit_chance(hunt_level(c), dist) + gear_sum(c, "hit"))
 		Job.FIGHT:  # a portata (vedi track_prey): con l'arco tira, se no colpisce con quello che ha in mano
 			var foe: Animal = c.prey
+			if posted(c):  # l'arciere sulla torre: tira al più vicino, e scende solo quando il pericolo è passato
+				foe = nearest_foe(c)
+				if foe == null:
+					end_job(c)
+					return
+				c.prey = foe
 			var dist := c.pos.distance_to(foe.pos) / TILE
-			if dist > reach(c):  # si è allontanato: lo insegue
-				chase(c)
+			if dist > reach(c):  # si è allontanato: lo insegue (dalla torre no: aspetta che torni a tiro)
+				if not posted(c):
+					chase(c)
 				c.work_left = c.work_total
+				return
+			if c.calling == Hero.ARCHER and has_bow(c) and not posted(c) and dist <= ARCHER["keep"] and c.work_left == c.work_total \
+					and back_off(c, foe):  # tiene la distanza: arretra, poi tira di nuovo
+				c.work_left = c.work_total * 0.999
 				return
 			face(c, foe.pos - c.pos)
 			c.work_left -= delta
@@ -6893,7 +6912,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 				shoot(c, foe, randf() < hit_chance(c.skills[Skill.RANGED], dist) + gear_sum(c, "hit"))
 			else:
 				learn(c, Skill.MELEE, MELEE_TIME)
-				if randf() < melee_chance(c.skills[Skill.MELEE]):
+				if randf() < melee_chance(c.skills[Skill.MELEE]) + (WARRIOR["hit"] if c.calling == Hero.WARRIOR else 0.0):
 					wound(foe, melee_damage(c), c)
 		Job.FLEE:  # arrivato al riparo (vedi react)
 			end_job(c)
@@ -8562,6 +8581,8 @@ func outdoor_stress(c: Colonist) -> float:
 # scudo conta solo con la spada o il pugnale in mano
 func gear_sum(c: Colonist, key: String) -> float:
 	var sum: float = TOWER.get(key, 0.0) if has_bow(c) and furniture.get(cell_of(c.pos), [-1])[0] == Build.WATCHTOWER else 0.0
+	if c.calling == Hero.ARCHER and has_bow(c) and key in ["hit", "range"]:  # la classe (vedi ARCHER)
+		sum += ARCHER[key]
 	for g in c.gear.values():
 		if g != Res.SHIELD or shielded(c):
 			sum += GEAR[g].get(key, 0.0)
@@ -9091,6 +9112,8 @@ func attack_time(c: Colonist) -> float:
 func nearest_foe(c: Colonist) -> Animal:
 	var best: Animal = null
 	var sight: float = INF if on_watch() else (TOWER_SIGHT if towers() > 0 else ALERT) * TILE  # di guardia, appena entrano
+	if c.calling == Hero.WARRIOR:
+		sight = maxf(sight, WARRIOR["alert"] * TILE)
 	for a in animals:
 		if hostile(a) and a.blocked <= clock and a.pos.distance_to(c.pos) <= sight \
 				and (best == null or a.pos.distance_squared_to(c.pos) < best.pos.distance_squared_to(c.pos)):
@@ -9105,7 +9128,7 @@ func react(c: Colonist) -> bool:
 	var foe := nearest_foe(c)
 	if foe == null:
 		return false
-	if c.hp < flee_hp() or age_of(c) < YOUTH_AGE:  # i bambini scappano sempre
+	if c.hp < flee_hp(c) or age_of(c) < YOUTH_AGE:  # i bambini scappano sempre
 		if room_at(cell_of(c.pos)) != null:
 			if c.job == Job.SLEEP:
 				return false  # dorme al sicuro
@@ -9132,7 +9155,54 @@ func react(c: Colonist) -> bool:
 	c.prey = foe
 	c.work_total = attack_time(c)
 	c.work_left = c.work_total
-	chase(c)
+	if not man_tower(c):
+		chase(c)
+	return false
+
+
+# L'arciere `c` (la classe, con l'arco) sale sulla torre di guardia libera più vicina entro ARCHER["tower"] caselle: da
+# lì tira, e ci resta finché il pericolo non passa (vedi posted). false se non ce n'è una dove arriva
+func man_tower(c: Colonist) -> bool:
+	if c.calling != Hero.ARCHER or not has_bow(c):
+		return false
+	var here := cell_of(c.pos)
+	var towers: Array = furniture.keys().filter(func(o): return furniture[o][0] == Build.WATCHTOWER \
+		and (is_free(o) or reserved[o] == c) and center(o).distance_to(c.pos) <= ARCHER["tower"] * TILE)
+	if towers.is_empty():
+		return false
+	var path := path_to_nearest(c, towers)
+	if path.is_empty() and here not in towers:
+		return false
+	c.target = here if path.is_empty() else path.back()
+	c.path = path
+	reserved[c.target] = c
+	return true
+
+
+# l'arciere è di posta: sulla torre di guardia, o ci sta andando
+func posted(c: Colonist) -> bool:
+	return c.job == Job.FIGHT and c.calling == Hero.ARCHER and has_bow(c) \
+		and furniture.get(c.path.back() if not c.path.is_empty() else cell_of(c.pos), [-1])[0] == Build.WATCHTOWER
+
+
+# L'arciere `c` arretra dal lupo `foe` che gli è addosso: una casella lì attorno più lontana dal lupo, da cui tira
+# ancora. false se non ce n'è una
+func back_off(c: Colonist, foe: Animal) -> bool:
+	var here := cell_of(c.pos)
+	var spots := []
+	for dy in range(-5, 6):
+		for dx in range(-5, 6):
+			var k: Vector2i = here + Vector2i(dx, dy)
+			var far := center(k).distance_to(foe.pos) / TILE
+			if astar.is_in_boundsv(k) and not astar.is_point_solid(k) and not water.has(k) and not trees.has(k) \
+					and far >= ARCHER["keep"] + 2 and far <= reach(c):
+				spots.append(k)
+	spots.sort_custom(func(a, b): return center(a).distance_squared_to(foe.pos) > center(b).distance_squared_to(foe.pos))
+	for spot in spots.slice(0, 3):  # poche prove: ogni percorso costa
+		var path := path_of(c, here, spot)
+		if not path.is_empty() and path.size() <= 10:
+			c.path = path
+			return true
 	return false
 
 
@@ -9265,11 +9335,17 @@ func maul(a: Animal, prey: Animal) -> void:
 # ferita il colono resta a terra e lascia il lavoro, o muore (vedi death_chance). Chi è già a terra non si difende:
 # il morso lo uccide
 func bite(a: Animal, c: Colonist) -> void:
+	if c.calling != Hero.WARRIOR:  # un guerriero in piedi lì vicino lo copre: il lupo passa a lui
+		for o in colonists:
+			if o.calling == Hero.WARRIOR and not o.downed and o.pos.distance_to(c.pos) <= WARRIOR["cover"] * TILE:
+				a.target = o
+				c = o
+				break
 	if c.downed:
 		a.target = null
 		die(c, tr("was killed by wolves."))
 		return
-	if randf() >= BITE_HIT - DODGE_PER_LEVEL * c.skills[Skill.MELEE]:
+	if randf() >= BITE_HIT - DODGE_PER_LEVEL * c.skills[Skill.MELEE] - (BURGLAR["dodge"] if c.calling == Hero.BURGLAR else 0.0):
 		return
 	c.hp -= BEASTS[a.kind]["bite"] * armor_factor(c)
 	c.needs[Need.STRESS] = minf(c.needs[Need.STRESS] + HIT_STRESS, NEED_MAX)
@@ -9298,8 +9374,12 @@ func beast_path(from: Vector2i, to: Vector2i) -> Array[Vector2i]:
 
 
 # sotto quanti punti ferita si scappa invece di combattere: con la milizia meno
-func flee_hp() -> float:
-	return MILITIA_FLEE if enacted.has(Law.MILITIA) else FLEE_HP
+# il guerriero e lo scassinatore tengono duro di più (vedi WARRIOR, BURGLAR)
+func flee_hp(c: Colonist = null) -> float:
+	var base: float = MILITIA_FLEE if enacted.has(Law.MILITIA) else FLEE_HP
+	if c != null and c.calling in [Hero.WARRIOR, Hero.BURGLAR]:
+		return minf(base, (WARRIOR if c.calling == Hero.WARRIOR else BURGLAR)["flee"])
+	return base
 
 
 # quanti `res` tenere (vedi keep): dal menu delle postazioni, o per i quaderni dalla finestra Knowledge
@@ -12820,6 +12900,8 @@ func track_prey(c: Colonist) -> void:
 		return
 	if c.path.is_empty():
 		return
+	if c.calling == Hero.ARCHER and has_bow(c) and (posted(c) or center(c.path.back()).distance_to(a.pos) > c.pos.distance_to(a.pos) + TILE):
+		return  # l'arciere che va alla torre, o che arretra: non si ferma e non torna indietro
 	if c.pos.distance_to(a.pos) <= reach(c) * TILE * 0.8:
 		c.path = [c.path[0]]
 	elif center(c.path.back()).distance_to(a.pos) > 2 * TILE:

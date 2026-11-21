@@ -637,7 +637,10 @@ A colonist with a class takes the gear of their class instead, even in place of 
 • Quiver, mask and sack are the kit of the class: you see them, nobody makes them. The hood takes the color of the class: green the archer, dark the burglar.
 • Drill: every day the first hour of work (the red square in the routine on the sheet) is spent in the room of the class: the warrior at a dummy of the armory, the burglar at the lock bench, the archer in line with a target of the archery range, 5 tiles away or more (put the targets at one end). A blow, a shot or a lock every 2.5 seconds: one and a half times the experience of the dummy outside. Without a free place, no drill that day; none in the last months of a pregnancy.
 • The Drill column in the Jobs table, only for those with a class: they drill when their turn comes, an hour at a time. The workers of an armory or an archery range (from the room's sign) drill the whole shift and do no other work.
-• With the Militia law, those with a class do their hour in the barracks, and it counts as the drill of the day."""],
+• With the Militia law, those with a class do their hour in the barracks, and it counts as the drill of the day.
+• In battle the warrior goes for wolves 16 tiles away (not 12) and flees only under 20 health (not 40); a wolf biting someone within 2 tiles of a standing warrior turns on the warrior instead; +10% to hit in melee.
+• The archer, bow in hand, hits 10% more often and shoots a tile farther. With wolves in sight they climb the nearest free watchtower within 15 tiles and stay until the danger is gone; on the ground, when a wolf comes within 3 tiles they fall back and shoot again.
+• The burglar is quick: wolves' bites land 15% less often; they flee under 30 health."""],
 
 	["Medicine & Death", """[color=#e8c34a]Medicinal herbs[/color] [img=center]res://art/icon_herbs.png[/img]
 Small plants with white flowers scattered in the meadows (hover: Medicinal herbs), about one every 150 tiles of grass. Mark them with Harvest (H): 5 herbs a plant, picked like berries; they flower again in 2 days, never in winter. Herbs don't spoil.

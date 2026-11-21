@@ -636,7 +636,10 @@ Un colono con una classe prende invece il corredo della sua classe, anche al pos
 • Faretra, maschera e sacca sono il corredo della classe: si vedono, non le fa nessuno. Il cappuccio prende il colore della classe: verde l'arciere, scuro lo scassinatore.
 • Esercitazione: ogni giorno la prima ora di lavoro (la casella rossa nella routine della scheda) si passa nella stanza della classe: il guerriero a un fantoccio della sala d'armi, lo scassinatore al banco degli scassi, l'arciere in linea con un bersaglio del tiro a segno, a 5 caselle o più (i bersagli vanno messi in fondo). Un colpo, un tiro o una serratura ogni 2,5 secondi: una volta e mezza l'esperienza del fantoccio di fuori. Senza un posto libero, quel giorno niente; niente negli ultimi mesi di una gravidanza.
 • La colonna Esercitarsi nella tabella dei lavori, solo per chi ha una classe: si allena quando tocca a lei nella tabella, un'ora alla volta. I lavoratori di una sala d'armi o di un tiro a segno (dal cartello della stanza) si allenano per tutto il turno e non fanno altri lavori.
-• Con la legge Milizia chi ha una classe fa la sua ora in caserma, e vale come esercitazione del giorno."""],
+• Con la legge Milizia chi ha una classe fa la sua ora in caserma, e vale come esercitazione del giorno.
+• In battaglia il guerriero va contro i lupi da 16 caselle (non 12) e scappa solo sotto 20 punti ferita (non 40); un lupo che morde qualcuno entro 2 caselle da un guerriero in piedi passa al guerriero; +10% a segno in mischia.
+• L'arciere, con l'arco in mano, va a segno il 10% in più e tira una casella più lontano. Coi lupi in vista sale sulla torre di guardia libera più vicina entro 15 caselle e ci resta finché il pericolo non passa; a terra, se un lupo gli arriva entro 3 caselle arretra e tira di nuovo.
+• Lo scassinatore è svelto: i morsi dei lupi vanno a segno il 15% in meno; scappa sotto 30 punti ferita."""],
 
 	["Medicina e morte", """[color=#e8c34a]Erbe medicinali[/color] [img=center]res://art/icon_herbs.png[/img]
 Piantine coi fiori bianchi sparse nei prati (col mouse sopra: Erbe medicinali), circa una ogni 150 caselle di prato. Segnale con Raccogli (H): 5 erbe a pianta, colte come le bacche; rifioriscono in 2 giorni, mai d'inverno. Le erbe non marciscono.

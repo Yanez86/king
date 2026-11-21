@@ -1010,7 +1010,11 @@ studio e un quaderno, dopo Fantoccio). Si appoggia alle soglie di livello delle 
   del giorno (non conta tra le ore lavorate; se non c'è un posto libero quel giorno salta), la casella rossa nella
   routine della scheda (`drill_hour`), la colonna Esercitarsi (`Work.DRILL`, l'ultima, solo per chi ha una classe: un'ora
   alla volta), i lavoratori della stanza a tempo pieno, la milizia in caserma. L'arciere vuole 5 caselle in riga o in
-  colonna col bersaglio dentro il tiro a segno; le frecce dell'esercitazione non si vedono ancora. Il resto è solo design.
+  colonna col bersaglio dentro il tiro a segno; le frecce dell'esercitazione non si vedono ancora.
+  Fatta la fase 4 lo stesso giorno (prove in `tests/test_barracks.gd`; i numeri in `WARRIOR`, `ARCHER`, `BURGLAR`): il
+  guerriero (16 caselle, 20 punti ferita, copre entro 2 caselle: il morso va a lui, +10%), l'arciere (+10% e +1 casella
+  con l'arco, anche a caccia; `man_tower` e `posted`: una torre per arciere; `back_off`: arretra una volta per tiro), lo
+  scassinatore (−15% ai morsi, 30 punti ferita). Con la Milizia vale la soglia più bassa. Il resto è solo design.
 
 ### 4.4.7 Grano, forno e animali da allevare
 Deciso il 2026-11-20. Numeri da tarare. Il pane viene dal grano dell'orto, macinato al mulino: ad acqua sul torrente,

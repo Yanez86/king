@@ -204,7 +204,122 @@ func _initialize() -> void:
 	check(not main.drills(ward) and main.drill_hour(ward) == -1 and not main.can_do(ward, W.DRILL), "incinta agli ultimi mesi: niente esercitazione")
 	ward.due = 0.0
 
-	print("OK: la caserma (ricerca, sala d'armi e tiro a segno, la classe, il corredo, l'esercitazione)")
+	# fase 4, in battaglia secondo la classe. Guerriero: scappa sotto 20 (lo scassinatore sotto 30), vede i lupi da 16 caselle
+	var plain = main.Colonist.new()  # un colono in più, adulto, senza classe
+	main.dress(plain, main.people().map(func(o): return o.first_name))
+	plain.skills = main.Skill.values().map(func(_s): return 0)
+	plain.xp = main.Skill.values().map(func(_s): return 0)
+	plain.needs = main.Need.values().map(func(_n): return 60.0)
+	plain.trend = plain.needs.map(func(_v): return 0.0)
+	main.give_age(plain, main.ADULT_AGE)
+	main.colonists.append(plain)
+	check(main.flee_hp(ward) == 20.0 and main.flee_hp(bow) == 30.0 and main.flee_hp(plain) == main.FLEE_HP and main.flee_hp() == main.FLEE_HP,
+		"il guerriero scappa sotto 20, lo scassinatore sotto 30, gli altri sotto 40")
+	main.enacted.append(main.Law.MILITIA)
+	check(main.flee_hp(ward) == 20.0 and main.flee_hp(plain) == main.MILITIA_FLEE, "con la milizia gli altri sotto 30")
+	main.enacted.clear()
+	for o in main.colonists:
+		main.quit_job(o)
+		o.hp = main.MAX_HP
+	ward.pos = main.center(mid)
+	plain.pos = main.center(mid + Vector2i(1, 0))
+	bow.pos = main.center(mid + Vector2i(0, 8))
+	var wolf = main.add_animal(main.Beast.WOLF, mid + Vector2i(14, 0))
+	wolf.blocked = 0.0
+	check(main.nearest_foe(ward) == wolf and main.nearest_foe(plain) == null, "il guerriero va contro i lupi da 16 caselle, gli altri da 12")
+	# copre chi gli sta vicino: il lupo che morde qualcuno entro 2 caselle passa a lui
+	wolf.target = plain
+	for i in 50:
+		main.bite(wolf, plain)
+		ward.hp = main.MAX_HP
+		ward.downed = false
+	check(plain.hp == main.MAX_HP and wolf.target == ward, "il guerriero copre chi ha vicino: il lupo passa a lui")
+	plain.pos = main.center(mid + Vector2i(4, 0))
+	wolf.target = plain
+	main.bite(wolf, plain)
+	check(wolf.target == plain, "lontano dal guerriero nessuno lo copre")
+	plain.pos = main.center(mid + Vector2i(1, 0))
+	ward.downed = true
+	main.bite(wolf, plain)
+	check(wolf.target == plain, "né un guerriero a terra")
+	ward.downed = false
+	# scassinatore: i lupi lo mordono a segno il 15% in meno
+	plain.pos = main.center(mid + Vector2i(6, 0))
+	main.deaths = false
+	var bitten := {}
+	for o in [bow, plain]:
+		o.skills[melee] = 2
+		o.gear = {}
+		bitten[o] = 0
+		for i in 2000:
+			o.hp = main.MAX_HP
+			o.downed = false
+			main.bite(wolf, o)
+			bitten[o] += int(o.hp < main.MAX_HP)
+	check(bitten[plain] - bitten[bow] > 200 and bitten[plain] - bitten[bow] < 400, "lo scassinatore schiva: %d morsi contro %d" % [bitten[bow], bitten[plain]])
+	for o in [bow, plain]:
+		o.hp = main.MAX_HP
+		o.downed = false
+	# arciere: +10% a segno e una casella di gittata in più; arretra dal lupo che gli arriva addosso e tira di nuovo
+	main.set_calling(bow, H.ARCHER)
+	bow.gear = {S.HANDS: R.BOW}
+	plain.gear = {S.HANDS: R.BOW}
+	check(is_equal_approx(main.gear_sum(bow, "hit"), main.gear_sum(plain, "hit") + 0.1)
+		and is_equal_approx(main.hunt_range(bow), main.hunt_range(plain) + 1.0), "l'arciere: +10% a segno, +1 casella")
+	check(is_equal_approx(main.WARRIOR["hit"], 0.1), "il guerriero +10% in mischia")
+	wolf.pos = bow.pos + Vector2(2 * main.TILE, 0)
+	bow.job = J.FIGHT
+	bow.prey = wolf
+	bow.work_total = main.attack_time(bow)
+	bow.work_left = bow.work_total
+	main.update_colonist(bow, 0.01)
+	check(not bow.path.is_empty() and main.center(bow.path.back()).distance_to(wolf.pos) >= (main.ARCHER["keep"] + 2) * main.TILE
+		and bow.job == J.FIGHT, "il lupo entro 3 caselle: l'arciere arretra")
+	main.track_prey(bow)
+	check(bow.path.size() > 1, "e non si ferma né torna indietro finché non è lontano")
+	bow.pos = main.center(bow.path.back())
+	bow.path.clear()
+	var shots: int = main.arrows.size()
+	wolf.pos = bow.pos + Vector2(2 * main.TILE, 0)
+	main.update_colonist(bow, bow.work_total)
+	check(main.arrows.size() == shots + 1 and bow.path.is_empty(), "arrivato tira di nuovo, anche col lupo addosso")
+	main.arrows.clear()
+	plain.job = J.FIGHT
+	plain.prey = wolf
+	plain.pos = bow.pos
+	plain.work_total = main.attack_time(plain)
+	plain.work_left = plain.work_total
+	main.update_colonist(plain, 0.01)
+	check(plain.path.is_empty(), "chi ha solo l'arco, senza la classe, resta dov'è")
+	main.quit_job(plain)
+	main.quit_job(bow)
+	# sale sulla torre di guardia libera più vicina entro 15 caselle, e ci resta finché il pericolo non passa
+	bow.pos = main.center(mid + Vector2i(0, 8))
+	plain.pos = main.center(mid + Vector2i(1, 8))
+	wolf.pos = main.center(mid + Vector2i(10, 8))
+	var lookout: Vector2i = mid + Vector2i(-3, 8)
+	main.furniture[lookout] = [B.WATCHTOWER, R.WOOD, 0]
+	main.react(bow)
+	main.react(plain)
+	check(bow.job == J.FIGHT and not bow.path.is_empty() and bow.path.back() == lookout and main.posted(bow), "l'arciere va alla torre di guardia")
+	check(plain.job == J.FIGHT and not main.posted(plain) and (plain.path.is_empty() or plain.path.back() != lookout), "gli altri no")
+	main.track_prey(bow)
+	check(bow.path.back() == lookout, "e non si lascia distrarre per strada")
+	bow.pos = main.center(lookout)
+	bow.path.clear()
+	wolf.pos = main.center(lookout + Vector2i(18, 0))
+	main.update_colonist(bow, bow.work_total)
+	check(bow.job == J.FIGHT and bow.path.is_empty() and main.arrows.is_empty(), "sulla torre: il lupo fuori tiro non lo insegue")
+	wolf.pos = main.center(lookout + Vector2i(8, 0))
+	main.update_colonist(bow, bow.work_total)
+	check(main.arrows.size() == 1 and main.cell_of(bow.pos) == lookout, "a tiro (più lungo, dalla torre) tira")
+	main.animals.erase(wolf)
+	main.update_colonist(bow, 0.01)
+	check(bow.job != J.FIGHT, "passato il pericolo scende")
+	main.furniture.erase(lookout)
+	main.arrows.clear()
+
+	print("OK: la caserma (ricerca, sala d'armi e tiro a segno, la classe, il corredo, l'esercitazione, in battaglia)")
 	quit()
 
 
