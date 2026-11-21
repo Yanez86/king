@@ -161,12 +161,15 @@ func about_law(l: int) -> String:
 	var data: Dictionary = main.LAWS[l]
 	var mood: Dictionary = data.get("mood", {})
 	var who := mood.keys().map(func(k): return "%s %s" % [{"all": tr("everyone"), "guests": tr("adventurers"), "ruler": tr("the ruler"),
-		"hunters": tr("bow carriers"), "foreigners": tr("foreigners"), "sworn": tr("the sworn")}.get(k,
+		"hunters": tr("bow carriers"), "foreigners": tr("foreigners"), "sworn": tr("the sworn"), "pupils": tr("children and foreigners")}.get(k,
 		link(key_of("trait", main.Trait, k)) if k is int else ""), main.signed(mood[k])])
 	var text: String = tr(data["info"])
 	if not who.is_empty():
 		text += "\n" + link("concept:happiness") + ": " + ", ".join(who)
-	text += "\n\n" + linked(tr("Codify: %d {concept:authority}, once. Enact: %d {concept:authority} and a free {concept:seals}.") % [data["cost"], main.ENACT_COST])
+	if data.get("group") != "succession":
+		text += "\n\n" + linked(tr("Codify: %d {concept:authority}, once. Enact: %d {concept:authority} and a free {concept:seals}.") % [data["cost"], main.ENACT_COST])
+	elif l != main.Law.PRIMOGENITURE:
+		text += "\n\n" + linked(tr("Codify: %d {concept:authority}, once. Enact: %d {concept:authority}.") % [data["cost"], main.ENACT_COST])
 	var needs := []
 	if data.get("tier", 0) > 0:
 		needs.append(link("concept:titles", tr(main.TITLES[data["tier"]]["realm"])))
@@ -177,7 +180,7 @@ func about_law(l: int) -> String:
 	if data.has("piece"):
 		needs.append(build(data["piece"]))
 	text += line("Needs:", needs)
-	var state: String = tr("In force") if main.enacted.has(l) else (tr("Codified") if main.codified.has(l) else main.codify_block(l))
+	var state: String = tr("In force") if main.in_force(l) else (tr("Codified") if main.codified.has(l) else main.codify_block(l))
 	text += "\n" + dim(state if state != "" else tr("Can be codified now"))
 	return text
 

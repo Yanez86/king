@@ -1,6 +1,6 @@
 # King — Cose da fare
 
-> Aggiornato al 2026-11-20. Raccoglie quello che manca di tutti i sistemi: le fasi degli "Ordine di lavoro" non
+> Aggiornato al 2026-11-21. Raccoglie quello che manca di tutti i sistemi: le fasi degli "Ordine di lavoro" non
 > ancora fatte, i "Poi" del [GDD](GDD.md), le ricerche e le leggi senza ✓, il dopo-MVP e le domande aperte.
 > Il GDD resta il riferimento per il *come*; qui c'è solo il *cosa manca*. Quando una cosa è fatta: si segna nel GDD
 > (✓ o "Stato") e si toglie da qui.
@@ -13,7 +13,7 @@
 | Coloni | 4.2 | quasi tutto | malattie che si attaccano; relazioni e umore |
 | Nuovi coloni | 4.2.1 | fatto | tarare i numeri |
 | Medicina e morte | 4.2.2 | fatto | tarare i numeri |
-| Sovrano e dinastia | 4.3 | dinastia fatta (4.3.3); del sovrano fasi 1, 2, 6 e mezza 5 | sovrano sereno/cupo, stile di regno, sguardo, epiteti |
+| Sovrano e dinastia | 4.3 | dinastia fatta (4.3.3), con le sue leggi; del sovrano fasi 1, 2, 6 e mezza 5 | sovrano sereno/cupo, stile di regno, sguardo, epiteti |
 | Stemma | 4.3.2 | base | linee, pellicce, ornamenti, motto, blasonatura |
 | Risorse ed edifici | 4.4 | fatto | vene d'oro, commercio |
 | Cibo e orto | 4.4.1 | fatto, coi concimi | — (il resto è in 4.4.7) |
@@ -28,21 +28,20 @@
 | Eventi casuali | 4.6 | fatto: il narratore e 11 eventi | tarare i numeri; eventi nuovi coi sistemi nuovi |
 | Caserma e classi | 4.4.6 | fasi 1–2 (le abilità salgono di livello; caserma, classi, corredo) | l'esercitazione, in battaglia, in spedizione |
 | Ricerca | 4.7.3 | 47 ricerche su 54 | 7 ricerche, il livello IV |
-| Leggi | 4.7.7 | 23 leggi su 38 | 15 leggi: quelle della dinastia si possono fare ora |
+| Leggi | 4.7.7 | 27 leggi su 38 | 11 leggi: aspettano i loro sistemi |
 | Interfaccia | [TECH](TECH.md) | testo a 22, elenco degli abitanti, bacheca con la squadra | provarla in inglese e ad altre risoluzioni |
 
 ## Da dove partire (proposta)
 
 La dinastia c'è (4.3.3), la colonia cresce (4.2.1: avventurieri che restano, viandanti, le leggi dell'Accoglienza, la
 Compagnia della corona, il titolo che vuole anche i coloni) e il narratore manda gli eventi (4.6: lupi, visite, fortune,
-sfortune, la tregua). Ora si possono fare anche le leggi della dinastia (vedi Leggi).
+sfortune, la tregua). Le leggi della dinastia sono fatte (2026-11-21: Primogenitura, Successione elettiva, Matrimoni
+misti, Scuola).
 
 Medicina e morte è fatta (4.2.2: erbe e unguento, infermeria e medico, tombe, Funerali e memoriale). Grano, forno e
 animali è fatto (4.4.7: torrente e mulini, forno, pascolo e stalla, api, banchetto reale).
 
-1. **Le leggi della dinastia** — Primogenitura (manca solo nella finestra), Successione elettiva, Matrimoni misti,
-   Scuola: i loro sistemi ci sono già (vedi Leggi).
-2. **Caserma, fasi 3–5** — l'esercitazione, in battaglia e in spedizione secondo la classe.
+1. **Caserma, fasi 3–5** — l'esercitazione, in battaglia e in spedizione secondo la classe.
 
 ## Lavori e priorità (4.1)
 
@@ -91,7 +90,10 @@ Fasi dell'ordine di lavoro ancora da fare:
 Dinastia (4.3.3, fatta): quello che resta.
 
 - [ ] All'incoronazione si sceglie lo stile di regno dell'erede (quando ci sarà lo stile di regno).
-- [ ] Matrimoni anche tra gli altri coloni, non solo del sovrano, e i loro figli.
+- [ ] Matrimoni anche tra gli altri coloni, non solo del sovrano, e i loro figli; allora la legge Matrimoni misti vale
+  anche per loro (oggi solo il sovrano sposa un avventuriero).
+- [ ] Successione elettiva: se l'erede minorenne muore durante la reggenza il prossimo è ancora il primo della linea,
+  senza scelta.
 - [ ] Una casata nuova sceglie il suo stemma (oggi è a caso): l'editor dello stemma in partita.
 - [ ] Gli effetti della vecchiaia (oltre alla morte): più lenti, più saggi.
 - [ ] Tarare i numeri: figli a notte, età, vecchiaia, pretendenti, dote.
@@ -244,11 +246,12 @@ Leggi senza ✓ (tra parentesi quello che aspettano):
 |---|---|
 | Lavoro | Corvée (la quarta casella colorata nella routine), Corporazioni (i lavoratori delle stanze) |
 | Ordine | Legge marziale |
-| Popolo | Padrinato; Matrimoni misti, Scuola (si possono fare: ci sono la dinastia e i forestieri); Carta delle libertà (regno) |
-| Corona | Primogenitura (la regola c'è già, dall'inizio: manca solo la legge nella finestra), Successione elettiva (si può fare: c'è la successione); Guardia del corpo; Assolutismo (regno) |
+| Popolo | Padrinato; Carta delle libertà (regno) |
+| Corona | Guardia del corpo; Assolutismo (regno) |
 | Feste | Torneo, Cronista di corte, Mecenatismo, Calendario delle feste |
 
 - [ ] Corte: lo sguardo del sovrano a 12 caselle, quando ci sarà lo sguardo.
+- [ ] Scuola: tarare le 30 lezioni e i 3 punti; a lezione non si vede ancora niente di diverso dallo studio.
 
 ## Inizio partita (4.7.8)
 

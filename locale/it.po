@@ -4843,3 +4843,52 @@ msgstr "+%d di {concept:splendor} alla colonia, solo il primo"
 
 msgid "A gift of the adventurers."
 msgstr "Un dono degli avventurieri."
+
+msgid "Primogeniture"
+msgstr "Primogenitura"
+
+msgid "Elective Succession"
+msgstr "Successione elettiva"
+
+msgid "Mixed Marriages"
+msgstr "Matrimoni misti"
+
+msgid "School"
+msgstr "Scuola"
+
+msgid "The ruler's first living child inherits the crown; then the spouse, then a brother or a sister. In force from the start: the succession takes no seal."
+msgstr "Eredita la corona il primo figlio vivo del sovrano; poi il coniuge, poi un fratello o una sorella. In vigore dall'inizio: la successione non occupa un sigillo."
+
+msgid "When the ruler dies, you choose the heir among the spouse and the children. Royal mourning lasts 4 days, not 7. The succession takes no seal."
+msgstr "Alla morte del sovrano scegli l'erede tra il coniuge e i figli. Il lutto regale dura 4 giorni, non 7. La successione non occupa un sigillo."
+
+msgid "The ruler can marry an adventurer waiting at the inn, if they are happy enough: they stay as a colonist."
+msgstr "Il sovrano può sposare un avventuriero che aspetta alla locanda, se è abbastanza felice: resta come colono."
+
+msgid "Children and foreigners spend the first hour of free time of the day at a desk. After 30 lessons a child comes of age with 3 more skill points."
+msgstr "Figli e forestieri passano la prima ora libera del giorno a uno scrittoio. Dopo 30 lezioni un figlio diventa adulto con 3 punti abilità in più."
+
+msgid "children and foreigners"
+msgstr "figli e forestieri"
+
+msgid "Codify: %d {concept:authority}, once. Enact: %d {concept:authority}."
+msgstr "Codificare: %d di {concept:authority}, una volta. Promulgare: %d di {concept:authority}."
+
+msgid "The heir"
+msgstr "L'erede"
+
+msgid "%s has died. Choose the heir among the spouse and the children."
+msgstr "%s non c'è più. Scegli l'erede tra il coniuge e i figli."
+
+msgid "Free: revokes %s"
+msgstr "Gratis: revoca %s"
+
+msgid "Enact"
+msgstr "Promulga"
+
+msgid "The succession has a place of its own: it takes no seal"
+msgstr "La successione ha un posto suo: non occupa un sigillo"
+
+msgctxt "doing"
+msgid "At school"
+msgstr "A scuola"

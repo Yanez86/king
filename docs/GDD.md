@@ -1473,7 +1473,7 @@ si mettono in vigore sui **sigilli** che il titolo concede. Il sapere viene da f
 - **Codificare** è la ricerca civica: una volta sola, con autorità. Serve il titolo della fascia della legge e a volte
   una ricerca.
 - **Promulgare** costa 10 autorità e prende un **sigillo**: signoria 2, baronia 3, contea 4, regno 5. La successione ha
-  un posto suo (Primogenitura, in vigore dall'inizio).
+  un posto suo (Primogenitura, in vigore dall'inizio): le sue leggi non prendono un sigillo ✓.
 - Le leggi dello stesso **gruppo** si escludono (Tasse, Turni, Giustizia, Accoglienza, Successione, Corona finale):
   promulgarne una revoca quella in vigore.
 - **Revocare** è gratis, ma per 3 giorni la legge non si ripromulga.
@@ -1522,13 +1522,13 @@ Quattro fasce, una per titolo; sei categorie. ✓ = c'è nel gioco.
 | | Porte aperte ✓ | signoria | 40 | Accoglienza | un avventuriero chiede di restare dopo 2 spedizioni, i viandanti il doppio; forestieri per 10 giorni (vedi 4.2.1) | forestieri −5 |
 | | Giuramento ✓ | baronia | 80 | — | chi resta va al trono e giura (un'ora, 10 autorità; senza trono dove si trova, senza autorità resta forestiero): non è forestiero | chi ha giurato +5 |
 | | Padrinato | baronia | 100 | — | un padrino: +50% esperienza per 10 giorni lavorandogli vicino | padrino e figlioccio +3 |
-| | Matrimoni misti | contea | 150 | — | coloni e avventurieri si sposano; l'avventuriero resta come colono | avventurieri +5 |
-| | Scuola | contea | 180 | Scriptorium | un'ora allo scrittoio per figli e forestieri; i figli crescono con 3 punti abilità in più | figli e forestieri +3 |
+| | Matrimoni misti ✓ | contea | 150 | — | il sovrano può sposare un avventuriero che aspetta alla locanda (felicità almeno 50); l'avventuriero resta come colono, forestiero come chi è accolto (poi: anche gli altri coloni, quando si sposeranno, 4.3.3) | avventurieri +5 |
+| | Scuola ✓ | contea | 180 | Scriptorium | un'ora allo scrittoio (la prima di tempo libero, se ce n'è uno libero in uno studio) per figli e forestieri, con un po' di esperienza nella ricerca; un figlio con almeno 30 lezioni diventa adulto con 3 punti abilità in più, a caso | figli e forestieri +3 |
 | | Carta delle libertà | regno | 300 | Corona finale | leggi del Popolo ×1,5; Taglia, Corvée, Coprifuoco e Pene severe non si promulgano più | tutti +10 |
-| Corona | Primogenitura | dall'inizio | — | Successione | regna il primo figlio | — |
+| Corona | Primogenitura ✓ | dall'inizio | — | Successione | regna il primo figlio; in vigore senza codificarla finché non lo è la Successione elettiva, e torna revocando quella | — |
 | | Corte ✓ | baronia | 100 | — | il sovrano non lavora più: udienza +50%, il suo sguardo a 12 caselle (quando ci sarà lo sguardo, 4.3) | sovrano +5 |
 | | Guardia del corpo | baronia | 80 | Scudo | una guardia segue il sovrano; finché è in piedi il sovrano a terra non viene finito | la guardia +3 |
-| | Successione elettiva | contea | 150 | Successione | la colonia sceglie l'erede tra coniuge e figli; lutto regale 4 giorni | tutti +2 |
+| | Successione elettiva ✓ | contea | 150 | Successione | la colonia sceglie l'erede tra coniuge e figli (lo indica il giocatore: intanto regna il primo della linea, la finestra lascia sceglierne un altro; un minorenne ha il suo reggente); lutto regale 4 giorni | tutti +2 |
 | | Assolutismo | regno | 300 | Corona finale | le leggi non danno più né approvazione né disapprovazione; udienza +100% | — |
 | Feste | Festa del raccolto ✓ | signoria | 40 | — | i cinque giorni di festa del calendario si cucina e basta; poi +10 felicità per 3 giorni, +5 autorità | — |
 | | Funerali ✓ | signoria | 30 | una tomba | sepolto un colono, alle 18 due ore attorno alla tomba: lutto −10 invece di −15 (4.2.2) | — |
@@ -1557,7 +1557,7 @@ IV, regno, leggi finali, cittadella.
 **Stato**: fatte le fasi 1–4; della 5 una parte dei nodi, l'erudito errante e la protesta. Nel gioco: scrittoio,
 libreria e trono; stanze Studio e Sala del trono; lavori Studiare e Governare; studio e autorità (nelle finestre
 Knowledge e Laws, tasti K e G, o clic su scrittoio e trono; tutte e due scorrono); i tre libri, nei forzieri e nei
-tesori, col monastero; le 41 ricerche segnate ✓; le 23 leggi segnate ✓; il titolo cresce con lo splendore e i coloni (4.3) e dà i
+tesori, col monastero; le 41 ricerche segnate ✓; le 27 leggi segnate ✓; il titolo cresce con lo splendore e i coloni (4.3) e dà i
 sigilli (2–5), le fasce delle leggi e l'autorità di ogni giorno; gli eventi d'autorità del 4.7.4 tranne
 l'incoronazione (manca la successione), mai sotto zero. Il granaio è un conto, non una stanza, e niente ci marcisce;
 paga le provviste, poi (Granaio aperto) l'ora senza cibo in magazzino e il pasto di ogni stagione; la festa del

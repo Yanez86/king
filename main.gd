@@ -108,7 +108,7 @@ const TREE_SIDES := [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]  # da sopra l
 
 enum Job { NONE, CHOP, MINE, UPROOT, HAUL, BUILD, FURNISH, HARVEST, SLEEP, EAT, COOK, FISH, HUNT, EQUIP, CRAFT, FIGHT, FLEE,
 	RELAX, TANTRUM, TRAVEL, STUDY, GOVERN, PROTEST, REPAIR, CUT_ICE, DOUSE, FARM, FERTILIZE, OATH, SALVE, RESCUE, TREAT, BURY,
-	FUNERAL, TEND, BUTCHER, MILK, SHEAR, MOW, HONEY, FEAST, DEMOLISH }  # TEND: le uova al pollaio; BUTCHER, MILK, SHEAR: macellare, mungere e
+	FUNERAL, TEND, BUTCHER, MILK, SHEAR, MOW, HONEY, FEAST, DEMOLISH, SCHOOL }  # TEND: le uova al pollaio; BUTCHER, MILK, SHEAR: macellare, mungere e
 	# tosare un animale da allevare (vedi Work.HUSBANDRY); MOW: falciare il fieno (vedi Order.HAY); HONEY: smielare
 	# un'arnia piena (vedi Work.GATHER); FEAST: al banchetto reale (vedi hold_banquet); DEMOLISH: abbattere una
 	# struttura o un mobile segnati con "Destroy" (vedi try_demolish)
@@ -398,7 +398,7 @@ const DOING := {Job.CHOP: "Chopping a tree", Job.MINE: "Mining", Job.DEMOLISH: "
 	Job.FIGHT: "Fighting", Job.FLEE: "Fleeing", Job.TANTRUM: "Storming off in a rage", Job.STUDY: "Studying",
 	Job.GOVERN: "Holding audience", Job.PROTEST: "Protesting in the throne room", Job.REPAIR: "Repairing a roof",
 	Job.CUT_ICE: "Cutting ice", Job.DOUSE: "Putting out a fire", Job.FARM: "Tending the garden",
-	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne", Job.SALVE: "Tending a wound",
+	Job.FERTILIZE: "Fertilizing the garden", Job.OATH: "Swearing loyalty before the throne", Job.SCHOOL: "At school", Job.SALVE: "Tending a wound",
 	Job.RESCUE: "Rescuing the wounded", Job.TREAT: "Treating a patient", Job.BURY: "Burying the dead",
 	Job.FUNERAL: "At a funeral", Job.TEND: "Collecting eggs", Job.BUTCHER: "Slaughtering",
 	Job.MILK: "Milking", Job.SHEAR: "Shearing", Job.MOW: "Mowing hay", Job.HONEY: "Taking honey",
@@ -1661,7 +1661,8 @@ const ENACT_COST := 10.0
 const REVOKE_WAIT := 3.0    # giorni prima di poter ripromulgare una legge revocata
 enum Law { EXEMPTION, TITHE, LOOT_TAX, LODGING_TAX, LONG_SHIFTS, SHORT_DAY, DAY_OF_REST, CURFEW, HARVEST_FEAST, TALLAGE, TRIBUTE, OPEN_GRANARY,
 	TOLL, NIGHT_WATCH, MILITIA,
-	HARSH_PUNISHMENT, CLEMENCY, HUNTING_RESERVE, COURT, CLOSED_GATES, OPEN_GATES, OATH, FUNERALS }
+	HARSH_PUNISHMENT, CLEMENCY, HUNTING_RESERVE, COURT, CLOSED_GATES, OPEN_GATES, OATH, FUNERALS,
+	PRIMOGENITURE, ELECTIVE_SUCCESSION, MIXED_MARRIAGES, SCHOOL }
 const LAWS_SHEET := preload("res://art/laws.png")  # colonne nell'ordine di Law
 enum LawKind { TREASURY, WORK, ORDER, PEOPLE, CROWN, FEASTS }
 # Leggi: "kind" categoria; "cost" autorità per codificarla; "tier" il titolo che serve (di TITLES, se no la signoria);
@@ -1669,7 +1670,9 @@ enum LawKind { TREASURY, WORK, ORDER, PEOPLE, CROWN, FEASTS }
 # "piece" il mobile che deve esserci sulla mappa.
 # "mood": felicità di chi è in colonia finché è in vigore (vedi law_mood): "all" a tutti i coloni, un Trait al posto di
 # "all" a chi ce l'ha, "guests" agli avventurieri, "ruler" al sovrano, "hunters" a chi ha l'arco, "foreigners" ai
-# forestieri, "sworn" a chi ha giurato (vedi law_mood_of).
+# forestieri, "sworn" a chi ha giurato, "pupils" a chi va a scuola (vedi law_mood_of).
+# Il gruppo "succession" ha un posto suo: non prende un sigillo, e una delle due c'è sempre. La primogenitura è in
+# vigore dall'inizio, senza codificarla, finché non lo è la successione elettiva (vedi in_force).
 # Le altre cose le fanno le funzioni che le nominano.
 # ponytail: solo le leggi che usano cose che ci sono già; le altre del GDD arrivano coi loro sistemi
 const LAWS := {
@@ -1716,6 +1719,14 @@ const LAWS := {
 		"info": "Adventurers ask to stay after 2 expeditions, and wanderers come twice as often. Newcomers are foreigners for 10 days, not 5."},
 	Law.OATH: {"kind": LawKind.PEOPLE, "tier": 1, "cost": 80, "mood": {"sworn": 5.0},
 		"info": "Whoever stays swears loyalty before the throne (an hour, 10 authority) and is no foreigner. Without enough authority they stay a foreigner."},
+	Law.MIXED_MARRIAGES: {"kind": LawKind.PEOPLE, "tier": 2, "cost": 150, "mood": {"guests": 5.0},
+		"info": "The ruler can marry an adventurer waiting at the inn, if they are happy enough: they stay as a colonist."},
+	Law.SCHOOL: {"kind": LawKind.PEOPLE, "tier": 2, "cost": 180, "needs": Tech.SCRIPTORIUM, "mood": {"pupils": 3.0},
+		"info": "Children and foreigners spend the first hour of free time of the day at a desk. After 30 lessons a child comes of age with 3 more skill points."},
+	Law.PRIMOGENITURE: {"kind": LawKind.CROWN, "cost": 0, "group": "succession",
+		"info": "The ruler's first living child inherits the crown; then the spouse, then a brother or a sister. In force from the start: the succession takes no seal."},
+	Law.ELECTIVE_SUCCESSION: {"kind": LawKind.CROWN, "tier": 2, "cost": 150, "group": "succession", "mood": {"all": 2.0},
+		"info": "When the ruler dies, you choose the heir among the spouse and the children. Royal mourning lasts 4 days, not 7. The succession takes no seal."},
 	Law.HARVEST_FEAST: {"kind": LawKind.FEASTS, "cost": 40,
 		"info": "The five feast days of the calendar are holidays: nobody works but the cooks. Then +10 happiness for 3 days, +5 authority."},
 	Law.FUNERALS: {"kind": LawKind.FEASTS, "cost": 30, "piece": Build.GRAVE,
@@ -1738,6 +1749,10 @@ const OPEN_WANDERERS := 0.5 # con le porte aperte: attesa dei viandanti x
 const OPEN_FOREIGNER_DAYS := 10.0  # con le porte aperte: giorni da forestiero
 const OATH_AUTHORITY := 10.0  # il giuramento davanti al trono: la corona spende questa autorità (vedi swear)
 const OATH_HOURS := 1.0
+const ELECTIVE_MOURNING := 4.0  # con la successione elettiva: giorni di lutto regale (se no ROYAL_MOURNING_DAYS)
+const SCHOOL_HOURS := 1.0   # la lezione allo scrittoio, la prima ora libera del giorno (vedi relax, try_school)
+const SCHOOL_LESSONS := 30  # lezioni da bambino e da ragazzo per diventare adulto con SCHOOL_POINTS punti abilità in più
+const SCHOOL_POINTS := 3
 const PALACE := [1.5, 10]   # col palazzo (e una sala del trono): autorità dall'udienza x, splendore in più
 const RESERVE_AUTHORITY := 3.0  # riserva di caccia: per ogni cervo abbattuto dal sovrano
 const TRAIN_HIT := 2.5      # secondi per colpo al fantoccio: +1 esperienza in mischia
@@ -1827,6 +1842,8 @@ class Colonist:
 	var trips := 0                # spedizioni tornate
 	var stay_until := 0.0         # `clock` fino a cui aspetta alla locanda che qualcuno lo ingaggi
 	var drilled := -1             # il giorno dell'ultima ora di milizia al fantoccio (vedi relax)
+	var schooled := -1            # il giorno dell'ultima lezione allo scrittoio (Law.SCHOOL, vedi relax)
+	var lessons := 0              # le lezioni fatte prima della maggiore età (vedi SCHOOL_LESSONS)
 	var protested := -1           # il giorno dell'ultima protesta (vedi protest)
 	var lent := {}                # Slot -> il suo pezzo (o null) al posto del quale porta quello prestato (vedi lend)
 	var errand := Errand.NONE     # dove va col Job.TRAVEL (vedi travel)
@@ -6910,6 +6927,17 @@ func update_colonist(c: Colonist, delta: float) -> void:
 				end_job(c)
 		Job.TRAVEL:  # avventuriero arrivato alla locanda o al bordo della mappa
 			arrive(c)
+		Job.SCHOOL:  # allo scrittoio (vedi try_school): finita l'ora, una lezione in più e un po' di esperienza
+			if furniture.get(c.target, [-1])[0] != Build.DESK:
+				end_job(c)  # scrittoio abbattuto
+				return
+			face(c, center(c.target) - c.pos)
+			c.work_left -= delta
+			if c.work_left <= 0:
+				if age_of(c) < ADULT:
+					c.lessons += 1
+				learn(c, Skill.RESEARCH, c.work_total)
+				end_job(c)
 		Job.OATH:  # davanti al trono, in ginocchio: finita l'ora, giura
 			c.work_left -= delta
 			if c.work_left <= 0:
@@ -7086,7 +7114,7 @@ func update_needs(c: Colonist, delta: float) -> void:
 		c.needs[Need.FUN] -= FUN_DROP * fx(c, "fun", 1.0) * day
 	if fx(c, "fun", 1.0) == 0:  # non gli serve: sempre a posto
 		c.needs[Need.FUN] = NEED_MAX
-	if c.job not in [Job.NONE, Job.SLEEP, Job.EAT, Job.RELAX, Job.TANTRUM, Job.PROTEST, Job.OATH, Job.FUNERAL]:  # lavori, ma anche combattere e scappare
+	if c.job not in [Job.NONE, Job.SLEEP, Job.EAT, Job.RELAX, Job.TANTRUM, Job.PROTEST, Job.OATH, Job.FUNERAL, Job.SCHOOL]:  # lavori, ma anche combattere e scappare
 		c.needs[Need.STRESS] += STRESS_WORK * fx(c, "stress", 1.0) * cond_product(c, 2) * outdoor_stress(c) * shift_stress() * day \
 			* (HARSH_STRESS if enacted.has(Law.HARSH_PUNISHMENT) and Trait.HOTHEAD in c.traits else 1.0)
 	else:
@@ -8110,6 +8138,10 @@ func go_to_bed(c: Colonist) -> bool:
 # prima ora libera del giorno è al fantoccio, se ce n'è uno. Il divertimento sale (vedi update_needs); finito,
 # find_job decide di nuovo
 func relax(c: Colonist, hours := RELAX_HOURS) -> void:
+	if enacted.has(Law.SCHOOL) and c.schooled != today and pupil(c):  # la scuola: una volta al giorno, se c'è uno scrittoio libero
+		c.schooled = today
+		if try_school(c):
+			return
 	var spots := {}  # casella dove stare -> fantoccio, o la casella stessa (fuoco da campo)
 	var drill := enacted.has(Law.MILITIA) and c.drilled != today
 	for origin in furniture:
@@ -8139,6 +8171,31 @@ func relax(c: Colonist, hours := RELAX_HOURS) -> void:
 		return
 	start_job(c, Job.RELAX, path, path.back() if not path.is_empty() else cell_of(c.pos), 0.0)
 	c.work_left = hours * DAY_LENGTH / 24
+
+
+# va a scuola (Law.SCHOOL): i figli della colonia fino alla maggiore età e i forestieri
+func pupil(c: Colonist) -> bool:
+	return c in colonists and (age_of(c) < ADULT or c.conds.has(Cond.FOREIGNER))
+
+
+# La lezione di `c`: SCHOOL_HOURS a uno scrittoio libero di uno studio (il più vicino). false se non ce n'è uno
+func try_school(c: Colonist) -> bool:
+	var stands := {}  # casella accanto a uno scrittoio libero, nel suo studio -> scrittoio
+	for o in furniture:
+		var room := room_at(o)
+		if furniture[o][0] != Build.DESK or not is_free(o) or room == null or room.kind != RoomKind.STUDY:
+			continue
+		var around := {}
+		add_stands(around, [o], o, SIDES)
+		for k in around:
+			if room.cells.has(k):
+				stands[k] = o
+	var path := path_to_nearest(c, stands.keys())
+	if path.is_empty():
+		return false
+	start_job(c, Job.SCHOOL, path, stands[path.back()], SCHOOL_HOURS * DAY_LENGTH / 24)
+	c.dest = path.back()
+	return true
 
 
 # Percorso di `c` verso una casella a caso entro `reach` caselle, sul prato (niente alberi, acqua, magazzino), dove
@@ -9465,7 +9522,8 @@ func die(c: Colonist, why: String, away := false) -> void:
 
 # i giorni del lutto (regale, se `royal`) per un morto di adesso: uno in meno con un memoriale dei caduti
 func mourning_days(royal: bool) -> float:
-	return COND_INFO[Cond.ROYAL_MOURNING if royal else Cond.MOURNING][0] - (MEMORIAL_LESS if has_piece(Build.MEMORIAL) else 0.0)
+	return (ELECTIVE_MOURNING if royal and enacted.has(Law.ELECTIVE_SUCCESSION) else COND_INFO[Cond.ROYAL_MOURNING if royal else Cond.MOURNING][0]) \
+		- (MEMORIAL_LESS if has_piece(Build.MEMORIAL) else 0.0)
 
 
 # c'è almeno un mobile `kind` sulla mappa
@@ -9714,6 +9772,9 @@ func suitors() -> Array:
 	for g in guests:  # i pretendenti arrivati alla locanda accettano sempre
 		if g.suitor and g.errand == Errand.NONE:
 			out.append([g, ""])
+		elif enacted.has(Law.MIXED_MARRIAGES) and g.hero != Hero.NONE and g.errand == Errand.NONE and g.sex != ruler.sex \
+				and age_of(g) >= ADULT and not married(g):  # matrimoni misti: gli avventurieri che aspettano alla locanda
+			out.append([g, "" if g.needs[Need.HAPPINESS] >= MARRY_HAPPY else tr("not happy enough")])
 	return out
 
 
@@ -9729,6 +9790,9 @@ func marry(a: Colonist, b: Colonist) -> void:
 				drop(res, cell_of(o.pos), o.dowry[res])
 			if not o.dowry.is_empty():
 				note(tr("%s: %s brings a dowry: %s.") % [date(today), full_name(o), dowry_words(o)])
+		elif o.hero != Hero.NONE:  # matrimoni misti: l'avventuriero resta come colono
+			withdraw(o)
+			welcome([o])
 	for g in guests:  # gli altri pretendenti se ne vanno
 		if g.suitor:
 			g.stay_until = clock
@@ -9944,17 +10008,62 @@ func succeed(dead: Colonist) -> void:
 	if line.is_empty():
 		choose_house()
 		return
-	var heir: Colonist = line[0]
+	note(crown(line[0]))
+	show_title()
+	var electors: Array = line.filter(func(o): return o == dead.spouse or o.mother == dead or o.father == dead)
+	if enacted.has(Law.ELECTIVE_SUCCESSION) and electors.size() > 1:  # la colonia sceglie: intanto il primo della linea
+		var at := chronicle.size() - 1
+		ask_ruler(tr("The heir"), tr("%s has died. Choose the heir among the spouse and the children.") % full_name(dead), electors,
+			func(c): elect(c, at))
+
+
+# `heir` eredita la corona: adulto regna subito, e finito il lutto regale è incoronato; minorenne aspetta i 16 anni
+# con un reggente. Rende la riga per la cronaca
+func crown(heir: Colonist) -> String:
 	var regent = regent_of(heir) if age_of(heir) < ADULT else null
 	if regent == null:
 		begin_reign(heir)
 		coronation_at = clock + mourning_days(true)
-		note(tr("%s: %s inherits the crown.") % [date(today), full_name(heir)])
-	else:
-		regent_for = heir
-		ruler = regent
-		note(tr("%s: %s inherits the crown; until they come of age, %s is regent.") % [date(today), full_name(heir), full_name(regent)])
+		return tr("%s: %s inherits the crown.") % [date(today), full_name(heir)]
+	regent_for = heir
+	ruler = regent
+	return tr("%s: %s inherits the crown; until they come of age, %s is regent.") % [date(today), full_name(heir), full_name(regent)]
+
+
+# Successione elettiva: l'erede è `c` invece del primo della linea, che aveva già la corona (vedi succeed); la riga
+# `at` della cronaca cambia con lui
+func elect(c: Colonist, at: int) -> void:
+	if c == (regent_for if regent_for != null else ruler):
+		return
+	if regent_for == null:
+		reigns.pop_back()  # il regno appena cominciato dell'altro
+	regent_for = null
+	coronation_at = 0.0
+	var text := crown(c)
+	if at >= 0 and at < chronicle.size():
+		chronicle[at] = text
 	show_title()
+
+
+# La finestra della successione: `text`, e un pulsante per ognuno di `people`; quello scelto va a `pick`
+func ask_ruler(title: String, text: String, people: Array, pick: Callable) -> void:
+	var panel: Control = $HUD/SuccessionPanel
+	panel.get_node("Box/Head/Title").text = title
+	panel.get_node("Box/Text").text = text
+	var list: Control = panel.get_node("Box/List")
+	for child in list.get_children():
+		list.remove_child(child)
+		child.queue_free()
+	for c in people:
+		var button := Button.new()
+		button.focus_mode = Control.FOCUS_NONE
+		button.text = tr("%s, %d years old") % [full_name(c), age_of(c)]
+		button.pressed.connect(func():
+			pick.call(c)
+			panel.hide())
+		list.add_child(button)
+	panel.show()
+	panel.reset_size()
 
 
 # L'erede minorenne è morto durante la reggenza: il prossimo della linea del sovrano di prima; se non ce n'è, il
@@ -9982,6 +10091,7 @@ func begin_reign(c: Colonist) -> void:
 # L'incoronazione di `ruler`: festa per tutti, autorità, una finestra e la cronaca
 func coronation() -> void:
 	coronation_at = 0.0
+	$HUD/SuccessionPanel.hide()  # incoronato: la scelta è fatta
 	for o in colonists:
 		add_cond(o, Cond.CORONATION)
 	gain(CORONATION_AUTHORITY)
@@ -9999,22 +10109,7 @@ func choose_house() -> void:
 	adults.sort_custom(func(a, b): return a.skills.reduce(func(n, v): return n + v, 0) > b.skills.reduce(func(n, v): return n + v, 0))
 	var old := house_name
 	found_house(adults[0])
-	var panel: Control = $HUD/SuccessionPanel
-	panel.get_node("Box/Text").text = tr("The house of %s has no heirs. Choose who will rule: their house begins.") % old
-	var list: Control = panel.get_node("Box/List")
-	for child in list.get_children():
-		list.remove_child(child)
-		child.queue_free()
-	for c in adults:
-		var button := Button.new()
-		button.focus_mode = Control.FOCUS_NONE
-		button.text = tr("%s, %d years old") % [full_name(c), age_of(c)]
-		button.pressed.connect(func():
-			pick_founder(c)
-			panel.hide())
-		list.add_child(button)
-	panel.show()
-	panel.reset_size()
+	ask_ruler(tr("A new house"), tr("The house of %s has no heirs. Choose who will rule: their house begins.") % old, adults, pick_founder)
 
 
 # il sovrano della casata nuova è `c` invece di quello scelto prima
@@ -11793,6 +11888,8 @@ func law_mood_of(c: Colonist, law: Law) -> float:
 		return mood["foreigners"]
 	if c.sworn and mood.has("sworn"):
 		return mood["sworn"]
+	if mood.has("pupils"):
+		return mood["pupils"] if pupil(c) else 0.0
 	for t in c.traits:
 		if mood.has(t):
 			return mood[t]
@@ -11882,6 +11979,11 @@ func new_day() -> void:
 			c.beard = c.sex == Sex.MALE and randf() < BEARD_CHANCE
 			if c.mother != null:
 				note(tr("%s: %s comes of age.") % [date(today), full_name(c)])
+			if c.lessons >= SCHOOL_LESSONS:  # è andato a scuola: punti abilità in più, a caso
+				for i in SCHOOL_POINTS:
+					var open: Array = Skill.values().filter(func(k): return c.skills[k] < SKILL_MAX)
+					if not open.is_empty():
+						c.skills[open.pick_random()] += 1
 			if c == regent_for:  # finisce la reggenza
 				begin_reign(c)
 				coronation()
@@ -12111,9 +12213,19 @@ func produce(res: Res, cell: Vector2i, amount: int) -> void:
 	drop(res, cell, amount)
 
 
+# `law` è in vigore: promulgata, o la primogenitura finché non lo è la successione elettiva
+func in_force(law: Law) -> bool:
+	return enacted.has(law) or (law == Law.PRIMOGENITURE and not enacted.has(Law.ELECTIVE_SUCCESSION))
+
+
+# i sigilli presi: le leggi in vigore, tranne quella della successione, che ha un posto suo
+func seals_used() -> int:
+	return enacted.filter(func(law): return LAWS[law].get("group") != "succession").size()
+
+
 # perché la legge `law` non si può codificare adesso, "" se si può
 func codify_block(law: Law) -> String:
-	if codified.has(law):
+	if codified.has(law) or law == Law.PRIMOGENITURE:
 		return tr("Codified")
 	if LAWS[law].get("tier", 0) > rank:
 		return tr("Needs a %s") % tr(TITLES[LAWS[law]["tier"]]["realm"]).to_lower()
@@ -12156,7 +12268,7 @@ func enact_block(law: Law) -> String:
 		return tr("Revoked: again in %.1f days") % (revoked[law] - clock)
 	if authority < ENACT_COST:
 		return tr("%d more authority") % ceili(ENACT_COST - authority)
-	if rival(law) == null and enacted.size() >= TITLES[rank]["seals"]:
+	if rival(law) == null and LAWS[law].get("group") != "succession" and seals_used() >= TITLES[rank]["seals"]:
 		return tr("No free seal: revoke a law first")
 	return ""
 
@@ -12191,7 +12303,7 @@ func tip(control: Control, kind: String, names: Dictionary, value: int) -> void:
 func law_tip(law: Law) -> String:
 	var mood: Dictionary = LAWS[law].get("mood", {})
 	var who := mood.keys().map(func(k): return "%s %s" % [{"all": tr("everyone"), "guests": tr("adventurers"), "ruler": tr("the ruler"),
-		"hunters": tr("bow carriers"), "foreigners": tr("foreigners"), "sworn": tr("the sworn")}.get(k,
+		"hunters": tr("bow carriers"), "foreigners": tr("foreigners"), "sworn": tr("the sworn"), "pupils": tr("children and foreigners")}.get(k,
 		named(Trait, k).to_lower() if k is int else ""), signed(mood[k])])
 	return tr(LAWS[law]["info"]) + (tr("\nHappiness: ") + ", ".join(who) if not who.is_empty() else "") \
 		+ (tr("\nNeeds a %s") % tr(TITLES[LAWS[law]["tier"]]["realm"]).to_lower() if LAWS[law].get("tier", 0) > 0 else "") \
@@ -12468,7 +12580,7 @@ func fill_laws() -> void:
 	var next := "" if rank == TITLES.size() - 1 else tr(": a %s at %d splendor and %d colonists (now %d and %d)") % [
 		tr(TITLES[rank + 1]["realm"]).to_lower(), TITLES[rank + 1]["splendor"], TITLES[rank + 1]["colonists"], splendor, colony_size()]
 	box.get_node("Authority").text = tr("%s%s\n%d [img=center]%s[/img] authority    Seals: %d / %d\nGranary: %s") % [realm_name(), next,
-		floori(authority), AUTHORITY_ICON.resource_path, enacted.size(), TITLES[rank]["seals"], ", ".join(stock) if not stock.is_empty() else tr("empty")]
+		floori(authority), AUTHORITY_ICON.resource_path, seals_used(), TITLES[rank]["seals"], ", ".join(stock) if not stock.is_empty() else tr("empty")]
 	box.get_node("Hint").visible = thrones == 0
 	var list: Control = box.get_node("Scroll/List")
 	for child in list.get_children():
@@ -12492,13 +12604,19 @@ func fill_laws() -> void:
 			name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 			tip(name, "law", Law, law)
 			name.mouse_filter = Control.MOUSE_FILTER_PASS
-			if enacted.has(law):
+			if in_force(law):
 				name.add_theme_color_override("font_color", SPLENDOR_COLOR)
 			row.add_child(name)
 			var button := Button.new()
 			button.focus_mode = Control.FOCUS_NONE
 			button.custom_minimum_size.x = 140
-			if enacted.has(law):
+			if law == Law.PRIMOGENITURE:  # c'è sempre: torna in vigore revocando la successione elettiva
+				button.text = "In force" if in_force(law) else "Enact"
+				button.disabled = in_force(law)
+				button.tooltip_text = "The succession has a place of its own: it takes no seal" if in_force(law) \
+					else tr("Free: revokes %s") % law_name(Law.ELECTIVE_SUCCESSION)
+				button.pressed.connect(revoke.bind(Law.ELECTIVE_SUCCESSION))
+			elif enacted.has(law):
 				button.text = "Revoke"
 				button.tooltip_text = tr("Free; then it cannot be enacted again for %d days") % REVOKE_WAIT
 				button.pressed.connect(revoke.bind(law))
@@ -12507,7 +12625,8 @@ func fill_laws() -> void:
 				var other = rival(law)
 				button.text = tr("Enact (%d)") % ENACT_COST
 				button.disabled = block != ""
-				button.tooltip_text = block if block != "" else (tr("Takes the place of %s") % law_name(other) if other != null else "Takes a seal")
+				button.tooltip_text = block if block != "" else (tr("Takes the place of %s") % law_name(Law.PRIMOGENITURE if law == Law.ELECTIVE_SUCCESSION else other)
+					if other != null or law == Law.ELECTIVE_SUCCESSION else "Takes a seal")
 				button.pressed.connect(enact.bind(law))
 			else:
 				var block := codify_block(law)

@@ -272,6 +272,7 @@ Lo annunciano una finestra e la cronaca; cambiano il nome del reame, il titolo d
 [color=#e8c34a]Successione[/color]
 • Quando il sovrano muore, la corona va al primo figlio vivo, maschio o femmina; senza figli al coniuge vivo, poi a un fratello o a una sorella.
 • Tutti prendono il Lutto regale per 7 giorni; poi l'erede è incoronato: Incoronazione per tutti e +20 autorità.
+• Con la legge Successione elettiva (vedi Leggi) l'erede lo scegli tu tra il coniuge e i figli: il primo figlio prende subito la corona, e una finestra ti lascia indicarne un altro. Il lutto regale dura allora 4 giorni.
 • Un erede sotto i 16 anni aspetta con un reggente: un genitore vivo, se no l'adulto con più abilità. Il reggente governa e il suo titolo è Reggente; la scheda dell'erede dice "Erede di". Al sedicesimo compleanno l'erede è incoronato. Se il reggente muore ne arriva un altro; se muore l'erede, il prossimo della linea.
 • "La casata…" nella scheda di un colono apre l'albero genealogico: i sovrani in ordine, divisi per casata, ognuno con gli anni di regno, il coniuge e i figli (i morti con la croce), e il reggente se c'è.
 • Non resta nessuno: la casata è finita. Una finestra chiede chi regnerà tra gli adulti (intanto quello con più abilità): comincia la sua casata, col suo cognome e uno stemma nuovo. Il titolo resta al reame."""],
@@ -826,6 +827,7 @@ Quello che non hai studiato non ha il pulsante per costruirlo, e le sue ricette 
 Premi G o clicca il trono: autorità, sigilli, il granaio della corona, poi le leggi per categoria. Col mouse sopra una legge vedi cosa fa e a chi piace.
 • Codifica una legge una volta sola, pagandone il costo in autorità. Poi, con Promulga, la metti in vigore: 10 autorità e un sigillo libero. Una Signoria ha 2 sigilli.
 • Le leggi dello stesso gruppo (tasse, turni, giustizia, accoglienza) si escludono a vicenda: promulgarne una sostituisce l'altra.
+• La successione ha un posto suo e non occupa un sigillo: la Primogenitura è in vigore dall'inizio, finché la Successione elettiva non ne prende il posto; revocata quella, torna la Primogenitura.
 • Revocare è gratis, ma la legge non si può promulgare di nuovo per 3 giorni.
 • Ogni legge in vigore cambia la felicità dei coloni (alcuni talenti la sentono in modo diverso) o degli avventurieri. Compare tra le condizioni nella scheda.
 • Il granaio della corona lo riempie la Decima, e lì dentro non marcisce niente. Le provviste delle spedizioni si prendono prima da lì.
@@ -845,6 +847,11 @@ Premi G o clicca il trono: autorità, sigilli, il granaio della corona, poi le l
 • Porte chiuse (30, accoglienza): nessuno chiede di restare, né avventurieri né viandanti (vedi Coloni, Nuovi coloni). Tutti +5.
 • Porte aperte (40, accoglienza): gli avventurieri chiedono di restare dopo 2 spedizioni, i viandanti vengono il doppio delle volte; chi arriva è Forestiero per 10 giorni, non 5. Forestieri -5.
 • Giuramento (80, una baronia): chi resta va nella sala del trono e sta un'ora in ginocchio, poi giura fedeltà: 10 autorità, e non è forestiero (senza sala del trono giura dove si trova; senza l'autorità resta forestiero). Chi ha giurato +5.
+• Matrimoni misti (150, una contea): il sovrano può sposare anche un avventuriero dell'altro sesso che aspetta alla locanda, se ha almeno 50 di felicità; sposato, resta come colono, come chi viene accolto. Avventurieri +5.
+• Scuola (180, una contea, ricerca Scriptorium): figli e forestieri passano la prima ora libera del giorno a uno scrittoio libero di uno studio, e prendono un po' di esperienza nella ricerca. Un figlio con almeno 30 lezioni diventa adulto con 3 punti abilità in più, a caso. Figli e forestieri +3.
+[color=#d9c48a]Corona[/color]
+• Primogenitura (in vigore dall'inizio, successione): eredita il primo figlio vivo del sovrano; poi il coniuge, poi un fratello o una sorella.
+• Successione elettiva (150, una contea, successione): alla morte del sovrano scegli l'erede tra il coniuge e i figli; il lutto regale dura 4 giorni, non 7. Tutti +2.
 [color=#d9c48a]Feste[/color]
 • Festa del raccolto (40): nei cinque giorni di festa del calendario (vedi Il tempo, in Le basi) non lavora nessuno tranne i cuochi. Il giorno dopo ogni colono è In festa (+10 felicità per 3 giorni) e ricevi 5 autorità.
 • Funerali (30; serve una tomba sulla mappa): quando si seppellisce uno della colonia, il funerale alle 18 (vedi Medicina e morte)."""],

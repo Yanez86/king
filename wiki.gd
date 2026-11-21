@@ -273,6 +273,7 @@ A window and the chronicle announce it; the realm's name, the ruler's title and 
 [color=#e8c34a]Succession[/color]
 • When the ruler dies, the crown goes to their eldest living child, boy or girl; without children to their living spouse, then to a brother or sister.
 • Everyone gets Royal mourning for 7 days; then the heir is crowned: Coronation for everyone and +20 authority.
+• With the Elective succession law (see Laws) you choose the heir among the spouse and the children: the eldest child takes the crown at once, and a window lets you name another. Royal mourning then lasts 4 days.
 • An heir under 16 waits with a regent: a living parent, or else the adult with the most skills. The regent governs and their title is Regent; the heir's sheet says "Heir of". On their 16th birthday the heir is crowned. If the regent dies another takes over; if the heir dies, the next in line.
 • "The house…" on a colonist's sheet opens the family tree: the rulers in order, grouped by house, each with their years of reign, spouse and children (the dead with a cross), and the regent if there is one.
 • Nobody left: the house is over. A window asks who will rule among the adults (the one with the most skills, until you choose): their house begins, with their surname and new arms. The title stays with the realm."""],
@@ -827,6 +828,7 @@ What you haven't researched has no build button, and its recipes don't show at t
 Press G or click the throne: authority, seals, the crown's granary, then the laws by kind. Hover a law for what it does and who likes it.
 • Codify a law once, paying its cost in authority. Then Enact it: 10 authority and a free seal. A Lordship has 2 seals.
 • Laws of the same group (taxes, shifts, justice, welcome) exclude each other: enacting one replaces the other.
+• The succession has a place of its own and takes no seal: Primogeniture is in force from the start, until Elective succession takes its place; revoke that and Primogeniture is back.
 • Revoking is free, but the law can't be enacted again for 3 days.
 • Every law in force changes the happiness of the colonists (some traits feel it differently) or of the adventurers. It shows among the conditions in the sheet.
 • The crown's granary is filled by the Tithe, and nothing in it rots. Expedition provisions come from it first.
@@ -846,6 +848,11 @@ Press G or click the throne: authority, seals, the crown's granary, then the law
 • Closed gates (30, welcome): nobody asks to stay, adventurers or wanderers (see Colonists, New colonists). Everyone +5.
 • Open gates (40, welcome): adventurers ask to stay after 2 expeditions, wanderers come twice as often; newcomers are Foreigners for 10 days, not 5. Foreigners -5.
 • Oath (80, a Barony): whoever stays goes to the throne room and kneels an hour, then swears loyalty: 10 authority, and they are no foreigner (without a throne room, they swear where they stand; without the authority, they stay a foreigner). The sworn +5.
+• Mixed marriages (150, a County): the ruler can also marry an adventurer of the other sex waiting at the inn, if they have at least 50 happiness; married, they stay as a colonist, like those who are welcomed. Adventurers +5.
+• School (180, a County, Scriptorium research): children and foreigners spend the first hour of free time of the day at a free desk in a study, and gain a little research experience. A child with at least 30 lessons comes of age with 3 more skill points, at random. Children and foreigners +3.
+[color=#d9c48a]Crown[/color]
+• Primogeniture (in force from the start, succession): the ruler's first living child inherits; then the spouse, then a brother or a sister.
+• Elective succession (150, a County, succession): when the ruler dies you choose the heir among the spouse and the children; royal mourning lasts 4 days, not 7. Everyone +2.
 [color=#d9c48a]Feasts[/color]
 • Harvest feast (40): on the five feast days of the calendar (see Time) nobody works but the cooks. The next day every colonist is Festive (+10 happiness for 3 days) and you get 5 authority.
 • Funerals (30; needs a grave on the map): when one of the colony is buried, the funeral at 18 (see Medicine & Death)."""],

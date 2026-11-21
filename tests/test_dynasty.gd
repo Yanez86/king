@@ -344,7 +344,134 @@ func _initialize() -> void:
 		and tree.contains("today"), "coniugi, figli, chi regna oggi")
 	house_panel.hide()
 
-	print("OK: età, vecchiaia, matrimonio, figli, crescita, successione, pretendenti e casata")
+	# le leggi della dinastia (GDD 4.7.7). Primogenitura: in vigore dall'inizio, senza codificarla e senza sigillo
+	var L = main.Law
+	main.get_node("HUD/ReportPanel").hide()
+	check(main.in_force(L.PRIMOGENITURE) and main.enacted.is_empty() and main.codify_block(L.PRIMOGENITURE) == "Codified"
+		and main.seals_used() == 0, "la primogenitura c'è dall'inizio, e non prende un sigillo")
+	main.authority = 1000.0
+	check(not main.codify(L.ELECTIVE_SUCCESSION) and main.codify_block(L.ELECTIVE_SUCCESSION) == "Needs a county", "l'elettiva vuole una contea")
+	main.rank = 2
+	check(main.codify(L.ELECTIVE_SUCCESSION) and main.enact(L.ELECTIVE_SUCCESSION), "successione elettiva promulgata")
+	check(main.in_force(L.ELECTIVE_SUCCESSION) and not main.in_force(L.PRIMOGENITURE) and main.seals_used() == 0,
+		"al posto della primogenitura, senza sigillo")
+	check(main.law_mood_of(lord, L.ELECTIVE_SUCCESSION) == 2.0, "piace a tutti: +2")
+	main.laws_key = ""
+	main.fill_laws()
+	check(main.mourning_days(true) == main.ELECTIVE_MOURNING and main.mourning_days(false) == main.COND_INFO[main.Cond.MOURNING][0],
+		"lutto regale di 4 giorni; il lutto degli altri non cambia")
+
+	# la colonia sceglie l'erede tra coniuge e figli: intanto regna il primo, la finestra lascia sceglierne un altro
+	var kids := []
+	for years in [20.5, 18.5, 8.5]:
+		var child = person(main)
+		child.born = main.clock - years * main.life_year()
+		child.mother = lord if lord.sex == main.Sex.FEMALE else suitor
+		child.father = suitor if lord.sex == main.Sex.FEMALE else lord
+		kids.append(child)
+	for o in main.colonists:
+		o.conds.erase(main.Cond.MOURNING)
+		o.conds.erase(main.Cond.ROYAL_MOURNING)
+	var reigns_before: int = main.reigns.size()
+	main.die(lord, "is gone.")
+	var vote: Control = main.get_node("HUD/SuccessionPanel")
+	check(main.ruler == kids[0] and vote.visible and vote.get_node("Box/Head/Title").text == "The heir"
+		and vote.get_node("Box/List").get_child_count() == 4, "regna il primo figlio; la finestra coi tre figli e il coniuge")
+	check(is_equal_approx(main.coronation_at, main.clock + main.ELECTIVE_MOURNING)
+		and is_equal_approx(suitor.conds[main.Cond.ROYAL_MOURNING], main.clock + main.ELECTIVE_MOURNING), "lutto e incoronazione dopo 4 giorni")
+	var line_at: int = main.chronicle.size() - 1
+	main.elect(kids[2], line_at)
+	check(main.regent_for == kids[2] and main.ruler == suitor and main.reigns.size() == reigns_before and main.coronation_at == 0.0
+		and main.chronicle[line_at].contains("%s inherits the crown; until they come of age" % main.full_name(kids[2])),
+		"scelto il bambino: regna il genitore da reggente, niente incoronazione")
+	var pick: Button = vote.get_node("Box/List").get_children().filter(func(b): return b.text.begins_with(main.full_name(kids[1])))[0]
+	pick.pressed.emit()
+	check(main.ruler == kids[1] and main.regent_for == null and not vote.visible and main.reigns.size() == reigns_before + 1
+		and main.reigns[-1][0] == kids[1], "scelto il secondo figlio: regna lui")
+	check(main.chronicle[line_at].contains("%s inherits the crown." % main.full_name(kids[1]))
+		and not Array(main.chronicle).any(func(text): return "%s inherits the crown." % main.full_name(kids[0]) in text), "la cronaca cambia con lui")
+	main.elect(suitor, line_at)
+	check(main.ruler == suitor and main.reigns.size() == reigns_before + 1 and main.reigns[-1][0] == suitor, "o il coniuge")
+	main.elect(kids[1], line_at)
+	main.revoke(L.ELECTIVE_SUCCESSION)
+	check(main.in_force(L.PRIMOGENITURE) and main.mourning_days(true) == main.ROYAL_MOURNING_DAYS, "revocata: torna la primogenitura")
+	kids[2].mother = null  # il bambino esce dalla linea
+	kids[2].father = null
+	main.die(kids[1], "is gone.")
+	check(main.ruler == kids[0] and not vote.visible, "con la primogenitura nessuna scelta: senza figli, il fratello maggiore")
+	main.get_node("HUD/ReportPanel").hide()
+
+	# matrimoni misti: il sovrano sposa un avventuriero che aspetta alla locanda, se è abbastanza felice; resta come colono
+	var queen = main.ruler
+	queen.spouse = null
+	var rogue = main.new_hero(main.Hero.ARCHER, 1)
+	rogue.sex = main.Sex.MALE if queen.sex == main.Sex.FEMALE else main.Sex.FEMALE
+	rogue.pos = queen.pos
+	rogue.needs[main.Need.HAPPINESS] = main.MARRY_HAPPY - 1
+	main.guests.append(rogue)
+	check(main.can_marry() and not main.suitors().any(func(o): return o[0] == rogue), "senza la legge gli avventurieri non si sposano")
+	check(main.codify(L.MIXED_MARRIAGES) and main.enact(L.MIXED_MARRIAGES) and main.seals_used() == 1, "matrimoni misti promulgati, con un sigillo")
+	check(main.law_mood_of(rogue, L.MIXED_MARRIAGES) == 5.0 and main.law_mood_of(queen, L.MIXED_MARRIAGES) == 0.0, "piace agli avventurieri: +5")
+	check(main.suitors().filter(func(o): return o[0] == rogue) == [[rogue, "not happy enough"]], "se non è contento non accetta")
+	rogue.needs[main.Need.HAPPINESS] = main.MARRY_HAPPY
+	rogue.errand = main.Errand.RETURN
+	check(not main.suitors().any(func(o): return o[0] == rogue), "per strada non si sposa")
+	rogue.errand = main.Errand.NONE
+	main.ask([rogue])  # stava chiedendo di restare: la domanda non serve più
+	main.open_marriage_menu()
+	main.marriage_menu.id_pressed.emit(main.people().find(rogue))
+	check(queen.spouse == rogue and rogue.spouse == queen and rogue in main.colonists and rogue not in main.guests
+		and rogue.hero == main.Hero.NONE and rogue.former == main.Hero.ARCHER, "sposato: l'avventuriero è un colono")
+	check(main.requests.is_empty() and not main.get_node("HUD/RequestPanel").visible and rogue.conds.has(main.Cond.FOREIGNER),
+		"come chi resta: forestiero, e la sua domanda non c'è più")
+	main.revoke(L.MIXED_MARRIAGES)
+
+	# scuola: la prima ora libera del giorno allo scrittoio per figli e forestieri; dopo 30 lezioni, 3 punti abilità in più
+	main.researched.erase(main.Tech.SCRIPTORIUM)
+	check(main.codify_block(L.SCHOOL) == "Needs the research Scriptorium", "la scuola vuole lo Scriptorium")
+	main.researched[main.Tech.SCRIPTORIUM] = true
+	check(main.codify(L.SCHOOL) and main.enact(L.SCHOOL), "scuola promulgata")
+	var pupil = kids[2]
+	var grown = kids[0]
+	check(main.pupil(pupil) and main.pupil(rogue) and not main.pupil(grown), "vanno a scuola i figli e i forestieri")
+	check(main.law_mood_of(pupil, L.SCHOOL) == 3.0 and main.law_mood_of(rogue, L.SCHOOL) == 3.0 and main.law_mood_of(grown, L.SCHOOL) == 0.0,
+		"e a loro piace: +3")
+	main.relax(pupil)
+	check(pupil.job == main.Job.RELAX and pupil.schooled == main.today, "senza scrittoio niente lezione, per oggi")
+	main.quit_job(pupil)
+	room.kind = main.RoomKind.STUDY
+	var desk: Vector2i = room.cells.keys().filter(func(k): return not main.furniture.has(k))[0]
+	main.furniture[desk] = [main.Build.DESK, main.Res.WOOD, 0]
+	main.relax(grown)
+	check(grown.job == main.Job.RELAX, "un adulto della colonia non ci va")
+	main.quit_job(grown)
+	pupil.schooled = -1
+	main.relax(pupil)
+	check(pupil.job == main.Job.SCHOOL and pupil.target == desk and is_equal_approx(pupil.work_left, main.DAY_LENGTH / 24.0),
+		"il bambino allo scrittoio, per un'ora")
+	main.relax(rogue)
+	check(rogue.job == main.Job.RELAX, "uno alla volta: lo scrittoio è preso")
+	main.quit_job(rogue)
+	pupil.path.clear()
+	pupil.pos = main.center(pupil.dest)
+	var xp: float = pupil.xp[main.Skill.RESEARCH] + pupil.skills[main.Skill.RESEARCH] * 1000.0
+	pupil.work_left = 0.05
+	main.update_colonist(pupil, 0.1)
+	check(pupil.job != main.Job.SCHOOL and pupil.lessons == 1 and pupil.xp[main.Skill.RESEARCH] + pupil.skills[main.Skill.RESEARCH] * 1000.0 > xp,
+		"finita l'ora: una lezione, e un po' di esperienza")
+	main.relax(pupil)
+	check(pupil.job == main.Job.RELAX, "una lezione al giorno")
+	main.quit_job(pupil)
+	var points := func(o): return o.skills.reduce(func(n, v): return n + v, 0)
+	var had: int = points.call(pupil)
+	pupil.lessons = main.SCHOOL_LESSONS
+	pupil.born = main.clock - (main.ADULT + 0.001) * main.life_year()
+	main.today = int(main.clock)
+	main.deaths = false
+	main.new_day()
+	check(points.call(pupil) == had + main.SCHOOL_POINTS and not main.pupil(pupil), "adulto con 3 punti abilità in più")
+
+	print("OK: età, vecchiaia, matrimonio, figli, crescita, successione, pretendenti, casata e leggi della dinastia")
 	quit()
 
 

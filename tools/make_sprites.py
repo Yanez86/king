@@ -4092,6 +4092,23 @@ orooooooooro oroocccCooro ...ojjjjJo..
 ooo......ooo oooccccCCooo ...oooooo...
 """
 
+# Leggi della dinastia (GDD 4.7.7): primogenitura (la corona e sotto un solo erede), successione elettiva (la corona e
+# sotto le tre pietre del voto), matrimoni misti (due anelli intrecciati, d'oro e di ferro), scuola (il libro aperto)
+LAW_SYMBOLS_8 = """
+............ ............ ............ ............
+.o...oo...o. .o...oo...o. ..oooo...... ............
+o8o.o88o.o8o o8o.o88o.o8o .oggggo.oo.. ............
+ogooogggoogo ogooogggoogo oggoogoorro. .oooo..oooo.
+oggggggggg<o oggggggggg<o ogo..orgoxro oxxxxooxxxxo
+og<<<<<<<<<o og<<<<<<<<<o ogo.oroggoro oxRRxxxxRRXo
+oooooooooooo oooooooooooo ogo.orog<oro oxxxxxxxxxXo
+....oooo.... ............ .oggoro<oRo. oxRRxxxxRRXo
+....ossS.... .oo..oo..oo. ..o<<roooRo. oxxxxxxxxxXo
+...ojjjjJo.. orRoorRoorRo ...oooRRRo.. oxRRxxxxRXXo
+...ojjjjJo.. orRoorRoorRo ......ooo... ojjjjJJjjjJo
+...oooooo... .oo..oo..oo. ............ .oooo..oooo.
+"""
+
 # Rami dell'albero del sapere 12x12, nei quadratini: terra (spiga), fuoco (fiamma), pietra (mattoni), ferro (spada e
 # scudo), strada (rosa dei venti), sapere (lucerna)
 
@@ -5604,7 +5621,7 @@ def main():
            art(TECH_STABLE, 12, 12), art(TECH_APIARY, 12, 12), art(TECH_BANQUET, 12, 12)]
     images["techs"] = pixels(side_by_side([badge(f) for f in techs]))
     laws = [f for block in (LAW_SYMBOLS_1, LAW_SYMBOLS_2, LAW_SYMBOLS_3) for f in frames(block, 12, 3, 12)] + frames(LAW_SYMBOLS_4, 12, 3, 12) + frames(LAW_SYMBOLS_5, 12, 3, 12) + frames(LAW_SYMBOLS_6, 12, 4, 12) \
-        + frames(LAW_SYMBOLS_7, 12, 3, 12) + [art(LAW_FUNERALS, 12, 12)]
+        + frames(LAW_SYMBOLS_7, 12, 3, 12) + [art(LAW_FUNERALS, 12, 12)] + frames(LAW_SYMBOLS_8, 12, 4, 12)
     images["laws"] = pixels(side_by_side([badge(f, "I", "x", "U") for f in laws]))
     branches = [f for block in (BRANCH_SYMBOLS_1, BRANCH_SYMBOLS_2) for f in frames(block, 12, 3, 12)]
     images["branches"] = pixels(side_by_side([badge(f) for f in branches]))
