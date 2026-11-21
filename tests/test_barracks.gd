@@ -157,7 +157,17 @@ func _initialize() -> void:
 	armory.workers.erase(ward)
 	# arciere: da almeno 5 caselle dal bersaglio, in riga; scassinatore: al banco degli scassi
 	main.set_calling(bow, H.ARCHER)
-	check(not main.try_drill(bow), "coi bersagli a metà stanza non ci sono 5 caselle: niente tiro")
+	var middle: Vector2i = range_room.cells.keys().filter(func(k): return main.furniture.get(k, [-1])[0] == B.TARGET)[0]
+	check(main.shot_line(middle) == 4 and main.describe(middle)[1].contains("Only 4 tiles to shoot from"),
+		"un bersaglio a metà stanza: solo 4 caselle, e lo dice col mouse sopra")
+	check(main.try_drill(bow) and main.shot(bow.dest, bow.target) == 4, "si tira lo stesso, dal punto più lontano")
+	bow.path.clear()
+	bow.pos = main.center(bow.dest)
+	bow.xp[main.Skill.RANGED] = 0
+	main.update_colonist(bow, main.TRAIN_HIT + 0.01)
+	check(is_equal_approx(bow.xp[main.Skill.RANGED], main.TRAIN_HIT * main.XP_PER_SECOND), "ma da vicino si impara come al fantoccio di fuori")
+	main.quit_job(bow)
+	main.arrows.clear()
 	var far_x: int = range_room.cells.keys().map(func(k): return k.x).min()
 	for k in range_room.cells.keys():  # i bersagli in fondo
 		if main.furniture.get(k, [-1])[0] == B.TARGET:
@@ -171,7 +181,13 @@ func _initialize() -> void:
 	bow.pos = main.center(bow.dest)
 	bow.xp[main.Skill.RANGED] = 0
 	main.update_colonist(bow, main.TRAIN_HIT + 0.01)
-	check(bow.xp[main.Skill.RANGED] > 0, "e impara a tirare")
+	check(is_equal_approx(bow.xp[main.Skill.RANGED], main.TRAIN_HIT * main.DRILL_XP * main.XP_PER_SECOND), "e impara una volta e mezza")
+	check(main.arrows.size() == 1 and main.arrows[0].miss == main.center(bow.target) and main.shot_line(bow.target) >= main.DRILL_SHOT
+		and not main.describe(bow.target)[1].contains("Only"), "la freccia vola nel paglione; in fondo alla stanza nessun avviso")
+	for i in 200:
+		if not main.arrows.is_empty():
+			main.fly(main.arrows[0], 0.05)
+	check(main.arrows.is_empty(), "e ci arriva")
 	main.quit_job(bow)
 	main.set_calling(bow, H.BURGLAR)
 	check(not main.try_drill(bow), "senza banco degli scassi lo scassinatore non si allena")

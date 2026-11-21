@@ -1008,8 +1008,10 @@ studio e un quaderno, dopo Fantoccio). Si appoggia alle soglie di livello delle 
   Fatta la fase 3 il 2026-11-21 (prove in `tests/test_barracks.gd`): `Job.DRILL` e `try_drill`, la prima ora di lavoro
   del giorno (non conta tra le ore lavorate; se non c'è un posto libero quel giorno salta), la casella rossa nella
   routine della scheda (`drill_hour`), la colonna Esercitarsi (`Work.DRILL`, l'ultima, solo per chi ha una classe: un'ora
-  alla volta), i lavoratori della stanza a tempo pieno, la milizia in caserma. L'arciere vuole 5 caselle in riga o in
-  colonna col bersaglio dentro il tiro a segno; le frecce dell'esercitazione non si vedono ancora.
+  alla volta), i lavoratori della stanza a tempo pieno, la milizia in caserma. L'arciere tira in riga o in
+  colonna col bersaglio dentro il tiro a segno, senza muri né mobili in mezzo (`shot_cells`), da 5 caselle o più; se il
+  bersaglio è troppo vicino tira dal punto più lontano e impara come al fantoccio di fuori, e il bersaglio lo dice col
+  mouse sopra (`shot_line`). A ogni tiro la freccia vola nel paglione.
   Fatta la fase 4 lo stesso giorno (prove in `tests/test_barracks.gd`; i numeri in `WARRIOR`, `ARCHER`, `BURGLAR`): il
   guerriero (16 caselle, 20 punti ferita, copre entro 2 caselle: il morso va a lui, +10%), l'arciere (+10% e +1 casella
   con l'arco, anche a caccia; `man_tower` e `posted`: una torre per arciere; `back_off`: arretra una volta per tiro), lo

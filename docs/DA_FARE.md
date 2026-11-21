@@ -176,8 +176,6 @@ resterebbero senza sostegno). Resta:
 Fatte tutte e cinque le fasi (la 3, la 4 e la 5 il 2026-11-21: l'esercitazione, in battaglia e in spedizione secondo la
 classe). Quello che resta:
 
-- [ ] Le frecce dell'esercitazione al tiro a segno non si vedono; a un bersaglio messo a metà stanza non si tira (servono
-  5 caselle in linea): dirlo nel suggerimento del bersaglio o sul cartello della stanza.
 - [ ] Provare in gioco, coi lupi veri: l'arciere che arretra, la salita sulla torre, il guerriero che copre.
 - [ ] Tarare i numeri: l'esperienza dell'esercitazione (1,5 a colpo), le soglie del guerriero e dello scassinatore, le 3
   caselle dell'arciere, le 15 della torre.

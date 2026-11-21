@@ -4165,8 +4165,8 @@ msgstr "%s della colonia, livello %d"
 msgid "Swords and shields on a rack. With two dummies, a room can become an armory."
 msgstr "Spade e scudi sulla rastrelliera. Con due fantocci, una stanza può diventare una sala d'armi."
 
-msgid "A straw target on an easel. Two of them make an archery range, in a room at least 8 tiles long."
-msgstr "Un bersaglio di paglia sul cavalletto. Due fanno un tiro a segno, in una stanza lunga almeno 8 caselle."
+msgid "A straw target on an easel. Two of them make an archery range, in a room at least 8 tiles long. Archers shoot in line with it, best from 5 tiles or more: put it at one end."
+msgstr "Un bersaglio di paglia sul cavalletto. Due fanno un tiro a segno, in una stanza lunga almeno 8 caselle. Gli arcieri tirano in linea col bersaglio, meglio da 5 caselle o più: mettilo in fondo."
 
 msgid "A bench full of locks: in the armory, burglars practice here."
 msgstr "Un banco pieno di serrature: nella sala d'armi, gli scassinatori si esercitano qui."
@@ -4906,3 +4906,6 @@ msgstr "Esercitarsi nella stanza della propria classe quando non c'è altro da f
 msgctxt "doing"
 msgid "Drilling"
 msgstr "Si esercita"
+
+msgid "Only %d tiles to shoot from: under %d archers learn less. Put it at one end of the room."
+msgstr "Solo %d caselle da cui tirare: sotto le %d gli arcieri imparano meno. Mettilo in fondo alla stanza."
