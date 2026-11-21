@@ -362,7 +362,7 @@ L'elenco mostra solo i tipi i cui mobili sono dentro. Se togli quei mobili la st
 • Lavoro: può avere dei lavoratori. Per ora contano in uno studio (studiano prima di qualunque altro lavoro) e in una sala del trono (solo il sovrano).
 • Servizio: in comune per tutti.
 • Vietata: non entra nessuno, nemmeno i proprietari.
-• Le postazioni funzionano solo nella loro stanza: il fuoco da campo in una cucina, fornace e incudine in una forgia, banco da lavoro e filatoio in un laboratorio, il banco del falegname in una falegnameria.
+• Le postazioni funzionano solo nella loro stanza (il fuoco da campo anche all'aperto, fuori da ogni stanza): il fuoco da campo in una cucina, fornace e incudine in una forgia, banco da lavoro e filatoio in un laboratorio, il banco del falegname in una falegnameria.
 • I coloni dormono in qualunque letto tranne quelli di una locanda, che sono per gli avventurieri, e quelli di un'infermeria, che sono per chi sta male.
 
 [color=#e8c34a]Magazzini[/color]
@@ -438,7 +438,7 @@ La vista calore (N) colora le stanze secondo la temperatura: rosso il caldo, gia
 • Un pasto dà Ben nutrito, un pasto squisito Lauto pasto (vedi Condizioni). Lo stufato dà Ben nutrito e Rifocillato: per mezza giornata freddo e pioggia tolgono metà comfort. Il pane sazia e basta. Le conserve si mangiano e si cucinano come il crudo.
 
 [color=#e8c34a]Cucinare[/color]
-• A un fuoco da campo o a un focolare dentro una cucina. Il cuoco prende 2 crudi da un mucchio (vegetali, pesce o carne), cucina per 8 s e porta il pasto in un magazzino.
+• A un fuoco da campo o a un focolare dentro una cucina, o a un fuoco da campo all'aperto: si cucina dal primo giorno, prima di costruire qualsiasi stanza (in una cucina il comfort della stanza fa cucinare più in fretta e bruciare meno). Il cuoco prende 2 crudi da un mucchio (vegetali, pesce o carne), cucina per 8 s e porta il pasto in un magazzino.
 • Clicca il fuoco da campo per il suo menu: la Scorta, quanti pasti tenere (8 all'inizio, 2 a testa). I cuochi cucinano finché ci sono meno pasti di così, contando quelli a terra, nei magazzini e in mano. Sotto la riga del pasto, i crudi che ci sono.
 • Bruciato, e il cibo è perso: 6% per ogni livello di Cucinare sotto il 6, più 3% per ogni punto di comfort della cucina sotto 5 (meno, sopra). A livello 0 in una cucina con comfort 5: 36%.
 • Pasto squisito: 5% per ogni livello sopra il 5, più 2% per ogni punto di comfort sopra 5 (meno, sotto): 25% a livello 10.
@@ -630,11 +630,11 @@ Un colono con una classe prende invece il corredo della sua classe, anche al pos
 
 [color=#e8c34a]La caserma e le classi[/color]
 • Con la ricerca Caserma un colono può prendere la classe di un avventuriero: Classe… nella sua scheda. Le classi che non si possono dare sono spente, col perché.
-• Serve un colono adulto (gli avventurieri hanno già la loro), la stanza della classe e abbastanza nella sua arma: guerriero 3 in Mischia e una sala d'armi; arciere 3 in Distanza e un tiro a segno; scassinatore 2 in Mischia e una sala d'armi (Scassinare lo impara solo con la classe).
+• Serve un colono adulto (gli avventurieri hanno già la loro), la stanza della classe e abbastanza nella sua arma: guerriero 3 in Mischia e una sala d'armi; arciere 3 in Distanza e un tiro a segno, o un bersaglio all'aperto vicino alla caserma; scassinatore 2 in Mischia e una sala d'armi (Scassinare lo impara solo con la classe).
 • Il livello è metà dell'abilità della classe (Mischia, Distanza, Scassinare), da 1 a 5. La scheda e l'elenco degli abitanti dicono "Arciere della colonia, livello 2". Toglierla o cambiarla è gratis: l'abilità resta.
 • Il corredo della classe, che va a prendere da sé, anche al posto di un attrezzo: il guerriero spada, poi scudo, cotta di maglia (o armatura di cuoio) ed elmo; l'arciere arco, armatura e cappuccio di cuoio; lo scassinatore pugnale, armatura e cappuccio di cuoio. Quello che manca si fa alle postazioni.
 • Faretra, maschera e sacca sono il corredo della classe: si vedono, non le fa nessuno. Il cappuccio prende il colore della classe: verde l'arciere, scuro lo scassinatore.
-• Esercitazione: ogni giorno la prima ora di lavoro (la casella rossa nella routine della scheda) si passa nella stanza della classe: il guerriero a un fantoccio della sala d'armi, lo scassinatore al banco degli scassi, l'arciere in linea con un bersaglio del tiro a segno, senza niente in mezzo. Un colpo, un tiro o una serratura ogni 2,5 secondi: una volta e mezza l'esperienza del fantoccio di fuori. L'arciere tira da 5 caselle o più; se il bersaglio è troppo vicino (col mouse sopra lo dice) tira dal punto più lontano che c'è e impara solo quanto al fantoccio di fuori: i bersagli vanno messi in fondo. Senza un posto libero, quel giorno niente; niente negli ultimi mesi di una gravidanza.
+• Esercitazione: ogni giorno la prima ora di lavoro (la casella rossa nella routine della scheda) si passa nella stanza della classe: il guerriero a un fantoccio della sala d'armi, lo scassinatore al banco degli scassi, l'arciere in linea con un bersaglio, da 5 a 8 caselle, senza niente in mezzo. Un colpo, un tiro o una serratura ogni 2,5 secondi: una volta e mezza l'esperienza del fantoccio di fuori. Un bersaglio vale dentro un tiro a segno (mettilo in fondo: all'arciere servono 5 caselle sgombre) o all'aperto, fuori da ogni stanza, entro 5 caselle da una sala d'armi o da un tiro a segno. Un bersaglio che non si può usare, col mouse sopra, dice perché. Senza un posto libero, quel giorno niente; niente negli ultimi mesi di una gravidanza.
 • La colonna Esercitarsi nella tabella dei lavori, solo per chi ha una classe: si allena quando tocca a lei nella tabella, un'ora alla volta. I lavoratori di una sala d'armi o di un tiro a segno (dal cartello della stanza) si allenano per tutto il turno e non fanno altri lavori.
 • Con la legge Milizia chi ha una classe fa la sua ora in caserma, e vale come esercitazione del giorno.
 • In battaglia il guerriero va contro i lupi da 16 caselle (non 12) e scappa solo sotto 20 punti ferita (non 40); un lupo che morde qualcuno entro 2 caselle da un guerriero in piedi passa al guerriero; +10% a segno in mischia.

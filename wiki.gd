@@ -363,7 +363,7 @@ The list shows only the types whose furniture is inside. Take that furniture awa
 • Work: it can have workers. For now they matter in a study (they study before any other job) and in a throne room (only the ruler).
 • Service: shared by all.
 • Banned: nobody goes in, not even the owners.
-• Workstations work only inside their room: the campfire in a kitchen, furnace and anvil in a forge, workbench and spinning wheel in a workshop, the carpenter bench in a carpentry.
+• Workstations work only inside their room (the campfire also in the open, outside every room): the campfire in a kitchen, furnace and anvil in a forge, workbench and spinning wheel in a workshop, the carpenter bench in a carpentry.
 • Colonists sleep in any bed but those of an inn, which are for adventurers, and those of an infirmary, which are for the sick.
 
 [color=#e8c34a]Warehouses[/color]
@@ -439,7 +439,7 @@ The Heat lens (N) tints rooms by temperature: red warm, yellow cool without a ma
 • A meal makes you Well fed, a fine meal Feasted (see Conditions). Stew makes you Well fed and Warmed: for half a day cold and rain take away half as much comfort. Bread only fills you up. Preserves are eaten and cooked like raw food.
 
 [color=#e8c34a]Cooking[/color]
-• At a campfire or a hearth inside a kitchen. The cook takes 2 raw foods from one pile (vegetables, fish or meat), cooks for 8 s and carries the meal to a warehouse.
+• At a campfire or a hearth inside a kitchen, or at a campfire in the open: you can cook from the first day, before any room is built (in a kitchen the comfort of the room makes the cook faster and burn less). The cook takes 2 raw foods from one pile (vegetables, fish or meat), cooks for 8 s and carries the meal to a warehouse.
 • Click the campfire for its menu: Spare, how many meals to keep (8 at the start, 2 a head). Cooks cook while there are fewer meals than that, counting those on the ground, in warehouses and in hand. Under the meal's row, the raw food there is.
 • Burnt, and the food is lost: 6% for every Cooking level below 6, plus 3% for every point of kitchen comfort below 5 (minus above). At level 0 in a kitchen of comfort 5: 36%.
 • Fine meal: 5% for every level above 5, plus 2% for every point of comfort above 5 (minus below): 25% at level 10.
@@ -631,11 +631,11 @@ A colonist with a class takes the gear of their class instead, even in place of 
 
 [color=#e8c34a]The barracks and classes[/color]
 • With the Barracks research a colonist can take the class of an adventurer: Class… on their sheet. The classes that can't be given are greyed out, with the reason.
-• It takes a grown-up colonist (adventurers already have theirs), the room of the class and enough in its weapon: warrior 3 Melee and an armory; archer 3 Ranged and an archery range; burglar 2 Melee and an armory (Lockpicking is learned only with the class).
+• It takes a grown-up colonist (adventurers already have theirs), the room of the class and enough in its weapon: warrior 3 Melee and an armory; archer 3 Ranged and an archery range, or a target in the open near the barracks; burglar 2 Melee and an armory (Lockpicking is learned only with the class).
 • The level is half the skill of the class (Melee, Ranged, Lockpicking), from 1 to 5. The sheet and the census say "Archer of the colony, level 2". Taking the class off or changing it is free: the skill stays.
 • The gear of the class, fetched by themselves, even in place of a tool: the warrior a sword, then a shield, chainmail (or leather armor) and a helmet; the archer a bow, leather armor and hood; the burglar a dagger, leather armor and hood. Equipment that is missing gets made at the stations.
 • Quiver, mask and sack are the kit of the class: you see them, nobody makes them. The hood takes the color of the class: green the archer, dark the burglar.
-• Drill: every day the first hour of work (the red square in the routine on the sheet) is spent in the room of the class: the warrior at a dummy of the armory, the burglar at the lock bench, the archer in line with a target of the archery range, with nothing in between. A blow, a shot or a lock every 2.5 seconds: one and a half times the experience of the dummy outside. The archer shoots from 5 tiles or more; if the target stands too close (hover it: it says so) they shoot from the farthest spot there is and learn only as much as at the dummy outside, so put the targets at one end. Without a free place, no drill that day; none in the last months of a pregnancy.
+• Drill: every day the first hour of work (the red square in the routine on the sheet) is spent in the room of the class: the warrior at a dummy of the armory, the burglar at the lock bench, the archer in line with a target, 5 to 8 tiles away, with nothing in between. A blow, a shot or a lock every 2.5 seconds: one and a half times the experience of the dummy outside. A target works inside an archery range (put it at one end: the archer needs 5 clear tiles) or in the open, outside every room, within 5 tiles of an armory or an archery range. Hover a target that can't be used and it says why. Without a free place, no drill that day; none in the last months of a pregnancy.
 • The Drill column in the Jobs table, only for those with a class: they drill when their turn comes, an hour at a time. The workers of an armory or an archery range (from the room's sign) drill the whole shift and do no other work.
 • With the Militia law, those with a class do their hour in the barracks, and it counts as the drill of the day.
 • In battle the warrior goes for wolves 16 tiles away (not 12) and flees only under 20 health (not 40); a wolf biting someone within 2 tiles of a standing warrior turns on the warrior instead; +10% to hit in melee.

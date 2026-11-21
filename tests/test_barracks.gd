@@ -158,16 +158,32 @@ func _initialize() -> void:
 	# arciere: da almeno 5 caselle dal bersaglio, in riga; scassinatore: al banco degli scassi
 	main.set_calling(bow, H.ARCHER)
 	var middle: Vector2i = range_room.cells.keys().filter(func(k): return main.furniture.get(k, [-1])[0] == B.TARGET)[0]
-	check(main.shot_line(middle) == 4 and main.describe(middle)[1].contains("Only 4 tiles to shoot from"),
+	check(main.shot_line(middle) == 4 and main.describe(middle)[1].contains("Only 4 clear tiles in line: archers need 5"),
 		"un bersaglio a metà stanza: solo 4 caselle, e lo dice col mouse sopra")
-	check(main.try_drill(bow) and main.shot(bow.dest, bow.target) == 4, "si tira lo stesso, dal punto più lontano")
-	bow.path.clear()
-	bow.pos = main.center(bow.dest)
-	bow.xp[main.Skill.RANGED] = 0
-	main.update_colonist(bow, main.TRAIN_HIT + 0.01)
-	check(is_equal_approx(bow.xp[main.Skill.RANGED], main.TRAIN_HIT * main.XP_PER_SECOND), "ma da vicino si impara come al fantoccio di fuori")
+	check(not main.try_drill(bow), "e da lì non si tira")
+	# all'aperto: il bersaglio vale se una stanza della caserma è entro 5 caselle
+	var outside: Vector2i = mid + Vector2i(-15, -9)  # a sinistra della sala d'armi
+	for i in range(0, 9):  # sgombro sotto il bersaglio
+		for plants in [main.trees, main.bushes, main.weeds, main.flax]:
+			plants.erase(outside + Vector2i(0, i))
+		main.astar.set_point_solid(outside + Vector2i(0, i), false)
+		main.water.erase(outside + Vector2i(0, i))
+	main.furniture[outside] = [B.TARGET, R.WOOD, 0]
+	check(main.room_at(outside) == null and main.target_ready(outside) and not main.describe(outside)[1].contains("nobody drills"),
+		"un bersaglio all'aperto, a 4 caselle dalla sala d'armi")
+	check(main.try_drill(bow) and bow.target == outside and main.room_at(bow.dest) == null and main.shot(bow.dest, outside) >= main.DRILL_SHOT
+		and main.shot(bow.dest, outside) <= main.SHOT_MAX, "l'arciere ci tira da fuori, da 5 a 8 caselle")
 	main.quit_job(bow)
-	main.arrows.clear()
+	range_room.kind = K.NONE
+	check(main.calling_block(bow, H.ARCHER) == "" and main.drill_hour(bow) >= 0, "basta quello per la classe dell'arciere, senza tiro a segno")
+	main.furniture.erase(outside)
+	check(main.calling_block(bow, H.ARCHER) == "needs a room: archery range", "senza né l'uno né l'altro no")
+	range_room.kind = K.ARCHERY_RANGE
+	var lonely: Vector2i = mid + Vector2i(-15, 12)
+	main.furniture[lonely] = [B.TARGET, R.WOOD, 0]
+	check(not main.target_ready(lonely) and main.describe(lonely)[1].contains("No armory or archery range within 5 tiles"),
+		"lontano dalla caserma non vale, e lo dice")
+	main.furniture.erase(lonely)
 	var far_x: int = range_room.cells.keys().map(func(k): return k.x).min()
 	for k in range_room.cells.keys():  # i bersagli in fondo
 		if main.furniture.get(k, [-1])[0] == B.TARGET:

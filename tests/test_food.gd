@@ -251,7 +251,14 @@ func _initialize() -> void:
 		c.conds.clear()
 		c.needs[main.Need.FOOD] = 100.0
 		main.quit_job(c)
-	main.rooms.erase(kitchen)  # niente più cucina: nessuno trasforma le bacche
+	check(main.kitchen_fires() == [fire], "il fuoco della cucina")
+	main.rooms.erase(kitchen)
+	check(main.kitchen_fires() == [fire] and main.station_block(fire) == "" and main.try_cook(main.colonists[0])
+		and main.room_at(main.colonists[0].dest) == null, "senza cucina il fuoco da campo è all'aperto: si cucina lo stesso, standogli accanto")
+	main.quit_job(main.colonists[0])
+	main.furniture[fire][0] = main.Build.HEARTH
+	check(main.kitchen_fires().is_empty() and main.station_block(fire) == "Works only in a kitchen", "il focolare all'aperto no")
+	main.furniture.erase(fire)  # niente più fuoco: nessuno trasforma le bacche
 	var bush: Vector2i = free.filter(func(k): return main.can_build(k) and not main.stockpile.has(k))[0]
 	main.bushes[bush] = main.clock
 	var veg0: int = main.total(V)
@@ -372,6 +379,7 @@ func _initialize() -> void:
 		"1 punto esperienza per tiro, poi libero")
 	# la carne si cucina come i vegetali
 	main.rooms.append(kitchen)
+	main.furniture[fire] = [main.Build.CAMPFIRE, main.Res.WOOD, 0]
 	for c in main.colonists:
 		c.needs[main.Need.FOOD] = 100.0
 		main.quit_job(c)

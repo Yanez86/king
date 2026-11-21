@@ -631,6 +631,8 @@ const DRILL_AT := {Hero.WARRIOR: Build.DUMMY, Hero.ARCHER: Build.TARGET, Hero.BU
 const DRILL_HOURS := 1.0
 const DRILL_XP := 1.5
 const DRILL_SHOT := 5
+const SHOT_MAX := 8         # caselle: all'aperto l'arciere tira al più da qui
+const BARRACKS_NEAR := 5    # caselle: un bersaglio all'aperto vale se una stanza della caserma è entro qui
 const DRILL_COLOR := Color("c0483a")  # la casella dell'esercitazione nella routine della scheda
 const CLASS_GEAR := {
 	Hero.WARRIOR: {Slot.HANDS: [Res.SWORD], Slot.BODY: [Res.CHAINMAIL, Res.LEATHER_ARMOR], Slot.HEAD: [Res.HELMET],
@@ -683,6 +685,7 @@ const GROUPS := {ANY_VEG: [Res.VEG, Res.TURNIP, Res.CABBAGE, Res.BEANS], ANY_FLE
 const SURE := [Res.FLOUR]  # ricette che non si rovinano: macinare non brucia niente (vedi craft)
 const SMOKED := [Res.SMOKED_MEAT, Res.SMOKED_FISH]
 const SMOKE_TIME := 0.75     # affumicare al fuoco da campo, dove il fumo resta: tempo x (al focolare va su per la canna)
+const OPEN_AIR := [Build.CAMPFIRE]  # postazioni che lavorano anche all'aperto, fuori da ogni stanza (il focolare no)
 const STATION_ROOM := {Build.CAMPFIRE: RoomKind.KITCHEN, Build.HEARTH: RoomKind.KITCHEN, Build.FURNACE: RoomKind.FORGE, Build.ANVIL: RoomKind.FORGE, Build.WORKBENCH: RoomKind.WORKSHOP,
 	Build.SPINNING_WHEEL: RoomKind.WORKSHOP, Build.CARPENTER_BENCH: RoomKind.CARPENTRY, Build.DESK: RoomKind.STUDY,
 	Build.OVEN: RoomKind.KITCHEN, Build.MILLSTONE: RoomKind.MILL}
@@ -1017,7 +1020,7 @@ const BUILD_INFO := {
 	Build.TABLE: "Where colonists eat and work.",
 	Build.CHAIR: "Put it at a table, turned to face it.",
 	Build.LAMP: "Lights up at night.",
-	Build.CAMPFIRE: "A wood fire inside a ring of stones. Burns day and night and warms the room. A kitchen needs one, or a hearth. Smoking is faster here.",
+	Build.CAMPFIRE: "A wood fire inside a ring of stones. Burns day and night and warms the room. A kitchen needs one, or a hearth; in the open it cooks anywhere. Smoking is faster here.",
 	Build.FURNACE: "A stone furnace. A forge needs one, and an anvil. Smelts iron and coal into ingots. Half its heat goes through a wooden wall at its back.",
 	Build.WALL_HIDES: "Hides nailed to a wall, against the draughts. Hang it against a wall.",
 	Build.DOOR_CURTAIN: "A heavy leather curtain in front of a door, where the cold gets in. Hang it against a door.",
@@ -1028,7 +1031,7 @@ const BUILD_INFO := {
 	Build.COMPOST_HEAP: "Rotten food and uprooted weeds are brought here: in 10 days every 4 become compost, to fertilize the garden.",
 	Build.CRADLE: "A rocking cradle. A baby sleeps here instead of in their parents' arms.",
 	Build.WEAPON_RACK: "Swords and shields on a rack. With two dummies, a room can become an armory.",
-	Build.TARGET: "A straw target on an easel. Two of them make an archery range, in a room at least 8 tiles long. Archers shoot in line with it, best from 5 tiles or more: put it at one end.",
+	Build.TARGET: "A straw target on an easel. Two of them make an archery range, in a room at least 8 tiles long. Outdoors it works too, within 5 tiles of an armory or an archery range. Archers shoot in line with it, from 5 tiles or more.",
 	Build.LOCK_BENCH: "A bench full of locks: in the armory, burglars practice here.",
 	Build.MEDICINE_CHEST: "Herbs, ointments and bandages. With a bed, the room can be an infirmary, where the sick heal faster.",
 	Build.GRAVE: "A grave with a wooden cross, on open ground. The haulers bury the dead here: their mourning is a day shorter.",
@@ -5492,9 +5495,10 @@ func describe(cell: Vector2i) -> Array:
 			about = tr("No water wheel or capstan behind this wall.") if drive.x < 0 else (tr("Turned by the capstan.")
 				if furniture[drive][0] == Build.CAPSTAN else (tr("The stream is frozen: the wheel stands still.")
 				if atmosphere.frozen else tr("Turned by the water wheel.")))
-		elif kind == Build.TARGET and room_at(origin) != null and room_at(origin).kind == RoomKind.ARCHERY_RANGE \
-				and shot_line(origin) < DRILL_SHOT:
-			about = tr("Only %d tiles to shoot from: under %d archers learn less. Put it at one end of the room.") % [shot_line(origin), DRILL_SHOT]
+		elif kind == Build.TARGET and room_at(origin) == null and not target_ready(origin):
+			about = tr("No armory or archery range within %d tiles: nobody drills here.") % BARRACKS_NEAR
+		elif kind == Build.TARGET and target_ready(origin) and shot_line(origin) < DRILL_SHOT:
+			about = tr("Only %d clear tiles in line: archers need %d to shoot.") % [shot_line(origin), DRILL_SHOT]
 		elif kind == Build.CAPSTAN:
 			about = tr("A cow walks it round when the miller grinds; without one, the miller pushes it.")
 		elif kind == Build.HIVE:
@@ -6939,7 +6943,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			if c.work_left == 0:
 				c.carrying = 0
 				learn(c, Skill.COOKING, COOK_TIME)
-				var comfort := room_comfort(room_at(c.target))
+				var comfort := station_comfort(c.target)
 				var roll := randf()
 				var here := cell_of(c.pos)
 				end_job(c)
@@ -6969,8 +6973,7 @@ func update_colonist(c: Colonist, delta: float) -> void:
 			var was := c.work_left
 			c.work_left -= delta
 			if floori((c.work_total - c.work_left) / TRAIN_HIT) > floori((c.work_total - was) / TRAIN_HIT):
-				var near := c.calling == Hero.ARCHER and shot(cell_of(c.pos), c.target) < DRILL_SHOT  # da vicino: come il fantoccio di fuori
-				learn(c, CLASS_SKILL[c.calling], TRAIN_HIT * (1.0 if near else DRILL_XP))
+				learn(c, CLASS_SKILL[c.calling], TRAIN_HIT * DRILL_XP)
 				if c.calling == Hero.ARCHER:  # la freccia nel paglione
 					var arrow := Arrow.new()
 					arrow.from = c.pos + c.pos.direction_to(center(c.target)) * 5
@@ -8239,35 +8242,27 @@ func drills(c: Colonist) -> bool:
 
 
 # L'esercitazione di `c`, DRILL_HOURS nella stanza della sua classe (CLASS_ROOM): il guerriero accanto a un fantoccio,
-# lo scassinatore al banco degli scassi, l'arciere a DRILL_SHOT caselle o più da un bersaglio, in riga o in colonna
-# (se il bersaglio è troppo vicino, dal punto più lontano: lì impara come al fantoccio di fuori, vedi shot_cells).
+# lo scassinatore al banco degli scassi, l'arciere a DRILL_SHOT caselle o più da un bersaglio, in riga o in colonna:
+# in un tiro a segno o all'aperto vicino alla caserma (vedi target_ready, shot_cells).
 # Con `mine` solo dove è lavoratore della stanza (dal cartello). false se non c'è un posto libero
 func try_drill(c: Colonist, mine := false) -> bool:
 	var stands := {}  # casella della stanza dove mettersi -> mobile
-	var close := {}  # per l'arciere: lo stesso, da meno di DRILL_SHOT caselle
 	for o in furniture:
 		var room := room_at(o)
-		if furniture[o][0] != DRILL_AT[c.calling] or not is_free(o) or room == null or room.kind != CLASS_ROOM[c.calling] \
-				or (mine and c not in room.workers):
+		if furniture[o][0] != DRILL_AT[c.calling] or not is_free(o) or (mine and (room == null or c not in room.workers)):
 			continue
 		if c.calling == Hero.ARCHER:
-			var line := shot_cells(o).filter(is_free)
-			var far := line.filter(func(k): return shot(k, o) >= DRILL_SHOT)
-			if far.is_empty() and not line.is_empty():  # bersaglio troppo vicino: dal punto più lontano che c'è
-				var best: int = line.map(func(k): return shot(k, o)).max()
-				far = line.filter(func(k): return shot(k, o) == best)
-			for k in far:
-				(stands if shot(k, o) >= DRILL_SHOT else close)[k] = o
-		else:
+			if target_ready(o):
+				for k in shot_cells(o):
+					if shot(k, o) >= DRILL_SHOT and is_free(k):
+						stands[k] = o
+		elif room != null and room.kind == CLASS_ROOM[c.calling]:
 			var around := {}
 			add_stands(around, [o], o, SIDES)
 			for k in around:
 				if room.cells.has(k) and is_free(k):
 					stands[k] = o
 	var path := path_to_nearest(c, stands.keys())
-	if path.is_empty():  # nessun posto da DRILL_SHOT caselle: da più vicino, se c'è
-		stands = close
-		path = path_to_nearest(c, stands.keys())
 	if path.is_empty():
 		return false
 	start_job(c, Job.DRILL, path, stands[path.back()], DRILL_HOURS * DAY_LENGTH / 24)
@@ -8280,30 +8275,44 @@ func shot(from: Vector2i, target: Vector2i) -> int:
 	return absi(from.x - target.x) + absi(from.y - target.y)
 
 
-# Le caselle da cui si tira al bersaglio `o`: quelle della sua stanza in riga o in colonna con lui, a 2 caselle o più,
-# sgombre fino al bersaglio (niente muri né altri mobili in mezzo)
+# Il bersaglio `o` serve all'esercitazione: dentro un tiro a segno, o all'aperto (fuori da ogni stanza) con una stanza
+# della caserma, sala d'armi o tiro a segno, entro BARRACKS_NEAR caselle
+func target_ready(o: Vector2i) -> bool:
+	var room := room_at(o)
+	if room != null:
+		return room.kind == RoomKind.ARCHERY_RANGE
+	return rooms.any(func(r): return r.kind in [RoomKind.ARMORY, RoomKind.ARCHERY_RANGE] \
+		and r.cells.keys().any(func(k): return Vector2(k - o).length() <= BARRACKS_NEAR))
+
+
+# Le caselle da cui si tira al bersaglio `o`: in riga o in colonna con lui, sgombre fino al bersaglio (niente muri,
+# mobili, alberi o acqua in mezzo). Dentro, quelle della sua stanza; all'aperto, fuori dalle stanze, fino a SHOT_MAX
 func shot_cells(o: Vector2i) -> Array:
 	var room := room_at(o)
 	var out := []
-	if room == null:
-		return out
 	for dir in SIDES:
 		var k: Vector2i = o + dir
-		while room.cells.has(k) and not astar.is_point_solid(k) and not furniture.has(k):
-			if shot(k, o) >= 2:
-				out.append(k)
+		while astar.is_in_boundsv(k) and room_at(k) == room and shot(k, o) <= SHOT_MAX and not astar.is_point_solid(k) \
+				and not furniture.has(k) and not trees.has(k) and not water.has(k):
+			out.append(k)
 			k += dir
 	return out
 
 
-# quante caselle di tiro ha al più il bersaglio `o` (vedi shot_cells): sotto DRILL_SHOT l'arciere impara meno
+# c'è dove esercitarsi per la classe `kind`: la sua stanza, o per l'arciere un bersaglio all'aperto vicino alla caserma
+func class_place(kind: Hero) -> bool:
+	return rooms.any(func(r): return r.kind == CLASS_ROOM[kind]) or (kind == Hero.ARCHER \
+		and furniture.keys().any(func(o): return furniture[o][0] == Build.TARGET and room_at(o) == null and target_ready(o)))
+
+
+# quante caselle di tiro ha al più il bersaglio `o` (vedi shot_cells): l'arciere ne vuole DRILL_SHOT
 func shot_line(o: Vector2i) -> int:
 	return shot_cells(o).map(func(k): return shot(k, o)).max() if not shot_cells(o).is_empty() else 0
 
 
 # l'ora dell'esercitazione nella routine di `c`: la prima di lavoro dopo la sveglia; -1 se non si esercita
 func drill_hour(c: Colonist) -> int:
-	if not drills(c) or not rooms.any(func(r): return r.kind == CLASS_ROOM[c.calling]):
+	if not drills(c) or not class_place(c.calling):
 		return -1
 	var day := routine_of(c)
 	var wake := wake_hour(day)
@@ -8690,7 +8699,7 @@ func seats() -> Array:
 		and tables.any(func(t): return SIDES.any(func(s): return t.has(o + s))))
 
 
-# fuochi da campo e focolari dentro le stanze di tipo cucina
+# fuochi da campo e focolari dentro le stanze di tipo cucina, e i fuochi da campo all'aperto
 func kitchen_fires() -> Array:
 	return stations(Build.CAMPFIRE)
 
@@ -8716,11 +8725,10 @@ func try_cook(c: Colonist) -> bool:
 		return false
 	var stands := {}  # casella accanto a un fuoco, dentro la sua cucina -> fuoco
 	for fire in kitchen_fires().filter(func(f): return is_free(f)):
-		var room := room_at(fire)
 		var around := {}
 		add_stands(around, [fire], fire, SIDES)
 		for s in around:
-			if room.cells.has(s):
+			if station_stand(fire, s):
 				stands[s] = fire
 	var path := path_to_nearest(c, stands.keys())
 	if path.is_empty():
@@ -8734,7 +8742,7 @@ func try_cook(c: Colonist) -> bool:
 	if to_source.is_empty():
 		return false
 	var fire: Vector2i = stands[path.back()]
-	start_job(c, Job.COOK, to_source, fire, cook_time(c, room_comfort(room_at(fire))))
+	start_job(c, Job.COOK, to_source, fire, cook_time(c, station_comfort(fire)))
 	c.dest = path.back()
 	c.carry_res = raw[to_source.back()]
 	reserved[to_source.back()] = c  # intanto nessun altro prende da quel mucchio
@@ -8842,7 +8850,7 @@ func calling_block(c: Colonist, kind: Hero) -> String:
 		return tr("not grown up yet")
 	if not researched.has(Tech.BARRACKS):
 		return tr("needs the Barracks research")
-	if not rooms.any(func(r): return r.kind == CLASS_ROOM[kind]):
+	if not class_place(kind):
 		return tr("needs a room: %s") % named(RoomKind, CLASS_ROOM[kind]).to_lower()
 	var need: Array = CLASS_NEEDS[kind]
 	if c.skills[need[0]] < need[1]:
@@ -8894,10 +8902,7 @@ func class_pressed(id: int) -> void:
 # tipo giusto (STATION_ROOM). Quelli all'aperto (la macina a trazione) senza stanza. Tutti finché lavorano (vedi
 # station_block)
 func stations(kind: Build) -> Array:
-	if not STATION_ROOM.has(kind):
-		return furniture.keys().filter(func(o): return furniture[o][0] == kind and station_block(o) == "")
-	return furniture.keys().filter(func(o): return role(furniture[o][0]) == kind \
-		and room_at(o) != null and room_at(o).kind == STATION_ROOM[kind] and station_block(o) == "")
+	return furniture.keys().filter(func(o): return role(furniture[o][0]) == kind and station_block(o) == "")
 
 
 # perché la postazione `origin` non lavora, "" se lavora: fuori dalla sua stanza; la macina del mulino senza la ruota
@@ -8905,6 +8910,8 @@ func stations(kind: Build) -> Array:
 func station_block(origin: Vector2i) -> String:
 	var kind: Build = role(furniture[origin][0])
 	var room := room_at(origin)
+	if room == null and furniture[origin][0] in OPEN_AIR:  # il fuoco da campo all'aperto lavora
+		return ""
 	if STATION_ROOM.has(kind) and (room == null or room.kind != STATION_ROOM[kind]):
 		return tr("Works only in a %s") % named(RoomKind, STATION_ROOM[kind]).to_lower()
 	match kind:

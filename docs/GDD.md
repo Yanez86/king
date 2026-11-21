@@ -482,7 +482,8 @@ Decisa il 2026-11-19. Numeri da tarare.
   Chi ha fame prende prima un pasto squisito, poi un pasto, il crudo solo se non ce ne sono (vegetali, pesce, carne);
   col forno anche stufato e pane (vedi l'ordine in 4.4.7).
   Se entro 20 caselle c'è una sedia libera accanto a un tavolo, lo porta lì e lo mangia seduto (*mangiato al tavolo*).
-- **Cucinare** (abilità cucinare): in una stanza di tipo cucina, accanto al fuoco da campo. Il cuoco prende 2 crudi dal
+- **Cucinare** (abilità cucinare): in una stanza di tipo cucina, accanto al fuoco da campo; o a un fuoco da campo
+  all'aperto, fuori da ogni stanza (deciso il 2026-11-21: `OPEN_AIR`; il focolare no, e all'aperto il comfort è a metà). Il cuoco prende 2 crudi dal
   mucchio più vicino, cucina, il pasto cade ai suoi piedi e lo porta in magazzino. Si cucina finché in giro
   (a terra, in magazzino, in mano) ci sono meno pasti di quanti ne chiede il menu del fuoco (vedi 4.4.2; all'inizio
   2 a colono, 8); nella finestra Jobs: "Cook meals: N". Il forno (pane, stufato, conserve): vedi 4.4.7.
@@ -1009,9 +1010,10 @@ studio e un quaderno, dopo Fantoccio). Si appoggia alle soglie di livello delle 
   del giorno (non conta tra le ore lavorate; se non c'è un posto libero quel giorno salta), la casella rossa nella
   routine della scheda (`drill_hour`), la colonna Esercitarsi (`Work.DRILL`, l'ultima, solo per chi ha una classe: un'ora
   alla volta), i lavoratori della stanza a tempo pieno, la milizia in caserma. L'arciere tira in riga o in
-  colonna col bersaglio dentro il tiro a segno, senza muri né mobili in mezzo (`shot_cells`), da 5 caselle o più; se il
-  bersaglio è troppo vicino tira dal punto più lontano e impara come al fantoccio di fuori, e il bersaglio lo dice col
-  mouse sopra (`shot_line`). A ogni tiro la freccia vola nel paglione.
+  colonna col bersaglio, senza muri, mobili, alberi o acqua in mezzo (`shot_cells`), da 5 caselle o più (all'aperto al più
+  da 8). Deciso il 2026-11-21: il bersaglio vale dentro un tiro a segno o all'aperto, fuori da ogni stanza, con una
+  sala d'armi o un tiro a segno entro 5 caselle (`target_ready`), e allora basta per la classe dell'arciere
+  (`class_place`); quello che non si può usare lo dice col mouse sopra. A ogni tiro la freccia vola nel paglione.
   Fatta la fase 4 lo stesso giorno (prove in `tests/test_barracks.gd`; i numeri in `WARRIOR`, `ARCHER`, `BURGLAR`): il
   guerriero (16 caselle, 20 punti ferita, copre entro 2 caselle: il morso va a lui, +10%), l'arciere (+10% e +1 casella
   con l'arco, anche a caccia; `man_tower` e `posted`: una torre per arciere; `back_off`: arretra una volta per tiro), lo

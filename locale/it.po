@@ -741,8 +741,8 @@ msgstr "Mettila accanto a un tavolo, rivolta verso il tavolo."
 msgid "Lights up at night."
 msgstr "Fa luce di notte."
 
-msgid "A wood fire inside a ring of stones. Burns day and night and warms the room. A kitchen needs one, or a hearth. Smoking is faster here."
-msgstr "Un fuoco di legna in un cerchio di pietre. Arde giorno e notte e scalda la stanza. Serve per una cucina, o un focolare. Qui si affumica più in fretta."
+msgid "A wood fire inside a ring of stones. Burns day and night and warms the room. A kitchen needs one, or a hearth; in the open it cooks anywhere. Smoking is faster here."
+msgstr "Un fuoco di legna in un cerchio di pietre. Arde giorno e notte e scalda la stanza. Serve per una cucina, o un focolare; all'aperto cucina dovunque. Qui si affumica più in fretta."
 
 msgid "A stone furnace. A forge needs one, and an anvil. Smelts iron and coal into ingots. Half its heat goes through a wooden wall at its back."
 msgstr "Una fornace di pietra. Serve per una forgia, insieme a un'incudine. Fonde ferro e carbone in lingotti. Metà del suo calore passa il muro di legno che ha alle spalle."
@@ -4165,8 +4165,8 @@ msgstr "%s della colonia, livello %d"
 msgid "Swords and shields on a rack. With two dummies, a room can become an armory."
 msgstr "Spade e scudi sulla rastrelliera. Con due fantocci, una stanza può diventare una sala d'armi."
 
-msgid "A straw target on an easel. Two of them make an archery range, in a room at least 8 tiles long. Archers shoot in line with it, best from 5 tiles or more: put it at one end."
-msgstr "Un bersaglio di paglia sul cavalletto. Due fanno un tiro a segno, in una stanza lunga almeno 8 caselle. Gli arcieri tirano in linea col bersaglio, meglio da 5 caselle o più: mettilo in fondo."
+msgid "A straw target on an easel. Two of them make an archery range, in a room at least 8 tiles long. Outdoors it works too, within 5 tiles of an armory or an archery range. Archers shoot in line with it, from 5 tiles or more."
+msgstr "Un bersaglio di paglia sul cavalletto. Due fanno un tiro a segno, in una stanza lunga almeno 8 caselle. Funziona anche all'aperto, entro 5 caselle da una sala d'armi o da un tiro a segno. Gli arcieri tirano in linea col bersaglio, da 5 caselle o più."
 
 msgid "A bench full of locks: in the armory, burglars practice here."
 msgstr "Un banco pieno di serrature: nella sala d'armi, gli scassinatori si esercitano qui."
@@ -4907,5 +4907,8 @@ msgctxt "doing"
 msgid "Drilling"
 msgstr "Si esercita"
 
-msgid "Only %d tiles to shoot from: under %d archers learn less. Put it at one end of the room."
-msgstr "Solo %d caselle da cui tirare: sotto le %d gli arcieri imparano meno. Mettilo in fondo alla stanza."
+msgid "No armory or archery range within %d tiles: nobody drills here."
+msgstr "Nessuna sala d'armi o tiro a segno entro %d caselle: qui non si esercita nessuno."
+
+msgid "Only %d clear tiles in line: archers need %d to shoot."
+msgstr "Solo %d caselle sgombre in linea: agli arcieri ne servono %d per tirare."
